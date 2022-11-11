@@ -48,7 +48,8 @@ func NewGetKubernetesClusterOK() *GetKubernetesClusterOK {
 	return &GetKubernetesClusterOK{}
 }
 
-/* GetKubernetesClusterOK describes a response with status code 200, with default header values.
+/*
+GetKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type GetKubernetesClusterOK struct {
 	Payload *GetKubernetesClusterOKBody
 }
 
-// IsSuccess returns true when this get kubernetes cluster Ok response has a 2xx status code
-func (o *GetKubernetesClusterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get kubernetes cluster Ok response has a 3xx status code
-func (o *GetKubernetesClusterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get kubernetes cluster Ok response has a 4xx status code
-func (o *GetKubernetesClusterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get kubernetes cluster Ok response has a 5xx status code
-func (o *GetKubernetesClusterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get kubernetes cluster Ok response a status code equal to that given
-func (o *GetKubernetesClusterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetKubernetesClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] getKubernetesClusterOk  %+v", 200, o.Payload)
-}
-
-func (o *GetKubernetesClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] getKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewGetKubernetesClusterDefault(code int) *GetKubernetesClusterDefault {
 	}
 }
 
-/* GetKubernetesClusterDefault describes a response with status code -1, with default header values.
+/*
+GetKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *GetKubernetesClusterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get kubernetes cluster default response has a 2xx status code
-func (o *GetKubernetesClusterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get kubernetes cluster default response has a 3xx status code
-func (o *GetKubernetesClusterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get kubernetes cluster default response has a 4xx status code
-func (o *GetKubernetesClusterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get kubernetes cluster default response has a 5xx status code
-func (o *GetKubernetesClusterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get kubernetes cluster default response a status code equal to that given
-func (o *GetKubernetesClusterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetKubernetesClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] GetKubernetesCluster default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetKubernetesClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] GetKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *GetKubernetesClusterDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*GetKubernetesClusterBody get kubernetes cluster body
+/*
+GetKubernetesClusterBody get kubernetes cluster body
 swagger:model GetKubernetesClusterBody
 */
 type GetKubernetesClusterBody struct {
@@ -210,7 +155,8 @@ func (o *GetKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetKubernetesClusterDefaultBody get kubernetes cluster default body
+/*
+GetKubernetesClusterDefaultBody get kubernetes cluster default body
 swagger:model GetKubernetesClusterDefaultBody
 */
 type GetKubernetesClusterDefaultBody struct {
@@ -313,7 +259,8 @@ func (o *GetKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetKubernetesClusterDefaultBodyDetailsItems0 get kubernetes cluster default body details items0
+/*
+GetKubernetesClusterDefaultBodyDetailsItems0 get kubernetes cluster default body details items0
 swagger:model GetKubernetesClusterDefaultBodyDetailsItems0
 */
 type GetKubernetesClusterDefaultBodyDetailsItems0 struct {
@@ -349,7 +296,8 @@ func (o *GetKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*GetKubernetesClusterOKBody get kubernetes cluster OK body
+/*
+GetKubernetesClusterOKBody get kubernetes cluster OK body
 swagger:model GetKubernetesClusterOKBody
 */
 type GetKubernetesClusterOKBody struct {
@@ -437,7 +385,8 @@ func (o *GetKubernetesClusterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetKubernetesClusterOKBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
+/*
+GetKubernetesClusterOKBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 swagger:model GetKubernetesClusterOKBodyKubeAuth
 */
 type GetKubernetesClusterOKBodyKubeAuth struct {

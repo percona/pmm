@@ -49,7 +49,8 @@ func NewSearchOrganizationTicketsOK() *SearchOrganizationTicketsOK {
 	return &SearchOrganizationTicketsOK{}
 }
 
-/* SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
+/*
+SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type SearchOrganizationTicketsOK struct {
 	Payload *SearchOrganizationTicketsOKBody
 }
 
-// IsSuccess returns true when this search organization tickets Ok response has a 2xx status code
-func (o *SearchOrganizationTicketsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this search organization tickets Ok response has a 3xx status code
-func (o *SearchOrganizationTicketsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this search organization tickets Ok response has a 4xx status code
-func (o *SearchOrganizationTicketsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this search organization tickets Ok response has a 5xx status code
-func (o *SearchOrganizationTicketsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this search organization tickets Ok response a status code equal to that given
-func (o *SearchOrganizationTicketsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *SearchOrganizationTicketsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] searchOrganizationTicketsOk  %+v", 200, o.Payload)
-}
-
-func (o *SearchOrganizationTicketsOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] searchOrganizationTicketsOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewSearchOrganizationTicketsDefault(code int) *SearchOrganizationTicketsDef
 	}
 }
 
-/* SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
+/*
+SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *SearchOrganizationTicketsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this search organization tickets default response has a 2xx status code
-func (o *SearchOrganizationTicketsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this search organization tickets default response has a 3xx status code
-func (o *SearchOrganizationTicketsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this search organization tickets default response has a 4xx status code
-func (o *SearchOrganizationTicketsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this search organization tickets default response has a 5xx status code
-func (o *SearchOrganizationTicketsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this search organization tickets default response a status code equal to that given
-func (o *SearchOrganizationTicketsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *SearchOrganizationTicketsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] SearchOrganizationTickets default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *SearchOrganizationTicketsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] SearchOrganizationTickets default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *SearchOrganizationTicketsDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*SearchOrganizationTicketsDefaultBody search organization tickets default body
+/*
+SearchOrganizationTicketsDefaultBody search organization tickets default body
 swagger:model SearchOrganizationTicketsDefaultBody
 */
 type SearchOrganizationTicketsDefaultBody struct {
@@ -278,7 +223,8 @@ func (o *SearchOrganizationTicketsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets default body details items0
+/*
+SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets default body details items0
 swagger:model SearchOrganizationTicketsDefaultBodyDetailsItems0
 */
 type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
@@ -314,7 +260,8 @@ func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*SearchOrganizationTicketsOKBody search organization tickets OK body
+/*
+SearchOrganizationTicketsOKBody search organization tickets OK body
 swagger:model SearchOrganizationTicketsOKBody
 */
 type SearchOrganizationTicketsOKBody struct {
@@ -411,7 +358,8 @@ func (o *SearchOrganizationTicketsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains information about the support ticket.
+/*
+SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains information about the support ticket.
 swagger:model SearchOrganizationTicketsOKBodyTicketsItems0
 */
 type SearchOrganizationTicketsOKBodyTicketsItems0 struct {

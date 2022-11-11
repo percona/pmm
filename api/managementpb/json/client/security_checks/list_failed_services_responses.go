@@ -48,7 +48,8 @@ func NewListFailedServicesOK() *ListFailedServicesOK {
 	return &ListFailedServicesOK{}
 }
 
-/* ListFailedServicesOK describes a response with status code 200, with default header values.
+/*
+ListFailedServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ListFailedServicesOK struct {
 	Payload *ListFailedServicesOKBody
 }
 
-// IsSuccess returns true when this list failed services Ok response has a 2xx status code
-func (o *ListFailedServicesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list failed services Ok response has a 3xx status code
-func (o *ListFailedServicesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list failed services Ok response has a 4xx status code
-func (o *ListFailedServicesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list failed services Ok response has a 5xx status code
-func (o *ListFailedServicesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list failed services Ok response a status code equal to that given
-func (o *ListFailedServicesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListFailedServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
-}
-
-func (o *ListFailedServicesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewListFailedServicesDefault(code int) *ListFailedServicesDefault {
 	}
 }
 
-/* ListFailedServicesDefault describes a response with status code -1, with default header values.
+/*
+ListFailedServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ListFailedServicesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list failed services default response has a 2xx status code
-func (o *ListFailedServicesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list failed services default response has a 3xx status code
-func (o *ListFailedServicesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list failed services default response has a 4xx status code
-func (o *ListFailedServicesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list failed services default response has a 5xx status code
-func (o *ListFailedServicesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list failed services default response a status code equal to that given
-func (o *ListFailedServicesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListFailedServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListFailedServicesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ListFailedServicesDefaultBody list failed services default body
+/*
+ListFailedServicesDefaultBody list failed services default body
 swagger:model ListFailedServicesDefaultBody
 */
 type ListFailedServicesDefaultBody struct {
@@ -277,7 +222,8 @@ func (o *ListFailedServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListFailedServicesDefaultBodyDetailsItems0 list failed services default body details items0
+/*
+ListFailedServicesDefaultBodyDetailsItems0 list failed services default body details items0
 swagger:model ListFailedServicesDefaultBodyDetailsItems0
 */
 type ListFailedServicesDefaultBodyDetailsItems0 struct {
@@ -313,7 +259,8 @@ func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ListFailedServicesOKBody list failed services OK body
+/*
+ListFailedServicesOKBody list failed services OK body
 swagger:model ListFailedServicesOKBody
 */
 type ListFailedServicesOKBody struct {
@@ -410,7 +357,8 @@ func (o *ListFailedServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check results.
+/*
+ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check results.
 swagger:model ListFailedServicesOKBodyResultItems0
 */
 type ListFailedServicesOKBodyResultItems0 struct {

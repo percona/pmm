@@ -48,7 +48,8 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 	return &RemoveAgentOK{}
 }
 
-/* RemoveAgentOK describes a response with status code 200, with default header values.
+/*
+RemoveAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type RemoveAgentOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this remove agent Ok response has a 2xx status code
-func (o *RemoveAgentOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this remove agent Ok response has a 3xx status code
-func (o *RemoveAgentOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this remove agent Ok response has a 4xx status code
-func (o *RemoveAgentOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this remove agent Ok response has a 5xx status code
-func (o *RemoveAgentOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this remove agent Ok response a status code equal to that given
-func (o *RemoveAgentOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
-}
-
-func (o *RemoveAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewRemoveAgentDefault(code int) *RemoveAgentDefault {
 	}
 }
 
-/* RemoveAgentDefault describes a response with status code -1, with default header values.
+/*
+RemoveAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *RemoveAgentDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this remove agent default response has a 2xx status code
-func (o *RemoveAgentDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this remove agent default response has a 3xx status code
-func (o *RemoveAgentDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this remove agent default response has a 4xx status code
-func (o *RemoveAgentDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this remove agent default response has a 5xx status code
-func (o *RemoveAgentDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this remove agent default response a status code equal to that given
-func (o *RemoveAgentDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *RemoveAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *RemoveAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*RemoveAgentBody remove agent body
+/*
+RemoveAgentBody remove agent body
 swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
@@ -211,7 +156,8 @@ func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoveAgentDefaultBody remove agent default body
+/*
+RemoveAgentDefaultBody remove agent default body
 swagger:model RemoveAgentDefaultBody
 */
 type RemoveAgentDefaultBody struct {
@@ -314,7 +260,8 @@ func (o *RemoveAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoveAgentDefaultBodyDetailsItems0 remove agent default body details items0
+/*
+RemoveAgentDefaultBodyDetailsItems0 remove agent default body details items0
 swagger:model RemoveAgentDefaultBodyDetailsItems0
 */
 type RemoveAgentDefaultBodyDetailsItems0 struct {

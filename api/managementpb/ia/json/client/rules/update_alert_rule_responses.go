@@ -50,7 +50,8 @@ func NewUpdateAlertRuleOK() *UpdateAlertRuleOK {
 	return &UpdateAlertRuleOK{}
 }
 
-/* UpdateAlertRuleOK describes a response with status code 200, with default header values.
+/*
+UpdateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type UpdateAlertRuleOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this update alert rule Ok response has a 2xx status code
-func (o *UpdateAlertRuleOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update alert rule Ok response has a 3xx status code
-func (o *UpdateAlertRuleOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update alert rule Ok response has a 4xx status code
-func (o *UpdateAlertRuleOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update alert rule Ok response has a 5xx status code
-func (o *UpdateAlertRuleOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update alert rule Ok response a status code equal to that given
-func (o *UpdateAlertRuleOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *UpdateAlertRuleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] updateAlertRuleOk  %+v", 200, o.Payload)
-}
-
-func (o *UpdateAlertRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] updateAlertRuleOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewUpdateAlertRuleDefault(code int) *UpdateAlertRuleDefault {
 	}
 }
 
-/* UpdateAlertRuleDefault describes a response with status code -1, with default header values.
+/*
+UpdateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *UpdateAlertRuleDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this update alert rule default response has a 2xx status code
-func (o *UpdateAlertRuleDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this update alert rule default response has a 3xx status code
-func (o *UpdateAlertRuleDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this update alert rule default response has a 4xx status code
-func (o *UpdateAlertRuleDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this update alert rule default response has a 5xx status code
-func (o *UpdateAlertRuleDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this update alert rule default response a status code equal to that given
-func (o *UpdateAlertRuleDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *UpdateAlertRuleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] UpdateAlertRule default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *UpdateAlertRuleDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] UpdateAlertRule default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *UpdateAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*UpdateAlertRuleBody update alert rule body
+/*
+UpdateAlertRuleBody update alert rule body
 swagger:model UpdateAlertRuleBody
 */
 type UpdateAlertRuleBody struct {
@@ -414,7 +359,8 @@ func (o *UpdateAlertRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateAlertRuleDefaultBody update alert rule default body
+/*
+UpdateAlertRuleDefaultBody update alert rule default body
 swagger:model UpdateAlertRuleDefaultBody
 */
 type UpdateAlertRuleDefaultBody struct {
@@ -517,7 +463,8 @@ func (o *UpdateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateAlertRuleDefaultBodyDetailsItems0 update alert rule default body details items0
+/*
+UpdateAlertRuleDefaultBodyDetailsItems0 update alert rule default body details items0
 swagger:model UpdateAlertRuleDefaultBodyDetailsItems0
 */
 type UpdateAlertRuleDefaultBodyDetailsItems0 struct {
@@ -553,7 +500,8 @@ func (o *UpdateAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*UpdateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
+/*
+UpdateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
 swagger:model UpdateAlertRuleParamsBodyFiltersItems0
 */
 type UpdateAlertRuleParamsBodyFiltersItems0 struct {
@@ -653,7 +601,8 @@ func (o *UpdateAlertRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*UpdateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+/*
+UpdateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model UpdateAlertRuleParamsBodyParamsItems0
 */
 type UpdateAlertRuleParamsBodyParamsItems0 struct {

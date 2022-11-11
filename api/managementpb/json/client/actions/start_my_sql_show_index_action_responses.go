@@ -48,7 +48,8 @@ func NewStartMySQLShowIndexActionOK() *StartMySQLShowIndexActionOK {
 	return &StartMySQLShowIndexActionOK{}
 }
 
-/* StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
+/*
+StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartMySQLShowIndexActionOK struct {
 	Payload *StartMySQLShowIndexActionOKBody
 }
 
-// IsSuccess returns true when this start my Sql show index action Ok response has a 2xx status code
-func (o *StartMySQLShowIndexActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start my Sql show index action Ok response has a 3xx status code
-func (o *StartMySQLShowIndexActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start my Sql show index action Ok response has a 4xx status code
-func (o *StartMySQLShowIndexActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start my Sql show index action Ok response has a 5xx status code
-func (o *StartMySQLShowIndexActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start my Sql show index action Ok response a status code equal to that given
-func (o *StartMySQLShowIndexActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartMySQLShowIndexActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLShowIndexActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartMySQLShowIndexActionDefault(code int) *StartMySQLShowIndexActionDef
 	}
 }
 
-/* StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
+/*
+StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start my SQL show index action default response has a 2xx status code
-func (o *StartMySQLShowIndexActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start my SQL show index action default response has a 3xx status code
-func (o *StartMySQLShowIndexActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start my SQL show index action default response has a 4xx status code
-func (o *StartMySQLShowIndexActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start my SQL show index action default response has a 5xx status code
-func (o *StartMySQLShowIndexActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start my SQL show index action default response a status code equal to that given
-func (o *StartMySQLShowIndexActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartMySQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLShowIndexActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartMySQLShowIndexActionDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*StartMySQLShowIndexActionBody start my SQL show index action body
+/*
+StartMySQLShowIndexActionBody start my SQL show index action body
 swagger:model StartMySQLShowIndexActionBody
 */
 type StartMySQLShowIndexActionBody struct {
@@ -219,7 +164,8 @@ func (o *StartMySQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLShowIndexActionDefaultBody start my SQL show index action default body
+/*
+StartMySQLShowIndexActionDefaultBody start my SQL show index action default body
 swagger:model StartMySQLShowIndexActionDefaultBody
 */
 type StartMySQLShowIndexActionDefaultBody struct {
@@ -322,7 +268,8 @@ func (o *StartMySQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action default body details items0
+/*
+StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action default body details items0
 swagger:model StartMySQLShowIndexActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowIndexActionDefaultBodyDetailsItems0 struct {
@@ -358,7 +305,8 @@ func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*StartMySQLShowIndexActionOKBody start my SQL show index action OK body
+/*
+StartMySQLShowIndexActionOKBody start my SQL show index action OK body
 swagger:model StartMySQLShowIndexActionOKBody
 */
 type StartMySQLShowIndexActionOKBody struct {

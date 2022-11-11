@@ -50,7 +50,8 @@ func NewAddExternalOK() *AddExternalOK {
 	return &AddExternalOK{}
 }
 
-/* AddExternalOK describes a response with status code 200, with default header values.
+/*
+AddExternalOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type AddExternalOK struct {
 	Payload *AddExternalOKBody
 }
 
-// IsSuccess returns true when this add external Ok response has a 2xx status code
-func (o *AddExternalOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add external Ok response has a 3xx status code
-func (o *AddExternalOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add external Ok response has a 4xx status code
-func (o *AddExternalOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add external Ok response has a 5xx status code
-func (o *AddExternalOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add external Ok response a status code equal to that given
-func (o *AddExternalOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddExternalOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
-}
-
-func (o *AddExternalOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewAddExternalDefault(code int) *AddExternalDefault {
 	}
 }
 
-/* AddExternalDefault describes a response with status code -1, with default header values.
+/*
+AddExternalDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *AddExternalDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add external default response has a 2xx status code
-func (o *AddExternalDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add external default response has a 3xx status code
-func (o *AddExternalDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add external default response has a 4xx status code
-func (o *AddExternalDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add external default response has a 5xx status code
-func (o *AddExternalDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add external default response a status code equal to that given
-func (o *AddExternalDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddExternalDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddExternalDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *AddExternalDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*AddExternalBody add external body
+/*
+AddExternalBody add external body
 swagger:model AddExternalBody
 */
 type AddExternalBody struct {
@@ -371,7 +316,8 @@ func (o *AddExternalBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalDefaultBody add external default body
+/*
+AddExternalDefaultBody add external default body
 swagger:model AddExternalDefaultBody
 */
 type AddExternalDefaultBody struct {
@@ -474,7 +420,8 @@ func (o *AddExternalDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalDefaultBodyDetailsItems0 add external default body details items0
+/*
+AddExternalDefaultBodyDetailsItems0 add external default body details items0
 swagger:model AddExternalDefaultBodyDetailsItems0
 */
 type AddExternalDefaultBodyDetailsItems0 struct {
@@ -510,7 +457,8 @@ func (o *AddExternalDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalOKBody add external OK body
+/*
+AddExternalOKBody add external OK body
 swagger:model AddExternalOKBody
 */
 type AddExternalOKBody struct {
@@ -643,7 +591,8 @@ func (o *AddExternalOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*
+AddExternalOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model AddExternalOKBodyExternalExporter
 */
 type AddExternalOKBodyExternalExporter struct {
@@ -709,7 +658,8 @@ func (o *AddExternalOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalOKBodyService ExternalService represents a generic External service instance.
+/*
+AddExternalOKBodyService ExternalService represents a generic External service instance.
 swagger:model AddExternalOKBodyService
 */
 type AddExternalOKBodyService struct {
@@ -766,7 +716,8 @@ func (o *AddExternalOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddExternalParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddExternalParamsBodyAddNode
 */
 type AddExternalParamsBodyAddNode struct {

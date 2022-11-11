@@ -48,7 +48,8 @@ func NewTestEmailAlertingSettingsOK() *TestEmailAlertingSettingsOK {
 	return &TestEmailAlertingSettingsOK{}
 }
 
-/* TestEmailAlertingSettingsOK describes a response with status code 200, with default header values.
+/*
+TestEmailAlertingSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type TestEmailAlertingSettingsOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this test email alerting settings Ok response has a 2xx status code
-func (o *TestEmailAlertingSettingsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this test email alerting settings Ok response has a 3xx status code
-func (o *TestEmailAlertingSettingsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this test email alerting settings Ok response has a 4xx status code
-func (o *TestEmailAlertingSettingsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this test email alerting settings Ok response has a 5xx status code
-func (o *TestEmailAlertingSettingsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this test email alerting settings Ok response a status code equal to that given
-func (o *TestEmailAlertingSettingsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *TestEmailAlertingSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] testEmailAlertingSettingsOk  %+v", 200, o.Payload)
-}
-
-func (o *TestEmailAlertingSettingsOK) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] testEmailAlertingSettingsOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewTestEmailAlertingSettingsDefault(code int) *TestEmailAlertingSettingsDef
 	}
 }
 
-/* TestEmailAlertingSettingsDefault describes a response with status code -1, with default header values.
+/*
+TestEmailAlertingSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *TestEmailAlertingSettingsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this test email alerting settings default response has a 2xx status code
-func (o *TestEmailAlertingSettingsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this test email alerting settings default response has a 3xx status code
-func (o *TestEmailAlertingSettingsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this test email alerting settings default response has a 4xx status code
-func (o *TestEmailAlertingSettingsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this test email alerting settings default response has a 5xx status code
-func (o *TestEmailAlertingSettingsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this test email alerting settings default response a status code equal to that given
-func (o *TestEmailAlertingSettingsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *TestEmailAlertingSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] TestEmailAlertingSettings default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *TestEmailAlertingSettingsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] TestEmailAlertingSettings default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *TestEmailAlertingSettingsDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*TestEmailAlertingSettingsBody test email alerting settings body
+/*
+TestEmailAlertingSettingsBody test email alerting settings body
 swagger:model TestEmailAlertingSettingsBody
 */
 type TestEmailAlertingSettingsBody struct {
@@ -263,7 +208,8 @@ func (o *TestEmailAlertingSettingsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestEmailAlertingSettingsDefaultBody test email alerting settings default body
+/*
+TestEmailAlertingSettingsDefaultBody test email alerting settings default body
 swagger:model TestEmailAlertingSettingsDefaultBody
 */
 type TestEmailAlertingSettingsDefaultBody struct {
@@ -366,7 +312,8 @@ func (o *TestEmailAlertingSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestEmailAlertingSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+TestEmailAlertingSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -509,7 +456,8 @@ func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*
+TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model TestEmailAlertingSettingsParamsBodyEmailAlertingSettings
 */
 type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {

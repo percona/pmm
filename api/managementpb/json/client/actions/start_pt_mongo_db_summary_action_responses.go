@@ -48,7 +48,8 @@ func NewStartPTMongoDBSummaryActionOK() *StartPTMongoDBSummaryActionOK {
 	return &StartPTMongoDBSummaryActionOK{}
 }
 
-/* StartPTMongoDBSummaryActionOK describes a response with status code 200, with default header values.
+/*
+StartPTMongoDBSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartPTMongoDBSummaryActionOK struct {
 	Payload *StartPTMongoDBSummaryActionOKBody
 }
 
-// IsSuccess returns true when this start Pt mongo Db summary action Ok response has a 2xx status code
-func (o *StartPTMongoDBSummaryActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start Pt mongo Db summary action Ok response has a 3xx status code
-func (o *StartPTMongoDBSummaryActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start Pt mongo Db summary action Ok response has a 4xx status code
-func (o *StartPTMongoDBSummaryActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start Pt mongo Db summary action Ok response has a 5xx status code
-func (o *StartPTMongoDBSummaryActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start Pt mongo Db summary action Ok response a status code equal to that given
-func (o *StartPTMongoDBSummaryActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartPTMongoDBSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartPTMongoDBSummaryActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartPTMongoDBSummaryActionDefault(code int) *StartPTMongoDBSummaryActio
 	}
 }
 
-/* StartPTMongoDBSummaryActionDefault describes a response with status code -1, with default header values.
+/*
+StartPTMongoDBSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartPTMongoDBSummaryActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start PT mongo DB summary action default response has a 2xx status code
-func (o *StartPTMongoDBSummaryActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start PT mongo DB summary action default response has a 3xx status code
-func (o *StartPTMongoDBSummaryActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start PT mongo DB summary action default response has a 4xx status code
-func (o *StartPTMongoDBSummaryActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start PT mongo DB summary action default response has a 5xx status code
-func (o *StartPTMongoDBSummaryActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start PT mongo DB summary action default response a status code equal to that given
-func (o *StartPTMongoDBSummaryActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartPTMongoDBSummaryActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPTMongoDBSummaryActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartPTMongoDBSummaryActionDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*StartPTMongoDBSummaryActionBody Message to prepare pt-mongodb-summary data
+/*
+StartPTMongoDBSummaryActionBody Message to prepare pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionBody
 */
 type StartPTMongoDBSummaryActionBody struct {
@@ -213,7 +158,8 @@ func (o *StartPTMongoDBSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTMongoDBSummaryActionDefaultBody start PT mongo DB summary action default body
+/*
+StartPTMongoDBSummaryActionDefaultBody start PT mongo DB summary action default body
 swagger:model StartPTMongoDBSummaryActionDefaultBody
 */
 type StartPTMongoDBSummaryActionDefaultBody struct {
@@ -316,7 +262,8 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary action default body details items0
+/*
+StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary action default body details items0
 swagger:model StartPTMongoDBSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 struct {
@@ -352,7 +299,8 @@ func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b 
 	return nil
 }
 
-/*StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-summary data
+/*
+StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionOKBody
 */
 type StartPTMongoDBSummaryActionOKBody struct {

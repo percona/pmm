@@ -50,7 +50,8 @@ func NewAddMySQLOK() *AddMySQLOK {
 	return &AddMySQLOK{}
 }
 
-/* AddMySQLOK describes a response with status code 200, with default header values.
+/*
+AddMySQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type AddMySQLOK struct {
 	Payload *AddMySQLOKBody
 }
 
-// IsSuccess returns true when this add my Sql Ok response has a 2xx status code
-func (o *AddMySQLOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add my Sql Ok response has a 3xx status code
-func (o *AddMySQLOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add my Sql Ok response has a 4xx status code
-func (o *AddMySQLOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add my Sql Ok response has a 5xx status code
-func (o *AddMySQLOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add my Sql Ok response a status code equal to that given
-func (o *AddMySQLOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddMySQLOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
-}
-
-func (o *AddMySQLOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewAddMySQLDefault(code int) *AddMySQLDefault {
 	}
 }
 
-/* AddMySQLDefault describes a response with status code -1, with default header values.
+/*
+AddMySQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *AddMySQLDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add my SQL default response has a 2xx status code
-func (o *AddMySQLDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add my SQL default response has a 3xx status code
-func (o *AddMySQLDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add my SQL default response has a 4xx status code
-func (o *AddMySQLDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add my SQL default response has a 5xx status code
-func (o *AddMySQLDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add my SQL default response a status code equal to that given
-func (o *AddMySQLDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddMySQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMySQLDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*AddMySQLBody add my SQL body
+/*
+AddMySQLBody add my SQL body
 swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
@@ -470,7 +415,8 @@ func (o *AddMySQLBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLDefaultBody add my SQL default body
+/*
+AddMySQLDefaultBody add my SQL default body
 swagger:model AddMySQLDefaultBody
 */
 type AddMySQLDefaultBody struct {
@@ -573,7 +519,8 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
+/*
+AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
 swagger:model AddMySQLDefaultBodyDetailsItems0
 */
 type AddMySQLDefaultBodyDetailsItems0 struct {
@@ -609,7 +556,8 @@ func (o *AddMySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBody add my SQL OK body
+/*
+AddMySQLOKBody add my SQL OK body
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
@@ -835,7 +783,8 @@ func (o *AddMySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*
+AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddMySQLOKBodyMysqldExporter
 */
 type AddMySQLOKBodyMysqldExporter struct {
@@ -1060,7 +1009,8 @@ func (o *AddMySQLOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddMySQLOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddMySQLOKBodyQANMysqlPerfschema
 */
 type AddMySQLOKBodyQANMysqlPerfschema struct {
@@ -1274,7 +1224,8 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddMySQLOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddMySQLOKBodyQANMysqlSlowlog
 */
 type AddMySQLOKBodyQANMysqlSlowlog struct {
@@ -1491,7 +1442,8 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyService MySQLService represents a generic MySQL instance.
+/*
+AddMySQLOKBodyService MySQLService represents a generic MySQL instance.
 swagger:model AddMySQLOKBodyService
 */
 type AddMySQLOKBodyService struct {
@@ -1557,7 +1509,8 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {

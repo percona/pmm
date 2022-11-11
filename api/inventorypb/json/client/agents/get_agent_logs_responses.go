@@ -48,7 +48,8 @@ func NewGetAgentLogsOK() *GetAgentLogsOK {
 	return &GetAgentLogsOK{}
 }
 
-/* GetAgentLogsOK describes a response with status code 200, with default header values.
+/*
+GetAgentLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type GetAgentLogsOK struct {
 	Payload *GetAgentLogsOKBody
 }
 
-// IsSuccess returns true when this get agent logs Ok response has a 2xx status code
-func (o *GetAgentLogsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get agent logs Ok response has a 3xx status code
-func (o *GetAgentLogsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get agent logs Ok response has a 4xx status code
-func (o *GetAgentLogsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get agent logs Ok response has a 5xx status code
-func (o *GetAgentLogsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get agent logs Ok response a status code equal to that given
-func (o *GetAgentLogsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetAgentLogsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
-}
-
-func (o *GetAgentLogsOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewGetAgentLogsDefault(code int) *GetAgentLogsDefault {
 	}
 }
 
-/* GetAgentLogsDefault describes a response with status code -1, with default header values.
+/*
+GetAgentLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *GetAgentLogsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get agent logs default response has a 2xx status code
-func (o *GetAgentLogsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get agent logs default response has a 3xx status code
-func (o *GetAgentLogsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get agent logs default response has a 4xx status code
-func (o *GetAgentLogsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get agent logs default response has a 5xx status code
-func (o *GetAgentLogsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get agent logs default response a status code equal to that given
-func (o *GetAgentLogsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetAgentLogsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetAgentLogsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *GetAgentLogsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetAgentLogsBody get agent logs body
+/*
+GetAgentLogsBody get agent logs body
 swagger:model GetAgentLogsBody
 */
 type GetAgentLogsBody struct {
@@ -213,7 +158,8 @@ func (o *GetAgentLogsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsDefaultBody get agent logs default body
+/*
+GetAgentLogsDefaultBody get agent logs default body
 swagger:model GetAgentLogsDefaultBody
 */
 type GetAgentLogsDefaultBody struct {
@@ -316,7 +262,8 @@ func (o *GetAgentLogsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
+/*
+GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
 swagger:model GetAgentLogsDefaultBodyDetailsItems0
 */
 type GetAgentLogsDefaultBodyDetailsItems0 struct {
@@ -352,7 +299,8 @@ func (o *GetAgentLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsOKBody get agent logs OK body
+/*
+GetAgentLogsOKBody get agent logs OK body
 swagger:model GetAgentLogsOKBody
 */
 type GetAgentLogsOKBody struct {

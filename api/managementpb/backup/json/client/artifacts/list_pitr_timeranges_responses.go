@@ -49,7 +49,8 @@ func NewListPitrTimerangesOK() *ListPitrTimerangesOK {
 	return &ListPitrTimerangesOK{}
 }
 
-/* ListPitrTimerangesOK describes a response with status code 200, with default header values.
+/*
+ListPitrTimerangesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type ListPitrTimerangesOK struct {
 	Payload *ListPitrTimerangesOKBody
 }
 
-// IsSuccess returns true when this list pitr timeranges Ok response has a 2xx status code
-func (o *ListPitrTimerangesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list pitr timeranges Ok response has a 3xx status code
-func (o *ListPitrTimerangesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list pitr timeranges Ok response has a 4xx status code
-func (o *ListPitrTimerangesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list pitr timeranges Ok response has a 5xx status code
-func (o *ListPitrTimerangesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list pitr timeranges Ok response a status code equal to that given
-func (o *ListPitrTimerangesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListPitrTimerangesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] listPitrTimerangesOk  %+v", 200, o.Payload)
-}
-
-func (o *ListPitrTimerangesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] listPitrTimerangesOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewListPitrTimerangesDefault(code int) *ListPitrTimerangesDefault {
 	}
 }
 
-/* ListPitrTimerangesDefault describes a response with status code -1, with default header values.
+/*
+ListPitrTimerangesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *ListPitrTimerangesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list pitr timeranges default response has a 2xx status code
-func (o *ListPitrTimerangesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list pitr timeranges default response has a 3xx status code
-func (o *ListPitrTimerangesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list pitr timeranges default response has a 4xx status code
-func (o *ListPitrTimerangesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list pitr timeranges default response has a 5xx status code
-func (o *ListPitrTimerangesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list pitr timeranges default response a status code equal to that given
-func (o *ListPitrTimerangesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListPitrTimerangesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] ListPitrTimeranges default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListPitrTimerangesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] ListPitrTimeranges default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *ListPitrTimerangesDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ListPitrTimerangesBody list pitr timeranges body
+/*
+ListPitrTimerangesBody list pitr timeranges body
 swagger:model ListPitrTimerangesBody
 */
 type ListPitrTimerangesBody struct {
@@ -211,7 +156,8 @@ func (o *ListPitrTimerangesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimerangesDefaultBody list pitr timeranges default body
+/*
+ListPitrTimerangesDefaultBody list pitr timeranges default body
 swagger:model ListPitrTimerangesDefaultBody
 */
 type ListPitrTimerangesDefaultBody struct {
@@ -314,7 +260,8 @@ func (o *ListPitrTimerangesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimerangesDefaultBodyDetailsItems0 list pitr timeranges default body details items0
+/*
+ListPitrTimerangesDefaultBodyDetailsItems0 list pitr timeranges default body details items0
 swagger:model ListPitrTimerangesDefaultBodyDetailsItems0
 */
 type ListPitrTimerangesDefaultBodyDetailsItems0 struct {
@@ -350,7 +297,8 @@ func (o *ListPitrTimerangesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ListPitrTimerangesOKBody list pitr timeranges OK body
+/*
+ListPitrTimerangesOKBody list pitr timeranges OK body
 swagger:model ListPitrTimerangesOKBody
 */
 type ListPitrTimerangesOKBody struct {
@@ -447,7 +395,8 @@ func (o *ListPitrTimerangesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimerangesOKBodyTimerangesItems0 list pitr timeranges OK body timeranges items0
+/*
+ListPitrTimerangesOKBodyTimerangesItems0 list pitr timeranges OK body timeranges items0
 swagger:model ListPitrTimerangesOKBodyTimerangesItems0
 */
 type ListPitrTimerangesOKBodyTimerangesItems0 struct {

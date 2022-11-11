@@ -50,7 +50,8 @@ func NewStartBackupOK() *StartBackupOK {
 	return &StartBackupOK{}
 }
 
-/* StartBackupOK describes a response with status code 200, with default header values.
+/*
+StartBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type StartBackupOK struct {
 	Payload *StartBackupOKBody
 }
 
-// IsSuccess returns true when this start backup Ok response has a 2xx status code
-func (o *StartBackupOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start backup Ok response has a 3xx status code
-func (o *StartBackupOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start backup Ok response has a 4xx status code
-func (o *StartBackupOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start backup Ok response has a 5xx status code
-func (o *StartBackupOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start backup Ok response a status code equal to that given
-func (o *StartBackupOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/Start][%d] startBackupOk  %+v", 200, o.Payload)
-}
-
-func (o *StartBackupOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Start][%d] startBackupOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewStartBackupDefault(code int) *StartBackupDefault {
 	}
 }
 
-/* StartBackupDefault describes a response with status code -1, with default header values.
+/*
+StartBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *StartBackupDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start backup default response has a 2xx status code
-func (o *StartBackupDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start backup default response has a 3xx status code
-func (o *StartBackupDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start backup default response has a 4xx status code
-func (o *StartBackupDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start backup default response has a 5xx status code
-func (o *StartBackupDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start backup default response a status code equal to that given
-func (o *StartBackupDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/Start][%d] StartBackup default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartBackupDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Start][%d] StartBackup default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *StartBackupDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*StartBackupBody start backup body
+/*
+StartBackupBody start backup body
 swagger:model StartBackupBody
 */
 type StartBackupBody struct {
@@ -285,7 +230,8 @@ func (o *StartBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupDefaultBody start backup default body
+/*
+StartBackupDefaultBody start backup default body
 swagger:model StartBackupDefaultBody
 */
 type StartBackupDefaultBody struct {
@@ -388,7 +334,8 @@ func (o *StartBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupDefaultBodyDetailsItems0 start backup default body details items0
+/*
+StartBackupDefaultBodyDetailsItems0 start backup default body details items0
 swagger:model StartBackupDefaultBodyDetailsItems0
 */
 type StartBackupDefaultBodyDetailsItems0 struct {
@@ -424,7 +371,8 @@ func (o *StartBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupOKBody start backup OK body
+/*
+StartBackupOKBody start backup OK body
 swagger:model StartBackupOKBody
 */
 type StartBackupOKBody struct {

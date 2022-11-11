@@ -52,10 +52,12 @@ func NewAddRemoteRDSNodeParamsWithHTTPClient(client *http.Client) *AddRemoteRDSN
 	}
 }
 
-/* AddRemoteRDSNodeParams contains all the parameters to send to the API endpoint
-   for the add remote RDS node operation.
+/*
+AddRemoteRDSNodeParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add remote RDS node operation.
+
+	Typically these are written to a http.Request.
 */
 type AddRemoteRDSNodeParams struct {
 	// Body.

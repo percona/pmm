@@ -50,7 +50,8 @@ func NewChangeNodeExporterOK() *ChangeNodeExporterOK {
 	return &ChangeNodeExporterOK{}
 }
 
-/* ChangeNodeExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ChangeNodeExporterOK struct {
 	Payload *ChangeNodeExporterOKBody
 }
 
-// IsSuccess returns true when this change node exporter Ok response has a 2xx status code
-func (o *ChangeNodeExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change node exporter Ok response has a 3xx status code
-func (o *ChangeNodeExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change node exporter Ok response has a 4xx status code
-func (o *ChangeNodeExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change node exporter Ok response has a 5xx status code
-func (o *ChangeNodeExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change node exporter Ok response a status code equal to that given
-func (o *ChangeNodeExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeNodeExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] changeNodeExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeNodeExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] changeNodeExporterOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewChangeNodeExporterDefault(code int) *ChangeNodeExporterDefault {
 	}
 }
 
-/* ChangeNodeExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ChangeNodeExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change node exporter default response has a 2xx status code
-func (o *ChangeNodeExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change node exporter default response has a 3xx status code
-func (o *ChangeNodeExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change node exporter default response has a 4xx status code
-func (o *ChangeNodeExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change node exporter default response has a 5xx status code
-func (o *ChangeNodeExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change node exporter default response a status code equal to that given
-func (o *ChangeNodeExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeNodeExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeNodeExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ChangeNodeExporterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ChangeNodeExporterBody change node exporter body
+/*
+ChangeNodeExporterBody change node exporter body
 swagger:model ChangeNodeExporterBody
 */
 type ChangeNodeExporterBody struct {
@@ -267,7 +212,8 @@ func (o *ChangeNodeExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNodeExporterDefaultBody change node exporter default body
+/*
+ChangeNodeExporterDefaultBody change node exporter default body
 swagger:model ChangeNodeExporterDefaultBody
 */
 type ChangeNodeExporterDefaultBody struct {
@@ -370,7 +316,8 @@ func (o *ChangeNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNodeExporterDefaultBodyDetailsItems0 change node exporter default body details items0
+/*
+ChangeNodeExporterDefaultBodyDetailsItems0 change node exporter default body details items0
 swagger:model ChangeNodeExporterDefaultBodyDetailsItems0
 */
 type ChangeNodeExporterDefaultBodyDetailsItems0 struct {
@@ -406,7 +353,8 @@ func (o *ChangeNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ChangeNodeExporterOKBody change node exporter OK body
+/*
+ChangeNodeExporterOKBody change node exporter OK body
 swagger:model ChangeNodeExporterOKBody
 */
 type ChangeNodeExporterOKBody struct {
@@ -494,7 +442,8 @@ func (o *ChangeNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*
+ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model ChangeNodeExporterOKBodyNodeExporter
 */
 type ChangeNodeExporterOKBodyNodeExporter struct {
@@ -690,7 +639,8 @@ func (o *ChangeNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNodeExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeNodeExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeNodeExporterParamsBodyCommon
 */
 type ChangeNodeExporterParamsBodyCommon struct {

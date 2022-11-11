@@ -50,7 +50,8 @@ func NewAddPostgresExporterOK() *AddPostgresExporterOK {
 	return &AddPostgresExporterOK{}
 }
 
-/* AddPostgresExporterOK describes a response with status code 200, with default header values.
+/*
+AddPostgresExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type AddPostgresExporterOK struct {
 	Payload *AddPostgresExporterOKBody
 }
 
-// IsSuccess returns true when this add postgres exporter Ok response has a 2xx status code
-func (o *AddPostgresExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add postgres exporter Ok response has a 3xx status code
-func (o *AddPostgresExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add postgres exporter Ok response has a 4xx status code
-func (o *AddPostgresExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add postgres exporter Ok response has a 5xx status code
-func (o *AddPostgresExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add postgres exporter Ok response a status code equal to that given
-func (o *AddPostgresExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddPostgresExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *AddPostgresExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewAddPostgresExporterDefault(code int) *AddPostgresExporterDefault {
 	}
 }
 
-/* AddPostgresExporterDefault describes a response with status code -1, with default header values.
+/*
+AddPostgresExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *AddPostgresExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add postgres exporter default response has a 2xx status code
-func (o *AddPostgresExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add postgres exporter default response has a 3xx status code
-func (o *AddPostgresExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add postgres exporter default response has a 4xx status code
-func (o *AddPostgresExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add postgres exporter default response has a 5xx status code
-func (o *AddPostgresExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add postgres exporter default response a status code equal to that given
-func (o *AddPostgresExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddPostgresExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddPostgresExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*AddPostgresExporterBody add postgres exporter body
+/*
+AddPostgresExporterBody add postgres exporter body
 swagger:model AddPostgresExporterBody
 */
 type AddPostgresExporterBody struct {
@@ -318,7 +263,8 @@ func (o *AddPostgresExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterDefaultBody add postgres exporter default body
+/*
+AddPostgresExporterDefaultBody add postgres exporter default body
 swagger:model AddPostgresExporterDefaultBody
 */
 type AddPostgresExporterDefaultBody struct {
@@ -421,7 +367,8 @@ func (o *AddPostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterDefaultBodyDetailsItems0 add postgres exporter default body details items0
+/*
+AddPostgresExporterDefaultBodyDetailsItems0 add postgres exporter default body details items0
 swagger:model AddPostgresExporterDefaultBodyDetailsItems0
 */
 type AddPostgresExporterDefaultBodyDetailsItems0 struct {
@@ -457,7 +404,8 @@ func (o *AddPostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*AddPostgresExporterOKBody add postgres exporter OK body
+/*
+AddPostgresExporterOKBody add postgres exporter OK body
 swagger:model AddPostgresExporterOKBody
 */
 type AddPostgresExporterOKBody struct {
@@ -545,7 +493,8 @@ func (o *AddPostgresExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*
+AddPostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model AddPostgresExporterOKBodyPostgresExporter
 */
 type AddPostgresExporterOKBodyPostgresExporter struct {

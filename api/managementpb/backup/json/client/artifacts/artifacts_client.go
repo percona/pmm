@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteArtifact deletes artifact deletes specified artifact
+DeleteArtifact deletes artifact deletes specified artifact
 */
 func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOption) (*DeleteArtifactOK, error) {
 	// TODO: Validate the params before sending
@@ -75,7 +75,7 @@ func (a *Client) DeleteArtifact(params *DeleteArtifactParams, opts ...ClientOpti
 }
 
 /*
-  ListArtifacts lists artifacts returns a list of all backup artifacts
+ListArtifacts lists artifacts returns a list of all backup artifacts
 */
 func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +112,7 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption
 }
 
 /*
-  ListPitrTimeranges lists pitr timeranges list the available mongo DB p i t r timeranges in a given backup location
+ListPitrTimeranges lists pitr timeranges list the available mongo DB p i t r timeranges in a given backup location
 */
 func (a *Client) ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error) {
 	// TODO: Validate the params before sending

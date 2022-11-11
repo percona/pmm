@@ -52,10 +52,12 @@ func NewListActiveServiceTypesParamsWithHTTPClient(client *http.Client) *ListAct
 	}
 }
 
-/* ListActiveServiceTypesParams contains all the parameters to send to the API endpoint
-   for the list active service types operation.
+/*
+ListActiveServiceTypesParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list active service types operation.
+
+	Typically these are written to a http.Request.
 */
 type ListActiveServiceTypesParams struct {
 	// Body.

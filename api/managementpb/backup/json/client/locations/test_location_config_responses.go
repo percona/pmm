@@ -48,7 +48,8 @@ func NewTestLocationConfigOK() *TestLocationConfigOK {
 	return &TestLocationConfigOK{}
 }
 
-/* TestLocationConfigOK describes a response with status code 200, with default header values.
+/*
+TestLocationConfigOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type TestLocationConfigOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this test location config Ok response has a 2xx status code
-func (o *TestLocationConfigOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this test location config Ok response has a 3xx status code
-func (o *TestLocationConfigOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this test location config Ok response has a 4xx status code
-func (o *TestLocationConfigOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this test location config Ok response has a 5xx status code
-func (o *TestLocationConfigOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this test location config Ok response a status code equal to that given
-func (o *TestLocationConfigOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *TestLocationConfigOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
-}
-
-func (o *TestLocationConfigOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewTestLocationConfigDefault(code int) *TestLocationConfigDefault {
 	}
 }
 
-/* TestLocationConfigDefault describes a response with status code -1, with default header values.
+/*
+TestLocationConfigDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *TestLocationConfigDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this test location config default response has a 2xx status code
-func (o *TestLocationConfigDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this test location config default response has a 3xx status code
-func (o *TestLocationConfigDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this test location config default response has a 4xx status code
-func (o *TestLocationConfigDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this test location config default response has a 5xx status code
-func (o *TestLocationConfigDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this test location config default response a status code equal to that given
-func (o *TestLocationConfigDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *TestLocationConfigDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *TestLocationConfigDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*TestLocationConfigBody test location config body
+/*
+TestLocationConfigBody test location config body
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
@@ -305,7 +250,8 @@ func (o *TestLocationConfigBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestLocationConfigDefaultBody test location config default body
+/*
+TestLocationConfigDefaultBody test location config default body
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
@@ -408,7 +354,8 @@ func (o *TestLocationConfigDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestLocationConfigDefaultBodyDetailsItems0 test location config default body details items0
+/*
+TestLocationConfigDefaultBodyDetailsItems0 test location config default body details items0
 swagger:model TestLocationConfigDefaultBodyDetailsItems0
 */
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
@@ -444,7 +391,8 @@ func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*TestLocationConfigParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
+/*
+TestLocationConfigParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
 swagger:model TestLocationConfigParamsBodyFilesystemConfig
 */
 type TestLocationConfigParamsBodyFilesystemConfig struct {
@@ -480,7 +428,8 @@ func (o *TestLocationConfigParamsBodyFilesystemConfig) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
+/*
+TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model TestLocationConfigParamsBodyS3Config
 */
 type TestLocationConfigParamsBodyS3Config struct {

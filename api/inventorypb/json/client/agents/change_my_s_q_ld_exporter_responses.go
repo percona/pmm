@@ -50,7 +50,8 @@ func NewChangeMySQLdExporterOK() *ChangeMySQLdExporterOK {
 	return &ChangeMySQLdExporterOK{}
 }
 
-/* ChangeMySQLdExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ChangeMySQLdExporterOK struct {
 	Payload *ChangeMySQLdExporterOKBody
 }
 
-// IsSuccess returns true when this change my s q ld exporter Ok response has a 2xx status code
-func (o *ChangeMySQLdExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change my s q ld exporter Ok response has a 3xx status code
-func (o *ChangeMySQLdExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change my s q ld exporter Ok response has a 4xx status code
-func (o *ChangeMySQLdExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change my s q ld exporter Ok response has a 5xx status code
-func (o *ChangeMySQLdExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change my s q ld exporter Ok response a status code equal to that given
-func (o *ChangeMySQLdExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeMySQLdExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeMySQLdExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewChangeMySQLdExporterDefault(code int) *ChangeMySQLdExporterDefault {
 	}
 }
 
-/* ChangeMySQLdExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ChangeMySQLdExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change my s q ld exporter default response has a 2xx status code
-func (o *ChangeMySQLdExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change my s q ld exporter default response has a 3xx status code
-func (o *ChangeMySQLdExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change my s q ld exporter default response has a 4xx status code
-func (o *ChangeMySQLdExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change my s q ld exporter default response has a 5xx status code
-func (o *ChangeMySQLdExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change my s q ld exporter default response a status code equal to that given
-func (o *ChangeMySQLdExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeMySQLdExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeMySQLdExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ChangeMySQLdExporterDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ChangeMySQLdExporterBody change my s q ld exporter body
+/*
+ChangeMySQLdExporterBody change my s q ld exporter body
 swagger:model ChangeMySQLdExporterBody
 */
 type ChangeMySQLdExporterBody struct {
@@ -267,7 +212,8 @@ func (o *ChangeMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterDefaultBody change my s q ld exporter default body
+/*
+ChangeMySQLdExporterDefaultBody change my s q ld exporter default body
 swagger:model ChangeMySQLdExporterDefaultBody
 */
 type ChangeMySQLdExporterDefaultBody struct {
@@ -370,7 +316,8 @@ func (o *ChangeMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterDefaultBodyDetailsItems0 change my s q ld exporter default body details items0
+/*
+ChangeMySQLdExporterDefaultBodyDetailsItems0 change my s q ld exporter default body details items0
 swagger:model ChangeMySQLdExporterDefaultBodyDetailsItems0
 */
 type ChangeMySQLdExporterDefaultBodyDetailsItems0 struct {
@@ -406,7 +353,8 @@ func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ChangeMySQLdExporterOKBody change my s q ld exporter OK body
+/*
+ChangeMySQLdExporterOKBody change my s q ld exporter OK body
 swagger:model ChangeMySQLdExporterOKBody
 */
 type ChangeMySQLdExporterOKBody struct {
@@ -494,7 +442,8 @@ func (o *ChangeMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*
+ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model ChangeMySQLdExporterOKBodyMysqldExporter
 */
 type ChangeMySQLdExporterOKBodyMysqldExporter struct {
@@ -719,7 +668,8 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*ChangeMySQLdExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeMySQLdExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeMySQLdExporterParamsBodyCommon
 */
 type ChangeMySQLdExporterParamsBodyCommon struct {

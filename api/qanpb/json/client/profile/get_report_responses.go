@@ -49,7 +49,8 @@ func NewGetReportOK() *GetReportOK {
 	return &GetReportOK{}
 }
 
-/* GetReportOK describes a response with status code 200, with default header values.
+/*
+GetReportOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type GetReportOK struct {
 	Payload *GetReportOKBody
 }
 
-// IsSuccess returns true when this get report Ok response has a 2xx status code
-func (o *GetReportOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get report Ok response has a 3xx status code
-func (o *GetReportOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get report Ok response has a 4xx status code
-func (o *GetReportOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get report Ok response has a 5xx status code
-func (o *GetReportOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get report Ok response a status code equal to that given
-func (o *GetReportOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetReportOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
-}
-
-func (o *GetReportOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewGetReportDefault(code int) *GetReportDefault {
 	}
 }
 
-/* GetReportDefault describes a response with status code -1, with default header values.
+/*
+GetReportDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *GetReportDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get report default response has a 2xx status code
-func (o *GetReportDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get report default response has a 3xx status code
-func (o *GetReportDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get report default response has a 4xx status code
-func (o *GetReportDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get report default response has a 5xx status code
-func (o *GetReportDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get report default response a status code equal to that given
-func (o *GetReportDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetReportDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetReportDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *GetReportDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*GetReportBody ReportRequest defines filtering of metrics report for db server or other dimentions.
+/*
+GetReportBody ReportRequest defines filtering of metrics report for db server or other dimentions.
 swagger:model GetReportBody
 */
 type GetReportBody struct {
@@ -333,7 +278,8 @@ func (o *GetReportBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportDefaultBody get report default body
+/*
+GetReportDefaultBody get report default body
 swagger:model GetReportDefaultBody
 */
 type GetReportDefaultBody struct {
@@ -436,7 +382,8 @@ func (o *GetReportDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportDefaultBodyDetailsItems0 get report default body details items0
+/*
+GetReportDefaultBodyDetailsItems0 get report default body details items0
 swagger:model GetReportDefaultBodyDetailsItems0
 */
 type GetReportDefaultBodyDetailsItems0 struct {
@@ -472,7 +419,8 @@ func (o *GetReportDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportOKBody ReportReply is list of reports per quieryids, hosts etc.
+/*
+GetReportOKBody ReportReply is list of reports per quieryids, hosts etc.
 swagger:model GetReportOKBody
 */
 type GetReportOKBody struct {
@@ -578,7 +526,8 @@ func (o *GetReportOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportOKBodyRowsItems0 Row define metrics for selected dimention.
+/*
+GetReportOKBodyRowsItems0 Row define metrics for selected dimention.
 swagger:model GetReportOKBodyRowsItems0
 */
 type GetReportOKBodyRowsItems0 struct {
@@ -745,7 +694,8 @@ func (o *GetReportOKBodyRowsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportOKBodyRowsItems0MetricsAnon Metric cell.
+/*
+GetReportOKBodyRowsItems0MetricsAnon Metric cell.
 swagger:model GetReportOKBodyRowsItems0MetricsAnon
 */
 type GetReportOKBodyRowsItems0MetricsAnon struct {
@@ -833,7 +783,8 @@ func (o *GetReportOKBodyRowsItems0MetricsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetReportOKBodyRowsItems0MetricsAnonStats Stat is statistics of specific metric.
+/*
+GetReportOKBodyRowsItems0MetricsAnonStats Stat is statistics of specific metric.
 swagger:model GetReportOKBodyRowsItems0MetricsAnonStats
 */
 type GetReportOKBodyRowsItems0MetricsAnonStats struct {
@@ -890,7 +841,8 @@ func (o *GetReportOKBodyRowsItems0MetricsAnonStats) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*GetReportOKBodyRowsItems0SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+/*
+GetReportOKBodyRowsItems0SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 swagger:model GetReportOKBodyRowsItems0SparklineItems0
 */
@@ -1119,7 +1071,8 @@ func (o *GetReportOKBodyRowsItems0SparklineItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*GetReportParamsBodyLabelsItems0 ReportMapFieldEntry allows to pass labels/dimentions in form like {"server": ["db1", "db2"...]}.
+/*
+GetReportParamsBodyLabelsItems0 ReportMapFieldEntry allows to pass labels/dimentions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetReportParamsBodyLabelsItems0
 */
 type GetReportParamsBodyLabelsItems0 struct {

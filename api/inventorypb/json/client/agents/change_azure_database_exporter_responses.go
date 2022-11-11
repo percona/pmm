@@ -50,7 +50,8 @@ func NewChangeAzureDatabaseExporterOK() *ChangeAzureDatabaseExporterOK {
 	return &ChangeAzureDatabaseExporterOK{}
 }
 
-/* ChangeAzureDatabaseExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeAzureDatabaseExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ChangeAzureDatabaseExporterOK struct {
 	Payload *ChangeAzureDatabaseExporterOKBody
 }
 
-// IsSuccess returns true when this change azure database exporter Ok response has a 2xx status code
-func (o *ChangeAzureDatabaseExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change azure database exporter Ok response has a 3xx status code
-func (o *ChangeAzureDatabaseExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change azure database exporter Ok response has a 4xx status code
-func (o *ChangeAzureDatabaseExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change azure database exporter Ok response has a 5xx status code
-func (o *ChangeAzureDatabaseExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change azure database exporter Ok response a status code equal to that given
-func (o *ChangeAzureDatabaseExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeAzureDatabaseExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] changeAzureDatabaseExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeAzureDatabaseExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] changeAzureDatabaseExporterOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewChangeAzureDatabaseExporterDefault(code int) *ChangeAzureDatabaseExporte
 	}
 }
 
-/* ChangeAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ChangeAzureDatabaseExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change azure database exporter default response has a 2xx status code
-func (o *ChangeAzureDatabaseExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change azure database exporter default response has a 3xx status code
-func (o *ChangeAzureDatabaseExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change azure database exporter default response has a 4xx status code
-func (o *ChangeAzureDatabaseExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change azure database exporter default response has a 5xx status code
-func (o *ChangeAzureDatabaseExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change azure database exporter default response a status code equal to that given
-func (o *ChangeAzureDatabaseExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeAzureDatabaseExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] ChangeAzureDatabaseExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeAzureDatabaseExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] ChangeAzureDatabaseExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ChangeAzureDatabaseExporterDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterBody change azure database exporter body
+/*
+ChangeAzureDatabaseExporterBody change azure database exporter body
 swagger:model ChangeAzureDatabaseExporterBody
 */
 type ChangeAzureDatabaseExporterBody struct {
@@ -267,7 +212,8 @@ func (o *ChangeAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterDefaultBody change azure database exporter default body
+/*
+ChangeAzureDatabaseExporterDefaultBody change azure database exporter default body
 swagger:model ChangeAzureDatabaseExporterDefaultBody
 */
 type ChangeAzureDatabaseExporterDefaultBody struct {
@@ -370,7 +316,8 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database exporter default body details items0
+/*
+ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database exporter default body details items0
 swagger:model ChangeAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
@@ -406,7 +353,8 @@ func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) UnmarshalBinary(b 
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterOKBody change azure database exporter OK body
+/*
+ChangeAzureDatabaseExporterOKBody change azure database exporter OK body
 swagger:model ChangeAzureDatabaseExporterOKBody
 */
 type ChangeAzureDatabaseExporterOKBody struct {
@@ -494,7 +442,8 @@ func (o *ChangeAzureDatabaseExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*
+ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter
 */
 type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
@@ -696,7 +645,8 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) UnmarshalBinary
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeAzureDatabaseExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeAzureDatabaseExporterParamsBodyCommon
 */
 type ChangeAzureDatabaseExporterParamsBodyCommon struct {

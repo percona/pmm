@@ -48,7 +48,8 @@ func NewGetContactInformationOK() *GetContactInformationOK {
 	return &GetContactInformationOK{}
 }
 
-/* GetContactInformationOK describes a response with status code 200, with default header values.
+/*
+GetContactInformationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type GetContactInformationOK struct {
 	Payload *GetContactInformationOKBody
 }
 
-// IsSuccess returns true when this get contact information Ok response has a 2xx status code
-func (o *GetContactInformationOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get contact information Ok response has a 3xx status code
-func (o *GetContactInformationOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get contact information Ok response has a 4xx status code
-func (o *GetContactInformationOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get contact information Ok response has a 5xx status code
-func (o *GetContactInformationOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get contact information Ok response a status code equal to that given
-func (o *GetContactInformationOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetContactInformationOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] getContactInformationOk  %+v", 200, o.Payload)
-}
-
-func (o *GetContactInformationOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] getContactInformationOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewGetContactInformationDefault(code int) *GetContactInformationDefault {
 	}
 }
 
-/* GetContactInformationDefault describes a response with status code -1, with default header values.
+/*
+GetContactInformationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *GetContactInformationDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get contact information default response has a 2xx status code
-func (o *GetContactInformationDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get contact information default response has a 3xx status code
-func (o *GetContactInformationDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get contact information default response has a 4xx status code
-func (o *GetContactInformationDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get contact information default response has a 5xx status code
-func (o *GetContactInformationDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get contact information default response a status code equal to that given
-func (o *GetContactInformationDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetContactInformationDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetContactInformationDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *GetContactInformationDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*GetContactInformationDefaultBody get contact information default body
+/*
+GetContactInformationDefaultBody get contact information default body
 swagger:model GetContactInformationDefaultBody
 */
 type GetContactInformationDefaultBody struct {
@@ -277,7 +222,8 @@ func (o *GetContactInformationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetContactInformationDefaultBodyDetailsItems0 get contact information default body details items0
+/*
+GetContactInformationDefaultBodyDetailsItems0 get contact information default body details items0
 swagger:model GetContactInformationDefaultBodyDetailsItems0
 */
 type GetContactInformationDefaultBodyDetailsItems0 struct {
@@ -313,7 +259,8 @@ func (o *GetContactInformationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*GetContactInformationOKBody get contact information OK body
+/*
+GetContactInformationOKBody get contact information OK body
 swagger:model GetContactInformationOKBody
 */
 type GetContactInformationOKBody struct {
@@ -404,7 +351,8 @@ func (o *GetContactInformationOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
+/*
+GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
 swagger:model GetContactInformationOKBodyCustomerSuccess
 */
 type GetContactInformationOKBodyCustomerSuccess struct {

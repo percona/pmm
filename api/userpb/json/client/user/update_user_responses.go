@@ -48,7 +48,8 @@ func NewUpdateUserOK() *UpdateUserOK {
 	return &UpdateUserOK{}
 }
 
-/* UpdateUserOK describes a response with status code 200, with default header values.
+/*
+UpdateUserOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type UpdateUserOK struct {
 	Payload *UpdateUserOKBody
 }
 
-// IsSuccess returns true when this update user Ok response has a 2xx status code
-func (o *UpdateUserOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update user Ok response has a 3xx status code
-func (o *UpdateUserOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update user Ok response has a 4xx status code
-func (o *UpdateUserOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update user Ok response has a 5xx status code
-func (o *UpdateUserOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update user Ok response a status code equal to that given
-func (o *UpdateUserOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *UpdateUserOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/user][%d] updateUserOk  %+v", 200, o.Payload)
-}
-
-func (o *UpdateUserOK) String() string {
 	return fmt.Sprintf("[PUT /v1/user][%d] updateUserOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewUpdateUserDefault(code int) *UpdateUserDefault {
 	}
 }
 
-/* UpdateUserDefault describes a response with status code -1, with default header values.
+/*
+UpdateUserDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *UpdateUserDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this update user default response has a 2xx status code
-func (o *UpdateUserDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this update user default response has a 3xx status code
-func (o *UpdateUserDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this update user default response has a 4xx status code
-func (o *UpdateUserDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this update user default response has a 5xx status code
-func (o *UpdateUserDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this update user default response a status code equal to that given
-func (o *UpdateUserDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *UpdateUserDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/user][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *UpdateUserDefault) String() string {
 	return fmt.Sprintf("[PUT /v1/user][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *UpdateUserDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*UpdateUserBody update user body
+/*
+UpdateUserBody update user body
 swagger:model UpdateUserBody
 */
 type UpdateUserBody struct {
@@ -210,7 +155,8 @@ func (o *UpdateUserBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserDefaultBody update user default body
+/*
+UpdateUserDefaultBody update user default body
 swagger:model UpdateUserDefaultBody
 */
 type UpdateUserDefaultBody struct {
@@ -313,7 +259,8 @@ func (o *UpdateUserDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserDefaultBodyDetailsItems0 update user default body details items0
+/*
+UpdateUserDefaultBodyDetailsItems0 update user default body details items0
 swagger:model UpdateUserDefaultBodyDetailsItems0
 */
 type UpdateUserDefaultBodyDetailsItems0 struct {
@@ -349,7 +296,8 @@ func (o *UpdateUserDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserOKBody update user OK body
+/*
+UpdateUserOKBody update user OK body
 swagger:model UpdateUserOKBody
 */
 type UpdateUserOKBody struct {

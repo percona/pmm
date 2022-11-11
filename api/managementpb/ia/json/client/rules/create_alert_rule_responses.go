@@ -50,7 +50,8 @@ func NewCreateAlertRuleOK() *CreateAlertRuleOK {
 	return &CreateAlertRuleOK{}
 }
 
-/* CreateAlertRuleOK describes a response with status code 200, with default header values.
+/*
+CreateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type CreateAlertRuleOK struct {
 	Payload *CreateAlertRuleOKBody
 }
 
-// IsSuccess returns true when this create alert rule Ok response has a 2xx status code
-func (o *CreateAlertRuleOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this create alert rule Ok response has a 3xx status code
-func (o *CreateAlertRuleOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this create alert rule Ok response has a 4xx status code
-func (o *CreateAlertRuleOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this create alert rule Ok response has a 5xx status code
-func (o *CreateAlertRuleOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this create alert rule Ok response a status code equal to that given
-func (o *CreateAlertRuleOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *CreateAlertRuleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
-}
-
-func (o *CreateAlertRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewCreateAlertRuleDefault(code int) *CreateAlertRuleDefault {
 	}
 }
 
-/* CreateAlertRuleDefault describes a response with status code -1, with default header values.
+/*
+CreateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *CreateAlertRuleDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this create alert rule default response has a 2xx status code
-func (o *CreateAlertRuleDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this create alert rule default response has a 3xx status code
-func (o *CreateAlertRuleDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this create alert rule default response has a 4xx status code
-func (o *CreateAlertRuleDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this create alert rule default response has a 5xx status code
-func (o *CreateAlertRuleDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this create alert rule default response a status code equal to that given
-func (o *CreateAlertRuleDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *CreateAlertRuleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] CreateAlertRule default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *CreateAlertRuleDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] CreateAlertRule default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *CreateAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*CreateAlertRuleBody create alert rule body
+/*
+CreateAlertRuleBody create alert rule body
 swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
@@ -419,7 +364,8 @@ func (o *CreateAlertRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateAlertRuleDefaultBody create alert rule default body
+/*
+CreateAlertRuleDefaultBody create alert rule default body
 swagger:model CreateAlertRuleDefaultBody
 */
 type CreateAlertRuleDefaultBody struct {
@@ -522,7 +468,8 @@ func (o *CreateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details items0
+/*
+CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details items0
 swagger:model CreateAlertRuleDefaultBodyDetailsItems0
 */
 type CreateAlertRuleDefaultBodyDetailsItems0 struct {
@@ -558,7 +505,8 @@ func (o *CreateAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*CreateAlertRuleOKBody create alert rule OK body
+/*
+CreateAlertRuleOKBody create alert rule OK body
 swagger:model CreateAlertRuleOKBody
 */
 type CreateAlertRuleOKBody struct {
@@ -594,7 +542,8 @@ func (o *CreateAlertRuleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
+/*
+CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
 swagger:model CreateAlertRuleParamsBodyFiltersItems0
 */
 type CreateAlertRuleParamsBodyFiltersItems0 struct {
@@ -694,7 +643,8 @@ func (o *CreateAlertRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+/*
+CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model CreateAlertRuleParamsBodyParamsItems0
 */
 type CreateAlertRuleParamsBodyParamsItems0 struct {

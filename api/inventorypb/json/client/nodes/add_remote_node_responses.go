@@ -48,7 +48,8 @@ func NewAddRemoteNodeOK() *AddRemoteNodeOK {
 	return &AddRemoteNodeOK{}
 }
 
-/* AddRemoteNodeOK describes a response with status code 200, with default header values.
+/*
+AddRemoteNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type AddRemoteNodeOK struct {
 	Payload *AddRemoteNodeOKBody
 }
 
-// IsSuccess returns true when this add remote node Ok response has a 2xx status code
-func (o *AddRemoteNodeOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add remote node Ok response has a 3xx status code
-func (o *AddRemoteNodeOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add remote node Ok response has a 4xx status code
-func (o *AddRemoteNodeOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add remote node Ok response has a 5xx status code
-func (o *AddRemoteNodeOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add remote node Ok response a status code equal to that given
-func (o *AddRemoteNodeOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
-}
-
-func (o *AddRemoteNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
 	}
 }
 
-/* AddRemoteNodeDefault describes a response with status code -1, with default header values.
+/*
+AddRemoteNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *AddRemoteNodeDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add remote node default response has a 2xx status code
-func (o *AddRemoteNodeDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add remote node default response has a 3xx status code
-func (o *AddRemoteNodeDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add remote node default response has a 4xx status code
-func (o *AddRemoteNodeDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add remote node default response has a 5xx status code
-func (o *AddRemoteNodeDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add remote node default response a status code equal to that given
-func (o *AddRemoteNodeDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddRemoteNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddRemoteNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*AddRemoteNodeBody add remote node body
+/*
+AddRemoteNodeBody add remote node body
 swagger:model AddRemoteNodeBody
 */
 type AddRemoteNodeBody struct {
@@ -225,7 +170,8 @@ func (o *AddRemoteNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeDefaultBody add remote node default body
+/*
+AddRemoteNodeDefaultBody add remote node default body
 swagger:model AddRemoteNodeDefaultBody
 */
 type AddRemoteNodeDefaultBody struct {
@@ -328,7 +274,8 @@ func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeDefaultBodyDetailsItems0 add remote node default body details items0
+/*
+AddRemoteNodeDefaultBodyDetailsItems0 add remote node default body details items0
 swagger:model AddRemoteNodeDefaultBodyDetailsItems0
 */
 type AddRemoteNodeDefaultBodyDetailsItems0 struct {
@@ -364,7 +311,8 @@ func (o *AddRemoteNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*AddRemoteNodeOKBody add remote node OK body
+/*
+AddRemoteNodeOKBody add remote node OK body
 swagger:model AddRemoteNodeOKBody
 */
 type AddRemoteNodeOKBody struct {
@@ -452,7 +400,8 @@ func (o *AddRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+/*
+AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {

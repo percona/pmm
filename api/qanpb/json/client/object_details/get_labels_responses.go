@@ -49,7 +49,8 @@ func NewGetLabelsOK() *GetLabelsOK {
 	return &GetLabelsOK{}
 }
 
-/* GetLabelsOK describes a response with status code 200, with default header values.
+/*
+GetLabelsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type GetLabelsOK struct {
 	Payload *GetLabelsOKBody
 }
 
-// IsSuccess returns true when this get labels Ok response has a 2xx status code
-func (o *GetLabelsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get labels Ok response has a 3xx status code
-func (o *GetLabelsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get labels Ok response has a 4xx status code
-func (o *GetLabelsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get labels Ok response has a 5xx status code
-func (o *GetLabelsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get labels Ok response a status code equal to that given
-func (o *GetLabelsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetLabelsOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
-}
-
-func (o *GetLabelsOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewGetLabelsDefault(code int) *GetLabelsDefault {
 	}
 }
 
-/* GetLabelsDefault describes a response with status code -1, with default header values.
+/*
+GetLabelsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *GetLabelsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get labels default response has a 2xx status code
-func (o *GetLabelsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get labels default response has a 3xx status code
-func (o *GetLabelsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get labels default response has a 4xx status code
-func (o *GetLabelsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get labels default response has a 5xx status code
-func (o *GetLabelsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get labels default response a status code equal to that given
-func (o *GetLabelsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetLabelsDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetLabelsDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *GetLabelsDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*GetLabelsBody ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
+/*
+GetLabelsBody ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
 // dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetLabelsBody
 */
@@ -260,7 +205,8 @@ func (o *GetLabelsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLabelsDefaultBody get labels default body
+/*
+GetLabelsDefaultBody get labels default body
 swagger:model GetLabelsDefaultBody
 */
 type GetLabelsDefaultBody struct {
@@ -363,7 +309,8 @@ func (o *GetLabelsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLabelsDefaultBodyDetailsItems0 get labels default body details items0
+/*
+GetLabelsDefaultBodyDetailsItems0 get labels default body details items0
 swagger:model GetLabelsDefaultBodyDetailsItems0
 */
 type GetLabelsDefaultBodyDetailsItems0 struct {
@@ -399,7 +346,8 @@ func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLabelsOKBody ObjectDetailsLabelsReply is a map of labels names as keys and labels values as a list.
+/*
+GetLabelsOKBody ObjectDetailsLabelsReply is a map of labels names as keys and labels values as a list.
 swagger:model GetLabelsOKBody
 */
 type GetLabelsOKBody struct {
@@ -491,7 +439,8 @@ func (o *GetLabelsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLabelsOKBodyLabelsAnon ListLabelValues is list of label's values.
+/*
+GetLabelsOKBodyLabelsAnon ListLabelValues is list of label's values.
 swagger:model GetLabelsOKBodyLabelsAnon
 */
 type GetLabelsOKBodyLabelsAnon struct {

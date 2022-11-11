@@ -50,7 +50,8 @@ func NewGetFailedChecksOK() *GetFailedChecksOK {
 	return &GetFailedChecksOK{}
 }
 
-/* GetFailedChecksOK describes a response with status code 200, with default header values.
+/*
+GetFailedChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type GetFailedChecksOK struct {
 	Payload *GetFailedChecksOKBody
 }
 
-// IsSuccess returns true when this get failed checks Ok response has a 2xx status code
-func (o *GetFailedChecksOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get failed checks Ok response has a 3xx status code
-func (o *GetFailedChecksOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get failed checks Ok response has a 4xx status code
-func (o *GetFailedChecksOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get failed checks Ok response has a 5xx status code
-func (o *GetFailedChecksOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get failed checks Ok response a status code equal to that given
-func (o *GetFailedChecksOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetFailedChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
-}
-
-func (o *GetFailedChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewGetFailedChecksDefault(code int) *GetFailedChecksDefault {
 	}
 }
 
-/* GetFailedChecksDefault describes a response with status code -1, with default header values.
+/*
+GetFailedChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *GetFailedChecksDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get failed checks default response has a 2xx status code
-func (o *GetFailedChecksDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get failed checks default response has a 3xx status code
-func (o *GetFailedChecksDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get failed checks default response has a 4xx status code
-func (o *GetFailedChecksDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get failed checks default response has a 5xx status code
-func (o *GetFailedChecksDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get failed checks default response a status code equal to that given
-func (o *GetFailedChecksDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetFailedChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetFailedChecksDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *GetFailedChecksDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetFailedChecksBody get failed checks body
+/*
+GetFailedChecksBody get failed checks body
 swagger:model GetFailedChecksBody
 */
 type GetFailedChecksBody struct {
@@ -267,7 +212,8 @@ func (o *GetFailedChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFailedChecksDefaultBody get failed checks default body
+/*
+GetFailedChecksDefaultBody get failed checks default body
 swagger:model GetFailedChecksDefaultBody
 */
 type GetFailedChecksDefaultBody struct {
@@ -370,7 +316,8 @@ func (o *GetFailedChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFailedChecksDefaultBodyDetailsItems0 get failed checks default body details items0
+/*
+GetFailedChecksDefaultBodyDetailsItems0 get failed checks default body details items0
 swagger:model GetFailedChecksDefaultBodyDetailsItems0
 */
 type GetFailedChecksDefaultBodyDetailsItems0 struct {
@@ -406,7 +353,8 @@ func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*GetFailedChecksOKBody get failed checks OK body
+/*
+GetFailedChecksOKBody get failed checks OK body
 swagger:model GetFailedChecksOKBody
 */
 type GetFailedChecksOKBody struct {
@@ -548,7 +496,8 @@ func (o *GetFailedChecksOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFailedChecksOKBodyPageTotals PageTotals represents total values for pagination.
+/*
+GetFailedChecksOKBodyPageTotals PageTotals represents total values for pagination.
 swagger:model GetFailedChecksOKBodyPageTotals
 */
 type GetFailedChecksOKBodyPageTotals struct {
@@ -587,7 +536,8 @@ func (o *GetFailedChecksOKBodyPageTotals) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFailedChecksOKBodyResultsItems0 CheckResult represents the check results for a given service.
+/*
+GetFailedChecksOKBodyResultsItems0 CheckResult represents the check results for a given service.
 swagger:model GetFailedChecksOKBodyResultsItems0
 */
 type GetFailedChecksOKBodyResultsItems0 struct {
@@ -723,7 +673,8 @@ func (o *GetFailedChecksOKBodyResultsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFailedChecksParamsBodyPageParams PageParams represents page request parameters for pagination.
+/*
+GetFailedChecksParamsBodyPageParams PageParams represents page request parameters for pagination.
 swagger:model GetFailedChecksParamsBodyPageParams
 */
 type GetFailedChecksParamsBodyPageParams struct {

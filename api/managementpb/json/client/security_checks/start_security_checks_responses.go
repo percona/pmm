@@ -48,7 +48,8 @@ func NewStartSecurityChecksOK() *StartSecurityChecksOK {
 	return &StartSecurityChecksOK{}
 }
 
-/* StartSecurityChecksOK describes a response with status code 200, with default header values.
+/*
+StartSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartSecurityChecksOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this start security checks Ok response has a 2xx status code
-func (o *StartSecurityChecksOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start security checks Ok response has a 3xx status code
-func (o *StartSecurityChecksOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start security checks Ok response has a 4xx status code
-func (o *StartSecurityChecksOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start security checks Ok response has a 5xx status code
-func (o *StartSecurityChecksOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start security checks Ok response a status code equal to that given
-func (o *StartSecurityChecksOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartSecurityChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] startSecurityChecksOk  %+v", 200, o.Payload)
-}
-
-func (o *StartSecurityChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] startSecurityChecksOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewStartSecurityChecksDefault(code int) *StartSecurityChecksDefault {
 	}
 }
 
-/* StartSecurityChecksDefault describes a response with status code -1, with default header values.
+/*
+StartSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *StartSecurityChecksDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start security checks default response has a 2xx status code
-func (o *StartSecurityChecksDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start security checks default response has a 3xx status code
-func (o *StartSecurityChecksDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start security checks default response has a 4xx status code
-func (o *StartSecurityChecksDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start security checks default response has a 5xx status code
-func (o *StartSecurityChecksDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start security checks default response a status code equal to that given
-func (o *StartSecurityChecksDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartSecurityChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] StartSecurityChecks default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartSecurityChecksDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] StartSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *StartSecurityChecksDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*StartSecurityChecksBody start security checks body
+/*
+StartSecurityChecksBody start security checks body
 swagger:model StartSecurityChecksBody
 */
 type StartSecurityChecksBody struct {
@@ -208,7 +153,8 @@ func (o *StartSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartSecurityChecksDefaultBody start security checks default body
+/*
+StartSecurityChecksDefaultBody start security checks default body
 swagger:model StartSecurityChecksDefaultBody
 */
 type StartSecurityChecksDefaultBody struct {
@@ -311,7 +257,8 @@ func (o *StartSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartSecurityChecksDefaultBodyDetailsItems0 start security checks default body details items0
+/*
+StartSecurityChecksDefaultBodyDetailsItems0 start security checks default body details items0
 swagger:model StartSecurityChecksDefaultBodyDetailsItems0
 */
 type StartSecurityChecksDefaultBodyDetailsItems0 struct {

@@ -48,7 +48,8 @@ func NewListChannelsOK() *ListChannelsOK {
 	return &ListChannelsOK{}
 }
 
-/* ListChannelsOK describes a response with status code 200, with default header values.
+/*
+ListChannelsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ListChannelsOK struct {
 	Payload *ListChannelsOKBody
 }
 
-// IsSuccess returns true when this list channels Ok response has a 2xx status code
-func (o *ListChannelsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list channels Ok response has a 3xx status code
-func (o *ListChannelsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list channels Ok response has a 4xx status code
-func (o *ListChannelsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list channels Ok response has a 5xx status code
-func (o *ListChannelsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list channels Ok response a status code equal to that given
-func (o *ListChannelsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListChannelsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] listChannelsOk  %+v", 200, o.Payload)
-}
-
-func (o *ListChannelsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] listChannelsOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewListChannelsDefault(code int) *ListChannelsDefault {
 	}
 }
 
-/* ListChannelsDefault describes a response with status code -1, with default header values.
+/*
+ListChannelsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ListChannelsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list channels default response has a 2xx status code
-func (o *ListChannelsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list channels default response has a 3xx status code
-func (o *ListChannelsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list channels default response has a 4xx status code
-func (o *ListChannelsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list channels default response has a 5xx status code
-func (o *ListChannelsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list channels default response a status code equal to that given
-func (o *ListChannelsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListChannelsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] ListChannels default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListChannelsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] ListChannels default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ListChannelsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*ListChannelsBody list channels body
+/*
+ListChannelsBody list channels body
 swagger:model ListChannelsBody
 */
 type ListChannelsBody struct {
@@ -262,7 +207,8 @@ func (o *ListChannelsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsDefaultBody list channels default body
+/*
+ListChannelsDefaultBody list channels default body
 swagger:model ListChannelsDefaultBody
 */
 type ListChannelsDefaultBody struct {
@@ -365,7 +311,8 @@ func (o *ListChannelsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsDefaultBodyDetailsItems0 list channels default body details items0
+/*
+ListChannelsDefaultBodyDetailsItems0 list channels default body details items0
 swagger:model ListChannelsDefaultBodyDetailsItems0
 */
 type ListChannelsDefaultBodyDetailsItems0 struct {
@@ -401,7 +348,8 @@ func (o *ListChannelsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsOKBody list channels OK body
+/*
+ListChannelsOKBody list channels OK body
 swagger:model ListChannelsOKBody
 */
 type ListChannelsOKBody struct {
@@ -543,7 +491,8 @@ func (o *ListChannelsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0 Channel represents a single Notification Channel.
+/*
+ListChannelsOKBodyChannelsItems0 Channel represents a single Notification Channel.
 swagger:model ListChannelsOKBodyChannelsItems0
 */
 type ListChannelsOKBodyChannelsItems0 struct {
@@ -775,7 +724,8 @@ func (o *ListChannelsOKBodyChannelsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0EmailConfig EmailConfig represents email configuration.
+/*
+ListChannelsOKBodyChannelsItems0EmailConfig EmailConfig represents email configuration.
 swagger:model ListChannelsOKBodyChannelsItems0EmailConfig
 */
 type ListChannelsOKBodyChannelsItems0EmailConfig struct {
@@ -814,7 +764,8 @@ func (o *ListChannelsOKBodyChannelsItems0EmailConfig) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0PagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
+/*
+ListChannelsOKBodyChannelsItems0PagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
 swagger:model ListChannelsOKBodyChannelsItems0PagerdutyConfig
 */
 type ListChannelsOKBodyChannelsItems0PagerdutyConfig struct {
@@ -856,7 +807,8 @@ func (o *ListChannelsOKBodyChannelsItems0PagerdutyConfig) UnmarshalBinary(b []by
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0SlackConfig SlackConfig represents Slack configuration.
+/*
+ListChannelsOKBodyChannelsItems0SlackConfig SlackConfig represents Slack configuration.
 swagger:model ListChannelsOKBodyChannelsItems0SlackConfig
 */
 type ListChannelsOKBodyChannelsItems0SlackConfig struct {
@@ -895,7 +847,8 @@ func (o *ListChannelsOKBodyChannelsItems0SlackConfig) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
+/*
+ListChannelsOKBodyChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfig
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfig struct {
@@ -992,7 +945,8 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfig) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+/*
+ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig struct {
@@ -1134,7 +1088,8 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig) UnmarshalBinar
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+/*
+ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
@@ -1176,7 +1131,8 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth) Unmar
 	return nil
 }
 
-/*ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
+/*
+ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
 // https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
@@ -1240,7 +1196,8 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig) Unmar
 	return nil
 }
 
-/*ListChannelsOKBodyTotals PageTotals represents total values for pagination.
+/*
+ListChannelsOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListChannelsOKBodyTotals
 */
 type ListChannelsOKBodyTotals struct {
@@ -1279,7 +1236,8 @@ func (o *ListChannelsOKBodyTotals) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListChannelsParamsBodyPageParams PageParams represents page request parameters for pagination.
+/*
+ListChannelsParamsBodyPageParams PageParams represents page request parameters for pagination.
 swagger:model ListChannelsParamsBodyPageParams
 */
 type ListChannelsParamsBodyPageParams struct {

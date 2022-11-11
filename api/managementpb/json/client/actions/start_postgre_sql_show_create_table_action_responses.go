@@ -48,7 +48,8 @@ func NewStartPostgreSQLShowCreateTableActionOK() *StartPostgreSQLShowCreateTable
 	return &StartPostgreSQLShowCreateTableActionOK{}
 }
 
-/* StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
+/*
+StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 	Payload *StartPostgreSQLShowCreateTableActionOKBody
 }
 
-// IsSuccess returns true when this start postgre Sql show create table action Ok response has a 2xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start postgre Sql show create table action Ok response has a 3xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start postgre Sql show create table action Ok response has a 4xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start postgre Sql show create table action Ok response has a 5xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start postgre Sql show create table action Ok response a status code equal to that given
-func (o *StartPostgreSQLShowCreateTableActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartPostgreSQLShowCreateTableActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartPostgreSQLShowCreateTableActionDefault(code int) *StartPostgreSQLSh
 	}
 }
 
-/* StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
+/*
+StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start postgre SQL show create table action default response has a 2xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start postgre SQL show create table action default response has a 3xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start postgre SQL show create table action default response has a 4xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start postgre SQL show create table action default response has a 5xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start postgre SQL show create table action default response a status code equal to that given
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runt
 	return nil
 }
 
-/*StartPostgreSQLShowCreateTableActionBody start postgre SQL show create table action body
+/*
+StartPostgreSQLShowCreateTableActionBody start postgre SQL show create table action body
 swagger:model StartPostgreSQLShowCreateTableActionBody
 */
 type StartPostgreSQLShowCreateTableActionBody struct {
@@ -219,7 +164,8 @@ func (o *StartPostgreSQLShowCreateTableActionBody) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*StartPostgreSQLShowCreateTableActionDefaultBody start postgre SQL show create table action default body
+/*
+StartPostgreSQLShowCreateTableActionDefaultBody start postgre SQL show create table action default body
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBody
 */
 type StartPostgreSQLShowCreateTableActionDefaultBody struct {
@@ -322,7 +268,8 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []by
 	return nil
 }
 
-/*StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 start postgre SQL show create table action default body details items0
+/*
+StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 start postgre SQL show create table action default body details items0
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
@@ -358,7 +305,8 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) Unmarshal
 	return nil
 }
 
-/*StartPostgreSQLShowCreateTableActionOKBody start postgre SQL show create table action OK body
+/*
+StartPostgreSQLShowCreateTableActionOKBody start postgre SQL show create table action OK body
 swagger:model StartPostgreSQLShowCreateTableActionOKBody
 */
 type StartPostgreSQLShowCreateTableActionOKBody struct {

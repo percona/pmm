@@ -50,7 +50,8 @@ func NewScheduleBackupOK() *ScheduleBackupOK {
 	return &ScheduleBackupOK{}
 }
 
-/* ScheduleBackupOK describes a response with status code 200, with default header values.
+/*
+ScheduleBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ScheduleBackupOK struct {
 	Payload *ScheduleBackupOKBody
 }
 
-// IsSuccess returns true when this schedule backup Ok response has a 2xx status code
-func (o *ScheduleBackupOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this schedule backup Ok response has a 3xx status code
-func (o *ScheduleBackupOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this schedule backup Ok response has a 4xx status code
-func (o *ScheduleBackupOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this schedule backup Ok response has a 5xx status code
-func (o *ScheduleBackupOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this schedule backup Ok response a status code equal to that given
-func (o *ScheduleBackupOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ScheduleBackupOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
-}
-
-func (o *ScheduleBackupOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewScheduleBackupDefault(code int) *ScheduleBackupDefault {
 	}
 }
 
-/* ScheduleBackupDefault describes a response with status code -1, with default header values.
+/*
+ScheduleBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ScheduleBackupDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this schedule backup default response has a 2xx status code
-func (o *ScheduleBackupDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this schedule backup default response has a 3xx status code
-func (o *ScheduleBackupDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this schedule backup default response has a 4xx status code
-func (o *ScheduleBackupDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this schedule backup default response has a 5xx status code
-func (o *ScheduleBackupDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this schedule backup default response a status code equal to that given
-func (o *ScheduleBackupDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ScheduleBackupDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ScheduleBackupDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ScheduleBackupBody schedule backup body
+/*
+ScheduleBackupBody schedule backup body
 swagger:model ScheduleBackupBody
 */
 type ScheduleBackupBody struct {
@@ -370,7 +315,8 @@ func (o *ScheduleBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ScheduleBackupDefaultBody schedule backup default body
+/*
+ScheduleBackupDefaultBody schedule backup default body
 swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
@@ -473,7 +419,8 @@ func (o *ScheduleBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
+/*
+ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
 swagger:model ScheduleBackupDefaultBodyDetailsItems0
 */
 type ScheduleBackupDefaultBodyDetailsItems0 struct {
@@ -509,7 +456,8 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ScheduleBackupOKBody schedule backup OK body
+/*
+ScheduleBackupOKBody schedule backup OK body
 swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {

@@ -50,7 +50,8 @@ func NewListActiveServiceTypesOK() *ListActiveServiceTypesOK {
 	return &ListActiveServiceTypesOK{}
 }
 
-/* ListActiveServiceTypesOK describes a response with status code 200, with default header values.
+/*
+ListActiveServiceTypesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ListActiveServiceTypesOK struct {
 	Payload *ListActiveServiceTypesOKBody
 }
 
-// IsSuccess returns true when this list active service types Ok response has a 2xx status code
-func (o *ListActiveServiceTypesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list active service types Ok response has a 3xx status code
-func (o *ListActiveServiceTypesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list active service types Ok response has a 4xx status code
-func (o *ListActiveServiceTypesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list active service types Ok response has a 5xx status code
-func (o *ListActiveServiceTypesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list active service types Ok response a status code equal to that given
-func (o *ListActiveServiceTypesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListActiveServiceTypesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] listActiveServiceTypesOk  %+v", 200, o.Payload)
-}
-
-func (o *ListActiveServiceTypesOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] listActiveServiceTypesOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewListActiveServiceTypesDefault(code int) *ListActiveServiceTypesDefault {
 	}
 }
 
-/* ListActiveServiceTypesDefault describes a response with status code -1, with default header values.
+/*
+ListActiveServiceTypesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ListActiveServiceTypesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list active service types default response has a 2xx status code
-func (o *ListActiveServiceTypesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list active service types default response has a 3xx status code
-func (o *ListActiveServiceTypesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list active service types default response has a 4xx status code
-func (o *ListActiveServiceTypesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list active service types default response has a 5xx status code
-func (o *ListActiveServiceTypesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list active service types default response a status code equal to that given
-func (o *ListActiveServiceTypesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListActiveServiceTypesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] ListActiveServiceTypes default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListActiveServiceTypesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] ListActiveServiceTypes default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ListActiveServiceTypesDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*ListActiveServiceTypesDefaultBody list active service types default body
+/*
+ListActiveServiceTypesDefaultBody list active service types default body
 swagger:model ListActiveServiceTypesDefaultBody
 */
 type ListActiveServiceTypesDefaultBody struct {
@@ -279,7 +224,8 @@ func (o *ListActiveServiceTypesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListActiveServiceTypesDefaultBodyDetailsItems0 list active service types default body details items0
+/*
+ListActiveServiceTypesDefaultBodyDetailsItems0 list active service types default body details items0
 swagger:model ListActiveServiceTypesDefaultBodyDetailsItems0
 */
 type ListActiveServiceTypesDefaultBodyDetailsItems0 struct {
@@ -315,7 +261,8 @@ func (o *ListActiveServiceTypesDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ListActiveServiceTypesOKBody list active service types OK body
+/*
+ListActiveServiceTypesOKBody list active service types OK body
 swagger:model ListActiveServiceTypesOKBody
 */
 type ListActiveServiceTypesOKBody struct {

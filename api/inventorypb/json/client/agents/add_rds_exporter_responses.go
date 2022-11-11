@@ -50,7 +50,8 @@ func NewAddRDSExporterOK() *AddRDSExporterOK {
 	return &AddRDSExporterOK{}
 }
 
-/* AddRDSExporterOK describes a response with status code 200, with default header values.
+/*
+AddRDSExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type AddRDSExporterOK struct {
 	Payload *AddRDSExporterOKBody
 }
 
-// IsSuccess returns true when this add Rds exporter Ok response has a 2xx status code
-func (o *AddRDSExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add Rds exporter Ok response has a 3xx status code
-func (o *AddRDSExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add Rds exporter Ok response has a 4xx status code
-func (o *AddRDSExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add Rds exporter Ok response has a 5xx status code
-func (o *AddRDSExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add Rds exporter Ok response a status code equal to that given
-func (o *AddRDSExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddRDSExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *AddRDSExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewAddRDSExporterDefault(code int) *AddRDSExporterDefault {
 	}
 }
 
-/* AddRDSExporterDefault describes a response with status code -1, with default header values.
+/*
+AddRDSExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *AddRDSExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add RDS exporter default response has a 2xx status code
-func (o *AddRDSExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add RDS exporter default response has a 3xx status code
-func (o *AddRDSExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add RDS exporter default response has a 4xx status code
-func (o *AddRDSExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add RDS exporter default response has a 5xx status code
-func (o *AddRDSExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add RDS exporter default response a status code equal to that given
-func (o *AddRDSExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddRDSExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddRDSExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*AddRDSExporterBody add RDS exporter body
+/*
+AddRDSExporterBody add RDS exporter body
 swagger:model AddRDSExporterBody
 */
 type AddRDSExporterBody struct {
@@ -303,7 +248,8 @@ func (o *AddRDSExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterDefaultBody add RDS exporter default body
+/*
+AddRDSExporterDefaultBody add RDS exporter default body
 swagger:model AddRDSExporterDefaultBody
 */
 type AddRDSExporterDefaultBody struct {
@@ -406,7 +352,8 @@ func (o *AddRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterDefaultBodyDetailsItems0 add RDS exporter default body details items0
+/*
+AddRDSExporterDefaultBodyDetailsItems0 add RDS exporter default body details items0
 swagger:model AddRDSExporterDefaultBodyDetailsItems0
 */
 type AddRDSExporterDefaultBodyDetailsItems0 struct {
@@ -442,7 +389,8 @@ func (o *AddRDSExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*AddRDSExporterOKBody add RDS exporter OK body
+/*
+AddRDSExporterOKBody add RDS exporter OK body
 swagger:model AddRDSExporterOKBody
 */
 type AddRDSExporterOKBody struct {
@@ -530,7 +478,8 @@ func (o *AddRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*
+AddRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model AddRDSExporterOKBodyRDSExporter
 */
 type AddRDSExporterOKBodyRDSExporter struct {

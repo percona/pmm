@@ -48,7 +48,8 @@ func NewStartMySQLExplainActionOK() *StartMySQLExplainActionOK {
 	return &StartMySQLExplainActionOK{}
 }
 
-/* StartMySQLExplainActionOK describes a response with status code 200, with default header values.
+/*
+StartMySQLExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartMySQLExplainActionOK struct {
 	Payload *StartMySQLExplainActionOKBody
 }
 
-// IsSuccess returns true when this start my Sql explain action Ok response has a 2xx status code
-func (o *StartMySQLExplainActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start my Sql explain action Ok response has a 3xx status code
-func (o *StartMySQLExplainActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start my Sql explain action Ok response has a 4xx status code
-func (o *StartMySQLExplainActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start my Sql explain action Ok response has a 5xx status code
-func (o *StartMySQLExplainActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start my Sql explain action Ok response a status code equal to that given
-func (o *StartMySQLExplainActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartMySQLExplainActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLExplainActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartMySQLExplainActionDefault(code int) *StartMySQLExplainActionDefault
 	}
 }
 
-/* StartMySQLExplainActionDefault describes a response with status code -1, with default header values.
+/*
+StartMySQLExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start my SQL explain action default response has a 2xx status code
-func (o *StartMySQLExplainActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start my SQL explain action default response has a 3xx status code
-func (o *StartMySQLExplainActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start my SQL explain action default response has a 4xx status code
-func (o *StartMySQLExplainActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start my SQL explain action default response has a 5xx status code
-func (o *StartMySQLExplainActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start my SQL explain action default response a status code equal to that given
-func (o *StartMySQLExplainActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartMySQLExplainActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLExplainActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientRes
 	return nil
 }
 
-/*StartMySQLExplainActionBody start my SQL explain action body
+/*
+StartMySQLExplainActionBody start my SQL explain action body
 swagger:model StartMySQLExplainActionBody
 */
 type StartMySQLExplainActionBody struct {
@@ -219,7 +164,8 @@ func (o *StartMySQLExplainActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLExplainActionDefaultBody start my SQL explain action default body
+/*
+StartMySQLExplainActionDefaultBody start my SQL explain action default body
 swagger:model StartMySQLExplainActionDefaultBody
 */
 type StartMySQLExplainActionDefaultBody struct {
@@ -322,7 +268,8 @@ func (o *StartMySQLExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLExplainActionDefaultBodyDetailsItems0 start my SQL explain action default body details items0
+/*
+StartMySQLExplainActionDefaultBodyDetailsItems0 start my SQL explain action default body details items0
 swagger:model StartMySQLExplainActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainActionDefaultBodyDetailsItems0 struct {
@@ -358,7 +305,8 @@ func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 	return nil
 }
 
-/*StartMySQLExplainActionOKBody start my SQL explain action OK body
+/*
+StartMySQLExplainActionOKBody start my SQL explain action OK body
 swagger:model StartMySQLExplainActionOKBody
 */
 type StartMySQLExplainActionOKBody struct {

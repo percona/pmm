@@ -48,7 +48,8 @@ func NewStartUpdateOK() *StartUpdateOK {
 	return &StartUpdateOK{}
 }
 
-/* StartUpdateOK describes a response with status code 200, with default header values.
+/*
+StartUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartUpdateOK struct {
 	Payload *StartUpdateOKBody
 }
 
-// IsSuccess returns true when this start update Ok response has a 2xx status code
-func (o *StartUpdateOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start update Ok response has a 3xx status code
-func (o *StartUpdateOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start update Ok response has a 4xx status code
-func (o *StartUpdateOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start update Ok response has a 5xx status code
-func (o *StartUpdateOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start update Ok response a status code equal to that given
-func (o *StartUpdateOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartUpdateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
-}
-
-func (o *StartUpdateOK) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 	}
 }
 
-/* StartUpdateDefault describes a response with status code -1, with default header values.
+/*
+StartUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartUpdateDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start update default response has a 2xx status code
-func (o *StartUpdateDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start update default response has a 3xx status code
-func (o *StartUpdateDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start update default response has a 4xx status code
-func (o *StartUpdateDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start update default response has a 5xx status code
-func (o *StartUpdateDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start update default response a status code equal to that given
-func (o *StartUpdateDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartUpdateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartUpdateDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*StartUpdateDefaultBody start update default body
+/*
+StartUpdateDefaultBody start update default body
 swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
@@ -277,7 +222,8 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartUpdateDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+StartUpdateDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -420,7 +366,8 @@ func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartUpdateOKBody start update OK body
+/*
+StartUpdateOKBody start update OK body
 swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {

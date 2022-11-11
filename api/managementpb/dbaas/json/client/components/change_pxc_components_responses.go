@@ -48,7 +48,8 @@ func NewChangePXCComponentsOK() *ChangePXCComponentsOK {
 	return &ChangePXCComponentsOK{}
 }
 
-/* ChangePXCComponentsOK describes a response with status code 200, with default header values.
+/*
+ChangePXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ChangePXCComponentsOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this change Pxc components Ok response has a 2xx status code
-func (o *ChangePXCComponentsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change Pxc components Ok response has a 3xx status code
-func (o *ChangePXCComponentsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change Pxc components Ok response has a 4xx status code
-func (o *ChangePXCComponentsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change Pxc components Ok response has a 5xx status code
-func (o *ChangePXCComponentsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change Pxc components Ok response a status code equal to that given
-func (o *ChangePXCComponentsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangePXCComponentsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] changePxcComponentsOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangePXCComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] changePxcComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewChangePXCComponentsDefault(code int) *ChangePXCComponentsDefault {
 	}
 }
 
-/* ChangePXCComponentsDefault describes a response with status code -1, with default header values.
+/*
+ChangePXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *ChangePXCComponentsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change PXC components default response has a 2xx status code
-func (o *ChangePXCComponentsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change PXC components default response has a 3xx status code
-func (o *ChangePXCComponentsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change PXC components default response has a 4xx status code
-func (o *ChangePXCComponentsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change PXC components default response has a 5xx status code
-func (o *ChangePXCComponentsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change PXC components default response a status code equal to that given
-func (o *ChangePXCComponentsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangePXCComponentsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] ChangePXCComponents default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangePXCComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] ChangePXCComponents default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *ChangePXCComponentsDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*ChangePXCComponentsBody change PXC components body
+/*
+ChangePXCComponentsBody change PXC components body
 swagger:model ChangePXCComponentsBody
 */
 type ChangePXCComponentsBody struct {
@@ -353,7 +298,8 @@ func (o *ChangePXCComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsDefaultBody change PXC components default body
+/*
+ChangePXCComponentsDefaultBody change PXC components default body
 swagger:model ChangePXCComponentsDefaultBody
 */
 type ChangePXCComponentsDefaultBody struct {
@@ -456,7 +402,8 @@ func (o *ChangePXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsDefaultBodyDetailsItems0 change PXC components default body details items0
+/*
+ChangePXCComponentsDefaultBodyDetailsItems0 change PXC components default body details items0
 swagger:model ChangePXCComponentsDefaultBodyDetailsItems0
 */
 type ChangePXCComponentsDefaultBodyDetailsItems0 struct {
@@ -492,7 +439,8 @@ func (o *ChangePXCComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyHaproxy ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyHaproxy ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyHaproxy
 */
 type ChangePXCComponentsParamsBodyHaproxy struct {
@@ -592,7 +540,8 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyHaproxyVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyHaproxyVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyHaproxyVersionsItems0
 */
 type ChangePXCComponentsParamsBodyHaproxyVersionsItems0 struct {
@@ -634,7 +583,8 @@ func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyPXC ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyPXC ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyPXC
 */
 type ChangePXCComponentsParamsBodyPXC struct {
@@ -734,7 +684,8 @@ func (o *ChangePXCComponentsParamsBodyPXC) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyPXCVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyPXCVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyPXCVersionsItems0
 */
 type ChangePXCComponentsParamsBodyPXCVersionsItems0 struct {
@@ -776,7 +727,8 @@ func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyProxysql ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyProxysql ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyProxysql
 */
 type ChangePXCComponentsParamsBodyProxysql struct {
@@ -876,7 +828,8 @@ func (o *ChangePXCComponentsParamsBodyProxysql) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyProxysqlVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyProxysqlVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyProxysqlVersionsItems0
 */
 type ChangePXCComponentsParamsBodyProxysqlVersionsItems0 struct {

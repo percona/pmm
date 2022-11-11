@@ -50,7 +50,8 @@ func NewAddQANMySQLSlowlogAgentOK() *AddQANMySQLSlowlogAgentOK {
 	return &AddQANMySQLSlowlogAgentOK{}
 }
 
-/* AddQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
+/*
+AddQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type AddQANMySQLSlowlogAgentOK struct {
 	Payload *AddQANMySQLSlowlogAgentOKBody
 }
 
-// IsSuccess returns true when this add Qan my Sql slowlog agent Ok response has a 2xx status code
-func (o *AddQANMySQLSlowlogAgentOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add Qan my Sql slowlog agent Ok response has a 3xx status code
-func (o *AddQANMySQLSlowlogAgentOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add Qan my Sql slowlog agent Ok response has a 4xx status code
-func (o *AddQANMySQLSlowlogAgentOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add Qan my Sql slowlog agent Ok response has a 5xx status code
-func (o *AddQANMySQLSlowlogAgentOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add Qan my Sql slowlog agent Ok response a status code equal to that given
-func (o *AddQANMySQLSlowlogAgentOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddQANMySQLSlowlogAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
-}
-
-func (o *AddQANMySQLSlowlogAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewAddQANMySQLSlowlogAgentDefault(code int) *AddQANMySQLSlowlogAgentDefault
 	}
 }
 
-/* AddQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
+/*
+AddQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *AddQANMySQLSlowlogAgentDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add QAN my SQL slowlog agent default response has a 2xx status code
-func (o *AddQANMySQLSlowlogAgentDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add QAN my SQL slowlog agent default response has a 3xx status code
-func (o *AddQANMySQLSlowlogAgentDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add QAN my SQL slowlog agent default response has a 4xx status code
-func (o *AddQANMySQLSlowlogAgentDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add QAN my SQL slowlog agent default response has a 5xx status code
-func (o *AddQANMySQLSlowlogAgentDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add QAN my SQL slowlog agent default response a status code equal to that given
-func (o *AddQANMySQLSlowlogAgentDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddQANMySQLSlowlogAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddQANMySQLSlowlogAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *AddQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientRes
 	return nil
 }
 
-/*AddQANMySQLSlowlogAgentBody add QAN my SQL slowlog agent body
+/*
+AddQANMySQLSlowlogAgentBody add QAN my SQL slowlog agent body
 swagger:model AddQANMySQLSlowlogAgentBody
 */
 type AddQANMySQLSlowlogAgentBody struct {
@@ -319,7 +264,8 @@ func (o *AddQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddQANMySQLSlowlogAgentDefaultBody add QAN my SQL slowlog agent default body
+/*
+AddQANMySQLSlowlogAgentDefaultBody add QAN my SQL slowlog agent default body
 swagger:model AddQANMySQLSlowlogAgentDefaultBody
 */
 type AddQANMySQLSlowlogAgentDefaultBody struct {
@@ -422,7 +368,8 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0 add QAN my SQL slowlog agent default body details items0
+/*
+AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0 add QAN my SQL slowlog agent default body details items0
 swagger:model AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
@@ -458,7 +405,8 @@ func (o *AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 	return nil
 }
 
-/*AddQANMySQLSlowlogAgentOKBody add QAN my SQL slowlog agent OK body
+/*
+AddQANMySQLSlowlogAgentOKBody add QAN my SQL slowlog agent OK body
 swagger:model AddQANMySQLSlowlogAgentOKBody
 */
 type AddQANMySQLSlowlogAgentOKBody struct {
@@ -546,7 +494,8 @@ func (o *AddQANMySQLSlowlogAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 */
 type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {

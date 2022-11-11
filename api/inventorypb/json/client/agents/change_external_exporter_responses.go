@@ -48,7 +48,8 @@ func NewChangeExternalExporterOK() *ChangeExternalExporterOK {
 	return &ChangeExternalExporterOK{}
 }
 
-/* ChangeExternalExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ChangeExternalExporterOK struct {
 	Payload *ChangeExternalExporterOKBody
 }
 
-// IsSuccess returns true when this change external exporter Ok response has a 2xx status code
-func (o *ChangeExternalExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change external exporter Ok response has a 3xx status code
-func (o *ChangeExternalExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change external exporter Ok response has a 4xx status code
-func (o *ChangeExternalExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change external exporter Ok response has a 5xx status code
-func (o *ChangeExternalExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change external exporter Ok response a status code equal to that given
-func (o *ChangeExternalExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeExternalExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] changeExternalExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeExternalExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] changeExternalExporterOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewChangeExternalExporterDefault(code int) *ChangeExternalExporterDefault {
 	}
 }
 
-/* ChangeExternalExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ChangeExternalExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change external exporter default response has a 2xx status code
-func (o *ChangeExternalExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change external exporter default response has a 3xx status code
-func (o *ChangeExternalExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change external exporter default response has a 4xx status code
-func (o *ChangeExternalExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change external exporter default response has a 5xx status code
-func (o *ChangeExternalExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change external exporter default response a status code equal to that given
-func (o *ChangeExternalExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeExternalExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] ChangeExternalExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeExternalExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] ChangeExternalExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ChangeExternalExporterDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*ChangeExternalExporterBody change external exporter body
+/*
+ChangeExternalExporterBody change external exporter body
 swagger:model ChangeExternalExporterBody
 */
 type ChangeExternalExporterBody struct {
@@ -265,7 +210,8 @@ func (o *ChangeExternalExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeExternalExporterDefaultBody change external exporter default body
+/*
+ChangeExternalExporterDefaultBody change external exporter default body
 swagger:model ChangeExternalExporterDefaultBody
 */
 type ChangeExternalExporterDefaultBody struct {
@@ -368,7 +314,8 @@ func (o *ChangeExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeExternalExporterDefaultBodyDetailsItems0 change external exporter default body details items0
+/*
+ChangeExternalExporterDefaultBodyDetailsItems0 change external exporter default body details items0
 swagger:model ChangeExternalExporterDefaultBodyDetailsItems0
 */
 type ChangeExternalExporterDefaultBodyDetailsItems0 struct {
@@ -404,7 +351,8 @@ func (o *ChangeExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangeExternalExporterOKBody change external exporter OK body
+/*
+ChangeExternalExporterOKBody change external exporter OK body
 swagger:model ChangeExternalExporterOKBody
 */
 type ChangeExternalExporterOKBody struct {
@@ -492,7 +440,8 @@ func (o *ChangeExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*
+ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model ChangeExternalExporterOKBodyExternalExporter
 */
 type ChangeExternalExporterOKBodyExternalExporter struct {
@@ -558,7 +507,8 @@ func (o *ChangeExternalExporterOKBodyExternalExporter) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ChangeExternalExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeExternalExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeExternalExporterParamsBodyCommon
 */
 type ChangeExternalExporterParamsBodyCommon struct {

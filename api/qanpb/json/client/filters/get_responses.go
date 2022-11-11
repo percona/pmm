@@ -49,7 +49,8 @@ func NewGetOK() *GetOK {
 	return &GetOK{}
 }
 
-/* GetOK describes a response with status code 200, with default header values.
+/*
+GetOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type GetOK struct {
 	Payload *GetOKBody
 }
 
-// IsSuccess returns true when this get Ok response has a 2xx status code
-func (o *GetOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get Ok response has a 3xx status code
-func (o *GetOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get Ok response has a 4xx status code
-func (o *GetOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get Ok response has a 5xx status code
-func (o *GetOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get Ok response a status code equal to that given
-func (o *GetOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
-}
-
-func (o *GetOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewGetDefault(code int) *GetDefault {
 	}
 }
 
-/* GetDefault describes a response with status code -1, with default header values.
+/*
+GetDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *GetDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get default response has a 2xx status code
-func (o *GetDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get default response has a 3xx status code
-func (o *GetDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get default response has a 4xx status code
-func (o *GetDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get default response has a 5xx status code
-func (o *GetDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get default response a status code equal to that given
-func (o *GetDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *GetDefault) readResponse(response runtime.ClientResponse, consumer runt
 	return nil
 }
 
-/*GetBody FiltersRequest contains period for which we need filters.
+/*
+GetBody FiltersRequest contains period for which we need filters.
 swagger:model GetBody
 */
 type GetBody struct {
@@ -315,7 +260,8 @@ func (o *GetBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDefaultBody get default body
+/*
+GetDefaultBody get default body
 swagger:model GetDefaultBody
 */
 type GetDefaultBody struct {
@@ -418,7 +364,8 @@ func (o *GetDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDefaultBodyDetailsItems0 get default body details items0
+/*
+GetDefaultBodyDetailsItems0 get default body details items0
 swagger:model GetDefaultBodyDetailsItems0
 */
 type GetDefaultBodyDetailsItems0 struct {
@@ -454,7 +401,8 @@ func (o *GetDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetOKBody FiltersReply is map of labels for given period by key.
+/*
+GetOKBody FiltersReply is map of labels for given period by key.
 // Key is label's name and value is label's value and how many times it occur.
 swagger:model GetOKBody
 */
@@ -547,7 +495,8 @@ func (o *GetOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetOKBodyLabelsAnon ListLabels is list of label's values: duplicates are impossible.
+/*
+GetOKBodyLabelsAnon ListLabels is list of label's values: duplicates are impossible.
 swagger:model GetOKBodyLabelsAnon
 */
 type GetOKBodyLabelsAnon struct {
@@ -644,7 +593,8 @@ func (o *GetOKBodyLabelsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetOKBodyLabelsAnonNameItems0 Values is label values and main metric percent and per second.
+/*
+GetOKBodyLabelsAnonNameItems0 Values is label values and main metric percent and per second.
 swagger:model GetOKBodyLabelsAnonNameItems0
 */
 type GetOKBodyLabelsAnonNameItems0 struct {
@@ -686,7 +636,8 @@ func (o *GetOKBodyLabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*
+GetParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetParamsBodyLabelsItems0
 */
 type GetParamsBodyLabelsItems0 struct {

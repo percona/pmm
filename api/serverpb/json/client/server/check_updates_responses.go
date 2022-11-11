@@ -49,7 +49,8 @@ func NewCheckUpdatesOK() *CheckUpdatesOK {
 	return &CheckUpdatesOK{}
 }
 
-/* CheckUpdatesOK describes a response with status code 200, with default header values.
+/*
+CheckUpdatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type CheckUpdatesOK struct {
 	Payload *CheckUpdatesOKBody
 }
 
-// IsSuccess returns true when this check updates Ok response has a 2xx status code
-func (o *CheckUpdatesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this check updates Ok response has a 3xx status code
-func (o *CheckUpdatesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this check updates Ok response has a 4xx status code
-func (o *CheckUpdatesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this check updates Ok response has a 5xx status code
-func (o *CheckUpdatesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this check updates Ok response a status code equal to that given
-func (o *CheckUpdatesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *CheckUpdatesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
-}
-
-func (o *CheckUpdatesOK) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
 }
 
@@ -112,7 +84,8 @@ func NewCheckUpdatesDefault(code int) *CheckUpdatesDefault {
 	}
 }
 
-/* CheckUpdatesDefault describes a response with status code -1, with default header values.
+/*
+CheckUpdatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -127,36 +100,7 @@ func (o *CheckUpdatesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this check updates default response has a 2xx status code
-func (o *CheckUpdatesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this check updates default response has a 3xx status code
-func (o *CheckUpdatesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this check updates default response has a 4xx status code
-func (o *CheckUpdatesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this check updates default response has a 5xx status code
-func (o *CheckUpdatesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this check updates default response a status code equal to that given
-func (o *CheckUpdatesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *CheckUpdatesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *CheckUpdatesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
 }
 
@@ -175,7 +119,8 @@ func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*CheckUpdatesBody check updates body
+/*
+CheckUpdatesBody check updates body
 swagger:model CheckUpdatesBody
 */
 type CheckUpdatesBody struct {
@@ -214,7 +159,8 @@ func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesDefaultBody check updates default body
+/*
+CheckUpdatesDefaultBody check updates default body
 swagger:model CheckUpdatesDefaultBody
 */
 type CheckUpdatesDefaultBody struct {
@@ -317,7 +263,8 @@ func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+CheckUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -460,7 +407,8 @@ func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBody check updates OK body
+/*
+CheckUpdatesOKBody check updates OK body
 swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
@@ -619,7 +567,8 @@ func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Server as a whole.
+/*
+CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Server as a whole.
 swagger:model CheckUpdatesOKBodyInstalled
 */
 type CheckUpdatesOKBodyInstalled struct {
@@ -683,7 +632,8 @@ func (o *CheckUpdatesOKBodyInstalled) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
+/*
+CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
 swagger:model CheckUpdatesOKBodyLatest
 */
 type CheckUpdatesOKBodyLatest struct {

@@ -48,7 +48,8 @@ func NewRemoveServiceOK() *RemoveServiceOK {
 	return &RemoveServiceOK{}
 }
 
-/* RemoveServiceOK describes a response with status code 200, with default header values.
+/*
+RemoveServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type RemoveServiceOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this remove service Ok response has a 2xx status code
-func (o *RemoveServiceOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this remove service Ok response has a 3xx status code
-func (o *RemoveServiceOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this remove service Ok response has a 4xx status code
-func (o *RemoveServiceOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this remove service Ok response has a 5xx status code
-func (o *RemoveServiceOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this remove service Ok response a status code equal to that given
-func (o *RemoveServiceOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *RemoveServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
-}
-
-func (o *RemoveServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewRemoveServiceDefault(code int) *RemoveServiceDefault {
 	}
 }
 
-/* RemoveServiceDefault describes a response with status code -1, with default header values.
+/*
+RemoveServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *RemoveServiceDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this remove service default response has a 2xx status code
-func (o *RemoveServiceDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this remove service default response has a 3xx status code
-func (o *RemoveServiceDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this remove service default response has a 4xx status code
-func (o *RemoveServiceDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this remove service default response has a 5xx status code
-func (o *RemoveServiceDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this remove service default response a status code equal to that given
-func (o *RemoveServiceDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *RemoveServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *RemoveServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*RemoveServiceBody remove service body
+/*
+RemoveServiceBody remove service body
 swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
@@ -211,7 +156,8 @@ func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoveServiceDefaultBody remove service default body
+/*
+RemoveServiceDefaultBody remove service default body
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
@@ -314,7 +260,8 @@ func (o *RemoveServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoveServiceDefaultBodyDetailsItems0 remove service default body details items0
+/*
+RemoveServiceDefaultBodyDetailsItems0 remove service default body details items0
 swagger:model RemoveServiceDefaultBodyDetailsItems0
 */
 type RemoveServiceDefaultBodyDetailsItems0 struct {

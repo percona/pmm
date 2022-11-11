@@ -48,7 +48,8 @@ func NewCreateTemplateOK() *CreateTemplateOK {
 	return &CreateTemplateOK{}
 }
 
-/* CreateTemplateOK describes a response with status code 200, with default header values.
+/*
+CreateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type CreateTemplateOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this create template Ok response has a 2xx status code
-func (o *CreateTemplateOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this create template Ok response has a 3xx status code
-func (o *CreateTemplateOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this create template Ok response has a 4xx status code
-func (o *CreateTemplateOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this create template Ok response has a 5xx status code
-func (o *CreateTemplateOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this create template Ok response a status code equal to that given
-func (o *CreateTemplateOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *CreateTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Create][%d] createTemplateOk  %+v", 200, o.Payload)
-}
-
-func (o *CreateTemplateOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Create][%d] createTemplateOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewCreateTemplateDefault(code int) *CreateTemplateDefault {
 	}
 }
 
-/* CreateTemplateDefault describes a response with status code -1, with default header values.
+/*
+CreateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *CreateTemplateDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this create template default response has a 2xx status code
-func (o *CreateTemplateDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this create template default response has a 3xx status code
-func (o *CreateTemplateDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this create template default response has a 4xx status code
-func (o *CreateTemplateDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this create template default response has a 5xx status code
-func (o *CreateTemplateDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this create template default response a status code equal to that given
-func (o *CreateTemplateDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *CreateTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Create][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *CreateTemplateDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Create][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *CreateTemplateDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*CreateTemplateBody create template body
+/*
+CreateTemplateBody create template body
 swagger:model CreateTemplateBody
 */
 type CreateTemplateBody struct {
@@ -208,7 +153,8 @@ func (o *CreateTemplateBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateTemplateDefaultBody create template default body
+/*
+CreateTemplateDefaultBody create template default body
 swagger:model CreateTemplateDefaultBody
 */
 type CreateTemplateDefaultBody struct {
@@ -311,7 +257,8 @@ func (o *CreateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateTemplateDefaultBodyDetailsItems0 create template default body details items0
+/*
+CreateTemplateDefaultBodyDetailsItems0 create template default body details items0
 swagger:model CreateTemplateDefaultBodyDetailsItems0
 */
 type CreateTemplateDefaultBodyDetailsItems0 struct {

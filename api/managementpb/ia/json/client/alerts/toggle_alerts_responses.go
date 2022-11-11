@@ -50,7 +50,8 @@ func NewToggleAlertsOK() *ToggleAlertsOK {
 	return &ToggleAlertsOK{}
 }
 
-/* ToggleAlertsOK describes a response with status code 200, with default header values.
+/*
+ToggleAlertsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ToggleAlertsOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this toggle alerts Ok response has a 2xx status code
-func (o *ToggleAlertsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this toggle alerts Ok response has a 3xx status code
-func (o *ToggleAlertsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this toggle alerts Ok response has a 4xx status code
-func (o *ToggleAlertsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this toggle alerts Ok response has a 5xx status code
-func (o *ToggleAlertsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this toggle alerts Ok response a status code equal to that given
-func (o *ToggleAlertsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ToggleAlertsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] toggleAlertsOk  %+v", 200, o.Payload)
-}
-
-func (o *ToggleAlertsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] toggleAlertsOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewToggleAlertsDefault(code int) *ToggleAlertsDefault {
 	}
 }
 
-/* ToggleAlertsDefault describes a response with status code -1, with default header values.
+/*
+ToggleAlertsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ToggleAlertsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this toggle alerts default response has a 2xx status code
-func (o *ToggleAlertsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this toggle alerts default response has a 3xx status code
-func (o *ToggleAlertsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this toggle alerts default response has a 4xx status code
-func (o *ToggleAlertsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this toggle alerts default response has a 5xx status code
-func (o *ToggleAlertsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this toggle alerts default response a status code equal to that given
-func (o *ToggleAlertsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ToggleAlertsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] ToggleAlerts default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ToggleAlertsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] ToggleAlerts default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ToggleAlertsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*ToggleAlertsBody toggle alerts body
+/*
+ToggleAlertsBody toggle alerts body
 swagger:model ToggleAlertsBody
 */
 type ToggleAlertsBody struct {
@@ -274,7 +219,8 @@ func (o *ToggleAlertsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleAlertsDefaultBody toggle alerts default body
+/*
+ToggleAlertsDefaultBody toggle alerts default body
 swagger:model ToggleAlertsDefaultBody
 */
 type ToggleAlertsDefaultBody struct {
@@ -377,7 +323,8 @@ func (o *ToggleAlertsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleAlertsDefaultBodyDetailsItems0 toggle alerts default body details items0
+/*
+ToggleAlertsDefaultBodyDetailsItems0 toggle alerts default body details items0
 swagger:model ToggleAlertsDefaultBodyDetailsItems0
 */
 type ToggleAlertsDefaultBodyDetailsItems0 struct {

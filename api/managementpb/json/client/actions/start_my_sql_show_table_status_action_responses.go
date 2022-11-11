@@ -48,7 +48,8 @@ func NewStartMySQLShowTableStatusActionOK() *StartMySQLShowTableStatusActionOK {
 	return &StartMySQLShowTableStatusActionOK{}
 }
 
-/* StartMySQLShowTableStatusActionOK describes a response with status code 200, with default header values.
+/*
+StartMySQLShowTableStatusActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type StartMySQLShowTableStatusActionOK struct {
 	Payload *StartMySQLShowTableStatusActionOKBody
 }
 
-// IsSuccess returns true when this start my Sql show table status action Ok response has a 2xx status code
-func (o *StartMySQLShowTableStatusActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start my Sql show table status action Ok response has a 3xx status code
-func (o *StartMySQLShowTableStatusActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start my Sql show table status action Ok response has a 4xx status code
-func (o *StartMySQLShowTableStatusActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start my Sql show table status action Ok response has a 5xx status code
-func (o *StartMySQLShowTableStatusActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start my Sql show table status action Ok response a status code equal to that given
-func (o *StartMySQLShowTableStatusActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLShowTableStatusActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewStartMySQLShowTableStatusActionDefault(code int) *StartMySQLShowTableSta
 	}
 }
 
-/* StartMySQLShowTableStatusActionDefault describes a response with status code -1, with default header values.
+/*
+StartMySQLShowTableStatusActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start my SQL show table status action default response has a 2xx status code
-func (o *StartMySQLShowTableStatusActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start my SQL show table status action default response has a 3xx status code
-func (o *StartMySQLShowTableStatusActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start my SQL show table status action default response has a 4xx status code
-func (o *StartMySQLShowTableStatusActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start my SQL show table status action default response has a 5xx status code
-func (o *StartMySQLShowTableStatusActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start my SQL show table status action default response a status code equal to that given
-func (o *StartMySQLShowTableStatusActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLShowTableStatusActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *StartMySQLShowTableStatusActionDefault) readResponse(response runtime.C
 	return nil
 }
 
-/*StartMySQLShowTableStatusActionBody start my SQL show table status action body
+/*
+StartMySQLShowTableStatusActionBody start my SQL show table status action body
 swagger:model StartMySQLShowTableStatusActionBody
 */
 type StartMySQLShowTableStatusActionBody struct {
@@ -219,7 +164,8 @@ func (o *StartMySQLShowTableStatusActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLShowTableStatusActionDefaultBody start my SQL show table status action default body
+/*
+StartMySQLShowTableStatusActionDefaultBody start my SQL show table status action default body
 swagger:model StartMySQLShowTableStatusActionDefaultBody
 */
 type StartMySQLShowTableStatusActionDefaultBody struct {
@@ -322,7 +268,8 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 start my SQL show table status action default body details items0
+/*
+StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 start my SQL show table status action default body details items0
 swagger:model StartMySQLShowTableStatusActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 struct {
@@ -358,7 +305,8 @@ func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) UnmarshalBinar
 	return nil
 }
 
-/*StartMySQLShowTableStatusActionOKBody start my SQL show table status action OK body
+/*
+StartMySQLShowTableStatusActionOKBody start my SQL show table status action OK body
 swagger:model StartMySQLShowTableStatusActionOKBody
 */
 type StartMySQLShowTableStatusActionOKBody struct {

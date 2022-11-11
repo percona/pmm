@@ -14,6 +14,8 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 
 require (
 	github.com/AlekSi/pointer v1.2.0
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.0
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.6.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -45,7 +47,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.10.6
-	github.com/minio/minio-go/v7 v7.0.36
+	github.com/minio/minio-go/v7 v7.0.43
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20221108155624-e41938ef2692
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
@@ -83,13 +85,6 @@ require (
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.0 // indirect
-	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
-	github.com/Azure/go-autorest/autorest/azure/cli v0.4.5 // indirect
-	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
-	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
-	github.com/Azure/go-autorest/logger v0.2.1 // indirect
-	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.7.0 // indirect
 	github.com/ClickHouse/ch-go v0.47.3 // indirect
 	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
@@ -104,7 +99,6 @@ require (
 	github.com/charmbracelet/harmonica v0.2.0 // indirect
 	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58 // indirect
 	github.com/containerd/console v1.0.3 // indirect
-	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
@@ -134,13 +128,11 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/k0kubun/pp v3.0.1+incompatible // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
@@ -149,11 +141,12 @@ require (
 	github.com/miekg/dns v1.1.49 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/moby/term v0.0.0-20221105221325-4eb28fa6025c // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/montanaflynn/stats v0.6.6 // indirect
+	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
@@ -190,4 +183,5 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gotest.tools/v3 v3.4.0 // indirect
 )

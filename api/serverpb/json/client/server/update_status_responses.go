@@ -48,7 +48,8 @@ func NewUpdateStatusOK() *UpdateStatusOK {
 	return &UpdateStatusOK{}
 }
 
-/* UpdateStatusOK describes a response with status code 200, with default header values.
+/*
+UpdateStatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type UpdateStatusOK struct {
 	Payload *UpdateStatusOKBody
 }
 
-// IsSuccess returns true when this update status Ok response has a 2xx status code
-func (o *UpdateStatusOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update status Ok response has a 3xx status code
-func (o *UpdateStatusOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update status Ok response has a 4xx status code
-func (o *UpdateStatusOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update status Ok response has a 5xx status code
-func (o *UpdateStatusOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update status Ok response a status code equal to that given
-func (o *UpdateStatusOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *UpdateStatusOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
-}
-
-func (o *UpdateStatusOK) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewUpdateStatusDefault(code int) *UpdateStatusDefault {
 	}
 }
 
-/* UpdateStatusDefault describes a response with status code -1, with default header values.
+/*
+UpdateStatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *UpdateStatusDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this update status default response has a 2xx status code
-func (o *UpdateStatusDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this update status default response has a 3xx status code
-func (o *UpdateStatusDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this update status default response has a 4xx status code
-func (o *UpdateStatusDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this update status default response has a 5xx status code
-func (o *UpdateStatusDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this update status default response a status code equal to that given
-func (o *UpdateStatusDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *UpdateStatusDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *UpdateStatusDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*UpdateStatusBody update status body
+/*
+UpdateStatusBody update status body
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
@@ -213,7 +158,8 @@ func (o *UpdateStatusBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateStatusDefaultBody update status default body
+/*
+UpdateStatusDefaultBody update status default body
 swagger:model UpdateStatusDefaultBody
 */
 type UpdateStatusDefaultBody struct {
@@ -316,7 +262,8 @@ func (o *UpdateStatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateStatusDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+UpdateStatusDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -459,7 +406,8 @@ func (o *UpdateStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateStatusOKBody update status OK body
+/*
+UpdateStatusOKBody update status OK body
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {

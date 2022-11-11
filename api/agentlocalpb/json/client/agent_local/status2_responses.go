@@ -50,7 +50,8 @@ func NewStatus2OK() *Status2OK {
 	return &Status2OK{}
 }
 
-/* Status2OK describes a response with status code 200, with default header values.
+/*
+Status2OK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type Status2OK struct {
 	Payload *Status2OKBody
 }
 
-// IsSuccess returns true when this status2 Ok response has a 2xx status code
-func (o *Status2OK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this status2 Ok response has a 3xx status code
-func (o *Status2OK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this status2 Ok response has a 4xx status code
-func (o *Status2OK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this status2 Ok response has a 5xx status code
-func (o *Status2OK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this status2 Ok response a status code equal to that given
-func (o *Status2OK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *Status2OK) Error() string {
-	return fmt.Sprintf("[GET /local/Status][%d] status2Ok  %+v", 200, o.Payload)
-}
-
-func (o *Status2OK) String() string {
 	return fmt.Sprintf("[GET /local/Status][%d] status2Ok  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewStatus2Default(code int) *Status2Default {
 	}
 }
 
-/* Status2Default describes a response with status code -1, with default header values.
+/*
+Status2Default describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *Status2Default) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this status2 default response has a 2xx status code
-func (o *Status2Default) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this status2 default response has a 3xx status code
-func (o *Status2Default) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this status2 default response has a 4xx status code
-func (o *Status2Default) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this status2 default response has a 5xx status code
-func (o *Status2Default) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this status2 default response a status code equal to that given
-func (o *Status2Default) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *Status2Default) Error() string {
-	return fmt.Sprintf("[GET /local/Status][%d] Status2 default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *Status2Default) String() string {
 	return fmt.Sprintf("[GET /local/Status][%d] Status2 default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *Status2Default) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*Status2DefaultBody status2 default body
+/*
+Status2DefaultBody status2 default body
 swagger:model Status2DefaultBody
 */
 type Status2DefaultBody struct {
@@ -279,7 +224,8 @@ func (o *Status2DefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*Status2DefaultBodyDetailsItems0 status2 default body details items0
+/*
+Status2DefaultBodyDetailsItems0 status2 default body details items0
 swagger:model Status2DefaultBodyDetailsItems0
 */
 type Status2DefaultBodyDetailsItems0 struct {
@@ -315,7 +261,8 @@ func (o *Status2DefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*Status2OKBody status2 OK body
+/*
+Status2OKBody status2 OK body
 swagger:model Status2OKBody
 */
 type Status2OKBody struct {
@@ -475,7 +422,8 @@ func (o *Status2OKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*Status2OKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
+/*
+Status2OKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
 swagger:model Status2OKBodyAgentsInfoItems0
 */
 type Status2OKBodyAgentsInfoItems0 struct {
@@ -687,7 +635,8 @@ func (o *Status2OKBodyAgentsInfoItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*Status2OKBodyServerInfo ServerInfo contains information about the PMM Server.
+/*
+Status2OKBodyServerInfo ServerInfo contains information about the PMM Server.
 swagger:model Status2OKBodyServerInfo
 */
 type Status2OKBodyServerInfo struct {

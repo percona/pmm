@@ -48,7 +48,8 @@ func NewChangeSettingsOK() *ChangeSettingsOK {
 	return &ChangeSettingsOK{}
 }
 
-/* ChangeSettingsOK describes a response with status code 200, with default header values.
+/*
+ChangeSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ChangeSettingsOK struct {
 	Payload *ChangeSettingsOKBody
 }
 
-// IsSuccess returns true when this change settings Ok response has a 2xx status code
-func (o *ChangeSettingsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change settings Ok response has a 3xx status code
-func (o *ChangeSettingsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change settings Ok response has a 4xx status code
-func (o *ChangeSettingsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change settings Ok response has a 5xx status code
-func (o *ChangeSettingsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change settings Ok response a status code equal to that given
-func (o *ChangeSettingsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeSettingsOK) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewChangeSettingsDefault(code int) *ChangeSettingsDefault {
 	}
 }
 
-/* ChangeSettingsDefault describes a response with status code -1, with default header values.
+/*
+ChangeSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ChangeSettingsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change settings default response has a 2xx status code
-func (o *ChangeSettingsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change settings default response has a 3xx status code
-func (o *ChangeSettingsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change settings default response has a 4xx status code
-func (o *ChangeSettingsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change settings default response has a 5xx status code
-func (o *ChangeSettingsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change settings default response a status code equal to that given
-func (o *ChangeSettingsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeSettingsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ChangeSettingsBody change settings body
+/*
+ChangeSettingsBody change settings body
 swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
@@ -472,7 +417,8 @@ func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsDefaultBody change settings default body
+/*
+ChangeSettingsDefaultBody change settings default body
 swagger:model ChangeSettingsDefaultBody
 */
 type ChangeSettingsDefaultBody struct {
@@ -575,7 +521,8 @@ func (o *ChangeSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -718,7 +665,8 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ChangeSettingsOKBody change settings OK body
+/*
+ChangeSettingsOKBody change settings OK body
 swagger:model ChangeSettingsOKBody
 */
 type ChangeSettingsOKBody struct {
@@ -806,7 +754,8 @@ func (o *ChangeSettingsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsOKBodySettings Settings represents PMM Server settings.
+/*
+ChangeSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
@@ -1077,7 +1026,8 @@ func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*
+ChangeSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model ChangeSettingsOKBodySettingsEmailAlertingSettings
 */
 type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -1134,7 +1084,8 @@ func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+/*
+ChangeSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
@@ -1176,7 +1127,8 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
+/*
+ChangeSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model ChangeSettingsOKBodySettingsSlackAlertingSettings
 */
 type ChangeSettingsOKBodySettingsSlackAlertingSettings struct {
@@ -1212,7 +1164,8 @@ func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []
 	return nil
 }
 
-/*ChangeSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+/*
+ChangeSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
 swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
 */
 type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
@@ -1254,7 +1207,8 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*
+ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
 */
 type ChangeSettingsParamsBodyEmailAlertingSettings struct {
@@ -1311,7 +1265,8 @@ func (o *ChangeSettingsParamsBodyEmailAlertingSettings) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+/*
+ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
@@ -1353,7 +1308,8 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ChangeSettingsParamsBodySlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
+/*
+ChangeSettingsParamsBodySlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model ChangeSettingsParamsBodySlackAlertingSettings
 */
 type ChangeSettingsParamsBodySlackAlertingSettings struct {
@@ -1389,7 +1345,8 @@ func (o *ChangeSettingsParamsBodySlackAlertingSettings) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ChangeSettingsParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+/*
+ChangeSettingsParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
 swagger:model ChangeSettingsParamsBodySttCheckIntervals
 */
 type ChangeSettingsParamsBodySttCheckIntervals struct {

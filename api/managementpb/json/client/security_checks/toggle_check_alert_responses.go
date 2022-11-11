@@ -48,7 +48,8 @@ func NewToggleCheckAlertOK() *ToggleCheckAlertOK {
 	return &ToggleCheckAlertOK{}
 }
 
-/* ToggleCheckAlertOK describes a response with status code 200, with default header values.
+/*
+ToggleCheckAlertOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ToggleCheckAlertOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this toggle check alert Ok response has a 2xx status code
-func (o *ToggleCheckAlertOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this toggle check alert Ok response has a 3xx status code
-func (o *ToggleCheckAlertOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this toggle check alert Ok response has a 4xx status code
-func (o *ToggleCheckAlertOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this toggle check alert Ok response has a 5xx status code
-func (o *ToggleCheckAlertOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this toggle check alert Ok response a status code equal to that given
-func (o *ToggleCheckAlertOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ToggleCheckAlertOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] toggleCheckAlertOk  %+v", 200, o.Payload)
-}
-
-func (o *ToggleCheckAlertOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] toggleCheckAlertOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewToggleCheckAlertDefault(code int) *ToggleCheckAlertDefault {
 	}
 }
 
-/* ToggleCheckAlertDefault describes a response with status code -1, with default header values.
+/*
+ToggleCheckAlertDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *ToggleCheckAlertDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this toggle check alert default response has a 2xx status code
-func (o *ToggleCheckAlertDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this toggle check alert default response has a 3xx status code
-func (o *ToggleCheckAlertDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this toggle check alert default response has a 4xx status code
-func (o *ToggleCheckAlertDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this toggle check alert default response has a 5xx status code
-func (o *ToggleCheckAlertDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this toggle check alert default response a status code equal to that given
-func (o *ToggleCheckAlertDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ToggleCheckAlertDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] ToggleCheckAlert default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ToggleCheckAlertDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] ToggleCheckAlert default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *ToggleCheckAlertDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*ToggleCheckAlertBody toggle check alert body
+/*
+ToggleCheckAlertBody toggle check alert body
 swagger:model ToggleCheckAlertBody
 */
 type ToggleCheckAlertBody struct {
@@ -211,7 +156,8 @@ func (o *ToggleCheckAlertBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleCheckAlertDefaultBody toggle check alert default body
+/*
+ToggleCheckAlertDefaultBody toggle check alert default body
 swagger:model ToggleCheckAlertDefaultBody
 */
 type ToggleCheckAlertDefaultBody struct {
@@ -314,7 +260,8 @@ func (o *ToggleCheckAlertDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleCheckAlertDefaultBodyDetailsItems0 toggle check alert default body details items0
+/*
+ToggleCheckAlertDefaultBodyDetailsItems0 toggle check alert default body details items0
 swagger:model ToggleCheckAlertDefaultBodyDetailsItems0
 */
 type ToggleCheckAlertDefaultBodyDetailsItems0 struct {

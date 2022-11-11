@@ -50,7 +50,8 @@ func NewListNodesOK() *ListNodesOK {
 	return &ListNodesOK{}
 }
 
-/* ListNodesOK describes a response with status code 200, with default header values.
+/*
+ListNodesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ListNodesOK struct {
 	Payload *ListNodesOKBody
 }
 
-// IsSuccess returns true when this list nodes Ok response has a 2xx status code
-func (o *ListNodesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list nodes Ok response has a 3xx status code
-func (o *ListNodesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list nodes Ok response has a 4xx status code
-func (o *ListNodesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list nodes Ok response has a 5xx status code
-func (o *ListNodesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list nodes Ok response a status code equal to that given
-func (o *ListNodesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
-}
-
-func (o *ListNodesOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
 
@@ -113,7 +85,8 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 	}
 }
 
-/* ListNodesDefault describes a response with status code -1, with default header values.
+/*
+ListNodesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -128,36 +101,7 @@ func (o *ListNodesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list nodes default response has a 2xx status code
-func (o *ListNodesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list nodes default response has a 3xx status code
-func (o *ListNodesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list nodes default response has a 4xx status code
-func (o *ListNodesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list nodes default response has a 5xx status code
-func (o *ListNodesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list nodes default response a status code equal to that given
-func (o *ListNodesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListNodesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListNodesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
 
@@ -176,7 +120,8 @@ func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*ListNodesBody list nodes body
+/*
+ListNodesBody list nodes body
 swagger:model ListNodesBody
 */
 type ListNodesBody struct {
@@ -276,7 +221,8 @@ func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesDefaultBody list nodes default body
+/*
+ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
@@ -379,7 +325,8 @@ func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
+/*
+ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
@@ -415,7 +362,8 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBody list nodes OK body
+/*
+ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
@@ -728,7 +676,8 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBodyContainerItems0 ContainerNode represents a Docker container.
+/*
+ListNodesOKBodyContainerItems0 ContainerNode represents a Docker container.
 swagger:model ListNodesOKBodyContainerItems0
 */
 type ListNodesOKBodyContainerItems0 struct {
@@ -791,7 +740,8 @@ func (o *ListNodesOKBodyContainerItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBodyGenericItems0 GenericNode represents a bare metal server or virtual machine.
+/*
+ListNodesOKBodyGenericItems0 GenericNode represents a bare metal server or virtual machine.
 swagger:model ListNodesOKBodyGenericItems0
 */
 type ListNodesOKBodyGenericItems0 struct {
@@ -851,7 +801,8 @@ func (o *ListNodesOKBodyGenericItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBodyRemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+/*
+ListNodesOKBodyRemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 swagger:model ListNodesOKBodyRemoteAzureDatabaseItems0
 */
 type ListNodesOKBodyRemoteAzureDatabaseItems0 struct {
@@ -905,7 +856,8 @@ func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*ListNodesOKBodyRemoteItems0 RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+/*
+ListNodesOKBodyRemoteItems0 RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model ListNodesOKBodyRemoteItems0
 */
 type ListNodesOKBodyRemoteItems0 struct {
@@ -959,7 +911,8 @@ func (o *ListNodesOKBodyRemoteItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBodyRemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*
+ListNodesOKBodyRemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model ListNodesOKBodyRemoteRDSItems0
 */
 type ListNodesOKBodyRemoteRDSItems0 struct {

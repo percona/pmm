@@ -49,7 +49,8 @@ func NewLogsOK(writer io.Writer) *LogsOK {
 	}
 }
 
-/* LogsOK describes a response with status code 200, with default header values.
+/*
+LogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,36 +58,7 @@ type LogsOK struct {
 	Payload io.Writer
 }
 
-// IsSuccess returns true when this logs Ok response has a 2xx status code
-func (o *LogsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this logs Ok response has a 3xx status code
-func (o *LogsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this logs Ok response has a 4xx status code
-func (o *LogsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this logs Ok response has a 5xx status code
-func (o *LogsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this logs Ok response a status code equal to that given
-func (o *LogsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *LogsOK) Error() string {
-	return fmt.Sprintf("[GET /logs.zip][%d] logsOk  %+v", 200, o.Payload)
-}
-
-func (o *LogsOK) String() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] logsOk  %+v", 200, o.Payload)
 }
 
@@ -110,7 +82,8 @@ func NewLogsDefault(code int) *LogsDefault {
 	}
 }
 
-/* LogsDefault describes a response with status code -1, with default header values.
+/*
+LogsDefault describes a response with status code -1, with default header values.
 
 An error response.
 */
@@ -125,36 +98,7 @@ func (o *LogsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this logs default response has a 2xx status code
-func (o *LogsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this logs default response has a 3xx status code
-func (o *LogsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this logs default response has a 4xx status code
-func (o *LogsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this logs default response has a 5xx status code
-func (o *LogsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this logs default response a status code equal to that given
-func (o *LogsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *LogsDefault) Error() string {
-	return fmt.Sprintf("[GET /logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *LogsDefault) String() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
 }
 
@@ -173,7 +117,8 @@ func (o *LogsDefault) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
-/*LogsDefaultBody ErrorResponse is a message returned on HTTP error.
+/*
+LogsDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model LogsDefaultBody
 */
 type LogsDefaultBody struct {

@@ -48,7 +48,8 @@ func NewChangeChannelOK() *ChangeChannelOK {
 	return &ChangeChannelOK{}
 }
 
-/* ChangeChannelOK describes a response with status code 200, with default header values.
+/*
+ChangeChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type ChangeChannelOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this change channel Ok response has a 2xx status code
-func (o *ChangeChannelOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change channel Ok response has a 3xx status code
-func (o *ChangeChannelOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change channel Ok response has a 4xx status code
-func (o *ChangeChannelOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change channel Ok response has a 5xx status code
-func (o *ChangeChannelOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change channel Ok response a status code equal to that given
-func (o *ChangeChannelOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeChannelOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] changeChannelOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeChannelOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] changeChannelOk  %+v", 200, o.Payload)
 }
 
@@ -109,7 +81,8 @@ func NewChangeChannelDefault(code int) *ChangeChannelDefault {
 	}
 }
 
-/* ChangeChannelDefault describes a response with status code -1, with default header values.
+/*
+ChangeChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -124,36 +97,7 @@ func (o *ChangeChannelDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change channel default response has a 2xx status code
-func (o *ChangeChannelDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change channel default response has a 3xx status code
-func (o *ChangeChannelDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change channel default response has a 4xx status code
-func (o *ChangeChannelDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change channel default response has a 5xx status code
-func (o *ChangeChannelDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change channel default response a status code equal to that given
-func (o *ChangeChannelDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeChannelDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] ChangeChannel default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeChannelDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] ChangeChannel default  %+v", o._statusCode, o.Payload)
 }
 
@@ -172,7 +116,8 @@ func (o *ChangeChannelDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*ChangeChannelBody change channel body
+/*
+ChangeChannelBody change channel body
 swagger:model ChangeChannelBody
 */
 type ChangeChannelBody struct {
@@ -404,7 +349,8 @@ func (o *ChangeChannelBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeChannelDefaultBody change channel default body
+/*
+ChangeChannelDefaultBody change channel default body
 swagger:model ChangeChannelDefaultBody
 */
 type ChangeChannelDefaultBody struct {
@@ -507,7 +453,8 @@ func (o *ChangeChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeChannelDefaultBodyDetailsItems0 change channel default body details items0
+/*
+ChangeChannelDefaultBodyDetailsItems0 change channel default body details items0
 swagger:model ChangeChannelDefaultBodyDetailsItems0
 */
 type ChangeChannelDefaultBodyDetailsItems0 struct {
@@ -543,7 +490,8 @@ func (o *ChangeChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*ChangeChannelParamsBodyEmailConfig EmailConfig represents email configuration.
+/*
+ChangeChannelParamsBodyEmailConfig EmailConfig represents email configuration.
 swagger:model ChangeChannelParamsBodyEmailConfig
 */
 type ChangeChannelParamsBodyEmailConfig struct {
@@ -582,7 +530,8 @@ func (o *ChangeChannelParamsBodyEmailConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeChannelParamsBodyPagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
+/*
+ChangeChannelParamsBodyPagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
 swagger:model ChangeChannelParamsBodyPagerdutyConfig
 */
 type ChangeChannelParamsBodyPagerdutyConfig struct {
@@ -624,7 +573,8 @@ func (o *ChangeChannelParamsBodyPagerdutyConfig) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ChangeChannelParamsBodySlackConfig SlackConfig represents Slack configuration.
+/*
+ChangeChannelParamsBodySlackConfig SlackConfig represents Slack configuration.
 swagger:model ChangeChannelParamsBodySlackConfig
 */
 type ChangeChannelParamsBodySlackConfig struct {
@@ -663,7 +613,8 @@ func (o *ChangeChannelParamsBodySlackConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeChannelParamsBodyWebhookConfig WebhookConfig represents webhook configuration.
+/*
+ChangeChannelParamsBodyWebhookConfig WebhookConfig represents webhook configuration.
 swagger:model ChangeChannelParamsBodyWebhookConfig
 */
 type ChangeChannelParamsBodyWebhookConfig struct {
@@ -760,7 +711,8 @@ func (o *ChangeChannelParamsBodyWebhookConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeChannelParamsBodyWebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+/*
+ChangeChannelParamsBodyWebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfig
 */
 type ChangeChannelParamsBodyWebhookConfigHTTPConfig struct {
@@ -902,7 +854,8 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+/*
+ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth
 */
 type ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
@@ -944,7 +897,8 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) UnmarshalBinar
 	return nil
 }
 
-/*ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
+/*
+ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
 // https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
 */

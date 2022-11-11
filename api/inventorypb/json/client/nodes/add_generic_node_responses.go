@@ -48,7 +48,8 @@ func NewAddGenericNodeOK() *AddGenericNodeOK {
 	return &AddGenericNodeOK{}
 }
 
-/* AddGenericNodeOK describes a response with status code 200, with default header values.
+/*
+AddGenericNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type AddGenericNodeOK struct {
 	Payload *AddGenericNodeOKBody
 }
 
-// IsSuccess returns true when this add generic node Ok response has a 2xx status code
-func (o *AddGenericNodeOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add generic node Ok response has a 3xx status code
-func (o *AddGenericNodeOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add generic node Ok response has a 4xx status code
-func (o *AddGenericNodeOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add generic node Ok response has a 5xx status code
-func (o *AddGenericNodeOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add generic node Ok response a status code equal to that given
-func (o *AddGenericNodeOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
-}
-
-func (o *AddGenericNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
 	}
 }
 
-/* AddGenericNodeDefault describes a response with status code -1, with default header values.
+/*
+AddGenericNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *AddGenericNodeDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add generic node default response has a 2xx status code
-func (o *AddGenericNodeDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add generic node default response has a 3xx status code
-func (o *AddGenericNodeDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add generic node default response has a 4xx status code
-func (o *AddGenericNodeDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add generic node default response has a 5xx status code
-func (o *AddGenericNodeDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add generic node default response a status code equal to that given
-func (o *AddGenericNodeDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddGenericNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddGenericNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*AddGenericNodeBody add generic node body
+/*
+AddGenericNodeBody add generic node body
 swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
@@ -231,7 +176,8 @@ func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeDefaultBody add generic node default body
+/*
+AddGenericNodeDefaultBody add generic node default body
 swagger:model AddGenericNodeDefaultBody
 */
 type AddGenericNodeDefaultBody struct {
@@ -334,7 +280,8 @@ func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeDefaultBodyDetailsItems0 add generic node default body details items0
+/*
+AddGenericNodeDefaultBodyDetailsItems0 add generic node default body details items0
 swagger:model AddGenericNodeDefaultBodyDetailsItems0
 */
 type AddGenericNodeDefaultBodyDetailsItems0 struct {
@@ -370,7 +317,8 @@ func (o *AddGenericNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*AddGenericNodeOKBody add generic node OK body
+/*
+AddGenericNodeOKBody add generic node OK body
 swagger:model AddGenericNodeOKBody
 */
 type AddGenericNodeOKBody struct {
@@ -458,7 +406,8 @@ func (o *AddGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
+/*
+AddGenericNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
 swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {

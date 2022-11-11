@@ -50,7 +50,8 @@ func NewChangeSecurityChecksOK() *ChangeSecurityChecksOK {
 	return &ChangeSecurityChecksOK{}
 }
 
-/* ChangeSecurityChecksOK describes a response with status code 200, with default header values.
+/*
+ChangeSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,36 +59,7 @@ type ChangeSecurityChecksOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this change security checks Ok response has a 2xx status code
-func (o *ChangeSecurityChecksOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change security checks Ok response has a 3xx status code
-func (o *ChangeSecurityChecksOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change security checks Ok response has a 4xx status code
-func (o *ChangeSecurityChecksOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change security checks Ok response has a 5xx status code
-func (o *ChangeSecurityChecksOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change security checks Ok response a status code equal to that given
-func (o *ChangeSecurityChecksOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeSecurityChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeSecurityChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewChangeSecurityChecksDefault(code int) *ChangeSecurityChecksDefault {
 	}
 }
 
-/* ChangeSecurityChecksDefault describes a response with status code -1, with default header values.
+/*
+ChangeSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *ChangeSecurityChecksDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change security checks default response has a 2xx status code
-func (o *ChangeSecurityChecksDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change security checks default response has a 3xx status code
-func (o *ChangeSecurityChecksDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change security checks default response has a 4xx status code
-func (o *ChangeSecurityChecksDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change security checks default response has a 5xx status code
-func (o *ChangeSecurityChecksDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change security checks default response a status code equal to that given
-func (o *ChangeSecurityChecksDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeSecurityChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityChecks default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeSecurityChecksDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ChangeSecurityChecksBody change security checks body
+/*
+ChangeSecurityChecksBody change security checks body
 swagger:model ChangeSecurityChecksBody
 */
 type ChangeSecurityChecksBody struct {
@@ -271,7 +216,8 @@ func (o *ChangeSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSecurityChecksDefaultBody change security checks default body
+/*
+ChangeSecurityChecksDefaultBody change security checks default body
 swagger:model ChangeSecurityChecksDefaultBody
 */
 type ChangeSecurityChecksDefaultBody struct {
@@ -374,7 +320,8 @@ func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSecurityChecksDefaultBodyDetailsItems0 change security checks default body details items0
+/*
+ChangeSecurityChecksDefaultBodyDetailsItems0 change security checks default body details items0
 swagger:model ChangeSecurityChecksDefaultBodyDetailsItems0
 */
 type ChangeSecurityChecksDefaultBodyDetailsItems0 struct {
@@ -410,7 +357,8 @@ func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ChangeSecurityChecksParamsBodyParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
+/*
+ChangeSecurityChecksParamsBodyParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
 swagger:model ChangeSecurityChecksParamsBodyParamsItems0
 */
 type ChangeSecurityChecksParamsBodyParamsItems0 struct {

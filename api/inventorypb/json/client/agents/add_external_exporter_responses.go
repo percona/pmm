@@ -48,7 +48,8 @@ func NewAddExternalExporterOK() *AddExternalExporterOK {
 	return &AddExternalExporterOK{}
 }
 
-/* AddExternalExporterOK describes a response with status code 200, with default header values.
+/*
+AddExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type AddExternalExporterOK struct {
 	Payload *AddExternalExporterOKBody
 }
 
-// IsSuccess returns true when this add external exporter Ok response has a 2xx status code
-func (o *AddExternalExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add external exporter Ok response has a 3xx status code
-func (o *AddExternalExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add external exporter Ok response has a 4xx status code
-func (o *AddExternalExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add external exporter Ok response has a 5xx status code
-func (o *AddExternalExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add external exporter Ok response a status code equal to that given
-func (o *AddExternalExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddExternalExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *AddExternalExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewAddExternalExporterDefault(code int) *AddExternalExporterDefault {
 	}
 }
 
-/* AddExternalExporterDefault describes a response with status code -1, with default header values.
+/*
+AddExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *AddExternalExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add external exporter default response has a 2xx status code
-func (o *AddExternalExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add external exporter default response has a 3xx status code
-func (o *AddExternalExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add external exporter default response has a 4xx status code
-func (o *AddExternalExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add external exporter default response has a 5xx status code
-func (o *AddExternalExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add external exporter default response a status code equal to that given
-func (o *AddExternalExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddExternalExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] AddExternalExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddExternalExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] AddExternalExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *AddExternalExporterDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*AddExternalExporterBody add external exporter body
+/*
+AddExternalExporterBody add external exporter body
 swagger:model AddExternalExporterBody
 */
 type AddExternalExporterBody struct {
@@ -234,7 +179,8 @@ func (o *AddExternalExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalExporterDefaultBody add external exporter default body
+/*
+AddExternalExporterDefaultBody add external exporter default body
 swagger:model AddExternalExporterDefaultBody
 */
 type AddExternalExporterDefaultBody struct {
@@ -337,7 +283,8 @@ func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalExporterDefaultBodyDetailsItems0 add external exporter default body details items0
+/*
+AddExternalExporterDefaultBodyDetailsItems0 add external exporter default body details items0
 swagger:model AddExternalExporterDefaultBodyDetailsItems0
 */
 type AddExternalExporterDefaultBodyDetailsItems0 struct {
@@ -373,7 +320,8 @@ func (o *AddExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*AddExternalExporterOKBody add external exporter OK body
+/*
+AddExternalExporterOKBody add external exporter OK body
 swagger:model AddExternalExporterOKBody
 */
 type AddExternalExporterOKBody struct {
@@ -461,7 +409,8 @@ func (o *AddExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*
+AddExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model AddExternalExporterOKBodyExternalExporter
 */
 type AddExternalExporterOKBodyExternalExporter struct {

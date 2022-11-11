@@ -48,7 +48,8 @@ func NewGetPSMDBClusterCredentialsOK() *GetPSMDBClusterCredentialsOK {
 	return &GetPSMDBClusterCredentialsOK{}
 }
 
-/* GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
+/*
+GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -56,36 +57,7 @@ type GetPSMDBClusterCredentialsOK struct {
 	Payload *GetPSMDBClusterCredentialsOKBody
 }
 
-// IsSuccess returns true when this get Psmdb cluster credentials Ok response has a 2xx status code
-func (o *GetPSMDBClusterCredentialsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get Psmdb cluster credentials Ok response has a 3xx status code
-func (o *GetPSMDBClusterCredentialsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get Psmdb cluster credentials Ok response has a 4xx status code
-func (o *GetPSMDBClusterCredentialsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get Psmdb cluster credentials Ok response has a 5xx status code
-func (o *GetPSMDBClusterCredentialsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get Psmdb cluster credentials Ok response a status code equal to that given
-func (o *GetPSMDBClusterCredentialsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetPSMDBClusterCredentialsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterCredentialsOk  %+v", 200, o.Payload)
-}
-
-func (o *GetPSMDBClusterCredentialsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterCredentialsOk  %+v", 200, o.Payload)
 }
 
@@ -111,7 +83,8 @@ func NewGetPSMDBClusterCredentialsDefault(code int) *GetPSMDBClusterCredentialsD
 	}
 }
 
-/* GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
+/*
+GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -126,36 +99,7 @@ func (o *GetPSMDBClusterCredentialsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get PSMDB cluster credentials default response has a 2xx status code
-func (o *GetPSMDBClusterCredentialsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get PSMDB cluster credentials default response has a 3xx status code
-func (o *GetPSMDBClusterCredentialsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get PSMDB cluster credentials default response has a 4xx status code
-func (o *GetPSMDBClusterCredentialsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get PSMDB cluster credentials default response has a 5xx status code
-func (o *GetPSMDBClusterCredentialsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get PSMDB cluster credentials default response a status code equal to that given
-func (o *GetPSMDBClusterCredentialsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetPSMDBClusterCredentialsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] GetPSMDBClusterCredentials default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetPSMDBClusterCredentialsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] GetPSMDBClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
 
@@ -174,7 +118,8 @@ func (o *GetPSMDBClusterCredentialsDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsBody get PSMDB cluster credentials body
+/*
+GetPSMDBClusterCredentialsBody get PSMDB cluster credentials body
 swagger:model GetPSMDBClusterCredentialsBody
 */
 type GetPSMDBClusterCredentialsBody struct {
@@ -213,7 +158,8 @@ func (o *GetPSMDBClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsDefaultBody get PSMDB cluster credentials default body
+/*
+GetPSMDBClusterCredentialsDefaultBody get PSMDB cluster credentials default body
 swagger:model GetPSMDBClusterCredentialsDefaultBody
 */
 type GetPSMDBClusterCredentialsDefaultBody struct {
@@ -316,7 +262,8 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 get PSMDB cluster credentials default body details items0
+/*
+GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 get PSMDB cluster credentials default body details items0
 swagger:model GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 struct {
@@ -352,7 +299,8 @@ func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsOKBody get PSMDB cluster credentials OK body
+/*
+GetPSMDBClusterCredentialsOKBody get PSMDB cluster credentials OK body
 swagger:model GetPSMDBClusterCredentialsOKBody
 */
 type GetPSMDBClusterCredentialsOKBody struct {
@@ -440,7 +388,8 @@ func (o *GetPSMDBClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
+/*
+GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPSMDBClusterCredentialsOKBodyConnectionCredentials
 */
