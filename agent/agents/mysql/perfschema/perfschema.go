@@ -92,6 +92,7 @@ type PerfSchema struct {
 	historyCache         *historyCache
 	summaryCache         *summaryCache
 	versionsCache        *versionsCache
+	reformL              *sqlmetrics.Reform
 }
 
 // Params represent Agent parameters.
@@ -112,6 +113,7 @@ type newPerfSchemaParams struct {
 	MaxQueryLength       int32
 	DisableQueryExamples bool
 	LogEntry             *logrus.Entry
+	reformL              *sqlmetrics.Reform
 }
 
 const queryTag = "pmm-agent:perfschema"
@@ -132,8 +134,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetConnMaxLifetime(0)
-	reformL := sqlmetrics.NewReform("mysql", params.AgentID, l.Tracef)
-	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
+	reformL := sqlmetrics.NewPerfLogger(params.AgentID, l.Tracef)
 	q := reform.NewDB(sqlDB, mysqlDialects.Dialect, reformL).WithTag(queryTag)
 
 	newParams := &newPerfSchemaParams{
@@ -143,6 +144,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		MaxQueryLength:       params.MaxQueryLength,
 		DisableQueryExamples: params.DisableQueryExamples,
 		LogEntry:             l,
+		reformL:              reformL,
 	}
 	return newPerfSchema(newParams)
 }
@@ -169,6 +171,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		historyCache:         historyCache,
 		summaryCache:         summaryCache,
 		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
+		reformL:              params.reformL,
 	}, nil
 }
 
@@ -473,6 +476,7 @@ func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
 	for _, metric := range summaryMetrics {
 		ch <- metric
 	}
+	m.reformL.Collect(ch)
 }
 
 // check interfaces

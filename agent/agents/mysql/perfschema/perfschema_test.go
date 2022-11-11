@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,6 +32,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
@@ -171,6 +173,7 @@ type setupParams struct {
 	db                   *reform.DB
 	maxQueryLength       int32
 	disableQueryExamples bool
+	reformL              *sqlmetrics.Reform
 }
 
 func setup(t *testing.T, sp *setupParams) *PerfSchema {
@@ -189,6 +192,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		MaxQueryLength:       sp.maxQueryLength,
 		DisableQueryExamples: sp.disableQueryExamples,
 		LogEntry:             logrus.WithField("test", t.Name()),
+		reformL:              sp.reformL,
 	}
 
 	p, err := newPerfSchema(newParams)
@@ -241,7 +245,9 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
-	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	reformL := sqlmetrics.NewPerfLogger("test", t.Logf)
+	db := reform.NewDB(sqlDB, mysql.Dialect, reformL)
 
 	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
 	_, err := db.Exec(updateQuery + "performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_statements_history'")
@@ -317,6 +323,7 @@ func TestPerfSchema(t *testing.T) {
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
+			reformL:              reformL,
 		})
 
 		_, err := db.Exec("SELECT /* Sleep */ sleep(0.1)")
@@ -354,12 +361,15 @@ func TestPerfSchema(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.Equal(t, 3, testutil.CollectAndCount(m, "pmm_agent_perfschema_requests_total"))
+		assert.Equal(t, 3, testutil.CollectAndCount(m, "pmm_agent_perfschema_response_seconds"))
 	})
 
 	t.Run("AllCities", func(t *testing.T) {
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
+			reformL:              reformL,
 		})
 
 		_, err := db.Exec("SELECT /* AllCities */ * FROM city")
@@ -404,12 +414,15 @@ func TestPerfSchema(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.Equal(t, 3, testutil.CollectAndCount(m, "pmm_agent_perfschema_requests_total"))
+		assert.Equal(t, 3, testutil.CollectAndCount(m, "pmm_agent_perfschema_response_seconds"))
 	})
 
 	t.Run("Invalid UTF-8", func(t *testing.T) {
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: false,
+			reformL:              reformL,
 		})
 
 		_, err := db.Exec("CREATE TABLE if not exists t1(col1 CHAR(100)) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci")
@@ -476,13 +489,17 @@ func TestPerfSchema(t *testing.T) {
 		structs, err = db.SelectAllFrom(eventsStatementsHistoryView, "ORDER BY SQL_TEXT")
 		require.NoError(t, err)
 		tests.LogTable(t, structs)
+		assert.Equal(t, 4, testutil.CollectAndCount(m, "pmm_agent_perfschema_requests_total"))
+		assert.Equal(t, 4, testutil.CollectAndCount(m, "pmm_agent_perfschema_response_seconds"))
 	})
 
 	t.Run("DisableQueryExamples", func(t *testing.T) {
 		m := setup(t, &setupParams{
 			db:                   db,
 			disableQueryExamples: true,
+			reformL:              reformL,
 		})
+
 		_, err = db.Exec("SELECT 1, 2, 3, 4, id FROM city WHERE id = 1")
 		require.NoError(t, err)
 
@@ -497,5 +514,7 @@ func TestPerfSchema(t *testing.T) {
 			assert.NotEmpty(t, b.Common.Fingerprint)
 			assert.Empty(t, b.Common.Example)
 		}
+		assert.Equal(t, 5, testutil.CollectAndCount(m, "pmm_agent_perfschema_requests_total"))
+		assert.Equal(t, 5, testutil.CollectAndCount(m, "pmm_agent_perfschema_response_seconds"))
 	})
 }

@@ -24,6 +24,11 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+const (
+	prometheusNamespace = "pmm_agent"
+	prometheusSubsystem = "perfschema"
+)
+
 // Reform is a SQL logger with metrics.
 type Reform struct {
 	l          *reform.PrintfLogger
@@ -51,6 +56,29 @@ func NewReform(driver, dbName string, printf reform.Printf) *Reform {
 		mResponses: prom.NewSummaryVec(prom.SummaryOpts{
 			Namespace:   "go_sql",
 			Subsystem:   "reform",
+			Name:        "response_seconds",
+			Help:        "Response durations in seconds.",
+			ConstLabels: constLabels,
+			Objectives:  map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"statement", "error"}),
+	}
+}
+
+// NewPerfLogger creates a new logger for perfschema.
+func NewPerfLogger(agentID string, printf reform.Printf) *Reform {
+	constLabels := prom.Labels{"agent_id": agentID}
+	return &Reform{
+		l: reform.NewPrintfLogger(printf),
+		mRequests: prom.NewCounterVec(prom.CounterOpts{
+			Namespace:   prometheusNamespace,
+			Subsystem:   prometheusSubsystem,
+			Name:        "requests_total",
+			Help:        "Total number of queries started.",
+			ConstLabels: constLabels,
+		}, []string{"statement"}),
+		mResponses: prom.NewSummaryVec(prom.SummaryOpts{
+			Namespace:   prometheusNamespace,
+			Subsystem:   prometheusSubsystem,
 			Name:        "response_seconds",
 			Help:        "Response durations in seconds.",
 			ConstLabels: constLabels,
