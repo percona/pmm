@@ -96,9 +96,8 @@ type Channel struct { //nolint:maligned
 	s agentpb.Agent_ConnectClient
 	l *logrus.Entry
 
-	mRecv, mSend                   prometheus.CounterVec
-	mSizeRecvTotal, mSizeSendTotal prometheus.GaugeVec
-	mFailed                        prometheus.Counter
+	mRecv, mSend prometheus.SummaryVec
+	mFailed      prometheus.Counter
 
 	lastSentRequestID uint32
 
@@ -116,34 +115,24 @@ type Channel struct { //nolint:maligned
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
+//
+//nolint:nosnakecase
 func New(stream agentpb.Agent_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
 
-		mRecv: *prometheus.NewCounterVec(prometheus.CounterOpts{ //nolint:exhaustruct
+		mRecv: *prometheus.NewSummaryVec(prometheus.SummaryOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "messages_received_total",
-			Help:      "A total number of received messages from pmm-managed.",
+			Name:      "message_received",
+			Help:      "Received message summary from pmm-managed.",
 		}, []string{labelMessageType}),
-		mSend: *prometheus.NewCounterVec(prometheus.CounterOpts{ //nolint:exhaustruct
+		mSend: *prometheus.NewSummaryVec(prometheus.SummaryOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "messages_sent_total",
-			Help:      "A total number of sent messages to pmm-managed.",
-		}, []string{labelMessageType}),
-		mSizeRecvTotal: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "message_received_size",
-			Help:      "Received message size from pmm-managed in bytes.",
-		}, []string{labelMessageType}),
-		mSizeSendTotal: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "message_sent_size",
-			Help:      "Sent message size to pmm-managed in bytes.",
+			Name:      "message_sent",
+			Help:      "Sent message summary to pmm-managed.",
 		}, []string{labelMessageType}),
 		mFailed: prometheus.NewCounter(prometheus.CounterOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
@@ -253,13 +242,10 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 		c.mFailed.Inc()
 		return
 	}
-
-	messageType := string(getAgentMessageType(msg))
-	c.mSend.WithLabelValues(messageType).Inc()
-	c.mSizeSendTotal.WithLabelValues(messageType).Add(float64(proto.Size(msg)))
+	c.mSend.WithLabelValues(string(getAgentMessageType(msg))).Observe(float64(proto.Size(msg)))
 }
 
-// runReader receives messages from server
+// runReader receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -371,10 +357,7 @@ func (c *Channel) runReceiver() {
 			})
 			c.mFailed.Inc()
 		}
-
-		messageType := string(getServerMessageType(msg))
-		c.mRecv.WithLabelValues(messageType).Inc()
-		c.mSizeRecvTotal.WithLabelValues(messageType).Add(float64(proto.Size(msg)))
+		c.mRecv.WithLabelValues(string(getServerMessageType(msg))).Observe(float64(proto.Size(msg)))
 	}
 }
 
@@ -437,8 +420,6 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.Se
 func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
 	c.mRecv.Describe(ch)
 	c.mSend.Describe(ch)
-	c.mSizeRecvTotal.Describe(ch)
-	c.mSizeSendTotal.Describe(ch)
 	c.mFailed.Describe(ch)
 }
 
@@ -446,8 +427,6 @@ func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
 func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mRecv.Collect(ch)
 	c.mSend.Collect(ch)
-	c.mSizeRecvTotal.Collect(ch)
-	c.mSizeSendTotal.Collect(ch)
 	c.mFailed.Collect(ch)
 }
 
@@ -496,7 +475,9 @@ func getAgentMessageType(msg *agentpb.AgentMessage) MessageType {
 	}
 }
 
+//nolint:cyclop
 func getServerMessageType(msg *agentpb.ServerMessage) MessageType {
+	//nolint:nosnakecase
 	switch msg.Payload.(type) {
 	case *agentpb.ServerMessage_Ping:
 		return Ping
