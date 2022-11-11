@@ -73,9 +73,9 @@ type Supervisor struct {
 
 	logLinesCount uint
 
-	agentStatuses             prometheus.GaugeVec
-	agentStatusChangeTotal    prometheus.CounterVec
-	agentQANBucketLengthTotal prometheus.GaugeVec
+	agentStatuses          prometheus.GaugeVec
+	agentStatusChangeTotal prometheus.CounterVec
+	agentQANBucketLength   prometheus.GaugeVec
 }
 
 // agentProcessInfo describes Agent process.
@@ -131,10 +131,10 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 			Name:      "agent_status_changes_total",
 			Help:      "A total number of agent status changes.",
 		}, []string{labelAgentID}),
-		agentQANBucketLengthTotal: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
+		agentQANBucketLength: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "agent_qan_bucket_length_total",
+			Name:      "agent_qan_bucket_length",
 			Help:      "QAN bucket length total sent to pmm-managed.",
 		}, []string{labelAgentID}),
 	}
@@ -565,7 +565,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				s.agentQANBucketLengthTotal.WithLabelValues(agentID).Add(float64(len(change.MetricsBucket)))
+				s.agentQANBucketLength.WithLabelValues(agentID).Add(float64(len(change.MetricsBucket)))
 				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
 				s.qanRequests <- &agentpb.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
@@ -705,7 +705,7 @@ func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 
 	s.agentStatuses.Describe(ch)
 	s.agentStatusChangeTotal.Describe(ch)
-	s.agentQANBucketLengthTotal.Describe(ch)
+	s.agentQANBucketLength.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
@@ -719,7 +719,7 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 
 	s.agentStatuses.Collect(ch)
 	s.agentStatusChangeTotal.Collect(ch)
-	s.agentQANBucketLengthTotal.Collect(ch)
+	s.agentQANBucketLength.Collect(ch)
 }
 
 // check interfaces
