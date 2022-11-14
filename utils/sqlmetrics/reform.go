@@ -67,7 +67,7 @@ func NewReform(driver, dbName string, printf reform.Printf) *Reform {
 // NewPerfLogger creates a new logger for perfschema.
 func NewPerfLogger(agentID string, printf reform.Printf) *Reform {
 	constLabels := prom.Labels{"agent_id": agentID}
-	return &Reform{
+	return &Reform{ //nolint:exhaustruct
 		l: reform.NewPrintfLogger(printf),
 		mRequests: prom.NewCounterVec(prom.CounterOpts{
 			Namespace:   prometheusNamespace,
