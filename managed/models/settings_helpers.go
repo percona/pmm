@@ -17,6 +17,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -28,6 +29,9 @@ import (
 
 	"github.com/percona/pmm/managed/utils/validators"
 )
+
+// ErrTxRequired is returned when a transaction is required.
+var ErrTxRequired = errors.New("TxRequired")
 
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
@@ -138,6 +142,17 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	err := ValidateSettings(q, params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
+	}
+
+	if params.DefaultRoleID != 0 {
+		tx, ok := q.(*reform.TX)
+		if !ok {
+			return nil, fmt.Errorf("%w: changing Role ID requires a *reform.TX", ErrTxRequired)
+		}
+
+		if err := lockRoleForChange(tx, params.DefaultRoleID); err != nil {
+			return nil, err
+		}
 	}
 
 	settings, err := GetSettings(q)
@@ -293,6 +308,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	return settings, nil
 }
 
+func lockRoleForChange(tx *reform.TX, roleID int) error {
+	var r Role
+	if err := FindAndLockRole(tx, roleID, &r); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
 	if params.SlackAlertingSettings != nil && params.RemoveSlackAlertingSettings {
 		return errors.New("both slack_alerting_settings and remove_slack_alerting_settings are present")
@@ -438,18 +462,6 @@ func ValidateSettings(q reform.DBTX, params *ChangeSettingsParams) error {
 
 	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {
 		return errors.New("both pmm_public_address and remove_pmm_public_address are present")
-	}
-
-	if params.DefaultRoleID != 0 {
-		tx, ok := q.(*reform.TX)
-		if !ok {
-			return errors.New("changing Role ID requires a *reform.TX")
-		}
-
-		var r Role
-		if err := FindAndLockRole(tx, params.DefaultRoleID, &r); err != nil {
-			return err
-		}
 	}
 
 	return nil
