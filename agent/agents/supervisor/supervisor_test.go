@@ -21,7 +21,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/prometheus/client_golang/prometheus"
+	"github.com/AlekSi/pointer"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,9 +50,10 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 //nolint:nosnakecase
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	tempDir := t.TempDir()
-	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, 1)
-	prometheus.Register(s) //nolint:errcheck
+	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, pointer.ToUint(1))
+	go s.Run(ctx)
 
 	const (
 		sleep1 = "sleep1"
@@ -397,7 +398,8 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, 1) //nolint:varnamelen
+		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, pointer.ToUint(1)) //nolint:varnamelen
+		go s.Run(ctx)
 
 		teardown := func() {
 			cancel()
