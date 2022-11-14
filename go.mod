@@ -45,6 +45,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/jotaen/kong-completion v0.0.4
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -79,6 +80,11 @@ require (
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
+	github.com/posener/complete v1.2.3 // indirect
+	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 )
 
 require (
