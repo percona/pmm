@@ -89,6 +89,8 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	l := logrus.WithField("request", logger.MakeRequestID())
 	ctx = logger.SetEntry(ctx, l)
 
+	ctx = SetCallerOrigin(ctx, info.FullMethod)
+
 	var res interface{}
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
 		var origErr error
@@ -117,6 +119,8 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 		}
 	}
 	ctx = logger.SetEntry(ctx, l)
+
+	ctx = SetCallerOrigin(ctx, info.FullMethod)
 
 	err := logRequest(l, "Stream "+info.FullMethod, func() error {
 		wrapped := grpc_middleware.WrapServerStream(ss)

@@ -303,7 +303,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 		grpc_prometheus.EnableHandlingTimeHistogram()
 	}
 
-	grpc_prometheus.Register(gRPCServer)
+	grpcExtension := &interceptors.GRPCMetricsExtension{}
+	grpc_prometheus.ConfigureWithExtension(grpcExtension)
+	grpc_prometheus.RegisterWithExtension(gRPCServer, grpcExtension)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)

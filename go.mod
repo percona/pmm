@@ -2,6 +2,9 @@ module github.com/percona/pmm
 
 go 1.18
 
+// TODO: replace with Percona repo, once https://github.com/Percona-Lab/go-grpc-prometheus/pull/3/files is merged
+replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/ritbl/go-grpc-prometheus v0.0.0-20221114002352-a1e88c81b6f9
+
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
