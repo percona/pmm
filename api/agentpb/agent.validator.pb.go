@@ -564,6 +564,10 @@ func (this *S3LocationConfig) Validate() error {
 	return nil
 }
 
+func (this *FilesystemLocationConfig) Validate() error {
+	return nil
+}
+
 func (this *StartJobRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
@@ -631,6 +635,13 @@ func (this *StartJobRequest_MongoDBBackup) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MongoDBBackup_FilesystemConfig); ok {
+		if oneOfNester.FilesystemConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.FilesystemConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
+			}
+		}
+	}
 	return nil
 }
 
@@ -644,6 +655,13 @@ func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
 		if oneOfNester.S3Config != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MongoDBRestoreBackup_FilesystemConfig); ok {
+		if oneOfNester.FilesystemConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.FilesystemConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
 			}
 		}
 	}
@@ -876,6 +894,20 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobResult); ok {
+		if oneOfNester.JobResult != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobResult); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobResult", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobProgress); ok {
+		if oneOfNester.JobProgress != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobProgress); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("JobProgress", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Pong); ok {
 		if oneOfNester.Pong != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pong); err != nil {
@@ -929,20 +961,6 @@ func (this *AgentMessage) Validate() error {
 		if oneOfNester.JobStatus != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobStatus); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("JobStatus", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobResult); ok {
-		if oneOfNester.JobResult != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobResult); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("JobResult", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_JobProgress); ok {
-		if oneOfNester.JobProgress != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.JobProgress); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("JobProgress", err)
 			}
 		}
 	}

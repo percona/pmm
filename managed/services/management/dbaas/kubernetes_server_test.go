@@ -53,8 +53,8 @@ func TestKubernetesServer(t *testing.T) {
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
 		}
-
-		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"))
+		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		return
 	}
 	t.Run("Basic", func(t *testing.T) {

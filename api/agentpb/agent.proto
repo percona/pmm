@@ -484,6 +484,11 @@ message S3LocationConfig {
   string bucket_region = 5;
 }
 
+// FilesystemLocationConfig represents path for storing backup artifacts locally.
+message FilesystemLocationConfig {
+  string path = 1;
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
@@ -533,10 +538,11 @@ message StartJobRequest {
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
     // Backup data model (physical or logical).
-    backup.v1beta1.DataModel data_model = 8;
+    backup.v1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      FilesystemLocationConfig filesystem_config = 11;
     }
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
@@ -558,6 +564,7 @@ message StartJobRequest {
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      FilesystemLocationConfig filesystem_config = 11;
     }
   }
   string job_id = 1;
@@ -689,6 +696,8 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -698,8 +707,6 @@ message AgentMessage {
     StartJobResponse start_job = 13;
     StopJobResponse stop_job = 14;
     JobStatusResponse job_status = 15;
-    JobResult job_result = 16;
-    JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;

@@ -25,6 +25,8 @@ const _ = grpc.SupportPackageIsVersion7
 type ServicesClient interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
+	// ListActiveServiceTypes returns a list of active Services.
+	ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
 	// AddMySQLService adds MySQL Service.
@@ -54,6 +56,15 @@ func NewServicesClient(cc grpc.ClientConnInterface) ServicesClient {
 func (c *servicesClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
 	out := new(ListServicesResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Services/ListServices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *servicesClient) ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error) {
+	out := new(ListActiveServiceTypesResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/ListActiveServiceTypes", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +149,8 @@ func (c *servicesClient) RemoveService(ctx context.Context, in *RemoveServiceReq
 type ServicesServer interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
+	// ListActiveServiceTypes returns a list of active Services.
+	ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
 	// AddMySQLService adds MySQL Service.
@@ -162,6 +175,10 @@ type UnimplementedServicesServer struct{}
 
 func (UnimplementedServicesServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
+}
+
+func (UnimplementedServicesServer) ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListActiveServiceTypes not implemented")
 }
 
 func (UnimplementedServicesServer) GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error) {
@@ -222,6 +239,24 @@ func _Services_ListServices_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).ListServices(ctx, req.(*ListServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Services_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListActiveServiceTypesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).ListActiveServiceTypes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Services/ListActiveServiceTypes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).ListActiveServiceTypes(ctx, req.(*ListActiveServiceTypesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -380,6 +415,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListServices",
 			Handler:    _Services_ListServices_Handler,
+		},
+		{
+			MethodName: "ListActiveServiceTypes",
+			Handler:    _Services_ListActiveServiceTypes_Handler,
 		},
 		{
 			MethodName: "GetService",

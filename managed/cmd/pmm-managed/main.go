@@ -59,7 +59,7 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/api/platformpb"
@@ -190,12 +190,15 @@ type gRPCServerDeps struct {
 	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
+	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
-	minioService         *minio.Service
+	pitrTimerangeService *backup.PITRTimerangeService
+	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
 	config               *config.Config
 	componentsService    *managementdbaas.ComponentsService
+	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
 }
 
@@ -257,12 +260,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
-	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
-	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
-	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
+	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
+	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
+	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
+	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
+	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -385,10 +390,10 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		alertingpb.RegisterAlertingHandlerFromEndpoint,
 
-		backupv1beta1.RegisterBackupsHandlerFromEndpoint,
-		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
-		backupv1beta1.RegisterArtifactsHandlerFromEndpoint,
-		backupv1beta1.RegisterRestoreHistoryHandlerFromEndpoint,
+		backuppb.RegisterBackupsHandlerFromEndpoint,
+		backuppb.RegisterLocationsHandlerFromEndpoint,
+		backuppb.RegisterArtifactsHandlerFromEndpoint,
+		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,
@@ -730,12 +735,13 @@ func main() {
 	}
 	prom.MustRegister(vmalert)
 
-	minioService := minio.New()
+	minioClient := minio.New()
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db)
-	backupRemovalService := backup.NewRemovalService(db, minioService)
+	backupRemovalService := backup.NewRemovalService(db, minioClient)
+	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
@@ -799,13 +805,16 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	backupService := backup.NewService(db, jobsService, agentService, versioner)
+	compatibilityService := backup.NewCompatibilityService(db, versioner)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 	defaultsFileParser := agents.NewDefaultsFileParser(agentsRegistry)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
+
+	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -822,7 +831,7 @@ func main() {
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
-		DbaasClient:          dbaasClient,
+		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
 	}
 
@@ -898,26 +907,6 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	if settings.DBaaS.Enabled {
-		err = supervisord.RestartSupervisedService("dbaas-controller")
-		if err != nil {
-			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
-		} else {
-			l.Debug("DBaaS is enabled - creating a DBaaS client.")
-			ctx, cancel := context.WithTimeout(ctx, time.Second*20)
-			err := dbaasClient.Connect(ctx)
-			cancel()
-			if err != nil {
-				l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
-			}
-			defer func() {
-				err := dbaasClient.Disconnect()
-				if err != nil {
-					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
-				}
-			}()
-		}
-	}
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
 	l.Info("Starting services...")
@@ -1004,13 +993,16 @@ func main() {
 				versionServiceClient: versionService,
 				schedulerService:     schedulerService,
 				backupService:        backupService,
+				compatibilityService: compatibilityService,
 				backupRemovalService: backupRemovalService,
-				minioService:         minioService,
+				pitrTimerangeService: pitrTimerangeService,
+				minioClient:          minioClient,
 				versionCache:         versionCache,
 				supervisord:          supervisord,
 				config:               &cfg.Config,
 				defaultsFileParser:   defaultsFileParser,
 				componentsService:    componentsService,
+				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
 			})
 	}()
@@ -1035,6 +1027,24 @@ func main() {
 		defer wg.Done()
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 	}()
+	if settings.DBaaS.Enabled {
+		err = supervisord.RestartSupervisedService("dbaas-controller")
+		if err != nil {
+			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
+		} else {
+			l.Debug("DBaaS is enabled - creating a DBaaS client.")
+			err := dbaasInitializer.Enable(ctx)
+			if err != nil {
+				l.Fatalf("Failed initializing dbaas-controller %s: %v", *dbaasControllerAPIAddrF, err)
+			}
+			defer func() {
+				err := dbaasInitializer.Disable(context.Background())
+				if err != nil {
+					l.Fatalf("Failed disabling dbaas-controller API: %v", err)
+				}
+			}()
+		}
+	}
 
 	wg.Wait()
 }

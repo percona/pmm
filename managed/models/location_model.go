@@ -27,24 +27,22 @@ import (
 // BackupLocationType represents BackupLocation type as stored in database.
 type BackupLocationType string
 
-// BackupLocation types.
+// BackupLocation types. Same as in agent/runner/jobs/backup_location.go
 const (
-	S3BackupLocationType        BackupLocationType = "s3"
-	PMMServerBackupLocationType BackupLocationType = "pmm-server"
-	PMMClientBackupLocationType BackupLocationType = "pmm-client"
+	S3BackupLocationType         BackupLocationType = "s3"
+	FilesystemBackupLocationType BackupLocationType = "filesystem"
 )
 
 // BackupLocation represents destination for backup.
 //
 //reform:backup_locations
 type BackupLocation struct {
-	ID              string                   `reform:"id,pk"`
-	Name            string                   `reform:"name"`
-	Description     string                   `reform:"description"`
-	Type            BackupLocationType       `reform:"type"`
-	S3Config        *S3LocationConfig        `reform:"s3_config"`
-	PMMServerConfig *PMMServerLocationConfig `reform:"pmm_server_config"`
-	PMMClientConfig *PMMClientLocationConfig `reform:"pmm_client_config"`
+	ID               string                    `reform:"id,pk"`
+	Name             string                    `reform:"name"`
+	Description      string                    `reform:"description"`
+	Type             BackupLocationType        `reform:"type"`
+	S3Config         *S3LocationConfig         `reform:"s3_config"`
+	FilesystemConfig *FilesystemLocationConfig `reform:"filesystem_config"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
@@ -86,27 +84,16 @@ func (c S3LocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *S3LocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PMMServerLocationConfig contains require properties for accessing file system on pmm-server-node.
-type PMMServerLocationConfig struct {
+// FilesystemLocationConfig contains require properties for accessing file system on pmm-client-node.
+type FilesystemLocationConfig struct {
 	Path string `json:"path"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PMMServerLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
+func (c FilesystemLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PMMServerLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
-
-// PMMClientLocationConfig contains require properties for accessing file system on pmm-client-node.
-type PMMClientLocationConfig struct {
-	Path string `json:"path"`
-}
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PMMClientLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PMMClientLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *FilesystemLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // check interfaces.
 var (

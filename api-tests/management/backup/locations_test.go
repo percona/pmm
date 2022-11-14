@@ -40,26 +40,7 @@ func TestAddLocation(t *testing.T) {
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
-					Path: "/tmp",
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
-
-		assert.NotEmpty(t, resp.Payload.LocationID)
-	})
-
-	t.Run("normal pmm server config", func(t *testing.T) {
-		t.Parallel()
-
-		resp, err := client.AddLocation(&locations.AddLocationParams{
-			Body: locations.AddLocationBody{
-				Name:        gofakeit.Name(),
-				Description: gofakeit.Question(),
-				PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+				FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 					Path: "/tmp",
 				},
 			},
@@ -121,14 +102,14 @@ func TestAddWrongLocation(t *testing.T) {
 
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
-				Name:            gofakeit.Name(),
-				Description:     gofakeit.Question(),
-				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{},
+				Name:             gofakeit.Name(),
+				Description:      gofakeit.Question(),
+				FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{},
 			},
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmClientConfig.Path: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FilesystemConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -193,7 +174,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+				FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 					Path: "/tmp",
 				},
 				S3Config: &locations.AddLocationParamsBodyS3Config{
@@ -218,7 +199,7 @@ func TestListLocations(t *testing.T) {
 	body := locations.AddLocationBody{
 		Name:        gofakeit.Name(),
 		Description: gofakeit.Question(),
-		PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+		FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 			Path: "/tmp",
 		},
 	}
@@ -238,7 +219,7 @@ func TestListLocations(t *testing.T) {
 		if loc.LocationID == addResp.Payload.LocationID {
 			assert.Equal(t, body.Name, loc.Name)
 			assert.Equal(t, body.Description, loc.Description)
-			assert.Equal(t, body.PMMClientConfig.Path, loc.PMMClientConfig.Path)
+			assert.Equal(t, body.FilesystemConfig.Path, loc.FilesystemConfig.Path)
 			found = true
 		}
 	}
@@ -259,18 +240,11 @@ func TestChangeLocation(t *testing.T) {
 					assert.Equal(t, req.Description, loc.Description)
 				}
 
-				if req.PMMServerConfig != nil {
-					require.NotNil(t, loc.PMMServerConfig)
-					assert.Equal(t, req.PMMServerConfig.Path, loc.PMMServerConfig.Path)
+				if req.FilesystemConfig != nil {
+					require.NotNil(t, loc.FilesystemConfig)
+					assert.Equal(t, req.FilesystemConfig.Path, loc.FilesystemConfig.Path)
 				} else {
-					assert.Nil(t, loc.PMMServerConfig)
-				}
-
-				if req.PMMClientConfig != nil {
-					require.NotNil(t, loc.PMMClientConfig)
-					assert.Equal(t, req.PMMClientConfig.Path, loc.PMMClientConfig.Path)
-				} else {
-					assert.Nil(t, loc.PMMClientConfig)
+					assert.Nil(t, loc.FilesystemConfig)
 				}
 
 				if req.S3Config != nil {
@@ -296,7 +270,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -310,7 +284,7 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp.Payload.LocationID,
 			Name:       gofakeit.Name(),
-			PMMServerConfig: &locations.ChangeLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.ChangeLocationParamsBodyFilesystemConfig{
 				Path: "/tmp/nested",
 			},
 		}
@@ -332,7 +306,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -366,17 +340,21 @@ func TestChangeLocation(t *testing.T) {
 		require.NotNil(t, location)
 
 		assert.Equal(t, location.Name, updateBody.Name)
-		require.NotNil(t, location.PMMServerConfig)
-		assert.Equal(t, addReqBody.PMMServerConfig.Path, location.PMMServerConfig.Path)
+		require.NotNil(t, location.FilesystemConfig)
+		assert.Equal(t, addReqBody.FilesystemConfig.Path, location.FilesystemConfig.Path)
 	})
 
 	t.Run("change config type", func(t *testing.T) {
 		t.Parallel()
+		accessKey, secretKey, bucketName := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), os.Getenv("AWS_BUCKET_NAME")
+		if accessKey == "" || secretKey == "" || bucketName == "" {
+			t.Skip("Skipping change config type - missing S3 credentials")
+		}
 
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -390,8 +368,11 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp.Payload.LocationID,
 			Name:       gofakeit.Name(),
-			PMMClientConfig: &locations.ChangeLocationParamsBodyPMMClientConfig{
-				Path: "/root",
+			S3Config: &locations.ChangeLocationParamsBodyS3Config{
+				Endpoint:   "https://s3.us-west-2.amazonaws.com",
+				AccessKey:  accessKey,
+				SecretKey:  secretKey,
+				BucketName: bucketName,
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
@@ -412,7 +393,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody1 := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -426,7 +407,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody2 := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -440,7 +421,7 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp2.Payload.LocationID,
 			Name:       addReqBody1.Name,
-			PMMServerConfig: &locations.ChangeLocationParamsBodyPMMServerConfig{
+			FilesystemConfig: &locations.ChangeLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		}
@@ -460,7 +441,7 @@ func TestRemoveLocation(t *testing.T) {
 		Body: locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+			FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 				Path: "/tmp",
 			},
 		},
@@ -516,12 +497,12 @@ func TestLocationConfigValidation(t *testing.T) {
 
 		resp, err := client.TestLocationConfig(&locations.TestLocationConfigParams{
 			Body: locations.TestLocationConfigBody{
-				PMMClientConfig: &locations.TestLocationConfigParamsBodyPMMClientConfig{},
+				FilesystemConfig: &locations.TestLocationConfigParamsBodyFilesystemConfig{},
 			},
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmClientConfig.Path: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FilesystemConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -566,7 +547,7 @@ func TestLocationConfigValidation(t *testing.T) {
 
 		resp, err := client.TestLocationConfig(&locations.TestLocationConfigParams{
 			Body: locations.TestLocationConfigBody{
-				PMMClientConfig: &locations.TestLocationConfigParamsBodyPMMClientConfig{
+				FilesystemConfig: &locations.TestLocationConfigParamsBodyFilesystemConfig{
 					Path: "/tmp",
 				},
 				S3Config: &locations.TestLocationConfigParamsBodyS3Config{

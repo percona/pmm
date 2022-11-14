@@ -1,23 +1,14 @@
 syntax = "proto3";
 
-package backup.v1beta1;
+package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1beta1";
+option go_package = "api/managementpb/backup;backupv1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
-// PMMServerLocationConfig represents file system config inside pmm-server.
-message PMMServerLocationConfig {
-  string path = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
-// PMMClientLocationConfig represents file system config inside pmm-client.
-message PMMClientLocationConfig {
+// FilesystemLocationConfig represents file system location config.
+message FilesystemLocationConfig {
   string path = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -58,9 +49,8 @@ message Location {
   // Short description
   string description = 3;
   oneof config {
-    PMMClientLocationConfig pmm_client_config = 4;
-    PMMServerLocationConfig pmm_server_config = 5;
-    S3LocationConfig s3_config = 6;
+    FilesystemLocationConfig filesystem_config = 4;
+    S3LocationConfig s3_config = 5;
   }
 }
 
@@ -78,12 +68,10 @@ message AddLocationRequest {
     }
   ];
   string description = 2;
-  // PMM-client file system configuration. Exactly one config should be set.
-  PMMClientLocationConfig pmm_client_config = 3;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 4;
+  // Filesystem location configuration. Exactly one config should be set.
+  FilesystemLocationConfig filesystem_config = 3;
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 5;
+  S3LocationConfig s3_config = 4;
 }
 
 message AddLocationResponse {
@@ -101,12 +89,10 @@ message ChangeLocationRequest {
   // Location name
   string name = 2;
   string description = 3;
-  // PMM-client file system configuration. Exactly one config should be set.
-  PMMClientLocationConfig pmm_client_config = 4;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 5;
+  // Filesystem location configuration. Exactly one config should be set.
+  FilesystemLocationConfig filesystem_config = 4;
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 6;
+  S3LocationConfig s3_config = 5;
 }
 
 message ChangeLocationResponse {}
@@ -121,12 +107,10 @@ message RemoveLocationRequest {
 message RemoveLocationResponse {}
 
 message TestLocationConfigRequest {
-  // PMM-client file system configuration. Exactly one config should be set.
-  PMMClientLocationConfig pmm_client_config = 1;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 2;
+  // Filesystem location configuration. Exactly one config should be set.
+  FilesystemLocationConfig filesystem_config = 1;
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 3;
+  S3LocationConfig s3_config = 2;
 }
 
 message TestLocationConfigResponse {}
