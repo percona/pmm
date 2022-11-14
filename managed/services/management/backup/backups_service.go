@@ -296,6 +296,7 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 		scheduledTask, err := models.FindScheduledTaskByID(tx.Querier, req.ScheduledBackupId)
 		if err != nil {
 			return err
+			return
 		}
 
 		var data *models.CommonBackupTaskData
