@@ -11,6 +11,7 @@ header:
       - "**/json/client/**"
       - "**/amclient/**"
       - "**/ammodels/**"
+      - "qan-api2/migrations/"
     license:
       spdx-id: AGPL-3.0
       content: |
