@@ -2,9 +2,10 @@ package jobs
 
 import (
 	"context"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 // MongoDBPostRestoreJob implements Job for actions that need to be take after restoring a MongoDB backup.
