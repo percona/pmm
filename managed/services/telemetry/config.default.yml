@@ -531,3 +531,11 @@ telemetry:
     data:
       - metric_name: "k8s_clusters_count"
         column: "count"
+
+  - id: GrafanaUsersCount
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user
+    summary: "Grafana Users Count"
+    data:
+      - metric_name: "grafana_users_count"
+        column: "count"
