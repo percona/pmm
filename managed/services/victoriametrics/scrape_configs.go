@@ -606,7 +606,7 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(s.MR),
 		ScrapeTimeout:  ScrapeTimeout(s.MR),
-		MetricsPath:    "/debug/metrics",
+		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
