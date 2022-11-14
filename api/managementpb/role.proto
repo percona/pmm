@@ -93,7 +93,7 @@ message ListRolesResponse {
   repeated RoleData roles = 1;
 }
 
-// Service service provides public methods for managing Services.
+// Service Role provides public methods for managing Roles.
 service Role {
   // CreateRole creates a new role.
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {

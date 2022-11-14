@@ -212,10 +212,10 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
-// getRole returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
+// getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (authUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key
 	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
 		role, err := c.getRoleForAPIKey(ctx, authHeaders)

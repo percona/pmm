@@ -68,7 +68,7 @@ func TestRoleService(t *testing.T) {
 				Title:  "Role A",
 				Filter: "filter",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.True(t, res.RoleId > 0)
 		})
 	})
@@ -85,10 +85,10 @@ func TestRoleService(t *testing.T) {
 				Title:  "Role B - updated",
 				Filter: "filter B - updated",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
 			assert.Equal(t, roles.Roles[1].Title, "Role B - updated")
 		})
@@ -115,10 +115,10 @@ func TestRoleService(t *testing.T) {
 			_, roleID := createDummyRoles(ctx, t, s)
 
 			_, err := s.DeleteRole(ctx, &managementpb.DeleteRoleRequest{RoleId: roleID})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, len(roles.Roles), 1)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
 		})
@@ -141,7 +141,7 @@ func TestRoleService(t *testing.T) {
 			_, roleID := createDummyRoles(ctx, t, s)
 
 			res, err := s.GetRole(ctx, &managementpb.GetRoleRequest{RoleId: roleID})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, res.Title, "Role B")
 		})
 
@@ -163,7 +163,7 @@ func TestRoleService(t *testing.T) {
 			createDummyRoles(ctx, t, s)
 
 			res, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, len(res.Roles), 2)
 		})
 	})
@@ -179,16 +179,16 @@ func TestRoleService(t *testing.T) {
 				RoleIds: []uint32{roleIDA},
 				UserId:  1337,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			_, err = s.AssignRoles(ctx, &managementpb.AssignRolesRequest{
 				RoleIds: []uint32{roleIDB},
 				UserId:  1338,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			roles, err := models.GetUserRoles(db.Querier, 1337)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, len(roles), 1)
 			assert.Equal(t, roles[0].ID, roleIDA)
 		})
@@ -202,10 +202,10 @@ func TestRoleService(t *testing.T) {
 				RoleIds: []uint32{roleIDA, roleIDB},
 				UserId:  1337,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			roles, err := models.GetUserRoles(db.Querier, 1337)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, len(roles), 2)
 			assert.Equal(t, roles[0].ID, roleIDA)
 			assert.Equal(t, roles[1].ID, roleIDB)
@@ -228,7 +228,7 @@ func TestRoleService(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			defer teardown(t)
 			settings, err := models.GetSettings(db)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			roleID, _ := createDummyRoles(ctx, t, s)
 			assert.NotEqual(t, settings.DefaultRoleID, roleID)
@@ -236,10 +236,10 @@ func TestRoleService(t *testing.T) {
 			_, err = s.SetDefaultRole(ctx, &managementpb.SetDefaultRoleRequest{
 				RoleId: roleID,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			settingsNew, err := models.GetSettings(db)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, settingsNew.DefaultRoleID, int(roleID))
 		})
 
@@ -261,13 +261,13 @@ func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) (uint32
 		Title:  "Role A",
 		Filter: "filter A",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	rB, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
 		Title:  "Role B",
 		Filter: "filter B",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	return rA.RoleId, rB.RoleId
 }

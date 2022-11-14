@@ -137,10 +137,10 @@ type authError struct {
 }
 
 // ErrInvalidUserID is returned when user ID is not valid.
-var ErrInvalidUserID = fmt.Errorf("InvalidUserID")
+var ErrInvalidUserID = errors.New("InvalidUserID")
 
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
-var ErrCannotGetUserID = fmt.Errorf("CannotGetUserID")
+var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
 type cacheItem struct {
 	u       authUser
@@ -149,7 +149,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getRole(context.Context, http.Header) (authUser, error)
+	getAuthUser(context.Context, http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -543,7 +543,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getRole(ctx, authHeaders)
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint

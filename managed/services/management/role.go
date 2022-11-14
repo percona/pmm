@@ -29,7 +29,7 @@ import (
 )
 
 // ErrInvalidRoleData is returned when a row cannot be asserted to role.
-var ErrInvalidRoleData = fmt.Errorf("InvalidRoleData")
+var ErrInvalidRoleData = errors.New("InvalidRoleData")
 
 // RoleService represents service for working with roles.
 type RoleService struct {
@@ -87,7 +87,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.UpdateRole
 //
 //nolint:unparam
 func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.DeleteRoleRequest) (*managementpb.DeleteRoleResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+	errTx := r.db.InTransaction(func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
@@ -98,8 +98,8 @@ func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.DeleteRole
 
 		return nil
 	})
-	if err != nil {
-		return nil, err
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	return &managementpb.DeleteRoleResponse{}, nil
