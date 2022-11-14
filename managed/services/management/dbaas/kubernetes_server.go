@@ -523,10 +523,13 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			if err := k.installOperator(ctx, "percona-xtradb-cluster-operator", "default", "", "stable", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 			}
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "percona-xtradb-cluster-operator"); err != nil {
+				k.l.Errorf("cannot approve the PXC install plan: %s", err)
+			}
 		}
 
 		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
-			if err := k.installOperator(ctx, "percona-server-mongodb-operator", "default", "", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			if err := k.installOperator(ctx, "percona-server-mongodb-operator", "default", "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 			}
 			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "percona-server-mongodb-operator"); err != nil {
@@ -598,7 +601,7 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 		CatalogSource:          catalogSource,
 		CatalogSourceNamespace: catalosSourceNamespace,
 		Channel:                channel,
-		InstallPlanApproval:    "Automatic",
+		InstallPlanApproval:    "Manual",
 		StartingCsv:            startingCSV,
 	})
 
