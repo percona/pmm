@@ -34,7 +34,7 @@ func Query(q string, maxQueryLength int32) (string, bool) {
 	}
 
 	// for queries shorter than 4 chars
-	if len(q) < 4 {
+	if maxQueryLength < 4 {
 		return " ...", true
 	}
 
