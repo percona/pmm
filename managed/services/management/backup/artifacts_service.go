@@ -185,7 +185,7 @@ func convertBackupStatus(status models.BackupStatus) (backuppb.BackupStatus, err
 	case models.FailedToDeleteBackupStatus:
 		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
 	case models.ErrorAgentNotSupportedStatus:
-		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_UNSUPPORTED_AGENT, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_NOT_SUPPORTED_BY_AGENT, nil
 	default:
 		return 0, errors.Errorf("invalid status '%s'", status)
 	}
