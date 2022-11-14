@@ -94,9 +94,7 @@ message StartAgentUpdateRequest {
   bool update_all_agents = 2;
 }
 
-message StartAgentUpdateResponse {
-  string error = 1;
-}
+message StartAgentUpdateResponse {}
 
 message UpdateStatusRequest {
   // Authentication token.

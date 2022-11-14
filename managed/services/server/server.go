@@ -52,6 +52,7 @@ type Server struct {
 	db                   *reform.DB
 	vmdb                 prometheusService
 	agentsState          agentsStateUpdater
+	agentsUpgrader       agentsUpgrader
 	vmalert              vmAlertService
 	vmalertExternalRules vmAlertExternalRules
 	alertmanager         alertmanagerService
@@ -91,6 +92,7 @@ type pmmUpdateAuth struct {
 type Params struct {
 	DB                   *reform.DB
 	AgentsStateUpdater   agentsStateUpdater
+	AgentsUpgrader       agentsUpgrader
 	VMDB                 prometheusService
 	VMAlert              prometheusService
 	Alertmanager         alertmanagerService
@@ -118,6 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 		db:                   params.DB,
 		vmdb:                 params.VMDB,
 		agentsState:          params.AgentsStateUpdater,
+		agentsUpgrader:       params.AgentsUpgrader,
 		vmalert:              params.VMAlert,
 		alertmanager:         params.Alertmanager,
 		checksService:        params.ChecksService,
@@ -340,7 +343,14 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 // StartAgentUpdate starts PMM Agent update.
 func (s *Server) StartAgentUpdate(ctx context.Context, req *serverpb.StartAgentUpdateRequest) (*serverpb.StartAgentUpdateResponse, error) {
-	return nil, nil
+	for _, a := range req.AgentVersion {
+		agentID := a.AgentId
+		if err := s.agentsUpgrader.RequestUpgrade(agentID); err != nil {
+			return nil, err
+		}
+	}
+
+	return &serverpb.StartAgentUpdateResponse{}, nil
 }
 
 // UpdateStatus returns PMM Server update status.

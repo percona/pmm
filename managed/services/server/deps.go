@@ -116,6 +116,10 @@ type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
 }
 
+type agentsUpgrader interface {
+	RequestUpgrade(pmmAgentID string) error
+}
+
 // rulesService is a subset of methods of ia.RulesService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type rulesService interface {

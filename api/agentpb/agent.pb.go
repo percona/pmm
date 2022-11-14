@@ -1535,7 +1535,7 @@ func (*ActionResultResponse) Descriptor() ([]byte, []int) {
 	return file_agentpb_agent_proto_rawDescGZIP(), []int{19}
 }
 
-// StartUpdateRequest starts update of pmm-agent
+// StartUpdateRequest starts update of pmm-agent.
 type StartUpdateRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1583,7 +1583,7 @@ func (x *StartUpdateRequest) GetVersion() string {
 	return ""
 }
 
-// StartUpdateResponse is contains error, if any, in case update could not start
+// StartUpdateResponse contains error, if any, in case update could not start.
 type StartUpdateResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

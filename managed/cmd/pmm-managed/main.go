@@ -174,6 +174,7 @@ type gRPCServerDeps struct {
 	handler              *agents.Handler
 	actions              *agents.ActionsService
 	agentsStateUpdater   *agents.StateUpdater
+	agentsUpgrader       *agents.Upgrader
 	connectionCheck      *agents.ConnectionChecker
 	defaultsFileParser   *agents.DefaultsFileParser
 	grafanaClient        *grafana.Client
@@ -772,6 +773,7 @@ func main() {
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
+	agentsUpgrader := agents.NewUpgrader(agentsRegistry)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
@@ -810,6 +812,7 @@ func main() {
 		VMDB:                 vmdb,
 		VMAlert:              vmalert,
 		AgentsStateUpdater:   agentsStateUpdater,
+		AgentsUpgrader:       agentsUpgrader,
 		Alertmanager:         alertManager,
 		ChecksService:        checksService,
 		TemplatesService:     templatesService,
@@ -986,6 +989,7 @@ func main() {
 				handler:              agentsHandler,
 				actions:              actionsService,
 				agentsStateUpdater:   agentsStateUpdater,
+				agentsUpgrader:       agentsUpgrader,
 				connectionCheck:      connectionCheck,
 				grafanaClient:        grafanaClient,
 				checksService:        checksService,

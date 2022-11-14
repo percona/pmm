@@ -54,22 +54,20 @@ StartAgentUpdateOK describes a response with status code 200, with default heade
 A successful response.
 */
 type StartAgentUpdateOK struct {
-	Payload *StartAgentUpdateOKBody
+	Payload interface{}
 }
 
 func (o *StartAgentUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/StartAgent][%d] startAgentUpdateOk  %+v", 200, o.Payload)
 }
 
-func (o *StartAgentUpdateOK) GetPayload() *StartAgentUpdateOKBody {
+func (o *StartAgentUpdateOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *StartAgentUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(StartAgentUpdateOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -460,43 +458,6 @@ func (o *StartAgentUpdateDefaultBodyDetailsItems0) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *StartAgentUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res StartAgentUpdateDefaultBodyDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-StartAgentUpdateOKBody start agent update OK body
-swagger:model StartAgentUpdateOKBody
-*/
-type StartAgentUpdateOKBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-}
-
-// Validate validates this start agent update OK body
-func (o *StartAgentUpdateOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this start agent update OK body based on context it is used
-func (o *StartAgentUpdateOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartAgentUpdateOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartAgentUpdateOKBody) UnmarshalBinary(b []byte) error {
-	var res StartAgentUpdateOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

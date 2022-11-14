@@ -597,7 +597,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 }
 
 // ErrUpdateInProgress is returned when an update is already in progress.
-var ErrUpdateInProgress = fmt.Errorf("UpdateInProgress")
+var ErrUpdateInProgress = errors.New("UpdateInProgress")
 
 func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
 	if !c.updateLock.TryLock() {
