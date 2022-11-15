@@ -26,6 +26,7 @@
 !!! caution alert alert-warning "Important"
     If PMM Server runs as a Docker container, enable backup features at container creation time by adding `-e ENABLE_BACKUP_MANAGEMENT=1` to your `docker run` command.
 
+
 ### Prepare a storage location
 #### For local backups
 If you prefer storing your backup artifacts on a remote filesystem, make sure that you have Write permissions on the path you define, and that you've mounted the remote folder to all the mongoDB nodes. 
@@ -85,9 +86,10 @@ A sample IAM policy is:
 Before creating MongoDB backups, make sure that:
 
 - [PMM Client](../setting-up/client/index.md) is installed and running at least on one node of replica set (the one which will be used for backup and restore jobs).
-- [Percona Backup for MongoDB] (PBM) is installed and `pbm-agent` is running on all MongoDB nodes in the replica set. PMM 2.32 and later require PBM 2.0.1 or newer.
+- [Percona Backup for MongoDB](https://docs.percona.com/percona-backup-mongodb/index.html) (PBM) is installed and `pbm-agent` is running on all MongoDB nodes in the replica set. PMM 2.32 and later require PBM 2.0.1 or newer.
 - MongoDB is a member of a replica set.
-- Check out the current [MongoDB supported configurations and limitations](mongodb_limitations.md).
+- you set the [required permissions for creating and restoring MongoDB backups](/docs/setting-up/client/mongodb.md#create-pmm-account-and-set-permissions).
+- you checked  [MongoDB supported configurations and limitations](mongodb_limitations.md).
 
 ### MySQL backup prerequisites
 
