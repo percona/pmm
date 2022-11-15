@@ -211,11 +211,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary(serverMetrics.UnaryServerInterceptor()),
+			interceptors.Unary(serverMetrics.UnaryServerInterceptor),
 			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			interceptors.Stream(serverMetrics.StreamServerInterceptor()),
+			interceptors.Stream(serverMetrics.StreamServerInterceptor),
 			interceptors.StreamServiceEnabledInterceptor(),
 			grpc_validator.StreamServerInterceptor())),
 	)
@@ -289,7 +289,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.EnableHandlingTimeHistogram(serverMetrics)
+		grpc_prometheus.CustomEnableHandlingTimeHistogram(serverMetrics)
 	}
 
 	serverMetrics.InitializeMetrics(gRPCServer)

@@ -61,8 +61,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	serverMetrics := grpc_prometheus.NewServerMetrics()
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.Unary(serverMetrics.UnaryServerInterceptor())),
-		grpc.StreamInterceptor(interceptors.Stream(serverMetrics.StreamServerInterceptor())))
+		grpc.UnaryInterceptor(interceptors.Unary(serverMetrics.UnaryServerInterceptor)),
+		grpc.StreamInterceptor(interceptors.Stream(serverMetrics.StreamServerInterceptor)))
 
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
