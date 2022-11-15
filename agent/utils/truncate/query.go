@@ -37,6 +37,7 @@ func Query(q string, maxQueryLength int32) (string, bool) {
 	return string(runes[:maxQueryLength-4]) + " ...", true
 }
 
+// Test trigger
 // GetDefaultMaxQueryLength returns default decimal value for query length.
 func GetDefaultMaxQueryLength() int32 {
 	return defaultMaxQueryLength
