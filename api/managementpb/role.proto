@@ -98,7 +98,7 @@ service Role {
   // CreateRole creates a new role.
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {
     option (google.api.http) = {
-      put: "/v1/management/Role"
+      post: "/v1/management/Role/Create"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -110,7 +110,7 @@ service Role {
   // UpdateRole creates a new role.
   rpc UpdateRole(UpdateRoleRequest) returns (UpdateRoleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Role"
+      post: "/v1/management/Role/Update"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -134,7 +134,8 @@ service Role {
   // GetRole retrieves a single role.
   rpc GetRole(GetRoleRequest) returns (GetRoleResponse) {
     option (google.api.http) = {
-      get: "/v1/management/Role"
+      post: "/v1/management/Role/Get"
+      body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Role"
@@ -145,7 +146,8 @@ service Role {
   // ListRoles retrieves a roles.
   rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
     option (google.api.http) = {
-      get: "/v1/management/Role/List"
+      post: "/v1/management/Role/List"
+      body: "*"      
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Roles"

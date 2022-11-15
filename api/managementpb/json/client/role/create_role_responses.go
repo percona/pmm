@@ -58,7 +58,7 @@ type CreateRoleOK struct {
 }
 
 func (o *CreateRoleOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/management/Role][%d] createRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Role/Create][%d] createRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *CreateRoleOK) GetPayload() *CreateRoleOKBody {
@@ -100,7 +100,7 @@ func (o *CreateRoleDefault) Code() int {
 }
 
 func (o *CreateRoleDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/management/Role][%d] CreateRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Role/Create][%d] CreateRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CreateRoleDefault) GetPayload() *CreateRoleDefaultBody {

@@ -58,7 +58,7 @@ type GetRoleOK struct {
 }
 
 func (o *GetRoleOK) Error() string {
-	return fmt.Sprintf("[GET /v1/management/Role][%d] getRoleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Role/Get][%d] getRoleOk  %+v", 200, o.Payload)
 }
 
 func (o *GetRoleOK) GetPayload() *GetRoleOKBody {
@@ -100,7 +100,7 @@ func (o *GetRoleDefault) Code() int {
 }
 
 func (o *GetRoleDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/management/Role][%d] GetRole default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Role/Get][%d] GetRole default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetRoleDefault) GetPayload() *GetRoleDefaultBody {
@@ -115,6 +115,43 @@ func (o *GetRoleDefault) readResponse(response runtime.ClientResponse, consumer 
 		return err
 	}
 
+	return nil
+}
+
+/*
+GetRoleBody get role body
+swagger:model GetRoleBody
+*/
+type GetRoleBody struct {
+	// role id
+	RoleID int64 `json:"role_id,omitempty"`
+}
+
+// Validate validates this get role body
+func (o *GetRoleBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get role body based on context it is used
+func (o *GetRoleBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetRoleBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetRoleBody) UnmarshalBinary(b []byte) error {
+	var res GetRoleBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 

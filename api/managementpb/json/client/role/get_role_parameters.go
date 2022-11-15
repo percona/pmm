@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // NewGetRoleParams creates a new GetRoleParams object,
@@ -61,10 +60,8 @@ GetRoleParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetRoleParams struct {
-	// RoleID.
-	//
-	// Format: int64
-	RoleID *int64
+	// Body.
+	Body GetRoleBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -119,15 +116,15 @@ func (o *GetRoleParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithRoleID adds the roleID to the get role params
-func (o *GetRoleParams) WithRoleID(roleID *int64) *GetRoleParams {
-	o.SetRoleID(roleID)
+// WithBody adds the body to the get role params
+func (o *GetRoleParams) WithBody(body GetRoleBody) *GetRoleParams {
+	o.SetBody(body)
 	return o
 }
 
-// SetRoleID adds the roleId to the get role params
-func (o *GetRoleParams) SetRoleID(roleID *int64) {
-	o.RoleID = roleID
+// SetBody adds the body to the get role params
+func (o *GetRoleParams) SetBody(body GetRoleBody) {
+	o.Body = body
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -136,21 +133,8 @@ func (o *GetRoleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
-
-	if o.RoleID != nil {
-
-		// query param role_id
-		var qrRoleID int64
-
-		if o.RoleID != nil {
-			qrRoleID = *o.RoleID
-		}
-		qRoleID := swag.FormatInt64(qrRoleID)
-		if qRoleID != "" {
-			if err := r.SetQueryParam("role_id", qRoleID); err != nil {
-				return err
-			}
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

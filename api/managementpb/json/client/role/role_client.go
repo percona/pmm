@@ -96,8 +96,8 @@ func (a *Client) CreateRole(params *CreateRoleParams, opts ...ClientOption) (*Cr
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "CreateRole",
-		Method:             "PUT",
-		PathPattern:        "/v1/management/Role",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Role/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -174,8 +174,8 @@ func (a *Client) GetRole(params *GetRoleParams, opts ...ClientOption) (*GetRoleO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetRole",
-		Method:             "GET",
-		PathPattern:        "/v1/management/Role",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Role/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -213,7 +213,7 @@ func (a *Client) ListRoles(params *ListRolesParams, opts ...ClientOption) (*List
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ListRoles",
-		Method:             "GET",
+		Method:             "POST",
 		PathPattern:        "/v1/management/Role/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -292,7 +292,7 @@ func (a *Client) UpdateRole(params *UpdateRoleParams, opts ...ClientOption) (*Up
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateRole",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Role",
+		PathPattern:        "/v1/management/Role/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

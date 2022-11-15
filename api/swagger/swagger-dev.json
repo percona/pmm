@@ -25737,158 +25737,14 @@
         }
       }
     },
-    "/v1/management/Role": {
-      "get": {
-        "description": "Retrieves a Role by ID.",
-        "tags": [
-          "Role"
-        ],
-        "summary": "Get Role",
-        "operationId": "GetRole",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "role_id",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "role_id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 0
-                },
-                "title": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "filter": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "description": "Creates a new Role.",
-        "tags": [
-          "Role"
-        ],
-        "summary": "Create Role",
-        "operationId": "CreateRole",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "title": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "filter": {
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "role_id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      },
+    "/v1/management/Role/Assign": {
       "post": {
-        "description": "Updates an existing Role.",
+        "description": "Assigns Roles replaces all existing Roles for a User.",
         "tags": [
           "Role"
         ],
-        "summary": "Update Role",
-        "operationId": "UpdateRole",
+        "summary": "Assign Roles",
+        "operationId": "AssignRoles",
         "parameters": [
           {
             "name": "body",
@@ -25897,18 +25753,18 @@
             "schema": {
               "type": "object",
               "properties": {
-                "role_id": {
-                  "type": "integer",
-                  "format": "int64",
+                "role_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
                   "x-order": 0
                 },
-                "title": {
-                  "type": "string",
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
                   "x-order": 1
-                },
-                "filter": {
-                  "type": "string",
-                  "x-order": 2
                 }
               }
             }
@@ -25955,14 +25811,14 @@
         }
       }
     },
-    "/v1/management/Role/Assign": {
+    "/v1/management/Role/Create": {
       "post": {
-        "description": "Assigns Roles replaces all existing Roles for a User.",
+        "description": "Creates a new Role.",
         "tags": [
           "Role"
         ],
-        "summary": "Assign Roles",
-        "operationId": "AssignRoles",
+        "summary": "Create Role",
+        "operationId": "CreateRole",
         "parameters": [
           {
             "name": "body",
@@ -25971,17 +25827,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "role_ids": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer",
-                    "format": "int64"
-                  },
+                "title": {
+                  "type": "string",
                   "x-order": 0
                 },
-                "user_id": {
-                  "type": "integer",
-                  "format": "int64",
+                "filter": {
+                  "type": "string",
                   "x-order": 1
                 }
               }
@@ -25992,7 +25843,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -26095,14 +25953,105 @@
         }
       }
     },
+    "/v1/management/Role/Get": {
+      "post": {
+        "description": "Retrieves a Role by ID.",
+        "tags": [
+          "Role"
+        ],
+        "summary": "Get Role",
+        "operationId": "GetRole",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                },
+                "title": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "filter": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Role/List": {
-      "get": {
+      "post": {
         "description": "Lists Roles.",
         "tags": [
           "Role"
         ],
         "summary": "List Roles",
         "operationId": "ListRoles",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -26188,6 +26137,80 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Role/Update": {
+      "post": {
+        "description": "Updates an existing Role.",
+        "tags": [
+          "Role"
+        ],
+        "summary": "Update Role",
+        "operationId": "UpdateRole",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 0
+                },
+                "title": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "filter": {
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
