@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -54,6 +55,9 @@ const (
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
 )
+
+// ErrUpdateInProgress is returned when an update is already in progress.
+var ErrUpdateInProgress = errors.New("UpdateInProgress")
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
@@ -640,9 +644,6 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	return c.runner.StartJob(job)
 }
 
-// ErrUpdateInProgress is returned when an update is already in progress.
-var ErrUpdateInProgress = errors.New("UpdateInProgress")
-
 func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
 	if !c.updateLock.TryLock() {
 		return fmt.Errorf("%w: another update is already in progress", ErrUpdateInProgress)
@@ -653,6 +654,7 @@ func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
 	if p.Version != "" {
 		args = append(args, "--use-version", p.Version)
 	}
+	logrus.Infof(`Running command "pmm %s"`, strings.Join(args, " "))
 	cmd := exec.Command("pmm", args...)
 	cmd.Stdout = logrus.New().WriterLevel(logrus.InfoLevel)
 	cmd.Stderr = logrus.New().WriterLevel(logrus.ErrorLevel)
@@ -660,6 +662,9 @@ func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
+	// restart pmm
+	os.Exit(1)
 
 	return nil
 }

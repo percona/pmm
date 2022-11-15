@@ -275,6 +275,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.StartJob)
 		case *agentpb.AgentMessage_StopJob:
 			c.publish(msg.Id, msg.Status, p.StopJob)
+		case *agentpb.AgentMessage_StartUpdate:
+			c.publish(msg.Id, msg.Status, p.StartUpdate)
 		case *agentpb.AgentMessage_JobStatus:
 			c.publish(msg.Id, msg.Status, p.JobStatus)
 		case *agentpb.AgentMessage_CheckConnection:
