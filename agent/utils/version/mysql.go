@@ -16,42 +16,112 @@ package version
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"gopkg.in/reform.v1"
 )
 
-// regexps to extract version numbers from the `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'` output.
-var (
-	mysqlDBRegexp = regexp.MustCompile(`^\d+\.\d+`)
+// MySQLVendor represents MySQL vendor.
+type MySQLVendor byte
+
+// MySQLVendor represent MySQL vendors.
+const (
+	OracleVendor MySQLVendor = iota + 1
+	PerconaVendor
+	MariaDBVendor
 )
 
-// GetMySQLVersion return parsed version of MySQL and vendor.
-func GetMySQLVersion(q *reform.Querier) (string, string, error) {
-	var name, ver string
-	err := q.QueryRow(`SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`).Scan(&name, &ver)
+// MySQLVersion represent major, minor numbers of mysql version separated by comma.
+type MySQLVersion struct {
+	text   string
+	number float64
+}
+
+// Service represent mysql version service.
+type Service struct {
+	q            *reform.Querier
+	versionQuery string
+	commentQuery string
+}
+
+// NewService creates a new mysql version service.
+func NewService(q *reform.Querier) *Service {
+	return &Service{
+		q:            q,
+		versionQuery: `SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`,
+		commentQuery: `SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`,
+	}
+}
+
+// NewTestService creates a new mysql version service for testing.
+func NewTestService(q *reform.Querier) *Service {
+	return &Service{
+		q:            q,
+		versionQuery: `SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`,
+		commentQuery: `SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`,
+	}
+}
+
+const (
+	perconaComment = "percona"
+	mariaDBComment = "mariadb"
+	debianComment  = "debian"
+)
+
+var (
+	// Regexps to extract version numbers from the `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'` output.
+	mysqlDBRegexp = regexp.MustCompile(`^\d+\.\d+`)
+
+	vendors = [...]string{"unknown", "oracle", "percona", "mariadb"}
+)
+
+// GetMySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.) and vendor.
+func (s *Service) GetMySQLVersion() (MySQLVersion, MySQLVendor, error) {
+	var name, version string
+	err := s.q.QueryRow(s.versionQuery).Scan(&name, &version)
 	if err != nil {
-		return "", "", err
+		return MySQLVersion{}, 0, err
 	}
 	var ven string
-	err = q.QueryRow(`SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&name, &ven)
+	err = s.q.QueryRow(s.commentQuery).Scan(&name, &ven)
 	if err != nil {
-		return "", "", err
+		return MySQLVersion{}, 0, err
 	}
 
-	version := mysqlDBRegexp.FindString(ver)
+	text := mysqlDBRegexp.FindString(version)
+	number, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return MySQLVersion{}, 0, err
+	}
 
-	var vendor string
+	var vendor MySQLVendor
 	switch {
-	case strings.Contains(strings.ToLower(ven), "percona"):
-		vendor = "percona"
-	case strings.Contains(strings.ToLower(ven), "mariadb"):
-		vendor = "mariadb"
-	case strings.Contains(strings.ToLower(ven), "debian") && strings.Contains(strings.ToLower(ver), "mariadb"):
-		vendor = "mariadb"
+	case strings.Contains(strings.ToLower(ven), perconaComment):
+		vendor = PerconaVendor
+	case strings.Contains(strings.ToLower(ven), mariaDBComment):
+		vendor = MariaDBVendor
+	case strings.Contains(strings.ToLower(ven), debianComment) && strings.Contains(strings.ToLower(version), mariaDBComment):
+		vendor = MariaDBVendor
 	default:
-		vendor = "oracle"
+		vendor = OracleVendor
 	}
 
-	return version, vendor, nil
+	return MySQLVersion{text: text, number: number}, vendor, nil
+}
+
+func (v MySQLVendor) String() string {
+	if int(v) >= len(vendors) {
+		return vendors[0]
+	}
+	return vendors[v]
+}
+
+// Float represent mysql version in float format.
+func (v MySQLVersion) Float() float64 {
+	return v.number
+}
+
+func (v MySQLVersion) String() string {
+	return v.text
 }

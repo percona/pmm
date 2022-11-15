@@ -32,6 +32,10 @@ func TestGetMySQLVersion(t *testing.T) {
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
+	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+	q := db.WithContext(context.Background())
+	s := NewTestService(q)
+
 	type mockedVariables struct {
 		variable string
 		value    string
@@ -40,7 +44,7 @@ func TestGetMySQLVersion(t *testing.T) {
 	type testingCase struct {
 		name        string
 		mockedData  []mockedVariables
-		wantVendor  string
+		wantVendor  MySQLVendor
 		wantVersion string
 	}
 
@@ -57,7 +61,7 @@ func TestGetMySQLVersion(t *testing.T) {
 					value:    "Percona Server (GPL), Release 17, Revision d7119cd",
 				},
 			},
-			wantVendor:  "percona",
+			wantVendor:  PerconaVendor,
 			wantVersion: "8.0",
 		},
 		{
@@ -72,7 +76,7 @@ func TestGetMySQLVersion(t *testing.T) {
 					value:    "MySQL Community Server - GPL",
 				},
 			},
-			wantVendor:  "oracle",
+			wantVendor:  OracleVendor,
 			wantVersion: "8.0",
 		},
 		{
@@ -87,7 +91,7 @@ func TestGetMySQLVersion(t *testing.T) {
 					value:    "mariadb.org binary distribution",
 				},
 			},
-			wantVendor:  "mariadb",
+			wantVendor:  MariaDBVendor,
 			wantVersion: "10.2",
 		},
 		{
@@ -102,7 +106,7 @@ func TestGetMySQLVersion(t *testing.T) {
 					value:    "Debian 9.13",
 				},
 			},
-			wantVendor:  "mariadb",
+			wantVendor:  MariaDBVendor,
 			wantVersion: "10.1",
 		},
 	}
@@ -119,12 +123,8 @@ func TestGetMySQLVersion(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(columns).AddRow(mockedVar.variable, mockedVar.value))
 			}
 
-			db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-			q := db.WithContext(context.Background())
-
-			version, vendor, err := GetMySQLVersion(q)
-			assert.Equal(t, tc.wantVersion, version)
+			version, vendor, err := s.GetMySQLVersion()
+			assert.Equal(t, tc.wantVersion, version.String())
 			assert.Equal(t, tc.wantVendor, vendor)
 			assert.NoError(t, err)
 		})
