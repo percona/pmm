@@ -165,8 +165,15 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 	if err != nil {
 		return nil, err
 	}
-	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: newName})
+	if err != nil {
 		return nil, err
+	}
+	if len(tasks) > 1 { // Just in case.
+		panic("more than one record found in field with unique constraint")
+	}
+	if len(tasks) == 1 {
+		return nil, errors.Wrapf(ErrAlreadyExists, "couldn't create task name %s", newName)
 	}
 
 	id := "/scheduled_task_id/" + uuid.New().String()
@@ -223,21 +230,6 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		return nil, err
 	}
 
-	newName, err := nameFromTaskData(row.Type, params.Data)
-	if err != nil {
-		return nil, err
-	}
-	oldName, err := nameFromTaskData(row.Type, row.Data)
-	if err != nil {
-		return nil, err
-	}
-
-	if newName != oldName {
-		if err := checkUniqueScheduledTaskName(q, newName); err != nil {
-			return nil, err
-		}
-	}
-
 	if params.NextRun != nil {
 		row.NextRun = *params.NextRun
 	}
@@ -255,6 +247,29 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if params.Data != nil {
+		newName, err := nameFromTaskData(row.Type, params.Data)
+		if err != nil {
+			return nil, err
+		}
+		oldName, err := nameFromTaskData(row.Type, row.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if newName != oldName {
+			tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: newName})
+			if err != nil {
+				return nil, err
+			}
+
+			if len(tasks) > 1 { // Just in case.
+				panic("more than one record found in field with unique constraint")
+			}
+			if len(tasks) == 1 {
+				return nil, errors.Wrapf(ErrAlreadyExists, "couldn't change task name to %s", newName)
+			}
+		}
+
 		row.Data = params.Data
 	}
 
@@ -302,28 +317,19 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 }
 
 func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (string, error) {
-	switch taskType {
-	case ScheduledMySQLBackupTask:
-		return taskData.MySQLBackupTask.Name, nil
-	case ScheduledMongoDBBackupTask:
-		return taskData.MongoDBBackupTask.Name, nil
-	default:
-		return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
+	if taskData != nil {
+		switch taskType {
+		case ScheduledMySQLBackupTask:
+			if taskData.MySQLBackupTask != nil {
+				return taskData.MySQLBackupTask.Name, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if taskData.MongoDBBackupTask != nil {
+				return taskData.MongoDBBackupTask.Name, nil
+			}
+		default:
+			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
+		}
 	}
-}
-
-func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {
-	if name == "" {
-		panic("empty scheduled task Name")
-	}
-
-	var task ScheduledTask
-	switch err := q.FindOneTo(&task, "name", name); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Scheduled task with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
-		return errors.WithStack(err)
-	}
+	return "", nil
 }
