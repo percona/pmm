@@ -446,7 +446,7 @@ Percona Kubernetes operators have CRs that include both parts of those requireme
 
 All those template requirements are subset of Kubernetes CR objects that are supported by operators and kubernetes addons (such as special annotations).
 
-To define similar properties for different like environments, clusters, namespaces, templates could also have different visibility:
+To define similar properties for different environments, clusters, namespaces - templates could also have different visibility:
 - namespace
 - environment
 - cluster
@@ -463,6 +463,8 @@ And that visibility would probably define where those will be stored:
 `dbaas-operator` would provide simplifier interface to abstract internal mechanics of kubernetes and different clouds, so templates for it's interface are probably more related to Developer's and DBA's use case. And that makes `dbaas-operator` a more simpler interface that is just a subset of bigger CR template.
 
 As these kind of templates are more higher level, they would take priority over more low level templates and could be defined later when more business logic on operating templates would be defined.
+
+![Template Layers](./tpl_layers.png)
 
 Proposal on a current stage is to propagate low level templates (Database Engine defined by SRE/DBA in a cluster) to a higher level for the know fields. When middle level and high level templates (DBA, Dev) business logic would be better known, it will just a simple layer on top low level template and be presented to the user instead.
 
