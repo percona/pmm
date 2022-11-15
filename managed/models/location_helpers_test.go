@@ -584,4 +584,5 @@ func TestParseEndpoint(t *testing.T) {
 			assert.Equal(t, test.url, *res)
 		})
 	}
+
 }
