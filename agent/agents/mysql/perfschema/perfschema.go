@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"io"
 	"math"
-	"strconv"
 	"sync"
 	"time"
 
@@ -92,6 +91,7 @@ type PerfSchema struct {
 	historyCache         *historyCache
 	summaryCache         *summaryCache
 	versionsCache        *versionsCache
+	vs                   *version.Service
 }
 
 // Params represent Agent parameters.
@@ -169,6 +169,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		historyCache:         historyCache,
 		summaryCache:         summaryCache,
 		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
+		vs:                   version.NewService(params.Querier),
 	}, nil
 }
 
@@ -199,17 +200,14 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	}
 
 	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(m.q)
+	ver, ven, err := m.vs.GetMySQLVersion()
 	if err != nil {
 		m.l.Error(err)
 	}
-	mysqlVer, err := strconv.ParseFloat(ver, 64)
-	if err != nil {
-		m.l.Error(err)
-	}
+
 	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: mysqlVer,
-		vendor:  ven,
+		version: ver.Float(),
+		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
