@@ -432,15 +432,53 @@ Every additional provider should implement this interface. Kubernetes related im
 3. `managed/services/dbaas/kubernetes/olmclient` contains the implementation for `OLM`
 4. `managed/services/management/dbaas/` contains the REST API implementation for PMM UI and uses `managed/services/dbaas` package.
 
-### DB Templates
+### Templates
 
-1. SRE/DBA creates DB templates (through UI/API/YAML) and they are stored in Kubernetes cluster.
-2. UI requests [PMM API](proposal.md#pmm-rest-api-high-level-design)
+There are number of possible template use cases:
+- as a DBA I would like to template Cluster and DB parameters for number of different environments
+- as a SRE I would like to template k8s and cloud infrastructural parameters
+
+When DBA would like to have more control over DBs and DB Clusters (versions, sizing, backups, configs, parameters), SRE would like to control over Kubernetes and Cloud infrastructure (networking, storage, secrets) and how that infrastructure connected to applications (affinity, networking, rbac).
+
+Percona Kubernetes operators have CRs that include both parts of those requirements:
+- configs, sizing, backup parameters, cluster parameters (sharding, replsets)
+- toleration, affinity, annotations, storage classes, networking
+
+All those template requirements are subset of Kubernetes CR objects that are supported by operators and kubernetes addons (such as special annotations).
+
+To define similar properties for different like environments, clusters, namespaces, templates could also have different visibility:
+- namespace
+- environment
+- cluster
+- set of clusters
+
+And that visibility would probably define where those will be stored:
+- template for a namespace (prod/staging namespaces): as object in a namespace
+- environment templates: template with environment labels to select from
+- cluster wide templates: as object in a cluster for all namespaces
+- global templates: in a external storage in CI/CD, or in PMM as app that manages many clusters
+
+#### DatabaseCluster templates
+
+`dbaas-operator` would provide simplifier interface to abstract internal mechanics of kubernetes and different clouds, so templates for it's interface are probably more related to Developer's and DBA's use case. And that makes `dbaas-operator` a more simpler interface that is just a subset of bigger CR template.
+
+As these kind of templates are more higher level, they would take priority over more low level templates and could be defined later when more business logic on operating templates would be defined.
+
+Proposal on a current stage is to propagate low level templates (Database Engine defined by SRE/DBA in a cluster) to a higher level for the know fields. When middle level and high level templates (DBA, Dev) business logic would be better known, it will just a simple layer on top low level template and be presented to the user instead.
+
+TBD.
+
+#### Database Engine Templates
+
+These templates provide possibility to template full Database operator CR even for the fields that `dbaas-operator` don't really care or even don't know (annotations, parameters for the future CSI drivers and etc).
+
+1. SRE/DBA creates DB templates (through UI/API/YAML) and they are stored in the Kubernetes cluster.
+2. UI requests [PMM API](proposal.md#pmm-rest-api-high-level-design) `GET /dbaas/templates`
 3. PMM gets templates from k8s cluster
 4. User chooses template in UI.
 5. UI parses and present fields from template that are recognized
 6. User creates database with or without modifications to the values from template
-7. UI call PMM with results of user choices
+7. UI call PMM with results of user choices `POST /dbaas/dbclusters`
 
 Priority:
   1. changes from PMM UI configured by user
@@ -457,12 +495,22 @@ Corner cases:
 
 There are might be couple of ways for `dbaas-operator` to know about templates.
 
+Also this use case defaults to namespace and cluster visibility. So if there would be a need to have similar template for different clusters/namespaces - SRE need to copy them over to the another cluster/namespace and apply there (or use automation for it).
+
 **New parameter in API**
 ```go
           // Optional unique template name for specified EngineType
 		TemplateName string `json:"templateName,omitempty"`
 ```
-`dbass-operator` receives `TemplateName` parameters and get template from k8s by combining engine type and template name.
+`dbass-operator` receives `TemplateName` parameters and get template from k8s by combining engine type and template name. Or would implement additional controller for templates and track them.
+
+That is a possible way is to extend `dbaas-operator` with template functionality. But there are too many questions open:
+- what type to choose (string, unstructured)
+- how to validate that parameters in template are correct
+- how to track template versioning if it will be a controller
+- how to extend templates when adding new Database operators
+
+So instead of committing to the API, annotations could solve the problem for now.
 
 **Annotations**
 
@@ -473,23 +521,25 @@ Annotations that PMM or user could set for `dbaas-operator` that related to the 
 - `dbaas.percona.com/dbtemplate-name: prod-app-X-small`: `metadata.name` identifier for CR that provides template
 - `dbaas.percona.com/origin: pmm`: who created CR for `database-operator`: pmm, user, sre, dba, ci
 
-If some of those 2 parameters are not set - `dbaas-operator` wouldn't be able to identify template and thus would ignore another one.
+If one of those 2 parameters (kind, name) are not set - `dbaas-operator` wouldn't be able to identify template and thus would ignore another one.
 
 Annotations that are set by `dbaas-operator` for any engine to provide additional information about inputs for template:
+- all annotations from the template should be propagated to CR of the DB Cluster CR.
 - `dbaas.percona.com/dbtemplate-kind: PSMDBtemplate`
 - `dbaas.percona.com/dbtemplate-name: prod-app-X-small`
 - `dbaas.percona.com/origin: pmm`
 - `dbaas.percona.com/dbtemplate-default: yes`: default CR was created without origin and parameters
-- TBD
-- all annotations from the template should be propagated to CR of the DB Cluster CR.
+- more annotations are TBD
 
-All of the labels of the DB Template should be propagated to the DB Cluster CR.
+**Labels**
 
-**DB Templates**
+All the labels of the DB Template should be propagated to the DB Cluster CR.
 
-On a first phase to simplify template creation it might be better to restrict templates to simple k8s custom objects without operator that handles them. Architecture for interacting and layering for some additional operators is not yet found.
+**Database Engine Templates implementation**
 
-To To simplify implementation of `dbaas-operator` it is better to build templates with exactly the same definitions as the corresponding CR of DB Cluster instances. So `dbaas-operator` would just blindly merge template with user input without validating and knowing details of template implementation. Thus templates should have exactly same CRD as CRD for DB clusters. CRD for templates are needed to avoid errors as templates would be validated by k8s.
+On a first phase to simplify template creation it might be better to restrict templates to simple k8s custom objects without operator that handles them. Architecture for interacting and layering for some additional operators is not yet defined.
+
+To simplify implementation of `dbaas-operator` it is better to build templates with exactly the same definitions as the corresponding CR of DB Cluster instances. So `dbaas-operator` would just blindly merge template with user input without validating and knowing details of template implementation. Thus templates should have exactly same CRD as CRD for DB clusters. CRD for templates are needed to avoid errors as templates would be validated by k8s.
 
 Here are CRDs for DB Clusters:
 - PSMDBtemplate: [psmdbtpl.dbaas.percona.com.crd.yaml](psmdbtpl.dbaas.percona.com.crd.yaml)
