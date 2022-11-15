@@ -206,15 +206,16 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
+	serverMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary,
+			interceptors.Unary(serverMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			interceptors.Stream,
+			interceptors.Stream(serverMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
 			grpc_validator.StreamServerInterceptor())),
 	)
@@ -288,12 +289,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.EnableHandlingTimeHistogram()
+		grpc_prometheus.EnableHandlingTimeHistogram(serverMetrics)
 	}
 
-	grpcExtension := &interceptors.GRPCMetricsExtension{}
-	grpc_prometheus.ConfigureWithExtension(grpcExtension)
-	grpc_prometheus.RegisterWithExtension(gRPCServer, grpcExtension)
+	serverMetrics.InitializeMetrics(gRPCServer)
+	grpc_prometheus.PrometheusMustRegister(serverMetrics)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
