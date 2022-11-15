@@ -44,6 +44,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/jotaen/kong-completion v0.0.4
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -92,6 +93,11 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
 	k8s.io/apimachinery v0.20.6 // indirect
+)
+
+require (
+	github.com/posener/complete v1.2.3 // indirect
+	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 )
 
 require (
