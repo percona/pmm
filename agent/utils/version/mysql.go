@@ -72,7 +72,7 @@ const (
 var (
 	// Regexps to extract version numbers from the `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'` output.
 	mysqlDBRegexp = regexp.MustCompile(`^\d+\.\d+`)
-
+	// Vendors to represent MySQLVendor enum in string format with default value unknown.
 	vendors = [...]string{"unknown", "oracle", "percona", "mariadb"}
 )
 
