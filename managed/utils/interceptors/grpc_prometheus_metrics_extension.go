@@ -25,13 +25,14 @@ import (
 
 type grpcCallerOrigin struct{}
 
-type CallerOrigin string
+type callerOrigin string
 
 const (
-	InternalCallerOrigin = CallerOrigin("internal")
-	ExternalCallerOrigin = CallerOrigin("external")
+	internalCallerOrigin = callerOrigin("internal")
+	externalCallerOrigin = callerOrigin("external")
 )
 
+// GRPCMetricsExtension for custom labels
 type GRPCMetricsExtension struct {
 	grpc_prometheus.NullExtension
 }
@@ -42,21 +43,22 @@ func (GRPCMetricsExtension) ServerHandledCounterCustomLabels() []string {
 
 func (GRPCMetricsExtension) ServerHandledCounterPreRegisterValues() [][]string {
 	return [][]string{
-		{string(InternalCallerOrigin)},
-		{string(ExternalCallerOrigin)},
+		{string(internalCallerOrigin)},
+		{string(externalCallerOrigin)},
 	}
 }
 
 func (GRPCMetricsExtension) ServerHandledCounterValues(ctx context.Context) []string {
-	return []string{GetCallerOriginStr(ctx)}
+	return []string{getCallerOrigin(ctx)}
 }
 
+// SetCallerOrigin sets label caller_origin from header referer
 func SetCallerOrigin(ctx context.Context, method string) context.Context {
 	return context.WithValue(ctx, grpcCallerOrigin{}, callerOriginFromRequest(ctx, method))
 }
 
-func GetCallerOriginStr(ctx context.Context) string {
-	value, ok := ctx.Value(grpcCallerOrigin{}).(CallerOrigin)
+func getCallerOrigin(ctx context.Context) string {
+	value, ok := ctx.Value(grpcCallerOrigin{}).(callerOrigin)
 	if ok {
 		return string(value)
 	}
@@ -64,17 +66,17 @@ func GetCallerOriginStr(ctx context.Context) string {
 	return ""
 }
 
-func callerOriginFromRequest(ctx context.Context, method string) CallerOrigin {
+func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
 	if method == "/server.Server/Readiness" || method == "/agent.Agent/Connect" {
-		return InternalCallerOrigin
+		return internalCallerOrigin
 	}
 
 	headers, _ := metadata.FromIncomingContext(ctx)
 
 	// if referer is present - the caller is an external one
 	if len(headers.Get("grpcgateway-referer")) == 0 {
-		return ExternalCallerOrigin
+		return externalCallerOrigin
 	}
 
-	return InternalCallerOrigin
+	return internalCallerOrigin
 }
