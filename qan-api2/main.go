@@ -77,6 +77,7 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	}
 	l.Infof("Starting server on http://%s/ ...", bind)
 
+	serverMetrics := grpc_prometheus.NewServerMetrics()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer(
@@ -86,11 +87,11 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 		grpc.MaxRecvMsgSize(20*1024*1024), //nolint:gomnd
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary,
+			interceptors.Unary(serverMetrics.UnaryServerInterceptor),
 			grpc_validator.UnaryServerInterceptor(),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			interceptors.Stream,
+			interceptors.Stream(serverMetrics.StreamServerInterceptor),
 			grpc_validator.StreamServerInterceptor(),
 		)),
 	)
@@ -109,10 +110,10 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 		channelz.RegisterChannelzServiceToServer(grpcServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.EnableHandlingTimeHistogram()
+		grpc_prometheus.EnableHandlingTimeHistogram(serverMetrics)
 	}
 
-	grpc_prometheus.Register(grpcServer)
+	grpc_prometheus.PrometheusMustRegister(serverMetrics)
 
 	// run server until it is stopped gracefully or not
 	go func() {

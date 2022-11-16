@@ -8,7 +8,7 @@ go 1.18
 // Previos solution
 // replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/ritbl/go-grpc-prometheus v0.0.0-20221114002352-a1e88c81b6f9
 // go get -u github.com/Percona-Lab/go-grpc-prometheus@PMM-10948-code-review
-replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20221115213410-3563658561fb
+replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20221116161503-ba504677f459
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 

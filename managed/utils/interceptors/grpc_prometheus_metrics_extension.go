@@ -34,18 +34,11 @@ const (
 
 // GRPCMetricsExtension for custom labels
 type GRPCMetricsExtension struct {
-	grpc_prometheus.NullExtension
+	grpc_prometheus.DefaultExtension
 }
 
 func (GRPCMetricsExtension) ServerHandledCounterCustomLabels() []string {
 	return []string{"caller_origin"}
-}
-
-func (GRPCMetricsExtension) ServerHandledCounterPreRegisterValues() [][]string {
-	return [][]string{
-		{string(internalCallerOrigin)},
-		{string(externalCallerOrigin)},
-	}
 }
 
 func (GRPCMetricsExtension) ServerHandledCounterValues(ctx context.Context) []string {
