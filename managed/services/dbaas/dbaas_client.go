@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/version"
 )
 
@@ -248,5 +249,15 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 func (c *Client) GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.kubernetesClient.GetKubeconfig(ctx, in, opts...)
+
+	kClient, err := kubernetes.NewIncluster(ctx)
+	if err != nil {
+		c.l.Errorf("failed creating kubernetes client: %v", err)
+		return nil, nil
+	}
+
+	kubeConfig, err := kClient.GetKubeconfig(ctx)
+	return &controllerv1beta1.GetKubeconfigResponse{
+		Kubeconfig: kubeConfig,
+	}, err
 }
