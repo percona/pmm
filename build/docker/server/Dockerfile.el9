@@ -1,4 +1,4 @@
-FROM centos:7
+FROM oraclelinux:9
 
 ARG VERSION
 ARG BUILD_DATE
