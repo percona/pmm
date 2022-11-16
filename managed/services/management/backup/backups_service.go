@@ -327,27 +327,10 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retry interval %s", maxRetryInterval)
 			}
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
-		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
-				return errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
-			}
-			data.Retries = req.Retries.Value
-		}
-		if req.RetryInterval != nil {
-			if req.RetryInterval.AsDuration() > maxRetryInterval {
-				return errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
-			}
 			data.RetryInterval = req.RetryInterval.AsDuration()
 		}
-		serviceID = data.ServiceID
 
+		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
 			Data: scheduledTask.Data,
 		}
@@ -629,8 +612,9 @@ func convertBackupError(restoreError error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
 	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatibleLocationType):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 
 	default:
