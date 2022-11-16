@@ -151,21 +151,21 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per check name",
+			Help:      "Counter of check scripts executed per service type, check type and check name",
 		}, []string{"service_type", "check_type", "check_name"}),
 
 		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per check name",
+			Help:      "Counter of alerts generated per service type, check type and check name",
 		}, []string{"service_type", "check_type", "check_name"}),
 
 		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_downloaded_total",
-			Help:      "Counter of checks downloaded per check name",
+			Help:      "Counter of checks downloaded per service type, check type and check name",
 		}, []string{"service_type", "check_type", "check_name"}),
 	}
 
@@ -1373,6 +1373,7 @@ func (s *Service) CollectChecks(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded checks
 		}
+		// defer it ro run after updateChecks
 		defer s.incChecksDownload()
 	}
 
@@ -1525,7 +1526,6 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mChecksDownloaded.Collect(ch)
 }
 
-// initializeMetrics initializes all metrics for checks.
 func (s *Service) initializeMetrics() {
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(s.checks)
 	s.initializeServiceMetrics(models.MySQLServiceType, mySQLChecks)
@@ -1533,7 +1533,6 @@ func (s *Service) initializeMetrics() {
 	s.initializeServiceMetrics(models.MongoDBServiceType, mongoDBChecks)
 }
 
-// initializeServiceMetrics initializes metrics for serviceType.
 func (s *Service) initializeServiceMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
 		s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name)
@@ -1542,7 +1541,6 @@ func (s *Service) initializeServiceMetrics(serviceType models.ServiceType, check
 	}
 }
 
-// incChecksDownload increases check download counters.
 func (s *Service) incChecksDownload() {
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(s.checks)
 	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
@@ -1550,7 +1548,6 @@ func (s *Service) incChecksDownload() {
 	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
 }
 
-// incServiceCheckDownloadMetrics increases check download counters for serviceType.
 func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
 		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
