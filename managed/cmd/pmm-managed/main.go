@@ -294,18 +294,16 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 		l.Fatalf("Failed to register platform service: %s", err.Error())
 	}
 
+	grpcExtension := &interceptors.GRPCMetricsExtension{}
+	grpc_prometheus.ConfigureWithExtension(grpcExtension)
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.EnableHandlingTimeHistogram()
+		grpc_prometheus.DefaultServerMetrics.EnableHandlingTimeHistogram()
 	}
-
-	grpcExtension := &interceptors.GRPCMetricsExtension{}
-	grpc_prometheus.ConfigureWithExtension(grpcExtension)
-	grpc_prometheus.RegisterWithExtension(gRPCServer, grpcExtension)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)

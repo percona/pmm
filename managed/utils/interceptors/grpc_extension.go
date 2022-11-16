@@ -2,10 +2,11 @@ package interceptors
 
 import (
 	"context"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc/metadata"
 )
 
-var grpcCallerOrigin struct{}
+type grpcCallerOrigin struct{}
 
 type CallerOrigin string
 
@@ -15,30 +16,25 @@ const (
 )
 
 type GRPCMetricsExtension struct {
+	grpc_prometheus.DefaultExtension
 }
 
-func (e *GRPCMetricsExtension) ServerSentMessageCustomLabels() []string {
-	return []string{}
-}
-
-func (e *GRPCMetricsExtension) ServerSentMessageValues(ctx context.Context) []string {
-	return []string{}
-}
-
-func (e *GRPCMetricsExtension) ServerReceivedMessageCustomLabels() []string {
+func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterCustomLabels() []string {
 	return []string{"caller_origin"}
 }
 
-func (e *GRPCMetricsExtension) ServerReceivedMessageValues(ctx context.Context) []string {
+func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterValues(ctx context.Context) []string {
 	return []string{GetCallerOriginStr(ctx)}
 }
 
+var _ grpc_prometheus.ServerExtension = &GRPCMetricsExtension{}
+
 func SetCallerOrigin(ctx context.Context, method string) context.Context {
-	return context.WithValue(ctx, grpcCallerOrigin, callerOriginFromRequest(ctx, method))
+	return context.WithValue(ctx, grpcCallerOrigin{}, callerOriginFromRequest(ctx, method))
 }
 
 func GetCallerOriginStr(ctx context.Context) string {
-	v := ctx.Value(grpcCallerOrigin)
+	v := ctx.Value(grpcCallerOrigin{})
 	if v == nil {
 		return ""
 	}
