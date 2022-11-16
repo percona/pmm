@@ -104,7 +104,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			if locationModel.Type != models.S3BackupLocationType {
-				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is s3")
+				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
 			}
 
 			if params.Mode != models.Snapshot {

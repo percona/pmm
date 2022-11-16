@@ -177,7 +177,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	if _, _, err := config.Get(s.l); err != nil {
+	if _, err := config.Get(&config.Config{}, s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
