@@ -190,7 +190,6 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		}
 		_, err = models.ChangeScheduledTask(tx.Querier, task2.ID, changeParams2)
 		assert.ErrorIs(t, err, models.ErrAlreadyExists)
-
 	})
 
 	t.Run("Remove", func(t *testing.T) {
