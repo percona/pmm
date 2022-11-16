@@ -33,6 +33,11 @@ func Query(q string, maxQueryLength int32) (string, bool) {
 		return string(runes), false
 	}
 
+	// for queries shorter than 4 chars
+	if maxQueryLength < 4 {
+		return " ...", true
+	}
+
 	// copy MySQL behavior
 	return string(runes[:maxQueryLength-4]) + " ...", true
 }
