@@ -39,7 +39,7 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	case nil:
 		return res, nil
 	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "ScheduledTask with ID %q not found.", id)
+		return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
 	default:
 		return nil, errors.WithStack(err)
 	}
