@@ -1,0 +1,687 @@
+{
+	"labels": {
+		"application_name": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"az": {
+			"name": [
+				{
+					"value": "az1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"client_host": {
+			"name": [
+				{
+					"value": "10.11.12.1",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.10",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.11",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.12",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.13",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.14",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.15",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.16",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.18",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.20",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.23",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.24",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.25",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.32",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.33",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.36",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.4",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.43",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.44",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.45",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.49",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.52",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.53",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.54",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.55",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.65",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.68",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.69",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.71",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.73",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.74",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.79",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.8",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.81",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.83",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.85",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.87",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.89",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.95",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "10.11.12.96",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"cluster": {
+			"name": [
+				{
+					"value": "cluster1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"cmd_type": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"container_id": {
+			"name": [
+				{
+					"value": "container_id",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"container_name": {
+			"name": [
+				{
+					"value": "container_name1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"database": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"environment": {
+			"name": [
+				{
+					"value": "environment1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"machine_id": {
+			"name": [
+				{
+					"value": "machine_id1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"node_id": {
+			"name": [
+				{
+					"value": "node_id1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"node_model": {
+			"name": [
+				{
+					"value": "node_model1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"node_name": {
+			"name": [
+				{
+					"value": "node_name1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"node_type": {
+			"name": [
+				{
+					"value": "node_type1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"planid": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"region": {
+			"name": [
+				{
+					"value": "region1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"replication_set": {
+			"name": [
+				{
+					"value": "replication_set1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"schema": {
+			"name": [
+				{
+					"value": "schema1",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema10",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema17",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema18",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema20",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema21",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema25",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema3",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema30",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema33",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema35",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema36",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema37",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema38",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema39",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema42",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema45",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema52",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema53",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema59",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema6",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema62",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema65",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema70",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema71",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema73",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema74",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema75",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema76",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema78",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema79",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema8",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema82",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema84",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema9",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema90",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema91",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema93",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema95",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema98",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "schema99",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"service_id": {
+			"name": [
+				{
+					"value": "service_id1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"service_name": {
+			"name": [
+				{
+					"value": "server0",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server1",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server2",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server3",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server4",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server5",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server6",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server7",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server8",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "server9",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"service_type": {
+			"name": [
+				{
+					"value": "service_type1",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"top_queryid": {
+			"name": [
+				{
+					"mainMetricPercent": "NaN"
+				}
+			]
+		},
+		"username": {
+			"name": [
+				{
+					"value": "user1",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user16",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user17",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user2",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user20",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user21",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user22",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user31",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user32",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user35",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user36",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user38",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user43",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user44",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user45",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user47",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user5",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user52",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user54",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user55",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user59",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user62",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user63",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user64",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user67",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user69",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user70",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user71",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user74",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user76",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user78",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user82",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user84",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user9",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user90",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user92",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user96",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user97",
+					"mainMetricPercent": "NaN"
+				},
+				{
+					"value": "user98",
+					"mainMetricPercent": "NaN"
+				}
+			]
+		}
+	}
+}
