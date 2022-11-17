@@ -111,7 +111,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) 
 		return nil, err
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agent, err := s.r.Get(pmmAgentID)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -122,7 +122,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) 
 	}
 
 	request := &agentpb.GetVersionsRequest{Softwares: softwaresRequest}
-	response, err := agent.channel.SendAndWaitResponse(request)
+	response, err := agent.Channel.SendAndWaitResponse(request)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

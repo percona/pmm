@@ -60,7 +60,7 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService) *StateU
 func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
 	l := logger.Get(ctx)
 
-	agent, err := u.r.get(pmmAgentID)
+	agent, err := u.r.Get(pmmAgentID)
 	if err != nil {
 		l.Infof("RequestStateUpdate: %s.", err)
 		return
@@ -147,7 +147,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}()
 	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
 	if err != nil {
-		return errors.Wrap(err, "failed to get PMM Agent")
+		return errors.Wrap(err, "failed to Get PMM Agent")
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
@@ -179,7 +179,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.VMAgentType:
 			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
+				return errors.Wrapf(err, "cannot Get agent scrape config for agent: %s", agent.id)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg))
 
@@ -278,7 +278,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		BuiltinAgents:  builtinAgents,
 	}
 	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := agent.Channel.SendAndWaitResponse(state)
 	if err != nil {
 		return err
 	}

@@ -23,7 +23,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -228,7 +227,7 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			if err = s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID, job.ID, job.Timeout); err != nil {
+			if err := s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID, job.ID, job.Timeout); err != nil {
 				return err
 			}
 
@@ -349,17 +348,17 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agent, err := s.r.Get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-		return errors.Errorf("failed to start MySQL job: %s", e)
+		return errors.Errorf("failed to start MySQL backup job: %s", e)
 	}
 
 	return nil
@@ -429,17 +428,17 @@ func (s *JobsService) StartMongoDBBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agent, err := s.r.Get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-		return errors.Errorf("failed to start MongoDB job: %s", e)
+		return errors.Errorf("failed to start MongoDB backup job: %s", e)
 	}
 
 	return nil
@@ -477,12 +476,12 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agent, err := s.r.Get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -564,12 +563,12 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agent, err := s.r.Get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -582,60 +581,66 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 
 func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string, jobID string, timeout time.Duration) error {
 	s.l.Info("starting mongodb post restore routine...")
-	service, err := models.FindServiceByID(s.db.Querier, serviceID)
-	if err != nil {
-		return err
-	}
-	if service.ReplicationSet == "" {
-		return errors.Errorf("service '%s' is not configured with a valid replica set name", service.ServiceID)
-	}
 
 	serviceType := models.MongoDBServiceType
 	rsMembers, err := models.FindServices(
 		s.db.Querier,
 		models.ServiceFilters{
 			ServiceType:    &serviceType,
-			ReplicationSet: service.ReplicationSet,
+			ReplicationSet: "rs0",
 		})
+	if err != nil {
+		return err
+	}
 
-	eg, _ := errgroup.WithContext(ctx)
 	for _, service := range rsMembers {
 		svc := service
 		s.l.Infof("found service: %s in replica set: %s", svc.ServiceName, svc.ReplicationSet)
-		eg.Go(func() error {
-			pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
-			if err != nil {
-				return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", svc.ServiceID)
-			}
-			if len(pmmAgents) == 0 {
-				return errors.Errorf("cannot find pmm agent for service %s", svc.ServiceID)
-			}
-			pmmAgentID := pmmAgents[0].AgentID
-			if err = PMMAgentSupported(s.db.Querier, pmmAgentID, "restart mongo components", pmmAgentMinVersionForMongoPhysicalBackupAndRestore); err != nil {
-				return err
-			}
+		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", svc.ServiceID)
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", svc.ServiceID)
+		}
+		pmmAgentID := pmmAgents[0].AgentID
 
-			req := &agentpb.StartJobRequest{
-				JobId:   jobID,
-				Timeout: durationpb.New(timeout),
-				Job:     &agentpb.StartJobRequest_MongodbPostRestoreBackup{},
-			}
-			agent, err := s.r.get(pmmAgentID)
-			if err != nil {
-				return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
-			}
+		agent, err := s.r.Get(pmmAgentID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
+		}
+		s.l.Warnf("sending restart request to %s", pmmAgentID)
 
-			resp, err := agent.channel.SendAndWaitResponse(req)
-			if err != nil {
-				return err
-			}
-			if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-				return errors.Errorf("failed to restart MonogDB components on svc: '%s' after restore: %s", svc.ServiceID, e)
-			}
-			return nil
-		})
+		mongoReq := &agentpb.StartJobRequest{
+			JobId:   jobID,
+			Timeout: durationpb.New(30 * time.Second),
+			Job: &agentpb.StartJobRequest_MongodbRestartService{
+				MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
+					Service: agentpb.StartJobRequest_MongoDBRestartService_MONGOD,
+				},
+			},
+		}
+		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
+		if err != nil {
+			return err
+		}
+
+		pbmReq := &agentpb.StartJobRequest{
+			JobId:   "job_post_restore",
+			Timeout: durationpb.New(30 * time.Second),
+			Job: &agentpb.StartJobRequest_MongodbRestartService{
+				MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
+					Service: agentpb.StartJobRequest_MongoDBRestartService_PBM_AGENT,
+				},
+			},
+		}
+		_, err = agent.Channel.SendAndWaitResponse(pbmReq)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	return eg.Wait()
+	return nil
 }
 
 // StopJob stops job with given given id.
@@ -650,12 +655,12 @@ func (s *JobsService) StopJob(jobID string) error {
 		return nil
 	}
 
-	agent, err := s.r.get(jobResult.PMMAgentID)
+	agent, err := s.r.Get(jobResult.PMMAgentID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
+	_, err = agent.Channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
 
 	return err
 }

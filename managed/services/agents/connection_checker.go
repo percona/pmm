@@ -76,7 +76,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		}
 	}
 
-	pmmAgent, err := c.r.get(pmmAgentID)
+	pmmAgent, err := c.r.Get(pmmAgentID)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
 	}
 	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.Channel.SendAndWaitResponse(request)
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %s", err)
+		return false, fmt.Errorf("failed to Get PMM Agent: %s", err)
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {

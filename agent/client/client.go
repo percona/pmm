@@ -623,9 +623,9 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
-	case *agentpb.StartJobRequest_MongodbPostRestoreBackup:
+	case *agentpb.StartJobRequest_MongodbRestartService:
 		var err error
-		job, err = jobs.NewMongoDBPostRestoreJob(p.JobId, timeout)
+		job, err = jobs.NewMongoDBRestartJob(p.JobId, timeout, j.MongodbRestartService.Service)
 		if err != nil {
 			return err
 		}

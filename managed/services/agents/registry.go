@@ -65,7 +65,7 @@ var (
 )
 
 type pmmAgentInfo struct {
-	channel         *channel.Channel
+	Channel         *channel.Channel
 	id              string
 	stateChangeChan chan struct{}
 	kick            chan struct{}
@@ -140,7 +140,7 @@ func NewRegistry(db *reform.DB) *Registry {
 
 // IsConnected returns true if pmm-agent with given ID is currently connected, false otherwise.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
-	_, err := r.get(pmmAgentID)
+	_, err := r.Get(pmmAgentID)
 	return err == nil
 }
 
@@ -190,7 +190,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream),
+		Channel:         channel.New(stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kick:            make(chan struct{}),
@@ -219,7 +219,7 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.
 
 	runsOnNodeID := pointer.GetString(agent.RunsOnNodeID)
 	if runsOnNodeID == "" {
-		return nil, status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.PermissionDenied, "Can't Get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
 	}
 
 	// Get agent version
@@ -269,7 +269,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.Channel.SendAndWaitResponse(&agentpb.Ping{})
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) er
 	vmAgentType := models.VMAgentType
 	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
 	if err != nil {
-		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+		return status.Errorf(codes.Internal, "Can't Get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) == 0 {
 		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
@@ -326,7 +326,7 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 	vmAgentType := models.VMAgentType
 	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
 	if err != nil {
-		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+		return status.Errorf(codes.Internal, "Can't Get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) != 0 {
 		for _, agent := range vmAgent {
@@ -368,7 +368,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	// closing agent.kick is enough to exit runStateChangeHandler goroutine.
 }
 
-func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
+func (r *Registry) Get(pmmAgentID string) (*pmmAgentInfo, error) {
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
@@ -392,7 +392,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.rw.RLock()
 
 	for _, agent := range r.agents {
-		m := agent.channel.Metrics()
+		m := agent.Channel.Metrics()
 
 		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
 		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)

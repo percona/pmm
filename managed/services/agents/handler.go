@@ -97,10 +97,10 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			err = status.Errorf(codes.Aborted, "Kicked.")
 			return err
 
-		case req := <-agent.channel.Requests():
+		case req := <-agent.Channel.Requests():
 			if req == nil {
 				disconnectReason = "done"
-				err = agent.channel.Wait()
+				err = agent.Channel.Wait()
 				h.r.unregister(agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
@@ -110,7 +110,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 			switch p := req.Payload.(type) {
 			case *agentpb.Ping:
-				agent.channel.Send(&channel.ServerResponse{
+				agent.Channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
 						CurrentTime: timestamppb.Now(),
@@ -123,7 +123,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.Send(&channel.ServerResponse{
+					agent.Channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.StateChangedResponse{},
 					})
@@ -135,7 +135,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.Send(&channel.ServerResponse{
+					agent.Channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.QANCollectResponse{},
 					})
@@ -152,7 +152,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 					l.Warnf("Action was done with an error: %v.", p.Error)
 				}
 
-				agent.channel.Send(&channel.ServerResponse{
+				agent.Channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: &agentpb.ActionResultResponse{},
 				})
@@ -174,7 +174,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 			PMMAgentID: agentID,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to get pmm-agent's child agents")
+			return errors.Wrap(err, "failed to Get pmm-agent's child agents")
 		}
 		for _, agent := range agents {
 			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath); err != nil {
@@ -219,7 +219,7 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	agentType := models.PMMAgentType
 	agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{AgentType: &agentType})
 	if err != nil {
-		return errors.Wrap(err, "failed to get pmm-agents")
+		return errors.Wrap(err, "failed to Get pmm-agents")
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {

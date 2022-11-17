@@ -43,7 +43,7 @@ func NewDefaultsFileParser(r *Registry) *DefaultsFileParser {
 func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) {
 	l := logger.Get(ctx)
 
-	pmmAgent, err := p.r.get(pmmAgentID)
+	pmmAgent, err := p.r.Get(pmmAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, 
 		return nil, err
 	}
 
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.Channel.SendAndWaitResponse(request)
 	if err != nil {
 		return nil, err
 	}
