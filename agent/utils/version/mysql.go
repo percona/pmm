@@ -15,6 +15,7 @@
 package version
 
 import (
+	"context"
 	"regexp"
 	"strconv"
 	"strings"
@@ -38,35 +39,13 @@ type MySQLVersion struct {
 	number float64
 }
 
-// Service represent mysql version service.
-type Service struct {
-	q            *reform.Querier
-	versionQuery string
-	commentQuery string
-}
-
-// NewService creates a new mysql version service.
-func NewService(q *reform.Querier) *Service {
-	return &Service{
-		q:            q,
-		versionQuery: `SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`,
-		commentQuery: `SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`,
-	}
-}
-
-// NewTestService creates a new mysql version service for testing.
-func NewTestService(q *reform.Querier) *Service {
-	return &Service{
-		q:            q,
-		versionQuery: `SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`,
-		commentQuery: `SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`,
-	}
-}
-
 const (
 	perconaComment = "percona"
 	mariaDBComment = "mariadb"
 	debianComment  = "debian"
+
+	versionQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'`
+	commentQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`
 )
 
 var (
@@ -77,14 +56,14 @@ var (
 )
 
 // GetMySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.) and vendor.
-func (s *Service) GetMySQLVersion() (MySQLVersion, MySQLVendor, error) {
+func GetMySQLVersion(ctx context.Context, q *reform.Querier) (MySQLVersion, MySQLVendor, error) {
 	var name, version string
-	err := s.q.QueryRow(s.versionQuery).Scan(&name, &version)
+	err := q.QueryRowContext(ctx, versionQuery).Scan(&name, &version)
 	if err != nil {
 		return MySQLVersion{}, 0, err
 	}
 	var ven string
-	err = s.q.QueryRow(s.commentQuery).Scan(&name, &ven)
+	err = q.QueryRowContext(ctx, commentQuery).Scan(&name, &ven)
 	if err != nil {
 		return MySQLVersion{}, 0, err
 	}

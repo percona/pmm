@@ -32,9 +32,8 @@ func TestGetMySQLVersion(t *testing.T) {
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
-	q := db.WithContext(context.Background())
-	s := NewTestService(q)
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:mysqlversion")
+	ctx := context.Background()
 
 	type mockedVariables struct {
 		variable string
@@ -123,7 +122,7 @@ func TestGetMySQLVersion(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(columns).AddRow(mockedVar.variable, mockedVar.value))
 			}
 
-			version, vendor, err := s.GetMySQLVersion()
+			version, vendor, err := GetMySQLVersion(ctx, q)
 			assert.Equal(t, tc.wantVersion, version.String())
 			assert.Equal(t, tc.wantVendor, vendor)
 			assert.NoError(t, err)
