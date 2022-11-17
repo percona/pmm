@@ -37,8 +37,8 @@ func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.Fil
 		return nil, err
 	}
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {

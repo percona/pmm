@@ -15,6 +15,7 @@
 package perfschema
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -29,6 +30,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -255,7 +257,8 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, sqlDB)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 	case "5.6-oracle":
@@ -424,7 +427,7 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache())
 		var example string
-		switch mySQLVersion {
+		switch mySQLVersion.String() {
 		// Perf schema truncates queries with non-utf8 characters.
 		case "8.0":
 			example = "SELECT /* t1 */ * FROM t1 where col1='Bu"
@@ -433,7 +436,7 @@ func TestPerfSchema(t *testing.T) {
 		}
 
 		var numQueriesWithWarnings float32
-		if mySQLVendor != "mariadb" {
+		if mySQLVendor != version.MariaDBVendor {
 			numQueriesWithWarnings = 1
 		}
 

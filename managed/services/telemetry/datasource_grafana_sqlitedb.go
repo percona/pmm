@@ -104,7 +104,7 @@ func (d *dsGrafanaSelect) Init(ctx context.Context) error {
 	return nil
 }
 
-func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	if d.db == nil {
 		return nil, errors.Errorf("temporary grafana database is not initialized: %s", d.config.DBFile)
 	}

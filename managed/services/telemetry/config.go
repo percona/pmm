@@ -102,12 +102,27 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID      string `yaml:"id"`
-	Source  string `yaml:"source"`
-	Query   string `yaml:"query"`
-	Summary string `yaml:"summary"`
-	Data    []ConfigData
+	ID        string           `yaml:"id"`
+	Source    string           `yaml:"source"`
+	Query     string           `yaml:"query"`
+	Summary   string           `yaml:"summary"`
+	Transform *ConfigTransform `yaml:"transform"`
+	Data      []ConfigData
 }
+
+// ConfigTransform telemetry config transformation.
+type ConfigTransform struct {
+	Type   ConfigTransformType `yaml:"type"`
+	Metric string              `yaml:"metric"`
+}
+
+// ConfigTransformType config transform type.
+type ConfigTransformType string
+
+const (
+	// JSONTransformType JSON type.
+	JSONTransformType = ConfigTransformType("JSON")
+)
 
 // ConfigData telemetry config.
 type ConfigData struct {

@@ -12,7 +12,7 @@
 // GNU Affero General Public License for more details.
 //
 // You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>g.
 
 package telemetry
 
@@ -72,7 +72,7 @@ func TestDatasource(t *testing.T) {
 		err = grafanaDB.Dispose(ctx)
 		assert.NoError(t, err)
 
-		serviceMetric := metrics[0][0]
+		serviceMetric := metrics[0]
 		assert.Equal(t, serviceMetric.Key, "total_users_in_database")
 		assert.Equal(t, serviceMetric.Value, "1")
 	})

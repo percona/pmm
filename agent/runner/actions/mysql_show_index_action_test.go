@@ -17,14 +17,16 @@ package actions
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -32,9 +34,12 @@ func TestMySQLShowIndex(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
@@ -58,10 +63,8 @@ func TestMySQLShowIndex(t *testing.T) {
 		actual[1][6] = "CARDINALITY"
 		actual[2][6] = "CARDINALITY"
 
-		mariaDBVersion, _ := strconv.ParseFloat(mySQLVersion, 64)
-
 		switch {
-		case mySQLVendor == tests.MariaDBMySQL && mariaDBVersion >= 10.5:
+		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() >= 10.5:
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Ignored",
@@ -69,7 +72,7 @@ func TestMySQLShowIndex(t *testing.T) {
 			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[1])
 			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "NO"}, actual[2])
 
-		case mySQLVersion == "5.6" || mySQLVendor == tests.MariaDBMySQL:
+		case mySQLVersion.String() == "5.6" || mySQLVendor == version.MariaDBVendor:
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
@@ -77,7 +80,7 @@ func TestMySQLShowIndex(t *testing.T) {
 			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
 			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
-		case mySQLVersion == "5.7":
+		case mySQLVersion.String() == "5.7":
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
@@ -85,7 +88,7 @@ func TestMySQLShowIndex(t *testing.T) {
 			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
 			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
-		case mySQLVersion == "8.0":
+		case mySQLVersion.String() == "8.0":
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Visible", "Expression",
@@ -125,7 +128,7 @@ func TestMySQLShowIndex(t *testing.T) {
 		assert.EqualError(t, err, expected)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

@@ -246,9 +246,20 @@ func (s *Service) prepareReport(ctx context.Context, dataSources map[string]Data
 			continue
 		}
 
-		for _, each := range metrics {
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
+		if telemetry.Transform != nil {
+			if telemetry.Transform.Type == JSONTransformType {
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformToJSON(&telemetryCopy, metrics)
+				if err != nil {
+					s.l.Debugf("failed to transform to JSON: %s", err)
+					continue
+				}
+			} else {
+				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
+			}
 		}
+
+		telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
 	}
 
 	// datasources disposal
@@ -259,6 +270,8 @@ func (s *Service) prepareReport(ctx context.Context, dataSources map[string]Data
 			continue
 		}
 	}
+
+	telemetryMetric.Metrics = removeEmpty(telemetryMetric.Metrics)
 
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
