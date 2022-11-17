@@ -1533,6 +1533,12 @@ type ListDBClustersOKBodyPXCClustersItems0ParamsPXC struct {
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
+	// Configuration for PXC cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PXC cluster.
+	StorageClass string `json:"storage_class,omitempty"`
+
 	// compute resources
 	ComputeResources *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources `json:"compute_resources,omitempty"`
 }

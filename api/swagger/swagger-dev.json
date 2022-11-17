@@ -19233,6 +19233,16 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 2
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "Configuration for PXC cluster",
+                                "x-order": 3
+                              },
+                              "storage_class": {
+                                "description": "Storage Class for PXC cluster.",
+                                "type": "string",
+                                "x-order": 4
                               }
                             },
                             "x-order": 1
@@ -20718,6 +20728,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 3
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 4
                         }
                       },
                       "x-order": 1
@@ -20797,6 +20817,19 @@
                   "description": "Make DB cluster accessible outside of K8s cluster.",
                   "type": "boolean",
                   "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -20901,6 +20934,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 3
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 4
                         }
                       },
                       "x-order": 1
