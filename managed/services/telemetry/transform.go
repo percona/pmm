@@ -48,7 +48,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 	var items itemsType
 	var next map[string]any
 	for _, metric := range metrics {
-		isFirstMetric := metric.Key == firstMetric
+		isFirstMetric := metric.Key == firstMetric // marker to know that the object begins
 		if isFirstMetric {
 			if next != nil {
 				items = append(items, next)

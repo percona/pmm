@@ -235,14 +235,14 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 
 		if telemetry.Transform != nil {
 			if telemetry.Transform.Type == JSONTransformType {
-				telemetry := telemetry
-				metrics, err = transformToJSON(&telemetry, metrics)
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformToJSON(&telemetryCopy, metrics)
 				if err != nil {
 					s.l.Debugf("failed to transform to JSON: %s", err)
 					continue
 				}
 			} else {
-				s.l.Errorf("Undefined transform type: %s", telemetry.Transform.Type)
+				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
 			}
 		}
 
