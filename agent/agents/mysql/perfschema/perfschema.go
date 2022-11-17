@@ -91,7 +91,6 @@ type PerfSchema struct {
 	historyCache         *historyCache
 	summaryCache         *summaryCache
 	versionsCache        *versionsCache
-	vs                   *version.Service
 }
 
 // Params represent Agent parameters.
@@ -169,7 +168,6 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		historyCache:         historyCache,
 		summaryCache:         summaryCache,
 		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
-		vs:                   version.NewService(params.Querier),
 	}, nil
 }
 
@@ -200,7 +198,7 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	}
 
 	// cache MySQL version
-	ver, ven, err := m.vs.GetMySQLVersion()
+	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
 	if err != nil {
 		m.l.Error(err)
 	}

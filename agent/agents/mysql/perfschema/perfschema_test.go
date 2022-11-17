@@ -257,8 +257,8 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	service := version.NewTestService(db.WithContext(context.Background()))
-	mySQLVersion, mySQLVendor, _ := service.GetMySQLVersion()
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 	case "5.6-oracle":
