@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/alecthomas/kong"
+	kongcompletion "github.com/jotaen/kong-completion"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -44,16 +45,21 @@ import (
 // Bootstrap is used to initialize the application.
 func Bootstrap(opts any) {
 	var kongCtx *kong.Context
+	var kongParser *kong.Kong
 	var parsedOpts any
 
 	switch o := opts.(type) {
 	case cli.PMMAdminCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
+		kongParser = kong.Must(&o, getDefaultKongOptions("pmm-admin")...)
 		parsedOpts = &o
 	case cli.PMMCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm")...)
+		kongParser = kong.Must(&o, getDefaultKongOptions("pmm")...)
 		parsedOpts = &o
 	}
+
+	kongcompletion.Register(kongParser)
+	kongCtx, err := kongParser.Parse(os.Args[1:])
+	kongParser.FatalIfErrorf(err)
 
 	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
 	if !ok {
@@ -65,7 +71,7 @@ func Bootstrap(opts any) {
 	configureLogger(globalFlags)
 	finishBootstrap(globalFlags)
 
-	err := kongCtx.Run(globalFlags)
+	err = kongCtx.Run(globalFlags)
 	processFinalError(err, bool(globalFlags.JSON))
 }
 

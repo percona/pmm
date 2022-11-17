@@ -54,7 +54,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -62,10 +62,10 @@ func TestBackupLocations(t *testing.T) {
 
 		location, err := models.CreateBackupLocation(q, params)
 		require.NoError(t, err)
-		assert.Equal(t, models.PMMClientBackupLocationType, location.Type)
+		assert.Equal(t, models.FilesystemBackupLocationType, location.Type)
 		assert.Equal(t, params.Name, location.Name)
 		assert.Equal(t, params.Description, location.Description)
-		assert.Equal(t, params.PMMClientConfig.Path, location.PMMClientConfig.Path)
+		assert.Equal(t, params.FilesystemConfig.Path, location.FilesystemConfig.Path)
 		assert.NotEmpty(t, location.ID)
 	})
 
@@ -118,7 +118,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 				S3Config: &models.S3LocationConfig{
@@ -148,7 +148,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -203,7 +203,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -229,10 +229,10 @@ func TestBackupLocations(t *testing.T) {
 		updatedLoc, err := models.ChangeBackupLocation(q, location.ID, changeParams)
 		require.NoError(t, err)
 		assert.Equal(t, changeParams.Name, updatedLoc.Name)
-		// empty description in request, we expect no change
-		assert.Equal(t, createParams.Description, updatedLoc.Description)
+		// We should change Description even if empty value is passed, otherwise user cannot clear the field.
+		assert.Equal(t, changeParams.Description, updatedLoc.Description)
 		assert.Equal(t, models.S3BackupLocationType, updatedLoc.Type)
-		assert.Nil(t, updatedLoc.PMMClientConfig)
+		assert.Nil(t, updatedLoc.FilesystemConfig)
 		assert.Equal(t, changeParams.S3Config, updatedLoc.S3Config)
 
 		findLoc, err := models.FindBackupLocationByID(q, location.ID)
@@ -254,7 +254,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -283,7 +283,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -364,7 +364,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-1",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
 						Path: "/tmp",
 					},
 				},
@@ -376,7 +376,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-2",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
 						Path: "",
 					},
 				},

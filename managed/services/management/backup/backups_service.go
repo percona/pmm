@@ -27,10 +27,11 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/agents"
@@ -46,7 +47,7 @@ type BackupsService struct {
 	scheduleService      scheduleService
 	l                    *logrus.Entry
 
-	backupv1beta1.UnimplementedBackupsServer
+	backuppb.UnimplementedBackupsServer
 }
 
 const (
@@ -70,41 +71,8 @@ func NewBackupsService(
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
-		return nil
-	}
-
-	var code backupv1beta1.ErrorCode
-	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
-	default:
-		return restoreError
-	}
-
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
-		Code: code,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
-	}
-
-	return st.Err()
-}
-
 // StartBackup starts on-demand backup.
-func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.StartBackupRequest) (*backupv1beta1.StartBackupResponse, error) {
+func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBackupRequest) (*backuppb.StartBackupResponse, error) {
 	if req.Retries > maxRetriesAttempts {
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retries %d.", maxRetriesAttempts)
 	}
@@ -141,63 +109,43 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		return nil, convertBackupError(err)
 	}
 
-	return &backupv1beta1.StartBackupResponse{
+	return &backuppb.StartBackupResponse{
 		ArtifactId: artifactID,
 	}, nil
-}
-
-func convertRestoreBackupError(restoreError error) error {
-	if restoreError == nil {
-		return nil
-	}
-
-	var code backupv1beta1.ErrorCode
-	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
-	default:
-		return restoreError
-	}
-
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
-		Code: code,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
-	}
-
-	return st.Err()
 }
 
 // RestoreBackup starts restore backup job.
 func (s *BackupsService) RestoreBackup(
 	ctx context.Context,
-	req *backupv1beta1.RestoreBackupRequest,
-) (*backupv1beta1.RestoreBackupResponse, error) {
-	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId)
+	req *backuppb.RestoreBackupRequest,
+) (*backuppb.RestoreBackupResponse, error) {
+	// Disable all related scheduled backups before restoring
+	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range tasks {
+		if _, err := s.ChangeScheduledBackup(ctx, &backuppb.ChangeScheduledBackupRequest{
+			ScheduledBackupId: t.ID,
+			Enabled:           &wrapperspb.BoolValue{Value: false},
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
 	if err != nil {
 		return nil, convertRestoreBackupError(err)
 	}
 
-	return &backupv1beta1.RestoreBackupResponse{
+	return &backuppb.RestoreBackupResponse{
 		RestoreId: id,
 	}, nil
 }
 
 // ScheduleBackup add new backup task to scheduler.
-func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.ScheduleBackupRequest) (*backupv1beta1.ScheduleBackupResponse, error) {
+func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.ScheduleBackupRequest) (*backuppb.ScheduleBackupResponse, error) {
 	var id string
 
 	if req.Retries > maxRetriesAttempts {
@@ -281,11 +229,11 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 	if errTx != nil {
 		return nil, errTx
 	}
-	return &backupv1beta1.ScheduleBackupResponse{ScheduledBackupId: id}, nil
+	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
 // ListScheduledBackups lists all tasks related to backup.
-func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1beta1.ListScheduledBackupsRequest) (*backupv1beta1.ListScheduledBackupsResponse, error) {
+func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
@@ -324,7 +272,7 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1
 		return nil, err
 	}
 
-	scheduledBackups := make([]*backupv1beta1.ScheduledBackup, 0, len(tasks))
+	scheduledBackups := make([]*backuppb.ScheduledBackup, 0, len(tasks))
 	for _, task := range tasks {
 		scheduledBackup, err := convertTaskToScheduledBackup(task, svcs, locations)
 		if err != nil {
@@ -334,13 +282,13 @@ func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backupv1
 		scheduledBackups = append(scheduledBackups, scheduledBackup)
 	}
 
-	return &backupv1beta1.ListScheduledBackupsResponse{
+	return &backuppb.ListScheduledBackupsResponse{
 		ScheduledBackups: scheduledBackups,
 	}, nil
 }
 
 // ChangeScheduledBackup changes existing scheduled backup task.
-func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv1beta1.ChangeScheduledBackupRequest) (*backupv1beta1.ChangeScheduledBackupResponse, error) {
+func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backuppb.ChangeScheduledBackupRequest) (*backuppb.ChangeScheduledBackupResponse, error) {
 	var disablePITR bool
 	var serviceID string
 
@@ -379,27 +327,10 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retry interval %s", maxRetryInterval)
 			}
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
-		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
-				return errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
-			}
-			data.Retries = req.Retries.Value
-		}
-		if req.RetryInterval != nil {
-			if req.RetryInterval.AsDuration() > maxRetryInterval {
-				return errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
-			}
 			data.RetryInterval = req.RetryInterval.AsDuration()
 		}
-		serviceID = data.ServiceID
 
+		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
 			Data: scheduledTask.Data,
 		}
@@ -427,11 +358,11 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupv
 		}
 	}
 
-	return &backupv1beta1.ChangeScheduledBackupResponse{}, nil
+	return &backuppb.ChangeScheduledBackupResponse{}, nil
 }
 
 // RemoveScheduledBackup stops and removes existing scheduled backup task.
-func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv1beta1.RemoveScheduledBackupRequest) (*backupv1beta1.RemoveScheduledBackupResponse, error) {
+func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
 	task, err := models.FindScheduledTaskByID(s.db.Querier, req.ScheduledBackupId)
 	if err != nil {
 		return nil, err
@@ -477,11 +408,11 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupv
 		}
 	}
 
-	return &backupv1beta1.RemoveScheduledBackupResponse{}, nil
+	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
 // GetLogs returns logs for artifact.
-func (s *BackupsService) GetLogs(ctx context.Context, req *backupv1beta1.GetLogsRequest) (*backupv1beta1.GetLogsResponse, error) {
+func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
 		ArtifactID: req.ArtifactId,
 		Types: []models.JobType{
@@ -512,15 +443,15 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backupv1beta1.GetLogs
 		return nil, err
 	}
 
-	res := &backupv1beta1.GetLogsResponse{
-		Logs: make([]*backupv1beta1.LogChunk, 0, len(jobLogs)),
+	res := &backuppb.GetLogsResponse{
+		Logs: make([]*backuppb.LogChunk, 0, len(jobLogs)),
 	}
 	for _, log := range jobLogs {
 		if log.LastChunk {
 			res.End = true
 			break
 		}
-		res.Logs = append(res.Logs, &backupv1beta1.LogChunk{
+		res.Logs = append(res.Logs, &backuppb.LogChunk{
 			ChunkId: uint32(log.ChunkID),
 			Data:    log.Data,
 		})
@@ -532,8 +463,8 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backupv1beta1.GetLogs
 // ListArtifactCompatibleServices lists compatible service for restoring given artifact.
 func (s *BackupsService) ListArtifactCompatibleServices(
 	ctx context.Context,
-	req *backupv1beta1.ListArtifactCompatibleServicesRequest,
-) (*backupv1beta1.ListArtifactCompatibleServicesResponse, error) {
+	req *backuppb.ListArtifactCompatibleServicesRequest,
+) (*backuppb.ListArtifactCompatibleServicesResponse, error) {
 	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
 	switch {
 	case err == nil:
@@ -543,7 +474,7 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 		return nil, err
 	}
 
-	res := &backupv1beta1.ListArtifactCompatibleServicesResponse{}
+	res := &backuppb.ListArtifactCompatibleServicesResponse{}
 	for _, service := range compatibleServices {
 		apiService, err := services.ToAPIService(service)
 		if err != nil {
@@ -571,8 +502,8 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
 	locationModels map[string]*models.BackupLocation,
-) (*backupv1beta1.ScheduledBackup, error) {
-	scheduledBackup := &backupv1beta1.ScheduledBackup{
+) (*backuppb.ScheduledBackup, error) {
+	scheduledBackup := &backuppb.ScheduledBackup{
 		ScheduledBackupId: task.ID,
 		CronExpression:    task.CronExpression,
 		Enabled:           !task.Disabled,
@@ -627,46 +558,124 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	return scheduledBackup, nil
 }
 
-func convertBackupModeToModel(mode backupv1beta1.BackupMode) (models.BackupMode, error) {
+func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, error) {
 	switch mode {
-	case backupv1beta1.BackupMode_SNAPSHOT:
+	case backuppb.BackupMode_SNAPSHOT:
 		return models.Snapshot, nil
-	case backupv1beta1.BackupMode_INCREMENTAL:
+	case backuppb.BackupMode_INCREMENTAL:
 		return models.Incremental, nil
-	case backupv1beta1.BackupMode_PITR:
+	case backuppb.BackupMode_PITR:
 		return models.PITR, nil
-	case backupv1beta1.BackupMode_BACKUP_MODE_INVALID:
+	case backuppb.BackupMode_BACKUP_MODE_INVALID:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unknown backup mode: %s", mode.String())
 	}
 }
 
-func convertModelToBackupMode(mode models.BackupMode) (backupv1beta1.BackupMode, error) {
+func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, error) {
 	switch mode {
 	case models.Snapshot:
-		return backupv1beta1.BackupMode_SNAPSHOT, nil
+		return backuppb.BackupMode_SNAPSHOT, nil
 	case models.Incremental:
-		return backupv1beta1.BackupMode_INCREMENTAL, nil
+		return backuppb.BackupMode_INCREMENTAL, nil
 	case models.PITR:
-		return backupv1beta1.BackupMode_PITR, nil
+		return backuppb.BackupMode_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
 	}
 }
 
-func convertModelToBackupModel(dataModel backupv1beta1.DataModel) (models.DataModel, error) {
+func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, error) {
 	switch dataModel {
-	case backupv1beta1.DataModel_LOGICAL:
+	case backuppb.DataModel_LOGICAL:
 		return models.LogicalDataModel, nil
-	case backupv1beta1.DataModel_PHYSICAL:
+	case backuppb.DataModel_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
 	}
 }
 
+func convertBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backuppb.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatibleLocationType):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
+}
+
+func convertRestoreBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backuppb.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
+		return status.Error(codes.OutOfRange, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, models.ErrNotFound):
+		return status.Error(codes.NotFound, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrArtifactNotReady):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
+}
+
 // Check interfaces.
 var (
-	_ backupv1beta1.BackupsServer = (*BackupsService)(nil)
+	_ backuppb.BackupsServer = (*BackupsService)(nil)
 )

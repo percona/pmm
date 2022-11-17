@@ -1,0 +1,7318 @@
+{
+	"totalRows": 9,
+	"limit": 10,
+	"rows": [
+		{
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.0030692986
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 89060990,
+						"sumPerSec": 2473.9165
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 17870,
+						"sumPerSec": 0.49638888
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.5366667
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.46666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.54
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.49666667
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.50666666
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.53
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.59
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.42666668
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.50666666
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.53
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.50666666
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.52666664
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.52
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.60333335
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.48333332
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.43333334
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.49666667
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.49333334
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.46333334
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.47333333
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.47666666
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.54333335
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.41333333
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.52666664
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.46666667
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.47666666
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.5133333
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.44666666
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.46666667
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.53
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.49
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.54
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.5133333
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.47333333
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.52
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.45666668
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.50666666
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.49
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.51
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.48666668
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.52
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.51
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.46333334
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.50333333
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.49666667
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.5
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.45666668
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.52666664
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.51
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.56666666
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.47666666
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.58
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.54333335
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.46
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.54
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.49666667
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.40333334
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.46333334
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.55333334
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.43333334
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.49333334
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.53
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.42333335
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.43666667
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.54
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.5366667
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.39666668
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.46666667
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.47
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.48333332
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.54333335
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.48666668
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.47333333
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.49
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.5233333
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.50333333
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.49
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.54333335
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.47666666
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.51
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.48
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.54
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.48666668
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.48666668
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.5366667
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.5
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.49
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.51666665
+				}
+			],
+			"fingerprint": "TOTAL",
+			"numQueries": 89060992,
+			"qps": 2473.9165
+		},
+		{
+			"rank": 1,
+			"dimension": "8ED794C0D5413D5A",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.0000052580554
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 25408588,
+						"sumPerSec": 705.7941
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 5041,
+						"sumPerSec": 0.14002778
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.17666666
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.18333334
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.17
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.18
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.17666666
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.17
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.17
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.18666667
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.16333333
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.18333334
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.18333334
+				}
+			],
+			"fingerprint": "quit",
+			"numQueries": 25408588,
+			"qps": 705.7941
+		},
+		{
+			"rank": 2,
+			"dimension": "E3A3649C5FAC418D",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.00013511111
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 24202744,
+						"sumPerSec": 672.29846
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 4932,
+						"sumPerSec": 0.137
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.17
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.16333333
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.18333334
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.17333333
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.17
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.17666666
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.19666667
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.16666667
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.15
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.17333333
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.15333334
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.17666666
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.15666667
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.14666666
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.14
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				}
+			],
+			"fingerprint": "select @@version_comment limit ?",
+			"numQueries": 24202744,
+			"qps": 672.29846
+		},
+		{
+			"rank": 3,
+			"dimension": "CB73D6B5B031B4CF",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.0016977497
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 18600806,
+						"sumPerSec": 516.689
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 3748,
+						"sumPerSec": 0.10411111
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.13333334
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.13666667
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.12666667
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.14333333
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.123333335
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.10333333
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.096666664
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.11333334
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.12
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.11666667
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.16
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				}
+			],
+			"fingerprint": "show status like ?",
+			"numQueries": 18600806,
+			"qps": 516.689
+		},
+		{
+			"rank": 4,
+			"dimension": "7DD5F6760F2D2EBB",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.001210745
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 12600953,
+						"sumPerSec": 350.02646
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 2484,
+						"sumPerSec": 0.069
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.06333333
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.06333333
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.093333334
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.06333333
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.10666667
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.083333336
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.1
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.08
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.06333333
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.09
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.086666666
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.06666667
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.07333333
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.06
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.07666667
+				}
+			],
+			"fingerprint": "show variables like ?",
+			"numQueries": 12600953,
+			"qps": 350.02646
+		},
+		{
+			"rank": 5,
+			"dimension": "3530F787A2430DC8",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.000015851945
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 6194074,
+						"sumPerSec": 172.05762
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 1241,
+						"sumPerSec": 0.034472223
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.05666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.016666668
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.046666667
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.053333335
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.016666668
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.036666665
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.016666668
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.026666667
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.06333333
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.033333335
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.05
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.04
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.03
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.023333333
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.043333333
+				}
+			],
+			"fingerprint": "select @@port",
+			"numQueries": 6194074,
+			"qps": 172.05762
+		},
+		{
+			"rank": 6,
+			"dimension": "1D410B4BE5060972",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 4.111111e-7
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 813951,
+						"sumPerSec": 22.60975
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 165,
+						"sumPerSec": 0.004583333
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z"
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z"
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z"
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z"
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z"
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z"
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z"
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z"
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z"
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z"
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.02
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z"
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.016666668
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z"
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z"
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z"
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z"
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				}
+			],
+			"fingerprint": "ping",
+			"numQueries": 813951,
+			"qps": 22.60975
+		},
+		{
+			"rank": 7,
+			"dimension": "C45DE4F1F8F55169",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.0000024680555
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 612172,
+						"sumPerSec": 17.004778
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 135,
+						"sumPerSec": 0.00375
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z"
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z"
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z"
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.013333334
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z"
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z"
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z"
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z"
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z"
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z"
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z"
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z"
+				}
+			],
+			"fingerprint": "set time_zone=?",
+			"numQueries": 612172,
+			"qps": 17.004778
+		},
+		{
+			"rank": 8,
+			"dimension": "B305F6354FA21F2A",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 6.75e-7
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 340703,
+						"sumPerSec": 9.463972
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 67,
+						"sumPerSec": 0.0018611111
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z"
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z"
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z"
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z"
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z"
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z"
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z"
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z"
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z"
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z"
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z"
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z"
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z"
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z"
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z"
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z"
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z"
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z"
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z"
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z"
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z"
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z"
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z"
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z"
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z"
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z"
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z"
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z"
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z"
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z"
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z"
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z"
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z"
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z"
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z"
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z"
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				}
+			],
+			"fingerprint": "select @@global.slow_query_log_file",
+			"numQueries": 340703,
+			"qps": 9.463972
+		},
+		{
+			"rank": 9,
+			"dimension": "A34EB28BD7F1E9C3",
+			"metrics": {
+				"load": {
+					"stats": {
+						"sumPerSec": 0.0000010286111
+					}
+				},
+				"num_queries": {
+					"stats": {
+						"sum": 287004,
+						"sumPerSec": 7.9723334
+					}
+				},
+				"num_queries_with_errors": {
+					"stats": {
+						"sum": 57,
+						"sumPerSec": 0.0015833334
+					}
+				},
+				"num_queries_with_warnings": {
+					"stats": {
+
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T10:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 1,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 2,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:50:00Z"
+				},
+				{
+					"point": 3,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:45:00Z"
+				},
+				{
+					"point": 4,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:40:00Z"
+				},
+				{
+					"point": 5,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 6,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:30:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:25:00Z"
+				},
+				{
+					"point": 8,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:20:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:15:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:10:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 12,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T09:00:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 14,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:50:00Z"
+				},
+				{
+					"point": 15,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:45:00Z"
+				},
+				{
+					"point": 16,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:40:00Z"
+				},
+				{
+					"point": 17,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 18,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 19,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 20,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 21,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:15:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:10:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 24,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T08:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 25,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:55:00Z"
+				},
+				{
+					"point": 26,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:50:00Z"
+				},
+				{
+					"point": 27,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:45:00Z"
+				},
+				{
+					"point": 28,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:40:00Z"
+				},
+				{
+					"point": 29,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:35:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:30:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:25:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:20:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 34,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:10:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:05:00Z"
+				},
+				{
+					"point": 36,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T07:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 37,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:55:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:50:00Z"
+				},
+				{
+					"point": 39,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:45:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 41,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:35:00Z"
+				},
+				{
+					"point": 42,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:30:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:25:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:20:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 46,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 47,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:05:00Z"
+				},
+				{
+					"point": 48,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T06:00:00Z"
+				},
+				{
+					"point": 49,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 50,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 51,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 52,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 53,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 54,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:30:00Z"
+				},
+				{
+					"point": 55,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:25:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 57,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:15:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 58,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:10:00Z"
+				},
+				{
+					"point": 59,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 60,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T05:00:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 62,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:50:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:45:00Z"
+				},
+				{
+					"point": 64,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:40:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:35:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 67,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:25:00Z"
+				},
+				{
+					"point": 68,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:20:00Z"
+				},
+				{
+					"point": 69,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:15:00Z"
+				},
+				{
+					"point": 70,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:10:00Z"
+				},
+				{
+					"point": 71,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:05:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T04:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 73,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 74,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:50:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:45:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 76,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:40:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 78,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 79,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:25:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 80,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:20:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:15:00Z"
+				},
+				{
+					"point": 82,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 83,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 84,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T03:00:00Z"
+				},
+				{
+					"point": 85,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:55:00Z"
+				},
+				{
+					"point": 86,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:50:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:45:00Z"
+				},
+				{
+					"point": 88,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.01
+				},
+				{
+					"point": 89,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 90,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:30:00Z"
+				},
+				{
+					"point": 91,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:25:00Z"
+				},
+				{
+					"point": 92,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:20:00Z"
+				},
+				{
+					"point": 93,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:15:00Z"
+				},
+				{
+					"point": 94,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:10:00Z"
+				},
+				{
+					"point": 95,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:05:00Z"
+				},
+				{
+					"point": 96,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T02:00:00Z"
+				},
+				{
+					"point": 97,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:55:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 98,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 99,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:45:00Z"
+				},
+				{
+					"point": 100,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:40:00Z"
+				},
+				{
+					"point": 101,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:35:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 102,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 103,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:25:00Z"
+				},
+				{
+					"point": 104,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 105,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:15:00Z"
+				},
+				{
+					"point": 106,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:10:00Z"
+				},
+				{
+					"point": 107,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 108,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 109,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:55:00Z"
+				},
+				{
+					"point": 110,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				},
+				{
+					"point": 111,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:45:00Z"
+				},
+				{
+					"point": 112,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 113,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:35:00Z"
+				},
+				{
+					"point": 114,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:30:00Z"
+				},
+				{
+					"point": 115,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:25:00Z"
+				},
+				{
+					"point": 116,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:20:00Z"
+				},
+				{
+					"point": 117,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 118,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"numQueriesWithErrorsPerSec": 0.006666667
+				},
+				{
+					"point": 119,
+					"timeFrame": 300,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"numQueriesWithErrorsPerSec": 0.0033333334
+				}
+			],
+			"fingerprint": "select @@global.datadir",
+			"numQueries": 287004,
+			"qps": 7.9723334
+		}
+	]
+}

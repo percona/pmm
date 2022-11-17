@@ -177,19 +177,18 @@ func (e ConfigFileDoesNotExistError) Error() string {
 // and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
-func Get(l *logrus.Entry) (*Config, string, error) {
-	return get(os.Args[1:], l)
+func Get(cfg *Config, l *logrus.Entry) (string, error) {
+	return get(os.Args[1:], cfg, l)
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) {
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		setDefaults(cfg, l)
 	}()
 
 	// parse command-line flags and environment variables
-	cfg = &Config{}
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
 		return
@@ -213,7 +212,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		return
 	}
 
-	cfg = fileCfg
+	*cfg = *fileCfg
 	return //nolint:nakedret
 }
 
