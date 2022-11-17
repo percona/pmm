@@ -19,6 +19,7 @@ Source1:        https://raw.githubusercontent.com/percona/pmm/main/LICENSE
 
 %prep
 %setup -q -c
+%setup -a 1
 
 
 %install
