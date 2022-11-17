@@ -18,11 +18,12 @@ Source1:        https://raw.githubusercontent.com/percona/pmm/main/LICENSE
 
 
 %prep
-%setup -q -c -a 1
-
+%setup -q -c
+cp -p %{SOURCE1} LICENSE
 
 %install
 install -D -p -m 0755 ./vmgateway-prod %{buildroot}%{_sbindir}/vmgateway
+install -D -p -m 0755 ./LICENSE %{buildroot}%{_sbindir}/LICENSE
 
 
 %files
