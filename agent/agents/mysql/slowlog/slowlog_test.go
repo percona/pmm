@@ -112,7 +112,7 @@ func TestSlowLog(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 
-	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent-tests:MySQLVersion")
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
 	_, vendor, _ := version.GetMySQLVersion(ctx, q)
 
