@@ -294,8 +294,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 		l.Fatalf("Failed to register platform service: %s", err.Error())
 	}
 
-	grpcExtension := &interceptors.GRPCMetricsExtension{}
-	grpc_prometheus.ConfigureWithExtension(grpcExtension)
+	grpc_prometheus.ConfigureWithExtension(&interceptors.GRPCMetricsExtension{})
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
