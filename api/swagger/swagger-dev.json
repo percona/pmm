@@ -21153,6 +21153,16 @@
                           "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
                           "type": "string",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -21221,6 +21231,24 @@
                     }
                   },
                   "x-order": 2
+                },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
