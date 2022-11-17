@@ -443,7 +443,7 @@ func validateDurations(intervalD, forD string) error {
 	}
 
 	if f < i {
-		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s).", forD, intervalD)
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be shorter than evaluation interval for the given group (%s).", forD, intervalD)
 	}
 
 	return nil
