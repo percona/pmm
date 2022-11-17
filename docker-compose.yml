@@ -56,6 +56,8 @@ services:
       - ${PMM_PORT_DELVE:-2345}:2345
       # PG
       - ${PMM_PORT_PG:-15432}:5432
+      # VM
+      - ${PMM_PORT_VM:-9090}:9090
       # CH
       - ${PMM_PORT_CH_TCP:-11000}:9000
       - ${PMM_PORT_CH_HTTP:-11123}:8123
@@ -127,6 +129,8 @@ services:
       - ${PMM_PORT_DELVE:-2345}:2345
       # PG
       - ${PMM_PORT_PG:-15432}:5432
+      # VM
+      - ${PMM_PORT_VM:-9090}:9090
       # CH
       - ${PMM_PORT_CH_TCP:-11000}:9000
       - ${PMM_PORT_CH_HTTP:-11123}:8123
