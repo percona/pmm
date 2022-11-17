@@ -74,7 +74,7 @@
                 "--vendor", "Percona",
                 "--vendorurl", "https://www.percona.com",
                 "--version", "{{isotime \"2006-01-02\"}}",
-                "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB performance"
+                "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
             ],
             "format": "ovf",
             "guest_additions_mode": "disable",
