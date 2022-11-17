@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"io"
 	"math"
-	"strconv"
 	"sync"
 	"time"
 
@@ -199,17 +198,14 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	}
 
 	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(m.q)
+	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
 	if err != nil {
 		m.l.Error(err)
 	}
-	mysqlVer, err := strconv.ParseFloat(ver, 64)
-	if err != nil {
-		m.l.Error(err)
-	}
+
 	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: mysqlVer,
-		vendor:  ven,
+		version: ver.Float(),
+		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
