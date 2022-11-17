@@ -492,7 +492,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	defer rows.Close() //nolint:errcheck
 
-	resultsWithGaps := map[uint32]*qanpb.Point{}
+	resultsWithGaps := make(map[uint32]*qanpb.Point)
 	for rows.Next() {
 		p := qanpb.Point{}
 		res := getPointFieldsList(&p, sparklinePointAllFields)
@@ -593,8 +593,7 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.ExampleFormat, //nolint:staticcheck
 			&row.IsTruncated,
 			&row.ExampleType,
-			&row.ExampleMetrics,
-		)
+			&row.ExampleMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
@@ -680,32 +679,32 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 	defer rows.Close() //nolint:errcheck
 
-	labels := map[string]map[string]struct{}{}
-	labels["service_name"] = map[string]struct{}{}
-	labels["database"] = map[string]struct{}{}
-	labels["schema"] = map[string]struct{}{}
-	labels["client_host"] = map[string]struct{}{}
-	labels["username"] = map[string]struct{}{}
-	labels["replication_set"] = map[string]struct{}{}
-	labels["cluster"] = map[string]struct{}{}
-	labels["service_type"] = map[string]struct{}{}
-	labels["service_id"] = map[string]struct{}{}
-	labels["environment"] = map[string]struct{}{}
-	labels["az"] = map[string]struct{}{}
-	labels["region"] = map[string]struct{}{}
-	labels["node_model"] = map[string]struct{}{}
-	labels["node_id"] = map[string]struct{}{}
-	labels["node_name"] = map[string]struct{}{}
-	labels["node_type"] = map[string]struct{}{}
-	labels["machine_id"] = map[string]struct{}{}
-	labels["container_name"] = map[string]struct{}{}
-	labels["container_id"] = map[string]struct{}{}
-	labels["agent_id"] = map[string]struct{}{}
-	labels["agent_type"] = map[string]struct{}{}
-	labels["cmd_type"] = map[string]struct{}{}
-	labels["top_queryid"] = map[string]struct{}{}
-	labels["application_name"] = map[string]struct{}{}
-	labels["planid"] = map[string]struct{}{}
+	labels := make(map[string]map[string]struct{})
+	labels["service_name"] = make(map[string]struct{})
+	labels["database"] = make(map[string]struct{})
+	labels["schema"] = make(map[string]struct{})
+	labels["client_host"] = make(map[string]struct{})
+	labels["username"] = make(map[string]struct{})
+	labels["replication_set"] = make(map[string]struct{})
+	labels["cluster"] = make(map[string]struct{})
+	labels["service_type"] = make(map[string]struct{})
+	labels["service_id"] = make(map[string]struct{})
+	labels["environment"] = make(map[string]struct{})
+	labels["az"] = make(map[string]struct{})
+	labels["region"] = make(map[string]struct{})
+	labels["node_model"] = make(map[string]struct{})
+	labels["node_id"] = make(map[string]struct{})
+	labels["node_name"] = make(map[string]struct{})
+	labels["node_type"] = make(map[string]struct{})
+	labels["machine_id"] = make(map[string]struct{})
+	labels["container_name"] = make(map[string]struct{})
+	labels["container_id"] = make(map[string]struct{})
+	labels["agent_id"] = make(map[string]struct{})
+	labels["agent_type"] = make(map[string]struct{})
+	labels["cmd_type"] = make(map[string]struct{})
+	labels["top_queryid"] = make(map[string]struct{})
+	labels["application_name"] = make(map[string]struct{})
+	labels["planid"] = make(map[string]struct{})
 
 	for rows.Next() {
 		var row queryRowsLabels
@@ -736,8 +735,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			&row.CmdType,
 			&row.TopQueryID,
 			&row.ApplicationName,
-			&row.PlanID,
-		)
+			&row.PlanID)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
 		}
@@ -768,7 +766,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		labels["planid"][row.PlanID] = struct{}{}
 		if row.LabelKey != "" {
 			if labels[row.LabelKey] == nil {
-				labels[row.LabelKey] = map[string]struct{}{}
+				labels[row.LabelKey] = make(map[string]struct{})
 			}
 			labels[row.LabelKey][row.LabelValue] = struct{}{}
 		}
@@ -778,7 +776,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}
 
-	res.Labels = map[string]*qanpb.ListLabelValues{}
+	res.Labels = make(map[string]*qanpb.ListLabelValues)
 	// rearrange labels into gRPC response structure.
 	for key, values := range labels {
 		if res.Labels[key] == nil {

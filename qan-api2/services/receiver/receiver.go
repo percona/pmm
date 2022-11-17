@@ -48,5 +48,5 @@ func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanp
 	if err := s.mbm.Save(req); err != nil {
 		return nil, err
 	}
-	return new(qanpb.CollectResponse), nil
+	return &qanpb.CollectResponse{}, nil
 }
