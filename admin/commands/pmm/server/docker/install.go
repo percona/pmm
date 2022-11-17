@@ -23,7 +23,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 
@@ -37,7 +36,7 @@ import (
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
-	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server"`
+	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
@@ -165,21 +164,12 @@ func (c *InstallCommand) installDocker(ctx context.Context) error {
 func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume, dockerImage string) (string, error) {
 	logrus.Info("Starting PMM Server")
 
-	containerID, err := c.dockerFn.RunContainer(ctx, &container.Config{
-		Image: dockerImage,
-		Labels: map[string]string{
-			"percona.pmm": "server",
-		},
-	}, &container.HostConfig{
-		PortBindings: nat.PortMap{
-			"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
-			"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
-		},
-		Binds: []string{
-			volume.Name + ":/srv:rw",
-		},
-		RestartPolicy: container.RestartPolicy{Name: "always"},
-	}, c.ContainerName)
+	ports := nat.PortMap{
+		"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
+		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
+	}
+
+	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)
 	if err != nil {
 		return "", err
 	}

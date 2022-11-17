@@ -18,4 +18,5 @@ package docker
 // BaseCommand contains all commands for docker.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
+	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM server"`
 }
