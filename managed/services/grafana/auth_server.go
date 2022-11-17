@@ -219,7 +219,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Adds a header indicating full access to all metrics when used with vmgateway.
-	rw.Header().Set("X-Percona-Token", "Bearer "+jwtFullAccess)
+	rw.Header().Set("x-percona-vmgateway-token", "Bearer "+jwtFullAccess)
 }
 
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
