@@ -39,9 +39,9 @@ func TestMySQLExplain(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 
-	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
-	service := version.NewTestService(db.WithContext(context.Background()))
-	mySQLVersion, mySQLVendor, _ := service.GetMySQLVersion()
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
 	const query = "SELECT * FROM city ORDER BY Population"
 
@@ -194,7 +194,7 @@ func TestMySQLExplain(t *testing.T) {
 			t.Helper()
 
 			var count int
-			err := db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+			err := q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)
 			assert.Equal(t, 4079, count)
 		}
@@ -238,7 +238,7 @@ func TestMySQLExplain(t *testing.T) {
 			check := func(t *testing.T) {
 				t.Helper()
 				var count int
-				err := db.QueryRow("SELECT COUNT(*) FROM test_explain_table").Scan(&count)
+				err := q.QueryRow("SELECT COUNT(*) FROM test_explain_table").Scan(&count)
 				require.NoError(t, err)
 				assert.Equal(t, 1, count)
 			}
