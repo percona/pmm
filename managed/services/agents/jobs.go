@@ -581,36 +581,37 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 
 func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string, jobID string, timeout time.Duration) error {
 	s.l.Info("starting mongodb post restore routine...")
+	service, err := models.FindServiceByID(s.db.Querier, serviceID)
+	if err != nil {
+		return err
+	}
+	if service.ReplicationSet == "" {
+		return errors.Errorf("service '%s' has an empty replication set name and needs to be manually restarted", service.ServiceID)
+	}
 
 	serviceType := models.MongoDBServiceType
 	rsMembers, err := models.FindServices(
 		s.db.Querier,
 		models.ServiceFilters{
 			ServiceType:    &serviceType,
-			ReplicationSet: "rs0",
+			ReplicationSet: service.ReplicationSet,
 		})
-	if err != nil {
-		return err
+
+	rsAgents := make([]*models.Agent, 0, len(rsMembers))
+	for _, service := range rsMembers {
+		s.l.Infof("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
+		serviceAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", service.ServiceID)
+		}
+		if len(serviceAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", service.ServiceID)
+		}
+		rsAgents = append(rsAgents, serviceAgents[0])
 	}
 
-	for _, service := range rsMembers {
-		svc := service
-		s.l.Infof("found service: %s in replica set: %s", svc.ServiceName, svc.ReplicationSet)
-		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
-		if err != nil {
-			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", svc.ServiceID)
-		}
-		if len(pmmAgents) == 0 {
-			return errors.Errorf("cannot find pmm agent for service %s", svc.ServiceID)
-		}
-		pmmAgentID := pmmAgents[0].AgentID
-
-		agent, err := s.r.Get(pmmAgentID)
-		if err != nil {
-			return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
-		}
-		s.l.Warnf("sending restart request to %s", pmmAgentID)
-
+	for _, pmmAgent := range rsAgents {
+		s.l.Info("sending request to restart mongod on %s", pmmAgent.AgentID)
 		mongoReq := &agentpb.StartActionRequest{
 			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
@@ -618,24 +619,35 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 				},
 			},
 		}
+		agent, err := s.r.Get(pmmAgent.AgentID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
+		}
 		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
 		if err != nil {
 			return err
 		}
+	}
 
-		pbmReq := &agentpb.StartActionRequest{
+	for _, pmmAgent := range rsAgents {
+		s.l.Info("sending request to restart mongod on %s", pmmAgent.AgentID)
+		mongoReq := &agentpb.StartActionRequest{
 			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
 					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
 				},
 			},
 		}
-		_, err = agent.Channel.SendAndWaitResponse(pbmReq)
+		agent, err := s.r.Get(pmmAgent.AgentID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
+		}
+		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
 		if err != nil {
 			return err
 		}
-		return nil
 	}
+
 	return nil
 }
 
