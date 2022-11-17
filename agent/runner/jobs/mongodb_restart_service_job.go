@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
 )
@@ -57,16 +58,14 @@ func (j *MongoDBRestartJob) Run(ctx context.Context, send Send) error {
 	if err := startSystemctlService(ctx, pbmAgentServiceName); err != nil {
 		return errors.WithStack(err)
 	}
-	return nil
-}
 
-j.l.Infof("%s successfully restarted", j.service)
-send(&agentpb.JobResult{
-JobId:     j.id,
-Timestamp: timestamppb.Now(),
-Result: &agentpb.JobResult_MongodbRestartService{
-MongodbRestartService: &agentpb.JobResult_MongoDBRestartService{},
-},
-})
-return nil
+	j.l.Infof("%s successfully restarted", j.service)
+	send(&agentpb.JobResult{
+		JobId:     j.id,
+		Timestamp: timestamppb.Now(),
+		Result: &agentpb.JobResult_MongodbRestartService{
+			MongodbRestartService: &agentpb.JobResult_MongoDBRestartService{},
+		},
+	})
+	return nil
 }

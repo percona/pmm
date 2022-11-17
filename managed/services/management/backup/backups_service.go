@@ -516,12 +516,10 @@ func (s *BackupsService) RestartMongod(ctx context.Context, req *backuppb.Remove
 				return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
 			}
 
-			req := &agentpb.StartJobRequest{
-				JobId:   "xxxxafadfds",
-				Timeout: durationpb.New(30 * time.Second),
-				Job: &agentpb.StartJobRequest_MongodbRestartService{
-					MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
-						Service: agentpb.StartJobRequest_MongoDBRestartService_MONGOD,
+			req := &agentpb.StartActionRequest{
+				Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
+					RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
+						Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD,
 					},
 				},
 			}
@@ -542,16 +540,13 @@ func (s *BackupsService) RestartMongod(ctx context.Context, req *backuppb.Remove
 				return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
 			}
 
-			req := &agentpb.StartJobRequest{
-				JobId:   "xxxxafadfds",
-				Timeout: durationpb.New(30 * time.Second),
-				Job: &agentpb.StartJobRequest_MongodbRestartService{
-					MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
-						Service: agentpb.StartJobRequest_MongoDBRestartService_PBM_AGENT,
+			req := &agentpb.StartActionRequest{
+				Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
+					RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
+						Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
 					},
 				},
 			}
-
 			_, err = agent.Channel.SendAndWaitResponse(req)
 			if err != nil {
 				return err

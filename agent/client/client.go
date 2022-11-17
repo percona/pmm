@@ -501,6 +501,17 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+	case *agentpb.StartActionRequest_RestartMongodbServiceParams:
+		var service string
+		switch params.RestartMongodbServiceParams.Service {
+		case agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD:
+			service = "mongod"
+		case agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT:
+			service = "pbm-agent"
+		default:
+			return errors.Errorf("unknown service '%s' specified in mongod restart request", params.RestartMongodbServiceParams.Service)
+		}
+		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
 		return errors.Errorf("unknown action type request: %T", params)

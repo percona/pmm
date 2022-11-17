@@ -237,6 +237,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		var errMsg string
 		if err != nil {
 			errMsg = err.Error()
+			l.Infof("Action produced output: %+v", string(output))
 			l.Warnf("Action terminated with error: %+v", err)
 		}
 		r.sendActionsMessage(&agentpb.ActionResultRequest{

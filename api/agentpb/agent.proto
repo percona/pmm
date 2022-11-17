@@ -326,6 +326,17 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+
+  // RestartMongoDBServiceParams describes a request to restart components in a MongoDB node
+  message RestartMongoDBServiceParams {
+    // Service is a service that can be restarted from PMM server
+    enum Service {
+      SERVICE_NAME_INVALID = 0;
+      MONGOD = 1;
+      PBM_AGENT = 2;
+    }
+    Service service = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -348,6 +359,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
+    RestartMongoDBServiceParams restart_mongodb_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;

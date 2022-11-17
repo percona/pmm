@@ -611,12 +611,10 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 		}
 		s.l.Warnf("sending restart request to %s", pmmAgentID)
 
-		mongoReq := &agentpb.StartJobRequest{
-			JobId:   jobID,
-			Timeout: durationpb.New(30 * time.Second),
-			Job: &agentpb.StartJobRequest_MongodbRestartService{
-				MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
-					Service: agentpb.StartJobRequest_MongoDBRestartService_MONGOD,
+		mongoReq := &agentpb.StartActionRequest{
+			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
+				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
+					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD,
 				},
 			},
 		}
@@ -625,12 +623,10 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 			return err
 		}
 
-		pbmReq := &agentpb.StartJobRequest{
-			JobId:   "job_post_restore",
-			Timeout: durationpb.New(30 * time.Second),
-			Job: &agentpb.StartJobRequest_MongodbRestartService{
-				MongodbRestartService: &agentpb.StartJobRequest_MongoDBRestartService{
-					Service: agentpb.StartJobRequest_MongoDBRestartService_PBM_AGENT,
+		pbmReq := &agentpb.StartActionRequest{
+			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
+				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
+					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
 				},
 			},
 		}
@@ -643,7 +639,7 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 	return nil
 }
 
-// StopJob stops job with given given id.
+// StopJob stops job with given id.
 func (s *JobsService) StopJob(jobID string) error {
 	jobResult, err := models.FindJobByID(s.db.Querier, jobID)
 	if err != nil {
