@@ -314,9 +314,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 		row.Name = params.Name
 	}
 
-	if params.Description != "" {
-		row.Description = params.Description
-	}
+	// We cannot know whether field is empty or not provided, so if value is empty we should set it anyway.
+	row.Description = params.Description
 
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)
