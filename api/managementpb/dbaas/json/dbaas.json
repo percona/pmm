@@ -1362,6 +1362,11 @@
                             "format": "int32",
                             "x-order": 0
                           },
+                          "configuration": {
+                            "type": "string",
+                            "title": "PSMDB Configuration",
+                            "x-order": 3
+                          },
                           "image": {
                             "description": "Docker image used for PSMDB.",
                             "type": "string",
@@ -1572,6 +1577,11 @@
                                   }
                                 },
                                 "x-order": 1
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "PXC configuration options",
+                                "x-order": 3
                               },
                               "disk_size": {
                                 "description": "Disk size in bytes.",
@@ -2361,6 +2371,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "configuration": {
+                      "type": "string",
+                      "title": "PSMDB Configuration",
+                      "x-order": 3
+                    },
                     "image": {
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
@@ -2470,6 +2485,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "configuration": {
+                      "type": "string",
+                      "title": "PSMDB Configuration",
+                      "x-order": 3
                     },
                     "image": {
                       "description": "Docker image used for PSMDB.",
@@ -2943,6 +2963,11 @@
                           },
                           "x-order": 1
                         },
+                        "configuration": {
+                          "type": "string",
+                          "title": "PXC configuration options",
+                          "x-order": 3
+                        },
                         "disk_size": {
                           "description": "Disk size in bytes.",
                           "type": "string",
@@ -3120,6 +3145,11 @@
                             }
                           },
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "PXC configuration options",
+                          "x-order": 3
                         },
                         "disk_size": {
                           "description": "Disk size in bytes.",

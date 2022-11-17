@@ -725,6 +725,9 @@ type ListDBClustersOKBodyPSMDBClustersItems0Params struct {
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
 
+	// PSMDB Configuration
+	Configuration string `json:"configuration,omitempty"`
+
 	// replicaset
 	Replicaset *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset `json:"replicaset,omitempty"`
 }
@@ -1532,6 +1535,9 @@ type ListDBClustersOKBodyPXCClustersItems0ParamsPXC struct {
 
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
+
+	// PXC configuration options
+	Configuration string `json:"configuration,omitempty"`
 
 	// compute resources
 	ComputeResources *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources `json:"compute_resources,omitempty"`

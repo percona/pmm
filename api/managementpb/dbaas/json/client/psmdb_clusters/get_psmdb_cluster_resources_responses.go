@@ -492,6 +492,9 @@ type GetPSMDBClusterResourcesParamsBodyParams struct {
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
 
+	// PSMDB Configuration
+	Configuration string `json:"configuration,omitempty"`
+
 	// replicaset
 	Replicaset *GetPSMDBClusterResourcesParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }

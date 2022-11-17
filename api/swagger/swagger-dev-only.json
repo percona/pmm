@@ -4012,6 +4012,11 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 2
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "PXC configuration options",
+                                "x-order": 3
                               }
                             },
                             "x-order": 1
@@ -4203,6 +4208,11 @@
                             "description": "Docker image used for PSMDB.",
                             "type": "string",
                             "x-order": 2
+                          },
+                          "configuration": {
+                            "type": "string",
+                            "title": "PSMDB Configuration",
+                            "x-order": 3
                           }
                         },
                         "x-order": 3
@@ -5009,6 +5019,11 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "configuration": {
+                      "type": "string",
+                      "title": "PSMDB Configuration",
+                      "x-order": 3
                     }
                   },
                   "x-order": 2
@@ -5124,6 +5139,11 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "configuration": {
+                      "type": "string",
+                      "title": "PSMDB Configuration",
+                      "x-order": 3
                     }
                   },
                   "x-order": 0
@@ -5497,6 +5517,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "PXC configuration options",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -5680,6 +5705,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "PXC configuration options",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
