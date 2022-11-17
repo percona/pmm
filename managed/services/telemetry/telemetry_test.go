@@ -231,6 +231,11 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Params: "sslmode=disable",
 				},
 			},
+			GrafanaDBSelect: &DSGrafanaSqliteDB{
+				Enabled: true,
+				Timeout: time.Second * 2,
+				DBFile:  "/srv/grafana/grafana.db",
+			},
 		},
 	}
 	return serviceConfig
