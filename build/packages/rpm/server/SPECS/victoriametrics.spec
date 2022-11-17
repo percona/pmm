@@ -12,8 +12,8 @@
 %global commit          pmm-6401-v1.82.1
 
 Name:           percona-victoriametrics
-Version:        1.82.2
-Release:        1%{?dist}
+Version:        1.82.1
+Release:        2%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
@@ -50,7 +50,7 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %changelog
-* Wed Oct 26 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.2-1
+* Wed Oct 26 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-2
 - add VictoriaMetrics Gateway dependency
 
 * Thu Oct 20 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1
