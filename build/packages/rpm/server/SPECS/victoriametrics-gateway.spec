@@ -2,10 +2,10 @@
 
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
-%global commit          v1.83.1
+%global commit          v1.82.2
 
 Name:           percona-victoriametrics-gateway
-Version:        1.83.1
+Version:        1.82.2
 Release:        1%{?dist}
 Summary:        VictoriaMetrics gateway solution
 License:        AGPL-3
@@ -31,8 +31,8 @@ install -D -p -m 0755 ./vmgateway-prod %{buildroot}%{_sbindir}/vmgateway
 
 
 %changelog
-* Mon Nov 14 2022 Michal Kralik <michal.kralik@percona.com> - 1.83.1-1
-- VictoraMetrics Gateway v1.83.1
+* Mon Nov 14 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.2-1
+- VictoraMetrics Gateway v1.82.1
 - AGPL-3 license
 
 * Mon Oct 24 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-1
