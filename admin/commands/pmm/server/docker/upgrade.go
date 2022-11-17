@@ -98,6 +98,17 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		return nil, err
 	}
 
+	// Disable restart policy in the old container
+	_, err = c.dockerFn.GetDockerClient().ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
+		RestartPolicy: container.RestartPolicy{Name: "no"},
+	})
+	if err != nil {
+		logrus.Info("We could not disable restart policy in the old container.")
+		logrus.Infof(`We strongly recommend removing the old container manually with "docker rm %s"`, currentContainer.Name)
+		logrus.Info("Error for reference:")
+		logrus.Error(err)
+	}
+
 	return &upgradeResult{}, nil
 }
 
