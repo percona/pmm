@@ -32,6 +32,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 const (
@@ -124,6 +125,8 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
+	dbCluster := kuberenetes.DatabaseClusterForPSMDB(req)
+
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
 	})
@@ -155,36 +158,12 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		if err != nil {
 			return nil, err
 		}
-		pmmParams = &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: settings.PMMPublicAddress,
-			Login:         "api_key",
-			Password:      apiKey,
-		}
+		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
+		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
+		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
 
-	in := dbaascontrollerv1beta1.CreatePSMDBClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-		Params: &dbaascontrollerv1beta1.PSMDBClusterParams{
-			Image:       req.Params.Image,
-			BackupImage: backupImage,
-			ClusterSize: req.Params.ClusterSize,
-			Replicaset: &dbaascontrollerv1beta1.PSMDBClusterParams_ReplicaSet{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
-				},
-				DiskSize: req.Params.Replicaset.DiskSize,
-			},
-			VersionServiceUrl: s.versionServiceURL,
-		},
-		Pmm:    pmmParams,
-		Expose: req.Expose,
-	}
-
-	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)
+	_, err := kubeClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -270,12 +249,9 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-
-	in := dbaascontrollerv1beta1.UpdatePSMDBClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
 
 	if req.Params != nil {
@@ -283,23 +259,8 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
 		}
 
-		in.Params = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Suspend:     req.Params.Suspend,
-			Resume:      req.Params.Resume,
-		}
-
-		if req.Params.Replicaset != nil && req.Params.Replicaset.ComputeResources != nil {
-			in.Params.Replicaset = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
-				},
-			}
-		}
-		in.Params.Image = req.Params.Image
 	}
-	_, err = s.controllerClient.UpdatePSMDBCluster(ctx, &in)
+	_, err := kubeClient.UpdateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err
 	}

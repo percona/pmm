@@ -57,6 +57,28 @@ func NewIncluster(ctx context.Context) (*Kubernetes, error) {
 	}, nil
 }
 
+// New returns new Kubernetes object.
+func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
+	l := logrus.WithField("component", "kubernetes")
+
+	client, err := client.NewFromKubeConfigString(kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Kubernetes{
+		client: client,
+		l:      l,
+		httpClient: &http.Client{
+			Timeout: time.Second * 5,
+			Transport: &http.Transport{
+				MaxIdleConns:    1,
+				IdleConnTimeout: 10 * time.Second,
+			},
+		},
+	}, nil
+}
+
 // GetKubeconfig generates kubeconfig compatible with kubectl for incluster created clients.
 func (k *Kubernetes) GetKubeconfig(ctx context.Context) (string, error) {
 	secret, err := k.client.GetSecretsForServiceAccount(ctx, "pmm-service-account")

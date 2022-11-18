@@ -32,6 +32,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 const (
@@ -130,6 +131,12 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
+	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	}
+	dbCluster := kuberenetes.DatabaseClusterForPXC(req)
+
 	var pmmParams *dbaascontrollerv1beta1.PMMParams
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
@@ -139,64 +146,11 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		if err != nil {
 			return nil, err
 		}
-		pmmParams = &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: settings.PMMPublicAddress,
-			Login:         "api_key",
-			Password:      apiKey,
-		}
+		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
+		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
+		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
-
-	in := dbaascontrollerv1beta1.CreatePXCClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-		Pmm:  pmmParams,
-		Params: &dbaascontrollerv1beta1.PXCClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Pxc: &dbaascontrollerv1beta1.PXCClusterParams_PXC{
-				Image:            req.Params.Pxc.Image,
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-				DiskSize:         req.Params.Pxc.DiskSize,
-			},
-			VersionServiceUrl: s.versionServiceURL,
-		},
-		Expose: req.Expose,
-	}
-
-	if req.Params.Proxysql != nil {
-		in.Params.Proxysql = &dbaascontrollerv1beta1.PXCClusterParams_ProxySQL{
-			Image:            req.Params.Proxysql.Image,
-			ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-			DiskSize:         req.Params.Proxysql.DiskSize,
-		}
-		if req.Params.Proxysql.ComputeResources != nil {
-			in.Params.Proxysql.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-				CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
-				MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
-			}
-		}
-	} else {
-		in.Params.Haproxy = &dbaascontrollerv1beta1.PXCClusterParams_HAProxy{
-			Image:            req.Params.Haproxy.Image,
-			ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-		}
-		if req.Params.Haproxy.ComputeResources != nil {
-			in.Params.Haproxy.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-				CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
-				MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
-			}
-		}
-	}
-
-	if req.Params.Pxc.ComputeResources != nil {
-		in.Params.Pxc.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-			CpuM:        req.Params.Pxc.ComputeResources.CpuM,
-			MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
-		}
-	}
-
-	_, err = s.controllerClient.CreatePXCCluster(ctx, &in)
+	_, err := kubeClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -204,9 +158,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 				s.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
 			}
 		}
-		return nil, err
 	}
-
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
 }
 
@@ -329,13 +281,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-
-	in := dbaascontrollerv1beta1.UpdatePXCClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
+	dbCluster := kuberenetes.DatabaseClusterForPXC(req)
 
 	if req.Params != nil {
 		if req.Params.Suspend && req.Params.Resume {
@@ -347,42 +297,9 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 			return nil, errors.New("can't update both proxies, only one is in use")
 		}
 
-		in.Params = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Suspend:     req.Params.Suspend,
-			Resume:      req.Params.Resume,
-		}
-
-		if req.Params.Pxc != nil && req.Params.Pxc.ComputeResources != nil {
-			in.Params.Pxc = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Pxc.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
-				},
-			}
-			in.Params.Pxc.Image = req.Params.Pxc.Image
-		}
-
-		if req.Params.Proxysql != nil && req.Params.Proxysql.ComputeResources != nil {
-			in.Params.Proxysql = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
-				},
-			}
-		}
-
-		if req.Params.Haproxy != nil && req.Params.Haproxy.ComputeResources != nil {
-			in.Params.Haproxy = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
-				},
-			}
-		}
 	}
+	_, err := kubeClient.UpdateDatabaseCluster(ctx, dbCluster)
 
-	_, err = s.controllerClient.UpdatePXCCluster(ctx, &in)
 	if err != nil {
 		return nil, err
 	}
