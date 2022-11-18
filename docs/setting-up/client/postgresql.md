@@ -31,10 +31,12 @@ We recommend creating a PMM database account that can connect to the `postgres` 
     CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD '******';
     ```
 
-    If your database runs on Amazon RDS:
+    If your database runs on Amazon RDS / Aurora PostgreSQL, The SUPERUSER cannot be assigned.  
+    So we have to create the user first and then grant the `rds_superuser` role to it.
 
     ```sql
-    CREATE USER pmm WITH rds_superuser ENCRYPTED PASSWORD '******';
+    CREATE USER pmm WITH PASSWORD '******';
+    GRANT rds_superuser TO pmm;
     ```
     Optionally, you can also set up a connection limit (only if the user is not a SUPERUSER):
 
