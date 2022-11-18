@@ -348,7 +348,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
-	pmmAgentIDs := make([]interface{}, 0, len(allAgents))
+	pmmAgentIDs := make([]interface{}, len(allAgents))
 	for _, str := range allAgents {
 		row := str.(*Agent)
 		if row.PMMAgentID != nil {
@@ -356,7 +356,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 				if a == *row.PMMAgentID {
 					break
 				}
-				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID)
+				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID) //nolint:makezero
 			}
 		}
 	}
