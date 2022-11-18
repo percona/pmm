@@ -174,7 +174,7 @@ alias kubectl='minikube kubectl --'
     name=`kubectl get serviceAccounts percona-dbaas-cluster-operator -o json | jq  -r '.secrets[].name'`
     certificate=`kubectl get secret $name -o json | jq -r  '.data."ca.crt"'`
     token=`kubectl get secret $name -o json | jq -r  '.data.token' | base64 -d`
-    server=`kubectl cluster-info | grep 'Kubernetes master' | cut -d ' ' -f 6`
+    server=`kubectl cluster-info | grep 'Kubernetes control plane' | cut -d ' ' -f 7`
     ```
 
 4. Generate your kubeconfig file (copy the output):
