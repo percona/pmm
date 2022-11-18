@@ -644,7 +644,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		newSettings, err = models.UpdateSettings(tx, settingsParams)
 		switch {
 		case err == nil:
@@ -781,7 +781,7 @@ func (s *Server) TestEmailAlertingSettings(
 
 	err := s.emailer.Send(ctx, settings, req.EmailTo)
 	if err != nil {
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		if errors.As(err, &errInvalidArgument) {
 			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
 		}

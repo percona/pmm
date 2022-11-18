@@ -75,17 +75,17 @@ var (
 	Kubeconfig string
 )
 
-// ErrFromNginx is an error type for nginx HTML response.
-type ErrFromNginx string //nolint:errname
+// NginxError is an error type for nginx HTML response.
+type NginxError string
 
 // Error implements error interface.
-func (e *ErrFromNginx) Error() string {
+func (e *NginxError) Error() string {
 	return "response from nginx: " + string(*e)
 }
 
 // GoString implements fmt.GoStringer interface.
-func (e *ErrFromNginx) GoString() string {
-	return fmt.Sprintf("ErrFromNginx(%q)", string(*e))
+func (e *NginxError) GoString() string {
+	return fmt.Sprintf("NginxError(%q)", string(*e))
 }
 
 // Transport returns configured Swagger transport for given URL.
@@ -102,7 +102,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
 		b, _ := io.ReadAll(reader)
-		err := ErrFromNginx(string(b))
+		err := NginxError(string(b))
 		return &err
 	})
 	transport.Consumers = map[string]runtime.Consumer{
@@ -238,6 +238,6 @@ func init() {
 
 // check interfaces
 var (
-	_ error          = (*ErrFromNginx)(nil)
-	_ fmt.GoStringer = (*ErrFromNginx)(nil)
+	_ error          = (*NginxError)(nil)
+	_ fmt.GoStringer = (*NginxError)(nil)
 )
