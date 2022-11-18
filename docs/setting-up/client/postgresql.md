@@ -79,7 +79,7 @@ Here are the benefits and drawbacks of each.
 |                      | <i class="uil uil-thumbs-up"></i> Benefits     | <i class="uil uil-thumbs-down"></i> Drawbacks
 |----------------------|------------------------------------------------|---------------------------------------------------
 | `pg_stat_statements` | 1. Part of official `postgresql-contrib` package. | 1. No aggregated statistics or histograms.<br>2. No Query Examples.
-| `pg_stat_monitor`    | 1. Builds on `pg_stat_statements` features.<br>2. Bucket-based aggregation <br>3. Histogram <br> 4. [more...](https://github.com/percona/pg_stat_monitor#features) | 
+| `pg_stat_monitor`    | 1. Builds on `pg_stat_monitor` features.<br>2. Bucket-based aggregation. | 
 
 For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#usage)
 
