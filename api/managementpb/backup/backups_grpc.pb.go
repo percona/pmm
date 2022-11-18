@@ -39,8 +39,6 @@ type BackupsClient interface {
 	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
 	// GetLogs returns logs for provided artifact.
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
-	// todo(debugging): remove
-	RestartMongod(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
 }
 
 type backupsClient struct {
@@ -123,15 +121,6 @@ func (c *backupsClient) GetLogs(ctx context.Context, in *GetLogsRequest, opts ..
 	return out, nil
 }
 
-func (c *backupsClient) RestartMongod(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error) {
-	out := new(RemoveScheduledBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1.Backups/RestartMongod", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BackupsServer is the server API for Backups service.
 // All implementations must embed UnimplementedBackupsServer
 // for forward compatibility
@@ -152,8 +141,6 @@ type BackupsServer interface {
 	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
 	// GetLogs returns logs for provided artifact.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
-	// todo(debugging): remove
-	RestartMongod(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
 	mustEmbedUnimplementedBackupsServer()
 }
 
@@ -190,10 +177,6 @@ func (UnimplementedBackupsServer) RemoveScheduledBackup(context.Context, *Remove
 
 func (UnimplementedBackupsServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
-}
-
-func (UnimplementedBackupsServer) RestartMongod(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RestartMongod not implemented")
 }
 func (UnimplementedBackupsServer) mustEmbedUnimplementedBackupsServer() {}
 
@@ -352,24 +335,6 @@ func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_RestartMongod_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveScheduledBackupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BackupsServer).RestartMongod(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/backup.v1.Backups/RestartMongod",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).RestartMongod(ctx, req.(*RemoveScheduledBackupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Backups_ServiceDesc is the grpc.ServiceDesc for Backups service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -408,10 +373,6 @@ var Backups_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLogs",
 			Handler:    _Backups_GetLogs_Handler,
-		},
-		{
-			MethodName: "RestartMongod",
-			Handler:    _Backups_RestartMongod_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

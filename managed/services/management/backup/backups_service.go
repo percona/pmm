@@ -23,7 +23,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -31,7 +30,6 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
@@ -480,81 +478,6 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 	}
 
 	return res, nil
-}
-
-func (s *BackupsService) RestartMongod(ctx context.Context, req *backuppb.RemoveScheduledBackupRequest) (*backuppb.RemoveScheduledBackupResponse, error) {
-	s.l.Info("starting mongodb post restore routine...")
-
-	serviceType := models.MongoDBServiceType
-	rsMembers, err := models.FindServices(
-		s.db.Querier,
-		models.ServiceFilters{
-			ServiceType:    &serviceType,
-			ReplicationSet: "rs0",
-		})
-	if err != nil {
-		return nil, err
-	}
-
-	eg, _ := errgroup.WithContext(ctx)
-	for _, service := range rsMembers {
-		svc := service
-		s.l.Infof("found service: %s in replica set: %s", svc.ServiceName, svc.ReplicationSet)
-		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, svc.ServiceID)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", svc.ServiceID)
-		}
-		if len(pmmAgents) == 0 {
-			return nil, errors.Errorf("cannot find pmm agent for service %s", svc.ServiceID)
-		}
-		pmmAgentID := pmmAgents[0].AgentID
-		s.l.Warnf("sending restart request to %s", pmmAgentID)
-
-		eg.Go(func() error {
-			agent, err := s.r.Get(pmmAgentID)
-			if err != nil {
-				return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
-			}
-
-			req := &agentpb.StartActionRequest{
-				Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
-					RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
-						Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD,
-					},
-				},
-			}
-
-			_, err = agent.Channel.SendAndWaitResponse(req)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-		if err := eg.Wait(); err != nil {
-			return nil, err
-		}
-
-		eg.Go(func() error {
-			agent, err := s.r.Get(pmmAgentID)
-			if err != nil {
-				return errors.Wrapf(err, "failed to get PMM agents for svc: %s", svc.ServiceID)
-			}
-
-			req := &agentpb.StartActionRequest{
-				Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
-					RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
-						Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
-					},
-				},
-			}
-			_, err = agent.Channel.SendAndWaitResponse(req)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-	}
-	return nil, nil
 }
 
 // ListArtifactCompatibleServices lists compatible service for restoring given artifact.

@@ -580,7 +580,6 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 }
 
 func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string, jobID string, timeout time.Duration) error {
-	s.l.Info("starting mongodb post restore routine...")
 	service, err := models.FindServiceByID(s.db.Querier, serviceID)
 	if err != nil {
 		return err
@@ -610,6 +609,11 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 		rsAgents = append(rsAgents, serviceAgents[0])
 	}
 
+	// mongoRestarts is a list of PMM agent IDs on which we successfully restarted mongod
+	mongoRestarts := make(map[string]struct{})
+	// pbmRestarts is a list of PMM agent IDs on which we successfully restarted pbm-agent
+	pbmAgentRestarts := make(map[string]struct{})
+
 	for _, pmmAgent := range rsAgents {
 		s.l.Info("sending request to restart mongod on %s", pmmAgent.AgentID)
 		mongoReq := &agentpb.StartActionRequest{
@@ -625,12 +629,14 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 		}
 		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to restart mongod on agent: %s", pmmAgent.AgentID)
 		}
+		mongoRestarts[pmmAgent.AgentID] = struct{}{}
 	}
+	s.l.Infof("restarted mongod on %d out of %d services", len(mongoRestarts), len(rsMembers))
 
 	for _, pmmAgent := range rsAgents {
-		s.l.Info("sending request to restart mongod on %s", pmmAgent.AgentID)
+		s.l.Info("sending request to restart pbm-agent on %s", pmmAgent.AgentID)
 		mongoReq := &agentpb.StartActionRequest{
 			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
@@ -646,8 +652,9 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 		if err != nil {
 			return err
 		}
+		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
 	}
-
+	s.l.Infof("restarted pbm-agent on %d out of %d services", len(pbmAgentRestarts), len(rsMembers))
 	return nil
 }
 

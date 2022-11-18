@@ -38,8 +38,6 @@ type ClientService interface {
 
 	RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error)
 
-	RestartMongod(params *RestartMongodParams, opts ...ClientOption) (*RestartMongodOK, error)
-
 	RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error)
 
 	ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error)
@@ -231,43 +229,6 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RemoveScheduledBackupDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-RestartMongod todos debugging remove
-*/
-func (a *Client) RestartMongod(params *RestartMongodParams, opts ...ClientOption) (*RestartMongodOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRestartMongodParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "RestartMongod",
-		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Backups/RestartMongo",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RestartMongodReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RestartMongodOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RestartMongodDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

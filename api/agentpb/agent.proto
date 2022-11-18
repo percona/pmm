@@ -327,7 +327,7 @@ message StartActionRequest {
     TextFiles text_files = 2;
   }
 
-  // RestartMongoDBServiceParams describes a request to restart components in a MongoDB node
+  // RestartMongoDBServiceParams describes an action request to restart components in a MongoDB node
   message RestartMongoDBServiceParams {
     // Service is a service that can be restarted from PMM server
     enum Service {
@@ -570,18 +570,6 @@ message StartJobRequest {
     }
   }
 
-  message MongoDBRestartService {
-    // Service is a service that can be restarted from PMM server
-    enum Service {
-      SERVICE_NAME_INVALID = 0;
-      MONGOD = 1;
-      PBM_AGENT = 2;
-    }
-
-    // service is the service to be restarted
-    Service service = 1;
-  }
-
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -590,7 +578,6 @@ message StartJobRequest {
     MySQLRestoreBackup mysql_restore_backup = 12;
     MongoDBBackup mongodb_backup = 13;
     MongoDBRestoreBackup mongodb_restore_backup = 14;
-    MongoDBRestartService mongodb_restart_service = 15;
   }
 }
 
@@ -625,9 +612,6 @@ message JobResult {
   // MongoDBRestoreBackup contains result for MongoDB restore backup job.
   message MongoDBRestoreBackup {}
 
-  // MongoDBRestartService contains result for a request to restart a service on a Mongo node
-  message MongoDBRestartService {}
-
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
@@ -636,7 +620,6 @@ message JobResult {
     MySQLRestoreBackup mysql_restore_backup = 13;
     MongoDBBackup mongodb_backup = 14;
     MongoDBRestoreBackup mongodb_restore_backup = 15;
-    MongoDBRestartService mongodb_restart_service = 16;
   }
 }
 

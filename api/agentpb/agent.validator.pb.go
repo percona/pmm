@@ -605,13 +605,6 @@ func (this *StartJobRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MongodbRestartService); ok {
-		if oneOfNester.MongodbRestartService != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbRestartService); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("MongodbRestartService", err)
-			}
-		}
-	}
 	return nil
 }
 
@@ -678,10 +671,6 @@ func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
 	return nil
 }
 
-func (this *StartJobRequest_MongoDBRestartService) Validate() error {
-	return nil
-}
-
 func (this *StartJobResponse) Validate() error {
 	return nil
 }
@@ -735,13 +724,6 @@ func (this *JobResult) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetResult().(*JobResult_MongodbRestartService); ok {
-		if oneOfNester.MongodbRestartService != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbRestartService); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("MongodbRestartService", err)
-			}
-		}
-	}
 	return nil
 }
 
@@ -762,10 +744,6 @@ func (this *JobResult_MySQLRestoreBackup) Validate() error {
 }
 
 func (this *JobResult_MongoDBRestoreBackup) Validate() error {
-	return nil
-}
-
-func (this *JobResult_MongoDBRestartService) Validate() error {
 	return nil
 }
 

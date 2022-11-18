@@ -289,12 +289,4 @@ service Backups {
       body: "*"
     };
   }
-
-  // todo(debugging): remove
-  rpc RestartMongod(RemoveScheduledBackupRequest) returns (RemoveScheduledBackupResponse) {
-    option(google.api.http) = {
-      post: "/v1/management/backup/Backups/RestartMongo"
-      body: "*"
-    };
-  }
 }
