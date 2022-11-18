@@ -615,8 +615,14 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range rsAgents {
-		s.l.Info("sending request to restart mongod on %s", pmmAgent.AgentID)
+		s.l.Infof("sending request to restart mongod on %s", pmmAgent.AgentID)
+		action, err := models.CreateActionResult(s.db.Querier, pmmAgent.AgentID)
+		if err != nil {
+			return err
+		}
+
 		mongoReq := &agentpb.StartActionRequest{
+			ActionId: action.ID,
 			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
 					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD,
@@ -636,8 +642,13 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 	s.l.Infof("restarted mongod on %d out of %d services", len(mongoRestarts), len(rsMembers))
 
 	for _, pmmAgent := range rsAgents {
-		s.l.Info("sending request to restart pbm-agent on %s", pmmAgent.AgentID)
+		s.l.Infof("sending request to restart pbm-agent on %s", pmmAgent.AgentID)
+		action, err := models.CreateActionResult(s.db.Querier, pmmAgent.AgentID)
+		if err != nil {
+			return err
+		}
 		mongoReq := &agentpb.StartActionRequest{
+			ActionId: action.ID,
 			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
 					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
