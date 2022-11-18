@@ -23,13 +23,11 @@ cp -p %{SOURCE1} LICENSE
 
 %install
 install -D -p -m 0755 ./vmgateway-prod %{buildroot}%{_sbindir}/vmgateway
-install -D -p -m 0755 ./LICENSE %{buildroot}%{_sbindir}/LICENSE
 
 
 %files
 %license LICENSE
 %{_sbindir}/vmgateway
-%{_sbindir}/LICENSE
 
 %changelog
 * Mon Nov 14 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-2
