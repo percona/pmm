@@ -56,6 +56,7 @@ type Service struct {
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
+	dataSourcesMap      map[string]DataSource
 
 	dus distributionUtilService
 }
@@ -91,6 +92,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
+	s.dataSourcesMap = s.locateDataSources(config.telemetry)
 
 	return s, nil
 }
@@ -128,8 +130,7 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		}
 
-		dataSources := s.locateDataSources(s.config.telemetry)
-		report := s.prepareReport(ctx, dataSources)
+		report := s.prepareReport(ctx)
 
 		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
 
@@ -208,13 +209,13 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context, dataSources map[string]DataSource) *pmmv1.ServerMetric {
+func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	initializedDataSources := make(map[string]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
 
 	// initialize datasources
-	for sourceName, dataSource := range dataSources {
+	for sourceName, dataSource := range s.dataSourcesMap {
 		err := dataSource.Init(ctx)
 		if err != nil {
 			s.l.Error("Telemetry datasource init failed", err)
