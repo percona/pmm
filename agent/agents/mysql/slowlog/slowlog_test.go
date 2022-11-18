@@ -27,8 +27,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -57,7 +61,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
@@ -66,7 +70,6 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
 				ExampleType:         agentpb.ExampleType_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
@@ -87,9 +90,9 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 
-	expectedBuckets := []*agentpb.MetricsBucket{}
+	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
 
 	countActualBuckets := len(actualBuckets)
@@ -106,9 +109,12 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 }
 
 func TestSlowLog(t *testing.T) {
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	_, vendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	_, vendor, _ := version.GetMySQLVersion(ctx, q)
 
 	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata"))
 	require.NoError(t, err)
@@ -126,7 +132,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -176,7 +182,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -226,7 +232,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 

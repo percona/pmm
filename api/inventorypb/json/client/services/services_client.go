@@ -42,6 +42,8 @@ type ClientService interface {
 
 	GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error)
 
+	ListActiveServiceTypes(params *ListActiveServiceTypesParams, opts ...ClientOption) (*ListActiveServiceTypesOK, error)
+
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
@@ -319,6 +321,45 @@ func (a *Client) GetService(params *GetServiceParams, opts ...ClientOption) (*Ge
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListActiveServiceTypes lists active service types
+
+Returns a list of active Service types.
+*/
+func (a *Client) ListActiveServiceTypes(params *ListActiveServiceTypesParams, opts ...ClientOption) (*ListActiveServiceTypesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListActiveServiceTypesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListActiveServiceTypes",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/ListTypes",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListActiveServiceTypesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListActiveServiceTypesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListActiveServiceTypesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

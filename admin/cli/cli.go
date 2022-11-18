@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
@@ -58,6 +59,7 @@ type PMMAdminCommands struct {
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
+	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
 // Run function is a top-level function which handles running all commands
@@ -74,7 +76,9 @@ func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 type PMMCommands struct {
 	flags.GlobalFlags
 
-	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
+	Server     server.BaseCommand         `cmd:"" help:"PMM server related commands"`
+	Client     client.BaseCommand         `cmd:"" help:"PMM client related commands"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
@@ -136,8 +140,10 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		printExitError(opts, res, err)
-		os.Exit(err.ExitCode())
+		if res != nil {
+			printExitError(opts, res, err)
+			os.Exit(err.ExitCode())
+		}
 	}
 
 	return err

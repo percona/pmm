@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strconv"
@@ -1386,7 +1385,7 @@ func (s *Service) CollectChecks(ctx context.Context) {
 
 // loadLocalCheck loads checks form local file.
 func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
-	data, err := ioutil.ReadFile(file) //nolint:gosec
+	data, err := os.ReadFile(file) //nolint:gosec
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read test checks file")
 	}
@@ -1446,7 +1445,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
 	res := make([]check.Check, 0, len(checks))
 
-checksLoop:
+loop:
 	for _, c := range checks {
 		if c.Version > maxSupportedVersion {
 			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
@@ -1463,7 +1462,7 @@ checksLoop:
 			for _, query := range c.Queries {
 				if ok := isQueryTypeSupported(query.Type); !ok {
 					s.l.Warnf("Unsupported query type: %s.", query.Type)
-					continue checksLoop
+					continue loop
 				}
 			}
 		}

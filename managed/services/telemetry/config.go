@@ -60,7 +60,7 @@ type FileConfig struct {
 type DSConfigQAN struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
-	DSN     string        `yaml:"dsn"`
+	DSN     string        `yaml:"-"`
 }
 
 // DataSourceVictoriaMetrics telemetry config.
@@ -94,12 +94,27 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID      string `yaml:"id"`
-	Source  string `yaml:"source"`
-	Query   string `yaml:"query"`
-	Summary string `yaml:"summary"`
-	Data    []ConfigData
+	ID        string           `yaml:"id"`
+	Source    string           `yaml:"source"`
+	Query     string           `yaml:"query"`
+	Summary   string           `yaml:"summary"`
+	Transform *ConfigTransform `yaml:"transform"`
+	Data      []ConfigData
 }
+
+// ConfigTransform telemetry config transformation.
+type ConfigTransform struct {
+	Type   ConfigTransformType `yaml:"type"`
+	Metric string              `yaml:"metric"`
+}
+
+// ConfigTransformType config transform type.
+type ConfigTransformType string
+
+const (
+	// JSONTransformType JSON type.
+	JSONTransformType = ConfigTransformType("JSON")
+)
 
 // ConfigData telemetry config.
 type ConfigData struct {
@@ -202,7 +217,7 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 		config = []byte(defaultConfig)
 	}
 	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
-		return nil, errors.Wrap(err, "cannot unmashal default config")
+		return nil, errors.Wrap(err, "cannot unmarshal default config")
 	}
 	fileConfigs = append(fileConfigs, fileCfg)
 

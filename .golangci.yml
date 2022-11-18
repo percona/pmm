@@ -40,6 +40,7 @@ linters-settings:
       - error
       - empty
       - stdlib
+      - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
 
   lll:
@@ -87,6 +88,7 @@ run:
   timeout: 5m
   skip-dirs:
     - agent/agents/mongodb/internal/
+    - qan-api2/migrations/
 
 issues:
   exclude-use-default: false

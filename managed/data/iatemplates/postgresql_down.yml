@@ -3,7 +3,7 @@ templates:
   - name: pmm_postgresql_down
     version: 1
     summary: PostgreSQL down
-    expr: sum by (service_name, node_name) (pg_up) == 0
+    expr: sum by (service_name, node_name) (pg_up) == bool 0
     for: 1m
     severity: critical
     annotations:

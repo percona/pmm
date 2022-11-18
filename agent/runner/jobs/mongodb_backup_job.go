@@ -18,10 +18,9 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"net"
 	"net/url"
+	"os"
 	"os/exec"
-	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -30,7 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -42,15 +41,15 @@ const (
 
 // MongoDBBackupJob implements Job from MongoDB backup.
 type MongoDBBackupJob struct {
-	id         string
-	timeout    time.Duration
-	l          logrus.FieldLogger
-	name       string
-	dbURL      *url.URL
-	location   BackupLocationConfig
-	pitr       bool
-	logChunkID uint32
-	dataModel  backupv1beta1.DataModel
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	dbURL          *url.URL
+	locationConfig BackupLocationConfig
+	pitr           bool
+	logChunkID     uint32
+	dataModel      backuppb.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -61,23 +60,23 @@ func NewMongoDBBackupJob(
 	dbConfig DBConnConfig,
 	locationConfig BackupLocationConfig,
 	pitr bool,
-	dataModel backupv1beta1.DataModel,
+	dataModel backuppb.DataModel,
 ) (*MongoDBBackupJob, error) {
-	if dataModel != backupv1beta1.DataModel_PHYSICAL && dataModel != backupv1beta1.DataModel_LOGICAL {
+	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
-	if dataModel != backupv1beta1.DataModel_LOGICAL && pitr {
+	if dataModel != backuppb.DataModel_LOGICAL && pitr {
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 	return &MongoDBBackupJob{
-		id:        id,
-		timeout:   timeout,
-		l:         logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
-		name:      name,
-		dbURL:     createDBURL(dbConfig),
-		location:  locationConfig,
-		pitr:      pitr,
-		dataModel: dataModel,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
+		name:           name,
+		dbURL:          createDBURL(dbConfig),
+		locationConfig: locationConfig,
+		pitr:           pitr,
+		dataModel:      dataModel,
 	}, nil
 }
 
@@ -104,36 +103,23 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf := &PBMConfig{
-		PITR: PITR{
-			Enabled: j.pitr,
-		},
-	}
-	switch {
-	case j.location.S3Config != nil:
-		conf.Storage = Storage{
-			Type: "s3",
-			S3: S3{
-				EndpointURL: j.location.S3Config.Endpoint,
-				Region:      j.location.S3Config.BucketRegion,
-				Bucket:      j.location.S3Config.BucketName,
-				Prefix:      j.name,
-				Credentials: Credentials{
-					AccessKeyID:     j.location.S3Config.AccessKey,
-					SecretAccessKey: j.location.S3Config.SecretKey,
-				},
-			},
-		}
-	default:
-		return errors.New("unknown location config")
+	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
-	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMState(rCtx, j.l, j.dbURL, pbmNoRunningOperations); err != nil {
+	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -153,7 +139,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMState(ctx, j.l, j.dbURL, pbmBackupFinished(pbmBackupOut.Name)); err != nil {
+	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
 		j.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
@@ -172,42 +158,17 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	return nil
 }
 
-func createDBURL(dbConfig DBConnConfig) *url.URL {
-	var host string
-	switch {
-	case dbConfig.Address != "":
-		if dbConfig.Port > 0 {
-			host = net.JoinHostPort(dbConfig.Address, strconv.Itoa(dbConfig.Port))
-		} else {
-			host = dbConfig.Address
-		}
-	case dbConfig.Socket != "":
-		host = dbConfig.Socket
-	}
-
-	var user *url.Userinfo
-	if dbConfig.User != "" {
-		user = url.UserPassword(dbConfig.User, dbConfig.Password)
-	}
-
-	return &url.URL{
-		Scheme: "mongodb",
-		User:   user,
-		Host:   host,
-	}
-}
-
 func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) {
 	j.l.Info("Starting backup.")
 	var result pbmBackup
 
 	pbmArgs := []string{"backup"}
 	switch j.dataModel {
-	case backupv1beta1.DataModel_PHYSICAL:
+	case backuppb.DataModel_PHYSICAL:
 		pbmArgs = append(pbmArgs, "--type=physical")
-	case backupv1beta1.DataModel_LOGICAL:
+	case backuppb.DataModel_LOGICAL:
 		pbmArgs = append(pbmArgs, "--type=logical")
-	case backupv1beta1.DataModel_DATA_MODEL_INVALID:
+	case backuppb.DataModel_DATA_MODEL_INVALID:
 	default:
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}

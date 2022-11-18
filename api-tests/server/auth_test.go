@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -359,7 +359,7 @@ func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Resp
 
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
 	return resp, b

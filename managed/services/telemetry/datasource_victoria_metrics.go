@@ -44,19 +44,19 @@ func (d *dataSourceVictoriaMetrics) Enabled() bool {
 
 // NewDataSourceVictoriaMetrics makes new data source for victoria metrics.
 func NewDataSourceVictoriaMetrics(config DataSourceVictoriaMetrics, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
-	client, err := api.NewClient(api.Config{
-		Address: config.Address,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	if !config.Enabled {
 		return &dataSourceVictoriaMetrics{
 			l:      l,
 			config: config,
 			vm:     nil,
 		}, nil
+	}
+
+	client, err := api.NewClient(api.Config{
+		Address: config.Address,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return &dataSourceVictoriaMetrics{
@@ -66,7 +66,7 @@ func NewDataSourceVictoriaMetrics(config DataSourceVictoriaMetrics, l *logrus.En
 	}, nil
 }
 
-func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, d.config.Timeout)
 	defer cancel()
 
@@ -80,13 +80,11 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
 		for _, configItem := range config.Data {
 			if configItem.Label != "" {
-				value, ok := v.Metric[model.LabelName(configItem.Label)]
-				if ok {
-					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-						Key:   configItem.MetricName,
-						Value: string(value),
-					})
-				}
+				value := v.Metric[model.LabelName(configItem.Label)]
+				metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+					Key:   configItem.MetricName,
+					Value: string(value),
+				})
 			}
 
 			if configItem.Value != "" {
@@ -98,5 +96,5 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 		}
 	}
 
-	return [][]*pmmv1.ServerMetric_Metric{metrics}, nil
+	return metrics, nil
 }

@@ -1,0 +1,15 @@
+{
+	"queryExamples": [
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema29",
+			"tables": [
+				"table1"
+			]
+		}
+	]
+}

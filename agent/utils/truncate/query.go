@@ -15,15 +15,34 @@
 // Package truncate privides strings truncation utilities.
 package truncate
 
-var maxQueryLength = 2048
+var defaultMaxQueryLength = int32(2048)
 
-// Query limits passed query string to 2048 Unicode runes, truncating it if necessary.
-func Query(q string) (query string, truncated bool) {
+// Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
+// Also truncate all invalid UTF-8 chars.
+func Query(q string, maxQueryLength int32) (string, bool) {
+	if maxQueryLength < 0 {
+		return string([]rune(q)), false
+	}
+
+	if maxQueryLength == 0 {
+		maxQueryLength = defaultMaxQueryLength
+	}
+
 	runes := []rune(q)
-	if len(runes) <= maxQueryLength {
+	if int32(len(runes)) <= maxQueryLength {
 		return string(runes), false
+	}
+
+	// for queries shorter than 4 chars
+	if maxQueryLength < 4 {
+		return " ...", true
 	}
 
 	// copy MySQL behavior
 	return string(runes[:maxQueryLength-4]) + " ...", true
+}
+
+// GetDefaultMaxQueryLength returns default decimal value for query length.
+func GetDefaultMaxQueryLength() int32 {
+	return defaultMaxQueryLength
 }
