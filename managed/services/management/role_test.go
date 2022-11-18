@@ -26,7 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/managementpb"
+	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -64,7 +64,7 @@ func TestRoleService(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			defer teardown(t)
 
-			res, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
+			res, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
 				Title:  "Role A",
 				Filter: "filter",
 			})
@@ -80,14 +80,14 @@ func TestRoleService(t *testing.T) {
 
 			_, roleID := createDummyRoles(ctx, t, s)
 
-			_, err := s.UpdateRole(ctx, &managementpb.UpdateRoleRequest{
+			_, err := s.UpdateRole(ctx, &rolev1beta1.UpdateRoleRequest{
 				RoleId: roleID,
 				Title:  "Role B - updated",
 				Filter: "filter B - updated",
 			})
 			require.NoError(t, err)
 
-			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
+			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
 			assert.Equal(t, roles.Roles[1].Title, "Role B - updated")
@@ -98,7 +98,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.UpdateRole(ctx, &managementpb.UpdateRoleRequest{
+			_, err := s.UpdateRole(ctx, &rolev1beta1.UpdateRoleRequest{
 				RoleId: 0,
 				Title:  "",
 				Filter: "",
@@ -114,10 +114,10 @@ func TestRoleService(t *testing.T) {
 
 			_, roleID := createDummyRoles(ctx, t, s)
 
-			_, err := s.DeleteRole(ctx, &managementpb.DeleteRoleRequest{RoleId: roleID})
+			_, err := s.DeleteRole(ctx, &rolev1beta1.DeleteRoleRequest{RoleId: roleID})
 			require.NoError(t, err)
 
-			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
+			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, len(roles.Roles), 1)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
@@ -128,7 +128,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.DeleteRole(ctx, &managementpb.DeleteRoleRequest{RoleId: 0})
+			_, err := s.DeleteRole(ctx, &rolev1beta1.DeleteRoleRequest{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
@@ -140,7 +140,7 @@ func TestRoleService(t *testing.T) {
 
 			_, roleID := createDummyRoles(ctx, t, s)
 
-			res, err := s.GetRole(ctx, &managementpb.GetRoleRequest{RoleId: roleID})
+			res, err := s.GetRole(ctx, &rolev1beta1.GetRoleRequest{RoleId: roleID})
 			require.NoError(t, err)
 			assert.Equal(t, res.Title, "Role B")
 		})
@@ -150,7 +150,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.GetRole(ctx, &managementpb.GetRoleRequest{RoleId: 0})
+			_, err := s.GetRole(ctx, &rolev1beta1.GetRoleRequest{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
@@ -162,7 +162,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			res, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
+			res, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Equal(t, len(res.Roles), 2)
 		})
@@ -175,13 +175,13 @@ func TestRoleService(t *testing.T) {
 
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
-			_, err := s.AssignRoles(ctx, &managementpb.AssignRolesRequest{
+			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 				RoleIds: []uint32{roleIDA},
 				UserId:  1337,
 			})
 			require.NoError(t, err)
 
-			_, err = s.AssignRoles(ctx, &managementpb.AssignRolesRequest{
+			_, err = s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 				RoleIds: []uint32{roleIDB},
 				UserId:  1338,
 			})
@@ -198,7 +198,7 @@ func TestRoleService(t *testing.T) {
 
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
-			_, err := s.AssignRoles(ctx, &managementpb.AssignRolesRequest{
+			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 				RoleIds: []uint32{roleIDA, roleIDB},
 				UserId:  1337,
 			})
@@ -216,7 +216,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.AssignRoles(ctx, &managementpb.AssignRolesRequest{
+			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 				RoleIds: []uint32{0},
 				UserId:  1337,
 			})
@@ -233,7 +233,7 @@ func TestRoleService(t *testing.T) {
 			roleID, _ := createDummyRoles(ctx, t, s)
 			assert.NotEqual(t, settings.DefaultRoleID, roleID)
 
-			_, err = s.SetDefaultRole(ctx, &managementpb.SetDefaultRoleRequest{
+			_, err = s.SetDefaultRole(ctx, &rolev1beta1.SetDefaultRoleRequest{
 				RoleId: roleID,
 			})
 			require.NoError(t, err)
@@ -245,7 +245,7 @@ func TestRoleService(t *testing.T) {
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
 			defer teardown(t)
-			_, err := s.SetDefaultRole(ctx, &managementpb.SetDefaultRoleRequest{
+			_, err := s.SetDefaultRole(ctx, &rolev1beta1.SetDefaultRoleRequest{
 				RoleId: 1337,
 			})
 
@@ -257,13 +257,13 @@ func TestRoleService(t *testing.T) {
 func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) (uint32, uint32) {
 	t.Helper()
 
-	rA, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
+	rA, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
 		Title:  "Role A",
 		Filter: "filter A",
 	})
 	require.NoError(t, err)
 
-	rB, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
+	rB, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
 		Title:  "Role B",
 		Filter: "filter B",
 	})

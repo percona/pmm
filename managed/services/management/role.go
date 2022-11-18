@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/managementpb"
+	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ var ErrInvalidRoleData = errors.New("InvalidRoleData")
 type RoleService struct {
 	db *reform.DB
 
-	managementpb.UnimplementedRoleServer
+	rolev1beta1.UnimplementedRoleServer
 }
 
 // NewRoleService creates a RoleService instance.
@@ -47,7 +47,7 @@ func NewRoleService(db *reform.DB) *RoleService {
 }
 
 // CreateRole creates a new Role.
-func (r *RoleService) CreateRole(_ context.Context, req *managementpb.CreateRoleRequest) (*managementpb.CreateRoleResponse, error) {
+func (r *RoleService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleRequest) (*rolev1beta1.CreateRoleResponse, error) {
 	var role models.Role
 	role.Title = req.Title
 	role.Filter = req.Filter
@@ -56,7 +56,7 @@ func (r *RoleService) CreateRole(_ context.Context, req *managementpb.CreateRole
 		return nil, err
 	}
 
-	return &managementpb.CreateRoleResponse{
+	return &rolev1beta1.CreateRoleResponse{
 		RoleId: role.ID,
 	}, nil
 }
@@ -64,7 +64,7 @@ func (r *RoleService) CreateRole(_ context.Context, req *managementpb.CreateRole
 // UpdateRole updates a Role.
 //
 //nolint:unparam
-func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.UpdateRoleRequest) (*managementpb.UpdateRoleResponse, error) {
+func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*rolev1beta1.UpdateRoleResponse, error) {
 	var role models.Role
 	if err := r.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
@@ -80,13 +80,13 @@ func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.UpdateRole
 		return nil, err
 	}
 
-	return &managementpb.UpdateRoleResponse{}, nil
+	return &rolev1beta1.UpdateRoleResponse{}, nil
 }
 
 // DeleteRole deletes a Role.
 //
 //nolint:unparam
-func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.DeleteRoleRequest) (*managementpb.DeleteRoleResponse, error) {
+func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
 	errTx := r.db.InTransaction(func(tx *reform.TX) error {
 		if err := models.DeleteRole(tx, int(req.RoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
@@ -102,11 +102,11 @@ func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.DeleteRole
 		return nil, errTx
 	}
 
-	return &managementpb.DeleteRoleResponse{}, nil
+	return &rolev1beta1.DeleteRoleResponse{}, nil
 }
 
 // GetRole retrieves a Role.
-func (r *RoleService) GetRole(_ context.Context, req *managementpb.GetRoleRequest) (*managementpb.GetRoleResponse, error) {
+func (r *RoleService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest) (*rolev1beta1.GetRoleResponse, error) {
 	var role models.Role
 	if err := r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if errors.As(err, &reform.ErrNoRows) {
@@ -116,7 +116,7 @@ func (r *RoleService) GetRole(_ context.Context, req *managementpb.GetRoleReques
 		return nil, err
 	}
 
-	return &managementpb.GetRoleResponse{
+	return &rolev1beta1.GetRoleResponse{
 		RoleId: role.ID,
 		Title:  role.Title,
 		Filter: role.Filter,
@@ -124,14 +124,14 @@ func (r *RoleService) GetRole(_ context.Context, req *managementpb.GetRoleReques
 }
 
 // ListRoles lists all Roles.
-func (r *RoleService) ListRoles(_ context.Context, _ *managementpb.ListRolesRequest) (*managementpb.ListRolesResponse, error) {
+func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
 	rows, err := r.db.Querier.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
 	}
 
-	res := &managementpb.ListRolesResponse{
-		Roles: make([]*managementpb.ListRolesResponse_RoleData, 0, len(rows)), //nolint:nosnakecase
+	res := &rolev1beta1.ListRolesResponse{
+		Roles: make([]*rolev1beta1.ListRolesResponse_RoleData, 0, len(rows)), //nolint:nosnakecase
 	}
 
 	for _, row := range rows {
@@ -141,7 +141,7 @@ func (r *RoleService) ListRoles(_ context.Context, _ *managementpb.ListRolesRequ
 		}
 
 		//nolint:nosnakecase
-		res.Roles = append(res.Roles, &managementpb.ListRolesResponse_RoleData{
+		res.Roles = append(res.Roles, &rolev1beta1.ListRolesResponse_RoleData{
 			RoleId: role.ID,
 			Title:  role.Title,
 			Filter: role.Filter,
@@ -154,7 +154,7 @@ func (r *RoleService) ListRoles(_ context.Context, _ *managementpb.ListRolesRequ
 // AssignRoles assigns a Role to a user.
 //
 //nolint:unparam
-func (r *RoleService) AssignRoles(_ context.Context, req *managementpb.AssignRolesRequest) (*managementpb.AssignRolesResponse, error) {
+func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRolesRequest) (*rolev1beta1.AssignRolesResponse, error) {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		roleIDs := make([]int, 0, len(req.RoleIds))
 		for _, id := range req.RoleIds {
@@ -169,13 +169,13 @@ func (r *RoleService) AssignRoles(_ context.Context, req *managementpb.AssignRol
 		return nil, err
 	}
 
-	return &managementpb.AssignRolesResponse{}, nil
+	return &rolev1beta1.AssignRolesResponse{}, nil
 }
 
 // SetDefaultRole configures default role to be assigned to users.
 //
 //nolint:unparam
-func (r *RoleService) SetDefaultRole(_ context.Context, req *managementpb.SetDefaultRoleRequest) (*managementpb.SetDefaultRoleResponse, error) {
+func (r *RoleService) SetDefaultRole(_ context.Context, req *rolev1beta1.SetDefaultRoleRequest) (*rolev1beta1.SetDefaultRoleResponse, error) {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		return models.ChangeDefaultRole(tx, int(req.RoleId))
 	})
@@ -183,5 +183,5 @@ func (r *RoleService) SetDefaultRole(_ context.Context, req *managementpb.SetDef
 		return nil, err
 	}
 
-	return &managementpb.SetDefaultRoleResponse{}, nil
+	return &rolev1beta1.SetDefaultRoleResponse{}, nil
 }
