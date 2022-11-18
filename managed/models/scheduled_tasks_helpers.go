@@ -165,15 +165,8 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 	if err != nil {
 		return nil, err
 	}
-	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: newName})
-	if err != nil {
-		return nil, err
-	}
-	if len(tasks) > 1 { // Just in case.
-		panic("more than one record found in field with unique constraint")
-	}
-	if len(tasks) == 1 {
-		return nil, errors.Wrapf(ErrAlreadyExists, "couldn't create task name %s", newName)
+	if err := nameIsFree(q, newName); err != nil {
+		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
 	}
 
 	id := "/scheduled_task_id/" + uuid.New().String()
@@ -257,16 +250,8 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		}
 
 		if newName != oldName {
-			tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: newName})
-			if err != nil {
-				return nil, err
-			}
-
-			if len(tasks) > 1 { // Just in case.
-				panic("more than one record found in field with unique constraint")
-			}
-			if len(tasks) == 1 {
-				return nil, errors.Wrapf(ErrAlreadyExists, "couldn't change task name to %s", newName)
+			if err := nameIsFree(q, newName); err != nil {
+				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
 			}
 		}
 
@@ -332,4 +317,15 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 		}
 	}
 	return "", nil
+}
+
+func nameIsFree(q *reform.Querier, name string) error {
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: name})
+	if err != nil {
+		return err
+	}
+	if len(tasks) > 0 {
+		return ErrAlreadyExists
+	}
+	return nil
 }
