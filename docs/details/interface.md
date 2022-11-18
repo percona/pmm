@@ -89,7 +89,24 @@ This menu bar is context-sensitive; it changes according to the page you are on.
 
 ## Shortcut menu
 
-This menu contains shortcut for *Home*, *Query Analytics*, *Services*, and *PMM*.
+This menu contains shortcuts to other dashboards. The list changes according to the page you're on.
+
+!!! note alert alert-primary ""
+    This menu will be removed in future releases. Its function will be replaced by the {{icon.dashboards}} *PMM Dashboards* main menu entry.
+
+| Item                                         | Description
+|----------------------------------------------| ------------------------------
+| <i class="uil uil-file-alt"></i> Home        | Home dashboard.
+| <i class="uil uil-apps"></i> Query Analytics | Query Analytics.
+| <i class="uil uil-bolt"></i> Compare         | Nodes compare.
+| (Service Type)                               | Service type menu (see [Services menu](#services-menu)).
+| <i class="uil uil-bars"></i> HA              | HA dashboards.
+| <i class="uil uil-bars"></i> Services        | Services menu.
+| <i class="uil uil-bars"></i> PMM             | PMM menu.
+
+!!! hint alert alert-success "Tip"
+    The *Compare* menu links to the Instances Overview dashboard for the current service type.
+
 
 ### Services menu
 

@@ -189,14 +189,13 @@ PMM communicates with the PMM Server via a PMM agent process.
 #### `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT`
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
-
 : Configure the PMM agent with a listen port.
 
     ` --pmm-agent-listen-port=LISTEN_PORT`
     : The PMM agent listen port.
 
 DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | [ProxySQL](#proxysql)]
-     
+
 
 #### `pmm-admin remove`
 
@@ -357,24 +356,24 @@ When you remove a service, collected data remains on PMM Server for the specifie
 
 ##### Advanced Options
 
-:  PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
+PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
 
-    FLAGS:
+FLAGS:
 
-    `--enable-all-collectors`
-    :  Enable all collectors.
+`--enable-all-collectors`
+:  Enable all collectors.
 
-    `--disable-collectors`
-    :  Comma-separated list of collector names to exclude from exporter.
+`--disable-collectors`
+:  Comma-separated list of collector names to exclude from exporter.
 
-    `--max-collections-limit=-1`
-    :  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
+`--max-collections-limit=-1`
+:  Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, PMM automatically sets this value.
 
-        !!! caution ""
-            A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
+    !!! caution ""
+        A very high limit of `max-collections-limit` could impact the CPU and Memory usage. Check `--stats-collections` to limit the scope of collections and DB's metrics to be fetched.
 
-    `--stats-collections=db1,db2.col1`
-    :  Collections for collstats & indexstats.
+`--stats-collections=db1,db2.col1`
+:  Collections for collstats & indexstats.
 
 
 ###### Enable all collectors
@@ -406,7 +405,7 @@ Set the value of the parameter `--max-collections-limit` to:
 
 
 To further limit collections to monitor, enable collStats and indexStats for some databases or collections:
- 
+
 - Specify the databases and collections that collStats and indexStats will use to collect data using the parameter `--stats-collections`. This parameter receives a comma-separated list of namespaces in the form `database[.collection]`.
 
 
@@ -764,7 +763,6 @@ In low resolution we collect metrics from collectors which could take some time:
 ### OTHER COMMANDS
 
 `pmm-admin add external [FLAGS]`
-
 : Add External source of data (like a custom exporter running on a port) to be monitored.
 
     FLAGS:
@@ -812,7 +810,6 @@ In low resolution we collect metrics from collectors which could take some time:
     : Group name of external service. (Default: `external`.)
 
 `pmm-admin add external-serverless [FLAGS]`
-
 : Add External Service on Remote node to monitoring.
 
     Usage example: `pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics`.

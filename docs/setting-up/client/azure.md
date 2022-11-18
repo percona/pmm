@@ -1,7 +1,7 @@
 # Microsoft Azure
 
 !!! caution alert alert-warning "Caution"
-    Microsoft Azure functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+    Microsoft Azure functionality is currently in [technical preview](../../details/glossary.md#technical-preview) and is subject to change.
 
 ## Activate Microsoft Azure
 
