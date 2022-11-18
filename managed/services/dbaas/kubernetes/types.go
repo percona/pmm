@@ -11,3 +11,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) *dbaas
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *dbaasv1.DatabaseCluster {
 	return nil
 }
+func ToCreatePSMDBRequest(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) *dbaasv1beta1.CreatePSMDBClusterRequest {
+	return nil
+}
+func ToCreatePXCRequest(cluster *dbaasv1beta1.UpdatePXCClusterRequest) *dbaasv1beta1.CreatePXCClusterRequest {
+	return nil
+}

@@ -131,13 +131,12 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
-	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster := kuberenetes.DatabaseClusterForPXC(req)
+	dbCluster := kubernetes.DatabaseClusterForPXC(req)
 
-	var pmmParams *dbaascontrollerv1beta1.PMMParams
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
@@ -150,7 +149,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
 		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
-	_, err := kubeClient.CreateDatabaseCluster(dbCluster)
+	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -281,11 +280,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster := kuberenetes.DatabaseClusterForPXC(req)
+	dbCluster := kubernetes.DatabaseClusterForPXC(kubernetes.ToCreatePXCRequest(req))
 
 	if req.Params != nil {
 		if req.Params.Suspend && req.Params.Resume {
@@ -298,7 +297,7 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 
 	}
-	_, err := kubeClient.UpdateDatabaseCluster(ctx, dbCluster)
+	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 
 	if err != nil {
 		return nil, err

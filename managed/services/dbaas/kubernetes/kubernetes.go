@@ -107,6 +107,13 @@ func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 }
 
 // PatchDatabaseCluster patches CR of managed PXC cluster.
-func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
-	return c.client.PatchDatabaseCluster(ctx, name, pt, data, opts)
+func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) (*dbaasv1.DatabaseCluster, error) {
+	var pt types.PatchType
+	var data []byte
+	var opts metav1.PatchOptions
+	return c.client.PatchDatabaseCluster(ctx, cluster.Name, pt, data, opts)
+}
+
+func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+	return nil
 }

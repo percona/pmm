@@ -124,8 +124,12 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	}
 
-	dbCluster := kuberenetes.DatabaseClusterForPSMDB(req)
+	dbCluster := kubernetes.DatabaseClusterForPSMDB(req)
 
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
@@ -144,12 +148,12 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	} else {
 		backupImage = backupComponent.ImagePath
 	}
+	_ = backupImage
 
 	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
 	}
 
-	var pmmParams *dbaascontrollerv1beta1.PMMParams
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
@@ -162,8 +166,9 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
 		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
+	// TODO: Setup backups
 
-	_, err := kubeClient.CreateDatabaseCluster(dbCluster)
+	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -249,10 +254,13 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(kuberenetesCluster.KubeConfig)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
+	dbCluster := kubernetes.DatabaseClusterForPSMDB(
+		kubernetes.ToCreatePSMDBRequest(req),
+	)
 
 	if req.Params != nil {
 		if req.Params.Suspend && req.Params.Resume {
@@ -260,7 +268,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 
 	}
-	_, err := kubeClient.UpdateDatabaseCluster(ctx, dbCluster)
+	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err
 	}
