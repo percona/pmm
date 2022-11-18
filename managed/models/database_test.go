@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:lll
 package models_test
 
 import (
@@ -65,7 +64,6 @@ func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 	return tx, rollback
 }
 
-//nolint:lll
 func TestDatabaseChecks(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
 		db := testdb.Open(t, models.SkipFixtures, nil)

@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:lll
 package backup
 
 import (
@@ -317,8 +316,7 @@ func TestScheduleBackup(t *testing.T) {
 			})
 			pmmapitests.AssertAPIErrorf(t, err, 400,
 				codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.",
-				serviceName,
-			)
+				serviceName)
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {

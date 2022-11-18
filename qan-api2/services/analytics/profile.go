@@ -29,18 +29,18 @@ import (
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo) //nolint:goerr113
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo) //nolint:goerr113
 	}
 	periodDurationSec := periodStartToSec - periodStartFromSec
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
-		return nil, fmt.Errorf("unknown group dimension: %s", in.GroupBy)
+		return nil, fmt.Errorf("unknown group dimension: %s", in.GroupBy) //nolint:goerr113
 	}
 	group := in.GroupBy
 
@@ -111,7 +111,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 
 	order, orderCol := getOrderBy(in.OrderBy, uniqColumns[0])
 	if _, ok := uniqColumnsMap[orderCol]; !ok {
-		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
+		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", ")) //nolint:goerr113
 	}
 
 	resp := &qanpb.ReportReply{}
