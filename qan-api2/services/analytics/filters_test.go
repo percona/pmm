@@ -203,7 +203,7 @@ func TestService_GetFilters(t *testing.T) {
 			if err != nil {
 				t.Errorf("cannot marshal:%v", err)
 			}
-			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+			assert.JSONEq(t, string(expectedJSON), gotJSON)
 		})
 	}
 }

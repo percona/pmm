@@ -207,7 +207,8 @@ func TestPXCClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.PXCClusters.CreatePXCCluster(&paramsPXCEmptyName)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
+		pmmapitests.AssertAPIErrorf(t, err, 400,
+			codes.InvalidArgument, `invalid field Name: value '' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("CreatePXCClusterInvalidName", func(t *testing.T) {
@@ -234,7 +235,8 @@ func TestPXCClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.PXCClusters.CreatePXCCluster(&paramsPXCInvalidName)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
+		pmmapitests.AssertAPIErrorf(t, err, 400,
+			codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
@@ -245,7 +247,8 @@ func TestPXCClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.DBClusters.ListDBClusters(&listPXCClustersParamsParam)
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Kubernetes Cluster with name "Unknown-kubernetes-cluster-name" not found.`)
+		pmmapitests.AssertAPIErrorf(t, err, 404,
+			codes.NotFound, `Kubernetes Cluster with name "Unknown-kubernetes-cluster-name" not found.`)
 	})
 
 	t.Run("RestartUnknownPXCCluster", func(t *testing.T) {

@@ -86,7 +86,7 @@ type Service struct {
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) {
+func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
 	l := logrus.WithField("component", "management/alerting")
 
 	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)

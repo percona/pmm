@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN {
+func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)

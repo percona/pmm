@@ -292,3 +292,26 @@ func (this *RemoveServiceRequest) Validate() error {
 func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }
+
+func (this *AddCustomLabelsRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+
+func (this *AddCustomLabelsResponse) Validate() error {
+	return nil
+}
+
+func (this *RemoveCustomLabelsRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	return nil
+}
+
+func (this *RemoveCustomLabelsResponse) Validate() error {
+	return nil
+}
