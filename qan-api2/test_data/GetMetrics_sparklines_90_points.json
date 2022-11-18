@@ -1,0 +1,1439 @@
+{
+	"metrics": {
+		"blk_read_time": {
+
+		},
+		"blk_write_time": {
+
+		},
+		"bytes_sent": {
+			"rate": 2.7203703,
+			"cnt": 13,
+			"sum": 14690,
+			"min": 113,
+			"max": 113,
+			"avg": 0.1841152,
+			"p99": 113
+		},
+		"cpu_sys_time": {
+
+		},
+		"cpu_user_time": {
+
+		},
+		"docs_returned": {
+
+		},
+		"docs_scanned": {
+
+		},
+		"filesort": {
+
+		},
+		"filesort_on_disk": {
+
+		},
+		"full_join": {
+
+		},
+		"full_scan": {
+
+		},
+		"innodb_io_r_bytes": {
+
+		},
+		"innodb_io_r_ops": {
+
+		},
+		"innodb_io_r_wait": {
+
+		},
+		"innodb_pages_distinct": {
+
+		},
+		"innodb_queue_wait": {
+
+		},
+		"innodb_rec_lock_wait": {
+
+		},
+		"local_blks_dirtied": {
+
+		},
+		"local_blks_hit": {
+
+		},
+		"local_blks_read": {
+
+		},
+		"local_blks_written": {
+
+		},
+		"lock_time": {
+			"cnt": 13
+		},
+		"merge_passes": {
+			"cnt": 13
+		},
+		"no_good_index_used": {
+
+		},
+		"no_index_used": {
+
+		},
+		"num_queries": {
+			"rate": 14.775371,
+			"sum": 79787
+		},
+		"num_queries_with_errors": {
+			"rate": 0.0024074074,
+			"sum": 13
+		},
+		"num_queries_with_warnings": {
+
+		},
+		"plan_time": {
+
+		},
+		"plans_calls": {
+
+		},
+		"qc_hit": {
+
+		},
+		"query_length": {
+
+		},
+		"query_time": {
+			"rate": 8.592593e-7,
+			"cnt": 13,
+			"sum": 0.00464,
+			"min": 0.00003,
+			"max": 0.000045,
+			"avg": 5.8154836e-8,
+			"p99": 0.00003569231
+		},
+		"response_length": {
+
+		},
+		"rows_affected": {
+			"cnt": 13
+		},
+		"rows_examined": {
+			"cnt": 13
+		},
+		"rows_read": {
+
+		},
+		"rows_sent": {
+			"rate": 0.024074074,
+			"cnt": 13,
+			"sum": 130,
+			"min": 1,
+			"max": 1,
+			"avg": 0.0016293381,
+			"p99": 1
+		},
+		"select_full_range_join": {
+
+		},
+		"select_range": {
+
+		},
+		"select_range_check": {
+
+		},
+		"shared_blks_dirtied": {
+
+		},
+		"shared_blks_hit": {
+
+		},
+		"shared_blks_read": {
+
+		},
+		"shared_blks_written": {
+
+		},
+		"sort_range": {
+
+		},
+		"sort_rows": {
+
+		},
+		"sort_scan": {
+
+		},
+		"temp_blks_read": {
+
+		},
+		"temp_blks_written": {
+
+		},
+		"tmp_disk_tables": {
+			"cnt": 13
+		},
+		"tmp_table": {
+
+		},
+		"tmp_table_on_disk": {
+
+		},
+		"tmp_table_sizes": {
+			"cnt": 13
+		},
+		"tmp_tables": {
+			"cnt": 13
+		},
+		"wal_bytes": {
+
+		},
+		"wal_fpi": {
+
+		},
+		"wal_records": {
+
+		}
+	},
+	"textMetrics": {
+		"top_query": "",
+		"top_queryid": ""
+	},
+	"sparkline": [
+		{
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:30:00Z"
+		},
+		{
+			"point": 1,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:29:00Z"
+		},
+		{
+			"point": 2,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:28:00Z"
+		},
+		{
+			"point": 3,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:27:00Z",
+			"load": 0.0000050000003,
+			"numQueriesPerSec": 1.7666667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000050000003,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 4,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:26:00Z"
+		},
+		{
+			"point": 5,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:25:00Z",
+			"load": 0.0000051666666,
+			"numQueriesPerSec": 53.75,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000051666666,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 6,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:24:00Z"
+		},
+		{
+			"point": 7,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:23:00Z"
+		},
+		{
+			"point": 8,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:22:00Z"
+		},
+		{
+			"point": 9,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:21:00Z"
+		},
+		{
+			"point": 10,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:20:00Z"
+		},
+		{
+			"point": 11,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:19:00Z"
+		},
+		{
+			"point": 12,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:18:00Z"
+		},
+		{
+			"point": 13,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:17:00Z"
+		},
+		{
+			"point": 14,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:16:00Z"
+		},
+		{
+			"point": 15,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:15:00Z"
+		},
+		{
+			"point": 16,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:14:00Z"
+		},
+		{
+			"point": 17,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:13:00Z"
+		},
+		{
+			"point": 18,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:12:00Z"
+		},
+		{
+			"point": 19,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:11:00Z"
+		},
+		{
+			"point": 20,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:10:00Z"
+		},
+		{
+			"point": 21,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:09:00Z"
+		},
+		{
+			"point": 22,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:08:00Z"
+		},
+		{
+			"point": 23,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:07:00Z"
+		},
+		{
+			"point": 24,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:06:00Z"
+		},
+		{
+			"point": 25,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:05:00Z"
+		},
+		{
+			"point": 26,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:04:00Z"
+		},
+		{
+			"point": 27,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:03:00Z",
+			"load": 0.0000073333335,
+			"numQueriesPerSec": 162.86667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000073333335,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 28,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:02:00Z"
+		},
+		{
+			"point": 29,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:01:00Z"
+		},
+		{
+			"point": 30,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T01:00:00Z"
+		},
+		{
+			"point": 31,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:59:00Z"
+		},
+		{
+			"point": 32,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:58:00Z"
+		},
+		{
+			"point": 33,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:57:00Z"
+		},
+		{
+			"point": 34,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:56:00Z"
+		},
+		{
+			"point": 35,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:55:00Z",
+			"load": 0.000005833333,
+			"numQueriesPerSec": 78.083336,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.000005833333,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 36,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:54:00Z"
+		},
+		{
+			"point": 37,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:53:00Z"
+		},
+		{
+			"point": 38,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:52:00Z"
+		},
+		{
+			"point": 39,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:51:00Z"
+		},
+		{
+			"point": 40,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:50:00Z",
+			"load": 0.0000050000003,
+			"numQueriesPerSec": 79.48333,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000050000003,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 41,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:49:00Z"
+		},
+		{
+			"point": 42,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:48:00Z",
+			"load": 0.0000075,
+			"numQueriesPerSec": 115.86667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000075,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 43,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:47:00Z"
+		},
+		{
+			"point": 44,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:46:00Z"
+		},
+		{
+			"point": 45,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:45:00Z"
+		},
+		{
+			"point": 46,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:44:00Z"
+		},
+		{
+			"point": 47,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:43:00Z"
+		},
+		{
+			"point": 48,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:42:00Z"
+		},
+		{
+			"point": 49,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:41:00Z"
+		},
+		{
+			"point": 50,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:40:00Z"
+		},
+		{
+			"point": 51,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:39:00Z"
+		},
+		{
+			"point": 52,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:38:00Z"
+		},
+		{
+			"point": 53,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:37:00Z",
+			"load": 0.0000055,
+			"numQueriesPerSec": 150.58333,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000055,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 54,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:36:00Z"
+		},
+		{
+			"point": 55,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:35:00Z",
+			"load": 0.000006,
+			"numQueriesPerSec": 33.666668,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.000006,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 56,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:34:00Z"
+		},
+		{
+			"point": 57,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:33:00Z"
+		},
+		{
+			"point": 58,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:32:00Z"
+		},
+		{
+			"point": 59,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:31:00Z"
+		},
+		{
+			"point": 60,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:30:00Z"
+		},
+		{
+			"point": 61,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:29:00Z",
+			"load": 0.0000050000003,
+			"numQueriesPerSec": 152.86667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000050000003,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 62,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:28:00Z"
+		},
+		{
+			"point": 63,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:27:00Z"
+		},
+		{
+			"point": 64,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:26:00Z"
+		},
+		{
+			"point": 65,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:25:00Z",
+			"load": 0.0000063333337,
+			"numQueriesPerSec": 63.716667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000063333337,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 66,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:24:00Z"
+		},
+		{
+			"point": 67,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:23:00Z"
+		},
+		{
+			"point": 68,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:22:00Z",
+			"load": 0.0000055,
+			"numQueriesPerSec": 164.56667,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000055,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 69,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:21:00Z"
+		},
+		{
+			"point": 70,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:20:00Z"
+		},
+		{
+			"point": 71,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:19:00Z"
+		},
+		{
+			"point": 72,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:18:00Z"
+		},
+		{
+			"point": 73,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:17:00Z"
+		},
+		{
+			"point": 74,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:16:00Z"
+		},
+		{
+			"point": 75,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:15:00Z"
+		},
+		{
+			"point": 76,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:14:00Z"
+		},
+		{
+			"point": 77,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:13:00Z"
+		},
+		{
+			"point": 78,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:12:00Z",
+			"load": 0.0000068333334,
+			"numQueriesPerSec": 122.816666,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000068333334,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 79,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:11:00Z"
+		},
+		{
+			"point": 80,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:10:00Z"
+		},
+		{
+			"point": 81,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:09:00Z"
+		},
+		{
+			"point": 82,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:08:00Z"
+		},
+		{
+			"point": 83,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:07:00Z"
+		},
+		{
+			"point": 84,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:06:00Z"
+		},
+		{
+			"point": 85,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:05:00Z"
+		},
+		{
+			"point": 86,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:04:00Z"
+		},
+		{
+			"point": 87,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:03:00Z",
+			"load": 0.0000063333337,
+			"numQueriesPerSec": 149.75,
+			"numQueriesWithErrorsPerSec": 0.016666668,
+			"mQueryTimeSumPerSec": 0.0000063333337,
+			"mRowsSentSumPerSec": 0.16666667,
+			"mRowsReadSumPerSec": "NaN",
+			"mInnodbIoROpsSumPerSec": "NaN",
+			"mInnodbIoRBytesSumPerSec": "NaN",
+			"mInnodbIoRWaitSumPerSec": "NaN",
+			"mInnodbRecLockWaitSumPerSec": "NaN",
+			"mInnodbQueueWaitSumPerSec": "NaN",
+			"mInnodbPagesDistinctSumPerSec": "NaN",
+			"mQueryLengthSumPerSec": "NaN",
+			"mBytesSentSumPerSec": 18.833334,
+			"mSelectFullRangeJoinSumPerSec": "NaN",
+			"mSelectRangeSumPerSec": "NaN",
+			"mSelectRangeCheckSumPerSec": "NaN",
+			"mSortRangeSumPerSec": "NaN",
+			"mSortRowsSumPerSec": "NaN",
+			"mSortScanSumPerSec": "NaN",
+			"mNoIndexUsedSumPerSec": "NaN",
+			"mNoGoodIndexUsedSumPerSec": "NaN",
+			"mDocsReturnedSumPerSec": "NaN",
+			"mResponseLengthSumPerSec": "NaN",
+			"mDocsScannedSumPerSec": "NaN",
+			"mSharedBlksHitSumPerSec": "NaN",
+			"mSharedBlksReadSumPerSec": "NaN",
+			"mSharedBlksDirtiedSumPerSec": "NaN",
+			"mSharedBlksWrittenSumPerSec": "NaN",
+			"mLocalBlksHitSumPerSec": "NaN",
+			"mLocalBlksReadSumPerSec": "NaN",
+			"mLocalBlksDirtiedSumPerSec": "NaN",
+			"mLocalBlksWrittenSumPerSec": "NaN",
+			"mTempBlksReadSumPerSec": "NaN",
+			"mTempBlksWrittenSumPerSec": "NaN",
+			"mBlkReadTimeSumPerSec": "NaN",
+			"mBlkWriteTimeSumPerSec": "NaN",
+			"mCpuUserTimeSumPerSec": "NaN",
+			"mCpuSysTimeSumPerSec": "NaN",
+			"mPlansCallsSumPerSec": "NaN",
+			"mWalRecordsSumPerSec": "NaN",
+			"mWalFpiSumPerSec": "NaN",
+			"mWalBytesSumPerSec": "NaN",
+			"mPlanTimeSumPerSec": "NaN"
+		},
+		{
+			"point": 88,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:02:00Z"
+		},
+		{
+			"point": 89,
+			"timeFrame": 60,
+			"timestamp": "2019-01-01T00:01:00Z"
+		}
+	],
+	"totals": {
+		"blk_read_time": {
+
+		},
+		"blk_write_time": {
+
+		},
+		"bytes_sent": {
+			"rate": 604.05927,
+			"cnt": 2750,
+			"sum": 3261920,
+			"max": 249,
+			"avg": 0.23905382,
+			"p99": 118.61527
+		},
+		"cpu_sys_time": {
+
+		},
+		"cpu_user_time": {
+
+		},
+		"docs_returned": {
+
+		},
+		"docs_scanned": {
+
+		},
+		"filesort": {
+
+		},
+		"filesort_on_disk": {
+
+		},
+		"full_join": {
+
+		},
+		"full_scan": {
+			"rate": 1.7462963,
+			"sum": 9430,
+			"avg": 0.00069108914
+		},
+		"innodb_io_r_bytes": {
+
+		},
+		"innodb_io_r_ops": {
+
+		},
+		"innodb_io_r_wait": {
+
+		},
+		"innodb_pages_distinct": {
+
+		},
+		"innodb_queue_wait": {
+
+		},
+		"innodb_rec_lock_wait": {
+
+		},
+		"local_blks_dirtied": {
+
+		},
+		"local_blks_hit": {
+
+		},
+		"local_blks_read": {
+
+		},
+		"local_blks_written": {
+
+		},
+		"lock_time": {
+			"rate": 0.00015415925,
+			"cnt": 2750,
+			"sum": 0.83246,
+			"max": 0.000162,
+			"avg": 6.100785e-8,
+			"p99": 0.000030271272
+		},
+		"merge_passes": {
+			"cnt": 2750
+		},
+		"no_good_index_used": {
+
+		},
+		"no_index_used": {
+
+		},
+		"num_queries": {
+			"rate": 2526.8755,
+			"sum": 13645128
+		},
+		"num_queries_with_errors": {
+			"rate": 0.5092593,
+			"sum": 2750
+		},
+		"num_queries_with_warnings": {
+
+		},
+		"plan_time": {
+
+		},
+		"plans_calls": {
+
+		},
+		"qc_hit": {
+
+		},
+		"query_length": {
+
+		},
+		"query_time": {
+			"rate": 0.0030942147,
+			"cnt": 2750,
+			"sum": 16.70876,
+			"min": 0.000002,
+			"max": 0.002528,
+			"avg": 0.000001224522,
+			"p99": 0.0006075913
+		},
+		"response_length": {
+
+		},
+		"rows_affected": {
+			"cnt": 2750
+		},
+		"rows_examined": {
+			"rate": 1917.237,
+			"cnt": 2750,
+			"sum": 10353080,
+			"max": 1268,
+			"avg": 0.7587382,
+			"p99": 376.47565
+		},
+		"rows_read": {
+
+		},
+		"rows_sent": {
+			"rate": 3.5296297,
+			"cnt": 2750,
+			"sum": 19060,
+			"max": 1,
+			"avg": 0.0013968355,
+			"p99": 0.6930909
+		},
+		"select_full_range_join": {
+
+		},
+		"select_range": {
+
+		},
+		"select_range_check": {
+
+		},
+		"shared_blks_dirtied": {
+
+		},
+		"shared_blks_hit": {
+
+		},
+		"shared_blks_read": {
+
+		},
+		"shared_blks_written": {
+
+		},
+		"sort_range": {
+
+		},
+		"sort_rows": {
+
+		},
+		"sort_scan": {
+
+		},
+		"temp_blks_read": {
+
+		},
+		"temp_blks_written": {
+
+		},
+		"tmp_disk_tables": {
+			"cnt": 2750
+		},
+		"tmp_table": {
+			"rate": 1.7462963,
+			"sum": 9430,
+			"avg": 0.00069108914
+		},
+		"tmp_table_on_disk": {
+
+		},
+		"tmp_table_sizes": {
+			"cnt": 2750
+		},
+		"tmp_tables": {
+			"rate": 1.7462963,
+			"cnt": 2750,
+			"sum": 9430,
+			"max": 1,
+			"avg": 0.00069108914,
+			"p99": 0.3429091
+		},
+		"wal_bytes": {
+
+		},
+		"wal_fpi": {
+
+		},
+		"wal_records": {
+
+		}
+	},
+	"fingerprint": "select @@global.slow_query_log_file"
+}

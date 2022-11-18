@@ -16,6 +16,7 @@ on:
       - "admin/**"
       - "agent/**"
       - "docs/**"
+      - "qan-api2/**"
 
   workflow_call:
     inputs:
@@ -50,7 +51,7 @@ jobs:
 
       - name: Enable Go build cache
         if: matrix.use-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -60,7 +61,7 @@ jobs:
 
       - name: Enable Go modules cache
         if: matrix.use-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
