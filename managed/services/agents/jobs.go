@@ -348,12 +348,12 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		},
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.Channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -428,12 +428,12 @@ func (s *JobsService) StartMongoDBBackupJob(
 		},
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.Channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -476,12 +476,12 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.Channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -563,12 +563,12 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.Channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -629,11 +629,11 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 				},
 			},
 		}
-		agent, err := s.r.Get(pmmAgent.AgentID)
+		agent, err := s.r.get(pmmAgent.AgentID)
 		if err != nil {
 			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
 		}
-		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
+		_, err = agent.channel.SendAndWaitResponse(mongoReq)
 		if err != nil {
 			return errors.Wrapf(err, "failed to restart mongod on agent: %s", pmmAgent.AgentID)
 		}
@@ -655,11 +655,11 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 				},
 			},
 		}
-		agent, err := s.r.Get(pmmAgent.AgentID)
+		agent, err := s.r.get(pmmAgent.AgentID)
 		if err != nil {
 			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
 		}
-		_, err = agent.Channel.SendAndWaitResponse(mongoReq)
+		_, err = agent.channel.SendAndWaitResponse(mongoReq)
 		if err != nil {
 			return err
 		}
@@ -681,12 +681,12 @@ func (s *JobsService) StopJob(jobID string) error {
 		return nil
 	}
 
-	agent, err := s.r.Get(jobResult.PMMAgentID)
+	agent, err := s.r.get(jobResult.PMMAgentID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	_, err = agent.Channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
+	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
 
 	return err
 }

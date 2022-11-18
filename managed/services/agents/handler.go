@@ -97,10 +97,10 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			err = status.Errorf(codes.Aborted, "Kicked.")
 			return err
 
-		case req := <-agent.Channel.Requests():
+		case req := <-agent.channel.Requests():
 			if req == nil {
 				disconnectReason = "done"
-				err = agent.Channel.Wait()
+				err = agent.channel.Wait()
 				h.r.unregister(agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
@@ -110,7 +110,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 			switch p := req.Payload.(type) {
 			case *agentpb.Ping:
-				agent.Channel.Send(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
 						CurrentTime: timestamppb.Now(),
@@ -123,7 +123,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.Channel.Send(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.StateChangedResponse{},
 					})
@@ -135,7 +135,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.Channel.Send(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.QANCollectResponse{},
 					})
@@ -152,7 +152,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 					l.Warnf("Action was done with an error: %v.", p.Error)
 				}
 
-				agent.Channel.Send(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: &agentpb.ActionResultResponse{},
 				})

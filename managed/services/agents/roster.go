@@ -61,7 +61,7 @@ func (r *roster) get(groupID string) (agentIDs []string) {
 	defer r.rw.RUnlock()
 
 	agentIDs = r.m[groupID]
-	r.l.Debugf("Get: %s = %v", groupID, agentIDs)
+	r.l.Debugf("get: %s = %v", groupID, agentIDs)
 	return agentIDs
 }
 

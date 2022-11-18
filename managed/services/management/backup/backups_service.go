@@ -46,7 +46,6 @@ type BackupsService struct {
 	compatibilityService compatibilityService
 	scheduleService      scheduleService
 	l                    *logrus.Entry
-	r                    *agents.Registry
 
 	backuppb.UnimplementedBackupsServer
 }
@@ -62,11 +61,9 @@ func NewBackupsService(
 	backupService backupService,
 	cSvc compatibilityService,
 	scheduleService scheduleService,
-	registry *agents.Registry,
 ) *BackupsService {
 	return &BackupsService{
 		l:                    logrus.WithField("component", "management/backup/backups"),
-		r:                    registry,
 		db:                   db,
 		backupService:        backupService,
 		compatibilityService: cSvc,

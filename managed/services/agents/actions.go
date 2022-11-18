@@ -52,7 +52,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		return err
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		Timeout: defaultActionTimeout,
 	}
 
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -98,11 +98,11 @@ func (s *ActionsService) StartMySQLShowCreateTableAction(ctx context.Context, id
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -125,11 +125,11 @@ func (s *ActionsService) StartMySQLShowTableStatusAction(ctx context.Context, id
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -152,11 +152,11 @@ func (s *ActionsService) StartMySQLShowIndexAction(ctx context.Context, id, pmmA
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -173,11 +173,11 @@ func (s *ActionsService) StartPostgreSQLShowCreateTableAction(ctx context.Contex
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -194,11 +194,11 @@ func (s *ActionsService) StartPostgreSQLShowIndexAction(ctx context.Context, id,
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -220,11 +220,11 @@ func (s *ActionsService) StartMongoDBExplainAction(ctx context.Context, id, pmmA
 		Timeout: defaultActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -247,11 +247,11 @@ func (s *ActionsService) StartMySQLQueryShowAction(ctx context.Context, id, pmmA
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -274,11 +274,11 @@ func (s *ActionsService) StartMySQLQuerySelectAction(ctx context.Context, id, pm
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -294,11 +294,11 @@ func (s *ActionsService) StartPostgreSQLQueryShowAction(ctx context.Context, id,
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -315,11 +315,11 @@ func (s *ActionsService) StartPostgreSQLQuerySelectAction(ctx context.Context, i
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -340,11 +340,11 @@ func (s *ActionsService) StartMongoDBQueryGetParameterAction(ctx context.Context
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -365,11 +365,11 @@ func (s *ActionsService) StartMongoDBQueryBuildInfoAction(ctx context.Context, i
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -390,11 +390,11 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Conte
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -415,11 +415,11 @@ func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(ctx context.Con
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -440,11 +440,11 @@ func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(ctx context.Co
 		Timeout: defaultQueryActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -459,11 +459,11 @@ func (s *ActionsService) StartPTSummaryAction(ctx context.Context, id, pmmAgentI
 		Timeout: defaultPtActionTimeout,
 	}
 
-	agent, err := s.r.Get(pmmAgentID)
+	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -482,11 +482,11 @@ func (s *ActionsService) StartPTPgSummaryAction(ctx context.Context, id, pmmAgen
 		Timeout: defaultPtActionTimeout,
 	}
 
-	pmmAgent, err := s.r.Get(pmmAgentID)
+	pmmAgent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel.SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
@@ -508,11 +508,11 @@ func (s *ActionsService) StartPTMongoDBSummaryAction(ctx context.Context, id, pm
 	}
 
 	// Agent which the action request will be sent to, got by the provided ID
-	pmmAgent, err := s.r.Get(pmmAgentID)
+	pmmAgent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel.SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
@@ -534,21 +534,21 @@ func (s *ActionsService) StartPTMySQLSummaryAction(ctx context.Context, id, pmmA
 		Timeout: defaultPtActionTimeout,
 	}
 
-	pmmAgent, err := s.r.Get(pmmAgentID)
+	pmmAgent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel.SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
 // StopAction stops action with given given id.
 func (s *ActionsService) StopAction(ctx context.Context, actionID string) error {
 	// TODO Seems that we have a bug here, we passing actionID to the method that expects pmmAgentID
-	agent, err := s.r.Get(actionID)
+	agent, err := s.r.get(actionID)
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel.SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
+	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
 	return err
 }

@@ -30,7 +30,7 @@ var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
-		return errors.Errorf("failed to Get PMM Agent: %s", err)
+		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
 	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
 }

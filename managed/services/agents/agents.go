@@ -41,12 +41,12 @@ func NewAgentService(r *Registry) *AgentService {
 
 // Logs by Agent ID.
 func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
-	agent, err := a.r.Get(pmmAgentID)
+	agent, err := a.r.get(pmmAgentID)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	resp, err := agent.Channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -64,7 +64,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 
 // PBMSwitchPITR switches Point-in-Time Recovery feature for pbm on the pmm-agent.
 func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
-	agent, err := a.r.Get(pmmAgentID)
+	agent, err := a.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		Enabled: enabled,
 	}
 
-	_, err = agent.Channel.SendAndWaitResponse(req)
+	_, err = agent.channel.SendAndWaitResponse(req)
 	return err
 }
 
