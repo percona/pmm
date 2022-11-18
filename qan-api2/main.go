@@ -87,12 +87,10 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
-			grpc_validator.UnaryServerInterceptor(),
-		)),
+			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
-			grpc_validator.StreamServerInterceptor(),
-		)),
+			grpc_validator.StreamServerInterceptor())),
 	)
 
 	aserv := aservice.NewService(rm, mm)
