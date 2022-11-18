@@ -1445,7 +1445,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
 	res := make([]check.Check, 0, len(checks))
 
-checksLoop:
+loop:
 	for _, c := range checks {
 		if c.Version > maxSupportedVersion {
 			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
@@ -1462,7 +1462,7 @@ checksLoop:
 			for _, query := range c.Queries {
 				if ok := isQueryTypeSupported(query.Type); !ok {
 					s.l.Warnf("Unsupported query type: %s.", query.Type)
-					continue checksLoop
+					continue loop
 				}
 			}
 		}
