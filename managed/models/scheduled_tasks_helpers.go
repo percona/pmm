@@ -324,7 +324,7 @@ func nameIsFree(q *reform.Querier, name string) error {
 	if err != nil {
 		return err
 	}
-	if len(tasks) > 0 {
+	if len(tasks) != 0 {
 		return ErrAlreadyExists
 	}
 	return nil
