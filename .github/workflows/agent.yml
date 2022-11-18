@@ -89,7 +89,7 @@ jobs:
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}

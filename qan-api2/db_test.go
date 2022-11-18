@@ -89,8 +89,7 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, days)
 		err := db.Select(
 			&partitions,
-			query,
-		)
+			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Equal(t, 2, len(partitions), "No one patrition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
@@ -103,8 +102,7 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, days)
 		err := db.Select(
 			&partitions,
-			query,
-		)
+			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Equal(t, 1, len(partitions), "Only one partition left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
