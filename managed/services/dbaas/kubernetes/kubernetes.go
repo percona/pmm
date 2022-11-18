@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"time"
 
-	dbaasv1 "github.com/gen1us2k/dbaas-operator/api/v1"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"

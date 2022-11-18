@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	dbaasv1 "github.com/gen1us2k/dbaas-operator/api/v1"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
