@@ -174,7 +174,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 			PMMAgentID: agentID,
 		})
 		if err != nil {
-			return errors.Wrap(err, "failed to Get pmm-agent's child agents")
+			return errors.Wrap(err, "failed to get pmm-agent's child agents")
 		}
 		for _, agent := range agents {
 			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath); err != nil {
@@ -219,7 +219,7 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	agentType := models.PMMAgentType
 	agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{AgentType: &agentType})
 	if err != nil {
-		return errors.Wrap(err, "failed to Get pmm-agents")
+		return errors.Wrap(err, "failed to get pmm-agents")
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {
