@@ -11,7 +11,7 @@ Paid checks are available when you  connect to Percona Platform with a customer 
 
 You can check the list of available Paid Advisor checks in the [Percona Platform documentation](https://docs.percona.com/percona-platform/checks.html).
 
-When you connect with a customer accouny, PMM  reveals two new tabs on the main menu, where you can check all the information available for your customer accounts:  **Entitlements** and **Support tickets**:
+When you connect with a customer account, PMM  reveals two new tabs on the main menu, where you can check all the information available for your customer accounts:  **Entitlements** and **Support tickets**:
 
 ![!image](../_images/CustomerTickets.png)
 

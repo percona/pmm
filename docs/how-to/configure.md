@@ -104,7 +104,7 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
 !!! note alert alert-primary ""
-    
+
     Telemetry is sent straight away; the 24 hour grace period is not honored.
 
 ### Check for updates
@@ -113,15 +113,15 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ### Advisors
 
-Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered instance. 
+Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered instance.
 
-The findings are reported on the **Advisors > Failed Checks** page, and an overview is displayed on the Dashboard in the Failed Advisor Checks panel.  
+The findings are reported on the **Advisors > Failed Checks** page, and an overview is displayed on the Dashboard in the Failed Advisor Checks panel.
 
-The Advisors option is enabled by default. 
+The Advisors option is enabled by default.
 
-Checks are refetched and rerun at intervals. 
+Checks are re-fetched and rerun at intervals.
 
-See [Working with Advisor checks](advisors.md). 
+See [Working with Advisor checks](advisors.md).
 
 ## Public address
 
@@ -185,7 +185,7 @@ This panel is where you connect your PMM server to your Percona Platform Account
 
 ### Connect PMM to Percona Platform
 
-To learn how to connect your PMM servers to Percona Platform and leverage Platform services that boost the monitoring capabilities of your PMM installations, see [Integrate PMM with Percona Platform](integrate-platform.md). 
+To learn how to connect your PMM servers to Percona Platform and leverage Platform services that boost the monitoring capabilities of your PMM installations, see [Integrate PMM with Percona Platform](integrate-platform.md).
 
 ### Password Reset
 

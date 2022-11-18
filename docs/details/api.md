@@ -35,7 +35,7 @@ PMM uses the Grafana API keys for authentication. Following are the steps to gen
 4. *Add API key* dialog box opens.
 5. Enter  the following to generate an API key:
     - key name (you can give any desired name)
-    - Select the Role from the dropdown 
+    - Select the Role from the drop-down 
     - Enter a value in the Time to live text box (hover on the tooltip for more information). 
     - Click Add.
 

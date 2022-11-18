@@ -67,7 +67,8 @@ Most options can be set via environment variables (shown in parentheses).
 
 ## USAGE AND EXAMPLES OF `paths-base` FLAG
 
-Since 2.23.0 this flag could be used for easier setup of pmm agent. With this flag, the root permissions for PMM client aren't needed anymore, and it will be
+Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren't needed anymore and it will be
+
 fully working.
 
 **Examples:**
@@ -153,7 +154,7 @@ ports:
 debug: false
 trace: false
 ````
-As could be seen above the behavior for the `--paths-base` was the same, but paths for all exporters were overwritten by the `--paths-exporter_base` flag. 
+As could be seen above the behavior for the `--paths-base` was the same, but paths for all exporters were overwritten by the `--paths-exporter_base` flag.
 
 **Summary:**
 Flag `--paths-base` will set path for all exporters and tools, but each one could be overridden by specific flag (like `--paths-mongodb_exporter`, `--paths-pt-mysql-summary` and etc).

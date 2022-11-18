@@ -334,7 +334,7 @@ pmm-admin inventory list services
 
 ### Running custom queries
 
-The Postgres exporter can run custom queries to add new metrics not provided by default.  
+The PostgreSQL exporter can run custom queries to add new metrics not provided by default.  
 Those custom queries must be defined in the `/usr/local/percona/pmm2/collectors/custom-queries/postgresql` in the same host where the exporter is
 running. There are 3 directories inside it:
     - high-resolution/   - every 5 seconds
@@ -344,6 +344,7 @@ running. There are 3 directories inside it:
 Depending on the desired resolution for your custom queries, you can place a file with the queries definition.
 The file is a yaml where each query can have these fields:
 
+```yml
 query_name:
    query: the query definition
    master: boolean to specify if the query should be executed only in the master
@@ -351,9 +352,11 @@ query_name:
      - metric name:
          usage: GAUGE, LABEL, COUNTER, MAPPEDMETRIC or DURATION
          description: a human readable description
+```
 
 #### Example
 
+```yml
 pg_postmaster_uptime:
    query: "select extract(epoch from current_timestamp - pg_postmaster_start_time()) as seconds"
    master: true
@@ -361,6 +364,7 @@ pg_postmaster_uptime:
      - seconds:
          usage: "GAUGE"
          description: "Service uptime"
+```
 
 Check the see also section for a more detailed description on MySQL custom queries with more examples about how to use custom queries in dashboards.
 

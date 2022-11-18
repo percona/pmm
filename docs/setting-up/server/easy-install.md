@@ -4,12 +4,12 @@
     You can download and check `get-pmm.sh` before running it from our [github]:
 
 ## Linux or macOS
-Using Curl:
+Using `curl`:
 ```sh
 curl -fsSL https://www.percona.com/get/pmm | /bin/bash
 ```
 
-Using wget: 
+Using `wget`: 
 ```sh
 wget -O - https://www.percona.com/get/pmm | /bin/bash
 ```

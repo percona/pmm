@@ -31,7 +31,7 @@ To add a new user in PMM:
 
 You can edit users by changing the information or settings for an individual user account.
 
-!!! caution alert alert-warning "Important"    
+!!! caution alert alert-warning "Important"
     After changing the default admin password for the PMM server, register the pmm-agent using the same credentials and add the services again. Otherwise, PMM will cease to monitor the service/nodes.
 
 ### Grant or Revoke admin privileges
@@ -62,7 +62,7 @@ To change the role:
 
 2. In the *Organisations* section, click *Change role*.
 
-3. Select the role from the dropdown and click *save*.
+3. Select the role from the drop-down and click *save*.
 
 The following are the privileges for the various roles:
 

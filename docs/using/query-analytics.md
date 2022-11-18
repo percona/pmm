@@ -135,14 +135,14 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
 
 - Each row in the table is a metric. The contents depends on the chosen dimension.
 
-For PostgreSQL queries (when using *pg_stat_monitor*) the top query will also be shown in the details section if the query was called by an outer query.
+For PostgreSQL queries (when using `pg_stat_monitor`) the top query will also be shown in the details section if the query was called by an outer query.
 
 ![!image](../_images/PMM_Query_Analytics_Tabs_Details_TopQuery.png)
 
-Other usefull metrics (when using *pg_stat_monitor*) to monitor PostgreSQL Server performance are [Histograms](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#histogram). 
-*Histograms* provide more explicit information about number of queries for fingerprint (queryid). Ranges are from 0 seconds up to 100 seconds.  
+Other useful metrics (when using *pg_stat_monitor*) to monitor PostgreSQL Server performance are [Histograms](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#histogram). 
+*Histograms* provide more explicit information about number of queries for fingerprint (`queryid`). Ranges are from 0 seconds up to 100 seconds.  
 
-Ranges (numbers are in miliseconds):  
+Ranges (numbers are in milliseconds):  
     0 - 3  
     3 - 10  
     10 - 31  

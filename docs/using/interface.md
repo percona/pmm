@@ -118,7 +118,7 @@ Exit a panel's full window mode by pressing _Escape_ or clicking the left arrow 
 
 ## Timezones
 
-By default Grafana uses the timezone from your web browser. Howewer you can change this setting.
+By default Grafana uses the timezone from your web browser. However, you can change this setting.
 
 ### Set user timezone
 

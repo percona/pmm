@@ -70,9 +70,9 @@ pg_stat_statements.track = all
 You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
 
 ### Get the subscription ID
-1. Search **Subscriptions**, click on your susbcription name
+1. Search **Subscriptions**, click on your subscription name
 ![!](../../_images/azure_subscription_section.png )
-2. Copy the susbcription ID
+2. Copy the subscription ID
 ![!](../../_images/azure_subscription_id.png)
 
 ### Create a new application to get the tenant ID, client ID and the client secret.
@@ -95,7 +95,7 @@ You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
 
     6.1. Search for **Subscriptions** like in step 1.
 
-    6.2. Select your aplication and grant **Monitor Reader** permissions. This might require you have admin permissions in your Azure account.
+    6.2. Select your application and grant **Monitor Reader** permissions. This might require you to have admin permissions in your Azure account.
 
 ![!](../../_images/azure_app_permissions_01.png)
 ![!](../../_images/azure_app_permissions_02.png)
