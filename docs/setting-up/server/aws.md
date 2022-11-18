@@ -67,13 +67,13 @@ Your instance settings are summarized in a special area. Click the Launch with 1
 
 Your clicking the *Launch with 1 click* button, deploys your instance. To continue setting up your instance, run the EC2 console. It is available as a link at the top of the page that opens after you click the *Launch with 1 click* button.
 
-Your instance appears in the EC2 console in a table that lists all instances available to you. When a new instance is only created, it has no name. Make sure that you give it a name to distinguish from other instances managed via the EC2 console.
+Your instance appears in the EC2 console in a table that lists all instances available to you. When a new instance is only created, it has no name. Make sure that you give it a name to distinguish it from other instances managed via the EC2 console.
 
 ![!image](../../_images/aws-marketplace.ec2-console.pmm.1.png)
 
 ## Running the instance
 
-After you add your new instance it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you many continue with configuration of PMM Server.
+After you add your new instance, it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you may continue with the configuration of the PMM Server.
 
 !!! note alert alert-primary ""
     When started the next time after rebooting, your instance may acquire another IP address. You may choose to set up an elastic IP to avoid this problem.
@@ -82,7 +82,7 @@ With your instance selected, open its IP address in a web browser. The IP addres
 
 ![!image](../../_images/aws-marketplace.pmm.ec2.properties.png)
 
-To run the instance, copy and paste its public IP address to the location bar of your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
+To run the instance, copy and paste its public IP address into the location bar of your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
 
 ![!image](../../_images/installation-wizard.ami.instance-id-verification.png)
 
@@ -176,7 +176,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
 
-2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 16G to 32G, `dmesg` output should look like below:
+2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded your disk from 16G to 32G, `dmesg` output should look like below:
 
     ```txt
     [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
