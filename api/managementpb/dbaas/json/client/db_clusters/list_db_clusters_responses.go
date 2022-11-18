@@ -818,6 +818,12 @@ type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset struct {
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
+	// Configuration for PSMDB cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PSMDB cluster.
+	StorageClass string `json:"storage_class,omitempty"`
+
 	// compute resources
 	ComputeResources *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }

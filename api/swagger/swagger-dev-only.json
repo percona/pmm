@@ -4205,6 +4205,16 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 1
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "Configuration for PSMDB cluster",
+                                "x-order": 2
+                              },
+                              "storage_class": {
+                                "description": "Storage Class for PSMDB cluster.",
+                                "type": "string",
+                                "x-order": 3
                               }
                             },
                             "x-order": 1
@@ -5011,6 +5021,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -5027,6 +5047,19 @@
                   "description": "Make DB cluster accessible outside of K8s cluster.",
                   "type": "boolean",
                   "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -5126,6 +5159,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -5267,6 +5310,16 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 1
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
