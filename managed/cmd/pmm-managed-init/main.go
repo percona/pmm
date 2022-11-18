@@ -46,7 +46,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := models.ValidateSettings(nil, envSettings)
+	err := models.ValidateSettings(envSettings)
 	if err != nil {
 		logrus.Errorf("Configuration error: %s.", err)
 		os.Exit(1)

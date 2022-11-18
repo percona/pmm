@@ -139,7 +139,7 @@ func SetPMMServerID(q reform.DBTX) error {
 
 // UpdateSettings updates only non-zero, non-empty values.
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) {
-	err := ValidateSettings(q, params)
+	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
 	}
@@ -346,7 +346,7 @@ func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
 }
 
 // ValidateSettings validates settings changes.
-func ValidateSettings(q reform.DBTX, params *ChangeSettingsParams) error {
+func ValidateSettings(params *ChangeSettingsParams) error {
 	if params.EnableUpdates && params.DisableUpdates {
 		return errors.New("both enable_updates and disable_updates are present")
 	}
