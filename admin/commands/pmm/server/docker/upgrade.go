@@ -211,8 +211,7 @@ func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer type
 
 	containerID, err := startPMMServer(
 		ctx, nil, currentContainer.ID, c.DockerImage,
-		c.dockerFn, currentContainer.HostConfig.PortBindings, containerName,
-	)
+		c.dockerFn, currentContainer.HostConfig.PortBindings, containerName)
 	if err != nil {
 		return err
 	}
