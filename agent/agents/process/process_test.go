@@ -204,7 +204,7 @@ func TestExtractLogLevel(t *testing.T) {
 		{"duplicate level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`, logrus.WarnLevel, true, nil},
 		{"missing level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`, 0, false, nil},
 		{"level key with empty value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`, 0, false, nil},
-		{"level key with incorrect value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info123 msg="Starting mysqld_exporter"`, 0, false, fmt.Errorf(`not a valid logrus Level: "info123"`)}, //nolint:goerr113
+		{"level key with incorrect value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info123 msg="Starting mysqld_exporter"`, 0, false, fmt.Errorf(`not a valid logrus Level: "info123"`)},
 	}
 
 	for _, tt := range tests {

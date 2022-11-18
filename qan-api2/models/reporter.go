@@ -477,7 +477,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	}
 
 	if !isValidMetricColumn(mainMetricName) {
-		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName) //nolint:goerr113
+		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {

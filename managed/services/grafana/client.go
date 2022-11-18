@@ -15,7 +15,7 @@
 
 // Package grafana provides facilities for working with Grafana.
 //
-//nolint:goerr113
+
 package grafana
 
 import (

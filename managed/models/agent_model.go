@@ -520,7 +520,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 		return dsn
 	default:
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType)) //nolint:goerr113
+		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
 }
 
@@ -559,7 +559,7 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 // IsMySQLTablestatsGroupEnabled returns true if mysqld_exporter tablestats group collectors should be enabled.
 func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	if s.AgentType != MySQLdExporterType {
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType)) //nolint:goerr113
+		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
 
 	switch {
@@ -606,7 +606,7 @@ func (s Agent) Files() map[string]string {
 		}
 		return nil
 	default:
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType)) //nolint:goerr113
+		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
 }
 

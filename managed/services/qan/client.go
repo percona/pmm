@@ -119,7 +119,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		return err
 	}
 	if !resp.Value {
-		return fmt.Errorf("given query is not valid") //nolint:goerr113
+		return fmt.Errorf("given query is not valid")
 	}
 
 	return nil

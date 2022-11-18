@@ -61,7 +61,7 @@ func IsHAProxySupported() (bool, error) {
 	}
 
 	if lessThanMinVersion {
-		return false, fmt.Errorf("haproxy is not supported in this version, please update your pmm-server to %s or higher", minVersion) //nolint:goerr113
+		return false, fmt.Errorf("haproxy is not supported in this version, please update your pmm-server to %s or higher", minVersion)
 	}
 
 	return true, nil

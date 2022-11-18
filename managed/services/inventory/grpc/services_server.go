@@ -82,7 +82,7 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 		case *inventorypb.ExternalService:
 			res.External = append(res.External, service)
 		default:
-			panic(fmt.Errorf("unhandled inventory Service type %T", service)) //nolint:goerr113
+			panic(fmt.Errorf("unhandled inventory Service type %T", service))
 		}
 	}
 	return res, nil
@@ -127,7 +127,7 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 	case *inventorypb.ExternalService:
 		res.Service = &inventorypb.GetServiceResponse_External{External: service}
 	default:
-		panic(fmt.Errorf("unhandled inventory Service type %T", service)) //nolint:goerr113
+		panic(fmt.Errorf("unhandled inventory Service type %T", service))
 	}
 	return res, nil
 }

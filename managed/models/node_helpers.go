@@ -268,7 +268,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 		}
 	}
 
@@ -289,7 +289,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 		}
 	}
 
@@ -310,7 +310,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 		}
 	}
 

@@ -15,7 +15,6 @@
 
 // Package envvars contains environment variables parser.
 
-//nolint:goerr113
 package envvars
 
 import (

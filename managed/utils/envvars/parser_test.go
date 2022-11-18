@@ -105,7 +105,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"DATA_RETENTION=keep one week",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
-		//nolint:goerr113
+
 		expectedErrs := []error{
 			fmt.Errorf(`failed to parse environment variable "DISABLE_UPDATES"`),
 			fmt.Errorf(`failed to parse environment variable "DISABLE_TELEMETRY"`),

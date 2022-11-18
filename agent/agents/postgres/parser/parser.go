@@ -33,7 +33,7 @@ func ExtractTables(query string) (tables []string, err error) {
 		defer func() {
 			if r := recover(); r != nil {
 				// preserve stack
-				err = errors.WithStack(fmt.Errorf("panic: %v", r)) //nolint:goerr113
+				err = errors.WithStack(fmt.Errorf("panic: %v", r))
 			}
 		}()
 	}

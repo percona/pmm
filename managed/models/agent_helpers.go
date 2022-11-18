@@ -953,7 +953,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 		}
 	}
 

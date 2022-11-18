@@ -88,6 +88,7 @@ linters:
     - wsl               # too annoying
     - gocyclo           # using cyclop with the max 30 instead
     - exhaustruct       # too many files to fix/nolint
+    - goerr113          # extra work & poor benefit
 
     - paralleltest #temporary, needs to be processed
     - tagliatelle #temporary, needs to be processed

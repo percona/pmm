@@ -172,7 +172,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror")) //nolint:goerr113
+				panic(fmt.Errorf("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}

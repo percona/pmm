@@ -93,7 +93,7 @@ func (sso *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *r
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to get access token, response body: %s", bodyBytes) //nolint:goerr113
+		return nil, fmt.Errorf("failed to get access token, response body: %s", bodyBytes)
 	}
 
 	var accessToken *PerconaSSOAccessToken

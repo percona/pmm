@@ -807,7 +807,7 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 	var fingerprint string
 	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return "", fmt.Errorf("QueryxContext error:%v", err) //nolint:goerr113
+		return "", fmt.Errorf("QueryxContext error:%v", err)
 	}
 
 	return fingerprint, nil
@@ -823,7 +823,7 @@ func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.Q
 	var res qanpb.QueryPlanReply
 	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("QueryxContext error:%v", err) //nolint:goerr113
+		return nil, fmt.Errorf("QueryxContext error:%v", err)
 	}
 
 	return &res, nil
