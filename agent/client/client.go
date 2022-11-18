@@ -311,12 +311,12 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-L:
+loop:
 	for {
 		select {
 		case req, more := <-c.channel.Requests():
 			if !more {
-				break L
+				break loop
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
@@ -389,7 +389,7 @@ L:
 			}
 			c.channel.Send(response)
 		case <-ctx.Done():
-			break L
+			break loop
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
