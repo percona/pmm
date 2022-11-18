@@ -20,7 +20,10 @@ import (
 	"net/http"
 	"time"
 
+	dbaasv1 "github.com/gen1us2k/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -69,4 +72,19 @@ func (k *Kubernetes) GetKubeconfig(ctx context.Context) (string, error) {
 	}
 
 	return string(kubeConfig), nil
+}
+
+// ListDatabaseClusters returns list of managed PCX clusters.
+func (c *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error) {
+	return c.client.ListDatabaseClusters(ctx)
+}
+
+// GetDatabaseCluster returns PXC clusters by provided name.
+func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error) {
+	return c.client.GetDatabaseCluster(ctx, name)
+}
+
+// PatchDatabaseCluster patches CR of managed PXC cluster.
+func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
+	return c.client.PatchDatabaseCluster(ctx, name, pt, data, opts)
 }

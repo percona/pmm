@@ -18,28 +18,40 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 
+	dbaasv1 "github.com/gen1us2k/dbaas-operator/api/v1"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
 	configKind  = "Config"
 	apiVersion  = "v1"
 	defaultName = "default"
+
+	dbaasToolPath = "/opt/dbaas-tools/bin"
+
+	defaultQPSLimit   = 100
+	defaultBurstLimit = 150
 )
 
 // Client is the internal client for Kubernetes.
 type Client struct {
-	clientset  *kubernetes.Clientset
-	restConfig *rest.Config
-	namespace  string
+	clientset       *kubernetes.Clientset
+	dbClusterClient *database.DatabaseClusterClient
+	restConfig      *rest.Config
+	namespace       string
 }
 
 // NewFromIncluster returns a client object which uses the service account
@@ -47,22 +59,64 @@ type Client struct {
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
 func NewFromIncluster() (*Client, error) {
-	c, err := rest.InClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
-
-	clientset, err := kubernetes.NewForConfig(c)
+	config.QPS = defaultQPSLimit
+	config.Burst = defaultBurstLimit
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
+	c := &Client{
+		clientset:  clientset,
+		restConfig: config,
+	}
+	err = c.setup()
+	return c, err
+}
 
+// NewFromKubeConfigString creates a new client for the given config string.
+// It's intended for clients that expect to be running outside of a cluster
+func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
+	config, err := clientcmd.BuildConfigFromKubeconfigGetter("", NewConfigGetter(kubeconfig).loadFromString)
+	if err != nil {
+		return nil, err
+	}
+	config.QPS = defaultQPSLimit
+	config.Burst = defaultBurstLimit
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	c := &Client{
+		clientset:  clientset,
+		restConfig: config,
+	}
+	err = c.setup()
+	return c, err
+}
+
+func (c *Client) setup() error {
 	namespace := "default"
 	if space := os.Getenv("NAMESPACE"); space != "" {
 		namespace = space
 	}
-
-	return &Client{clientset: clientset, restConfig: c, namespace: namespace}, nil
+	// Set PATH variable to make aws-iam-authenticator executable
+	path := fmt.Sprintf("%s:%s", os.Getenv("PATH"), dbaasToolPath)
+	os.Setenv("PATH", path)
+	c.namespace = namespace
+	return c.initOperatorClients()
+}
+func (c *Client) initOperatorClients() error {
+	dbClusterClient, err := database.NewForConfig(c.restConfig)
+	if err != nil {
+		return err
+	}
+	c.dbClusterClient = dbClusterClient
+	_, err = c.GetServerVersion(context.Background())
+	return err
 }
 
 // GetSecretsForServiceAccount returns secret by given service account name
@@ -118,6 +172,28 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 	}
 
 	return c.marshalKubeConfig(conf)
+}
+func (c *Client) GetServerVersion(ctx context.Context) (*version.Info, error) {
+	return c.clientset.Discovery().ServerVersion()
+}
+
+// ListDatabaseClusters returns list of managed PCX clusters.
+func (c *Client) ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error) {
+	return c.dbClusterClient.DBClusters(c.namespace).List(ctx, metav1.ListOptions{})
+}
+
+// GetDatabaseCluster returns PXC clusters by provided name.
+func (c *Client) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error) {
+	cluster, err := c.dbClusterClient.DBClusters(c.namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return cluster, nil
+}
+
+// PatchDatabaseCluster patches CR of managed PXC cluster.
+func (c *Client) PatchDatabaseCluster(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
+	return c.dbClusterClient.DBClusters(c.namespace).Patch(ctx, name, pt, data, opts)
 }
 
 func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
