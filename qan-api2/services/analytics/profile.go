@@ -49,8 +49,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit = 10
 	}
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -60,7 +60,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		labels[label.Key] = label.Value
 	}
 
-	columns := []string{}
+	var columns []string
 	for _, col := range in.Columns {
 		// TODO: remove when UI will use num_queries instead.
 		if col == "count" {
@@ -81,21 +81,19 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	if mainMetric == "" {
 		mainMetric = columns[0]
 	}
-	uniqColumnsMap := map[string]struct{}{}
+	uniqColumnsMap := make(map[string]struct{})
 	for _, column := range columns {
 		if _, ok := uniqColumnsMap[column]; !ok {
 			uniqColumnsMap[column] = struct{}{}
 		}
 	}
 
-	uniqColumns := []string{}
+	var uniqColumns []string
 	for key := range uniqColumnsMap {
 		uniqColumns = append(uniqColumns, key)
 	}
 
-	sumColumns := []string{}
-	commonColumns := []string{}
-	specialColumns := []string{}
+	var sumColumns, commonColumns, specialColumns []string
 	for _, col := range uniqColumns {
 		if isBoolMetric(col) {
 			sumColumns = append(sumColumns, col)
@@ -130,8 +128,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit,
 		specialColumns,
 		commonColumns,
-		sumColumns,
-	)
+		sumColumns)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +156,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			row.Fingerprint = "TOTAL"
 		}
 
-		// The the row with index 0 is total.
+		// The row with index 0 is total.
 		isTotal := i == 0
 
 		sparklines, err := s.rm.SelectSparklines(
@@ -171,8 +168,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			labels,
 			group,
 			mainMetric,
-			isTotal,
-		)
+			isTotal)
 		if err != nil {
 			return nil, err
 		}
