@@ -3,7 +3,7 @@ module github.com/percona/pmm
 go 1.18
 
 // TODO: replace with Percona repo, once https://github.com/Percona-Lab/go-grpc-prometheus/pull/3/files is merged
-replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/ritbl/go-grpc-prometheus v0.0.0-20221117144738-e4e6049bf5fc
+replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/ritbl/go-grpc-prometheus v0.0.0-20221120160149-44ad3e45ab37
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 

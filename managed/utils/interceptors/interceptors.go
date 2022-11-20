@@ -94,7 +94,7 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	var res interface{}
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
 		var origErr error
-		res, origErr = grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
+		res, origErr = grpc_prometheus.UnaryServerInterceptor()(ctx, req, info, handler)
 		l.Debugf("\nRequest:\n%s\nResponse:\n%s\n", req, res)
 		return origErr
 	})
@@ -125,7 +125,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 	err := logRequest(l, "Stream "+info.FullMethod, func() error {
 		wrapped := grpc_middleware.WrapServerStream(ss)
 		wrapped.WrappedContext = ctx
-		return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
+		return grpc_prometheus.StreamServerInterceptor()(srv, wrapped, info, handler)
 	})
 	return err
 }

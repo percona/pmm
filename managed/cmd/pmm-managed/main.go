@@ -301,7 +301,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.DefaultServerMetrics.EnableHandlingTimeHistogram()
+		grpc_prometheus.DefaultServerMetrics().EnableHandlingTimeHistogram()
 	}
 
 	// run server until it is stopped gracefully or not

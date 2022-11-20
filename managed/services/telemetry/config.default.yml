@@ -682,3 +682,23 @@ telemetry:
       - metric_name: "pillar"
         column: "pillar"
       - metric_name: "count"
+
+  # API usage
+  - id: APIUsageMetrics
+    source: VM
+    query: grpc_server_msg_received_total{caller_origin!=""}
+    transform:
+      type: JSON
+      metric: pmm_server_api_usage
+    summary: "PMM Server API usage"
+    data:
+      - metric_name: "co"
+        label: "caller_origin" # internal / external
+      - metric_name: "m"
+        label: "grpc_method"
+      - metric_name: "s"
+        label: "grpc_service"
+      - metric_name: "t"
+        label: "grpc_type"
+      - metric_name: "v"
+        value: 1
