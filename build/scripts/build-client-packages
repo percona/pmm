@@ -22,7 +22,7 @@ Usage: $0 [OPTIONS]
         --help) usage ;;
 Example $0 --builddir=/tmp/PMM_CLIENT --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
-        exit 1
+    exit 1
 }
 
 append_arg_to_args () {
@@ -31,8 +31,7 @@ append_arg_to_args () {
 
 parse_arguments() {
     pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV
-    then
+    if test "$1" = PICK-ARGS-FROM-ARGV; then
         pick_args=1
         shift
     fi
@@ -52,8 +51,7 @@ parse_arguments() {
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
-              if test -n "$pick_args"
-              then
+              if test -n "$pick_args"; then
                   append_arg_to_args "$arg"
               fi
               ;;
@@ -70,6 +68,7 @@ get_branches() {
       git reset --hard > /dev/null 2>&1
       git clean -xdf > /dev/null 2>&1
       git checkout $SUBMODULE_BRANCH > /dev/null 2>&1
+      # this is the return value of this function
       git submodule status | grep $COMPONENT | awk '{print $1}' | awk -F'-' '{print $2}'
     cd - >/dev/null
 }
@@ -88,13 +87,11 @@ get_repos() {
 }
 
 check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]
-    then
+    if [ "x$WORKDIR" = "x$CURDIR" ]; then
         echo >&2 "Current directory cannot be used for building!"
         exit 1
     else
-        if ! test -d "$WORKDIR"
-        then
+        if ! test -d "$WORKDIR"; then
             echo >&2 "$WORKDIR is not a directory."
             exit 1
         fi
@@ -104,21 +101,18 @@ check_workdir(){
 
 get_sources(){
     cd $WORKDIR
-    if [ $SOURCE = 0 ]
-    then
+    if [ $SOURCE = 0 ]; then
         echo "Sources will not be downloaded"
         return 0
     fi
     git clone $REPO
     retval=$?
-    if [ $retval != 0 ]
-    then
+    if [ $retval != 0 ]; then
         echo "There were some issues during repo cloning from github. Please retry one more time"
         exit 1
     fi
     cd pmm-client
-    if [ ! -z $BRANCH ]
-    then
+    if [ ! -z $BRANCH ]; then
         git reset --hard
         git clean -xdf
         git checkout $BRANCH
@@ -185,18 +179,15 @@ get_system(){
 }
 
 install_deps() {
-    if [ $INSTALL = 0 ]
-    then
+    if [ $INSTALL = 0 ]; then
         echo "Dependencies will not be installed"
         return;
     fi
-    if [ ! $( id -u ) -eq 0 ]
-    then
+    if [ ! $( id -u ) -eq 0 ]; then
         echo "It is not possible to instal dependencies. Please run as root"
         exit 1
     fi
-    if [ "x$OS" = "xrpm" ]
-    then
+    if [ "x$OS" = "xrpm" ]; then
         yum -y install git wget rpmdevtools bison yum-utils rpm-build
     else
         apt-get update
@@ -208,11 +199,9 @@ install_deps() {
 get_tar(){
     TARBALL=$1
     TARFILE=$(basename $(find $WORKDIR/$TARBALL -name 'pmm2-client*.tar.gz' | sort | tail -n1) || :)
-    if [ -z $TARFILE ]
-    then
+    if [ -z $TARFILE ]; then
         TARFILE=$(basename $(find $CURDIR/$TARBALL -name 'pmm2-client*.tar.gz' | sort | tail -n1) || :)
-        if [ -z $TARFILE ]
-        then
+        if [ -z $TARFILE ]; then
             echo "There is no $TARBALL for build"
             exit 1
         else
@@ -228,11 +217,9 @@ get_deb_sources(){
     param=$1
     echo $param
     FILE=$(basename $(find $WORKDIR/source_deb -name "pmm2-client*.$param" | sort | tail -n1) || :)
-    if [ -z $FILE ]
-    then
+    if [ -z $FILE ]; then
         FILE=$(basename $(find $CURDIR/source_deb -name "pmm2-client*.$param" | sort | tail -n1) || :)
-        if [ -z $FILE ]
-        then
+        if [ -z $FILE ]; then
             echo "There is no sources for build"
             exit 1
         else
@@ -245,13 +232,11 @@ get_deb_sources(){
 }
 
 build_srpm(){
-    if [ $SRPM = 0 ]
-    then
+    if [ $SRPM = 0 ]; then
         echo "SRC RPM will not be created"
         return;
     fi
-    if [ "x$OS" = "xdeb" ]
-    then
+    if [ "x$OS" = "xdeb" ]; then
         echo "It is not possible to build src rpm here"
         exit 1
     fi
@@ -286,22 +271,19 @@ build_srpm(){
 }
 
 build_rpm(){
-    if [ $RPM = 0 ]
-    then
+    if [ $RPM = 0 ]; then
         echo "RPM will not be created"
         return;
     fi
-    if [ "x$OS" = "xdeb" ]
-    then
+    if [ "x$OS" = "xdeb" ]; then
         echo "It is not possible to build rpm here"
         exit 1
     fi
+
     SRC_RPM=$(basename $(find $WORKDIR/srpm -name 'pmm2-client*.src.rpm' | sort | tail -n1) || :)
-    if [ -z $SRC_RPM ]
-    then
+    if [ -z $SRC_RPM ]; then
         SRC_RPM=$(basename $(find $CURDIR/srpm -name 'pmm2-client*.src.rpm' | sort | tail -n1) || :)
-        if [ -z $SRC_RPM ]
-        then
+        if [ -z $SRC_RPM ]; then
             echo "There is no src rpm for build"
             echo "You can create it using key --build_src_rpm=1"
             exit 1
@@ -311,11 +293,16 @@ build_rpm(){
     else
         cp $WORKDIR/srpm/$SRC_RPM $WORKDIR
     fi
+
     cd $WORKDIR
     rm -fr rpmbuild
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     cp $SRC_RPM rpmbuild/SRPMS/
-    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" --define "version $pmm_version" --define "release $RPM_RELEASE" --define "dist .$OS_NAME" --rebuild rpmbuild/SRPMS/$SRC_RPM
+    rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" \
+             --define "version $pmm_version" \
+             --define "release $RPM_RELEASE" \
+             --define "dist .$OS_NAME" \
+             --rebuild rpmbuild/SRPMS/$SRC_RPM
 
     return_code=$?
     if [ $return_code != 0 ]; then
@@ -325,17 +312,14 @@ build_rpm(){
     mkdir -p ${CURDIR}/rpm
     cp rpmbuild/RPMS/*/*.rpm ${WORKDIR}/rpm
     cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
-
 }
 
 build_source_deb(){
-    if [ $SDEB = 0 ]
-    then
+    if [ $SDEB = 0 ]; then
         echo "source deb package will not be created"
         return;
     fi
-    if [ "x$OS" = "xrmp" ]
-    then
+    if [ "x$OS" = "xrmp" ]; then
         echo "It is not possible to build source deb here"
         exit 1
     fi
@@ -410,20 +394,18 @@ build_source_deb(){
 }
 
 build_deb(){
-    if [ $DEB = 0 ]
-    then
+    if [ $DEB = 0 ]; then
         echo "source deb package will not be created"
         return;
     fi
-    if [ "x$OS" = "xrmp" ]
-    then
+    if [ "x$OS" = "xrmp" ]; then
         echo "It is not possible to build source deb here"
         exit 1
     fi
-    for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'
-    do
+    for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'; do
         get_deb_sources $file
     done
+
     cd $WORKDIR
     rm -fv *.deb
     export DEBIAN_VERSION="$(lsb_release -sc)"
