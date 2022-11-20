@@ -65,7 +65,7 @@ type PerformBackupParams struct {
 }
 
 // PerformBackup starts on-demand backup.
-func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
+func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
@@ -164,7 +164,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
-		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil {
+		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
 			return err
 		}
 		return nil
@@ -183,7 +183,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,

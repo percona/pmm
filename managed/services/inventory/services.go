@@ -228,7 +228,7 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 }
 
 // AddHAProxyService inserts HAProxy Service with given parameters.
-func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
+func (ss *ServicesService) AddHAProxyService(_ context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -345,4 +345,86 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 	}
 
 	return nil
+}
+
+// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
+func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
+	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			labels = req.CustomLabels
+		} else {
+			for k, v := range req.CustomLabels {
+				labels[k] = v
+			}
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if errTx != nil {
+		return nil, errTx
+	}
+
+	ss.vmdb.RequestConfigurationUpdate()
+
+	return &inventorypb.AddCustomLabelsResponse{}, nil
+}
+
+// RemoveCustomLabels removes custom labels from a service.
+func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
+	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			return nil
+		}
+
+		for _, k := range req.CustomLabelKeys {
+			delete(labels, k)
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if errTx != nil {
+		return nil, errTx
+	}
+
+	ss.vmdb.RequestConfigurationUpdate()
+
+	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }
