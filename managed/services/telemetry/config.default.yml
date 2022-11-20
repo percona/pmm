@@ -686,7 +686,7 @@ telemetry:
   # API usage
   - id: APIUsageMetrics
     source: VM
-    query: grpc_server_msg_received_total{caller_origin!=""}
+    query: grpc_server_msg_received_total
     transform:
       type: JSON
       metric: pmm_server_api_usage
@@ -700,5 +700,7 @@ telemetry:
         label: "grpc_service"
       - metric_name: "t"
         label: "grpc_type"
+      - metric_name: "j" # pmm-managed / qan-api2
+        label: "job"
       - metric_name: "v"
         value: 1
