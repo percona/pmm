@@ -692,15 +692,15 @@ telemetry:
       metric: pmm_server_api_usage
     summary: "PMM Server API usage"
     data:
-      - metric_name: "co"
+      - metric_name: "1"
         label: "caller_origin" # internal / external
-      - metric_name: "m"
+      - metric_name: "2"
         label: "grpc_method"
-      - metric_name: "s"
+      - metric_name: "3"
         label: "grpc_service"
-      - metric_name: "t"
+      - metric_name: "4"
         label: "grpc_type"
-      - metric_name: "j" # pmm-managed / qan-api2
+      - metric_name: "5" # pmm-managed / qan-api2
         label: "job"
-      - metric_name: "v"
+      - metric_name: "6"
         value: 1
