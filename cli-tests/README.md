@@ -13,7 +13,6 @@ Percona Monitoring and Management CLI automated tests.
 this is it! tests are good to go on specified PMM Server and/or Client.
 
 ### Getting PMM server and client ready
-  * **Setup environment for CLI tests:**
   * **Setup PMM Client**
     * Download and unzip client tarball
     * Put binaries into `/usr/bin` directory and grant corresponding permissions
