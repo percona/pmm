@@ -647,7 +647,7 @@ func (s *JobsService) restartMongoComponent(agentID string, service agentpb.Star
 		return err
 	}
 
-	mongoReq := &agentpb.StartActionRequest{
+	req := &agentpb.StartActionRequest{
 		ActionId: action.ID,
 		Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 			RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
@@ -660,9 +660,9 @@ func (s *JobsService) restartMongoComponent(agentID string, service agentpb.Star
 	if err != nil {
 		return errors.Wrapf(err, "failed to get information about PMM agent: %s", agentID)
 	}
-	_, err = agent.channel.SendAndWaitResponse(mongoReq)
+	_, err = agent.channel.SendAndWaitResponse(req)
 	if err != nil {
-		return errors.Wrapf(err, "failed to restart mongod on agent: %s", agentID)
+		return errors.Wrapf(err, "failed to restart %s on agent: %s", service, agentID)
 	}
 	return nil
 }
