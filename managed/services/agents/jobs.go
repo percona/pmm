@@ -598,6 +598,9 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 			ServiceType:    &serviceType,
 			ReplicationSet: service.ReplicationSet,
 		})
+	if err != nil {
+		return err
+	}
 
 	rsAgents := make([]*models.Agent, 0, len(rsMembers))
 	for _, service := range rsMembers {
