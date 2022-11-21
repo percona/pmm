@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -135,7 +136,17 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster := kubernetes.DatabaseClusterForPXC(req)
+	if req.Params.Pxc.StorageClass == "" {
+		className, err := kubeClient.GetDefaultStorageClassName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get storage classes")
+		}
+		req.Params.Pxc.StorageClass = className
+	}
+	dbCluster, err := kubernetes.DatabaseClusterForPXC(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
 
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
@@ -150,6 +161,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
 	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
+	spew.Dump(err)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -284,7 +296,10 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster := kubernetes.DatabaseClusterForPXC(kubernetes.ToCreatePXCRequest(req))
+	dbCluster, err := kubernetes.DatabaseClusterForPXC(kubernetes.ToCreatePXCRequest(req))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
 
 	if req.Params != nil {
 		if req.Params.Suspend && req.Params.Resume {

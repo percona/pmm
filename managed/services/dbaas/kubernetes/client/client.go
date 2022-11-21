@@ -26,12 +26,19 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/cli-runtime/pkg/resource"
+
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -44,6 +51,9 @@ const (
 
 	defaultQPSLimit   = 100
 	defaultBurstLimit = 150
+
+	defaultAPIURIPath  = "/api"
+	defaultAPIsURIPath = "/apis"
 )
 
 // Client is the internal client for Kubernetes.
@@ -194,6 +204,114 @@ func (c *Client) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.
 // PatchDatabaseCluster patches CR of managed PXC cluster.
 func (c *Client) PatchDatabaseCluster(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
 	return c.dbClusterClient.DBClusters(c.namespace).Patch(ctx, name, pt, data, opts)
+}
+
+// GetStorageClasses returns all storage classes available in the cluster
+func (c *Client) GetStorageClasses(ctx context.Context) (*v1.StorageClassList, error) {
+	return c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
+}
+
+// Delete deletes object from the k8s cluster
+func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
+
+	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
+	if err != nil {
+		return err
+	}
+	mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
+
+	gvk := obj.GetObjectKind().GroupVersionKind()
+	gk := schema.GroupKind{Group: gvk.Group, Kind: gvk.Kind}
+	mapping, err := mapper.RESTMapping(gk, gvk.Version)
+	if err != nil {
+		return err
+	}
+	namespace, name, err := c.retrieveMetaFromObject(obj)
+	if err != nil {
+		return err
+	}
+	cli, err := c.resourceClient(mapping.GroupVersionKind.GroupVersion())
+	if err != nil {
+		return err
+	}
+	helper := resource.NewHelper(cli, mapping)
+	err = deleteObject(helper, namespace, name)
+	return err
+}
+
+// TODO Refactor it
+func deleteObject(helper *resource.Helper, namespace, name string) error {
+	if _, err := helper.Get(namespace, name); err == nil {
+		_, err = helper.Delete(namespace, name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) ApplyObject(ctx context.Context, obj runtime.Object) error {
+	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
+	if err != nil {
+		return err
+	}
+	mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
+
+	gvk := obj.GetObjectKind().GroupVersionKind()
+	gk := schema.GroupKind{Group: gvk.Group, Kind: gvk.Kind}
+	mapping, err := mapper.RESTMapping(gk, gvk.Version)
+	if err != nil {
+		return err
+	}
+	namespace, name, err := c.retrieveMetaFromObject(obj)
+	if err != nil {
+		return err
+	}
+	cli, err := c.resourceClient(mapping.GroupVersionKind.GroupVersion())
+	if err != nil {
+		return err
+	}
+	helper := resource.NewHelper(cli, mapping)
+	return c.applyObject(helper, namespace, name, obj)
+}
+func (c *Client) applyObject(helper *resource.Helper, namespace, name string, obj runtime.Object) error {
+	if _, err := helper.Get(namespace, name); err != nil {
+		_, err = helper.Create(namespace, false, obj)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = helper.Replace(namespace, name, true, obj)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name string, err error) {
+	name, err = meta.NewAccessor().Name(obj)
+	if err != nil {
+		return
+	}
+	namespace, err = meta.NewAccessor().Namespace(obj)
+	if err != nil {
+		return
+	}
+	if namespace == "" {
+		namespace = c.namespace
+	}
+	return
+}
+func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) {
+	cfg := c.restConfig
+	cfg.ContentConfig = resource.UnstructuredPlusDefaultContentConfig()
+	cfg.GroupVersion = &gv
+	if len(gv.Group) == 0 {
+		cfg.APIPath = defaultAPIURIPath
+	} else {
+		cfg.APIPath = defaultAPIsURIPath
+	}
+	return rest.RESTClientFor(cfg)
 }
 
 func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {

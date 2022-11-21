@@ -17,6 +17,7 @@ package kubernetes
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -115,5 +116,19 @@ func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.
 }
 
 func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
-	return nil
+	return c.client.ApplyObject(ctx, cluster)
+}
+func (c *Kubernetes) DeleteDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+	return c.client.DeleteObject(ctx, cluster)
+}
+
+func (c *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, error) {
+	storageClasses, err := c.client.GetStorageClasses(ctx)
+	if err != nil {
+		return "", err
+	}
+	if len(storageClasses.Items) != 0 {
+		return storageClasses.Items[0].Name, nil
+	}
+	return "", errors.New("no storage classes available")
 }

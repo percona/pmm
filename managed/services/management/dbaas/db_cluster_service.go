@@ -29,6 +29,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 type DBClusterService struct {
@@ -270,34 +271,26 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	if err != nil {
 		return nil, err
 	}
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	dbCluster.TypeMeta.APIVersion = "dbaas.percona.com/v1"
+	dbCluster.TypeMeta.Kind = "DatabaseCluster"
+	err = kubeClient.DeleteDatabaseCluster(ctx, dbCluster)
+	if err != nil {
+		return nil, err
+	}
 
 	var clusterType string
 	switch req.ClusterType {
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:
-		in := dbaascontrollerv1beta1.DeletePXCClusterRequest{
-			Name: req.Name,
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		}
-
-		_, err = s.controllerClient.DeletePXCCluster(ctx, &in)
-		if err != nil {
-			return nil, err
-		}
 		clusterType = "pxc"
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
-		in := dbaascontrollerv1beta1.DeletePSMDBClusterRequest{
-			Name: req.Name,
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		}
-
-		_, err = s.controllerClient.DeletePSMDBCluster(ctx, &in)
-		if err != nil {
-			return nil, err
-		}
 		clusterType = "psmdb"
 	default:
 		return nil, status.Error(codes.InvalidArgument, "unexpected DB cluster type")
