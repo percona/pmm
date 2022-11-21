@@ -76,7 +76,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 	c.dockerFn = d
 
-	currentContainer, err := c.dockerFn.GetDockerClient().ContainerInspect(ctx, c.ContainerID)
+	currentContainer, err := c.dockerFn.ContainerInspect(ctx, c.ContainerID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 
 	logrus.Infof("Stopping PMM Server in container %q", currentContainer.Name)
 	noTimeout := -1 * time.Second
-	if err = c.dockerFn.GetDockerClient().ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
+	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
 	}
 
@@ -105,7 +105,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	// Disable restart policy in the old container
-	_, err = c.dockerFn.GetDockerClient().ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
+	_, err = c.dockerFn.ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
 		RestartPolicy: container.RestartPolicy{Name: "no"},
 	})
 	if err != nil {
@@ -191,7 +191,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 	}
 
 	logrus.Info("Backing up volume data")
-	waitC, errC := c.dockerFn.GetDockerClient().ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
+	waitC, errC := c.dockerFn.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
 	select {
 	case res := <-waitC:
 		if res.Error != nil {

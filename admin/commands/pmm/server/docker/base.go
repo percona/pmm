@@ -19,8 +19,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/percona/pmm/admin/pkg/docker"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/pkg/docker"
 )
 
 // BaseCommand contains all commands for docker.
