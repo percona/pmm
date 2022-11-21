@@ -163,7 +163,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -291,7 +291,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 		restartCtx, cancel := context.WithTimeout(context.Background(), maxRestartInterval)
 		defer cancel()
 		restartErr := s.RestartJob(restartCtx, job.ID)
-		if restartErr != nil && restartErr != ErrRetriesExhausted {
+		if restartErr != nil && !errors.Is(restartErr, ErrRetriesExhausted) {
 			s.l.Errorf("restart job %s: %v", job.ID, restartErr)
 		}
 	}()
@@ -299,7 +299,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	return err
 }
 
-func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.JobProgress) {
+func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.JobProgress) {
 	switch result := progress.Result.(type) {
 	case *agentpb.JobProgress_Logs_:
 		_, err := models.CreateJobLog(s.db.Querier, models.CreateJobLogParams{
@@ -317,7 +317,7 @@ func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.J
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
