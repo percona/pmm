@@ -147,7 +147,7 @@ func TestAgent(t *testing.T) {
 			Address: pointer.ToString("1.2.3.4"),
 			Port:    pointer.ToUint16(12345),
 		}
-		//nolint:lll
+
 		for typ, expected := range map[models.AgentType]string{
 			models.MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=custom",
 			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s&tls=true",
@@ -163,7 +163,6 @@ func TestAgent(t *testing.T) {
 			})
 		}
 
-		//nolint:lll
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
 			agent.AgentType = models.MongoDBExporterType
 			// reset values from the previous test

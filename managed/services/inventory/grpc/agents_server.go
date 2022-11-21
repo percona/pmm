@@ -338,8 +338,6 @@ func (s *agentsServer) AddPostgresExporter(ctx context.Context, req *inventorypb
 }
 
 // ChangePostgresExporter changes disabled flag and custom labels of postgres_exporter Agent.
-//
-//nolint:lll
 func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventorypb.ChangePostgresExporterRequest) (*inventorypb.ChangePostgresExporterResponse, error) {
 	agent, err := s.s.ChangePostgresExporter(ctx, req)
 	if err != nil {
@@ -396,8 +394,6 @@ func (s *agentsServer) AddProxySQLExporter(ctx context.Context, req *inventorypb
 }
 
 // ChangeProxySQLExporter changes disabled flag and custom labels of proxysql_exporter Agent.
-//
-//nolint:lll
 func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventorypb.ChangeProxySQLExporterRequest) (*inventorypb.ChangeProxySQLExporterResponse, error) {
 	agent, err := s.s.ChangeProxySQLExporter(ctx, req)
 	if err != nil {
@@ -411,7 +407,7 @@ func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventor
 }
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
-func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.AddQANPostgreSQLPgStatementsAgentResponse, error) {
+func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.AddQANPostgreSQLPgStatementsAgentResponse, error) { //nolint:lll
 	agent, err := s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req)
 	if err != nil {
 		return nil, err
@@ -424,7 +420,7 @@ func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, re
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent changes disabled flag and custom labels of PostgreSQL Pg stat statements QAN Agent.
-func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
+func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.ChangeQANPostgreSQLPgStatementsAgentResponse, error) { //nolint:lll
 	agent, err := s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, req)
 	if err != nil {
 		return nil, err
@@ -476,8 +472,6 @@ func (s *agentsServer) AddRDSExporter(ctx context.Context, req *inventorypb.AddR
 }
 
 // ChangeRDSExporter changes disabled flag and custom labels of rds_exporter Agent.
-//
-//nolint:lll
 func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventorypb.ChangeRDSExporterRequest) (*inventorypb.ChangeRDSExporterResponse, error) {
 	agent, err := s.s.ChangeRDSExporter(ctx, req)
 	if err != nil {
