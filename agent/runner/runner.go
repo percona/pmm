@@ -221,7 +221,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	r.addCancel(actionID, cancel)
 
 	r.wg.Add(1)
-	run := func(ctx context.Context) {
+	run := func(_ context.Context) {
 		l.Infof("Action started.")
 
 		defer func(start time.Time) {

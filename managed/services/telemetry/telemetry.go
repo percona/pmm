@@ -120,7 +120,7 @@ func (s *Service) Run(ctx context.Context) {
 			return nil
 		})
 		if err != nil {
-			s.l.Debugf("Failed to retrive settings: %s.", err)
+			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
 		if settings.Telemetry.Disabled {

@@ -864,7 +864,7 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
+	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil { //nolint:lll
 		return nil, errors.Wrap(err, "failed to start mySQL select action")
 	}
 	res, err := s.waitForResult(ctx, r.ID)
