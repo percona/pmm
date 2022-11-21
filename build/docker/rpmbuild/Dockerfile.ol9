@@ -16,6 +16,7 @@ RUN yum update -y && \
     automake autoconf \
     rpmdevtools createrepo_c epel-release \
     yum-utils rpm-build \
+    rsync \
     wget \
     yarn && \
     yum install -y --enablerepo=ol9_codeready_builder glibc-static && \
