@@ -84,6 +84,11 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		return nil, fmt.Errorf("%w: the existing PMM Server was not installed via pmm cli", ErrNotInstalledFromCli)
 	}
 
+	logrus.Infof("Downloading PMM Server %s", c.DockerImage)
+	if err := c.pullBackupImage(ctx, c.DockerImage); err != nil {
+		return nil, err
+	}
+
 	logrus.Infof("Stopping PMM Server in container %q", currentContainer.Name)
 	noTimeout := -1 * time.Second
 	if err = c.dockerFn.GetDockerClient().ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
@@ -126,7 +131,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 	logrus.Info("Starting backup of volumes")
 
 	logrus.Infof("Downloading %q", volumeCopyImage)
-	if err := c.pullBackupImage(ctx); err != nil {
+	if err := c.pullBackupImage(ctx, volumeCopyImage); err != nil {
 		return err
 	}
 
@@ -151,8 +156,8 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 	return nil
 }
 
-func (c *UpgradeCommand) pullBackupImage(ctx context.Context) error {
-	reader, err := c.dockerFn.PullImage(ctx, volumeCopyImage, types.ImagePullOptions{})
+func (c *UpgradeCommand) pullBackupImage(ctx context.Context, imageName string) error {
+	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}
