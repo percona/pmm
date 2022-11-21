@@ -298,6 +298,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
 					ServiceID: serviceID,
 					RestoreID: restoreID,
+					DataModel: params.DataModel,
 				},
 			}
 		case models.PostgreSQLServiceType,

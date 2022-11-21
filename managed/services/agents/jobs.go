@@ -163,7 +163,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -227,8 +227,11 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			if err := s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID, job.ID, job.Timeout); err != nil {
-				return err
+			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				err = s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID)
+				if err != nil {
+					return err
+				}
 			}
 
 			_, err := models.ChangeRestoreHistoryItem(
@@ -579,7 +582,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	return nil
 }
 
-func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string, jobID string, timeout time.Duration) error {
+func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) error {
 	service, err := models.FindServiceByID(s.db.Querier, serviceID)
 	if err != nil {
 		return err
@@ -598,7 +601,7 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 
 	rsAgents := make([]*models.Agent, 0, len(rsMembers))
 	for _, service := range rsMembers {
-		s.l.Infof("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
+		s.l.Debugf("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
 		serviceAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
 		if err != nil {
 			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", service.ServiceID)
@@ -615,57 +618,49 @@ func (s *JobsService) runMongoPostRestore(ctx context.Context, serviceID string,
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range rsAgents {
-		s.l.Infof("sending request to restart mongod on %s", pmmAgent.AgentID)
-		action, err := models.CreateActionResult(s.db.Querier, pmmAgent.AgentID)
-		if err != nil {
+		if err = s.restartMongoComponent(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD); err != nil {
 			return err
-		}
-
-		mongoReq := &agentpb.StartActionRequest{
-			ActionId: action.ID,
-			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
-				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
-					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD,
-				},
-			},
-		}
-		agent, err := s.r.get(pmmAgent.AgentID)
-		if err != nil {
-			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
-		}
-		_, err = agent.channel.SendAndWaitResponse(mongoReq)
-		if err != nil {
-			return errors.Wrapf(err, "failed to restart mongod on agent: %s", pmmAgent.AgentID)
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
 	}
 	s.l.Infof("restarted mongod on %d out of %d services", len(mongoRestarts), len(rsMembers))
 
+	// pbm-agents will fail if all members of the mongo replica set are not available,
+	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range rsAgents {
-		s.l.Infof("sending request to restart pbm-agent on %s", pmmAgent.AgentID)
-		action, err := models.CreateActionResult(s.db.Querier, pmmAgent.AgentID)
-		if err != nil {
-			return err
-		}
-		mongoReq := &agentpb.StartActionRequest{
-			ActionId: action.ID,
-			Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
-				RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
-					Service: agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT,
-				},
-			},
-		}
-		agent, err := s.r.get(pmmAgent.AgentID)
-		if err != nil {
-			return errors.Wrapf(err, "failed to get information about PMM agent: %s", pmmAgent.AgentID)
-		}
-		_, err = agent.channel.SendAndWaitResponse(mongoReq)
-		if err != nil {
+		if err = s.restartMongoComponent(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT); err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
 	}
 	s.l.Infof("restarted pbm-agent on %d out of %d services", len(pbmAgentRestarts), len(rsMembers))
+	return nil
+}
+
+func (s *JobsService) restartMongoComponent(agentID string, service agentpb.StartActionRequest_RestartMongoDBServiceParams_Service) error {
+	s.l.Infof("sending request to restart %s on %s", service, agentID)
+	action, err := models.CreateActionResult(s.db.Querier, agentID)
+	if err != nil {
+		return err
+	}
+
+	mongoReq := &agentpb.StartActionRequest{
+		ActionId: action.ID,
+		Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
+			RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
+				Service: service,
+			},
+		},
+	}
+
+	agent, err := s.r.get(agentID)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get information about PMM agent: %s", agentID)
+	}
+	_, err = agent.channel.SendAndWaitResponse(mongoReq)
+	if err != nil {
+		return errors.Wrapf(err, "failed to restart mongod on agent: %s", agentID)
+	}
 	return nil
 }
 
