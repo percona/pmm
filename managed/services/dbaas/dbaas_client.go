@@ -248,11 +248,11 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 	return c.kubernetesClient.StopMonitoring(ctx, in, opts...)
 }
 
-func (c *Client) GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
+func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKubeconfigRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
 
-	kClient, err := kubernetes.NewIncluster(ctx)
+	kClient, err := kubernetes.NewIncluster()
 	if err != nil {
 		c.l.Errorf("failed creating kubernetes client: %v", err)
 		return nil, nil

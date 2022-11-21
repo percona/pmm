@@ -42,10 +42,12 @@ type Client struct {
 	namespace  string
 }
 
-var inClusterConfig = rest.InClusterConfig
-var newForConfig = func(c *rest.Config) (kubernetes.Interface, error) {
-	return kubernetes.NewForConfig(c)
-}
+var (
+	inClusterConfig = rest.InClusterConfig
+	newForConfig    = func(c *rest.Config) (kubernetes.Interface, error) {
+		return kubernetes.NewForConfig(c)
+	}
+)
 
 // NewFromInCluster returns a client object which uses the service account
 // kubernetes gives to pods. It's intended for clients that expect to be

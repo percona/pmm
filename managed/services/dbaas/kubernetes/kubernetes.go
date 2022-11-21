@@ -33,7 +33,7 @@ type Kubernetes struct {
 }
 
 // NewIncluster returns new Kubernetes object.
-func NewIncluster(ctx context.Context) (*Kubernetes, error) {
+func NewIncluster() (*Kubernetes, error) {
 	l := logrus.WithField("component", "kubernetes")
 
 	client, err := client.NewFromInCluster()
