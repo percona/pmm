@@ -617,8 +617,6 @@ func convertBackupError(backupErr error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
 	case errors.Is(backupErr, backup.ErrIncompatibleXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-	case errors.Is(backupErr, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, backupErr.Error())
 	case errors.Is(backupErr, backup.ErrIncompatibleLocationType):
 		return status.Error(codes.FailedPrecondition, backupErr.Error())
 
