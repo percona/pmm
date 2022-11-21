@@ -37,22 +37,27 @@ const (
 
 // Client is the internal client for Kubernetes.
 type Client struct {
-	clientset  *kubernetes.Clientset
+	clientset  kubernetes.Interface
 	restConfig *rest.Config
 	namespace  string
 }
 
-// NewFromIncluster returns a client object which uses the service account
+var inClusterConfig = rest.InClusterConfig
+var newForConfig = func(c *rest.Config) (kubernetes.Interface, error) {
+	return kubernetes.NewForConfig(c)
+}
+
+// NewFromInCluster returns a client object which uses the service account
 // kubernetes gives to pods. It's intended for clients that expect to be
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
-func NewFromIncluster() (*Client, error) {
-	c, err := rest.InClusterConfig()
+func NewFromInCluster() (*Client, error) {
+	c, err := inClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	clientset, err := kubernetes.NewForConfig(c)
+	clientset, err := newForConfig(c)
 	if err != nil {
 		return nil, err
 	}
