@@ -29,7 +29,7 @@ import (
 // Service implements gRPC service to communicate with agent.
 type Service struct {
 	mbm *models.MetricsBucket
-	l   *logrus.Entry
+	l   *logrus.Entry //nolint:unused
 
 	qanpb.UnimplementedCollectorServer
 }
@@ -48,5 +48,5 @@ func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanp
 	if err := s.mbm.Save(req); err != nil {
 		return nil, err
 	}
-	return new(qanpb.CollectResponse), nil
+	return &qanpb.CollectResponse{}, nil
 }

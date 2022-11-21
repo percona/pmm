@@ -49,7 +49,7 @@ type Client struct {
 }
 
 // NewClient creates new Percona Platform client.
-func NewClient(db *reform.DB, address string) (*Client, error) {
+func NewClient(db *reform.DB, address string) (*Client, error) { //nolint:unparam
 	l := logrus.WithField("component", "portal client")
 
 	tlsConfig := tlsconfig.Get()
