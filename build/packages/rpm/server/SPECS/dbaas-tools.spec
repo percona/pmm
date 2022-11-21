@@ -29,9 +29,6 @@ BuildRequires: which
 %description
 %{summary}
 
-%description
-%{summary}
-
 %prep
 %setup -T -c -n aws-iam-authenticator-%{commit_aws}
 %setup -q -c -a 0 -n aws-iam-authenticator-%{commit_aws}
