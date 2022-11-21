@@ -254,8 +254,7 @@ func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKube
 
 	kClient, err := kubernetes.NewIncluster()
 	if err != nil {
-		c.l.Errorf("failed creating kubernetes client: %v", err)
-		return nil, nil
+		return nil, err
 	}
 
 	kubeConfig, err := kClient.GetKubeconfig(ctx)
