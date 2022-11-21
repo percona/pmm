@@ -54,7 +54,7 @@ test-cover:                     ## Run tests and collect per-package coverage in
 	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
 test-update:                   ## Run pmm update test
-	PMM_TEST_RUN_UPDATE=1 go test -timeout=300s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$
+	PMM_TEST_RUN_UPDATE=1 go test -timeout=3600s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$
 
 fuzz-grafana:                   ## Run fuzzer for services/grafana package.
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
