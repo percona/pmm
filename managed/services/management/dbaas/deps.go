@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains all APIs related to DBaaS.
+//
+//nolint:lll
 package dbaas
 
 import (

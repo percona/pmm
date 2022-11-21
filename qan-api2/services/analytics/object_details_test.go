@@ -166,7 +166,7 @@ func TestService_GetQueryExample(t *testing.T) {
 			if err != nil {
 				t.Errorf("cannot marshal:%v", err)
 			}
-			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+			assert.JSONEq(t, string(expectedJSON), gotJSON)
 		})
 	}
 }
@@ -338,7 +338,7 @@ func TestService_GetMetrics(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		require.JSONEq(t, string(expectedJSON), string(gotJSON))
+		require.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
@@ -362,7 +362,7 @@ func TestService_GetMetrics(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		require.JSONEq(t, string(expectedJSON), string(gotJSON))
+		require.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("total", func(t *testing.T) {
@@ -386,7 +386,7 @@ func TestService_GetMetrics(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 }
 
@@ -444,7 +444,7 @@ func TestService_GetLabels(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	tt = testCase{
@@ -554,7 +554,7 @@ func TestService_GetLabels(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	request = &qanpb.ObjectDetailsLabelsRequest{

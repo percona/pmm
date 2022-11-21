@@ -508,7 +508,7 @@ const (
 	clusterName         = "installoperator"
 )
 
-func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port, defaultPXC, defaultPSMDB string) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient) {
+func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port, defaultPXC, defaultPSMDB string) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient) { //nolint:unparam
 	t.Helper()
 
 	uuid.SetRand(&tests.IDReader{})

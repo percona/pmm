@@ -46,7 +46,7 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
+func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
 		if errors.Is(err, services.ErrSTTDisabled) {
@@ -175,7 +175,7 @@ func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *management
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck
+func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
 		if errors.Is(err, services.ErrSTTDisabled) {
@@ -201,7 +201,7 @@ func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *man
 }
 
 // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
+func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
@@ -216,7 +216,7 @@ func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managem
 }
 
 // ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
-func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *managementpb.ListSecurityChecksRequest) (*managementpb.ListSecurityChecksResponse, error) {
+func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb.ListSecurityChecksRequest) (*managementpb.ListSecurityChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -248,7 +248,7 @@ func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *manageme
 }
 
 // ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
+func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
