@@ -76,6 +76,19 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
+  - id: SampleJsonMetric # todo: not merge to main
+    source: PMMDB_SELECT
+    query: data_retention, pmm_server_id FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention, jsonb_extract_path(s.settings, 'pmmServerID') AS pmm_server_id
+    transform:
+      type: JSON
+      metric: data_retention_json
+    summary: "SampleJsonMetric"
+    data:
+      - metric_name: "pmm_server_data_retention_period"
+        column: "data_retention"
+      - metric_name: "pmm_server_id"
+        column: "pmm_server_id"
+
   - id: MySQLEngineRocksDBCount
     source: VM
     query: count({__name__="mysql_global_variables_rocksdb_block_cache_size"})

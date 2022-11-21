@@ -177,7 +177,7 @@ func TestUpdate(t *testing.T) {
 			switch err := err.(type) {
 			case *url.Error:
 				// *net.OpError, http.nothingWrittenError, or just io.EOF
-			case *pmmapitests.ErrFromNginx:
+			case *pmmapitests.NginxError:
 				// nothing
 			case *server.UpdateStatusDefault:
 				assert.Equal(t, 503, err.Code(), "%[1]T %[1]s", err)

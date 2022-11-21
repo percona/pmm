@@ -43,6 +43,8 @@ type AddCommand struct {
 }
 
 // AddAgentCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentCommand struct {
 	ExternalExporter AddAgentExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
 	MongodbExporter  AddAgentMongodbExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
