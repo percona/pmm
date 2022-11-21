@@ -93,6 +93,7 @@ build() {
 
     if is_build_needed "${spec_name}" "${rpm_version}" || [[ -n "${FORCE_REBUILD}" ]]; then
         echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
+
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
             set -o errexit
             set -o xtrace
@@ -123,7 +124,6 @@ build() {
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
@@ -141,6 +141,6 @@ build() {
 }
 
 build "$1" "$2"
-echo DONE
+echo "build-server-rpm finished, spec_name: $1, repo_name: ${2:-$1}"
 
 # vim: expandtab shiftwidth=4 tabstop=4
