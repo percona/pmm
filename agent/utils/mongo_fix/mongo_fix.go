@@ -21,7 +21,7 @@ import (
 )
 
 // ClientOptionsForDSN applies URI to Client.
-func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
+func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
 	clientOptions := options.Client().ApplyURI(dsn)
 
 	// Workaround for PMM-9320
