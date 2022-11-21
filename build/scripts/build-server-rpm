@@ -11,7 +11,7 @@ get_rpm_version() {
     local rpm_version=$(
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
             rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
-                | sed -re 's/\.[0-9]{10}\././; s/.el7//' \
+                | sed -re 's/\.[0-9]{10}\././; s/${rpmbuild_dist_param}//' \
                 | head -1
         "
     )
@@ -118,7 +118,7 @@ build() {
             sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define '${rpmbuild_dist_param}' -ba SOURCES/${spec_name}.spec
+            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist ${rpmbuild_dist_param}' -ba SOURCES/${spec_name}.spec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
