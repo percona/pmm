@@ -85,7 +85,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Infof("Downloading PMM Server %s", c.DockerImage)
-	if err := c.pullBackupImage(ctx, c.DockerImage); err != nil {
+	if err := c.pullImage(ctx, c.DockerImage); err != nil {
 		return nil, err
 	}
 
@@ -131,7 +131,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 	logrus.Info("Starting backup of volumes")
 
 	logrus.Infof("Downloading %q", volumeCopyImage)
-	if err := c.pullBackupImage(ctx, volumeCopyImage); err != nil {
+	if err := c.pullImage(ctx, volumeCopyImage); err != nil {
 		return err
 	}
 
@@ -156,7 +156,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 	return nil
 }
 
-func (c *UpgradeCommand) pullBackupImage(ctx context.Context, imageName string) error {
+func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
 	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
 	if err != nil {
 		return err
