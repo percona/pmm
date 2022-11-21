@@ -29,7 +29,7 @@ import (
 // Service implements gRPC service to communicate with agent.
 type Service struct {
 	mbm *models.MetricsBucket
-	l   *logrus.Entry
+	l   *logrus.Entry //nolint:unused
 
 	qanpb.UnimplementedCollectorServer
 }

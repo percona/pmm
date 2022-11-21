@@ -117,13 +117,13 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 
 		select {
 		case <-timeoutCtx.Done():
-			if err == agentlocal.ErrNotSetUp { //nolint:errorlint,goerr113
+			if err == agentlocal.ErrNotSetUp { //nolint:errorlint
 				return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.\n"+
 					"Please run `pmm-admin config` with --server-url flag.", err)
 			}
 
 			// return response in case when agent can't connect to server
-			if err == agentlocal.ErrNotConnected { //nolint:errorlint,goerr113
+			if err == agentlocal.ErrNotConnected { //nolint:errorlint
 				return newStatusResult(status), nil
 			}
 
