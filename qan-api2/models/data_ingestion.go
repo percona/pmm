@@ -37,6 +37,7 @@ const (
 	batchErrorDelay = time.Second
 )
 
+//nolint:lll
 const insertSQL = `
   INSERT INTO metrics
   (
@@ -713,7 +714,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error { //nolint:unparam
 	if len(agentMsg.MetricsBucket) == 0 {
 		mb.l.Warnf("Nothing to save - no metrics buckets.")
 		return nil

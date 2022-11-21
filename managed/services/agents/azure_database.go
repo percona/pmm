@@ -53,7 +53,7 @@ resource_groups:
 `
 
 // azureDatabaseExporterConfig returns configuration of azure_database_exporter process.
-func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) { //nolint:lll
 	t, err := template.New("credentials").Parse(azureDatabaseTemplate)
 	if err != nil {
 		return nil, err

@@ -28,7 +28,7 @@ import (
 type TextFormatter struct{}
 
 // Format renders a single log entry.
-func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) { //nolint:unparam
 	b := &bytes.Buffer{}
 	if entry.Buffer != nil {
 		b = entry.Buffer

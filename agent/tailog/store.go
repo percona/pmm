@@ -38,7 +38,7 @@ func NewStore(capacity uint) *Store {
 }
 
 // Write writes log for store.
-func (l *Store) Write(b []byte) (int, error) {
+func (l *Store) Write(b []byte) (int, error) { //nolint:unparam
 	l.m.Lock()
 	defer l.m.Unlock()
 

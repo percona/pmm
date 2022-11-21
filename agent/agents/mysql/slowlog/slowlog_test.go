@@ -27,9 +27,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -108,9 +111,12 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 }
 
 func TestSlowLog(t *testing.T) {
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	_, vendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	_, vendor, _ := version.GetMySQLVersion(ctx, q)
 
 	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata"))
 	require.NoError(t, err)
@@ -128,7 +134,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -178,7 +184,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -228,7 +234,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
