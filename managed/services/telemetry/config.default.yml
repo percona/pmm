@@ -544,3 +544,17 @@ telemetry:
     data:
       - metric_name: "k8s_clusters_count"
         column: "count"
+
+# MySQL Clusters
+  - id: MySQLClustersCount
+    source: PMMDB_SELECT
+    query: aggregated_nodes.nodes_count as nodes_count, COUNT(*) as clusters_count FROM (SELECT cluster, replication_set, COUNT(*) as nodes_count FROM services WHERE service_type = 'mysql' GROUP BY cluster, replication_set) as aggregated_nodes GROUP BY aggregated_nodes.nodes_count
+    summary: "MySQL clusters clount per node count"
+    transform:
+      type: JSON
+      metric: "mysql_clusters_count"
+    data:
+      - metric_name: "nodes_count"
+        column: "nodes_count"
+      - metric_name: "clusters_count"
+        column: "clusters_count"
