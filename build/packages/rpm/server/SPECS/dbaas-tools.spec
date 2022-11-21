@@ -47,7 +47,7 @@ export CGO_ENABLED=0
 export USER=builder
 
 cd src/github.com/kubernetes-sigs/aws-iam-authenticator-%{commit_aws}
-sed -i '/dockers:/,+23d' .goreleaser.yaml
+sed -i '/- darwin/d;/- windows/d;/dockers:/,+23d' .goreleaser.yaml
 make goreleaser
 
 cd %{_builddir}/kubernetes-%{commit_k8s}/
