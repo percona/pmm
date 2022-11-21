@@ -15,8 +15,62 @@
 // Package docker holds the "pmm server install docker" command
 package docker
 
+import (
+	"context"
+	"fmt"
+
+	"github.com/percona/pmm/admin/pkg/docker"
+	"github.com/sirupsen/logrus"
+)
+
 // BaseCommand contains all commands for docker.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
 	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM server"`
+}
+
+type prepareOpts struct {
+	// Shall Docker be installed, if not available?
+	install bool
+}
+
+func prepareDocker(ctx context.Context, dockerFn Functions, opts prepareOpts) (Functions, error) {
+	if dockerFn == nil {
+		d, err := docker.New(nil)
+		if err != nil {
+			return nil, err
+		}
+
+		dockerFn = d
+	}
+
+	if opts.install {
+		if err := installDocker(ctx, dockerFn); err != nil {
+			return nil, err
+		}
+	}
+
+	if !dockerFn.HaveDockerAccess(ctx) {
+		return nil, fmt.Errorf("%w: docker is either not running or this user has no access to Docker. Try running as root", ErrDockerNoAccess)
+	}
+
+	return dockerFn, nil
+}
+
+func installDocker(ctx context.Context, dockerFn Functions) error {
+	isInstalled, err := dockerFn.IsDockerInstalled()
+	if err != nil {
+		return err
+	}
+
+	if isInstalled {
+		return nil
+	}
+
+	logrus.Infoln("Installing Docker")
+	if err = dockerFn.InstallDocker(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }

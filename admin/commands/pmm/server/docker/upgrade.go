@@ -30,7 +30,6 @@ import (
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/pkg/docker"
 )
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
@@ -71,9 +70,11 @@ func (u *upgradeResult) String() string {
 func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server upgrade via Docker")
 
-	if err := c.prepareDocker(ctx); err != nil {
+	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})
+	if err != nil {
 		return nil, err
 	}
+	c.dockerFn = d
 
 	currentContainer, err := c.dockerFn.GetDockerClient().ContainerInspect(ctx, c.ContainerID)
 	if err != nil {
@@ -223,23 +224,6 @@ func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer type
 	}
 
 	logrus.Debugf("Started PMM Server in container %q", containerID)
-
-	return nil
-}
-
-func (c *UpgradeCommand) prepareDocker(ctx context.Context) error {
-	if c.dockerFn == nil {
-		d, err := docker.New(nil)
-		if err != nil {
-			return err
-		}
-
-		c.dockerFn = d
-	}
-
-	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return fmt.Errorf("%w: docker is either not running or this user has no access to Docker. Try running as root", ErrDockerNoAccess)
-	}
 
 	return nil
 }

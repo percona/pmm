@@ -30,7 +30,6 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/pmm/common"
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
-	"github.com/percona/pmm/admin/pkg/docker"
 )
 
 // InstallCommand is used by Kong for CLI flags and commands.
@@ -42,7 +41,6 @@ type InstallCommand struct {
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
 	VolumeName         string `default:"pmm-data" help:"Name of the volume used by PMM Server"`
 	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
-	SkipDockerCheck    bool   `help:"Do not check if Docker is installed."`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
 	dockerFn Functions
@@ -72,9 +70,11 @@ var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server installation in Docker")
 
-	if err := c.prepareDocker(ctx); err != nil {
+	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: !c.SkipDockerInstall})
+	if err != nil {
 		return nil, err
 	}
+	c.dockerFn = d
 
 	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
 	if err != nil {
@@ -108,56 +108,6 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	return &installResult{
 		adminPassword: c.AdminPassword,
 	}, nil
-}
-
-func (c *InstallCommand) prepareDocker(ctx context.Context) error {
-	if c.dockerFn == nil {
-		d, err := docker.New(nil)
-		if err != nil {
-			return err
-		}
-
-		c.dockerFn = d
-	}
-
-	if err := c.installDocker(ctx); err != nil {
-		return err
-	}
-
-	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return fmt.Errorf("%w: docker is either not running or this user has no access to Docker. Try running as root", ErrDockerNoAccess)
-	}
-
-	return nil
-}
-
-func (c *InstallCommand) installDocker(ctx context.Context) error {
-	if c.SkipDockerCheck {
-		logrus.Debugf("Docker check is disabled")
-		return nil
-	}
-
-	isInstalled, err := c.dockerFn.IsDockerInstalled()
-	if err != nil {
-		return err
-	}
-
-	if isInstalled {
-		return nil
-	}
-
-	if c.SkipDockerInstall {
-		logrus.Infoln("Skipped Docker installation")
-		return nil
-	}
-
-	logrus.Infoln("Installing Docker")
-	err = c.dockerFn.InstallDocker(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // runContainer runs PMM Server and returns the containerID.
