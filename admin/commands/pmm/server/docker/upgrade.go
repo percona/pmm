@@ -189,6 +189,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 		return err
 	}
 
+	logrus.Info("Backing up volume data")
 	waitC, errC := c.dockerFn.GetDockerClient().ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
 	select {
 	case res := <-waitC:
