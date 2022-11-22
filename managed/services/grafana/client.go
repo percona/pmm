@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
+//
+
 package grafana
 
 import (
@@ -443,7 +445,7 @@ func validateDurations(intervalD, forD string) error {
 	}
 
 	if f < i {
-		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s).", forD, intervalD)
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be shorter than evaluation interval for the given group (%s).", forD, intervalD)
 	}
 
 	return nil
@@ -681,7 +683,7 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
 	}
 
 	return user.AccessToken, nil
