@@ -215,6 +215,9 @@ func (c *Client) GetStorageClasses(ctx context.Context) (*storagev1.StorageClass
 func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
 	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
+func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
+	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
+}
 
 // Delete deletes object from the k8s cluster
 func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {

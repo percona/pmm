@@ -24,6 +24,7 @@ import (
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
@@ -150,4 +151,8 @@ func (c *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error
 }
 func (c *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	return c.GetOperatorVersion(ctx, pxcDeploymentName)
+}
+
+func (c *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
+	return c.client.GetSecret(ctx, name)
 }

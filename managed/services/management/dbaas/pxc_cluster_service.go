@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -80,26 +79,25 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, err
 	}
-
-	in := &dbaascontrollerv1beta1.GetPXCClusterCredentialsRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-	}
-
-	cluster, err := s.controllerClient.GetPXCClusterCredentials(ctx, in)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create kubernetes client")
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting database cluster")
+	}
+	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting secret")
 	}
 
-	_ = kubernetesCluster
 	resp := dbaasv1beta1.GetPXCClusterCredentialsResponse{
 		ConnectionCredentials: &dbaasv1beta1.PXCClusterConnectionCredentials{
-			Username: cluster.Credentials.Username,
-			Password: cluster.Credentials.Password,
-			Host:     cluster.Credentials.Host,
-			Port:     cluster.Credentials.Port,
+			Username: "root",
+			Password: string(secret.Data["root"]),
+			Host:     dbCluster.Status.Host,
+			Port:     3306,
 		},
 	}
 
@@ -147,6 +145,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
+	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
 
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {

@@ -51,7 +51,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 			DatabaseImage:  cluster.Params.Pxc.Image,
 			DatabaseConfig: cluster.Params.Pxc.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
-			SecretsName:    "asdomom-asom",
 			DBInstance: dbaasv1.DBInstanceSpec{
 				// FIXME: Implement a better solution
 				StorageClassName: &cluster.Params.Pxc.StorageClass,
