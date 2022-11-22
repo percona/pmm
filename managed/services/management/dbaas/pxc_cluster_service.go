@@ -50,7 +50,6 @@ var errInvalidClusterName = errors.New("invalid cluster name. It must start with
 type PXCClustersService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
-	controllerClient  dbaasClient
 	grafanaClient     grafanaClient
 	componentsService componentsService
 	versionServiceURL string
@@ -59,14 +58,13 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
 	return &PXCClustersService{
 		db:                db,
 		l:                 l,
-		controllerClient:  controllerClient,
 		grafanaClient:     grafanaClient,
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
