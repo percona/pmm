@@ -398,7 +398,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot install victoria metrics operator: %s", err)
 				return
 			}
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "percona-server-mongodb-operator"); err != nil {
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "victoriametrics-operator"); err != nil {
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
