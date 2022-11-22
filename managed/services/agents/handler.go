@@ -240,7 +240,7 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 	err := q.Reload(agent)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
-	if err == reform.ErrNoRows {
+	if errors.Is(err, reform.ErrNoRows) {
 		if status == inventorypb.AgentStatus_STOPPING || status == inventorypb.AgentStatus_DONE {
 			return nil
 		}

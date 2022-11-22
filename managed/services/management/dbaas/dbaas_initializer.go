@@ -134,7 +134,7 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 }
 
 // Disable disconnects from dbaas-controller and disabled dbaas feature
-func (in *Initializer) Disable(ctx context.Context) error {
+func (in *Initializer) Disable(_ context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
 	if !in.enabled { // Don't disable if already disabled
