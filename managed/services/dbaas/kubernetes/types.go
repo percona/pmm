@@ -93,7 +93,40 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 	return dbCluster, nil
 }
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *dbaasv1.DatabaseCluster {
-	return nil
+	dbCluster := &dbaasv1.DatabaseCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: cluster.Name,
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: dbaasAPI,
+			Kind:       dbaasKind,
+		},
+		Spec: dbaasv1.DatabaseSpec{
+			Database:       databasePSMDB,
+			DatabaseImage:  cluster.Params.Image,
+			DatabaseConfig: cluster.Params.Replicaset.Configuration,
+			ClusterSize:    cluster.Params.ClusterSize,
+			DBInstance: dbaasv1.DBInstanceSpec{
+				// FIXME: Implement a better solution
+				StorageClassName: &cluster.Params.Replicaset.StorageClass,
+				DiskSize:         strconv.FormatInt(cluster.Params.Replicaset.DiskSize, 10),
+				CPU:              fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM),
+				Memory:           strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
+			},
+			Monitoring: dbaasv1.MonitoringSpec{
+				PMM: dbaasv1.PMMSpec{},
+			},
+			LoadBalancer: dbaasv1.LoadBalancerSpec{},
+			Backup:       dbaasv1.BackupSpec{},
+		},
+	}
+	dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
+	dbCluster.Spec.LoadBalancer.Type = "mongos"
+	if cluster.Expose {
+		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+	}
+	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	return dbCluster
 }
 func ToCreatePSMDBRequest(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) *dbaasv1beta1.CreatePSMDBClusterRequest {
 	return nil

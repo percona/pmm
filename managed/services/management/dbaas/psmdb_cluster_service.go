@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -46,7 +45,6 @@ const (
 type PSMDBClusterService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
-	controllerClient  dbaasClient
 	grafanaClient     grafanaClient
 	componentsService componentsService
 	versionServiceURL string
@@ -55,14 +53,13 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
 	return &PSMDBClusterService{
 		db:                db,
 		l:                 l,
-		controllerClient:  dbaasClient,
 		grafanaClient:     grafanaClient,
 		componentsService: componentsService,
 		versionServiceURL: versionServiceURL,
@@ -85,26 +82,26 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
-
-	in := &dbaascontrollerv1beta1.GetPSMDBClusterCredentialsRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-	}
-
-	cluster, err := s.controllerClient.GetPSMDBClusterCredentials(ctx, in)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to create kubernetes client")
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting database cluster")
+	}
+	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(psmdbSecretNameTmpl, req.Name))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting secret")
 	}
 
 	resp := dbaasv1beta1.GetPSMDBClusterCredentialsResponse{
 		ConnectionCredentials: &dbaasv1beta1.GetPSMDBClusterCredentialsResponse_PSMDBCredentials{
-			Username:   cluster.Credentials.Username,
-			Password:   cluster.Credentials.Password,
-			Host:       cluster.Credentials.Host,
-			Port:       cluster.Credentials.Port,
-			Replicaset: cluster.Credentials.Replicaset,
+			Username:   string(secret.Data["MONGODB_USER_ADMIN_USER"]),
+			Password:   string(secret.Data["MONGODB_USER_ADMIN_PASSWORD"]),
+			Host:       dbCluster.Status.Host,
+			Port:       27017,
+			Replicaset: "rs0",
 		},
 	}
 
@@ -129,7 +126,15 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
 
+	if req.Params.Replicaset.StorageClass == "" {
+		className, err := kubeClient.GetDefaultStorageClassName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get storage classes")
+		}
+		req.Params.Replicaset.StorageClass = className
+	}
 	dbCluster := kubernetes.DatabaseClusterForPSMDB(req)
+	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
