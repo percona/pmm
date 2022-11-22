@@ -764,7 +764,8 @@ var databaseSchema = [][]string{
 	72: {
 		`UPDATE scheduled_tasks
 			SET "data" = jsonb_set("data", array["type", 'name'], to_jsonb("data"->"type"->>'name' || '-pmm-renamed-' || gen_random_uuid()))
-			WHERE "data"->"type"->>'name' IN (SELECT "data"->"type"->>'name' nm FROM scheduled_tasks GROUP BY nm HAVING COUNT(*) > 1)`,
+			WHERE "data"->"type"->>'name' IN (SELECT "data"->"type"->>'name' nm FROM scheduled_tasks GROUP BY nm HAVING COUNT(*) > 1);
+		CREATE UNIQUE INDEX scheduled_tasks_data_name_idx ON scheduled_tasks(("data"->"type"->>'name'))`,
 	},
 }
 

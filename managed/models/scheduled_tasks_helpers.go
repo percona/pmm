@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/lib/pq"
 	"strings"
 	"time"
 
@@ -27,6 +28,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+const pgUniqueConstraintViolationCode = "23505" // https://www.postgresql.org/docs/15/errcodes-appendix.html
 
 // FindScheduledTaskByID finds ScheduledTask by ID.
 func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error) {
@@ -161,14 +164,6 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, err
 	}
 
-	newName, err := nameFromTaskData(params.Type, params.Data)
-	if err != nil {
-		return nil, err
-	}
-	if err := nameIsFree(q, newName); err != nil {
-		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
-	}
-
 	id := "/scheduled_task_id/" + uuid.New().String()
 	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
@@ -184,6 +179,14 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		Data:           params.Data,
 	}
 	if err := q.Insert(task); err != nil {
+		newName, getNameErr := nameFromTaskData(params.Type, params.Data)
+		if getNameErr != nil {
+			return nil, getNameErr
+		}
+		if isNameAlreadyExistsErr(err, newName) {
+			return nil, errors.Wrapf(ErrAlreadyExists, "couldn't create task with name %s", newName)
+		}
+
 		return nil, errors.WithStack(err)
 	}
 	return task, nil
@@ -240,21 +243,6 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if params.Data != nil {
-		newName, err := nameFromTaskData(row.Type, params.Data)
-		if err != nil {
-			return nil, err
-		}
-		oldName, err := nameFromTaskData(row.Type, row.Data)
-		if err != nil {
-			return nil, err
-		}
-
-		if newName != oldName {
-			if err := nameIsFree(q, newName); err != nil {
-				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
-			}
-		}
-
 		row.Data = params.Data
 	}
 
@@ -267,6 +255,14 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if err := q.Update(row); err != nil {
+		newName, getNameErr := nameFromTaskData(row.Type, params.Data)
+		if getNameErr != nil {
+			return nil, getNameErr
+		}
+		if isNameAlreadyExistsErr(err, newName) {
+			return nil, errors.Wrapf(ErrAlreadyExists, "couldn't change task name to %s", newName)
+		}
+
 		return nil, errors.Wrap(err, "failed to update scheduled task")
 	}
 
@@ -319,13 +315,12 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 	return "", nil
 }
 
-func nameIsFree(q *reform.Querier, name string) error {
-	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: name})
-	if err != nil {
-		return err
+func isNameAlreadyExistsErr(err error, name string) bool {
+	if err, ok := err.(*pq.Error); ok {
+		// We check like this because there is no structured info in the returned error.
+		if err.Code == pgUniqueConstraintViolationCode && strings.Contains(err.Detail, name) {
+			return true
+		}
 	}
-	if len(tasks) != 0 {
-		return ErrAlreadyExists
-	}
-	return nil
+	return false
 }
