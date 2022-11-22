@@ -439,6 +439,8 @@ func TestServiceHelpers(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, services)
 		assert.Len(t, services, 2)
+		assert.Equal(t, "rs0", services[0].ReplicationSet)
+		assert.Equal(t, "rs0", services[1].ReplicationSet)
 	})
 }
 
