@@ -66,6 +66,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 			Backup:       dbaasv1.BackupSpec{},
 		},
 	}
+	//TODO: Fill HAProxy image
 	if cluster.Params.Haproxy != nil {
 		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
 		if err != nil {

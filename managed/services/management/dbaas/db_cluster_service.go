@@ -18,9 +18,11 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -60,20 +62,43 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	if err != nil {
 		return nil, err
 	}
-
-	checkResponse, err := s.controllerClient.CheckKubernetesClusterConnection(ctx, kubernetesCluster.KubeConfig)
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	dbClusters, err := kubeClient.ListDatabaseClusters(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed listing database clusters")
+	}
+	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting psmdb operator version")
 	}
 
-	pxcClusters, err := s.listPXCClusters(ctx, kubernetesCluster.KubeConfig, checkResponse.Operators.PxcOperatorVersion)
+	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
+	psmdbClusters := []*dbaasv1beta1.PSMDBCluster{}
+	pxcClusters := []*dbaasv1beta1.PXCCluster{}
 
-	psmdbClusters, err := s.listPSMDBClusters(ctx, kubernetesCluster.KubeConfig, checkResponse.Operators.PsmdbOperatorVersion)
-	if err != nil {
-		return nil, err
+	for _, cluster := range dbClusters.Items {
+		switch cluster.Spec.Database {
+		case "pxc":
+			c, err := s.getPXCCluster(ctx, cluster, pxcOperatorVersion)
+			if err != nil {
+				// TODO
+			}
+			pxcClusters = append(pxcClusters, c)
+		case "psmdb":
+			c, err := s.getPSMDBCluster(ctx, cluster, psmdbOperatorVersion)
+			if err != nil {
+				// TODO
+			}
+			psmdbClusters = append(psmdbClusters, c)
+		default:
+			s.l.Errorf("unsupported database type %s", cluster.Spec.Database)
+		}
 	}
 
 	return &dbaasv1beta1.ListDBClustersResponse{
@@ -117,7 +142,7 @@ func (s DBClusterService) listPSMDBClusters(ctx context.Context, kubeConfig stri
 					DiskSize:         diskSize,
 				},
 			},
-			State: dbClusterStates()[c.State],
+			//State: dbClusterStates()[c.State],
 			Operation: &dbaasv1beta1.RunningOperation{
 				TotalSteps:    c.Operation.TotalSteps,
 				FinishedSteps: c.Operation.FinishedSteps,
@@ -146,6 +171,90 @@ func (s DBClusterService) listPSMDBClusters(ctx context.Context, kubeConfig stri
 
 	return clusters, nil
 }
+func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PXCCluster, error) {
+	diskSize, err := strconv.ParseInt(cluster.Spec.DBInstance.DiskSize, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	memory, err := strconv.ParseInt(cluster.Spec.DBInstance.Memory, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	cpu, err := strconv.Atoi(strings.Replace(cluster.Spec.DBInstance.CPU, "m", "", -1))
+	if err != nil {
+		return nil, err
+	}
+	c := &dbaasv1beta1.PXCCluster{
+		// TODO: Add Haproxy/proxySQL resources
+		Name: cluster.Name,
+		Params: &dbaasv1beta1.PXCClusterParams{
+			ClusterSize: cluster.Spec.ClusterSize,
+			Pxc: &dbaasv1beta1.PXCClusterParams_PXC{
+				DiskSize: diskSize,
+				ComputeResources: &dbaasv1beta1.ComputeResources{
+					CpuM:        int32(cpu),
+					MemoryBytes: memory,
+				},
+			},
+		},
+		State: dbClusterStates()[cluster.Status.State],
+	}
+	imageAndTag := strings.Split(cluster.Spec.DatabaseImage, ":")
+	if len(imageAndTag) != 2 {
+		return nil, errors.Errorf("failed to parse Xtradb Cluster version out of %q", cluster.Spec.DatabaseImage)
+	}
+	currentDBVersion := imageAndTag[1]
+
+	nextVersionImage, err := s.versionServiceClient.GetNextDatabaseImage(ctx, pxcOperator, operatorVersion, currentDBVersion)
+	if err != nil {
+		return nil, err
+	}
+	c.AvailableImage = nextVersionImage
+	c.InstalledImage = cluster.Spec.DatabaseImage
+	return c, nil
+}
+func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PSMDBCluster, error) {
+	diskSize, err := strconv.ParseInt(cluster.Spec.DBInstance.DiskSize, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	memory, err := strconv.ParseInt(cluster.Spec.DBInstance.Memory, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	cpu, err := strconv.Atoi(strings.Replace(cluster.Spec.DBInstance.CPU, "m", "", -1))
+	if err != nil {
+		return nil, err
+	}
+
+	c := &dbaasv1beta1.PSMDBCluster{
+		Name: cluster.Name,
+		Params: &dbaasv1beta1.PSMDBClusterParams{
+			ClusterSize: cluster.Spec.ClusterSize,
+			Replicaset: &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{
+				DiskSize: diskSize,
+				ComputeResources: &dbaasv1beta1.ComputeResources{
+					CpuM:        int32(cpu),
+					MemoryBytes: memory,
+				},
+			},
+		},
+		State: dbClusterStates()[cluster.Status.State],
+	}
+	imageAndTag := strings.Split(cluster.Spec.DatabaseImage, ":")
+	if len(imageAndTag) != 2 {
+		return nil, errors.Errorf("failed to parse PSMDB version out of %q", cluster.Spec.DatabaseImage)
+	}
+	currentDBVersion := imageAndTag[1]
+
+	nextVersionImage, err := s.versionServiceClient.GetNextDatabaseImage(ctx, psmdbOperator, operatorVersion, currentDBVersion)
+	if err != nil {
+		return nil, err
+	}
+	c.AvailableImage = nextVersionImage
+	c.InstalledImage = cluster.Spec.DatabaseImage
+	return c, nil
+}
 
 func (s DBClusterService) listPXCClusters(ctx context.Context, kubeConfig string, operatorVersion string) ([]*dbaasv1beta1.PXCCluster, error) {
 	in := dbaascontrollerv1beta1.ListPXCClustersRequest{
@@ -166,7 +275,7 @@ func (s DBClusterService) listPXCClusters(ctx context.Context, kubeConfig string
 			Params: &dbaasv1beta1.PXCClusterParams{
 				ClusterSize: c.Params.ClusterSize,
 			},
-			State: dbClusterStates()[c.State],
+			//State: dbClusterStates()[c.State],
 			Operation: &dbaasv1beta1.RunningOperation{
 				TotalSteps:    c.Operation.TotalSteps,
 				FinishedSteps: c.Operation.FinishedSteps,
@@ -305,14 +414,15 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil
 }
 
-func dbClusterStates() map[dbaascontrollerv1beta1.DBClusterState]dbaasv1beta1.DBClusterState {
-	return map[dbaascontrollerv1beta1.DBClusterState]dbaasv1beta1.DBClusterState{
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID:   dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_CHANGING:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_CHANGING,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_READY:     dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_READY,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_FAILED:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_FAILED,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED,
-		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
+func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
+	return map[dbaasv1.AppState]dbaasv1beta1.DBClusterState{
+		// TODO: Implement better statuses
+		dbaasv1.AppStateUnknown:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,
+		dbaasv1.AppStateInit:     dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_CHANGING,
+		dbaasv1.AppStateReady:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_READY,
+		dbaasv1.AppStateError:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_FAILED,
+		dbaasv1.AppStateStopping: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING,
+		dbaasv1.AppStatePaused:   dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED,
+		//dbaasv1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
 	}
 }

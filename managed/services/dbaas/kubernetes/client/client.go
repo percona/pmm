@@ -25,8 +25,10 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/storage/v1"
+
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -207,8 +209,11 @@ func (c *Client) PatchDatabaseCluster(ctx context.Context, name string, pt types
 }
 
 // GetStorageClasses returns all storage classes available in the cluster
-func (c *Client) GetStorageClasses(ctx context.Context) (*v1.StorageClassList, error) {
+func (c *Client) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
+}
+func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
+	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
 // Delete deletes object from the k8s cluster

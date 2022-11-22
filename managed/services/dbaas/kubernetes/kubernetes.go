@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
@@ -27,6 +28,11 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
+)
+
+const (
+	pxcDeploymentName   = "percona-xtradb-cluster-operator"
+	psmdbDeploymentName = "percona-server-mongodb-operator"
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -131,4 +137,17 @@ func (c *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 		return storageClasses.Items[0].Name, nil
 	}
 	return "", errors.New("no storage classes available")
+}
+func (c *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
+	deployment, err := c.client.GetDeployment(ctx, name)
+	if err != nil {
+		return "", err
+	}
+	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
+}
+func (c *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
+	return c.GetOperatorVersion(ctx, psmdbDeploymentName)
+}
+func (c *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
+	return c.GetOperatorVersion(ctx, pxcDeploymentName)
 }
