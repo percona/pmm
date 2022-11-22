@@ -17,11 +17,11 @@ package models
 
 import (
 	"fmt"
-	"github.com/lib/pq"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
