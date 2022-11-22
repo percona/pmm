@@ -127,7 +127,7 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
 		return errors.WithStack(err)
 	}
 
-	if err := startSystemctlService(ctx, mySQLServiceName); err != nil {
+	if err := startMySQL(ctx, mySQLServiceName); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -290,16 +290,16 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	return errors.Wrap(cmd.Wait(), "waiting systemctl stop command failed")
 }
 
-func startSystemctlService(ctx context.Context, serviceName string) error {
+func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "start", serviceName)
+	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
 	if err := cmd.Start(); err != nil {
-		return errors.Wrapf(err, "failed to start %s with systemctl", serviceName)
+		return errors.Wrap(err, "starting systemctl start command failed")
 	}
 
-	return errors.Wrapf(cmd.Wait(), "failed to wait for command: 'systemctl start %s'", serviceName)
+	return errors.Wrap(cmd.Wait(), "waiting systemctl start command failed")
 }
 
 func chownRecursive(path string, uid, gid int) error {

@@ -227,14 +227,42 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
+			logChunkID := 0
+			var logParams models.CreateJobLogParams
 			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
-				err = s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID)
-				if err != nil {
-					return err
+				logParams = models.CreateJobLogParams{
+					JobID:     job.ID,
+					ChunkID:   logChunkID,
+					LastChunk: false,
+					Data:      "restore successfully completed, PMM will restart mongod and pbm-agent.",
+				}
+			} else {
+				logParams = models.CreateJobLogParams{
+					JobID:     job.ID,
+					ChunkID:   logChunkID,
+					LastChunk: true,
+					Data:      "restore successfully completed.",
+				}
+			}
+			if err := createJobLog(t.Querier, logParams.JobID, logParams.Data, logParams.ChunkID, logParams.LastChunk); err != nil {
+				s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+			}
+
+			logChunkID++
+			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				if err := s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
+					if logErr := createJobLog(t.Querier, job.ID, err.Error(), logChunkID, true); err != nil {
+						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+					}
+					return errors.Wrap(err, "failed to restart components after restore from a physical backup")
+				} else {
+					if logErr := createJobLog(t.Querier, job.ID, "successfully restarted mongod and pbm-agent", logChunkID, true); err != nil {
+						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+					}
 				}
 			}
 
-			_, err := models.ChangeRestoreHistoryItem(
+			_, err = models.ChangeRestoreHistoryItem(
 				t.Querier,
 				job.Data.MongoDBRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
@@ -305,12 +333,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.JobProgress) {
 	switch result := progress.Result.(type) {
 	case *agentpb.JobProgress_Logs_:
-		_, err := models.CreateJobLog(s.db.Querier, models.CreateJobLogParams{
-			JobID:     progress.JobId,
-			ChunkID:   int(result.Logs.ChunkId),
-			Data:      result.Logs.Data,
-			LastChunk: result.Logs.Done,
-		})
+		err := createJobLog(s.db.Querier, progress.JobId, result.Logs.Data, int(result.Logs.ChunkId), result.Logs.Done)
 		if err != nil {
 			s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", progress.JobId, result.Logs.ChunkId)
 		}
@@ -708,4 +731,16 @@ func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}
+}
+
+func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, lastChunk bool) error {
+	_, err := models.CreateJobLog(
+		querier,
+		models.CreateJobLogParams{
+			JobID:     jobID,
+			ChunkID:   chunkID,
+			Data:      data,
+			LastChunk: lastChunk,
+		})
+	return err
 }
