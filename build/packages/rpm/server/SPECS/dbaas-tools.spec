@@ -8,6 +8,7 @@
 %global version_k8s         v1.23.7
 
 %global install_golang 1
+%global debug_package %{nil}
 
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         2
@@ -47,7 +48,7 @@ export CGO_ENABLED=0
 export USER=builder
 
 cd src/github.com/kubernetes-sigs/aws-iam-authenticator-%{commit_aws}
-sed -i '/- darwin/d;/- windows/d;/dockers:/,+23d' .goreleaser.yaml
+sed -i '/- darwin/d;/- windows/d;/- arm64/d;/dockers:/,+23d' .goreleaser.yaml
 make goreleaser
 
 cd %{_builddir}/kubernetes-%{commit_k8s}/
