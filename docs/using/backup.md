@@ -215,6 +215,7 @@ During restoring, PMM disables all the scheduled backup tasks for the current se
 
 ### Post-restore requirements for MongoDB
 Restoring from a physical backup will cause all **mongo** and **pbm-agent** instances to shut down. To bring them back up:
+
 1. Restart all **mongod** (and **mongos** if present) nodes.
 2. Restart all **pbm-agents**.
 
