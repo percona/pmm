@@ -16,9 +16,6 @@ cp ${root_dir}/results/rpm/*.rpm ${rpms_dir}/
 # install all rpms
 ${bin_dir}/build-server-rpm-all
 
-# 3rd-party
-${bin_dir}/build-server-rpm grafana-db-migrator
-
 # build pmm-server
 ${bin_dir}/build-server-docker
 
