@@ -34,7 +34,8 @@ docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$IMAGE_VERSION" \
              --squash \
              --no-cache \
-             -t ${DOCKER_TAG} ${rpms_dir}/../${docker_file}
+             -f ${docker_file}
+             -t ${DOCKER_TAG} ${rpms_dir}/../
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_tag_file})
