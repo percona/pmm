@@ -21,7 +21,6 @@ import (
 	"strconv"
 	"strings"
 
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -37,7 +36,6 @@ import (
 type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
-	controllerClient     dbaasClient
 	grafanaClient        grafanaClient
 	versionServiceClient *VersionServiceClient
 
@@ -45,12 +43,11 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer { //nolint:lll
+func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer { //nolint:lll
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
 		l:                    l,
-		controllerClient:     controllerClient,
 		grafanaClient:        grafanaClient,
 		versionServiceClient: versionServiceClient,
 	}
@@ -212,32 +209,19 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
-
-	switch req.ClusterType { //nolint:exhaustive
-	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:
-		in := dbaascontrollerv1beta1.RestartPXCClusterRequest{
-			Name: req.Name,
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		}
-
-		_, err = s.controllerClient.RestartPXCCluster(ctx, &in)
-		if err != nil {
-			return nil, err
-		}
-	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
-		in := dbaascontrollerv1beta1.RestartPSMDBClusterRequest{
-			Name: req.Name,
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		}
-
-		_, err = s.controllerClient.RestartPSMDBCluster(ctx, &in)
-		if err != nil {
-			return nil, err
-		}
+	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: ADd restart field
+	dbCluster.Spec.Pause = true
+	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	if err != nil {
+		return nil, err
 	}
 
 	return &dbaasv1beta1.RestartDBClusterResponse{}, nil
