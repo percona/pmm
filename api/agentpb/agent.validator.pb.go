@@ -188,6 +188,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlExplainParams); ok {
+		if oneOfNester.PostgresqlExplainParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlExplainParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlExplainParams", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlShowCreateTableParams); ok {
 		if oneOfNester.PostgresqlShowCreateTableParams != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlShowCreateTableParams); err != nil {
@@ -336,6 +343,15 @@ func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
 }
 
 func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
+	if this.TlsFiles != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
+		}
+	}
+	return nil
+}
+
+func (this *StartActionRequest_PostgreSQLExplainParams) Validate() error {
 	if this.TlsFiles != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsFiles); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("TlsFiles", err)
