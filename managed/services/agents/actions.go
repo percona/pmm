@@ -189,6 +189,64 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 	return err
 }
 
+// StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action on pmm-agent.
+func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	if query == "" && queryID == "" {
+		return status.Error(codes.FailedPrecondition, "query or query_id is required")
+	}
+
+	var q string
+	switch {
+	case queryID != "":
+		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+
+		if res.PlaceholdersCount != uint32(len(placeholders)) {
+			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+		}
+
+		parsed := res.ExplainFingerprint
+		for k, v := range placeholders {
+			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
+		}
+
+		q = parsed
+	default:
+		err := s.qanClient.QueryExists(ctx, serviceID, query)
+		if err != nil {
+			return err
+		}
+		q = query
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PostgresqlExplainParams{
+			PostgresqlExplainParams: &agentpb.StartActionRequest_PostgreSQLExplainParams{
+				Dsn:   dsn,
+				Query: q,
+				TlsFiles: &agentpb.TextFiles{
+					Files:              files,
+					TemplateLeftDelim:  tdp.Left,
+					TemplateRightDelim: tdp.Right,
+				},
+				TlsSkipVerify: tlsSkipVerify,
+			},
+		},
+		Timeout: defaultActionTimeout,
+	}
+
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
+	return err
+}
+
 // StartPostgreSQLShowCreateTableAction starts postgresql-show-create-table action on pmm-agent.
 func (s *ActionsService) StartPostgreSQLShowCreateTableAction(_ context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{

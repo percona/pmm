@@ -297,6 +297,34 @@ func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *mana
 	}, nil
 }
 
+// StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action with traditional output.
+//
+//nolint:lll
+func (s *actionsServer) StartPostgreSQLExplainAction(ctx context.Context, req *managementpb.StartPostgreSQLExplainActionRequest) (*managementpb.StartPostgreSQLExplainActionResponse, error) {
+	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
+	if err != nil {
+		return nil, err
+	}
+
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	if err != nil {
+		return nil, err
+	}
+	if len(agents) != 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
+	}
+
+	err = s.a.StartPostgreSQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, req.QueryId, req.Placeholders, files, tdp, agents[0].TLSSkipVerify)
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.StartPostgreSQLExplainActionResponse{
+		PmmAgentId: req.PmmAgentId,
+		ActionId:   res.ID,
+	}, nil
+}
+
 // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
 //
 //nolint:lll
