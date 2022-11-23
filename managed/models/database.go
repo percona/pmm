@@ -762,6 +762,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE backup_locations
 			RENAME COLUMN pmm_client_config TO filesystem_config`,
 	},
+	72: {
+		`ALTER TABLE user_flags
+			ADD COLUMN alerting_tour_done BOOLEAN NOT NULL DEFAULT false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
