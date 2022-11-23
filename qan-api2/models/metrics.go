@@ -1024,5 +1024,5 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 		return res, nil //nolint:staticcheck
 	}
 
-	return res, nil
+	return res, errors.New("query_id doesnt exists")
 }
