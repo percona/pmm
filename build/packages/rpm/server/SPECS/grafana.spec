@@ -53,6 +53,10 @@ install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav scripts %{buildroot}%{_datadir}/grafana
+%if 0%{?rhel} >= 9
+    rm -rf %{buildroot}%{_datadir}/grafana/scripts/build/ci-msi-build/msigenerator
+    rm -rf %{buildroot}%{_datadir}/grafana/scripts/drone
+%endif
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 if [ ! -d tmp/bin ]; then
@@ -69,9 +73,6 @@ install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
-%if 0%{?rhel} >= 9
-   rm -rf %{buildroot}%{_sharedstatedir}/grafana/scripts/{build,drone}
-%endif
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
