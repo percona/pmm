@@ -16,9 +16,6 @@ Source0:        https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar
 %description
 %{summary}
 
-%description
-%{summary}
-
 %prep
 %setup -q -n %{repo}-%{commit}
 mkdir -p ./build/src/github.com/prometheus
