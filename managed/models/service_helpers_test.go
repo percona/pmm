@@ -402,45 +402,43 @@ func TestServiceHelpers(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
 
-	t.Run("MongoDB find services in the same replica set", func(t *testing.T) {
+	t.Run("MongoDB find services in the same cluster", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
-		_, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:    "mongors1",
-			NodeID:         "N1",
-			ReplicationSet: "rs0",
-			Address:        pointer.ToString("127.0.0.1"),
-			Port:           pointer.ToUint16OrNil(27017),
+		s1, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors1",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
 
-		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:    "mongors2",
-			NodeID:         "N1",
-			ReplicationSet: "rs0",
-			Address:        pointer.ToString("127.0.0.1"),
-			Port:           pointer.ToUint16OrNil(27017),
+		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors2",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
-
 		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:    "mongors3",
-			NodeID:         "N1",
-			ReplicationSet: "rs1",
-			Address:        pointer.ToString("127.0.0.1"),
-			Port:           pointer.ToUint16OrNil(27017),
+			ServiceName: "mongors3",
+			NodeID:      "N1",
+			Cluster:     "cluster1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
 		})
 		require.NoError(t, err)
 
 		services, err := models.FindServices(q, models.ServiceFilters{
-			ServiceType:    pointerToServiceType(models.MongoDBServiceType),
-			ReplicationSet: "rs0",
+			ServiceType: pointerToServiceType(models.MongoDBServiceType),
+			Cluster:     "cluster0",
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, services)
 		assert.Len(t, services, 2)
-		assert.Equal(t, "rs0", services[0].ReplicationSet)
-		assert.Equal(t, "rs0", services[1].ReplicationSet)
+		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 }
 

@@ -475,7 +475,7 @@ func (this *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Validate() e
 	return nil
 }
 
-func (this *StartActionRequest_RestartMongoDBServiceParams) Validate() error {
+func (this *StartActionRequest_RestartServiceParams) Validate() error {
 	return nil
 }
 

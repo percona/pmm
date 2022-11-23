@@ -504,12 +504,12 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 	case *agentpb.StartActionRequest_RestartMongodbServiceParams:
 		var service string
 		switch params.RestartMongodbServiceParams.SystemService {
-		case agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD:
+		case agentpb.StartActionRequest_RestartServiceParams_MONGOD:
 			service = "mongod"
-		case agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT:
+		case agentpb.StartActionRequest_RestartServiceParams_PBM_AGENT:
 			service = "pbm-agent"
 		default:
-			return errors.Errorf("unknown service '%s' specified in mongod restart request", params.RestartMongodbServiceParams.SystemService)
+			return errors.Errorf("invalid service '%s' specified in mongod restart request", params.RestartMongodbServiceParams.SystemService)
 		}
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 

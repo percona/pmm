@@ -89,8 +89,8 @@ type ServiceFilters struct {
 	ServiceType *ServiceType
 	// Return only Services with given external group.
 	ExternalGroup string
-	// Return only Services with given replication set
-	ReplicationSet string
+	// Return only Services in the given cluster
+	Cluster string
 }
 
 // FindServices returns Services by filters.
@@ -113,9 +113,9 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 		args = append(args, filters.ServiceType)
 		idx++
 	}
-	if filters.ReplicationSet != "" {
-		conditions = append(conditions, fmt.Sprintf("replication_set = %s", q.Placeholder(idx)))
-		args = append(args, filters.ReplicationSet)
+	if filters.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
