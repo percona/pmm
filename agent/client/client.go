@@ -434,6 +434,9 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 	case *agentpb.StartActionRequest_MysqlQuerySelectParams:
 		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
 
+	case *agentpb.StartActionRequest_PostgresqlExplainParams:
+		action = actions.NewPostgreSQLExplainAction(p.ActionId, timeout, params.PostgresqlExplainParams)
+
 	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
 		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
 

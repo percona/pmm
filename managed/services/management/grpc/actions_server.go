@@ -306,7 +306,7 @@ func (s *actionsServer) StartPostgreSQLExplainAction(ctx context.Context, req *m
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.PostgresExporterType)})
 	if err != nil {
 		return nil, err
 	}
