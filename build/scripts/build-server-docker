@@ -44,7 +44,7 @@ if [ -n "${PUSH_DOCKER}" ]; then
 fi
 if [ -n "${SAVE_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_tarball})
-    docker save ${DOCKER_TAG} | xz > ${docker_tarball}
+    docker save ${DOCKER_TAG} > ${docker_tarball}
 fi
 
 # vim: expandtab shiftwidth=4 tabstop=4
