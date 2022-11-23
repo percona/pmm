@@ -10,14 +10,15 @@ if [ -f "${docker_tarball}" ]; then
     exit 0
 fi
 
-cp -r ${root_dir}/tmp/source/pmm/build/ansible ${rpms_dir}/../ansible
+docker_root=$(realpath ${rpms_dir}/..)
+cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
+cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
 
 # enable 'local' repo in ansible playbooks
-sed -i -e "s/enablerepo: \"pmm2-server\"/enablerepo: local/" ${rpms_dir}/../ansible/roles/pmm2-images/tasks/main.yml
-sed -i -e "s/pmm_client_repo_name: \".*\"/pmm_client_repo_name: local/" ${rpms_dir}/../ansible/roles/pmm2-images/vars/main.yml
+sed -i -e "s/enablerepo: \"pmm2-server\"/enablerepo: local/" ${docker_root}/ansible/roles/pmm2-images/tasks/main.yml
+sed -i -e "s/pmm_client_repo_name: \".*\"/pmm_client_repo_name: local/" ${docker_root}/ansible/roles/pmm2-images/vars/main.yml
 
-cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${rpms_dir}/../
-git -C ${root_dir} rev-parse HEAD > ${rpms_dir}/../gitCommit
+git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
 docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
     sudo chown -R builder /home/builder/rpm/RPMS
     /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
@@ -34,8 +35,9 @@ docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$IMAGE_VERSION" \
              --squash \
              --no-cache \
-             -f ${docker_file} \
-             -t ${DOCKER_TAG} ${rpms_dir}/../
+             -f ${docker_root}/${docker_file} \
+             -t ${DOCKER_TAG} \
+             ${docker_root}/
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_tag_file})
