@@ -32600,6 +32600,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }
@@ -32656,6 +32661,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 0
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 1
                 }
               }
             }
@@ -32677,6 +32687,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }
