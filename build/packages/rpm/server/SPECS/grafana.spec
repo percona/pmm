@@ -36,7 +36,7 @@ Graphite, InfluxDB & OpenTSDB.
 rm -rf Godeps
 sed -i "s/unknown-dev/%{full_version}/" build.go
 %if 0%{?rhel} >= 9
-    npm instal -g grunt-cli
+    sudo npm instal -g grunt-cli
 %endif
 
 %build
