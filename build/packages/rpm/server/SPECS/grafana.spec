@@ -69,6 +69,9 @@ install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
+%if 0%{?rhel} >= 9
+   rm -rf %{buildroot}%{_sharedstatedir}/grafana/scripts/{build,drone}
+%endif
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
