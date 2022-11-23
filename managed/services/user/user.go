@@ -83,18 +83,15 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*u
 	}
 
 	resp := &userpb.UserDetailsResponse{
-		UserId:               uint32(userInfo.ID),
-		ProductTourCompleted: userInfo.Tour,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
 	}
 	return resp, nil
 }
 
 // UpdateUser updates data for given user
 func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
-	if !req.ProductTourCompleted {
-		return nil, status.Errorf(codes.InvalidArgument, "Tour flag cannot be unset")
-	}
-
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -112,9 +109,19 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		}
 
 		params := &models.UpdateUserParams{
-			UserID: userInfo.ID,
-			Tour:   req.ProductTourCompleted,
+			UserID:       userInfo.ID,
+			Tour:         userInfo.Tour,
+			AlertingTour: userInfo.AlertingTour,
 		}
+
+		// Only allow to set flags
+		if req.ProductTourCompleted {
+			params.Tour = req.ProductTourCompleted
+		}
+		if req.AlertingTourCompleted {
+			params.AlertingTour = req.AlertingTourCompleted
+		}
+
 		userInfo, err = models.UpdateUser(tx.Querier, params)
 		if err != nil {
 			return err
@@ -127,8 +134,9 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 	}
 
 	resp := &userpb.UserDetailsResponse{
-		UserId:               uint32(userInfo.ID),
-		ProductTourCompleted: userInfo.Tour,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
 	}
 	return resp, nil
 }
