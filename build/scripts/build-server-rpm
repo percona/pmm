@@ -23,6 +23,7 @@ get_rpm_version() {
 is_build_needed() {
     local spec_name=$1
     local rpm_version=$2
+    local packages=
 
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
@@ -38,8 +39,11 @@ is_build_needed() {
             ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
-    local packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.rpm" | wc -l)
-
+    if [ "$rpmbuild_dist_param" = ".el7" ]; then
+        packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.el7.*.rpm" | wc -l)
+    else
+        packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.el9.*.rpm" | wc -l)
+    fi
     # return result as true or flase
     [[ ${packages// /} == 0 ]]
 }

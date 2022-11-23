@@ -23,6 +23,9 @@ deps:
 pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
+pmm2-ovf-el9: fetch
+	packer build -only virtualbox-ovf packer/pmm2.el9.json
+
 pmm2-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm2.json
 
