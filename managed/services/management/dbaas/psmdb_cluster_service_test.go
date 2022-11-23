@@ -162,7 +162,7 @@ func TestPSMDBClusterService(t *testing.T) {
 				},
 			},
 		}
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -248,7 +248,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		}
 		componentsService.On("GetPSMDBComponents", ctx, mock.Anything).Return(psmdbComponents, nil)
 
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -260,7 +260,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.UpdatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: psmdbKubeconfTest,
@@ -298,7 +298,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentials", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -329,7 +329,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentialsWithHost", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 		name := "another-third-psmdb-test"
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
@@ -358,7 +358,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		in := dbaasv1beta1.GetPSMDBClusterResourcesRequest{
 			Params: &dbaasv1beta1.PSMDBClusterParams{

@@ -117,7 +117,7 @@ func TestPXCClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreatePXCClusters", func(t *testing.T) {
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.CreatePXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -214,7 +214,7 @@ func TestPXCClusterService(t *testing.T) {
 		}
 		componentsClient.On("GetPXCComponents", ctx, mock.Anything).Return(pxcComponents, nil)
 
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 
 		in := dbaasv1beta1.CreatePXCClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -227,7 +227,7 @@ func TestPXCClusterService(t *testing.T) {
 
 	t.Run("BasicGetPXCClusterCredentials", func(t *testing.T) {
 		name := "third-pxc-test"
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.GetPXCClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -259,7 +259,7 @@ func TestPXCClusterService(t *testing.T) {
 
 	t.Run("BasicGetPXCClusterCredentialsWithHost", func(t *testing.T) { // Real kubernetes will have ingress
 		name := "another-third-pxc-test"
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.GetPXCClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -293,7 +293,7 @@ func TestPXCClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePXCCluster", func(t *testing.T) {
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.UpdatePXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -346,7 +346,7 @@ func TestPXCClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicSuspendResumePXCCluster", func(t *testing.T) {
-		s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 		mockReqSuspend := controllerv1beta1.UpdatePXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: pxcKubeconfigTest,
@@ -395,7 +395,7 @@ func TestPXCClusterService(t *testing.T) {
 		t.Parallel()
 		t.Run("ProxySQL", func(t *testing.T) {
 			t.Parallel()
-			s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+			s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 			v := int64(1000000000)
 			r := int64(2000000000)
 
@@ -428,7 +428,7 @@ func TestPXCClusterService(t *testing.T) {
 
 		t.Run("HAProxy", func(t *testing.T) {
 			t.Parallel()
-			s := NewPXCClusterService(db, dbaasClient, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+			s := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
 			v := int64(1000000000)
 
 			in := dbaasv1beta1.GetPXCClusterResourcesRequest{
