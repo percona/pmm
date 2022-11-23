@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -55,7 +56,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 }
 
 // GetUser creates a new user
-func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
+func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
-		if err == models.ErrNotFound {
+		if errors.Is(err, models.ErrNotFound) {
 			// User entry missing; create entry
 			params := &models.CreateUserParams{
 				UserID: userID,
@@ -82,18 +83,15 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 	}
 
 	resp := &userpb.UserDetailsResponse{
-		UserId:               uint32(userInfo.ID),
-		ProductTourCompleted: userInfo.Tour,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
 	}
 	return resp, nil
 }
 
 // UpdateUser updates data for given user
 func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
-	if !req.ProductTourCompleted {
-		return nil, status.Errorf(codes.InvalidArgument, "Tour flag cannot be unset")
-	}
-
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -104,16 +102,26 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
 		if err != nil {
-			if err == models.ErrNotFound {
+			if errors.Is(err, models.ErrNotFound) {
 				return status.Errorf(codes.Unavailable, "User not found")
 			}
 			return err
 		}
 
 		params := &models.UpdateUserParams{
-			UserID: userInfo.ID,
-			Tour:   req.ProductTourCompleted,
+			UserID:       userInfo.ID,
+			Tour:         userInfo.Tour,
+			AlertingTour: userInfo.AlertingTour,
 		}
+
+		// Only allow to set flags
+		if req.ProductTourCompleted {
+			params.Tour = req.ProductTourCompleted
+		}
+		if req.AlertingTourCompleted {
+			params.AlertingTour = req.AlertingTourCompleted
+		}
+
 		userInfo, err = models.UpdateUser(tx.Querier, params)
 		if err != nil {
 			return err
@@ -126,8 +134,9 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 	}
 
 	resp := &userpb.UserDetailsResponse{
-		UserId:               uint32(userInfo.ID),
-		ProductTourCompleted: userInfo.Tour,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
 	}
 	return resp, nil
 }

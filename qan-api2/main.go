@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -39,6 +39,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -87,12 +88,10 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
-			grpc_validator.UnaryServerInterceptor(),
-		)),
+			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
-			grpc_validator.StreamServerInterceptor(),
-		)),
+			grpc_validator.StreamServerInterceptor())),
 	)
 
 	aserv := aservice.NewService(rm, mm)
@@ -118,7 +117,7 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	go func() {
 		for {
 			err = grpcServer.Serve(lis)
-			if err == nil || err == grpc.ErrServerStopped {
+			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
 				break
 			}
 			l.Errorf("Failed to serve: %s", err)
@@ -181,7 +180,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Println("Server stopped.")
@@ -242,7 +241,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Server stopped.")

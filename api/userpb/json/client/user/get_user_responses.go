@@ -269,6 +269,9 @@ type GetUserOKBody struct {
 
 	// Product Tour
 	ProductTourCompleted bool `json:"product_tour_completed,omitempty"`
+
+	// Alerting Tour
+	AlertingTourCompleted bool `json:"alerting_tour_completed,omitempty"`
 }
 
 // Validate validates this get user OK body

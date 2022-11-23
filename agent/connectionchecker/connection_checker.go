@@ -90,7 +90,7 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll,unparam
 	var res agentpb.CheckConnectionResponse
 	var err error
 
@@ -130,7 +130,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 
 	if err = cc.sqlPing(ctx, db); err != nil {
 		if errors.As(err, &x509.HostnameError{}) {
-			res.Error = errors.Wrap(err, "mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
+			res.Error = errors.Wrap(err,
+				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
 		} else {
 			res.Error = err.Error()
 		}

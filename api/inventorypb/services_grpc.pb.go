@@ -43,6 +43,10 @@ type ServicesClient interface {
 	AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error)
 	// RemoveService removes Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	// AddCustomLabels adds custom labels to a Service.
+	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
+	// RemoveCustomLabels removes custom labels from a Service.
+	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
 }
 
 type servicesClient struct {
@@ -143,6 +147,24 @@ func (c *servicesClient) RemoveService(ctx context.Context, in *RemoveServiceReq
 	return out, nil
 }
 
+func (c *servicesClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error) {
+	out := new(AddCustomLabelsResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/AddCustomLabels", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error) {
+	out := new(RemoveCustomLabelsResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/RemoveCustomLabels", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServicesServer is the server API for Services service.
 // All implementations must embed UnimplementedServicesServer
 // for forward compatibility
@@ -167,6 +189,10 @@ type ServicesServer interface {
 	AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error)
 	// RemoveService removes Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	// AddCustomLabels adds custom labels to a Service.
+	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
+	// RemoveCustomLabels removes custom labels from a Service.
+	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
 	mustEmbedUnimplementedServicesServer()
 }
 
@@ -211,6 +237,14 @@ func (UnimplementedServicesServer) AddExternalService(context.Context, *AddExter
 
 func (UnimplementedServicesServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
+}
+
+func (UnimplementedServicesServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCustomLabels not implemented")
+}
+
+func (UnimplementedServicesServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
 }
 func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
 
@@ -405,6 +439,42 @@ func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Services_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCustomLabelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).AddCustomLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Services/AddCustomLabels",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).AddCustomLabels(ctx, req.(*AddCustomLabelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveCustomLabelsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).RemoveCustomLabels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Services/RemoveCustomLabels",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).RemoveCustomLabels(ctx, req.(*RemoveCustomLabelsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Services_ServiceDesc is the grpc.ServiceDesc for Services service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -451,6 +521,14 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveService",
 			Handler:    _Services_RemoveService_Handler,
+		},
+		{
+			MethodName: "AddCustomLabels",
+			Handler:    _Services_AddCustomLabels_Handler,
+		},
+		{
+			MethodName: "RemoveCustomLabels",
+			Handler:    _Services_RemoveCustomLabels_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
