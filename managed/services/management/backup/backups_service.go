@@ -597,35 +597,38 @@ func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, 
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
+func convertBackupError(backupErr error) error {
+	if backupErr == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.AgentNotSupportedError
+	if errors.As(backupErr, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 	}
 
 	var code backuppb.ErrorCode
 	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+	case errors.Is(backupErr, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
+	case errors.Is(backupErr, backup.ErrXtrabackupNotInstalled):
 		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+	case errors.Is(backupErr, backup.ErrInvalidXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+	case errors.Is(backupErr, backup.ErrIncompatibleXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrIncompatibleLocationType):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(backupErr, backup.ErrIncompatibleLocationType):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 
 	default:
-		return restoreError
+		return backupErr
 	}
 
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
+	st, err := status.New(codes.FailedPrecondition, backupErr.Error()).WithDetails(&backuppb.Error{
 		Code: code,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, backupErr)
 	}
 
 	return st.Err()
@@ -634,6 +637,11 @@ func convertBackupError(restoreError error) error {
 func convertRestoreBackupError(restoreError error) error {
 	if restoreError == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.AgentNotSupportedError
+	if errors.As(restoreError, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	}
 
 	var code backuppb.ErrorCode
@@ -651,8 +659,6 @@ func convertRestoreBackupError(restoreError error) error {
 	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, models.ErrNotFound):
 		return status.Error(codes.NotFound, restoreError.Error())

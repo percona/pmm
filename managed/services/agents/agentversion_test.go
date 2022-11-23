@@ -47,7 +47,7 @@ func TestPMMAgentSupported(t *testing.T) {
 		{
 			name:         "Less than min version",
 			agentVersion: "2.30.4",
-			errString:    "not supported on pmm-agent",
+			errString:    "not supported by pmm-agent",
 		},
 		{
 			name:         "Equals min version",

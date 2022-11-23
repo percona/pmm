@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -23,8 +25,18 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// ErrIncompatibleAgentVersion is returned when the version of the running pmm-agent does not support a given functionality.
-var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
+// AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
+type AgentNotSupportedError struct {
+	Functionality   string
+	AgentID         string
+	AgentVersion    string
+	MinAgentVersion string
+}
+
+func (e *AgentNotSupportedError) Error() string {
+	return fmt.Sprintf("%s is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
+		e.AgentID, e.AgentVersion, e.MinAgentVersion)
+}
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
@@ -49,8 +61,12 @@ func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmM
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.WithMessagef(ErrIncompatibleAgentVersion, "%s is not supported on pmm-agent %q version %q, min required version %q", functionalityPrefix,
-			agentModel.AgentID, *agentModel.Version, pmmMinVersion)
+		return errors.WithStack(&AgentNotSupportedError{
+			AgentID:         agentModel.AgentID,
+			Functionality:   functionalityPrefix,
+			AgentVersion:    *agentModel.Version,
+			MinAgentVersion: pmmMinVersion.String(),
+		})
 	}
 	return nil
 }
