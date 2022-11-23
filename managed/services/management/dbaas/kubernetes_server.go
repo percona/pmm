@@ -35,6 +35,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -381,35 +382,21 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
+		kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
+		if err != nil {
+			return errors.Wrap(err, "failed to create kubernetes client")
+		}
+		out, err := kubeClient.ListDatabaseClusters(ctx)
 
-		pxcClusters, err := k.dbaasClient.ListPXCClusters(ctx,
-			&dbaascontrollerv1beta1.ListPXCClustersRequest{
-				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-					Kubeconfig: kubernetesCluster.KubeConfig,
-				},
-			})
 		switch {
 		case err != nil && accessError(err):
 			k.l.Warn(err)
 		case err != nil:
 			return err
-		case len(pxcClusters.Clusters) != 0:
-			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", req.KubernetesClusterName)
+		case len(out.Items) != 0:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
 		}
 
-		psmdbClusters, err := k.dbaasClient.ListPSMDBClusters(ctx, &dbaascontrollerv1beta1.ListPSMDBClustersRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		})
-		switch {
-		case err != nil && accessError(err):
-			k.l.Warn(err)
-		case err != nil:
-			return err
-		case len(psmdbClusters.Clusters) != 0:
-			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", req.KubernetesClusterName)
-		}
 		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 	})
 	if err != nil {
