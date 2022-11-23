@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -17,6 +18,8 @@ const (
 	databasePXC   dbaasv1.EngineType = "pxc"
 	databasePSMDB dbaasv1.EngineType = "psmdb"
 )
+
+var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
 
 func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.ResourceRequirements, error) {
 	req := corev1.ResourceRequirements{}
@@ -128,9 +131,88 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
 	return dbCluster
 }
-func ToCreatePSMDBRequest(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) *dbaasv1beta1.CreatePSMDBClusterRequest {
-	return nil
+func UpdatePatchForPSMDB(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaasv1.DatabaseCluster, error) {
+	if cluster.Params.Suspend && cluster.Params.Resume {
+		return nil, errSimultaneous
+	}
+	dbCluster := &dbaasv1.DatabaseCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: cluster.Name,
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: dbaasAPI,
+			Kind:       dbaasKind,
+		},
+		Spec: dbaasv1.DatabaseSpec{
+			Database:       databasePSMDB,
+			DatabaseImage:  cluster.Params.Image,
+			DatabaseConfig: cluster.Params.Replicaset.Configuration,
+			DBInstance: dbaasv1.DBInstanceSpec{
+				// FIXME: Implement a better solution
+				CPU:    fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM),
+				Memory: strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
+			},
+			ClusterSize: cluster.Params.ClusterSize,
+		},
+	}
+	if cluster.Params.Replicaset.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Replicaset.StorageClass
+	}
+	if cluster.Params.Suspend {
+		dbCluster.Spec.Pause = true
+	}
+	if cluster.Params.Resume {
+		dbCluster.Spec.Pause = false
+	}
+	return dbCluster, nil
 }
-func ToCreatePXCRequest(cluster *dbaasv1beta1.UpdatePXCClusterRequest) *dbaasv1beta1.CreatePXCClusterRequest {
-	return &dbaasv1beta1.CreatePXCClusterRequest{}
+func UpdatePatchForPXC(cluster *dbaasv1beta1.UpdatePXCClusterRequest) (*dbaasv1.DatabaseCluster, error) {
+	if cluster.Params.Suspend && cluster.Params.Resume {
+		return nil, errSimultaneous
+	}
+	dbCluster := &dbaasv1.DatabaseCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: cluster.Name,
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: dbaasAPI,
+			Kind:       dbaasKind,
+		},
+		Spec: dbaasv1.DatabaseSpec{
+			Database:       databasePXC,
+			DatabaseImage:  cluster.Params.Pxc.Image,
+			DatabaseConfig: cluster.Params.Pxc.Configuration,
+			DBInstance: dbaasv1.DBInstanceSpec{
+				// FIXME: Implement a better solution
+				CPU:    fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM),
+				Memory: strconv.FormatInt(cluster.Params.Pxc.ComputeResources.MemoryBytes, 10),
+			},
+			ClusterSize: cluster.Params.ClusterSize,
+		},
+	}
+	if cluster.Params.Pxc.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Pxc.StorageClass
+	}
+	if cluster.Params.Suspend {
+		dbCluster.Spec.Pause = true
+	}
+	if cluster.Params.Resume {
+		dbCluster.Spec.Pause = false
+	}
+	if cluster.Params.Haproxy != nil {
+		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
+		if err != nil {
+			return nil, err
+		}
+		dbCluster.Spec.LoadBalancer.Resources = resources
+
+	}
+	if cluster.Params.Proxysql != nil {
+		resources, err := convertComputeResource(cluster.Params.Proxysql.ComputeResources)
+		if err != nil {
+			return nil, err
+		}
+		dbCluster.Spec.LoadBalancer.Resources = resources
+	}
+	return dbCluster, nil
 }

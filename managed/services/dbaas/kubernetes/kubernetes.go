@@ -17,6 +17,7 @@ package kubernetes
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -116,10 +117,11 @@ func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 
 // PatchDatabaseCluster patches CR of managed PXC cluster.
 func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) (*dbaasv1.DatabaseCluster, error) {
-	var pt types.PatchType
-	var data []byte
-	var opts metav1.PatchOptions
-	return c.client.PatchDatabaseCluster(ctx, cluster.Name, pt, data, opts)
+	patch, err := json.Marshal(cluster)
+	if err != nil {
+		return nil, err
+	}
+	return c.client.PatchDatabaseCluster(ctx, cluster.Name, types.MergePatchType, patch, metav1.PatchOptions{})
 }
 
 func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {

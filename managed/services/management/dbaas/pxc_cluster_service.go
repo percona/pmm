@@ -293,7 +293,7 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPXC(kubernetes.ToCreatePXCRequest(req))
+	dbCluster, err := kubernetes.UpdatePatchForPXC(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}

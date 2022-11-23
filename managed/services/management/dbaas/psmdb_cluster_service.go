@@ -263,9 +263,10 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster := kubernetes.DatabaseClusterForPSMDB(
-		kubernetes.ToCreatePSMDBRequest(req),
-	)
+	dbCluster, err := kubernetes.UpdatePatchForPSMDB(req)
+	if err != nil {
+		return nil, err
+	}
 
 	if req.Params != nil {
 		if req.Params.Suspend && req.Params.Resume {
