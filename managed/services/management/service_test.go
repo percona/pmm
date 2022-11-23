@@ -38,10 +38,10 @@ import (
 )
 
 func TestServiceService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, s *ServiceService, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -53,21 +53,21 @@ func TestServiceService(t *testing.T) {
 		state := &mockAgentsStateUpdater{}
 		state.Test(t)
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())
 			vmdb.AssertExpectations(t)
 			state.AssertExpectations(t)
 		}
-		s = NewServiceService(db, state, vmdb)
+		s := NewServiceService(db, state, vmdb)
 
-		return
+		return ctx, s, teardown, vmdb
 	}
 
 	t.Run("Remove", func(t *testing.T) {
 		t.Run("No params", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{})
@@ -76,7 +76,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Both params", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
@@ -85,7 +85,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Not found", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: "some-service-name"})
@@ -94,7 +94,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Wrong service type", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -111,7 +111,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Basic", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -149,7 +149,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("RDS", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
@@ -203,7 +203,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Azure", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
+			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{

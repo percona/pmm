@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
+//
+
 package grafana
 
 import (
@@ -681,7 +683,7 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
 	}
 
 	return user.AccessToken, nil

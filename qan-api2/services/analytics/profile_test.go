@@ -174,7 +174,7 @@ func TestService_GetReport(t *testing.T) {
 			if err != nil {
 				t.Errorf("cannot marshal:%v", err)
 			}
-			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+			assert.JSONEq(t, string(expectedJSON), gotJSON)
 		})
 	}
 }
@@ -245,7 +245,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	test.name = "correct_load"
@@ -265,7 +265,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 
 	test.name = "correct_latency"
@@ -286,7 +286,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 
 	t.Run("no error on limit is 0", func(t *testing.T) {
@@ -361,7 +361,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("group_by_service_name", func(t *testing.T) {
@@ -399,7 +399,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("group_by_database", func(t *testing.T) {
@@ -437,7 +437,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("group_by_schema", func(t *testing.T) {
@@ -475,7 +475,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("group_by_username", func(t *testing.T) {
@@ -513,7 +513,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
 	t.Run("group_by_client_host", func(t *testing.T) {
@@ -551,7 +551,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 }
 
@@ -718,7 +718,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 
 	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
@@ -757,7 +757,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 }
 
@@ -896,6 +896,6 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 }

@@ -72,7 +72,7 @@ func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient,
 }
 
 // GetPXCClusterCredentials returns a PXC cluster credentials.
-func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPXCClusterCredentialsRequest) (*dbaasv1beta1.GetPXCClusterCredentialsResponse, error) {
+func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPXCClusterCredentialsRequest) (*dbaasv1beta1.GetPXCClusterCredentialsResponse, error) { //nolint:lll
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
@@ -319,7 +319,7 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 }
 
 // GetPXCClusterResources returns expected resources to be consumed by the cluster.
-func (s PXCClustersService) GetPXCClusterResources(ctx context.Context, req *dbaasv1beta1.GetPXCClusterResourcesRequest) (*dbaasv1beta1.GetPXCClusterResourcesResponse, error) {
+func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaasv1beta1.GetPXCClusterResourcesRequest) (*dbaasv1beta1.GetPXCClusterResourcesResponse, error) { //nolint:lll
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		return nil, err
