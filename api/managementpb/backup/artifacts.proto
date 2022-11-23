@@ -18,7 +18,6 @@ enum BackupStatus {
   BACKUP_STATUS_ERROR = 5;
   BACKUP_STATUS_DELETING = 6;
   BACKUP_STATUS_FAILED_TO_DELETE = 7;
-  BACKUP_STATUS_FAILED_NOT_SUPPORTED_BY_AGENT = 8;
 }
 
 // Artifact represents single backup artifact.
