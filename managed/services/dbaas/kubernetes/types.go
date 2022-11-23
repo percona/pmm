@@ -6,10 +6,11 @@ import (
 	"strconv"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
 
 const (
@@ -68,7 +69,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 			Backup:       dbaasv1.BackupSpec{},
 		},
 	}
-	//TODO: Fill HAProxy image
+	// TODO: Fill HAProxy image
 	if cluster.Params.Haproxy != nil {
 		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
 		if err != nil {
@@ -95,6 +96,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
 	return dbCluster, nil
 }
+
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *dbaasv1.DatabaseCluster {
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
@@ -131,6 +133,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
 	return dbCluster
 }
+
 func UpdatePatchForPSMDB(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaasv1.DatabaseCluster, error) {
 	if cluster.Params.Suspend && cluster.Params.Resume {
 		return nil, errSimultaneous
@@ -166,6 +169,7 @@ func UpdatePatchForPSMDB(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaa
 	}
 	return dbCluster, nil
 }
+
 func UpdatePatchForPXC(cluster *dbaasv1beta1.UpdatePXCClusterRequest) (*dbaasv1.DatabaseCluster, error) {
 	if cluster.Params.Suspend && cluster.Params.Resume {
 		return nil, errSimultaneous

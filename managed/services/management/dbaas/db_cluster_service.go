@@ -153,6 +153,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	c.InstalledImage = cluster.Spec.DatabaseImage
 	return c, nil
 }
+
 func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PSMDBCluster, error) {
 	diskSize, err := strconv.ParseInt(cluster.Spec.DBInstance.DiskSize, 10, 64)
 	if err != nil {
@@ -276,6 +277,6 @@ func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
 		dbaasv1.AppStateError:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_FAILED,
 		dbaasv1.AppStateStopping: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING,
 		dbaasv1.AppStatePaused:   dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED,
-		//dbaasv1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
+		// dbaasv1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
 	}
 }

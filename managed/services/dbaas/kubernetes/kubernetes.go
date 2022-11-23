@@ -127,6 +127,7 @@ func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.
 func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
 	return c.client.ApplyObject(ctx, cluster)
 }
+
 func (c *Kubernetes) DeleteDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
 	return c.client.DeleteObject(ctx, cluster)
 }
@@ -141,6 +142,7 @@ func (c *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 	}
 	return "", errors.New("no storage classes available")
 }
+
 func (c *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
 	deployment, err := c.client.GetDeployment(ctx, name)
 	if err != nil {
@@ -148,9 +150,11 @@ func (c *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (strin
 	}
 	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
 }
+
 func (c *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	return c.GetOperatorVersion(ctx, psmdbDeploymentName)
 }
+
 func (c *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	return c.GetOperatorVersion(ctx, pxcDeploymentName)
 }
