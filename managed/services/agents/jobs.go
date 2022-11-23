@@ -644,7 +644,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range rsAgents {
-		if err = s.restartMongoComponent(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD); err != nil {
+		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_MONGOD); err != nil {
 			return err
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
@@ -654,7 +654,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range rsAgents {
-		if err = s.restartMongoComponent(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT); err != nil {
+		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartMongoDBServiceParams_PBM_AGENT); err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
@@ -663,7 +663,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	return nil
 }
 
-func (s *JobsService) restartMongoComponent(agentID string, service agentpb.StartActionRequest_RestartMongoDBServiceParams_Service) error {
+func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.StartActionRequest_RestartMongoDBServiceParams_SystemService) error {
 	s.l.Infof("sending request to restart %s on %s", service, agentID)
 	action, err := models.CreateActionResult(s.db.Querier, agentID)
 	if err != nil {
@@ -674,7 +674,7 @@ func (s *JobsService) restartMongoComponent(agentID string, service agentpb.Star
 		ActionId: action.ID,
 		Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
 			RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartMongoDBServiceParams{
-				Service: service,
+				SystemService: service,
 			},
 		},
 	}
