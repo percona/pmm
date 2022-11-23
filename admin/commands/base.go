@@ -144,7 +144,7 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	return strings.TrimSpace(buf.String()) + "\n"
 }
 
-var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
+var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
 
 // ParseCustomLabels trims spaces in --custom-labels flag value.
 func ParseCustomLabels(labels map[string]string) map[string]string {

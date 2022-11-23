@@ -22,8 +22,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -31,9 +34,13 @@ func TestMySQLShowCreateTable(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
+	t.Logf("version = %q, vendor = %q", mySQLVersion, mySQLVendor)
 
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
@@ -49,7 +56,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 		var expected string
 		switch {
-		case mySQLVersion == "8.0":
+		case mySQLVersion.String() == "8.0":
 			// https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
 			// Display width specification for integer data types was deprecated in MySQL 8.0.17,
 			// and now statements that include data type definitions in their output no longer
@@ -66,7 +73,21 @@ CREATE TABLE "city" (
   CONSTRAINT "city_ibfk_1" FOREIGN KEY ("CountryCode") REFERENCES "country" ("Code")
 ) ENGINE=InnoDB AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1
 			`)
-		case mySQLVendor == tests.MariaDBMySQL:
+		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() > 10.2:
+			// `DEFAULT 0` for Population
+			expected = strings.TrimSpace(`
+CREATE TABLE "city" (
+  "ID" int(11) NOT NULL AUTO_INCREMENT,
+  "Name" char(35) NOT NULL DEFAULT '',
+  "CountryCode" char(3) NOT NULL DEFAULT '',
+  "District" char(20) NOT NULL DEFAULT '',
+  "Population" int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY ("ID"),
+  KEY "CountryCode" ("CountryCode"),
+  CONSTRAINT "city_ibfk_1" FOREIGN KEY ("CountryCode") REFERENCES "country" ("Code")
+) ENGINE=InnoDB AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+			`)
+		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() < 10.3:
 			// `DEFAULT 0` for Population
 			expected = strings.TrimSpace(`
 CREATE TABLE "city" (
@@ -126,7 +147,7 @@ CREATE TABLE "city" (
 		assert.EqualError(t, err, expected)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

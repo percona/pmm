@@ -42,6 +42,8 @@ type ServiceService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	vmdb  prometheusService
+
+	managementpb.UnimplementedServiceServer
 }
 
 // NewServiceService creates ServiceService instance.

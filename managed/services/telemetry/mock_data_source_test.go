@@ -29,15 +29,15 @@ func (_m *MockDataSource) Enabled() bool {
 }
 
 // FetchMetrics provides a mock function with given fields: ctx, config
-func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	ret := _m.Called(ctx, config)
 
-	var r0 [][]*pmmv1.ServerMetric_Metric
-	if rf, ok := ret.Get(0).(func(context.Context, Config) [][]*pmmv1.ServerMetric_Metric); ok {
+	var r0 []*pmmv1.ServerMetric_Metric
+	if rf, ok := ret.Get(0).(func(context.Context, Config) []*pmmv1.ServerMetric_Metric); ok {
 		r0 = rf(ctx, config)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([][]*pmmv1.ServerMetric_Metric)
+			r0 = ret.Get(0).([]*pmmv1.ServerMetric_Metric)
 		}
 	}
 
