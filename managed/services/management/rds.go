@@ -232,7 +232,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 		switch {
 		case e.Code() == "InvalidClientTokenId":
 			return res, status.Error(codes.InvalidArgument, e.Message())
-		case e.OrigErr() == context.Canceled || e.OrigErr() == context.DeadlineExceeded:
+		case errors.Is(e.OrigErr(), context.Canceled) || errors.Is(e.OrigErr(), context.DeadlineExceeded):
 			return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
 		default:
 			return res, status.Error(codes.Unknown, e.Error())
@@ -242,7 +242,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) {
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop
 	res := &managementpb.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

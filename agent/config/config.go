@@ -447,7 +447,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
+	app.Flag("log-lines-count",
+		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present

@@ -90,7 +90,7 @@ func (v *Versioner) binaryVersion(
 	defer cancel()
 
 	if _, err := v.ef.LookPath(binaryName); err != nil {
-		if err.(*exec.Error).Err == exec.ErrNotFound {
+		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) {
 			return "", ErrNotFound
 		}
 
