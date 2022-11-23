@@ -479,7 +479,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate agruments in IN clause")
+		return nil, errors.Wrap(err, "populate arguments in IN clause")
 	}
 	query = m.db.Rebind(query)
 
@@ -806,7 +806,7 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 
 	var fingerprint string
 	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", fmt.Errorf("QueryxContext error:%v", err)
 	}
 
@@ -821,8 +821,8 @@ func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.Q
 	defer cancel()
 
 	var res qanpb.QueryPlanReply
-	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID})
-	if err != nil && err != sql.ErrNoRows {
+	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("QueryxContext error:%v", err)
 	}
 

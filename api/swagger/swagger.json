@@ -12806,6 +12806,154 @@
         }
       }
     },
+    "/v1/inventory/Services/CustomLabels/Add": {
+      "post": {
+        "description": "Adds or replaces (if the key exists) custom labels for a Service.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Add/replace custom labels",
+        "operationId": "AddCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels to be added.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/CustomLabels/Remove": {
+      "post": {
+        "description": "Removes custom labels from a Service by key.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Remove custom labels",
+        "operationId": "RemoveCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_label_keys": {
+                  "description": "Custom user-assigned label keys to be removed.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/Get": {
       "post": {
         "description": "Returns a single Service by ID.",
@@ -23192,6 +23340,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }
@@ -23248,6 +23401,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 0
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 1
                 }
               }
             }
@@ -23269,6 +23427,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }

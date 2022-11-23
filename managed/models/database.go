@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//nolint:lll
 package models
 
 import (
@@ -762,6 +763,10 @@ var databaseSchema = [][]string{
 			RENAME COLUMN pmm_client_config TO filesystem_config`,
 	},
 	72: {
+		`ALTER TABLE user_flags
+			ADD COLUMN alerting_tour_done BOOLEAN NOT NULL DEFAULT false`,
+	},
+	73: {
 		`CREATE TABLE roles (
 			id SERIAL PRIMARY KEY,
 			title VARCHAR NOT NULL UNIQUE,

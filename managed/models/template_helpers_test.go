@@ -282,7 +282,7 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 	}
 }
 
-func createRule(t *testing.T, q *reform.Querier, channelID string, template *models.Template) string {
+func createRule(t *testing.T, q *reform.Querier, channelID string, template *models.Template) string { //nolint:unparam
 	rule, err := models.CreateRule(q, &models.CreateRuleParams{
 		TemplateName: template.Name,
 		Disabled:     true,
