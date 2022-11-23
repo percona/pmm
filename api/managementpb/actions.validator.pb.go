@@ -107,6 +107,17 @@ func (this *StartMySQLShowIndexActionResponse) Validate() error {
 	return nil
 }
 
+func (this *StartPostgreSQLExplainActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	return nil
+}
+
+func (this *StartPostgreSQLExplainActionResponse) Validate() error {
+	return nil
+}
+
 func (this *StartPostgreSQLShowCreateTableActionRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))

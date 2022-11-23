@@ -54,6 +54,8 @@ type ClientService interface {
 
 	StartPTSummaryAction(params *StartPTSummaryActionParams, opts ...ClientOption) (*StartPTSummaryActionOK, error)
 
+	StartPostgreSQLExplainAction(params *StartPostgreSQLExplainActionParams, opts ...ClientOption) (*StartPostgreSQLExplainActionOK, error)
+
 	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams, opts ...ClientOption) (*StartPostgreSQLShowCreateTableActionOK, error)
 
 	StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams, opts ...ClientOption) (*StartPostgreSQLShowIndexActionOK, error)
@@ -565,6 +567,45 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts .
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartPTSummaryActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+StartPostgreSQLExplainAction starts postgre SQL e x p l a i n action
+
+Starts 'PostgreSQL EXPLAIN' Action with traditional output.
+*/
+func (a *Client) StartPostgreSQLExplainAction(params *StartPostgreSQLExplainActionParams, opts ...ClientOption) (*StartPostgreSQLExplainActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPostgreSQLExplainActionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "StartPostgreSQLExplainAction",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Actions/StartPostgreSQLExplain",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPostgreSQLExplainActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartPostgreSQLExplainActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPostgreSQLExplainActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

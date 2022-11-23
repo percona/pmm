@@ -37,6 +37,8 @@ type ActionsClient interface {
 	StartMySQLShowTableStatusAction(ctx context.Context, in *StartMySQLShowTableStatusActionRequest, opts ...grpc.CallOption) (*StartMySQLShowTableStatusActionResponse, error)
 	// StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
 	StartMySQLShowIndexAction(ctx context.Context, in *StartMySQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartMySQLShowIndexActionResponse, error)
+	// StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action with traditional output.
+	StartPostgreSQLExplainAction(ctx context.Context, in *StartPostgreSQLExplainActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLExplainActionResponse, error)
 	// StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
 	StartPostgreSQLShowCreateTableAction(ctx context.Context, in *StartPostgreSQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowCreateTableActionResponse, error)
 	// StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
@@ -120,6 +122,15 @@ func (c *actionsClient) StartMySQLShowTableStatusAction(ctx context.Context, in 
 func (c *actionsClient) StartMySQLShowIndexAction(ctx context.Context, in *StartMySQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartMySQLShowIndexActionResponse, error) {
 	out := new(StartMySQLShowIndexActionResponse)
 	err := c.cc.Invoke(ctx, "/management.Actions/StartMySQLShowIndexAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) StartPostgreSQLExplainAction(ctx context.Context, in *StartPostgreSQLExplainActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLExplainActionResponse, error) {
+	out := new(StartPostgreSQLExplainActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartPostgreSQLExplainAction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -216,6 +227,8 @@ type ActionsServer interface {
 	StartMySQLShowTableStatusAction(context.Context, *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error)
 	// StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
 	StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error)
+	// StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action with traditional output.
+	StartPostgreSQLExplainAction(context.Context, *StartPostgreSQLExplainActionRequest) (*StartPostgreSQLExplainActionResponse, error)
 	// StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
 	StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error)
 	// StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
@@ -264,6 +277,10 @@ func (UnimplementedActionsServer) StartMySQLShowTableStatusAction(context.Contex
 
 func (UnimplementedActionsServer) StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowIndexAction not implemented")
+}
+
+func (UnimplementedActionsServer) StartPostgreSQLExplainAction(context.Context, *StartPostgreSQLExplainActionRequest) (*StartPostgreSQLExplainActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLExplainAction not implemented")
 }
 
 func (UnimplementedActionsServer) StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error) {
@@ -432,6 +449,24 @@ func _Actions_StartMySQLShowIndexAction_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ActionsServer).StartMySQLShowIndexAction(ctx, req.(*StartMySQLShowIndexActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_StartPostgreSQLExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartPostgreSQLExplainActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartPostgreSQLExplainAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartPostgreSQLExplainAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartPostgreSQLExplainAction(ctx, req.(*StartPostgreSQLExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -614,6 +649,10 @@ var Actions_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartMySQLShowIndexAction",
 			Handler:    _Actions_StartMySQLShowIndexAction_Handler,
+		},
+		{
+			MethodName: "StartPostgreSQLExplainAction",
+			Handler:    _Actions_StartPostgreSQLExplainAction_Handler,
 		},
 		{
 			MethodName: "StartPostgreSQLShowCreateTableAction",

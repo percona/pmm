@@ -17860,6 +17860,112 @@
         }
       }
     },
+    "/v1/management/Actions/StartPostgreSQLExplain": {
+      "post": {
+        "description": "Starts 'PostgreSQL EXPLAIN' Action with traditional output.",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Start 'PostgreSQL EXPLAIN' Action",
+        "operationId": "StartPostgreSQLExplainAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "query": {
+                  "description": "Query ID or query is required.\nValue of query.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Actions/StartPostgreSQLShowCreateTable": {
       "post": {
         "description": "Starts 'PostgreSQL SHOW CREATE TABLE' Action.",
