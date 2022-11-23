@@ -564,7 +564,7 @@ telemetry:
     query: pmm_managed_checks_alerts_generated_total
     transform:
       type: JSON
-      metric: "advisor_checks_failed"
+      metric: "advisor_checks_generated_fails"
     summary: "Advisor - number of failed checks per name"
     data:
       - metric_name: "check_name"

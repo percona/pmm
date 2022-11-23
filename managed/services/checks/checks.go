@@ -1373,7 +1373,7 @@ func (s *Service) CollectChecks(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded checks
 		}
-		// defer it ro run after updateChecks
+		// defer it to run after updateChecks
 		defer s.incChecksDownload()
 	}
 
