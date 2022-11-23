@@ -92,7 +92,7 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 	return res, dsn, nil
 }
 
-func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) {
+func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) { //nolint:lll
 	var res *models.ActionResult
 	var dsn string
 	var files map[string]string
@@ -338,8 +338,6 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 }
 
 // StartMongoDBExplainAction starts MongoDB Explain action
-//
-//nolint:lll
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error,
 ) {
@@ -361,8 +359,6 @@ func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *mana
 }
 
 // StartPTSummaryAction starts pt-summary action.
-//
-//nolint:lll
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {

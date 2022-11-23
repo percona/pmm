@@ -29,6 +29,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
@@ -91,6 +96,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 1
+                },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
@@ -106,6 +116,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
+                },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",

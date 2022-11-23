@@ -28,7 +28,7 @@ import (
 
 //go-sumtype:decl isQueryActionValue_Kind
 
-func makeValue(value interface{}) (*QueryActionValue, error) {
+func makeValue(value interface{}) (*QueryActionValue, error) { //nolint:cyclop
 	// In the future, we may decide to:
 	// * dereference pointers;
 	// * handle other types of the same kind (like `type String string`);

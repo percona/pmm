@@ -17,16 +17,16 @@ package models
 
 import "fmt"
 
-// ErrInvalidArgument returned when some passed argument is invalid.
-type ErrInvalidArgument struct {
+// InvalidArgumentError returned when some passed argument is invalid.
+type InvalidArgumentError struct {
 	Details string
 }
 
-func (e *ErrInvalidArgument) Error() string {
+func (e *InvalidArgumentError) Error() string {
 	return "invalid argument: " + e.Details
 }
 
-// NewInvalidArgumentError creates ErrInvalidArgument with given formatting.
-func NewInvalidArgumentError(format string, a ...interface{}) *ErrInvalidArgument {
-	return &ErrInvalidArgument{Details: fmt.Sprintf(format, a...)}
+// NewInvalidArgumentError creates InvalidArgumentError with given formatting.
+func NewInvalidArgumentError(format string, a ...interface{}) *InvalidArgumentError {
+	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
 }

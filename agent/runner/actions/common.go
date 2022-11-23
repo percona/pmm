@@ -26,6 +26,8 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const queryTag = "pmm-agent-tests:MySQLVersion"
+
 // readRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
 func readRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err error) {
 	defer func() {
