@@ -175,11 +175,8 @@ PMM 2.12.0 and earlier function name is `check`, while newer versions use name `
 The function signature should be `check_context(docs, context)`, where `docs` is lists of docs (one doc represents one row for SQL DBMS and one document for MongoDB).
 
 ## Check severity levels
-PMM can display failed checks as **Critical**, **Major** or **Trivial**. These three severity levels correspond to the following severity types in the check source:
-
- - **Critical**: emergency, alert, critical
- - **Major**: warning
- - **Trivial**: notice, info, debug
+You can label your advisor checks with one of the following available severity levels: **Emergency**, **Alert**, **Critical**, **Error**, **Warning**, **Notice**, **Info**, **Debug**.
+PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**. 
 
 ## Check fields
 
@@ -201,18 +198,20 @@ Expand the table below for the list of checks types that you can use to define y
 
 ??? note alert alert-info "Check Types table"
 
-    | Check type             |  Description                                                                                                                                                                                      | "query" required (must be empty if "No") |
-    |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------|
-    | `MYSQL_SHOW`           | Executes `SHOW …` clause against MySQL database.                                                                                                                                                  | Yes                                      |
-    | `MYSQL_SELECT`         | Executes `SELECT …` clause against MySQL database.                                                                                                                                                | Yes                                      |
-    | `POSTGRESQL_SHOW`      | Executes `SHOW ALL` command against PosgreSQL database.                                                                                                                                           | No                                       |
-    | `POSTGRESQL_SELECT`    | Executes `SELECT …` clause against PosgreSQL database.                                                                                                                                            | Yes                                      |
-    | `MONGODB_GETPARAMETER` | Executes `db.adminCommand( { getParameter: "*" } )` against MongoDB's "admin" database. For more information, see [getParameter](https://docs.mongodb.com/manual/reference/command/getParameter/) | No                                       |
-    | `MONGODB_BUILDINFO`    | Executes `db.adminCommand( { buildInfo:  1 } )` against MongoDB's "admin" database.  For more information, see [buildInfo](https://docs.mongodb.com/manual/reference/command/buildInfo/)          | No                                       |
+        | Check type  |  Description | "query" required (must be empty if "No")   |  
+    |---|---|---|
+    | MYSQL_SHOW |Executes 'SHOW …' clause against MySQL database.  |Yes|
+    | MYSQL_SELECT    |     Executes 'SELECT …' clause against MySQL database.    |Yes|
+    | POSTGRESQL_SHOW     |    Executes 'SHOW ALL' command against PosgreSQL database.   |No|
+    | POSTGRESQL_SELECT      | Executes 'SELECT …' clause against PosgreSQL database.    |Yes|
+    | MONGODB_GETPARAMETER     | Executes db.adminCommand( { getParameter: "*" } ) against MongoDB's "admin" database. For more information, see [getParameter](https://docs.mongodb.com/manual/reference/command/getParameter/)| No|
+    | MONGODB_BUILDINFO    | Executes db.adminCommand( { buildInfo:  1 } ) against MongoDB's "admin" database.  For more information, see [buildInfo](https://docs.mongodb.com/manual/reference/command/buildInfo/) | No|                                       |
 
 ## Develop version 1 checks
-To develop custom checks for PMM 2.26 and 2.27:
+!!! note alert alert-primary "Development / Debugging Only"
+    Note that V1 check development in PMM 2.26/2.27 is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks.
 
+To develop custom checks for PMM 2.26 and 2.27:
 
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
 2. Run PMM Server with special environment variables:

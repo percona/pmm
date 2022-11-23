@@ -15,7 +15,7 @@ The collector is enabled by default. The following folders are used for differen
 
 ![!image](../_images/node-exporter.textfile-collector.1.png)
 
-The exporter parses all files in these directories that match the filename wild card expression `*.prom` using a simple text-based [exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
+The exporter parses all files in these directories that match the filename wildcard expression `*.prom` using a simple text-based [exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format).
 Metrics are stored on the PMM Server-side with additional labels related to this Node.
 
 ## Examples of shell commands for custom metrics

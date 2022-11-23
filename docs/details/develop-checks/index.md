@@ -14,7 +14,7 @@ All checks are self-contained in the first phase, as well as in most of the plan
 
 This means that extracted data is processed on the PMM side and not sent back to Percona Platform.
 
-## Back end
+## Backend
 
 1. pmm-managed checks that the installation is opted-in for checks.
 2. pmm-managed downloads files with checks from Percona Platform.
@@ -27,10 +27,10 @@ This means that extracted data is processed on the PMM side and not sent back to
 
 ![!](../../_images/BackendChecks.png)
 
-## Front end
+## Frontend
 PMM uses Alertmanager API to get information about failed checks and show them on the UI:
 
-![!](../../_images/FrontendChecks.png)
+![!](../../_images/FrontEndChecks.png)
 
 ## Advisor check format version 2
 PMM 2.28 upgraded Advisor checks to version 2, to accommodate the following major enhancements introduced in this release:

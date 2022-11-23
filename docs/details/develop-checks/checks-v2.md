@@ -126,11 +126,8 @@ Advisor checks for PMM 2.28 and later use the following format:
 The check script assumes that there is a function with `check_context`, that accepts a _list_ where each item represents the result of a single query specified in the check. Each result itself is a _list_ of _docs_ containing returned rows for SQL databases and documents for MongoDB. It returns zero, one, or several check results that are then converted to alerts.
 
 ## Check severity levels
-PMM can display failed checks as **Critical**, **Major** or **Trivial**. These three severity levels correspond to the following severity types in the check source:
-
- - **Critical**: emergency, alert, critical
- - **Major**: warning
- - **Trivial**: notice, info, debug
+You can label your advisor checks with one of the following available severity levels: **Emergency**, **Alert**, **Critical**, **Error**, **Warning**, **Notice**, **Info**, **Debug**.
+PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**.
 
 ## Check fields
 
@@ -180,8 +177,11 @@ Expand the table below for the list of checks types that you can use to define y
 
 
 ## Develop version 2 checks
-To develop custom checks for PMM 2.28 and later:
 
+!!! note alert alert-primary "Development / Debugging Only"
+    Note that V2 check development in PMM 2.28+ is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks. 
+    
+To develop custom checks for PMM 2.28 and later:
 
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
 2. Run PMM Server with special environment variables:

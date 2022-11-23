@@ -43,7 +43,7 @@ To change the frequency of an automatic advisor:
 5. Chose an interval and click **Save**.
 
 ## Manual checks
-In addition to the automatic checks that run every 24 hours, you can also run checks manually, for ad hoc assessments of your database health and performance.
+In addition to the automatic checks that run every 24 hours, you can also run checks manually, for ad-hoc assessments of your database health and performance.
 
 To manually run all checks or individual ones:
 

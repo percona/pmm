@@ -44,7 +44,7 @@ The environment variable must be prepended with `VM_`.
 
 **Example**
 
-To set down sampling, use the `downsampling.period` parameter as follows:
+To set downsampling, use the `downsampling.period` parameter as follows:
 
 ```
 -e VM_downsampling_period=20d:10m,120d:2h

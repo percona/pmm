@@ -28,10 +28,9 @@ To ensure that PMM can establish a connection to Percona Platform:
 Contact your account administrator or create a new organization for your Percona Account if this is the case.
 
 ### Set the public address of your PMM server
-1. In PMM, go to **Settings > Advanced Settings**.
-2. Enter your address/hostname or click **Get from browser** so that your browser automatically detects and populates this field.
-3. Save the changes.
-
+PMM automatically detects and populates the public address of the PMM server when this is not set up. 
+If you need to set it differently, go to **Settings > Advanced Settings** and edit the 
+**Public Address** field.
 
 ## Connect PMM to Percona Platform
 To connect your PMM server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
@@ -52,11 +51,25 @@ To confirm that you have successfully connected the server and check the list of
 After connecting to the Percona Platform, PMM has access to additional alert templates,   Advisors checks, and account information. See (../how-to/account-info.md)
 
 ### Disconnect a PMM instance
- Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
+Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
 
 To disconnect a PMM server, go to > <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
 
-To confirm that the server disconnected successfully, go to Percona Platform >  **Dashboard** tab > **View instances**. This displays the **PMM instances** page where you can check the list of servers currently connected to your Platform organization.
+#### Disconnecting instances as an Admin
+
+In situations where you are not able to disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
+
+
+!!! note alert alert-primary "Availability"
+    This feature is available starting with PMM 2.29.0.
+
+If you cannot disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
+
+If you are a PMM Admin, you can terminate any connections to Percona Platform, even if you are not logged into PMM with a Percona Account. However, we recommend logging in with a Percona Account before disconnecting servers, as this will automatically remove the disconnected servers from Percona Platform as well. 
+
+If you do disconnect servers without being connected with a Percona Account, you'll have to manually remove the unavailable servers from Percona Platform. This ensures that your list of connected PMM instances stays up-to-date in Percona Platform. 
+
+To do this, go to [PMM instances](https://portal.percona.com/login), and remove any servers that you have already disconnected from PMM.
 
 
 ## Sign into PMM with your Percona Account
