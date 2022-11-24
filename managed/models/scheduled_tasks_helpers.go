@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
@@ -164,6 +163,15 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, err
 	}
 
+	newName, err := nameFromTaskData(params.Type, params.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
+	}
+
 	id := "/scheduled_task_id/" + uuid.New().String()
 	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
@@ -179,14 +187,6 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		Data:           params.Data,
 	}
 	if err := q.Insert(task); err != nil {
-		newName, getNameErr := nameFromTaskData(params.Type, params.Data)
-		if getNameErr != nil {
-			return nil, getNameErr
-		}
-		if isNameAlreadyExistsErr(err, newName) {
-			return nil, errors.Wrapf(ErrAlreadyExists, "couldn't create task with name %s", newName)
-		}
-
 		return nil, errors.WithStack(err)
 	}
 	return task, nil
@@ -243,6 +243,21 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if params.Data != nil {
+		newName, err := nameFromTaskData(row.Type, params.Data)
+		if err != nil {
+			return nil, err
+		}
+		oldName, err := nameFromTaskData(row.Type, row.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if newName != oldName {
+			if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
+			}
+		}
+
 		row.Data = params.Data
 	}
 
@@ -255,14 +270,6 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if err := q.Update(row); err != nil {
-		newName, getNameErr := nameFromTaskData(row.Type, params.Data)
-		if getNameErr != nil {
-			return nil, getNameErr
-		}
-		if isNameAlreadyExistsErr(err, newName) {
-			return nil, errors.Wrapf(ErrAlreadyExists, "couldn't change task name to %s", newName)
-		}
-
 		return nil, errors.Wrap(err, "failed to update scheduled task")
 	}
 
@@ -297,6 +304,17 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 	}
 }
 
+func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: name})
+	if err != nil {
+		return err
+	}
+	if len(tasks) != 0 {
+		return ErrAlreadyExists
+	}
+	return nil
+}
+
 func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (string, error) {
 	if taskData != nil {
 		switch taskType {
@@ -313,14 +331,4 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 		}
 	}
 	return "", nil
-}
-
-func isNameAlreadyExistsErr(err error, name string) bool {
-	if err, ok := err.(*pq.Error); ok {
-		// We check like this because there is no structured info in the returned error.
-		if err.Code == pgUniqueConstraintViolationCode && strings.Contains(err.Detail, name) {
-			return true
-		}
-	}
-	return false
 }

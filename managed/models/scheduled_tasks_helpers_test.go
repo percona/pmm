@@ -145,8 +145,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		// Cannot create with the existing name.
 		_, err = models.CreateScheduledTask(tx.Querier, createParams1DuplicateName)
 		require.ErrorIs(t, err, models.ErrAlreadyExists)
-		_, err = models.FindScheduledTasks(tx.Querier, models.ScheduledTasksFilter{Name: createParams1.Data.MySQLBackupTask.Name})
-		require.Equal(t, "pq: current transaction is aborted, commands ignored until end of transaction block", err.Error())
+
+		tasks, err := models.FindScheduledTasks(tx.Querier, models.ScheduledTasksFilter{Name: createParams1.Data.MySQLBackupTask.Name})
+		require.NoError(t, err)
+		assert.Equal(t, []*models.ScheduledTask{task}, tasks)
 	})
 
 	t.Run("Change", func(t *testing.T) {
