@@ -222,7 +222,7 @@ telemetry:
     query: mongodb_mongod_storage_engine
     summary: "Returns used engine type for Mongo"
     data:
-      - metric_name: "mongo_engine_type"
+      - metric_name: "mongodb_storage_engine_type"
         label: engine
 
   - id: PMMPostgresDBVersion
