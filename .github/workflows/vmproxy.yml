@@ -1,4 +1,4 @@
-name: QAN
+name: Admin
 
 on:
   push:
@@ -12,9 +12,9 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
-      - "docs/**"
       - "managed/**"
-      - "vmproxy/**"
+      - "docs/**"
+      - "qan-api2/**"
 
   workflow_call:
     inputs:
@@ -26,41 +26,47 @@ on:
 
 jobs:
   test:
-    name: Test QAN
+    name: Tests
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
 
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/qan-api2
+        working-directory: ${{ github.workspace }}/admin
 
     steps:
-      - name: Checkout code
-        uses: percona-platform/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: percona-platform/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Set up Go tip
         if: env.GO_VERSION == 'tip'
-        env:
-          # to avoid error due to `go version` accepting -v flag with an argument since 1.15
-          GOFLAGS: ""
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
           ./make.bash
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
+          echo "$GOBIN" >> $GITHUB_PATH
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
@@ -68,13 +74,15 @@ jobs:
       - name: Build and install
         run: make install
 
-      - name: Initialize CI environment
-        run: make test-env-up
+      - name: Run tests
+        run: make test-cover
 
-      - name: Run Tests
-        run: |
-          make test-race
-          make test-cover
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v3
+        with:
+          file: cover.out
+          flags: admin
+          fail_ci_if_error: false
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

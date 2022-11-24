@@ -17,6 +17,7 @@ on:
       - "agent/**"
       - "docs/**"
       - "qan-api2/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:
