@@ -119,7 +119,7 @@
         path: /srv/victoriametrics
         owner: pmm
         group: pmm
-        mode: '0775'
+        mode: "0775"
       with_items:
         - absent
         - directory
