@@ -219,8 +219,7 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
-	// TODO: ADd restart field
-	dbCluster.Spec.Pause = true
+	dbCluster.Spec.Restart = true
 	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err

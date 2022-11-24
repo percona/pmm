@@ -582,6 +582,10 @@ github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672 h1:dwot2L8nF
 github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672/go.mod h1:gFUwaFp6Ugu5qsBwiOVJYbDlzgZ77tmXdXGO7tG5xVI=
 github.com/percona/dbaas-operator v0.0.0-20221121071829-df96e3ceab05 h1:DPIwGLBniWIRMliiRlBYqBK9QdKJimlrbT4YQyVn/MM=
 github.com/percona/dbaas-operator v0.0.0-20221121071829-df96e3ceab05/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
+github.com/percona/dbaas-operator v0.0.2 h1:jaJPotIaHK1s8P9tXDdAM1ryxGgk3ErWtOouAUHKWck=
+github.com/percona/dbaas-operator v0.0.2/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
+github.com/percona/dbaas-operator v0.0.3 h1:ee7x+qf2B0vOF4hNMblZWYV3HEactjH/14L9wsbAbxo=
+github.com/percona/dbaas-operator v0.0.3/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
 github.com/percona/exporter_shared v0.7.3 h1:TX4LisZ08jo8KIlekBTwPX13JlM6gOOKgmwg7QEf+r8=
 github.com/percona/exporter_shared v0.7.3/go.mod h1:AWk9lgTPzI7tC5PzpeBGvhhqjSJNxpPNFaF7qLIJqmo=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
