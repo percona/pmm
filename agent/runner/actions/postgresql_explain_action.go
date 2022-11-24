@@ -60,7 +60,7 @@ func (a *postgresqlExplainAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *postgresqlExplainAction) Type() string {
-	return "mysql-explain"
+	return "postgresql-explain"
 }
 
 // Run runs an Action and returns output and error.
@@ -77,11 +77,18 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
 	response := explainResponse{
-		// Query:      query,
-		// IsDMLQuery: isDMLQuery,
+		Query:      a.params.Query,
+		IsDMLQuery: false,
 	}
 
+	response.ExplainResult, err = a.explainDefault(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -97,5 +104,22 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *postgresqlExplainAction) sealed() {}
 
 func (a *postgresqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	return nil, nil
+	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ ?", a.params.Query)
+	if err != nil {
+		return nil, err
+	}
+
+	var s string
+	for rows.Next() {
+		if err := rows.Scan(&s); err != nil {
+			return nil, err
+		}
+
+		return []byte(s), nil
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return nil, err
 }
