@@ -209,7 +209,7 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 
 		parsed := res.ExplainFingerprint
 		for k, v := range placeholders {
-			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
+			parsed = strings.Replace(parsed, fmt.Sprintf("$%d", k+1), v, 1)
 		}
 
 		q = parsed

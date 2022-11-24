@@ -15,11 +15,14 @@
 package actions
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"github.com/lib/pq"
@@ -32,7 +35,6 @@ type postgresqlExplainAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLExplainParams
-	query   string
 	tempDir string
 }
 
@@ -43,7 +45,6 @@ func NewPostgreSQLExplainAction(id string, timeout time.Duration, params *agentp
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		query:   params.Query,
 		tempDir: tempDir,
 	}
 }
@@ -104,22 +105,33 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *postgresqlExplainAction) sealed() {}
 
 func (a *postgresqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ ?", a.params.Query)
+	query := fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query)
+	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
-	var s string
-	for rows.Next() {
-		if err := rows.Scan(&s); err != nil {
-			return nil, err
-		}
-
-		return []byte(s), nil
-	}
-	if err := rows.Err(); err != nil {
+	columns, dataRows, err := readRows(rows)
+	if err != nil {
 		return nil, err
 	}
 
-	return nil, err
+	var buf bytes.Buffer
+	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
+	w.Write([]byte(strings.Join(columns, "\t"))) //nolint:errcheck
+	for _, dataRow := range dataRows {
+		row := "\n"
+		for _, d := range dataRow {
+			v := "NULL"
+			if d != nil {
+				v = fmt.Sprint(d)
+			}
+			row += v + "\t"
+		}
+		w.Write([]byte(row)) //nolint:errcheck
+	}
+	if err = w.Flush(); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

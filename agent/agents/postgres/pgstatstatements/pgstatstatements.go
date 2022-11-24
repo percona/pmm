@@ -34,6 +34,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
@@ -339,6 +340,16 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 				IsTruncated: currentPSS.IsQueryTruncated,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
+		}
+
+		if currentPSS.Query != "" {
+			explainFingerprint, placeholdersCount, err := queryparser.PostgreSQL(currentPSS.Query)
+			if err != nil {
+				l.Debugf("cannot parse query: %s", currentPSS.Query)
+			} else {
+				mb.Common.ExplainFingerprint = explainFingerprint
+				mb.Common.PlaceholdersCount = placeholdersCount
+			}
 		}
 
 		for _, p := range []struct {

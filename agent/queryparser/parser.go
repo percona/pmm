@@ -15,14 +15,17 @@
 package queryparser
 
 import (
+	"regexp"
+
+	pg_query "github.com/pganalyze/pg_query_go"
 	"github.com/pkg/errors"
 	"vitess.io/vitess/go/vt/proto/query"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 // MySQL parse query and return fingeprint and placeholders.
-func MySQL(example string) (string, uint32, error) {
-	normalizedQuery, _, err := sqlparser.Parse2(example)
+func MySQL(q string) (string, uint32, error) {
+	normalizedQuery, _, err := sqlparser.Parse2(q)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot parse query")
 	}
@@ -37,4 +40,21 @@ func MySQL(example string) (string, uint32, error) {
 	bindVars := sqlparser.GetBindvars(normalizedQuery)
 
 	return parsedQuery.Query, uint32(len(bindVars)), nil
+}
+
+// PostgreSQL parse query and return fingeprint and placeholders.
+func PostgreSQL(q string) (string, uint32, error) {
+	query, err := pg_query.Normalize(q)
+	if err != nil {
+		return "", 0, errors.Wrap(err, "cannot normalize query")
+	}
+
+	r, err := regexp.Compile(`[\$]{1}\d`)
+	if err != nil {
+		return "", 0, errors.Wrap(err, "cannot get placeholders count")
+	}
+
+	matches := r.FindAllString(query, -1)
+
+	return query, uint32(len(matches)), nil
 }
