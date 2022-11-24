@@ -195,7 +195,7 @@ telemetry:
     # use group operator to remove duplicated labels, because several mongo instances
     # could be connected to PMM and send own metric `mongodb_members_id` which will be duplicated
     query: count(group(mongodb_members_id) by (member_idx, rs_nm)) by (rs_nm)
-    summary: "Returns number of members in replica set"
+    summary: "Returns number of members in MongoDB replica set"
     data:
       - metric_name: "mongodb_replicaset_members_count"
         value: 1
@@ -203,7 +203,7 @@ telemetry:
   - id: MongoDBArbitersCountByReplicaSet
     source: VM
     query: count(group(mongodb_members_id{member_state="ARBITER"}) by (member_idx, rs_nm)) by (rs_nm)
-    summary: "Returns number of arbiters in replica set"
+    summary: "Returns number of arbiters in MongoDB replica set"
     data:
       - metric_name: "mongodb_replicaset_arbiters_count"
         value: 1
@@ -212,7 +212,7 @@ telemetry:
     source: VM
     # group by mongo instances by cluster label, return mongodb_mongos_sharding_shards_total value if it's sharded and 0 if it's not
     query: (group(mongodb_up{cluster!=""}) by (cluster)) * on(cluster) group_left(cluster) mongodb_mongos_sharding_shards_total OR on (cluster) (group(mongodb_up{cluster!=""}) by (cluster)) - 1
-    summary: "Returns number of shards of cluster. If cluster is not sharded it returns 0"
+    summary: "Returns number of shards in MongoDB cluster. If cluster is not sharded it returns 0"
     data:
       - metric_name: "mongodb_shards_count_in_cluster"
         value: 1
@@ -220,7 +220,7 @@ telemetry:
   - id: MongoDBEngineType # check for inmemory engine type
     source: VM
     query: mongodb_mongod_storage_engine
-    summary: "Returns used engine type for Mongo"
+    summary: "Returns used engine type for MongoDB"
     data:
       - metric_name: "mongodb_storage_engine_type"
         label: engine
