@@ -1868,6 +1868,12 @@
                         "type": "string",
                         "x-order": 2
                       },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
                       "restore_id": {
                         "description": "Machine-readable restore id.",
                         "type": "string",
