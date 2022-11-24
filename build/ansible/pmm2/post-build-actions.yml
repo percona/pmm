@@ -9,7 +9,7 @@
     pmm_client_repos_final: "original release"
 
   tasks:
-    # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
+    # pmm-managed checks when /srv/pmm-distribution exists, that it contains "docker", "ovf" or "ami" (all lowercase)
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
       when: ansible_virtualization_type == "docker"
       copy:
@@ -110,8 +110,8 @@
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
     # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents is recreated.
+    # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
+    # This step ensures the directory is empty on startup and the contents are recreated.
     # This is not an issue if the folder is in a volume or mounted from the host OS.
     - name: Recreate /srv/victoriametrics folder
       file:
