@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/davecgh/go-spew/spew"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -185,53 +186,53 @@ func UpdatePatchForPSMDB(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaa
 	return dbCluster, nil
 }
 
-func UpdatePatchForPXC(cluster *dbaasv1beta1.UpdatePXCClusterRequest) (*dbaasv1.DatabaseCluster, error) {
-	if cluster.Params.Suspend && cluster.Params.Resume {
-		return nil, errSimultaneous
+func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest) error {
+	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
+		return errSimultaneous
 	}
-	dbCluster := &dbaasv1.DatabaseCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: cluster.Name,
-		},
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: dbaasAPI,
-			Kind:       dbaasKind,
-		},
-		Spec: dbaasv1.DatabaseSpec{
-			Database:       databasePXC,
-			DatabaseImage:  cluster.Params.Pxc.Image,
-			DatabaseConfig: cluster.Params.Pxc.Configuration,
-			DBInstance: dbaasv1.DBInstanceSpec{
-				// FIXME: Implement a better solution
-				CPU:    fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM),
-				Memory: strconv.FormatInt(cluster.Params.Pxc.ComputeResources.MemoryBytes, 10),
-			},
-			ClusterSize: cluster.Params.ClusterSize,
-		},
+	dbCluster.TypeMeta = metav1.TypeMeta{
+		APIVersion: dbaasAPI,
+		Kind:       dbaasKind,
 	}
-	if cluster.Params.Pxc.StorageClass != "" {
-		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Pxc.StorageClass
+	if updateRequest.Params.ClusterSize > 0 {
+		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}
-	if cluster.Params.Suspend {
-		dbCluster.Spec.Pause = true
+	if updateRequest.Params.Pxc != nil {
+		dbCluster.Spec.DatabaseImage = updateRequest.Params.Pxc.Image
+		dbCluster.Spec.DatabaseConfig = updateRequest.Params.Pxc.Configuration
 	}
-	if cluster.Params.Resume {
-		dbCluster.Spec.Pause = false
+
+	if updateRequest.Params.Pxc != nil && updateRequest.Params.Pxc.ComputeResources != nil {
+		dbCluster.Spec.DBInstance = dbaasv1.DBInstanceSpec{
+			// FIXME: Implement a better solution
+			CPU:    fmt.Sprintf("%dm", updateRequest.Params.Pxc.ComputeResources.CpuM),
+			Memory: strconv.FormatInt(updateRequest.Params.Pxc.ComputeResources.MemoryBytes, 10),
+		}
+		if updateRequest.Params.Pxc.StorageClass != "" {
+			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Pxc.StorageClass
+		}
 	}
-	if cluster.Params.Haproxy != nil {
-		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
+	if updateRequest.Params.Haproxy != nil && updateRequest.Params.Haproxy.ComputeResources != nil {
+		resources, err := convertComputeResource(updateRequest.Params.Haproxy.ComputeResources)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		dbCluster.Spec.LoadBalancer.Resources = resources
 
 	}
-	if cluster.Params.Proxysql != nil {
-		resources, err := convertComputeResource(cluster.Params.Proxysql.ComputeResources)
+	if updateRequest.Params.Proxysql != nil && updateRequest.Params.Proxysql.ComputeResources != nil {
+		resources, err := convertComputeResource(updateRequest.Params.Proxysql.ComputeResources)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		dbCluster.Spec.LoadBalancer.Resources = resources
 	}
-	return dbCluster, nil
+	if updateRequest.Params.Suspend {
+		dbCluster.Spec.Pause = true
+	}
+	if updateRequest.Params.Resume {
+		dbCluster.Spec.Pause = false
+	}
+	spew.Dump(dbCluster.Spec.Pause)
+	return nil
 }

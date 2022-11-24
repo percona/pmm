@@ -17,7 +17,6 @@ package kubernetes
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -26,8 +25,6 @@ import (
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -88,6 +85,31 @@ func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
 	}, nil
 }
 
+// New returns new Kubernetes object.
+func NewEmpty() *Kubernetes {
+	return &Kubernetes{
+		client: &client.Client{},
+		l:      logrus.WithField("component", "kubernetes"),
+		httpClient: &http.Client{
+			Timeout: time.Second * 5,
+			Transport: &http.Transport{
+				MaxIdleConns:    1,
+				IdleConnTimeout: 10 * time.Second,
+			},
+		},
+	}
+}
+
+// New returns new Kubernetes object.
+func (k *Kubernetes) ChangeKubeconfig(ctx context.Context, kubeconfig string) error {
+	client, err := client.NewFromKubeConfigString(kubeconfig)
+	if err != nil {
+		return err
+	}
+	k.client = client
+	return nil
+}
+
 // GetKubeconfig generates kubeconfig compatible with kubectl for incluster created clients.
 func (k *Kubernetes) GetKubeconfig(ctx context.Context) (string, error) {
 	secret, err := k.client.GetSecretsForServiceAccount(ctx, "pmm-service-account")
@@ -116,12 +138,8 @@ func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 }
 
 // PatchDatabaseCluster patches CR of managed PXC cluster.
-func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) (*dbaasv1.DatabaseCluster, error) {
-	patch, err := json.Marshal(cluster)
-	if err != nil {
-		return nil, err
-	}
-	return c.client.PatchDatabaseCluster(ctx, cluster.Name, types.MergePatchType, patch, metav1.PatchOptions{})
+func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+	return c.client.ApplyObject(ctx, cluster)
 }
 
 func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {

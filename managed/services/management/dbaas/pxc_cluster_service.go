@@ -26,8 +26,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -289,27 +287,30 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
+	if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
+		return nil, errors.New("can't update both proxies, only one is in use")
+	}
 	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
 	}
-	dbCluster, err := kubernetes.UpdatePatchForPXC(req)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
+	//if !dbCluster.Spec.Pause && dbCluster.Status.State == dbaasv1.AppStatePaused {
+	//	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	return &dbaasv1beta1.UpdatePXCClusterResponse{}, nil
+	//}
 
-	if req.Params != nil {
-		if req.Params.Suspend && req.Params.Resume {
-			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
-		}
-
-		// Check if only one or none of proxies is set.
-		if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
-			return nil, errors.New("can't update both proxies, only one is in use")
-		}
-
-	}
-	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 
 	if err != nil {
 		return nil, err

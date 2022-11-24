@@ -273,7 +273,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
 		}
 	}
-	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err
 	}

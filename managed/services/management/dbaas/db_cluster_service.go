@@ -37,6 +37,7 @@ type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
 	grafanaClient        grafanaClient
+	kubernetesClient     *kubernetes.Kubernetes
 	versionServiceClient *VersionServiceClient
 
 	dbaasv1beta1.UnimplementedDBClustersServer
@@ -48,6 +49,7 @@ func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServ
 	return &DBClusterService{
 		db:                   db,
 		l:                    l,
+		kubernetesClient:     kubernetes.NewEmpty(),
 		grafanaClient:        grafanaClient,
 		versionServiceClient: versionServiceClient,
 	}
@@ -59,20 +61,19 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbClusters, err := kubeClient.ListDatabaseClusters(ctx)
+	dbClusters, err := s.kubernetesClient.ListDatabaseClusters(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed listing database clusters")
 	}
-	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
+	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting psmdb operator version")
 	}
 
-	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
+	pxcOperatorVersion, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
@@ -220,7 +221,7 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	}
 	// TODO: ADd restart field
 	dbCluster.Spec.Pause = true
-	_, err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err
 	}
