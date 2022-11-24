@@ -28,6 +28,7 @@ import (
 	bindata "github.com/golang-migrate/migrate/source/go_bindata"
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/qan-api2/migrations"
 )
@@ -116,7 +117,7 @@ func runMigrations(dsn string) error {
 
 	// run up to the latest migration
 	err = m.Up()
-	if err == migrate.ErrNoChange {
+	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
 	return err
@@ -133,8 +134,7 @@ func DropOldPartition(db *sqlx.DB, days uint) {
 	err := db.Select(
 		&partitions,
 		query,
-		days,
-	)
+		days)
 	if err != nil {
 		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

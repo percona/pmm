@@ -39,8 +39,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -68,8 +68,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			in.GroupBy,
 			dimensions,
 			labels,
-			in.Totals,
-		)
+			in.Totals)
 		if err != nil {
 			return nil, fmt.Errorf("error in quering metrics:%v", err)
 		}
@@ -89,8 +88,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		in.GroupBy,
 		dimensions,
 		labels,
-		true, // get Totals
-	)
+		true) // get Totals
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot get get metrics totals")
 	}
@@ -119,8 +117,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		in.FilterBy,
 		in.GroupBy,
 		dimensions,
-		labels,
-	)
+		labels)
 	if err != nil {
 		return resp, err
 	}
@@ -225,8 +222,8 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
 	to := time.Unix(in.PeriodStartTo.Seconds, 0)
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -253,8 +250,7 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 		group,
 		limit,
 		dimensions,
-		labels,
-	)
+		labels)
 	if err != nil {
 		return nil, errors.Wrap(err, "error in selecting query examples")
 	}
@@ -284,8 +280,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 		from,
 		to,
 		in.FilterBy,
-		in.GroupBy,
-	)
+		in.GroupBy)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting object details labels:%v", err)
 	}
@@ -296,8 +291,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.QueryPlanRequest) (*qanpb.QueryPlanReply, error) {
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
-		in.Queryid,
-	)
+		in.Queryid)
 	if err != nil {
 		return nil, errors.Wrap(err, "error in selecting query plans")
 	}
@@ -319,8 +313,8 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		return nil, fmt.Errorf("queryid is required:%v", in.Queryid)
 	}
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -336,8 +330,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		periodStartToSec,
 		dimensions,
 		labels,
-		in.Queryid,
-	)
+		in.Queryid)
 	if err != nil {
 		return nil, fmt.Errorf("error in selecting histogram:%v", err)
 	}
@@ -350,8 +343,7 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	resp, err := s.mm.QueryExists(
 		ctx,
 		in.Serviceid,
-		in.Query,
-	)
+		in.Query)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query:%v", err)
 	}

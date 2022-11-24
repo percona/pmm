@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 // Service represents core logic for db backup.
@@ -65,7 +66,7 @@ type PerformBackupParams struct {
 }
 
 // PerformBackup starts on-demand backup.
-func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
+func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
@@ -104,7 +105,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			if locationModel.Type != models.S3BackupLocationType {
-				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is s3")
+				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
 			}
 
 			if params.Mode != models.Snapshot {
@@ -164,7 +165,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
-		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil {
+		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
 			return err
 		}
 		return nil
@@ -183,7 +184,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -193,12 +195,17 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		if _, e := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
-		}); e != nil {
-			s.l.WithError(e).Warnf("failed to mark artifact %s as failed", artifact.ID)
-		}
+		var target *agents.AgentNotSupportedError
+		if errors.As(err, &target) {
+			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			})
 
+			if dbErr != nil {
+				s.l.WithError(err).Error("failed to update backup artifact status")
+			}
+			return "", status.Error(codes.FailedPrecondition, target.Error())
+		}
 		return "", err
 	}
 

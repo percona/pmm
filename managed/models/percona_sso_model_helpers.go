@@ -44,7 +44,7 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 
 	ssoDetails, err := q.SelectOneFrom(PerconaSSODetailsTable, "")
 	if err != nil {
-		if err == reform.ErrNoRows {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, ErrNotConnectedToPortal
 		}
 		return nil, errors.Wrap(err, "failed to get Percona SSO Details")
