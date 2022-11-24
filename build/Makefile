@@ -1,6 +1,7 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
+export ORACLE_VERSION := 4.2.4
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -15,6 +16,18 @@ fetch:
 	test -f ${PACKER_CACHE_DIR}/${CENTOS_ISO}/box.ovf \
 		|| tar -C ${PACKER_CACHE_DIR}/${CENTOS_ISO} -xf ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova
 
+fetch-el9:
+	mkdir -p ${PACKER_CACHE_DIR}/${ORACLE_VERSION} || :
+	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
+	    || curl -L https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant \
+		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
+	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
+	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova \
+		|| wget --progress=dot:giga https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box \
+		-O ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
+	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/box.ovf \
+		|| tar -C ${PACKER_CACHE_DIR}/${ORACLE_VERSION} -xf ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
+
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
 	curl https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip -o ${PACKER_CACHE_DIR}/packer.zip
@@ -23,7 +36,7 @@ deps:
 pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
-pmm2-ovf-el9: fetch
+pmm2-ovf-el9: fetch-el9
 	packer build -only virtualbox-ovf packer/pmm2.el9.json
 
 pmm2-digitalocean:
