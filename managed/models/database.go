@@ -763,6 +763,10 @@ var databaseSchema = [][]string{
 			RENAME COLUMN pmm_client_config TO filesystem_config`,
 	},
 	72: {
+		`ALTER TABLE user_flags
+			ADD COLUMN alerting_tour_done BOOLEAN NOT NULL DEFAULT false`,
+	},
+	73: {
 		`UPDATE scheduled_tasks
 			SET "data" = jsonb_set("data", array["type", 'name'], to_jsonb("data"->"type"->>'name' || '-pmm-renamed-' || gen_random_uuid()))
 			WHERE "data"->"type"->>'name' IN (SELECT "data"->"type"->>'name' nm FROM scheduled_tasks GROUP BY nm HAVING COUNT(*) > 1);
