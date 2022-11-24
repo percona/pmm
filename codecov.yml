@@ -32,6 +32,11 @@ coverage:
         paths:
           - qan-api2/
 
+      vmproxy:
+        threshold: 1%
+        paths:
+          - vmproxy/
+
 ignore:
   - "**/fuzzdata"
 
