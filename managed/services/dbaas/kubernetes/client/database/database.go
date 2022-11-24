@@ -82,7 +82,7 @@ type dbClusterClient struct {
 }
 
 func (c *dbClusterClient) List(ctx context.Context, opts metav1.ListOptions) (*dbaasv1.DatabaseClusterList, error) {
-	result := new(dbaasv1.DatabaseClusterList)
+	result := &dbaasv1.DatabaseClusterList{}
 	err := c.restClient.
 		Get().
 		Namespace(c.namespace).
@@ -94,7 +94,7 @@ func (c *dbClusterClient) List(ctx context.Context, opts metav1.ListOptions) (*d
 }
 
 func (c *dbClusterClient) Get(ctx context.Context, name string, opts metav1.GetOptions) (*dbaasv1.DatabaseCluster, error) {
-	result := new(dbaasv1.DatabaseCluster)
+	result := &dbaasv1.DatabaseCluster{}
 	err := c.restClient.
 		Get().
 		Namespace(c.namespace).
@@ -107,7 +107,7 @@ func (c *dbClusterClient) Get(ctx context.Context, name string, opts metav1.GetO
 }
 
 func (c *dbClusterClient) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
-	result := new(dbaasv1.DatabaseCluster)
+	result := &dbaasv1.DatabaseCluster{}
 	err := c.restClient.
 		Patch(pt).
 		Namespace(c.namespace).
