@@ -17,7 +17,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/alecthomas/kong v0.6.1
+	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/aws/aws-sdk-go v1.44.140
