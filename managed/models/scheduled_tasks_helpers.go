@@ -28,8 +28,6 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-const pgUniqueConstraintViolationCode = "23505" // https://www.postgresql.org/docs/15/errcodes-appendix.html
-
 // FindScheduledTaskByID finds ScheduledTask by ID.
 func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error) {
 	if id == "" {
