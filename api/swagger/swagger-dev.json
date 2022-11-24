@@ -29673,6 +29673,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       }
                     }
                   },
