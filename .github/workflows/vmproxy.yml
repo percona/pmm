@@ -1,4 +1,4 @@
-name: Admin
+name: VMProxy
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/admin
+        working-directory: ${{ github.workspace }}/vmproxy
 
     steps:
       - name: Check out code
@@ -81,7 +81,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           file: cover.out
-          flags: admin
+          flags: vmproxy
           fail_ci_if_error: false
 
       - name: Run debug commands on failure
