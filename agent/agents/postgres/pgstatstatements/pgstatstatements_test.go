@@ -403,7 +403,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		default:
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
-		explainFingerprint := "INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)"
+		explainFingerprint := fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
