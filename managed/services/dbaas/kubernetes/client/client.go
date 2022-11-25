@@ -39,7 +39,17 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"os"
+
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
+	"k8s.io/client-go/rest"
 )
 
 const (
@@ -54,6 +64,13 @@ const (
 
 	defaultAPIURIPath  = "/api"
 	defaultAPIsURIPath = "/apis"
+)
+
+var (
+	inClusterConfig = rest.InClusterConfig
+	newForConfig    = func(c *rest.Config) (kubernetes.Interface, error) {
+		return kubernetes.NewForConfig(c)
+	}
 )
 
 // Client is the internal client for Kubernetes.
@@ -107,7 +124,6 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	err = c.setup()
 	return c, err
 }
-
 func (c *Client) setup() error {
 	namespace := "default"
 	if space := os.Getenv("NAMESPACE"); space != "" {
@@ -117,6 +133,23 @@ func (c *Client) setup() error {
 	path := fmt.Sprintf("%s:%s", os.Getenv("PATH"), dbaasToolPath)
 	os.Setenv("PATH", path)
 	c.namespace = namespace
+	return c.initOperatorClients()
+}
+
+// NewFromInCluster returns a client object which uses the service account
+// kubernetes gives to pods. It's intended for clients that expect to be
+// running inside a pod running on kubernetes. It will return ErrNotInCluster
+// if called from a process not running in a kubernetes environment.
+func NewFromInCluster() (*Client, error) {
+	c, err := inClusterConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	clientset, err := newForConfig(c)
+	if err != nil {
+		return nil, err
+	}
 	return c.initOperatorClients()
 }
 

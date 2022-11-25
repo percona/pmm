@@ -22,9 +22,14 @@ import (
 	"strings"
 	"time"
 
+	"net/http"
+	"time"
+
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -44,10 +49,10 @@ type Kubernetes struct {
 }
 
 // NewIncluster returns new Kubernetes object.
-func NewIncluster(ctx context.Context) (*Kubernetes, error) {
+func NewIncluster() (*Kubernetes, error) {
 	l := logrus.WithField("component", "kubernetes")
 
-	client, err := client.NewFromIncluster()
+	client, err := client.NewFromInCluster()
 	if err != nil {
 		return nil, err
 	}

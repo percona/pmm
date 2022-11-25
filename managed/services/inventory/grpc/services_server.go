@@ -268,3 +268,13 @@ func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.Rem
 
 	return &inventorypb.RemoveServiceResponse{}, nil
 }
+
+// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
+func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
+	return s.s.AddCustomLabels(ctx, req)
+}
+
+// RemoveCustomLabels removes custom labels from a service.
+func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
+	return s.s.RemoveCustomLabels(ctx, req)
+}
