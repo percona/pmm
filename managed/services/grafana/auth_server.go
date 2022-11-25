@@ -93,12 +93,14 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
-var vmGatewayPrefixes = []string{
+var vmProxyPrefixes = []string{
 	"/graph/api/datasources/proxy/1/api/v1/",
 	"/graph/api/ds/query",
 	"/graph/api/v1/labels",
 	"/prometheus/api/v1/",
 }
+
+const vmProxyHeaderName = "X-Percona-Proxy-Filters"
 
 type vmGatewayJWT struct {
 	VMAccess struct {
@@ -245,14 +247,14 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	if err := s.maybeAddVMGatewayToken(ctx, rw, req, userID, l); err != nil {
+	if err := s.maybeAddVMProxyFilters(ctx, rw, req, userID, l); err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
 			"error":   "Internal server error.",
 			"message": "Internal server error.",
 		}
-		l.Errorf("Failed to add VM Gateway token: %s", err)
+		l.Errorf("Failed to add VMProxy filters: %s", err)
 
 		s.returnError(rw, m, l)
 		return
@@ -271,10 +273,10 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 	}
 }
 
-// maybeAddVMGatewayToken adds authorization token to requests proxied to VictoriaMetrics Gateway.
-// In case the request is not proxied to the gateway, this is a no-op.
-func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.shallAddVMGatewayToken(req) {
+// maybeAddVMProxyFilters adds extra filters to requests proxied through VMProxy.
+// In case the request is not proxied through VMProxy, this is a no-op.
+func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+	if !s.shallAddVMProxyFilters(req) {
 		return nil
 	}
 
@@ -296,40 +298,45 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 		return ErrInvalidUserID
 	}
 
-	token, err := s.getAuthTokenForVMGateway(userID)
+	filters, err := s.getFiltersForVMProxy(userID)
 	if err != nil {
 		return err
 	}
 
-	if token == "" {
+	if filters == nil || len(filters) == 0 {
 		return nil
 	}
 
-	rw.Header().Set("X-Percona-Token", "Bearer "+token)
+	jsonFilters, err := json.Marshal(filters)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	rw.Header().Set(vmProxyHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
 
 	return nil
 }
 
-func (s *AuthServer) shallAddVMGatewayToken(req *http.Request) bool {
+func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
 	if !s.accessControl {
 		return false
 	}
 
-	addAuthToken := false
-	for _, p := range vmGatewayPrefixes {
+	addFilters := false
+	for _, p := range vmProxyPrefixes {
 		if strings.HasPrefix(req.URL.Path, p) {
-			addAuthToken = true
+			addFilters = true
 			break
 		}
 	}
 
-	return addAuthToken
+	return addFilters
 }
 
-func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
+func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 	roles, err := models.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// We may see this user for the first time.
@@ -340,13 +347,13 @@ func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
 			return models.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		// Reload roles
 		roles, err = models.GetUserRoles(s.db.Querier, userID)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
@@ -359,19 +366,7 @@ func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
 		filters = append(filters, r.Filter)
 	}
 
-	var claims vmGatewayJWT
-	claims.ExtraFilters = filters
-	claims.Mode = 1
-	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(300 * time.Second))
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// VM Gateway does not validate the signature
-	ss, err := token.SignedString([]byte("notvalidated"))
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	return ss, nil
+	return filters, nil
 }
 
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.

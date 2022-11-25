@@ -17,15 +17,15 @@ package grafana
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -39,8 +39,6 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
-
-const authHeaderPrefix = "Bearer "
 
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{
@@ -311,7 +309,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	t.Run("shall properly evaluate adding token", func(t *testing.T) {
+	t.Run("shall properly evaluate adding filters", func(t *testing.T) {
 		for uri, shallAdd := range map[string]bool{
 			"/":                        false,
 			"/dummy":                   false,
@@ -333,16 +331,13 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 						req.SetBasicAuth("admin", "admin")
 					}
 
-					err = s.maybeAddVMGatewayToken(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					err = s.maybeAddVMProxyFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
-					headerString := rw.Header().Get("X-Percona-Token")
+					headerString := rw.Header().Get(vmProxyHeaderName)
 
 					if shallAdd {
-						require.True(t, strings.HasPrefix(headerString, authHeaderPrefix))
-						token := strings.TrimPrefix(headerString, authHeaderPrefix)
-
-						require.True(t, len(token) > 0)
+						require.True(t, len(headerString) > 0)
 					} else {
 						require.Equal(t, headerString, "")
 					}
@@ -352,29 +347,25 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	})
 
 	//nolint:paralleltest
-	t.Run("shall be a valid token", func(t *testing.T) {
+	t.Run("shall be a valid JSON array", func(t *testing.T) {
 		rw := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddVMGatewayToken(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		headerString := rw.Header().Get("X-Percona-Token")
-		require.True(t, strings.HasPrefix(headerString, authHeaderPrefix))
-		tokenString := strings.TrimPrefix(headerString, authHeaderPrefix)
+		headerString := rw.Header().Get(vmProxyHeaderName)
+		require.True(t, len(headerString) > 0)
 
-		require.True(t, len(tokenString) > 0)
+		filters, err := base64.StdEncoding.DecodeString(headerString)
+		require.NoError(t, err)
+		var parsed []string
+		err = json.Unmarshal(filters, &parsed)
+		require.NoError(t, err)
 
-		var vmJWT vmGatewayJWT
-		token, _ := jwt.ParseWithClaims(tokenString, &vmJWT, func(token *jwt.Token) (interface{}, error) {
-			return []byte("not relevant"), nil
-		})
-
-		claims, ok := token.Claims.(*vmGatewayJWT)
-		require.True(t, ok)
-		require.Equal(t, len(claims.ExtraFilters), 2)
-		require.Equal(t, claims.ExtraFilters[0], "filter A")
-		require.Equal(t, claims.ExtraFilters[1], "filter B")
+		require.Equal(t, len(parsed), 2)
+		require.Equal(t, parsed[0], "filter A")
+		require.Equal(t, parsed[1], "filter B")
 	})
 }
