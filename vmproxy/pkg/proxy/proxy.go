@@ -18,6 +18,7 @@ package proxy
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httputil"
@@ -60,7 +61,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
 	if filters := req.Header.Get(headerName); filters != "" {
-		if len(parseFilters(filters)) == 0 {
+		if _, err := parseFilters(filters); err != nil {
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
 			io.WriteString(rw, "Failed to parse headers")
@@ -77,17 +78,17 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
 
-		logrus.Infof("Pre-filters: %s", req.Header.Get(headerName))
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {
 			q := req.URL.Query()
 			q.Del("extra_filters")
 
-			for _, f := range parseFilters(filters) {
-				q.Add("extra_filters", f)
+			if parsed, _ := parseFilters(filters); parsed != nil {
+				for _, f := range parsed {
+					q.Add("extra_filters", f)
+				}
 			}
 
-			logrus.Infof("filters: %#v", filters)
 			req.URL.RawQuery = q.Encode()
 		}
 
@@ -101,19 +102,19 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 	}
 }
 
-func parseFilters(filters string) []string {
+func parseFilters(filters string) ([]string, error) {
 	var parsed []string
 
 	decoded, err := base64.StdEncoding.DecodeString(filters)
 	if err != nil {
-		logrus.Errorf("could not decode filters header. %v", err)
-		return parsed
+		logrus.Errorf("Could not decode filters header. %v", err)
+		return nil, fmt.Errorf("could not decode filters header")
 	}
 
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		logrus.Errorf("could not parse filters JSON. %v", err)
-		return parsed
+		logrus.Errorf("Could not parse filters JSON. %v", err)
+		return nil, fmt.Errorf("could not parse filters JSON")
 	}
 
-	return parsed
+	return parsed, nil
 }

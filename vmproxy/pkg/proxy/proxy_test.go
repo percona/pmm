@@ -32,7 +32,7 @@ const (
 func TestProxy(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T, filters []string) (*httptest.Server, http.HandlerFunc) {
+	setup := func(t *testing.T, filters []string) http.HandlerFunc {
 		t.Helper()
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if filters != nil {
@@ -51,10 +51,10 @@ func TestProxy(t *testing.T) {
 			TargetURL:  testURL,
 		})
 
-		return server, handler
+		return handler
 	}
 
-	_, handler := setup(t, nil)
+	handler := setup(t, nil)
 
 	t.Run("shall proxy request", func(t *testing.T) {
 		t.Parallel()
@@ -63,7 +63,7 @@ func TestProxy(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
 
 		handler.ServeHTTP(rec, req)
-		require.Equal(t, rec.Result().StatusCode, 200)
+		require.Equal(t, rec.Result().StatusCode, http.StatusOK)
 	})
 
 	t.Run("shall properly handle filters", func(t *testing.T) {
@@ -78,10 +78,16 @@ func TestProxy(t *testing.T) {
 
 		testCases := []testParams{
 			{
-				name:            "shall use correct header name and pass filters",
+				name:            "shall process filters properly",
 				expectedFilters: []string{"abc", "def"},
 				expectedStatus:  http.StatusOK,
 				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
+			},
+			{
+				name:            "shall support empty JSON array with no filters",
+				expectedFilters: []string{},
+				expectedStatus:  http.StatusOK,
+				headerContent:   base64.StdEncoding.EncodeToString([]byte(`[]`)),
 			},
 			{
 				name:            "shall not fail on invalid base64 string",
@@ -101,7 +107,7 @@ func TestProxy(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				_, handler := setup(t, tc.expectedFilters)
+				handler := setup(t, tc.expectedFilters)
 
 				rec := httptest.NewRecorder()
 				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
