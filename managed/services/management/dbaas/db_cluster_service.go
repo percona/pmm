@@ -219,6 +219,8 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
+	dbCluster.TypeMeta.APIVersion = "dbaas.percona.com/v1"
+	dbCluster.TypeMeta.Kind = "DatabaseCluster"
 	dbCluster.Spec.Restart = true
 	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {

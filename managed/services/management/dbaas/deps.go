@@ -66,10 +66,8 @@ type versionService interface {
 	// IsDatabaseVersionSupportedByOperator returns false and err when request to version service fails. Otherwise returns boolen telling
 	// if given database version is supported by given operator version, error is nil in that case.
 	IsDatabaseVersionSupportedByOperator(ctx context.Context, operatorType, operatorVersion, databaseVersion string) (bool, error)
-	// IsOperatorVersionSupported returns true and nil if given operator version is supported in given PMM version.
-	// It returns false and error when fetching or parsing fails. False and nil when no error is encountered but
-	// version service does not have any matching versions.
-	IsOperatorVersionSupported(ctx context.Context, operatorType string, pmmVersion string, operatorVersion string) (bool, error)
+	// SupportedOperatorVersionsList returns list of operators versions supported by certain PMM version.
+	SupportedOperatorVersionsList(ctx context.Context, pmmVersion string) (map[string][]string, error)
 	// LatestOperatorVersion returns latest operators versions available based on given params.
 	LatestOperatorVersion(ctx context.Context, pmmVersion string) (latestPXCOperatorVersion, latestPSMDBOperatorVersion *goversion.Version, err error)
 	// NextOperatorVersion returns operator versions that is a direct successor of currently installed one.

@@ -586,6 +586,8 @@ github.com/percona/dbaas-operator v0.0.2 h1:jaJPotIaHK1s8P9tXDdAM1ryxGgk3ErWtOou
 github.com/percona/dbaas-operator v0.0.2/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
 github.com/percona/dbaas-operator v0.0.3 h1:ee7x+qf2B0vOF4hNMblZWYV3HEactjH/14L9wsbAbxo=
 github.com/percona/dbaas-operator v0.0.3/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
+github.com/percona/dbaas-operator v0.0.4 h1:cFlVdFMiB52sm4gli6WXDynJ7hMa+B9w65LwGAJ53CI=
+github.com/percona/dbaas-operator v0.0.4/go.mod h1:QPX3auNFY7fVWjuWe95oKTOpAayibgiAkdrVuzk1478=
 github.com/percona/exporter_shared v0.7.3 h1:TX4LisZ08jo8KIlekBTwPX13JlM6gOOKgmwg7QEf+r8=
 github.com/percona/exporter_shared v0.7.3/go.mod h1:AWk9lgTPzI7tC5PzpeBGvhhqjSJNxpPNFaF7qLIJqmo=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=

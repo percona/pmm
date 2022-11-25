@@ -86,17 +86,14 @@ func (k *kubernetesServer) Enabled() bool {
 
 // getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
 // dbaas-controller does not have a clue what's supported, so we have to do it here.
-func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorType string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
+func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED, nil
 	}
-
-	supported, err := k.versionService.IsOperatorVersionSupported(ctx, operatorType, pmmversion.PMMVersion, operatorVersion)
-	if err != nil {
-		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID, err
-	}
-	if supported {
-		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
+	for _, version := range versionsList {
+		if version == operatorVersion {
+			return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
+		}
 	}
 
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
@@ -105,6 +102,14 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) { //nolint:lll
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if len(kubernetesClusters) == 0 {
+		return &dbaasv1beta1.ListKubernetesClustersResponse{}, nil
+	}
+
+	operatorsVersions, err := k.versionService.SupportedOperatorVersionsList(ctx, pmmversion.PMMVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -136,11 +141,13 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				return
 			}
 
-			clusters[i].Operators.Pxc.Status, err = k.convertToOperatorStatus(ctx, pxcOperator, resp.Operators.PxcOperatorVersion)
+			clusters[i].Operators.Pxc.Status, err = k.convertToOperatorStatus(operatorsVersions[pxcOperator], resp.Operators.PxcOperatorVersion)
+
 			if err != nil {
 				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
 			}
-			clusters[i].Operators.Psmdb.Status, err = k.convertToOperatorStatus(ctx, psmdbOperator, resp.Operators.PsmdbOperatorVersion)
+			clusters[i].Operators.Psmdb.Status, err = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], resp.Operators.PsmdbOperatorVersion)
+
 			if err != nil {
 				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
 			}
