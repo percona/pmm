@@ -1,11 +1,14 @@
 #!/bin/sh
 
 PATH=/bin:/sbin
+SOURCE=
 
-SOURCE=$(
-    cat /var/lib/cloud/data/status.json 2>/dev/null \
-        | python -c 'import json, sys; print json.load(sys.stdin)["v1"]["datasource"];' 2>/dev/null
-)
+if [ -f /var/lib/cloud/data/status.json ]; then
+    SOURCE=$(
+        cat /var/lib/cloud/data/status.json 2>/dev/null \
+            | python -c 'import json, sys; print json.load(sys.stdin)["v1"]["datasource"];' 2>/dev/null
+    )
+fi
 
 IP=$(ip route get 1 2>/dev/null | awk '{print $NF;exit}')
 if [ "x$SOURCE" = "xDataSourceEc2" ]; then

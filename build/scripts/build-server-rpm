@@ -11,7 +11,7 @@ get_rpm_version() {
     local rpm_version=$(
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
             rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
-                | sed -re 's/\.[0-9]{10}\././; s/${rpmbuild_dist_param}//' \
+                | sed -re 's/\.[0-9]{10}\././; s/.${rpmbuild_dist}//' \
                 | head -1
         "
     )
@@ -25,26 +25,40 @@ is_build_needed() {
     local rpm_version=$2
     local packages=
 
-    if [ -n "$RPM_EPOCH" ]; then
-        aws s3 sync \
-            --region us-east-2 \
-            --no-sign-request \
-            s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
-            ${rpms_dir}/${spec_name}-${rpm_version}
+    if [ "$rpmbuild_dist" = "el7" ]; then
+        if [ -n "$RPM_EPOCH" ]; then
+            aws s3 sync \
+                --region us-east-2 \
+                --no-sign-request \
+                s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
+                ${rpms_dir}/${spec_name}-${rpm_version}
+        else
+            aws s3 sync \
+                --region us-east-2 \
+                --no-sign-request \
+                s3://pmm-build-cache/${spec_name}-${rpm_version} \
+                ${rpms_dir}/${spec_name}-${rpm_version}
+        fi
     else
-        aws s3 sync \
-            --region us-east-2 \
-            --no-sign-request \
-            s3://pmm-build-cache/${spec_name}-${rpm_version} \
-            ${rpms_dir}/${spec_name}-${rpm_version}
+        # This is for el9
+        if [ -n "$RPM_EPOCH" ]; then
+            aws s3 sync \
+                --region us-east-2 \
+                --no-sign-request \
+                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                ${rpms_dir}/${spec_name}-${rpm_version}
+        else
+            aws s3 sync \
+                --region us-east-2 \
+                --no-sign-request \
+                s3://pmm-build-cache/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                ${rpms_dir}/${spec_name}-${rpm_version}
+        fi
     fi
 
-    if [ "$rpmbuild_dist_param" = ".el7" ]; then
-        packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.el7.*.rpm" | wc -l)
-    else
-        packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.el9.*.rpm" | wc -l)
-    fi
-    # return result as true or flase
+    packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.${rpmbuild_dist}.*.rpm" | wc -l)
+
+    # return result as true or false
     [[ ${packages// /} == 0 ]]
 }
 
@@ -122,24 +136,40 @@ build() {
             sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist ${rpmbuild_dist_param}' -ba SOURCES/${spec_name}.spec
+            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .${rpmbuild_dist}' -ba SOURCES/${spec_name}.spec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-        if [ -n "$RPM_EPOCH" ]; then
-            aws s3 sync \
-                --region us-east-2 \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
-                || :
+        if [ "$rpmbuild_dist" = "el7" ]; then
+            if [ -n "$RPM_EPOCH" ]; then
+                aws s3 sync \
+                    --region us-east-2 \
+                    ${rpms_dir}/${spec_name}-${rpm_version} \
+                    s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
+                    || :
+            else
+                aws s3 sync \
+                    --region us-east-2 \
+                    ${rpms_dir}/${spec_name}-${rpm_version} \
+                    s3://pmm-build-cache/${spec_name}-${rpm_version} \
+                    || :
+            fi
         else
-            aws s3 sync \
-                --region us-east-2 \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/${spec_name}-${rpm_version} \
-                || :
+            if [ -n "$RPM_EPOCH" ]; then
+                aws s3 sync \
+                    --region us-east-2 \
+                    ${rpms_dir}/${spec_name}-${rpm_version} \
+                    s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                    || :
+            else
+                aws s3 sync \
+                    --region us-east-2 \
+                    ${rpms_dir}/${spec_name}-${rpm_version} \
+                    s3://pmm-build-cache/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                    || :
+            fi
         fi
     fi
 }
