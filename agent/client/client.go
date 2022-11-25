@@ -334,7 +334,7 @@ loop:
 				responsePayload = &agentpb.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
 					responsePayload = nil
-					status = convertAgentError(err)
+					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
 
@@ -919,7 +919,7 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	return args
 }
 
-func convertAgentError(agentErr error) *grpcstatus.Status {
+func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 	var status *grpcstatus.Status
 	switch {
 	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):

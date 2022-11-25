@@ -5163,7 +5163,7 @@ func (x *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) GetTextFiles() 
 	return nil
 }
 
-// RestartMongoDBServiceParams describes an action request to restart components in a MongoDB node
+// RestartSystemServiceParams describes an action request to restart a systemctl service on a node.
 type StartActionRequest_RestartSystemServiceParams struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

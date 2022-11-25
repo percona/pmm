@@ -327,7 +327,7 @@ message StartActionRequest {
     TextFiles text_files = 2;
   }
 
-  // RestartMongoDBServiceParams describes an action request to restart components in a MongoDB node
+  // RestartSystemServiceParams describes an action request to restart a systemctl service on a node.
   message RestartSystemServiceParams {
     // SystemService is a systemctl service that can be restarted from PMM server
     enum SystemService {
