@@ -300,10 +300,10 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartMongodbSystemServiceParams); ok {
-		if oneOfNester.RestartMongodbSystemServiceParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartMongodbSystemServiceParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RestartMongodbSystemServiceParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartSysServiceParams); ok {
+		if oneOfNester.RestartSysServiceParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartSysServiceParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RestartSysServiceParams", err)
 			}
 		}
 	}

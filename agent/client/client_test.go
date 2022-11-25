@@ -236,8 +236,8 @@ func TestUnexpectedActionType(t *testing.T) {
 				id:   4243,
 				payload: &agentpb.ServerMessage_StartAction{
 					StartAction: &agentpb.StartActionRequest{
-						Params: &agentpb.StartActionRequest_RestartMongodbSystemServiceParams{
-							RestartMongodbSystemServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
+						Params: &agentpb.StartActionRequest_RestartSysServiceParams{
+							RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
 								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_INVALID,
 							},
 						},
@@ -250,12 +250,11 @@ func TestUnexpectedActionType(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
 				err = stream.Send(&agentpb.ServerMessage{Id: tc.id, Payload: tc.payload})
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				msg, err = stream.Recv()
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode())
-				assert.NoError(t, err)
 			})
 		}
 		return nil

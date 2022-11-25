@@ -359,7 +359,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
-    RestartSystemServiceParams restart_mongodb_system_service_params = 59;
+    RestartSystemServiceParams restart_sys_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;

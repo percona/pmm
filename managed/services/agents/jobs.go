@@ -633,7 +633,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	}
 
 	serviceType := models.MongoDBServiceType
-	rsMembers, err := models.FindServices(
+	clusterMembers, err := models.FindServices(
 		s.db.Querier,
 		models.ServiceFilters{
 			ServiceType: &serviceType,
@@ -643,8 +643,8 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 		return err
 	}
 
-	rsAgents := make([]*models.Agent, 0, len(rsMembers))
-	for _, service := range rsMembers {
+	clusterAgents := make([]*models.Agent, 0, len(clusterMembers))
+	for _, service := range clusterMembers {
 		s.l.Debugf("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
 		serviceAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
 		if err != nil {
@@ -653,7 +653,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 		if len(serviceAgents) == 0 {
 			return errors.Errorf("cannot find pmm agent for service %s", service.ServiceID)
 		}
-		rsAgents = append(rsAgents, serviceAgents[0])
+		clusterAgents = append(clusterAgents, serviceAgents[0])
 	}
 
 	// mongoRestarts is a list of PMM agent IDs on which we successfully restarted mongod
@@ -661,7 +661,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	// pbmRestarts is a list of PMM agent IDs on which we successfully restarted pbm-agent
 	pbmAgentRestarts := make(map[string]struct{})
 
-	for _, pmmAgent := range rsAgents {
+	for _, pmmAgent := range clusterAgents {
 		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
 			return err
 		}
@@ -671,7 +671,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
-	for _, pmmAgent := range rsAgents {
+	for _, pmmAgent := range clusterAgents {
 		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
 			return err
 		}
@@ -690,8 +690,8 @@ func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.
 
 	req := &agentpb.StartActionRequest{
 		ActionId: action.ID,
-		Params: &agentpb.StartActionRequest_RestartMongodbSystemServiceParams{
-			RestartMongodbSystemServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
+		Params: &agentpb.StartActionRequest_RestartSysServiceParams{
+			RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
 				SystemService: service,
 			},
 		},
