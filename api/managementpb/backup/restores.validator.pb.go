@@ -31,6 +31,11 @@ func (this *RestoreHistoryItem) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("FinishedAt", err)
 		}
 	}
+	if this.PitrTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PitrTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PitrTimestamp", err)
+		}
+	}
 	return nil
 }
 
