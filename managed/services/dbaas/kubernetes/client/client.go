@@ -86,13 +86,13 @@ type Client struct {
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
 func NewFromIncluster() (*Client, error) {
-	config, err := rest.InClusterConfig()
+	config, err := inClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := newForConfig(config)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := newForConfig(config)
 	if err != nil {
 		return nil, err
 	}
@@ -133,23 +133,6 @@ func (c *Client) setup() error {
 	path := fmt.Sprintf("%s:%s", os.Getenv("PATH"), dbaasToolPath)
 	os.Setenv("PATH", path)
 	c.namespace = namespace
-	return c.initOperatorClients()
-}
-
-// NewFromInCluster returns a client object which uses the service account
-// kubernetes gives to pods. It's intended for clients that expect to be
-// running inside a pod running on kubernetes. It will return ErrNotInCluster
-// if called from a process not running in a kubernetes environment.
-func NewFromInCluster() (*Client, error) {
-	c, err := inClusterConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	clientset, err := newForConfig(c)
-	if err != nil {
-		return nil, err
-	}
 	return c.initOperatorClients()
 }
 
