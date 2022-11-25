@@ -31,7 +31,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/client-go/kubernetes"
@@ -202,11 +201,6 @@ func (c *Client) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.
 		return nil, err
 	}
 	return cluster, nil
-}
-
-// PatchDatabaseCluster patches CR of managed PXC cluster.
-func (c *Client) PatchDatabaseCluster(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
-	return c.dbClusterClient.DBClusters(c.namespace).Patch(ctx, name, pt, data, opts)
 }
 
 // GetStorageClasses returns all storage classes available in the cluster

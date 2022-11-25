@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/davecgh/go-spew/spew"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -233,6 +232,5 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	if updateRequest.Params.Resume {
 		dbCluster.Spec.Pause = false
 	}
-	spew.Dump(dbCluster.Spec.Pause)
 	return nil
 }

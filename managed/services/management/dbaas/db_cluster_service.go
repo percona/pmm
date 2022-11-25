@@ -211,18 +211,10 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, err
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
-	if err != nil {
-		return nil, err
-	}
-	dbCluster.TypeMeta.APIVersion = "dbaas.percona.com/v1"
-	dbCluster.TypeMeta.Kind = "DatabaseCluster"
-	dbCluster.Spec.Restart = true
-	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.RestartDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -236,17 +228,10 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, err
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
-	if err != nil {
-		return nil, err
-	}
-	dbCluster.TypeMeta.APIVersion = "dbaas.percona.com/v1"
-	dbCluster.TypeMeta.Kind = "DatabaseCluster"
-	err = kubeClient.DeleteDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.DeleteDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}

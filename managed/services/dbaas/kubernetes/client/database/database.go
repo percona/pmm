@@ -21,7 +21,6 @@ import (
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -72,7 +71,6 @@ func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInte
 type DatabaseClusterInterface interface {
 	List(ctx context.Context, opts metav1.ListOptions) (*dbaasv1.DatabaseClusterList, error)
 	Get(ctx context.Context, name string, options metav1.GetOptions) (*dbaasv1.DatabaseCluster, error)
-	Patch(context.Context, string, types.PatchType, []byte, metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
 }
 
@@ -101,20 +99,6 @@ func (c *dbClusterClient) Get(ctx context.Context, name string, opts metav1.GetO
 		Resource(apiKind).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Name(name).
-		Do(ctx).
-		Into(result)
-	return result, err
-}
-
-func (c *dbClusterClient) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions) (*dbaasv1.DatabaseCluster, error) {
-	result := &dbaasv1.DatabaseCluster{}
-	err := c.restClient.
-		Patch(pt).
-		Namespace(c.namespace).
-		Resource(apiKind).
-		Name(name).
-		Body(data).
-		VersionedParams(&opts, scheme.ParameterCodec).
 		Do(ctx).
 		Into(result)
 	return result, err

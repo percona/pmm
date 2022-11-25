@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -49,6 +48,7 @@ type PXCClustersService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
+	kubernetesClient  *kubernetes.Kubernetes
 	componentsService componentsService
 	versionServiceURL string
 
@@ -64,6 +64,7 @@ func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient,
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
+		kubernetesClient:  kubernetes.NewEmpty(),
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
 	}
@@ -75,15 +76,14 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create kubernetes client")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -126,12 +126,11 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	if req.Params.Pxc.StorageClass == "" {
-		className, err := kubeClient.GetDefaultStorageClassName(ctx)
+		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get storage classes")
 		}
@@ -155,8 +154,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
 		dbCluster.Spec.Monitoring.PMM.Password = apiKey
 	}
-	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
-	spew.Dump(err)
+	err = s.kubernetesClient.CreateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -290,11 +288,10 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
 		return nil, errors.New("can't update both proxies, only one is in use")
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -302,15 +299,8 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
-	//if !dbCluster.Spec.Pause && dbCluster.Status.State == dbaasv1.AppStatePaused {
-	//	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return &dbaasv1beta1.UpdatePXCClusterResponse{}, nil
-	//}
 
-	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.PatchDatabaseCluster(ctx, dbCluster)
 
 	if err != nil {
 		return nil, err

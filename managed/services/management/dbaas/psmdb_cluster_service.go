@@ -46,6 +46,7 @@ type PSMDBClusterService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
+	kubernetesClient  *kubernetes.Kubernetes
 	componentsService componentsService
 	versionServiceURL string
 
@@ -61,6 +62,7 @@ func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
+		kubernetesClient:  kubernetes.NewEmpty(),
 		componentsService: componentsService,
 		versionServiceURL: versionServiceURL,
 	}
@@ -82,15 +84,14 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create kubernetes client")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(psmdbSecretNameTmpl, req.Name))
+	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(psmdbSecretNameTmpl, req.Name))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -121,13 +122,11 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-
 	if req.Params.Replicaset.StorageClass == "" {
-		className, err := kubeClient.GetDefaultStorageClassName(ctx)
+		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get storage classes")
 		}
@@ -173,7 +172,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	}
 	// TODO: Setup backups
 
-	err = kubeClient.CreateDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.CreateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -259,9 +258,8 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to connect to kubernetes cluster")
+	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := kubernetes.UpdatePatchForPSMDB(req)
 	if err != nil {
@@ -273,7 +271,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
 		}
 	}
-	err = kubeClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err
 	}

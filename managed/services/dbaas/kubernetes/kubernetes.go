@@ -30,8 +30,10 @@ import (
 )
 
 const (
-	pxcDeploymentName   = "percona-xtradb-cluster-operator"
-	psmdbDeploymentName = "percona-server-mongodb-operator"
+	pxcDeploymentName         = "percona-xtradb-cluster-operator"
+	psmdbDeploymentName       = "percona-server-mongodb-operator"
+	databaseClusterKind       = "DatabaseCluster"
+	databaseClusterAPIVersion = "dbaas.percona.com/v1"
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -136,6 +138,16 @@ func (c *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.Databas
 func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error) {
 	return c.client.GetDatabaseCluster(ctx, name)
 }
+func (c *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
+	cluster, err := c.client.GetDatabaseCluster(ctx, name)
+	if err != nil {
+		return err
+	}
+	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
+	cluster.TypeMeta.Kind = databaseClusterKind
+	cluster.Spec.Restart = true
+	return c.client.ApplyObject(ctx, cluster)
+}
 
 // PatchDatabaseCluster patches CR of managed PXC cluster.
 func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
@@ -146,7 +158,13 @@ func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1
 	return c.client.ApplyObject(ctx, cluster)
 }
 
-func (c *Kubernetes) DeleteDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+func (c *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) error {
+	cluster, err := c.client.GetDatabaseCluster(ctx, name)
+	if err != nil {
+		return err
+	}
+	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
+	cluster.TypeMeta.Kind = databaseClusterKind
 	return c.client.DeleteObject(ctx, cluster)
 }
 
