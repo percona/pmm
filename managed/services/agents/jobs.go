@@ -662,7 +662,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range rsAgents {
-		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartServiceParams_MONGOD); err != nil {
+		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
 			return err
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
@@ -672,7 +672,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range rsAgents {
-		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartServiceParams_PBM_AGENT); err != nil {
+		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
@@ -681,7 +681,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	return nil
 }
 
-func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.StartActionRequest_RestartServiceParams_SystemService) error {
+func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.StartActionRequest_RestartSystemServiceParams_SystemService) error {
 	s.l.Infof("sending request to restart %s on %s", service, agentID)
 	action, err := models.CreateActionResult(s.db.Querier, agentID)
 	if err != nil {
@@ -690,8 +690,8 @@ func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.
 
 	req := &agentpb.StartActionRequest{
 		ActionId: action.ID,
-		Params: &agentpb.StartActionRequest_RestartMongodbServiceParams{
-			RestartMongodbServiceParams: &agentpb.StartActionRequest_RestartServiceParams{
+		Params: &agentpb.StartActionRequest_RestartMongodbSystemServiceParams{
+			RestartMongodbSystemServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
 				SystemService: service,
 			},
 		},

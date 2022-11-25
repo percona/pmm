@@ -328,7 +328,7 @@ message StartActionRequest {
   }
 
   // RestartMongoDBServiceParams describes an action request to restart components in a MongoDB node
-  message RestartServiceParams {
+  message RestartSystemServiceParams {
     // SystemService is a systemctl service that can be restarted from PMM server
     enum SystemService {
       SYSTEM_SERVICE_INVALID = 0;
@@ -359,7 +359,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
-    RestartServiceParams restart_mongodb_service_params = 59;
+    RestartSystemServiceParams restart_mongodb_system_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;

@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -333,7 +334,7 @@ loop:
 				responsePayload = &agentpb.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
 					responsePayload = nil
-					status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+					status = convertAgentError(err)
 					break
 				}
 
@@ -501,20 +502,20 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
-	case *agentpb.StartActionRequest_RestartMongodbServiceParams:
+	case *agentpb.StartActionRequest_RestartMongodbSystemServiceParams:
 		var service string
-		switch params.RestartMongodbServiceParams.SystemService {
-		case agentpb.StartActionRequest_RestartServiceParams_MONGOD:
+		switch params.RestartMongodbSystemServiceParams.SystemService {
+		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
 			service = "mongod"
-		case agentpb.StartActionRequest_RestartServiceParams_PBM_AGENT:
+		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
 			service = "pbm-agent"
 		default:
-			return errors.Errorf("invalid service '%s' specified in mongod restart request", params.RestartMongodbServiceParams.SystemService)
+			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartMongodbSystemServiceParams.SystemService)
 		}
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Errorf("unknown action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
 	}
 
 	return c.runner.StartAction(action)
@@ -916,6 +917,19 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	return args
+}
+
+func convertAgentError(agentErr error) *grpcstatus.Status {
+	var status *grpcstatus.Status
+	switch {
+	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
+	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
+		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	}
+	return status
 }
 
 // check interface

@@ -294,7 +294,6 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			jobType = models.MySQLRestoreBackupJob
 			jobData = &models.JobData{
 				MySQLRestoreBackup: &models.MySQLRestoreBackupJobData{
-					ServiceID: serviceID,
 					RestoreID: restoreID,
 				},
 			}

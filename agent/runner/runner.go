@@ -27,6 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -96,7 +97,7 @@ func (r *Runner) StartAction(action actions.Action) error {
 	case r.actions <- action:
 		return nil
 	default:
-		return errors.New("actions queue overflowed")
+		return agenterrors.ErrActionQueueOverflow
 	}
 }
 

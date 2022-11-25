@@ -300,10 +300,10 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartMongodbServiceParams); ok {
-		if oneOfNester.RestartMongodbServiceParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartMongodbServiceParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RestartMongodbServiceParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartMongodbSystemServiceParams); ok {
+		if oneOfNester.RestartMongodbSystemServiceParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartMongodbSystemServiceParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RestartMongodbSystemServiceParams", err)
 			}
 		}
 	}
@@ -475,7 +475,7 @@ func (this *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Validate() e
 	return nil
 }
 
-func (this *StartActionRequest_RestartServiceParams) Validate() error {
+func (this *StartActionRequest_RestartSystemServiceParams) Validate() error {
 	return nil
 }
 

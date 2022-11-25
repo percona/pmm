@@ -437,7 +437,6 @@ func TestServiceHelpers(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, services)
-		assert.Len(t, services, 2)
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 }
