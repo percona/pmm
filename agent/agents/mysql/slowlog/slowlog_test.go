@@ -53,7 +53,8 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	parsingResult := event.Result{
 		Class: map[string]*event.Class{
 			"example": {
-				Metrics: &event.Metrics{},
+				Metrics:     &event.Metrics{},
+				Fingerprint: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				Example: &event.Example{
 					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				},
@@ -65,6 +66,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
+				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
 				ExplainFingerprint:  "select * from contacts as t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
 				AgentId:             agentID,

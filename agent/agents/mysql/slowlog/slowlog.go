@@ -435,7 +435,9 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 				mb.Common.ExplainFingerprint = explainFingerprint
 				mb.Common.PlaceholdersCount = placeholdersCount
 			}
+		}
 
+		if v.Example != nil {
 			if !disableQueryExamples {
 				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
 				if truncated {
