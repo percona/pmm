@@ -405,13 +405,13 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "percona-xtradb-cluster-operator")
+			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", "percona-xtradb-cluster-operator")
 			return err
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "percona-server-mongodb-operator")
+			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", "percona-server-mongodb-operator")
 			return err
 		}
 		component = kubernetesCluster.Mongod

@@ -285,3 +285,9 @@ func (c *Client) ListSubscriptions(ctx context.Context, in *controllerv1beta1.Li
 	defer c.connM.RUnlock()
 	return c.olmOperatorClient.ListSubscriptions(ctx, in, opts...)
 }
+
+func (c *Client) GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.GetSubscription(ctx, in, opts...)
+}

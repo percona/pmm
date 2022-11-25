@@ -48,7 +48,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20221108155624-e41938ef2692
+	github.com/percona-platform/dbaas-api v0.0.0-20221124165531-bd24900964a7
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
@@ -82,6 +82,8 @@ require (
 )
 
 require (
+	github.com/k0kubun/pp v3.0.1+incompatible // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 )

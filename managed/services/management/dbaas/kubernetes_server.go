@@ -25,6 +25,7 @@ import (
 	"time"
 
 	goversion "github.com/hashicorp/go-version"
+	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -278,38 +279,18 @@ func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, ver
 	return nil
 }
 
-func approveInstallPlan(ctx context.Context, client dbaasClient, kubeconfig, operatorName string) error {
+func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
 	for i := 0; i < 6; i++ {
-		ips, err := client.ListInstallPlans(ctx, &dbaascontrollerv1beta1.ListInstallPlansRequest{
+		req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubeconfig,
+				Kubeconfig: kubeConfig,
 			},
-			NotApprovedOnly: true,
-		})
+			Name:      name,
+			Namespace: namespace,
+		}
+		_, err := client.ApproveInstallPlan(ctx, req)
 		if err != nil {
-			return errors.Wrap(err, "cannot approve install plan")
-		}
-		if len(ips.Items) == 0 {
-			time.Sleep(10 * time.Second)
-			continue
-		}
-
-		for _, item := range ips.Items {
-			if strings.HasPrefix(item.Csv, operatorName) {
-				req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-					KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-						Kubeconfig: kubeconfig,
-					},
-					Name:      item.Name,
-					Namespace: item.Namespace,
-				}
-				_, err := client.ApproveInstallPlan(ctx, req)
-				if err != nil {
-					return err
-				}
-
-				return nil
-			}
+			return err
 		}
 
 		break
@@ -375,30 +356,56 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			}
 		}
 
+		namespace := "default"
+
 		if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
-			if err := k.installOperator(ctx, "percona-xtradb-cluster-operator", "my-pxc-operator", "", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			operator := "percona-xtradb-cluster-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "", "stable", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 			}
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "percona-xtradb-cluster-operator"); err != nil {
+
+			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
 				k.l.Errorf("cannot approve the PXC install plan: %s", err)
 			}
 		}
 
 		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
-			if err := k.installOperator(ctx, "percona-server-mongodb-operator", "my-psmdb-operator", "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			operator := "percona-server-mongodb-operator"
+
+			if err := k.installOperator(ctx, operator, "default", "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 			}
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "percona-server-mongodb-operator"); err != nil {
+
+			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
 
 		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-			if err := k.installOperator(ctx, "victoriametrics-operator", "default", "", "beta", req.KubeAuth.Kubeconfig); err != nil {
+			operator := "victoriametrics-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "", "beta", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install victoria metrics operator: %s", err)
 				return
 			}
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, "victoriametrics-operator"); err != nil {
+
+			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
@@ -453,7 +460,7 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 		},
 		Namespace:              namespace,
 		Name:                   name,
-		OperatorGroup:          "og-" + name,
+		OperatorGroup:          "percona-operators-group",
 		CatalogSource:          catalogSource,
 		CatalogSourceNamespace: catalosSourceNamespace,
 		Channel:                channel,
@@ -462,6 +469,31 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 	})
 
 	return err
+}
+
+func (k kubernetesServer) getInstallPlanForSubscription(ctx context.Context, kubeConfig, namespace, name string) (string, error) {
+	var subscription *controllerv1beta1.GetSubscriptionResponse
+	var err error
+	for i := 0; i < 6; i++ {
+		subscription, err = k.dbaasClient.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: kubeConfig,
+			},
+			Namespace: namespace,
+			Name:      name,
+		})
+		if err != nil {
+			return "", errors.Wrap(err, "cannot list subscriptions")
+		}
+
+		if subscription.Subscription.InstallPlanName != "" {
+			break
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return subscription.Subscription.InstallPlanName, nil
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.

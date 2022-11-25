@@ -89,6 +89,8 @@ type dbaasClient interface {
 	// ListSubscriptions list all available subscriptions. Used to check if there are updates. If installed crv is different than current csv (latest)
 	// there is an update available.
 	ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error)
+	// GetSubscription retrieves a subscription by namespace and name.
+	GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error)
 }
 
 type versionService interface {
