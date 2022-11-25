@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	"k8s.io/client-go/rest"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -127,6 +128,8 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			}
 			in.l.Info("Cluster is successfully initialized")
 		}
+	} else if errors.Is(err, rest.ErrNotInCluster) {
+		in.l.Info("PMM is running outside a kubernetes cluster")
 	} else {
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
