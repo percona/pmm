@@ -403,13 +403,15 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		default:
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
+		explainFingerprint := "INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)"
+
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
-				ExplainFingerprint:  fingerprint,
+				ExplainFingerprint:  explainFingerprint,
 				PlaceholdersCount:   4,
 				Database:            "pmm-agent",
 				Tables:              []string{tableName},
