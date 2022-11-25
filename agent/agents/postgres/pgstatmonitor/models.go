@@ -55,11 +55,13 @@ type pgStatMonitorSettingsTextValue struct {
 type pgStatMonitorExtended struct {
 	pgStatMonitor
 
-	Fingerprint      string
-	Example          string
-	Database         string
-	Username         string
-	IsQueryTruncated bool
+	Fingerprint        string
+	ExplainFingerprint string
+	PlaceholdersCount  uint32
+	Example            string
+	Database           string
+	Username           string
+	IsQueryTruncated   bool
 }
 
 func (e *pgStatMonitorExtended) String() string {

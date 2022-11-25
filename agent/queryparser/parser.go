@@ -49,12 +49,17 @@ func PostgreSQL(q string) (string, uint32, error) {
 		return "", 0, errors.Wrap(err, "cannot normalize query")
 	}
 
+	return PostgreSQLNormalized(query)
+}
+
+// PostgreSQLNormalized parse query, which is already normalized and return fingeprint and placeholders.
+func PostgreSQLNormalized(q string) (string, uint32, error) {
 	r, err := regexp.Compile(`[\$]{1}\d`)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot get placeholders count")
 	}
 
-	matches := r.FindAllString(query, -1)
+	matches := r.FindAllString(q, -1)
 
-	return query, uint32(len(matches)), nil
+	return q, uint32(len(matches)), nil
 }
