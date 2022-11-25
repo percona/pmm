@@ -169,7 +169,7 @@ func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKube
 	c.connM.RLock()
 	defer c.connM.RUnlock()
 
-	kClient, err := kubernetes.NewIncluster(ctx)
+	kClient, err := kubernetes.NewIncluster()
 	if err != nil {
 		c.l.Errorf("failed creating kubernetes client: %v", err)
 		return nil, err

@@ -149,40 +149,44 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 	return dbCluster
 }
 
-func UpdatePatchForPSMDB(cluster *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaasv1.DatabaseCluster, error) {
-	if cluster.Params.Suspend && cluster.Params.Resume {
-		return nil, errSimultaneous
+func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest) error {
+	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
+		return errSimultaneous
 	}
-	dbCluster := &dbaasv1.DatabaseCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: cluster.Name,
-		},
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: dbaasAPI,
-			Kind:       dbaasKind,
-		},
-		Spec: dbaasv1.DatabaseSpec{
-			Database:       databasePSMDB,
-			DatabaseImage:  cluster.Params.Image,
-			DatabaseConfig: cluster.Params.Replicaset.Configuration,
-			DBInstance: dbaasv1.DBInstanceSpec{
-				// FIXME: Implement a better solution
-				CPU:    fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM),
-				Memory: strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
-			},
-			ClusterSize: cluster.Params.ClusterSize,
-		},
+	dbCluster.TypeMeta = metav1.TypeMeta{
+		APIVersion: dbaasAPI,
+		Kind:       dbaasKind,
 	}
-	if cluster.Params.Replicaset.StorageClass != "" {
-		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Replicaset.StorageClass
+	if updateRequest.Params.ClusterSize > 0 {
+		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}
-	if cluster.Params.Suspend {
+	if updateRequest.Params.Image != "" {
+		dbCluster.Spec.DatabaseImage = updateRequest.Params.Image
+	}
+	if updateRequest.Params.Replicaset != nil {
+		if updateRequest.Params.Replicaset.ComputeResources != nil {
+			if updateRequest.Params.Replicaset.ComputeResources.CpuM > 0 {
+				dbCluster.Spec.DBInstance.CPU = fmt.Sprintf("%dm", updateRequest.Params.Replicaset.ComputeResources.CpuM)
+			}
+			if updateRequest.Params.Replicaset.ComputeResources.MemoryBytes > 0 {
+				dbCluster.Spec.DBInstance.Memory = strconv.FormatInt(updateRequest.Params.Replicaset.ComputeResources.MemoryBytes, 10)
+			}
+		}
+		if updateRequest.Params.Replicaset.Configuration != "" {
+			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Replicaset.Configuration
+		}
+
+	}
+	if updateRequest.Params.Replicaset.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Replicaset.StorageClass
+	}
+	if updateRequest.Params.Suspend {
 		dbCluster.Spec.Pause = true
 	}
-	if cluster.Params.Resume {
+	if updateRequest.Params.Resume {
 		dbCluster.Spec.Pause = false
 	}
-	return dbCluster, nil
+	return nil
 }
 
 func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest) error {

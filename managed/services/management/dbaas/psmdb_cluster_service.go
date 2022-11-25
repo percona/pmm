@@ -25,8 +25,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -261,16 +259,15 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	dbCluster, err := kubernetes.UpdatePatchForPSMDB(req)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req)
 	if err != nil {
 		return nil, err
 	}
 
-	if req.Params != nil {
-		if req.Params.Suspend && req.Params.Resume {
-			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
-		}
-	}
 	err = s.kubernetesClient.PatchDatabaseCluster(ctx, dbCluster)
 	if err != nil {
 		return nil, err

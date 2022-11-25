@@ -19,23 +19,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
-	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -75,7 +67,7 @@ var (
 
 // Client is the internal client for Kubernetes.
 type Client struct {
-	clientset       *kubernetes.Clientset
+	clientset       kubernetes.Interface
 	dbClusterClient *database.DatabaseClusterClient
 	restConfig      *rest.Config
 	namespace       string

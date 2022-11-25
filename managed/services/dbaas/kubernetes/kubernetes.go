@@ -18,15 +18,12 @@ package kubernetes
 import (
 	"context"
 	"errors"
-	"net/http"
 	"strings"
-	"time"
 
 	"net/http"
 	"time"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
-	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/sirupsen/logrus"
@@ -52,7 +49,7 @@ type Kubernetes struct {
 func NewIncluster() (*Kubernetes, error) {
 	l := logrus.WithField("component", "kubernetes")
 
-	client, err := client.NewFromInCluster()
+	client, err := client.NewFromIncluster()
 	if err != nil {
 		return nil, err
 	}
