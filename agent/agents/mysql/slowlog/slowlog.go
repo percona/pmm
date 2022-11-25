@@ -367,7 +367,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
 			digest := query.Id(fingerprint)
-			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, fingerprint)
+			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -396,6 +396,12 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
+		// In fingerprint field there is no fingerprint yet.
+		// It contains whole query without any changes.
+		// This in workaround to keep original query until field "Query" will be
+		// added here: https://github.com/percona/go-mysql/blob/PMM-2.0/event/class.go#L56
+		q := v.Fingerprint
+		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -417,7 +423,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		}
 
-		if v.Example != nil {
+		if q != "" {
 			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
 			if err != nil {
 				l.Debugf("cannot parse query: %s", v.Example.Query)
