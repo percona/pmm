@@ -21,8 +21,8 @@ import (
 )
 
 // MySQL parse query and return fingeprint and placeholders.
-func MySQL(example string) (string, uint32, error) {
-	normalizedQuery, _, err := sqlparser.Parse2(example)
+func MySQL(q string) (string, uint32, error) {
+	normalizedQuery, _, err := sqlparser.Parse2(q)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot parse query")
 	}
