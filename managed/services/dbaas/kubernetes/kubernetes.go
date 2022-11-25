@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 
 	"net/http"
 	"time"
@@ -40,6 +41,7 @@ const (
 
 // Kubernetes is a client for Kubernetes.
 type Kubernetes struct {
+	lock       sync.RWMutex
 	client     *client.Client
 	l          *logrus.Entry
 	httpClient *http.Client
@@ -106,6 +108,8 @@ func NewEmpty() *Kubernetes {
 
 // New returns new Kubernetes object.
 func (k *Kubernetes) ChangeKubeconfig(ctx context.Context, kubeconfig string) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
 	client, err := client.NewFromKubeConfigString(kubeconfig)
 	if err != nil {
 		return err
@@ -116,6 +120,8 @@ func (k *Kubernetes) ChangeKubeconfig(ctx context.Context, kubeconfig string) er
 
 // GetKubeconfig generates kubeconfig compatible with kubectl for incluster created clients.
 func (k *Kubernetes) GetKubeconfig(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
 	secret, err := k.client.GetSecretsForServiceAccount(ctx, "pmm-service-account")
 	if err != nil {
 		k.l.Errorf("failed getting service account: %v", err)
@@ -132,46 +138,60 @@ func (k *Kubernetes) GetKubeconfig(ctx context.Context) (string, error) {
 }
 
 // ListDatabaseClusters returns list of managed PCX clusters.
-func (c *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error) {
-	return c.client.ListDatabaseClusters(ctx)
+func (k *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.ListDatabaseClusters(ctx)
 }
 
 // GetDatabaseCluster returns PXC clusters by provided name.
-func (c *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error) {
-	return c.client.GetDatabaseCluster(ctx, name)
+func (k *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.GetDatabaseCluster(ctx, name)
 }
-func (c *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
-	cluster, err := c.client.GetDatabaseCluster(ctx, name)
+func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	cluster, err := k.client.GetDatabaseCluster(ctx, name)
 	if err != nil {
 		return err
 	}
 	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
 	cluster.TypeMeta.Kind = databaseClusterKind
 	cluster.Spec.Restart = true
-	return c.client.ApplyObject(ctx, cluster)
+	return k.client.ApplyObject(ctx, cluster)
 }
 
 // PatchDatabaseCluster patches CR of managed PXC cluster.
-func (c *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
-	return c.client.ApplyObject(ctx, cluster)
+func (k *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	return k.client.ApplyObject(ctx, cluster)
 }
 
-func (c *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
-	return c.client.ApplyObject(ctx, cluster)
+func (k *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	return k.client.ApplyObject(ctx, cluster)
 }
 
-func (c *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) error {
-	cluster, err := c.client.GetDatabaseCluster(ctx, name)
+func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	cluster, err := k.client.GetDatabaseCluster(ctx, name)
 	if err != nil {
 		return err
 	}
 	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
 	cluster.TypeMeta.Kind = databaseClusterKind
-	return c.client.DeleteObject(ctx, cluster)
+	return k.client.DeleteObject(ctx, cluster)
 }
 
-func (c *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, error) {
-	storageClasses, err := c.client.GetStorageClasses(ctx)
+func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	storageClasses, err := k.client.GetStorageClasses(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -181,22 +201,30 @@ func (c *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 	return "", errors.New("no storage classes available")
 }
 
-func (c *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
-	deployment, err := c.client.GetDeployment(ctx, name)
+func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	deployment, err := k.client.GetDeployment(ctx, name)
 	if err != nil {
 		return "", err
 	}
 	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
 }
 
-func (c *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
-	return c.GetOperatorVersion(ctx, psmdbDeploymentName)
+func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.GetOperatorVersion(ctx, psmdbDeploymentName)
 }
 
-func (c *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
-	return c.GetOperatorVersion(ctx, pxcDeploymentName)
+func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.GetOperatorVersion(ctx, pxcDeploymentName)
 }
 
-func (c *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
-	return c.client.GetSecret(ctx, name)
+func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.GetSecret(ctx, name)
 }

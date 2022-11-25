@@ -176,9 +176,9 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Replicaset.Configuration
 		}
 
-	}
-	if updateRequest.Params.Replicaset.StorageClass != "" {
-		dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Replicaset.StorageClass
+		if updateRequest.Params.Replicaset.StorageClass != "" {
+			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Replicaset.StorageClass
+		}
 	}
 	if updateRequest.Params.Suspend {
 		dbCluster.Spec.Pause = true
