@@ -23,10 +23,10 @@ import (
 	"os"
 
 	// Driver for for grafana sqlite database.
-	_ "github.com/mattn/go-sqlite3"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	_ "modernc.org/sqlite"
 )
 
 type dsGrafanaSelect struct {
@@ -93,7 +93,7 @@ func (d *dsGrafanaSelect) Init(ctx context.Context) error {
 		return errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
 	}
 
-	db, err := sql.Open("sqlite3", tempFile.Name())
+	db, err := sql.Open("sqlite", tempFile.Name())
 	if err != nil {
 		return err
 	}
