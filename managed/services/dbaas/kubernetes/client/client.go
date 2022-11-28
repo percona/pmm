@@ -73,11 +73,11 @@ type Client struct {
 	namespace       string
 }
 
-// NewFromIncluster returns a client object which uses the service account
+// NewFromInCluster returns a client object which uses the service account
 // kubernetes gives to pods. It's intended for clients that expect to be
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
-func NewFromIncluster() (*Client, error) {
+func NewFromInCluster() (*Client, error) {
 	config, err := inClusterConfig()
 	if err != nil {
 		return nil, err

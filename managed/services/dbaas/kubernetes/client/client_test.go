@@ -16,12 +16,8 @@
 package client
 
 import (
-	"testing"
-
 	"context"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
@@ -39,7 +35,7 @@ func TestInCluster(t *testing.T) {
 }
 
 func mockInClusterConfig() (*rest.Config, error) {
-	return nil, nil
+	return &rest.Config{}, nil
 }
 
 func mockInClusterConfigWithError() (*rest.Config, error) {

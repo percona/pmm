@@ -51,7 +51,7 @@ type Kubernetes struct {
 func NewIncluster() (*Kubernetes, error) {
 	l := logrus.WithField("component", "kubernetes")
 
-	client, err := client.NewFromIncluster()
+	client, err := client.NewFromInCluster()
 	if err != nil {
 		return nil, err
 	}
