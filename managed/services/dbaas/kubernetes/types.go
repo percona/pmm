@@ -71,11 +71,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 			DatabaseConfig: cluster.Params.Pxc.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
 			DBInstance: dbaasv1.DBInstanceSpec{
-				// FIXME: Implement a better solution
-				StorageClassName: &cluster.Params.Pxc.StorageClass,
-				DiskSize:         strconv.FormatInt(cluster.Params.Pxc.DiskSize, 10),
-				CPU:              fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM),
-				Memory:           strconv.FormatInt(cluster.Params.Pxc.ComputeResources.MemoryBytes, 10),
+				DiskSize: strconv.FormatInt(cluster.Params.Pxc.DiskSize, 10),
+				CPU:      fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM),
+				Memory:   strconv.FormatInt(cluster.Params.Pxc.ComputeResources.MemoryBytes, 10),
 			},
 			Monitoring: dbaasv1.MonitoringSpec{
 				PMM: dbaasv1.PMMSpec{},
@@ -84,7 +82,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 			Backup:       dbaasv1.BackupSpec{},
 		},
 	}
-	// TODO: Fill HAProxy image
+	if cluster.Params.Pxc.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Pxc.StorageClass
+	}
 	if cluster.Params.Haproxy != nil {
 		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
 		if err != nil {
@@ -127,11 +127,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 			DatabaseConfig: cluster.Params.Replicaset.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
 			DBInstance: dbaasv1.DBInstanceSpec{
-				// FIXME: Implement a better solution
-				StorageClassName: &cluster.Params.Replicaset.StorageClass,
-				DiskSize:         strconv.FormatInt(cluster.Params.Replicaset.DiskSize, 10),
-				CPU:              fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM),
-				Memory:           strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
+				DiskSize: strconv.FormatInt(cluster.Params.Replicaset.DiskSize, 10),
+				CPU:      fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM),
+				Memory:   strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
 			},
 			Monitoring: dbaasv1.MonitoringSpec{
 				PMM: dbaasv1.PMMSpec{},
@@ -139,6 +137,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
 			Backup:       dbaasv1.BackupSpec{},
 		},
+	}
+	if cluster.Params.Replicaset.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Replicaset.StorageClass
 	}
 	dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
 	dbCluster.Spec.LoadBalancer.Type = "mongos"
@@ -201,18 +202,23 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}
 	if updateRequest.Params.Pxc != nil {
-		dbCluster.Spec.DatabaseImage = updateRequest.Params.Pxc.Image
-		dbCluster.Spec.DatabaseConfig = updateRequest.Params.Pxc.Configuration
-	}
-
-	if updateRequest.Params.Pxc != nil && updateRequest.Params.Pxc.ComputeResources != nil {
-		dbCluster.Spec.DBInstance = dbaasv1.DBInstanceSpec{
-			// FIXME: Implement a better solution
-			CPU:    fmt.Sprintf("%dm", updateRequest.Params.Pxc.ComputeResources.CpuM),
-			Memory: strconv.FormatInt(updateRequest.Params.Pxc.ComputeResources.MemoryBytes, 10),
+		if updateRequest.Params.Pxc.Image != "" {
+			dbCluster.Spec.DatabaseImage = updateRequest.Params.Pxc.Image
+		}
+		if updateRequest.Params.Pxc.Configuration != "" {
+			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Pxc.Configuration
 		}
 		if updateRequest.Params.Pxc.StorageClass != "" {
 			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Pxc.StorageClass
+		}
+	}
+
+	if updateRequest.Params.Pxc != nil && updateRequest.Params.Pxc.ComputeResources != nil {
+		if updateRequest.Params.Pxc.ComputeResources.CpuM > 0 {
+			dbCluster.Spec.DBInstance.CPU = fmt.Sprintf("%dm", updateRequest.Params.Pxc.ComputeResources.CpuM)
+		}
+		if updateRequest.Params.Pxc.ComputeResources.MemoryBytes > 0 {
+			dbCluster.Spec.DBInstance.Memory = strconv.FormatInt(updateRequest.Params.Pxc.ComputeResources.MemoryBytes, 10)
 		}
 	}
 	if updateRequest.Params.Haproxy != nil && updateRequest.Params.Haproxy.ComputeResources != nil {

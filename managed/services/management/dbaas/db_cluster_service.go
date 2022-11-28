@@ -85,13 +85,13 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 		case "pxc":
 			c, err := s.getPXCCluster(ctx, cluster, pxcOperatorVersion)
 			if err != nil {
-				// TODO
+				s.l.Errorf("failed getting PXC cluster: %v", err)
 			}
 			pxcClusters = append(pxcClusters, c)
 		case "psmdb":
 			c, err := s.getPSMDBCluster(ctx, cluster, psmdbOperatorVersion)
 			if err != nil {
-				// TODO
+				s.l.Errorf("failed getting PSMDB cluster: %v", err)
 			}
 			psmdbClusters = append(psmdbClusters, c)
 		default:

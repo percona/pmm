@@ -39,6 +39,8 @@ const (
 	pxcDefaultDiskSize      = 25000000000
 	proxyDefaultCPUM        = 500
 	proxyDefaultMemoryBytes = 500000000
+	haProxyTemplate         = "percona/percona-xtradb-cluster-operator:%s-haproxy"
+	proxySQLTemplate        = "percona/percona-xtradb-cluster-operator:%s-proxysql"
 )
 
 var errInvalidClusterName = errors.New("invalid cluster name. It must start with a letter and have only letters, numbers and -")
@@ -135,6 +137,30 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			return nil, errors.Wrap(err, "failed to get storage classes")
 		}
 		req.Params.Pxc.StorageClass = className
+	}
+	if req.Params.Haproxy != nil {
+		if req.Params.Haproxy.Image == "" {
+			// PXC operator requires to specify HAproxy image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-haproxy
+			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return nil, err
+			}
+			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
+		}
+	}
+	if req.Params.Proxysql != nil {
+		if req.Params.Proxysql.Image == "" {
+			// PXC operator requires to specify ProxySQL image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-proxysql
+			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return nil, err
+			}
+			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
+		}
 	}
 	dbCluster, err := kubernetes.DatabaseClusterForPXC(req)
 	if err != nil {
