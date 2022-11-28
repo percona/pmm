@@ -573,7 +573,7 @@ telemetry:
     query: pmm_managed_checks_checks_downloaded_total
     transform:
       type: JSON
-      metric: "pmm_server_advisors_checks_downloaded"
+      metric: "pmm_server_advisor_checks_downloaded"
     summary: "Advisor - number of downloaded checks per name"
     data:
       - metric_name: 1
@@ -586,7 +586,7 @@ telemetry:
     query: pmm_managed_checks_scripts_executed_total
     transform:
       type: JSON
-      metric: "pmm_server_advisors_checks_executed"
+      metric: "pmm_server_advisor_checks_executed"
     summary: "Advisor - number of executed checks per name"
     data:
       - metric_name: 1
@@ -599,7 +599,7 @@ telemetry:
     query: pmm_managed_checks_alerts_generated_total
     transform:
       type: JSON
-      metric: "pmm_server_advisors_checks_generated_fails"
+      metric: "pmm_server_advisor_checks_generated_fails"
     summary: "Advisor - number of failed checks per name"
     data:
       - metric_name: 1
