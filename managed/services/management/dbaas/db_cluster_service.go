@@ -37,7 +37,7 @@ type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
 	grafanaClient        grafanaClient
-	kubernetesClient     *kubernetes.Kubernetes
+	kubernetesClient     kubernetesClient
 	versionServiceClient *VersionServiceClient
 
 	dbaasv1beta1.UnimplementedDBClustersServer

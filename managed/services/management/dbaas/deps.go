@@ -23,7 +23,9 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
@@ -32,6 +34,7 @@ import (
 //go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -90,4 +93,17 @@ type componentsService interface {
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
+}
+type kubernetesClient interface {
+	ChangeKubeconfig(context.Context, string) error
+	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
+	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)
+	RestartDatabaseCluster(context.Context, string) error
+	PatchDatabaseCluster(context.Context, *dbaasv1.DatabaseCluster) error
+	CreateDatabaseCluster(context.Context, *dbaasv1.DatabaseCluster) error
+	DeleteDatabaseCluster(context.Context, string) error
+	GetDefaultStorageClassName(context.Context) (string, error)
+	GetPXCOperatorVersion(context.Context) (string, error)
+	GetPSMDBOperatorVersion(context.Context) (string, error)
+	GetSecret(context.Context, string) (*corev1.Secret, error)
 }

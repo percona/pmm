@@ -19,29 +19,27 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
-	"k8s.io/client-go/restmapper"
-	"k8s.io/client-go/tools/clientcmd"
-
-	"os"
-
-	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
-
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/tools/clientcmd"
+
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 )
 
 const (
@@ -116,6 +114,7 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	err = c.setup()
 	return c, err
 }
+
 func (c *Client) setup() error {
 	namespace := "default"
 	if space := os.Getenv("NAMESPACE"); space != "" {

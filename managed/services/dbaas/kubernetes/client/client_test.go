@@ -20,9 +20,11 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	fake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
@@ -144,4 +146,13 @@ func TestGetSecretsForServiceAccountNoSecrets(t *testing.T) {
 	secret, err := client.GetSecretsForServiceAccount(ctx, "pmm-service-account")
 	require.Nil(t, secret, "secret is not nil")
 	require.NotNil(t, err, "error is nil")
+}
+
+func TestGetServerVersion(t *testing.T) {
+	clientset := fake.NewSimpleClientset()
+	client := &Client{clientset: clientset, namespace: "default"}
+	ver, err := client.GetServerVersion(context.TODO())
+	expectedVersion := &version.Info{}
+	require.NoError(t, err)
+	assert.Equal(t, expectedVersion.Minor, ver.Minor)
 }

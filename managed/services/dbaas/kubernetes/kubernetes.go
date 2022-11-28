@@ -18,16 +18,14 @@ package kubernetes
 import (
 	"context"
 	"errors"
+	"net/http"
 	"strings"
 	"sync"
-
-	"net/http"
 	"time"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
-	corev1 "k8s.io/api/core/v1"
-
 	"github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -150,6 +148,7 @@ func (k *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 	defer k.lock.RUnlock()
 	return k.client.GetDatabaseCluster(ctx, name)
 }
+
 func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()

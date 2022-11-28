@@ -50,7 +50,7 @@ type PXCClustersService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
-	kubernetesClient  *kubernetes.Kubernetes
+	kubernetesClient  kubernetesClient
 	componentsService componentsService
 	versionServiceURL string
 
