@@ -183,7 +183,6 @@ func (s *Service) Run(ctx context.Context) {
 	defer s.l.Info("Done.")
 
 	s.CollectChecks(ctx)
-	s.initializeMetrics()
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -1524,21 +1523,6 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mScriptsExecuted.Collect(ch)
 	s.mAlertsGenerated.Collect(ch)
 	s.mChecksDownloaded.Collect(ch)
-}
-
-func (s *Service) initializeMetrics() {
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(s.checks)
-	s.initializeServiceMetrics(models.MySQLServiceType, mySQLChecks)
-	s.initializeServiceMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
-	s.initializeServiceMetrics(models.MongoDBServiceType, mongoDBChecks)
-}
-
-func (s *Service) initializeServiceMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
-	for _, c := range checks {
-		s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name)
-		s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name)
-		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name)
-	}
 }
 
 func (s *Service) incChecksDownload() {

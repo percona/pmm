@@ -18,14 +18,12 @@ package checks
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
-	promtest "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -331,45 +329,6 @@ func TestChangeInterval(t *testing.T) {
 				assert.Equal(t, check.Rare, c.Interval)
 			}
 		})
-	})
-}
-
-// A proper unit test could not be written due
-// to problems with the code responsible for locating agents
-// Once it is fixed rewrite this test to actually run `executeChecks`
-// method and test for recorded metrics.
-func TestSTTMetrics(t *testing.T) {
-	t.Run("check for recorded metrics", func(t *testing.T) {
-		s, err := New(nil, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
-
-		s.localChecksFile = testChecksFile
-		s.CollectChecks(context.Background())
-		s.initializeMetrics()
-		expected := strings.NewReader(`
-			# HELP pmm_managed_checks_alerts_generated_total Counter of alerts generated per service type, check type and check name
-			# TYPE pmm_managed_checks_alerts_generated_total counter
-			pmm_managed_checks_alerts_generated_total{check_name="bad_check_mysql",check_type="MYSQL_SHOW",service_type="mysql"} 0
-			pmm_managed_checks_alerts_generated_total{check_name="check_mongo_getDiagnosticData",check_type="MONGODB_GETDIAGNOSTICDATA",service_type="mongodb"} 0
-			pmm_managed_checks_alerts_generated_total{check_name="check_mongo_replSetGetStatus",check_type="MONGODB_REPLSETGETSTATUS",service_type="mongodb"} 0
-			pmm_managed_checks_alerts_generated_total{check_name="good_check_mongo",check_type="MONGODB_BUILDINFO",service_type="mongodb"} 0
-			pmm_managed_checks_alerts_generated_total{check_name="good_check_pg",check_type="POSTGRESQL_SELECT",service_type="postgresql"} 0
-			# HELP pmm_managed_checks_checks_downloaded_total Counter of checks downloaded per service type, check type and check name
-			# TYPE pmm_managed_checks_checks_downloaded_total counter
-			pmm_managed_checks_checks_downloaded_total{check_name="bad_check_mysql",check_type="MYSQL_SHOW",service_type="mysql"} 0
-			pmm_managed_checks_checks_downloaded_total{check_name="check_mongo_getDiagnosticData",check_type="MONGODB_GETDIAGNOSTICDATA",service_type="mongodb"} 0
-			pmm_managed_checks_checks_downloaded_total{check_name="check_mongo_replSetGetStatus",check_type="MONGODB_REPLSETGETSTATUS",service_type="mongodb"} 0
-			pmm_managed_checks_checks_downloaded_total{check_name="good_check_mongo",check_type="MONGODB_BUILDINFO",service_type="mongodb"} 0
-			pmm_managed_checks_checks_downloaded_total{check_name="good_check_pg",check_type="POSTGRESQL_SELECT",service_type="postgresql"} 0
-			# HELP pmm_managed_checks_scripts_executed_total Counter of check scripts executed per service type, check type and check name
-			# TYPE pmm_managed_checks_scripts_executed_total counter
-			pmm_managed_checks_scripts_executed_total{check_name="bad_check_mysql",check_type="MYSQL_SHOW",service_type="mysql"} 0
-			pmm_managed_checks_scripts_executed_total{check_name="check_mongo_getDiagnosticData",check_type="MONGODB_GETDIAGNOSTICDATA",service_type="mongodb"} 0
-			pmm_managed_checks_scripts_executed_total{check_name="check_mongo_replSetGetStatus",check_type="MONGODB_REPLSETGETSTATUS",service_type="mongodb"} 0
-			pmm_managed_checks_scripts_executed_total{check_name="good_check_mongo",check_type="MONGODB_BUILDINFO",service_type="mongodb"} 0
-			pmm_managed_checks_scripts_executed_total{check_name="good_check_pg",check_type="POSTGRESQL_SELECT",service_type="postgresql"} 0
-		`)
-		assert.NoError(t, promtest.CollectAndCompare(s, expected))
 	})
 }
 
