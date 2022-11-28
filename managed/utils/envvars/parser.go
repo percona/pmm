@@ -64,6 +64,8 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
+//   - the environment variables relating to proxies
+//   - the environment variable set by podman
 func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
 	envSettings = &models.ChangeSettingsParams{}
 
@@ -151,6 +153,12 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
+
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
 
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
