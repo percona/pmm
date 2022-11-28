@@ -182,7 +182,7 @@
         state: latest
         security: yes
         exclude:
-          - nginx
+          - nginx*
 
     - name: Updating vulnerable packages
       yum:
