@@ -235,3 +235,10 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	defer k.lock.RUnlock()
 	return k.client.GetSecret(ctx, name)
 }
+
+// GetPods returns list of pods based on given filters. Filters are args to
+// kubectl command. For example "-lyour-label=value,next-label=value", "-ntest-namespace".
+func (k *Kubernetes) GetPods(ctx context.Context, namespace string, filters ...string) (*corev1.PodList, error) {
+	podList, err := k.client.GetPods(ctx, namespace, strings.Join(filters, ""))
+	return podList, err
+}

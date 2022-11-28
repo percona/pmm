@@ -345,3 +345,24 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 
 	return yaml.Marshal(jsonObj)
 }
+
+// GetPods returns list of pods
+func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != "" {
+		parsed, err := metav1.ParseToLabelSelector(labelSelector)
+		if err != nil {
+			return nil, err
+		}
+
+		selector, err := parsed.Marshal()
+		if err != nil {
+			return nil, err
+		}
+
+		options.LabelSelector = string(selector)
+		options.LabelSelector = labelSelector
+	}
+
+	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
+}
