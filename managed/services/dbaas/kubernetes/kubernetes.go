@@ -18,7 +18,6 @@ package kubernetes
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strings"
 	"sync"

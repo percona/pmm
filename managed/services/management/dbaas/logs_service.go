@@ -18,27 +18,36 @@ package dbaas
 import (
 	"context"
 
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
+
+// overallLinesLimit defines how many last lines of logs we should return upon
+// calling the getClusterLogs method.
+const overallLinesLimit = 1000
 
 // LogsService implements dbaasv1beta1.LogsAPIServer methods.
 type LogsService struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	controllerClient dbaasClient
+	l  *logrus.Entry
+	db *reform.DB
 
 	dbaasv1beta1.UnimplementedLogsAPIServer
 }
 
+type tuple struct {
+	statuses   []corev1.ContainerStatus
+	containers []corev1.Container
+}
+
 // NewLogsService creates new LogsService.
-func NewLogsService(db *reform.DB, client dbaasClient) dbaasv1beta1.LogsAPIServer {
+func NewLogsService(db *reform.DB) dbaasv1beta1.LogsAPIServer {
 	l := logrus.WithField("component", "logs_api")
-	return &LogsService{db: db, l: l, controllerClient: client}
+	return &LogsService{db: db, l: l}
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -58,26 +67,89 @@ func (s LogsService) GetLogs(ctx context.Context, in *dbaasv1beta1.GetLogsReques
 		return nil, err
 	}
 
-	req := &dbaascontrollerv1beta1.GetLogsRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		ClusterName: in.ClusterName,
+	kClient, err := kubernetes.New(context.Background(), kubernetesCluster.KubeConfig)
+	if err != nil {
+		// return nil, status.Error(codes.Internal, "Cannot initialize K8s kClient: "+err.Error())
+		return nil, err
 	}
-	out, err := s.controllerClient.GetLogs(ctx, req)
+
+	pods, err := kClient.GetPods(ctx, "", "app.kubernetes.io/instance="+in.ClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	logs := make([]*dbaasv1beta1.Logs, 0, len(out.Logs))
-	for _, l := range out.Logs {
-		logs = append(logs, &dbaasv1beta1.Logs{
-			Pod:       l.Pod,
-			Container: l.Container,
-			Logs:      l.Logs,
+	// Every pod has at least one contaier, set cap to that value.
+	response := make([]*dbaasv1beta1.Logs, 0, len(pods.Items))
+	for _, pod := range pods.Items {
+		tuples := []tuple{
+			{
+				statuses:   pod.Status.ContainerStatuses,
+				containers: pod.Spec.Containers,
+			},
+			{
+				statuses:   pod.Status.InitContainerStatuses,
+				containers: pod.Spec.InitContainers,
+			},
+		}
+		// Get all logs from all regular containers and all init containers.
+		for _, t := range tuples {
+			for _, container := range t.containers {
+				logs, err := kClient.GetLogs(
+					ctx, t.statuses, pod.Name, container.Name)
+				if err != nil {
+					return nil, err
+				}
+
+				response = append(response, &dbaasv1beta1.Logs{
+					Pod:       pod.Name,
+					Container: container.Name,
+					Logs:      logs,
+				})
+			}
+		}
+
+		// Get pod's events.
+		events, err := kClient.GetEvents(ctx, pod.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		response = append(response, &dbaasv1beta1.Logs{
+			Pod:       pod.Name,
+			Container: "",
+			Logs:      events,
 		})
 	}
+
+	// Limit number of overall log lines.
+	limitLines(response, overallLinesLimit)
+
 	return &dbaasv1beta1.GetLogsResponse{
-		Logs: logs,
+		Logs: response,
 	}, nil
+}
+
+// limitLines limits each entry's logs lines count in the way the overall sum of
+// all log lines is equal to given limit.
+func limitLines(logs []*dbaasv1beta1.Logs, limit int) {
+	counts := make([]int, len(logs))
+	lastSum := -1
+	var newSum int
+	for newSum < limit && newSum > lastSum {
+		lastSum = newSum
+		for i, item := range logs {
+			if counts[i] < len(item.Logs) {
+				counts[i]++
+				newSum++
+				if newSum == limit {
+					break
+				}
+			}
+		}
+	}
+
+	// Do the actual slicing.
+	for i, item := range logs {
+		logs[i].Logs = item.Logs[len(item.Logs)-counts[i]:]
+	}
 }
