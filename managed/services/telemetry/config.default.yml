@@ -574,3 +574,24 @@ telemetry:
     data:
       - metric_name: "grafana_users_count"
         column: "count"
+
+  - id: GrafanaCustomDashboardsCount
+    source: GRAFANADB_SELECT
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    summary: "Grafana Custom Dashboards Count"
+    data:
+      - metric_name: "grafana_custom_dashboards_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsPerPillar
+    source: GRAFANADB_SELECT
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    summary: "Grafana Custom Dashboards Count By Pillar"
+    transform:
+      type: JSON
+      metric: grafana_custom_dashboards_pillar_combined
+    data:
+      - metric_name: "count"
+        column: "count"
+      - metric_name: "pillar"
+        column: "pillar"
