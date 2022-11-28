@@ -61,7 +61,7 @@ func PostgreSQLNormalized(q string) (string, uint32, error) {
 		return "", 0, errors.Wrap(err, "cannot get placeholders count")
 	}
 	matches := r.FindAllString(q, -1)
-	if len(matches) > 0 {
+	if len(matches) != 0 {
 		return q, uint32(len(matches)), nil
 	}
 
