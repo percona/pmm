@@ -164,7 +164,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -258,7 +258,7 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 
 			logChunkID++
 			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
-				if err := s.runMongoPostRestore(ctx, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
+				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
 					if logErr := createJobLog(t.Querier, job.ID, err.Error(), logChunkID, true); logErr != nil {
 						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
@@ -267,7 +267,8 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 						t.Querier,
 						job.Data.MongoDBRestoreBackup.RestoreID,
 						models.ChangeRestoreHistoryItemParams{
-							Status: models.ErrorRestoreStatus,
+							Status:     models.ErrorRestoreStatus,
+							FinishedAt: pointer.ToTime(models.Now()),
 						})
 					return err
 				} else {
@@ -623,8 +624,8 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	return nil
 }
 
-func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) error {
-	service, err := models.FindServiceByID(s.db.Querier, serviceID)
+func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID string) error {
+	service, err := models.FindServiceByID(querier, serviceID)
 	if err != nil {
 		return err
 	}
@@ -634,7 +635,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 
 	serviceType := models.MongoDBServiceType
 	clusterMembers, err := models.FindServices(
-		s.db.Querier,
+		querier,
 		models.ServiceFilters{
 			ServiceType: &serviceType,
 			Cluster:     service.Cluster,
@@ -646,7 +647,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	clusterAgents := make([]*models.Agent, 0, len(clusterMembers))
 	for _, service := range clusterMembers {
 		s.l.Debugf("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
-		serviceAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+		serviceAgents, err := models.FindPMMAgentsForService(querier, service.ServiceID)
 		if err != nil {
 			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", service.ServiceID)
 		}
@@ -662,7 +663,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
 			return err
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
@@ -672,7 +673,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartMongoSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
@@ -681,7 +682,7 @@ func (s *JobsService) runMongoPostRestore(_ context.Context, serviceID string) e
 	return nil
 }
 
-func (s *JobsService) restartMongoSystemService(agentID string, service agentpb.StartActionRequest_RestartSystemServiceParams_SystemService) error {
+func (s *JobsService) restartSystemService(agentID string, service agentpb.StartActionRequest_RestartSystemServiceParams_SystemService) error {
 	s.l.Infof("sending request to restart %s on %s", service, agentID)
 	action, err := models.CreateActionResult(s.db.Querier, agentID)
 	if err != nil {
