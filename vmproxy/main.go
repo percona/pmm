@@ -32,7 +32,7 @@ type flags struct {
 	TargetURL     *url.URL `default:"http://127.0.0.1:9090" help:"Target URL where to proxy requests"`
 	ListenPort    int      `default:"1280" help:"Listen port for proxy"`
 	ListenAddress string   `default:"127.0.0.1" help:"Listen address for proxy"`
-	HeaderName    string   `default:"X-Proxy-Filter" help:"Header name to read filters configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are join with a logical OR."` //nolint:lll
+	HeaderName    string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."` //nolint:lll
 }
 
 func main() {
