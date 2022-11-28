@@ -16,6 +16,7 @@ package queryparser
 
 import (
 	"regexp"
+	"strings"
 
 	pg_query "github.com/pganalyze/pg_query_go"
 	"github.com/pkg/errors"
@@ -54,12 +55,16 @@ func PostgreSQL(q string) (string, uint32, error) {
 
 // PostgreSQLNormalized parse query, which is already normalized and return fingeprint and placeholders.
 func PostgreSQLNormalized(q string) (string, uint32, error) {
+	// PG 10 and above has $ as a placeholders.
 	r, err := regexp.Compile(`[\$]{1}\d`)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot get placeholders count")
 	}
-
 	matches := r.FindAllString(q, -1)
+	if len(matches) > 0 {
+		return q, uint32(len(matches)), nil
+	}
 
-	return q, uint32(len(matches)), nil
+	// PG 9 has ? as a placeholders.
+	return q, uint32(strings.Count(q, "?")), nil
 }
