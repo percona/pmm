@@ -91,6 +91,26 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Optional env vars", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"container=podman",
+			"no_proxy=localhost",
+			"http_proxy=http://localhost",
+			"https_proxy=http://localhost",
+			"NO_PROXY=localhost",
+			"HTTP_PROXY=http://localhost",
+			"HTTPS_PROXY=http://localhost",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Invalid env variables values", func(t *testing.T) {
 		t.Parallel()
 
@@ -105,6 +125,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"DATA_RETENTION=keep one week",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
+
 		expectedErrs := []error{
 			fmt.Errorf(`failed to parse environment variable "DISABLE_UPDATES"`),
 			fmt.Errorf(`failed to parse environment variable "DISABLE_TELEMETRY"`),
@@ -181,9 +202,18 @@ func TestEnvVarValidator(t *testing.T) {
 			respVal time.Duration
 			msg     string
 		}{
-			{value: "", respVal: time.Second * 30, msg: "Environment variable \"PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API."},
-			{value: "10s", respVal: time.Second * 10, msg: "Using \"10s\" as a timeout for platform API."},
-			{value: "xxx", respVal: time.Second * 30, msg: "Using \"30s\" as a default: failed to parse platform API timeout \"xxx\": invalid duration error."},
+			{
+				value: "", respVal: time.Second * 30,
+				msg: "Environment variable \"PERCONA_PLATFORM_API_TIMEOUT\" is not set, using \"30s\" as a default timeout for platform API.",
+			},
+			{
+				value: "10s", respVal: time.Second * 10,
+				msg: "Using \"10s\" as a timeout for platform API.",
+			},
+			{
+				value: "xxx", respVal: time.Second * 30,
+				msg: "Using \"30s\" as a default: failed to parse platform API timeout \"xxx\": invalid duration error.",
+			},
 		}
 		for _, c := range userCase {
 			value, msg := parsePlatformAPITimeout(c.value)

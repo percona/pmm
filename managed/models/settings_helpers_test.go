@@ -86,7 +86,7 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
@@ -121,7 +121,7 @@ func TestSettings(t *testing.T) {
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				AlertManagerURL: "mailto:hello@example.com",
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: mailto:hello@example.com - missing protocol scheme`)
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -159,7 +159,7 @@ func TestSettings(t *testing.T) {
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
@@ -194,7 +194,7 @@ func TestSettings(t *testing.T) {
 				EnableUpdates:  true,
 				DisableUpdates: true,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: both enable_updates and disable_updates are present`)
 
@@ -219,7 +219,7 @@ func TestSettings(t *testing.T) {
 				EnableTelemetry:  true,
 				DisableTelemetry: true,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: both enable_telemetry and disable_telemetry are present`)
 
@@ -365,7 +365,7 @@ func TestSettings(t *testing.T) {
 				RemoveEmailAlertingSettings: true,
 				EmailAlertingSettings:       emailSettings,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, "invalid argument: both email_alerting_settings and remove_email_alerting_settings are present")
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{

@@ -79,7 +79,7 @@ type grafanaClient interface {
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type jobsService interface {
+type jobsService interface { //nolint:unused
 	StopJob(jobID string) error
 }
 

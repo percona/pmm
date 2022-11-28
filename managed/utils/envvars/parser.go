@@ -14,6 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package envvars contains environment variables parser.
+
 package envvars
 
 import (
@@ -63,7 +64,9 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
+//   - the environment variables relating to proxies
+//   - the environment variable set by podman
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {
@@ -88,7 +91,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PERCONA_TEST_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
-		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE":
+		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
 			// skip env variables for external clickhouse
 			continue
 		case "DISABLE_UPDATES":
@@ -150,6 +153,12 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
+
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
 
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
@@ -223,7 +232,10 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf("Environment variable %q is not set, using %q as a default timeout for platform API.", envPlatformAPITimeout, defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf(
+			"Environment variable %q is not set, using %q as a default timeout for platform API.",
+			envPlatformAPITimeout,
+			defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)

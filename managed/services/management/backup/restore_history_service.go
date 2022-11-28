@@ -154,6 +154,14 @@ func convertRestoreHistoryItem(
 		}
 	}
 
+	var pitrTimestamp *timestamppb.Timestamp
+	if i.PITRTimestamp != nil {
+		pitrTimestamp = timestamppb.New(*i.PITRTimestamp)
+		if err := pitrTimestamp.CheckValid(); err != nil {
+			return nil, errors.Wrap(err, "failed to convert PITR timestamp")
+		}
+	}
+
 	artifact, ok := artifacts[i.ArtifactID]
 	if !ok {
 		return nil, errors.Errorf(
@@ -184,18 +192,19 @@ func convertRestoreHistoryItem(
 	}
 
 	return &backuppb.RestoreHistoryItem{
-		RestoreId:    i.ID,
-		ArtifactId:   i.ArtifactID,
-		Name:         artifact.Name,
-		Vendor:       artifact.Vendor,
-		LocationId:   artifact.LocationID,
-		LocationName: l.Name,
-		ServiceId:    i.ServiceID,
-		ServiceName:  s.ServiceName,
-		DataModel:    dm,
-		Status:       *status,
-		StartedAt:    startedAt,
-		FinishedAt:   finishedAt,
+		RestoreId:     i.ID,
+		ArtifactId:    i.ArtifactID,
+		Name:          artifact.Name,
+		Vendor:        artifact.Vendor,
+		LocationId:    artifact.LocationID,
+		LocationName:  l.Name,
+		ServiceId:     i.ServiceID,
+		ServiceName:   s.ServiceName,
+		DataModel:     dm,
+		Status:        *status,
+		StartedAt:     startedAt,
+		FinishedAt:    finishedAt,
+		PitrTimestamp: pitrTimestamp,
 	}, nil
 }
 

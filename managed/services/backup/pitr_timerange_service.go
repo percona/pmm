@@ -120,7 +120,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	var oplogChunks []*oplogChunk
 
 	prefix := path.Join(artifactName, pitrFSPrefix)
-	pitrFiles, err := ss.locationClient.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "")
+	pitrFiles, err := ss.locationClient.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "") //nolint:lll
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}

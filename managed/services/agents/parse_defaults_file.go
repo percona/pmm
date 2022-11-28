@@ -40,7 +40,7 @@ func NewDefaultsFileParser(r *Registry) *DefaultsFileParser {
 }
 
 // ParseDefaultsFile sends request (with file path) to pmm-agent to parse defaults file.
-func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) {
+func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) { //nolint:lll
 	l := logger.Get(ctx)
 
 	pmmAgent, err := p.r.get(pmmAgentID)
