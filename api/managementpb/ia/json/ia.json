@@ -100,7 +100,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.",
+                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -344,7 +344,7 @@
                                   "x-order": 1
                                 },
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
@@ -1276,7 +1276,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.",
+                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -1625,7 +1625,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -1903,7 +1903,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.",
+                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -2147,7 +2147,7 @@
                               "x-order": 1
                             },
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -2562,7 +2562,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
