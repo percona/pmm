@@ -17,18 +17,18 @@ require (
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/alecthomas/kong v0.6.1
+	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/aws/aws-sdk-go v1.44.140
 	github.com/brianvoe/gofakeit/v6 v6.19.0
 	github.com/charmbracelet/bubbles v0.14.0
-	github.com/charmbracelet/bubbletea v0.22.1
+	github.com/charmbracelet/bubbletea v0.23.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/docker/docker v20.10.20+incompatible
+	github.com/docker/docker v20.10.21+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/go-co-op/gocron v1.17.1
+	github.com/go-co-op/gocron v1.18.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/strfmt v0.21.3
@@ -38,15 +38,15 @@ require (
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
-	github.com/grafana/grafana-api-golang-client v0.12.0
+	github.com/grafana/grafana-api-golang-client v0.14.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.14.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jotaen/kong-completion v0.0.4
 	github.com/lib/pq v1.10.7
-	github.com/minio/minio-go/v7 v7.0.36
+	github.com/minio/minio-go/v7 v7.0.44
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20221019084503-3649d46509df
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
@@ -72,18 +72,44 @@ require (
 	golang.org/x/sys v0.2.0
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.3.0
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	google.golang.org/genproto v0.0.0-20221114212237-e4508ebdbee1
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
+	k8s.io/api v0.24.8
+	k8s.io/apimachinery v0.24.8
+	k8s.io/client-go v0.24.8
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.2.0 // indirect
+	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
+	github.com/Azure/go-autorest/autorest v0.11.18 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.13 // indirect
+	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
+	github.com/Azure/go-autorest/logger v0.2.1 // indirect
+	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
+	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
+	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
+	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/gofuzz v1.1.0 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
+	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
+	k8s.io/klog/v2 v2.60.1 // indirect
+	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
+	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 require (
@@ -120,7 +146,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
-	github.com/golang/mock v1.5.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -142,7 +167,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/miekg/dns v1.1.49 // indirect
@@ -157,7 +182,7 @@ require (
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739 // indirect
+	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -186,7 +211,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
+	golang.org/x/oauth2 v0.2.0 // indirect
 	golang.org/x/term v0.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
