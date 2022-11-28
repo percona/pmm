@@ -278,6 +278,18 @@ func (k *Kubernetes) GetLogs(
 	return strings.Split(stdout, "\n"), nil
 }
 
+// GetEvents returns pod's events as a slice of strings.
+func (k *Kubernetes) GetEvents(ctx context.Context, pod string) ([]string, error) {
+	stdout, err := k.client.GetEvents(ctx, pod)
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't describe pod")
+	}
+
+	lines := strings.Split(stdout, "\n")
+
+	return lines, nil
+}
+
 // IsContainerInState returns true if container is in give state, otherwise false.
 func IsContainerInState(containerStatuses []corev1.ContainerStatus, state ContainerState) bool {
 	containerState := make(map[string]interface{})
