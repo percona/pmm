@@ -21,23 +21,24 @@ services:
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_BACKUP_MANAGEMENT=1
-    #      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-    #      - PERCONA_TEST_PLATFORM_INSECURE=1
-    #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-    #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-    #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
-    #      - PMM_DEBUG=1
+#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+#      - PERCONA_TEST_PLATFORM_INSECURE=1
+#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+#      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
+#      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
+#      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
+#      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+#      - PMM_DEBUG=1
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+    #  - portal.localhost:${PORTAL_HOST:-host-gateway}
+    #  - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+    #  - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+    #  - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -99,6 +100,7 @@ services:
 #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
 #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
 #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
       - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
@@ -107,10 +109,10 @@ services:
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+#      - portal.localhost:${PORTAL_HOST:-host-gateway}
+#      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+#      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+#      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:

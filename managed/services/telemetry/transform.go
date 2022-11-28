@@ -41,7 +41,8 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 		return nil, errors.Errorf("invalid metrics config")
 	}
 
-	firstMetric := config.Data[0].MetricName
+	// consider first metric is the beginning of the object window
+	firstMetric := metrics[0].Key
 
 	result := make(map[string]itemsType)
 
