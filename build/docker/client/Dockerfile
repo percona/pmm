@@ -12,12 +12,6 @@ FROM redhat/ubi9-micro
 ARG VERSION
 ARG BUILD_DATE
 
-LABEL org.label-schema.build-date ${BUILD_DATE}
-LABEL org.label-schema.license Apache-2.0
-LABEL org.label-schema.name Percona Monitoring and Management Client
-LABEL org.label-schema.vendor Percona
-LABEL org.label-schema.version ${VERSION}
-LABEL org.label-schema.schema-version "1.0"
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses Apache-2.0
 LABEL org.opencontainers.image.title Percona Monitoring and Management Client
