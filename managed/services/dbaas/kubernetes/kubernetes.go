@@ -17,6 +17,7 @@ package kubernetes
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -24,6 +25,7 @@ import (
 	"time"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 
@@ -35,6 +37,13 @@ const (
 	psmdbDeploymentName       = "percona-server-mongodb-operator"
 	databaseClusterKind       = "DatabaseCluster"
 	databaseClusterAPIVersion = "dbaas.percona.com/v1"
+
+	// ContainerStateWaiting represents a state when container requires some
+	// operations being done in order to complete start up.
+	ContainerStateWaiting ContainerState = "waiting"
+	// ContainerStateTerminated indicates that container began execution and
+	// then either ran to completion or failed for some reason.
+	ContainerStateTerminated ContainerState = "terminated"
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -44,6 +53,9 @@ type Kubernetes struct {
 	l          *logrus.Entry
 	httpClient *http.Client
 }
+
+// ContainerState describes container's state - waiting, running, terminated.
+type ContainerState string
 
 // NewIncluster returns new Kubernetes object.
 func NewIncluster() (*Kubernetes, error) {
@@ -241,4 +253,48 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 func (k *Kubernetes) GetPods(ctx context.Context, namespace string, filters ...string) (*corev1.PodList, error) {
 	podList, err := k.client.GetPods(ctx, namespace, strings.Join(filters, ""))
 	return podList, err
+}
+
+// GetLogs returns logs as slice of log lines - strings - for given pod's container.
+func (k *Kubernetes) GetLogs(
+	ctx context.Context,
+	containerStatuses []corev1.ContainerStatus,
+	pod,
+	container string,
+) ([]string, error) {
+	if IsContainerInState(containerStatuses, ContainerStateWaiting) {
+		return []string{}, nil
+	}
+
+	stdout, err := k.client.GetLogs(ctx, pod, container)
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't get logs")
+	}
+
+	if stdout == "" {
+		return []string{}, nil
+	}
+
+	return strings.Split(stdout, "\n"), nil
+}
+
+// IsContainerInState returns true if container is in give state, otherwise false.
+func IsContainerInState(containerStatuses []corev1.ContainerStatus, state ContainerState) bool {
+	containerState := make(map[string]interface{})
+	for _, status := range containerStatuses {
+		data, err := json.Marshal(status.State)
+		if err != nil {
+			return false
+		}
+
+		if err := json.Unmarshal(data, &containerState); err != nil {
+			return false
+		}
+
+		if _, ok := containerState[string(state)]; ok {
+			return true
+		}
+	}
+
+	return false
 }

@@ -16,10 +16,13 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -365,4 +368,29 @@ func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (
 	}
 
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
+}
+
+// GetLogs returns logs for pod
+func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, error) {
+	defaultLogLines := int64(3000)
+	options := &corev1.PodLogOptions{}
+	if container != "" {
+		options.Container = container
+	}
+
+	options.TailLines = &defaultLogLines
+	buf := &bytes.Buffer{}
+
+	req := c.clientset.CoreV1().Pods(c.namespace).GetLogs(pod, options)
+	podLogs, err := req.Stream(ctx)
+	if err != nil {
+		return buf.String(), err
+	}
+
+	_, err = io.Copy(buf, podLogs)
+	if err != nil {
+		return buf.String(), err
+	}
+
+	return buf.String(), nil
 }
