@@ -152,7 +152,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
