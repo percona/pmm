@@ -18,6 +18,7 @@ package telemetry
 
 import (
 	"context"
+	"github.com/stretchr/testify/require"
 	"path/filepath"
 	"testing"
 	"time"
@@ -32,7 +33,7 @@ func TestDatasource(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*100)
+	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(func() {
 		cancel()
 	})
@@ -53,7 +54,7 @@ func TestDatasource(t *testing.T) {
 	t.Run("get metrics from db", func(t *testing.T) {
 		t.Parallel()
 		databaseFile, err := filepath.Abs("../../testdata/telemetry/grafana_sqlite.db")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		conf := &DSGrafanaSqliteDB{
 			Enabled: true,
@@ -63,14 +64,14 @@ func TestDatasource(t *testing.T) {
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
 		err = grafanaDB.Init(ctx)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, len(metrics), 1)
 
 		err = grafanaDB.Dispose(ctx)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		serviceMetric := metrics[0]
 		assert.Equal(t, serviceMetric.Key, "total_users_in_database")

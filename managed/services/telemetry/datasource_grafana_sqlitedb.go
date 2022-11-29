@@ -30,7 +30,7 @@ import (
 )
 
 type dsGrafanaSelect struct {
-	log      *logrus.Entry
+	l        *logrus.Entry
 	config   DSGrafanaSqliteDB
 	db       *sql.DB
 	tempFile string
@@ -49,7 +49,7 @@ func (d *dsGrafanaSelect) Enabled() bool {
 // NewDataSourceGrafanaSqliteDB makes new data source for grafana sqlite database metrics.
 func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaSelect{
-		log:      l,
+		l:        l,
 		config:   config,
 		db:       nil,
 		tempFile: "",
@@ -83,12 +83,12 @@ func (d *dsGrafanaSelect) Init(ctx context.Context) error {
 
 	defer func() {
 		if err := source.Close(); err != nil {
-			d.log.Errorf("Error closing file. %s", err)
+			d.l.Errorf("Error closing file. %s", err)
 		}
 	}()
 
 	nBytes, err := io.Copy(tempFile, source)
-	d.log.Debugf("grafana sqlitedb copied with total bytes: %d", nBytes)
+	d.l.Debugf("grafana sqlitedb copied with total bytes: %d", nBytes)
 	if err != nil || nBytes == 0 {
 		return errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
 	}
@@ -108,7 +108,7 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([]*p
 	if d.db == nil {
 		return nil, errors.Errorf("temporary grafana database is not initialized: %s", d.config.DBFile)
 	}
-	return fetchMetricsFromDB(ctx, d.log, d.config.Timeout, d.db, config)
+	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
 func (d *dsGrafanaSelect) Dispose(ctx context.Context) error {
@@ -119,7 +119,7 @@ func (d *dsGrafanaSelect) Dispose(ctx context.Context) error {
 
 	err = os.Remove(d.tempFile)
 	if err != nil {
-		return errors.Wrapf(err, "Error removing file.")
+		return errors.Wrapf(err, "failed to remove sqlite database file")
 	}
 
 	return nil

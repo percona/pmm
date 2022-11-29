@@ -218,7 +218,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range s.dataSourcesMap {
 		err := dataSource.Init(ctx)
 		if err != nil {
-			s.l.Error("Telemetry datasource init failed", err)
+			s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
 			continue
 		}
 		initializedDataSources[sourceName] = dataSource
@@ -267,7 +267,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range initializedDataSources {
 		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debugf("Dispose of %s datasource failed. %v", sourceName, err)
+			s.l.Debugf("Dispose of %s datasource failed: %v", sourceName, err)
 			continue
 		}
 	}
