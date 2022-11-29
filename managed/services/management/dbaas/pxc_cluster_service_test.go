@@ -23,6 +23,7 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -32,7 +33,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
@@ -121,7 +121,7 @@ func TestPXCClusterService(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
-	kubernetesClient.On("ChangeKubeconfig", mock.Anything, mock.Anything).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
@@ -159,7 +159,6 @@ func TestPXCClusterService(t *testing.T) {
 	})
 
 	t.Run("CreatePXCClusterMinimumParams", func(t *testing.T) {
-
 		pxcComponents := &dbaasv1beta1.GetPXCComponentsResponse{
 			Versions: []*dbaasv1beta1.OperatorVersion{
 				{

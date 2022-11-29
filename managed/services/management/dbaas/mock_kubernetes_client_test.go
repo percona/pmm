@@ -15,20 +15,6 @@ type mockKubernetesClient struct {
 	mock.Mock
 }
 
-// ChangeKubeconfig provides a mock function with given fields: _a0, _a1
-func (_m *mockKubernetesClient) ChangeKubeconfig(_a0 context.Context, _a1 string) error {
-	ret := _m.Called(_a0, _a1)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // CreateDatabaseCluster provides a mock function with given fields: _a0, _a1
 func (_m *mockKubernetesClient) CreateDatabaseCluster(_a0 context.Context, _a1 *v1.DatabaseCluster) error {
 	ret := _m.Called(_a0, _a1)
@@ -205,6 +191,20 @@ func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 context.Context, _a1 *v
 
 // RestartDatabaseCluster provides a mock function with given fields: _a0, _a1
 func (_m *mockKubernetesClient) RestartDatabaseCluster(_a0 context.Context, _a1 string) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetKubeconfig provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) SetKubeconfig(_a0 context.Context, _a1 string) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error

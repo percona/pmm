@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -32,7 +33,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
@@ -64,7 +64,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 	t.Run("Basic", func(t *testing.T) {
 		ctx, ks, dc, kubernetesClient, teardown := setup(t)
-		kubernetesClient.On("ChangeKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -113,7 +113,7 @@ func TestKubernetesServer(t *testing.T) {
 		}
 		assert.Equal(t, expected, clusters.KubernetesClusters)
 		mockK8sResp := []dbaasv1.DatabaseCluster{
-			dbaasv1.DatabaseCluster{
+			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-pxc-test",
 				},
@@ -151,7 +151,7 @@ func TestKubernetesServer(t *testing.T) {
 		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", kubernetesClusterName), err)
 
 		mockK8sResp = []dbaasv1.DatabaseCluster{
-			dbaasv1.DatabaseCluster{
+			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-psmdb-test",
 				},

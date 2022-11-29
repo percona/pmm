@@ -113,7 +113,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
 	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
-	kubernetesClient.On("ChangeKubeconfig", mock.Anything, mock.Anything).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
@@ -199,7 +199,6 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	// Pass the minimum parameters to use the defaults set by the fillDefaults function
 	t.Run("CreatePSMDBClustersMinimumParams", func(t *testing.T) {
-
 		psmdbComponents := &dbaasv1beta1.GetPSMDBComponentsResponse{
 			Versions: []*dbaasv1beta1.OperatorVersion{
 				{

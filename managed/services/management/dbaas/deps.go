@@ -95,7 +95,7 @@ type componentsService interface {
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
 type kubernetesClient interface {
-	ChangeKubeconfig(context.Context, string) error
+	SetKubeconfig(context.Context, string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
 	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)
 	RestartDatabaseCluster(context.Context, string) error

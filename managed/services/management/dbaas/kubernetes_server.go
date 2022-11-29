@@ -391,7 +391,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		if err := k.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		if err := k.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 			return errors.Wrap(err, "failed to create kubernetes client")
 		}
 		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)

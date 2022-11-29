@@ -78,7 +78,7 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
@@ -128,7 +128,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
-	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	if req.Params.Pxc.StorageClass == "" {
@@ -314,7 +314,7 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
 		return nil, errors.New("can't update both proxies, only one is in use")
 	}
-	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)

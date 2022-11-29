@@ -22,22 +22,21 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
-	"k8s.io/apimachinery/pkg/api/resource"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const dbKubeconfigTest = `
@@ -109,7 +108,7 @@ func TestDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	kubernetesClient.On("ChangeKubeconfig", mock.Anything, mock.Anything).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 
@@ -126,7 +125,7 @@ func TestDBClusterService(t *testing.T) {
 	t.Run("BasicListPXCClusters", func(t *testing.T) {
 		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
 		mockK8sResp := []dbaasv1.DatabaseCluster{
-			dbaasv1.DatabaseCluster{
+			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-pxc-test",
 				},
@@ -154,7 +153,7 @@ func TestDBClusterService(t *testing.T) {
 					Size:  15,
 				},
 			},
-			dbaasv1.DatabaseCluster{
+			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-psmdb-test",
 				},
