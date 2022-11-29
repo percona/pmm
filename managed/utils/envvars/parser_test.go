@@ -91,6 +91,26 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Optional env vars", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"container=podman",
+			"no_proxy=localhost",
+			"http_proxy=http://localhost",
+			"https_proxy=http://localhost",
+			"NO_PROXY=localhost",
+			"HTTP_PROXY=http://localhost",
+			"HTTPS_PROXY=http://localhost",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Invalid env variables values", func(t *testing.T) {
 		t.Parallel()
 
