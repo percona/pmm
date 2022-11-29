@@ -104,8 +104,8 @@ func NewEmpty() *Kubernetes {
 	}
 }
 
-// New returns new Kubernetes object.
-func (k *Kubernetes) ChangeKubeconfig(ctx context.Context, kubeconfig string) error {
+// SetKubeconfig changes kubeconfig for active client
+func (k *Kubernetes) SetKubeconfig(ctx context.Context, kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	client, err := client.NewFromKubeConfigString(kubeconfig)
