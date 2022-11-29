@@ -58,7 +58,7 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
@@ -66,7 +66,7 @@ func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient,
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
-		kubernetesClient:  kubernetes.NewEmpty(),
+		kubernetesClient:  kubernetesClient,
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
 	}
