@@ -83,7 +83,7 @@ getent passwd grafana >/dev/null || \
 exit 0
 
 %changelog
-* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.1.2-1
+* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.2.5-1
 - PMM-10881 Grafana 9.2.5
 
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 8.3.5-2
