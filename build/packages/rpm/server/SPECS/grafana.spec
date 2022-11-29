@@ -2,8 +2,8 @@
 %global commit          33423d34f211ce1ce5ce0a265a38f0709ec44360
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         96
-%define grafana_version 8.3.10
+%define release         97
+%define grafana_version 9.1.2
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -16,15 +16,14 @@ Name:           percona-grafana
 Version:        %{grafana_version}
 Release:        %{rpm_release}
 Summary:        Grafana is an open source, feature rich metrics dashboard and graph editor
-License:        ASL 2.0
+License:        AGPLv3
 URL:            https://github.com/percona-platform/grafana
 Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-%if 0%{?rhel} >= 9
 BuildRequires: fontconfig
-%else
-BuildRequires: nodejs-grunt-cli fontconfig
+%if 0%{?rhel} < 9
+BuildRequires: nodejs-grunt-cli
 %endif
 
 %description
@@ -34,7 +33,7 @@ Graphite, InfluxDB & OpenTSDB.
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
-sed -i "s/unknown-dev/%{full_version}/" build.go
+sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 %if 0%{?rhel} >= 9
     sudo npm install -g grunt-cli
 %endif
@@ -93,6 +92,9 @@ getent passwd grafana >/dev/null || \
 exit 0
 
 %changelog
+* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.1.2-1
+- Fix the version
+
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 8.3.5-2
 - PMM-10027 remove useless packages
 
