@@ -44,7 +44,7 @@ type PSMDBClusterService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
-	kubernetesClient  *kubernetes.Kubernetes
+	kubernetesClient  kubernetesClient
 	componentsService componentsService
 	versionServiceURL string
 
@@ -52,7 +52,7 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
@@ -60,7 +60,7 @@ func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
-		kubernetesClient:  kubernetes.NewEmpty(),
+		kubernetesClient:  kubernetesClient,
 		componentsService: componentsService,
 		versionServiceURL: versionServiceURL,
 	}
@@ -123,15 +123,6 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err := s.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-	if req.Params.Replicaset.StorageClass == "" {
-		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get storage classes")
-		}
-		req.Params.Replicaset.StorageClass = className
-	}
-	dbCluster := kubernetes.DatabaseClusterForPSMDB(req)
-	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
@@ -155,6 +146,15 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
 	}
+	if req.Params.Replicaset.StorageClass == "" {
+		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get storage classes")
+		}
+		req.Params.Replicaset.StorageClass = className
+	}
+	dbCluster := kubernetes.DatabaseClusterForPSMDB(req)
+	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
