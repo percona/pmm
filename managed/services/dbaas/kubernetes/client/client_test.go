@@ -35,7 +35,7 @@ func TestInCluster(t *testing.T) {
 }
 
 func mockInClusterConfig() (*rest.Config, error) {
-	return nil, nil
+	return &rest.Config{}, nil
 }
 
 func mockInClusterConfigWithError() (*rest.Config, error) {
