@@ -32,6 +32,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
@@ -333,13 +334,27 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if !m.disableQueryExamples && esh.SQLText != nil {
-				example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
-				if truncated {
-					b.Common.IsTruncated = truncated
+			if esh.SQLText != nil {
+				explainFingerprint, placeholdersCount, err := queryparser.MySQL(*esh.SQLText)
+				if err != nil {
+					m.l.Debugf("cannot parse query: %s", *esh.SQLText)
+				} else {
+					explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
+					if truncated {
+						b.Common.IsTruncated = truncated
+					}
+					b.Common.ExplainFingerprint = explainFingerprint
+					b.Common.PlaceholdersCount = placeholdersCount
 				}
-				b.Common.Example = example
-				b.Common.ExampleType = agentpb.ExampleType_RANDOM
+
+				if !m.disableQueryExamples {
+					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+					if truncated {
+						b.Common.IsTruncated = truncated
+					}
+					b.Common.Example = example
+					b.Common.ExampleType = agentpb.ExampleType_RANDOM
+				}
 			}
 		}
 
