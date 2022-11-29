@@ -336,6 +336,8 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0.1, actual.Common.MQueryTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:  "select /* Sleep */ sleep(:1) from dual",
+				PlaceholdersCount:   1,
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -380,6 +382,7 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:  "select /* AllCities */ * from city",
 				Fingerprint:         "SELECT * FROM `city`",
 				Schema:              "world",
 				AgentId:             "agent_id",
