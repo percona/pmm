@@ -35,7 +35,6 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -53,24 +52,26 @@ var (
 )
 
 type kubernetesServer struct {
-	l              *logrus.Entry
-	db             *reform.DB
-	dbaasClient    dbaasClient
-	versionService versionService
-	grafanaClient  grafanaClient
+	l                *logrus.Entry
+	db               *reform.DB
+	dbaasClient      dbaasClient
+	kubernetesClient kubernetesClient
+	versionService   versionService
+	grafanaClient    grafanaClient
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, kubernetesClient kubernetesClient, versionService versionService, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:              l,
-		db:             db,
-		dbaasClient:    dbaasClient,
-		versionService: versionService,
-		grafanaClient:  grafanaClient,
+		l:                l,
+		db:               db,
+		dbaasClient:      dbaasClient,
+		kubernetesClient: kubernetesClient,
+		versionService:   versionService,
+		grafanaClient:    grafanaClient,
 	}
 }
 
@@ -87,6 +88,7 @@ func (k *kubernetesServer) Enabled() bool {
 // getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
 // dbaas-controller does not have a clue what's supported, so we have to do it here.
 func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
+	k.l.Error(operatorVersion)
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED, nil
 	}
@@ -376,10 +378,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return err
 		}
 
-		if req.Force {
-			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
-		}
-
 		_, err = k.dbaasClient.StopMonitoring(ctx, &dbaascontrollerv1beta1.StopMonitoringRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: kubernetesCluster.KubeConfig,
@@ -389,11 +387,14 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
-		kubeClient, err := kubernetes.New(ctx, kubernetesCluster.KubeConfig)
-		if err != nil {
+		if req.Force {
+			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		}
+
+		if err := k.kubernetesClient.ChangeKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
 			return errors.Wrap(err, "failed to create kubernetes client")
 		}
-		out, err := kubeClient.ListDatabaseClusters(ctx)
+		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
 
 		switch {
 		case err != nil && accessError(err):

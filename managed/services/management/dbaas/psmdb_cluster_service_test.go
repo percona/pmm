@@ -18,6 +18,7 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
@@ -102,7 +103,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	ctx, db, dbaasClient, grafanaClient, kubernetesClient, componentsService, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
 
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
@@ -253,7 +254,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "first-psmdb-test",
+				Name: "third-psmdb-test",
 			},
 			Spec: dbaasv1.DatabaseSpec{
 				Database:      "psmdb",
@@ -280,7 +281,7 @@ func TestPSMDBClusterService(t *testing.T) {
 			},
 		}
 
-		kubernetesClient.On("GetDatabaseCluster", ctx, mock.Anything).Return(dbMock, nil)
+		kubernetesClient.On("GetDatabaseCluster", ctx, "third-psmdb-test").Return(dbMock, nil)
 		kubernetesClient.On("PatchDatabaseCluster", ctx, mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.UpdatePSMDBClusterRequest{
@@ -310,18 +311,21 @@ func TestPSMDBClusterService(t *testing.T) {
 			},
 		}
 		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "another-third-psmdb-test",
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "hostname",
 			},
 		}
 
-		kubernetesClient.On("GetDatabaseCluster", ctx, mock.Anything).Return(dbMock, nil)
+		kubernetesClient.On("GetDatabaseCluster", ctx, "another-third-psmdb-test").Return(dbMock, nil)
 
-		kubernetesClient.On("GetSecret", ctx, mock.Anything).Return(mockReq, nil)
+		kubernetesClient.On("GetSecret", ctx, fmt.Sprintf(psmdbSecretNameTmpl, "another-third-psmdb-test")).Return(mockReq, nil)
 
 		in := dbaasv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
-			Name:                  "third-psmdb-test",
+			Name:                  "another-third-psmdb-test",
 		}
 
 		cluster, err := s.GetPSMDBClusterCredentials(ctx, &in)
