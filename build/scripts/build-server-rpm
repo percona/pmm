@@ -25,35 +25,25 @@ is_build_needed() {
     local rpm_version=$2
     local packages=
 
-    if [ "$rpmbuild_dist" = "el7" ]; then
-        if [ -n "$RPM_EPOCH" ]; then
-            aws s3 sync \
-                --region us-east-2 \
-                --no-sign-request \
-                s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
-                ${rpms_dir}/${spec_name}-${rpm_version}
-        else
-            aws s3 sync \
-                --region us-east-2 \
-                --no-sign-request \
-                s3://pmm-build-cache/${spec_name}-${rpm_version} \
-                ${rpms_dir}/${spec_name}-${rpm_version}
-        fi
+    # Structure of S3 build cache
+    # s3://pmm-build-cache/PR-BUILDS/7 - el7
+    # s3://pmm-build-cache/PR-BUILDS/9 - el9
+    # s3://pmm-build-cache/RELEASE/7 - el7
+    # s3://pmm-build-cache/RELEASE/9 - el9
+
+    # This is for el9
+    if [ -n "$RPM_EPOCH" ]; then
+        aws s3 sync \
+            --region us-east-2 \
+            --no-sign-request \
+            s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            ${rpms_dir}/${spec_name}-${rpm_version}
     else
-        # This is for el9
-        if [ -n "$RPM_EPOCH" ]; then
-            aws s3 sync \
-                --region us-east-2 \
-                --no-sign-request \
-                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                ${rpms_dir}/${spec_name}-${rpm_version}
-        else
-            aws s3 sync \
-                --region us-east-2 \
-                --no-sign-request \
-                s3://pmm-build-cache/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                ${rpms_dir}/${spec_name}-${rpm_version}
-        fi
+        aws s3 sync \
+            --region us-east-2 \
+            --no-sign-request \
+            s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
     packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.${rpmbuild_dist}.*.rpm" | wc -l)
