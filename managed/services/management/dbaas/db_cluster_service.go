@@ -27,10 +27,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 type DBClusterService struct {
@@ -44,12 +44,12 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer { //nolint:lll
+func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer { //nolint:lll
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
 		l:                    l,
-		kubernetesClient:     kubernetes.NewEmpty(),
+		kubernetesClient:     kubernetesClient,
 		grafanaClient:        grafanaClient,
 		versionServiceClient: versionServiceClient,
 	}
@@ -140,6 +140,15 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 			Message: "",
 		},
 	}
+	if cluster.Spec.LoadBalancer.Type == "proxysql" {
+		compute, err := s.getComputeResources(cluster.Spec.LoadBalancer.Resources.Requests)
+		if err != nil {
+			s.l.Errorf("could not parse resources for proxysql %v", err)
+		}
+		c.Params.Proxysql = &dbaasv1beta1.PXCClusterParams_ProxySQL{
+			ComputeResources: compute,
+		}
+	}
 	imageAndTag := strings.Split(cluster.Spec.DatabaseImage, ":")
 	if len(imageAndTag) != 2 {
 		return nil, errors.Errorf("failed to parse Xtradb Cluster version out of %q", cluster.Spec.DatabaseImage)
@@ -153,6 +162,29 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
 	return c, nil
+}
+func (s DBClusterService) getComputeResources(resources corev1.ResourceList) (*dbaasv1beta1.ComputeResources, error) {
+
+	compute := &dbaasv1beta1.ComputeResources{}
+	cpuLimit, ok := resources[corev1.ResourceCPU]
+	cpu := (&cpuLimit).String()
+	if ok && cpu != "" {
+		res, err := strconv.Atoi(strings.Replace(cpu, "m", "", -1))
+		if err != nil {
+			return compute, err
+		}
+		compute.CpuM = int32(res)
+	}
+	memLimit, ok := resources[corev1.ResourceMemory]
+	mem := (&memLimit).String()
+	if ok && mem != "" {
+		res, err := strconv.ParseInt(mem, 10, 64)
+		if err != nil {
+			return compute, err
+		}
+		compute.MemoryBytes = res
+	}
+	return compute, nil
 }
 
 func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PSMDBCluster, error) {
