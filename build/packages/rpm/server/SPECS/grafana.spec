@@ -68,6 +68,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
 %doc *.md
+%license LICENSE
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
