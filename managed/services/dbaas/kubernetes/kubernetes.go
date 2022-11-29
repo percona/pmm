@@ -89,7 +89,7 @@ func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
 	}, nil
 }
 
-// New returns new Kubernetes object.
+// NewEmpty returns new Kubernetes object.
 func NewEmpty() *Kubernetes {
 	return &Kubernetes{
 		client: &client.Client{},
@@ -104,8 +104,8 @@ func NewEmpty() *Kubernetes {
 	}
 }
 
-// New returns new Kubernetes object.
-func (k *Kubernetes) ChangeKubeconfig(ctx context.Context, kubeconfig string) error {
+// SetKubeconfig changes kubeconfig for active client
+func (k *Kubernetes) SetKubeconfig(ctx context.Context, kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	client, err := client.NewFromKubeConfigString(kubeconfig)
@@ -149,6 +149,7 @@ func (k *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 	return k.client.GetDatabaseCluster(ctx, name)
 }
 
+// RestartDatabaseCluster restarts database cluster
 func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -162,19 +163,21 @@ func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) er
 	return k.client.ApplyObject(ctx, cluster)
 }
 
-// PatchDatabaseCluster patches CR of managed PXC cluster.
+// PatchDatabaseCluster patches CR of managed Database cluster.
 func (k *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	return k.client.ApplyObject(ctx, cluster)
 }
 
+// CreateDatabase cluster creates database cluster
 func (k *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	return k.client.ApplyObject(ctx, cluster)
 }
 
+// DeleteDatabaseCluster deletes database cluster
 func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -187,6 +190,7 @@ func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) err
 	return k.client.DeleteObject(ctx, cluster)
 }
 
+// GetDefaultStorageClassName returns first storageClassName from kubernetes cluster
 func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -200,6 +204,7 @@ func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 	return "", errors.New("no storage classes available")
 }
 
+// GetOperatorVersion parses operator version from operator deployment
 func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -210,18 +215,21 @@ func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (strin
 	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
 }
 
+// GetPSMDBOperatorVersion parses PSMDB operator version from operator deployment
 func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.GetOperatorVersion(ctx, psmdbDeploymentName)
 }
 
+// GetPXCOperatorVersion parses PXC operator version from operator deployment
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.GetOperatorVersion(ctx, pxcDeploymentName)
 }
 
+// GetSecret returns secret by name
 func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()

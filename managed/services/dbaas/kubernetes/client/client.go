@@ -127,6 +127,7 @@ func (c *Client) setup() error {
 	return c.initOperatorClients()
 }
 
+// Initializes clients for operators
 func (c *Client) initOperatorClients() error {
 	dbClusterClient, err := database.NewForConfig(c.restConfig)
 	if err != nil {
@@ -192,6 +193,7 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 	return c.marshalKubeConfig(conf)
 }
 
+// GetServerVersion returns server version
 func (c *Client) GetServerVersion(ctx context.Context) (*version.Info, error) {
 	return c.clientset.Discovery().ServerVersion()
 }
@@ -215,10 +217,12 @@ func (c *Client) GetStorageClasses(ctx context.Context) (*storagev1.StorageClass
 	return c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
 }
 
+// GetDeployment returns deployment by name
 func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
 	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// GetSecret returns secret by name
 func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
@@ -250,7 +254,6 @@ func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
 	return err
 }
 
-// TODO Refactor it
 func deleteObject(helper *resource.Helper, namespace, name string) error {
 	if _, err := helper.Get(namespace, name); err == nil {
 		_, err = helper.Delete(namespace, name)
