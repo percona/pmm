@@ -3,7 +3,7 @@
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         97
-%define grafana_version 9.1.2
+%define grafana_version 9.2.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -84,7 +84,7 @@ exit 0
 
 %changelog
 * Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.1.2-1
-- Fix the version
+- PMM-10881 Grafana 9.2.5
 
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 8.3.5-2
 - PMM-10027 remove useless packages
