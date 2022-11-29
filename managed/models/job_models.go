@@ -83,8 +83,9 @@ type MongoDBBackupJobData struct {
 
 // MongoDBRestoreBackupJobData stores MongoDB restore backup job specific result data.
 type MongoDBRestoreBackupJobData struct {
-	ServiceID string `json:"service_id"`
-	RestoreID string `json:"restore_id"`
+	ServiceID string    `json:"service_id"`
+	RestoreID string    `json:"restore_id"`
+	DataModel DataModel `json:"data_model"`
 }
 
 // JobData contains data required for running a job.
