@@ -1,11 +1,13 @@
-*                           @BupycHuk @percona/pmm-review-be
-/build/                     @atymchuk 
-/admin/                     @michal-kralik @percona/pmm-review-be
-/agent/agents/postgres/     @JiriCtvrtka @percona/pmm-review-be
-/agent/runner/              @artemgavrilov @percona/pmm-review-be
-/api/                       @BupycHuk @percona/pmm-review-be
-/docs/api/                  @atymchuk 
-/managed/services/checks/   @idoqo @percona/pmm-review-be
-/managed/                   @BupycHuk @artemgavrilov @percona/pmm-review-be
-/api-tests/                 @BupycHuk @artemgavrilov @percona/pmm-review-be
-go.mod                      @BupycHuk @artemgavrilov @percona/pmm-review-be
+*                                       @BupycHuk @percona/pmm-review-be
+/build/                                 @atymchuk
+/admin/                                 @michal-kralik @percona/pmm-review-be
+/agent/agents/postgres/                 @JiriCtvrtka @percona/pmm-review-be
+/agent/runner/                          @artemgavrilov @percona/pmm-review-be
+/api/                                   @BupycHuk @percona/pmm-review-be
+/docs/api/                              @atymchuk
+/managed/services/checks/               @idoqo @percona/pmm-review-be
+/managed/                               @BupycHuk @artemgavrilov @percona/pmm-review-be
+/managed/services/dbaas                 @gen1us2k @percona-csalguero @percona/pmm-review-be
+/managed/services/management/dbaas      @gen1us2k @percona-csalguero @percona/pmm-review-be
+/api-tests/                             @BupycHuk @artemgavrilov @percona/pmm-review-be
+go.mod                                  @BupycHuk @artemgavrilov @percona/pmm-review-be
