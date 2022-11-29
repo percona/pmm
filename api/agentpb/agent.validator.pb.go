@@ -307,6 +307,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartSysServiceParams); ok {
+		if oneOfNester.RestartSysServiceParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartSysServiceParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RestartSysServiceParams", err)
+			}
+		}
+	}
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
@@ -481,6 +488,10 @@ func (this *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Validate() e
 			return github_com_mwitkow_go_proto_validators.FieldError("TextFiles", err)
 		}
 	}
+	return nil
+}
+
+func (this *StartActionRequest_RestartSystemServiceParams) Validate() error {
 	return nil
 }
 
