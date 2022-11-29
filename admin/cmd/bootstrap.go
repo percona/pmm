@@ -16,6 +16,7 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -55,7 +56,7 @@ func Bootstrap(opts any) {
 	}
 
 	kongcompletion.Register(kongParser)
-	kongCtx, err := kongParser.Parse(os.Args[1:])
+	kongCtx, err := kongParser.Parse(expandArgs(os.Args[1:]))
 	kongParser.FatalIfErrorf(err)
 
 	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
@@ -84,6 +85,38 @@ func configureLogger(opts *flags.GlobalFlags) {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
+}
+
+func expandArgs(args []string) []string {
+	var argsResult []string
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "@") {
+			flagsFile := arg[1:]
+			logrus.Debugf("Expanding with flags file [%s]", flagsFile)
+			readFile, err := os.Open(flagsFile)
+			if err != nil {
+				logrus.Panicf("Failed to parse flags file [%s]: %s", flagsFile, err)
+			}
+			fileScanner := bufio.NewScanner(readFile)
+			fileScanner.Split(bufio.ScanLines)
+			for fileScanner.Scan() {
+				next := fileScanner.Text()
+				if len(next) != 0 {
+					logrus.Debugf("Adding arg: %s", next)
+					argsResult = append(argsResult, next)
+				}
+			}
+
+			err = readFile.Close()
+			if err != nil {
+				logrus.Panicf("Failed to close flags file [%s]: %s.", flagsFile, err)
+			}
+		} else {
+			argsResult = append(argsResult, arg)
+		}
+	}
+
+	return argsResult
 }
 
 func getDefaultKongOptions(appName string) []kong.Option {
