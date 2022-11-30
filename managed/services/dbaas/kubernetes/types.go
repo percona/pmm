@@ -35,8 +35,8 @@ const (
 	databasePSMDB dbaasv1.EngineType = "psmdb"
 
 	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
-	memoryMediumSize = int64(2) * 1000 * 1000 * 1000
-	memoryLargeSize  = int64(2) * 1000 * 1000 * 1000
+	memoryMediumSize = int64(8) * 1000 * 1000 * 1000
+	memoryLargeSize  = int64(32) * 1000 * 1000 * 1000
 )
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
