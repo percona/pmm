@@ -129,10 +129,17 @@ type StartMySQLExplainTraditionalJSONActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// SQL query. Required.
+	// Query ID or query is required.
+	// Value of query.
 	Query string `json:"query,omitempty"`
 
-	// Database name. Required if it can't be deduced from the query.
+	// Query ID of query.
+	QueryID string `json:"query_id,omitempty"`
+
+	// Array of placeholder values
+	Placeholders []string `json:"placeholders"`
+
+	// Database name. Required if it can't be deduced from the query ID.
 	Database string `json:"database,omitempty"`
 }
 

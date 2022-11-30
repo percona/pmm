@@ -42,6 +42,8 @@ const insertSQL = `
   INSERT INTO metrics
   (
     queryid,
+    explain_fingerprint,
+    placeholders_count,
     service_name,
     database,
     schema,
@@ -266,6 +268,8 @@ const insertSQL = `
    )
   VALUES (
     :queryid,
+    :explain_fingerprint,
+    :placeholders_count,
     :service_name,
     :database,
     :schema,

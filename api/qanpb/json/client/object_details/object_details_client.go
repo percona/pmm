@@ -28,6 +28,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error)
+
 	GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error)
 
 	GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error)
@@ -41,6 +43,43 @@ type ClientService interface {
 	QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+ExplainFingerprintByQueryID explains fingerprint by query ID get explain fingerprint for given query ID
+*/
+func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewExplainFingerprintByQueryIDParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ExplainFingerprintByQueryID",
+		Method:             "POST",
+		PathPattern:        "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ExplainFingerprintByQueryIDReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ExplainFingerprintByQueryIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ExplainFingerprintByQueryIDDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
