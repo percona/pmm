@@ -35,6 +35,12 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
+type dummyProvider struct{}
+
+func (d *dummyProvider) CreateAdminAPIKey(context.Context, string) (int64, string, error) {
+	return 0, "", nil
+}
+
 func TestNodeService(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 		t.Helper()
@@ -50,7 +56,7 @@ func TestNodeService(t *testing.T) {
 
 			require.NoError(t, sqlDB.Close())
 		}
-		s = NewNodeService(db)
+		s = NewNodeService(db, &dummyProvider{})
 
 		return
 	}
