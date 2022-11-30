@@ -16,28 +16,44 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"strings"
+	"sync"
+	"time"
 
+	olmapiv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	yamlSerializer "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	kubeClient "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 )
@@ -69,6 +85,41 @@ type Client struct {
 	dbClusterClient *database.DatabaseClusterClient
 	restConfig      *rest.Config
 	namespace       string
+}
+
+type resourceError struct {
+	name  string
+	issue string
+}
+
+type podError struct {
+	resourceError
+}
+
+type deploymentError struct {
+	resourceError
+	podErrs podErrors
+}
+
+type (
+	deploymentErrors []deploymentError
+	podErrors        []podError
+)
+
+func (e deploymentErrors) Error() string {
+	var sb strings.Builder
+	for _, i := range e {
+		sb.WriteString(fmt.Sprintf("deployment %s has error: %s\n%s", i.name, i.issue, i.podErrs.Error()))
+	}
+	return sb.String()
+}
+
+func (e podErrors) Error() string {
+	var sb strings.Builder
+	for _, i := range e {
+		sb.WriteString(fmt.Sprintf("\tpod %s has error: %s\n", i.name, i.issue))
+	}
+	return sb.String()
 }
 
 // NewFromInCluster returns a client object which uses the service account
@@ -344,4 +395,199 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	}
 
 	return yaml.Marshal(jsonObj)
+}
+
+// ApplyFile accepts manifest file contents, parses into []runtime.Object
+// and applies them against the cluster
+func (c *Client) ApplyFile(ctx context.Context, fileBytes []byte) error {
+	objs, err := c.getObjects(fileBytes)
+	if err != nil {
+		return err
+	}
+	for i := range objs {
+		err := c.ApplyObject(ctx, objs[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
+	objs := []runtime.Object{}
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(f), 100)
+	var err error
+	for {
+		var rawObj runtime.RawExtension
+		if err = decoder.Decode(&rawObj); err != nil {
+			break
+		}
+
+		obj, _, err := yamlSerializer.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawObj.Raw, nil, nil)
+		if err != nil {
+			return nil, err
+		}
+		unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+		if err != nil {
+			return nil, err
+		}
+
+		objs = append(objs, &unstructured.Unstructured{Object: unstructuredMap})
+	}
+
+	return objs, nil
+}
+
+func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
+	var (
+		curPhase olmapiv1alpha1.ClusterServiceVersionPhase
+		newPhase olmapiv1alpha1.ClusterServiceVersionPhase
+	)
+	once := sync.Once{}
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	csv := olmapiv1alpha1.ClusterServiceVersion{}
+	csvPhaseSucceeded := func() (bool, error) {
+		err := kubeclient.Get(ctx, key, &csv)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				once.Do(func() {
+					log.Printf("  Waiting for ClusterServiceVersion %q to appear", key)
+				})
+				return false, nil
+			}
+			return false, err
+		}
+		newPhase = csv.Status.Phase
+		if newPhase != curPhase {
+			curPhase = newPhase
+			log.Printf("  Found ClusterServiceVersion %q phase: %s", key, curPhase)
+		}
+
+		switch curPhase {
+		case olmapiv1alpha1.CSVPhaseFailed:
+			return false, fmt.Errorf("csv failed: reason: %q, message: %q", csv.Status.Reason, csv.Status.Message)
+		case olmapiv1alpha1.CSVPhaseSucceeded:
+			return true, nil
+		default:
+			return false, nil
+		}
+	}
+
+	err = wait.PollImmediateUntil(time.Second, csvPhaseSucceeded, ctx.Done())
+	if err != nil && errors.Is(err, context.DeadlineExceeded) {
+		depCheckErr := c.checkDeploymentErrors(ctx, key, csv)
+		if depCheckErr != nil {
+			return depCheckErr
+		}
+	}
+	return err
+}
+
+func (c *Client) getKubeclient() (kubeClient.Client, error) {
+	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")
+	}
+
+	cl, err := kubeClient.New(c.restConfig, client.Options{
+		Scheme: scheme.Scheme,
+		Mapper: rm,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create client")
+	}
+
+	return cl, nil
+}
+
+// checkDeploymentErrors function loops through deployment specs of a given CSV, and prints reason
+// in case of failures, based on deployment condition.
+func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv olmapiv1alpha1.ClusterServiceVersion) error {
+	depErrs := deploymentErrors{}
+	if key.Namespace == "" {
+		return fmt.Errorf("no namespace provided to get deployment failures")
+	}
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	dep := &appsv1.Deployment{}
+	for _, ds := range csv.Spec.InstallStrategy.StrategySpec.DeploymentSpecs {
+		depKey := types.NamespacedName{
+			Namespace: key.Namespace,
+			Name:      ds.Name,
+		}
+		depSelectors := ds.Spec.Selector
+		if err := kubeclient.Get(ctx, depKey, dep); err != nil {
+			depErrs = append(depErrs, deploymentError{
+				resourceError: resourceError{
+					name:  ds.Name,
+					issue: err.Error(),
+				},
+			})
+			continue
+		}
+		for _, s := range dep.Status.Conditions {
+			if s.Type == appsv1.DeploymentAvailable && s.Status != corev1.ConditionTrue {
+				depErr := deploymentError{
+					resourceError: resourceError{
+						name:  ds.Name,
+						issue: s.Reason,
+					},
+				}
+				podErr := c.checkPodErrors(ctx, kubeclient, depSelectors, key)
+				podErrs := podErrors{}
+				if errors.As(podErr, &podErrs) {
+					depErr.podErrs = append(depErr.podErrs, podErrs...)
+				} else {
+					return podErr
+				}
+				depErrs = append(depErrs, depErr)
+			}
+		}
+	}
+
+	return depErrs
+}
+
+// checkPodErrors loops through pods, and returns pod errors if any.
+func (c Client) checkPodErrors(ctx context.Context, kubeclient kubeClient.Client, depSelectors *metav1.LabelSelector, key types.NamespacedName) error {
+	// loop through pods and return specific error message.
+	podErr := podErrors{}
+	podList := &corev1.PodList{}
+	podLabelSelectors, err := metav1.LabelSelectorAsSelector(depSelectors)
+	if err != nil {
+		return err
+	}
+	options := client.ListOptions{
+		LabelSelector: podLabelSelectors,
+		Namespace:     key.Namespace,
+	}
+	if err := kubeclient.List(ctx, podList, &options); err != nil {
+		return fmt.Errorf("error getting Pods: %v", err)
+	}
+	for _, p := range podList.Items {
+		for _, cs := range p.Status.ContainerStatuses {
+			if !cs.Ready {
+				if cs.State.Waiting != nil {
+					containerName := p.Name + ":" + cs.Name
+					podErr = append(podErr, podError{
+						resourceError{
+							name:  containerName,
+							issue: cs.State.Waiting.Message,
+						},
+					})
+				}
+			}
+		}
+	}
+
+	return podErr
 }
