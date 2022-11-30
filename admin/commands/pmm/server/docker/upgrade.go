@@ -111,8 +111,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	if err != nil {
 		logrus.Info("We could not disable restart policy in the old container.")
 		logrus.Infof(`We strongly recommend removing the old container manually with "docker rm %s"`, currentContainer.Name)
-		logrus.Info("Error for reference:")
-		logrus.Error(err)
+		logrus.Errorf("Error for reference: %#v", err)
 	}
 
 	return &upgradeResult{}, nil
