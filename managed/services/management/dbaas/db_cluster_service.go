@@ -132,7 +132,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 			},
 		},
 		State:   dbClusterStates()[cluster.Status.State],
-		Exposed: false, // TODO
+		Exposed: cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
@@ -214,7 +214,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 			},
 		},
 		State:   dbClusterStates()[cluster.Status.State],
-		Exposed: false, // TODO
+		Exposed: cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
