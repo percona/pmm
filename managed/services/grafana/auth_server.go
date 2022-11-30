@@ -27,7 +27,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -101,16 +100,6 @@ var vmProxyPrefixes = []string{
 }
 
 const vmProxyHeaderName = "X-Percona-Proxy-Filters"
-
-type vmGatewayJWT struct {
-	VMAccess struct {
-		TenantID struct{} `json:"tenant_id"`
-	} `json:"vm_access"`
-	ExtraFilters []string `json:"extra_filters"`
-	Mode         int      `json:"mode"`
-
-	jwt.RegisteredClaims
-}
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
