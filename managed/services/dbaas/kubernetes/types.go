@@ -33,6 +33,10 @@ const (
 	dbaasKind                        = "DatabaseCluster"
 	databasePXC   dbaasv1.EngineType = "pxc"
 	databasePSMDB dbaasv1.EngineType = "psmdb"
+
+	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
+	memoryMediumSize = int64(2) * 1000 * 1000 * 1000
+	memoryLargeSize  = int64(2) * 1000 * 1000 * 1000
 )
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
@@ -52,6 +56,12 @@ var exposeAnnotationsMap = map[ClusterType]map[string]string{
 	},
 	ClusterTypeGeneric: make(map[string]string),
 }
+var pxcDefaultConfigurationTemplate = `
+[mysqld]
+wsrep_provider_options="gcache.size=%s"
+wsrep_trx_fragment_unit='bytes'
+wsrep_trx_fragment_size=3670016
+`
 
 func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.ResourceRequirements, error) {
 	req := corev1.ResourceRequirements{}
@@ -73,6 +83,20 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
+	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
+	gCacheSize := "1G"
+	if cluster.Params.Pxc.Configuration == "" {
+		if memory > memorySmallSize && memory <= memoryMediumSize {
+			gCacheSize = "5G"
+		}
+		if memory > memoryMediumSize && memory <= memoryLargeSize {
+			gCacheSize = "10G"
+		}
+		if memory > memoryLargeSize {
+			gCacheSize = "10G"
+		}
+		cluster.Params.Pxc.Configuration = fmt.Sprintf(pxcDefaultConfigurationTemplate, gCacheSize)
+	}
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: cluster.Name,
