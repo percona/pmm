@@ -34,6 +34,10 @@ enum AgentType {
 message PMMAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
+  // Login represent login for vmagent auth config.
+  string login = 6;
+  // Password represent password used in vmagent auth config.
+  string password = 7;
   // Node identifier where this instance runs.
   string runs_on_node_id = 2;
   // Custom user-assigned labels.
