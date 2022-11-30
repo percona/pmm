@@ -3,7 +3,7 @@
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         97
-%define grafana_version 9.1.2
+%define grafana_version 9.2.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -51,11 +51,6 @@ make build-js
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
-cp -rpav scripts %{buildroot}%{_datadir}/grafana
-%if 0%{?rhel} >= 9
-    rm -rf %{buildroot}%{_datadir}/grafana/scripts/build/ci-msi-build/msigenerator
-    rm -rf %{buildroot}%{_datadir}/grafana/scripts/drone
-%endif
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 if [ ! -d tmp/bin ]; then
@@ -78,6 +73,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
 %doc *.md
+%license LICENSE
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
@@ -88,12 +84,12 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 getent group grafana >/dev/null || groupadd -r grafana
 getent passwd grafana >/dev/null || \
     useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Dashboard" grafana
+    -c "Grafana Server" grafana
 exit 0
 
 %changelog
-* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.1.2-1
-- Fix the version
+* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.2.5-1
+- PMM-10881 Grafana 9.2.5
 
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 8.3.5-2
 - PMM-10027 remove useless packages

@@ -16,7 +16,7 @@
     name: epel-release
     state: installed
 
-- name: Packages                   | Install OS tools for EL8
+- name: Packages                   | Install OS tools for EL7
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution_major_version == '7'
