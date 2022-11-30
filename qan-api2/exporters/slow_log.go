@@ -137,6 +137,8 @@ func main() {
 
 				mb := &qanpb.MetricsBucket{
 					Queryid:              v.Id,
+					ExplainFingerprint:   v.ExplainFingerprint,
+					PlaceholdersCount:    v.PlaceholdersCount,
 					Fingerprint:          v.Fingerprint,
 					Database:             "",
 					Schema:               v.Db,

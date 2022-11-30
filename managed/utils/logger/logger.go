@@ -24,11 +24,11 @@ import (
 )
 
 // key is unexported to prevent collisions - it is different from any other type in other packages
-var key = struct{}{}
+type key struct{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.
 func Get(ctx context.Context) *logrus.Entry {
-	v := ctx.Value(key)
+	v := ctx.Value(key{})
 	if v == nil {
 		panic("context logger not set")
 	}
@@ -42,12 +42,12 @@ func Set(ctx context.Context, requestID string) context.Context {
 
 // SetEntry returns derived context with set given logrus entry.
 func SetEntry(ctx context.Context, l *logrus.Entry) context.Context {
-	if ctx.Value(key) != nil {
+	if ctx.Value(key{}) != nil {
 		Get(ctx).Panicf("context logger already set")
 		return nil
 	}
 
-	return context.WithValue(ctx, key, l)
+	return context.WithValue(ctx, key{}, l)
 }
 
 // MakeRequestID returns a new request ID.
