@@ -162,7 +162,11 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
 		}
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPXC(req)
+	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	dbCluster, err := kubernetes.DatabaseClusterForPXC(req, clusterType)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}

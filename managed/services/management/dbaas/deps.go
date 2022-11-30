@@ -28,6 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 //go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
@@ -106,4 +107,5 @@ type kubernetesClient interface {
 	GetPXCOperatorVersion(context.Context) (string, error)
 	GetPSMDBOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
+	GetClusterType(context.Context) (kubernetes.ClusterType, error)
 }

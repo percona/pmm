@@ -30,11 +30,17 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
 
+type ClusterType string
+
 const (
-	pxcDeploymentName         = "percona-xtradb-cluster-operator"
-	psmdbDeploymentName       = "percona-server-mongodb-operator"
-	databaseClusterKind       = "DatabaseCluster"
-	databaseClusterAPIVersion = "dbaas.percona.com/v1"
+	ClusterTypeUnknown        ClusterType = "unknown"
+	ClusterTypeMinikube       ClusterType = "minikube"
+	ClusterTypeEKS            ClusterType = "eks"
+	ClusterTypeGeneric        ClusterType = "generic"
+	pxcDeploymentName                     = "percona-xtradb-cluster-operator"
+	psmdbDeploymentName                   = "percona-server-mongodb-operator"
+	databaseClusterKind                   = "DatabaseCluster"
+	databaseClusterAPIVersion             = "dbaas.percona.com/v1"
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -202,6 +208,25 @@ func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 		return storageClasses.Items[0].Name, nil
 	}
 	return "", errors.New("no storage classes available")
+}
+
+// GetClusterType tries to guess the underlying kubernetes cluster based on storage class
+func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	storageClasses, err := k.client.GetStorageClasses(ctx)
+	if err != nil {
+		return ClusterTypeUnknown, err
+	}
+	for _, storageClass := range storageClasses.Items {
+		if strings.Contains(storageClass.Provisioner, "aws") {
+			return ClusterTypeEKS, nil
+		}
+		if strings.Contains(storageClass.Provisioner, "minikube") || strings.Contains(storageClass.Provisioner, "kubevirt.io/hostpath-provisioner") || strings.Contains(storageClass.Provisioner, "standard") {
+			return ClusterTypeMinikube, nil
+		}
+	}
+	return ClusterTypeGeneric, nil
 }
 
 // GetOperatorVersion parses operator version from operator deployment

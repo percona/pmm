@@ -37,6 +37,22 @@ const (
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
 
+var exposeTypeMap = map[ClusterType]corev1.ServiceType{
+	ClusterTypeMinikube: corev1.ServiceTypeNodePort,
+	ClusterTypeEKS:      corev1.ServiceTypeLoadBalancer,
+	ClusterTypeGeneric:  corev1.ServiceTypeLoadBalancer,
+}
+
+var exposeAnnotationsMap = map[ClusterType]map[string]string{
+	ClusterTypeMinikube: make(map[string]string),
+	ClusterTypeEKS: {
+		"service.beta.kubernetes.io/aws-load-balancer-nlb-target-type":         "ip",
+		"service.beta.kubernetes.io/aws-load-balancer-scheme":                  "internet-facing",
+		"service.beta.kubernetes.io/aws-load-balancer-target-group-attributes": "preserve_client_ip.enabled=true",
+	},
+	ClusterTypeGeneric: make(map[string]string),
+}
+
 func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.ResourceRequirements, error) {
 	req := corev1.ResourceRequirements{}
 	if res == nil {
@@ -56,7 +72,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 	return req, nil
 }
 
-func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaasv1.DatabaseCluster, error) {
+func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: cluster.Name,
@@ -106,7 +122,20 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest) (*dbaa
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
 	if cluster.Expose {
-		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return dbCluster, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return dbCluster, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+		}
+
 	}
 	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
 	return dbCluster, nil
