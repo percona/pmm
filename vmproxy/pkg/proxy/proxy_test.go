@@ -85,6 +85,12 @@ func TestProxy(t *testing.T) {
 				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
 			},
 			{
+				name:            "shall process PromQL strings properly",
+				expectedFilters: []string{`{region="east", env="prod"}`, `{region="west", env="dev"}`},
+				expectedStatus:  http.StatusOK,
+				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["{region=\"east\", env=\"prod\"}", "{region=\"west\", env=\"dev\"}"]`)),
+			},
+			{
 				name:            "shall support empty JSON array with no filters",
 				expectedFilters: []string{},
 				expectedStatus:  http.StatusOK,
