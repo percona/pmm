@@ -378,7 +378,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
 			operator := "percona-server-mongodb-operator"
 
-			if err := k.installOperator(ctx, operator, "default", "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 			}
 
