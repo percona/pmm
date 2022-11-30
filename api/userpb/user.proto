@@ -22,11 +22,15 @@ message UserDetailsResponse {
   uint32 user_id = 1;
   // Product Tour
   bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
 }
 
 message UserUpdateRequest {
   // Product Tour
   bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
 }
 
 // UserService contains rpcs related to user data

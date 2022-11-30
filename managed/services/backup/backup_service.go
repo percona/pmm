@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 // Service represents core logic for db backup.
@@ -194,12 +195,17 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		if _, e := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
-		}); e != nil {
-			s.l.WithError(e).Warnf("failed to mark artifact %s as failed", artifact.ID)
-		}
+		var target *agents.AgentNotSupportedError
+		if errors.As(err, &target) {
+			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			})
 
+			if dbErr != nil {
+				s.l.WithError(err).Error("failed to update backup artifact status")
+			}
+			return "", status.Error(codes.FailedPrecondition, target.Error())
+		}
 		return "", err
 	}
 
@@ -295,7 +301,9 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			jobType = models.MongoDBRestoreBackupJob
 			jobData = &models.JobData{
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: serviceID,
 					RestoreID: restoreID,
+					DataModel: params.DataModel,
 				},
 			}
 		case models.PostgreSQLServiceType,

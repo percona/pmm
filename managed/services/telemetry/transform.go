@@ -25,8 +25,8 @@ import (
 type itemsType []map[string]any
 
 func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
-	if metrics == nil {
-		return nil, nil
+	if len(metrics) == 0 {
+		return metrics, nil
 	}
 
 	if config.Transform == nil {
@@ -41,23 +41,25 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 		return nil, errors.Errorf("invalid metrics config")
 	}
 
-	firstMetric := config.Data[0].MetricName
+	// consider first metric is the beginning of the object window
+	firstMetric := metrics[0].Key
 
 	result := make(map[string]itemsType)
 
 	var items itemsType
 	var next map[string]any
 	for _, metric := range metrics {
-		isFirstMetric := metric.Key == firstMetric // marker to know that the object begins
-		if isFirstMetric {
+		windowStarts := metric.Key == firstMetric // marker to know that the object begins
+		if windowStarts {
 			if next != nil {
 				items = append(items, next)
 			}
 			next = make(map[string]any)
 		}
-		if next == nil {
-			return nil, errors.Errorf("invalid metrics sequence: no match with first metric")
+		if _, alreadyHasItem := next[metric.Key]; alreadyHasItem {
+			return nil, errors.Errorf("invalid metrics sequence")
 		}
+
 		next[metric.Key] = metric.Value
 	}
 	if next != nil {
