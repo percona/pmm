@@ -67,7 +67,7 @@ func (s LogsService) GetLogs(ctx context.Context, in *dbaasv1beta1.GetLogsReques
 		return nil, err
 	}
 
-	kClient, err := kubernetes.New(context.Background(), kubernetesCluster.KubeConfig)
+	kClient, err := kubernetes.New(kubernetesCluster.KubeConfig)
 	if err != nil {
 		// return nil, status.Error(codes.Internal, "Cannot initialize K8s kClient: "+err.Error())
 		return nil, err

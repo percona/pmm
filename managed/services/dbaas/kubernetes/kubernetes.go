@@ -79,7 +79,7 @@ func NewIncluster() (*Kubernetes, error) {
 }
 
 // New returns new Kubernetes object.
-func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
+func New(kubeconfig string) (*Kubernetes, error) {
 	l := logrus.WithField("component", "kubernetes")
 
 	client, err := client.NewFromKubeConfigString(kubeconfig)
@@ -116,7 +116,7 @@ func NewEmpty() *Kubernetes {
 }
 
 // SetKubeconfig changes kubeconfig for active client
-func (k *Kubernetes) SetKubeconfig(ctx context.Context, kubeconfig string) error {
+func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	client, err := client.NewFromKubeConfigString(kubeconfig)
@@ -171,21 +171,21 @@ func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) er
 	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
 	cluster.TypeMeta.Kind = databaseClusterKind
 	cluster.Spec.Restart = true
-	return k.client.ApplyObject(ctx, cluster)
+	return k.client.ApplyObject(cluster)
 }
 
 // PatchDatabaseCluster patches CR of managed Database cluster.
-func (k *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
-	return k.client.ApplyObject(ctx, cluster)
+	return k.client.ApplyObject(cluster)
 }
 
 // CreateDatabase cluster creates database cluster
-func (k *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
+func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
-	return k.client.ApplyObject(ctx, cluster)
+	return k.client.ApplyObject(cluster)
 }
 
 // DeleteDatabaseCluster deletes database cluster
@@ -198,7 +198,7 @@ func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) err
 	}
 	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
 	cluster.TypeMeta.Kind = databaseClusterKind
-	return k.client.DeleteObject(ctx, cluster)
+	return k.client.DeleteObject(cluster)
 }
 
 // GetDefaultStorageClassName returns first storageClassName from kubernetes cluster

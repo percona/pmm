@@ -170,7 +170,7 @@ func (c *Client) initOperatorClients() error {
 		return err
 	}
 	c.dbClusterClient = dbClusterClient
-	_, err = c.GetServerVersion(context.Background())
+	_, err = c.GetServerVersion()
 	return err
 }
 
@@ -230,7 +230,7 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 }
 
 // GetServerVersion returns server version
-func (c *Client) GetServerVersion(ctx context.Context) (*version.Info, error) {
+func (c *Client) GetServerVersion() (*version.Info, error) {
 	return c.clientset.Discovery().ServerVersion()
 }
 
@@ -264,7 +264,7 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 }
 
 // Delete deletes object from the k8s cluster
-func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
@@ -300,7 +300,7 @@ func deleteObject(helper *resource.Helper, namespace, name string) error {
 	return nil
 }
 
-func (c *Client) ApplyObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) ApplyObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
