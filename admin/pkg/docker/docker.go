@@ -240,3 +240,23 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 
 	return &volume, nil
 }
+
+// ContainerInspect returns information about a container.
+func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+	return b.Cli.ContainerInspect(ctx, containerID)
+}
+
+// ContainerStop stops a container.
+func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+	return b.Cli.ContainerStop(ctx, containerID, timeout)
+}
+
+// ContainerUpdate updates container configuration.
+func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+	return b.Cli.ContainerUpdate(ctx, containerID, updateConfig)
+}
+
+// ContainerWait waits until a container is in a specific state.
+func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
+	return b.Cli.ContainerWait(ctx, containerID, condition)
+}
