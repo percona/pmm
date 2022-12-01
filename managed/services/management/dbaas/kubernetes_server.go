@@ -280,23 +280,16 @@ func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, ver
 }
 
 func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
-	for i := 0; i < 6; i++ {
-		req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubeConfig,
-			},
-			Name:      name,
-			Namespace: namespace,
-		}
-		_, err := client.ApproveInstallPlan(ctx, req)
-		if err != nil {
-			return err
-		}
-
-		break
+	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Name:      name,
+		Namespace: namespace,
 	}
+	_, err := client.ApproveInstallPlan(ctx, req)
 
-	return errNoInstallPlanToApprove
+	return err
 }
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
@@ -365,7 +358,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 			}
 
-			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
 			if err != nil {
 				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
 			}
@@ -382,7 +375,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 			}
 
-			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
 			if err != nil {
 				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
 			}
@@ -400,7 +393,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				return
 			}
 
-			installPlanName, err := k.getInstallPlanForSubscription(ctx, req.KubeAuth.Kubeconfig, namespace, operator)
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
 			if err != nil {
 				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
 			}
@@ -471,11 +464,11 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 	return err
 }
 
-func (k kubernetesServer) getInstallPlanForSubscription(ctx context.Context, kubeConfig, namespace, name string) (string, error) {
+func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) {
 	var subscription *controllerv1beta1.GetSubscriptionResponse
 	var err error
 	for i := 0; i < 6; i++ {
-		subscription, err = k.dbaasClient.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
+		subscription, err = client.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: kubeConfig,
 			},

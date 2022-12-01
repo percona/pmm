@@ -35,6 +35,12 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
+const (
+	psmdbOperatorName = "percona-server-mongodb-operator"
+	pxcOperatorName   = "percona-xtradb-cluster-operator"
+	defaultNamespace  = "default"
+)
+
 type ComponentsService struct {
 	l                    *logrus.Entry
 	db                   *reform.DB
@@ -266,11 +272,11 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 				matches := re.FindStringSubmatch(item.CurrentCsv)
 				if len(matches) == 2 {
 					switch item.Package {
-					case "percona-server-mongodb-operator":
+					case psmdbOperatorName:
 						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[psmdbOperator] = &dbaasv1beta1.ComponentUpdateInformation{
 							AvailableVersion: matches[1],
 						}
-					case "percona-xtradb-cluster-operator":
+					case pxcOperatorName:
 						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[pxcOperator] = &dbaasv1beta1.ComponentUpdateInformation{
 							AvailableVersion: matches[1],
 						}
@@ -405,14 +411,22 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", "percona-xtradb-cluster-operator")
-			return err
+			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, pxcOperatorName)
+			if err != nil {
+				return errors.Wrapf(err, "cannot get install plan for subscription %q", pxcOperatorName)
+			}
+
+			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			err := approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", "percona-server-mongodb-operator")
-			return err
+			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, psmdbOperatorName)
+			if err != nil {
+				return errors.Wrapf(err, "cannot get install plan for subscription %q", psmdbOperatorName)
+			}
+
+			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
 		}
 		component = kubernetesCluster.Mongod
 	default:
