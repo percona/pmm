@@ -47,6 +47,10 @@ const (
 	volumeCopyImage  = "alpine:3"
 )
 
+var copyLabelsToVolumeBackup = map[string]struct{}{
+	"org.opencontainers.image.version": {},
+}
+
 var (
 	// ErrContainerWait is returned on error response from container wait.
 	ErrContainerWait = errors.New("ContainerWait")
@@ -141,8 +145,18 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 			continue
 		}
 
+		// Copy labels from original container to backup volume
+		labels := make(map[string]string, 1+len(copyLabelsToVolumeBackup))
+		for k, v := range container.Config.Labels {
+			if _, ok := copyLabelsToVolumeBackup[k]; ok {
+				labels[k] = v
+			}
+		}
+
+		labels["percona.pmm.created"] = now.Format(dateSuffixFormat)
+
 		backupName := fmt.Sprintf("%s-backup-%s", m.Name, now.Format(dateSuffixFormat))
-		_, err := c.dockerFn.CreateVolume(ctx, backupName)
+		_, err := c.dockerFn.CreateVolume(ctx, backupName, labels)
 		if err != nil {
 			return err
 		}
