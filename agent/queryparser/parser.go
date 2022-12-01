@@ -26,21 +26,20 @@ import (
 
 // MySQL parse query and return fingeprint and placeholders.
 func MySQL(q string) (string, uint32, error) {
-	normalizedQuery, _, err := sqlparser.Parse2(q)
+	statement, _, err := sqlparser.Parse2(q)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot parse query")
 	}
 
 	bv := make(map[string]*query.BindVariable)
-	err = sqlparser.Normalize(normalizedQuery, sqlparser.NewReservedVars("", sqlparser.GetBindvars(normalizedQuery)), bv)
+	err = sqlparser.Normalize(statement, sqlparser.NewReservedVars("", sqlparser.GetBindvars(statement)), bv)
 	if err != nil {
 		return "", 0, errors.Wrap(err, "cannot normalize query")
 	}
 
-	parsedQuery := sqlparser.NewParsedQuery(normalizedQuery)
-	bindVars := sqlparser.GetBindvars(normalizedQuery)
+	bindVars := sqlparser.GetBindvars(statement)
 
-	return parsedQuery.Query, uint32(len(bindVars)), nil
+	return sqlparser.String(statement), uint32(len(bindVars)), nil
 }
 
 // PostgreSQL parse query and return fingeprint and placeholders.

@@ -289,6 +289,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
+				ExplainFingerprint:  actual.Common.ExplainFingerprint,
+				PlaceholdersCount:   n,
 				Database:            "pmm-agent",
 				Tables:              []string{},
 				Username:            "pmm-agent",
@@ -332,6 +334,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
+				ExplainFingerprint:  actual.Common.ExplainFingerprint,
+				PlaceholdersCount:   n,
 				Database:            "pmm-agent",
 				Tables:              []string{},
 				Username:            "pmm-agent",

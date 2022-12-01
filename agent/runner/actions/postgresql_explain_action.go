@@ -79,18 +79,12 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	tx, err := db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
 	response := explainResponse{
 		Query:      a.params.Query,
 		IsDMLQuery: false,
 	}
 
-	response.ExplainResult, err = a.explainDefault(ctx, tx)
+	response.ExplainResult, err = a.explainDefault(ctx, db)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +99,13 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 func (a *postgresqlExplainAction) sealed() {}
 
-func (a *postgresqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
+func (a *postgresqlExplainAction) explainDefault(ctx context.Context, db *sql.DB) ([]byte, error) {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
 	query := fmt.Sprintf("EXPLAIN ANALYZE /* pmm-agent */ %s", a.params.Query)
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
