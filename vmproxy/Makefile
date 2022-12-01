@@ -33,6 +33,9 @@ install:                        ## Install vmproxy binary.
 install-race:                   ## Install vmproxy binary with race detector.
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/vmproxy .
 
+build:                          ## Build vmproxy binary to current directory.
+	go build -v $(LD_FLAGS) -o vmproxy .
+
 TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests.
