@@ -106,7 +106,7 @@ func (a *postgresqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *postgresqlExplainAction) sealed() {}
 
 func (a *postgresqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	query := fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query)
+	query := fmt.Sprintf("EXPLAIN ANALYZE /* pmm-agent */ %s", a.params.Query)
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
