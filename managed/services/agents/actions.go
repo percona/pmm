@@ -67,12 +67,12 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
-		parsed := res.ExplainFingerprint
-		for k, v := range placeholders {
-			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
-		}
+		// parsed := res.ExplainFingerprint
+		// for k, v := range placeholders {
+		// 	parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
+		// }
 
-		q = parsed
+		q = res.ExplainFingerprint
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -92,6 +92,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        q,
+				Placeholders: placeholders,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
@@ -230,8 +231,9 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_PostgresqlExplainParams{
 			PostgresqlExplainParams: &agentpb.StartActionRequest_PostgreSQLExplainParams{
-				Dsn:   dsn,
-				Query: q,
+				Dsn:          dsn,
+				Query:        q,
+				Placeholders: placeholders,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,

@@ -31,10 +31,11 @@ import (
 )
 
 type mysqlExplainAction struct {
-	id      string
-	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLExplainParams
-	query   string
+	id           string
+	timeout      time.Duration
+	params       *agentpb.StartActionRequest_MySQLExplainParams
+	query        string
+	placeholders []string
 }
 
 type explainResponse struct {
@@ -50,10 +51,11 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
 	return &mysqlExplainAction{
-		id:      id,
-		timeout: timeout,
-		params:  params,
-		query:   params.Query,
+		id:           id,
+		timeout:      timeout,
+		params:       params,
+		query:        params.Query,
+		placeholders: params.Placeholders,
 	}
 }
 
@@ -127,7 +129,16 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *mysqlExplainAction) sealed() {}
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	var inter []interface{}
+	inter = append(inter, a.placeholders[0])
+	inter = append(inter, a.placeholders[1])
+
+	a.query = strings.Replace(a.query, ":1", "?", 1)
+	a.query = strings.Replace(a.query, ":2", "?", 1)
+
+	fmt.Printf("\n\n\n\n\n\n\n\n query: %s, inter: %+v \n\n\n\n\n\n\n\n", a.query, inter)
+
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query), inter...)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +174,11 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.query)).Scan(&b)
+
+	var inter []interface{}
+	inter = append(inter, a.placeholders)
+
+	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.query), inter...).Scan(&b)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +215,10 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	var inter []interface{}
+	inter = append(inter, a.placeholders)
+
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query), inter...)
 	if err != nil {
 		return nil, err
 	}

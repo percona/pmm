@@ -154,6 +154,7 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+    repeated string placeholders = 6;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
@@ -195,6 +196,7 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+    repeated string placeholders = 6;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
