@@ -19,14 +19,9 @@ package olm
 
 import (
 	"context"
-	"io/ioutil"
-	"os"
 	"testing"
 
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	"github.com/percona-platform/dbaas-controller/service/k8sclient"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 // func TestGetLatestVersion(t *testing.T) {
@@ -45,13 +40,13 @@ import (
 // }
 
 func TestInstallOlmOperator(t *testing.T) {
-	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-	require.NoError(t, err)
+	// kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
+	// require.NoError(t, err)
 
 	ctx := context.Background()
 
-	client, err := k8sclient.New(ctx, string(kubeconfig))
-	assert.NoError(t, err)
+	// client, err := k8sclient.New(ctx, string(kubeconfig))
+	// assert.NoError(t, err)
 
 	// t.Cleanup(func() {
 	// 	// Maintain the order, otherwise the Kubernetes deletetion will stuck in Terminating state.
@@ -73,14 +68,14 @@ func TestInstallOlmOperator(t *testing.T) {
 	// 	_ = client.Cleanup()
 	// })
 
-	req := &controllerv1beta1.InstallOLMOperatorRequest{
-		KubeAuth: &controllerv1beta1.KubeAuth{
-			Kubeconfig: string(kubeconfig),
-		},
-	}
+	// req := &controllerv1beta1.InstallOLMOperatorRequest{
+	// 	KubeAuth: &controllerv1beta1.KubeAuth{
+	// 		Kubeconfig: string(kubeconfig),
+	// 	},
+	// }
 
 	olms := NewOperatorService()
-	_, err = olms.InstallOLMOperator(ctx, req)
+	err := olms.InstallOLMOperator(ctx)
 	assert.NoError(t, err)
 
 	// 	// Wait for the deployments

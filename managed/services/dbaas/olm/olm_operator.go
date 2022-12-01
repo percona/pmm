@@ -73,12 +73,13 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 
 	k8sclient, err := client.NewFromKubeConfigString(string(kubeconfig))
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot initialize the kubernetes client")
+		return errors.Wrap(err, "cannot initialize the kubernetes client")
 	}
 
 	deployment, err := k8sclient.GetDeployment(ctx, "olm-operator")
-	if err != nil {
-		return errors.Wrap(err, "cannot check if the OLM operator is already installed or not")
+	if err == nil {
+		return nil
+		// return errors.Wrap(err, "cannot check if the OLM operator is already installed or not")
 	}
 
 	if deployment.ObjectMeta.Name != "" {
@@ -87,26 +88,26 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 
 	var crdFile, olmFile []byte
 
-	crdFile, err = fs.ReadFile(data.OLMCRDs, "crds.yml")
+	crdFile, err = fs.ReadFile(data.OLMCRDs, "crds/crds.yaml")
 	if err != nil {
 		return errors.Wrapf(err, "failed to read OLM CRDs file")
 	}
 
 	if err := k8sclient.ApplyFile(ctx, crdFile); err != nil {
 		// TODO: revert applied files before return
-		return nil, errors.Wrapf(err, "cannot apply %q file", crdFile)
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
 
 	// client.WaitForCondition(ctx, "Established", crdFile)
 
-	olmFile, err = fs.ReadFile(data.OLMCRDs, "olm.yml")
+	olmFile, err = fs.ReadFile(data.OLMCRDs, "crds/olm.yaml")
 	if err != nil {
 		return errors.Wrapf(err, "failed to read OLM file")
 	}
 
 	if err := k8sclient.ApplyFile(ctx, olmFile); err != nil {
 		// TODO: revert applied files before return
-		return nil, errors.Wrapf(err, "cannot apply %q file", crdFile)
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
 	key := types.NamespacedName{
 		Namespace: "default",
@@ -123,9 +124,15 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 	// 	log.Errorf("error waiting olm package server to become ready: %s", err)
 	// }
 
+	// key = types.NamespacedName{
+	// 	Namespace: "default",
+	// 	Name:      "packageserver",
+	// }
+
+	// err = k8sclient.DoCSVWait(ctx, key)
 	// return response, nil
 
-	return nil, nil
+	return nil
 }
 
 func isInstalled(ctx context.Context, client *client.Client, namespace string) bool {
