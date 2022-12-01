@@ -127,8 +127,8 @@ github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d/go.mod h1:W
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/aws/aws-sdk-go v1.38.35/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/aws/aws-sdk-go v1.43.11/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
-github.com/aws/aws-sdk-go v1.44.140 h1:6MxVSiAORc6AG+oh6401TEgWHb1ZzFL8y6+eBLoJtdU=
-github.com/aws/aws-sdk-go v1.44.140/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.44.150 h1:X9HBhXu0ZPi+tOHUaZkjx43int7g0Ejk+IVbW25+wYg=
+github.com/aws/aws-sdk-go v1.44.150/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aymanbagabas/go-osc52 v1.0.3 h1:DTwqENW7X9arYimJrPeGZcV0ln14sGMt3pHZspWD+Mg=
 github.com/aymanbagabas/go-osc52 v1.0.3/go.mod h1:zT8H+Rk4VSabYN90pWyugflM3ZhpTZNC7cASDfUCdT4=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
