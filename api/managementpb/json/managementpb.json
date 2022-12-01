@@ -279,9 +279,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -289,9 +297,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -372,9 +385,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -382,9 +403,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -465,9 +491,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -475,9 +509,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",

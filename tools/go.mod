@@ -16,7 +16,7 @@ require (
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.14.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/kevinburke/go-bindata v3.22.0+incompatible
+	github.com/kevinburke/go-bindata v3.24.0+incompatible
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
 	github.com/reviewdog/reviewdog v0.14.1
