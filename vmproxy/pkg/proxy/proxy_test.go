@@ -37,7 +37,7 @@ func TestProxy(t *testing.T) {
 		t.Helper()
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if filters != nil {
-				require.Equal(t, r.URL.RawQuery, url.Values{"extra_filters": filters}.Encode())
+				require.Equal(t, url.Values{"extra_filters[]": filters}.Encode(), r.URL.RawQuery)
 			}
 		}))
 		t.Cleanup(func() {
@@ -75,6 +75,7 @@ func TestProxy(t *testing.T) {
 			expectedStatus  int
 			headerContent   string
 			name            string
+			targetURL       string
 		}
 
 		testCases := []testParams{
@@ -89,6 +90,13 @@ func TestProxy(t *testing.T) {
 				expectedFilters: []string{`{region="east", env="prod"}`, `{region="west", env="dev"}`},
 				expectedStatus:  http.StatusOK,
 				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["{region=\"east\", env=\"prod\"}", "{region=\"west\", env=\"dev\"}"]`)),
+			},
+			{
+				name:            "shall replace existing extra_filters",
+				expectedFilters: []string{"abc", "def"},
+				expectedStatus:  http.StatusOK,
+				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
+				targetURL:       "http://127.0.0.1/a?extra_filters[]=a&extra_filters[]=b",
 			},
 			{
 				name:            "shall support empty JSON array with no filters",
@@ -114,14 +122,19 @@ func TestProxy(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
+				url := targetURL
+				if tc.targetURL != "" {
+					url = tc.targetURL
+				}
+
 				handler := setup(t, tc.expectedFilters)
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+				req := httptest.NewRequest(http.MethodGet, url, nil)
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
-				require.Equal(t, rec.Result().StatusCode, tc.expectedStatus)
+				require.Equal(t, tc.expectedStatus, rec.Result().StatusCode)
 			})
 		}
 	})

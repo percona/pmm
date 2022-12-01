@@ -82,11 +82,11 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {
 			q := req.URL.Query()
-			q.Del("extra_filters")
+			q.Del("extra_filters[]")
 
 			if parsed, _ := parseFilters(filters); parsed != nil {
 				for _, f := range parsed {
-					q.Add("extra_filters", f)
+					q.Add("extra_filters[]", f)
 				}
 			}
 
