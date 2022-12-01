@@ -84,16 +84,16 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 
 func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
 	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
-	gCacheSize := "1G"
+	gCacheSize := "600M"
 	if cluster.Params.Pxc.Configuration == "" {
 		if memory > memorySmallSize && memory <= memoryMediumSize {
-			gCacheSize = "5G"
+			gCacheSize = "2.4G"
 		}
 		if memory > memoryMediumSize && memory <= memoryLargeSize {
-			gCacheSize = "10G"
+			gCacheSize = "9.6G"
 		}
 		if memory > memoryLargeSize {
-			gCacheSize = "10G"
+			gCacheSize = "9.6G"
 		}
 		cluster.Params.Pxc.Configuration = fmt.Sprintf(pxcDefaultConfigurationTemplate, gCacheSize)
 	}
