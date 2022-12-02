@@ -23,6 +23,7 @@ import (
 	"strconv"
 
 	"github.com/alecthomas/kong"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
 	"github.com/percona/pmm/vmproxy/pkg/proxy"
@@ -48,9 +49,11 @@ func main() {
 		}),
 	)
 
-	proxy.StartProxy(proxy.Config{
+	err := proxy.RunProxy(proxy.Config{
 		HeaderName:    opts.HeaderName,
 		ListenAddress: net.JoinHostPort(opts.ListenAddress, strconv.Itoa(opts.ListenPort)),
 		TargetURL:     opts.TargetURL,
 	})
+
+	logrus.Error(err)
 }

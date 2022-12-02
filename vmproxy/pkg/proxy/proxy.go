@@ -38,12 +38,12 @@ type Config struct {
 	TargetURL *url.URL
 }
 
-// StartProxy starts proxy which adds extra filters based on configuration.
-func StartProxy(cfg Config) {
+// RunProxy starts proxy which adds extra filters based on configuration.
+func RunProxy(cfg Config) error {
 	logrus.Infof("Starting to proxy at http://%s to %s", cfg.ListenAddress, cfg.TargetURL.String())
 
 	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg))
-	logrus.Error(err)
+	return err
 }
 
 func getHandler(cfg Config) http.HandlerFunc {
