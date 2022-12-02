@@ -31,6 +31,8 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+//go:generate ../../../bin/mockery -name=apiKeyProvider -case=snake -inpkg -testonly
+
 type apiKeyProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
 }
