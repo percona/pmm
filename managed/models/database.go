@@ -24,8 +24,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/jackc/pgerrcode"
-	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
