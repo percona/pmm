@@ -41,6 +41,8 @@ const (
 	psmdbDeploymentName                   = "percona-server-mongodb-operator"
 	databaseClusterKind                   = "DatabaseCluster"
 	databaseClusterAPIVersion             = "dbaas.percona.com/v1"
+	restartAnnotationKey                  = "dbaas.percona.com/restart"
+	managedByKey                          = "dbaas.percona.com/managed-by"
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -165,7 +167,10 @@ func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) er
 	}
 	cluster.TypeMeta.APIVersion = databaseClusterAPIVersion
 	cluster.TypeMeta.Kind = databaseClusterKind
-	cluster.Spec.Restart = true
+	if cluster.ObjectMeta.Annotations == nil {
+		cluster.ObjectMeta.Annotations = make(map[string]string)
+	}
+	cluster.ObjectMeta.Annotations[restartAnnotationKey] = "true"
 	return k.client.ApplyObject(ctx, cluster)
 }
 
@@ -180,6 +185,8 @@ func (k *Kubernetes) PatchDatabaseCluster(ctx context.Context, cluster *dbaasv1.
 func (k *Kubernetes) CreateDatabaseCluster(ctx context.Context, cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
+	cluster.ObjectMeta.Annotations = make(map[string]string)
+	cluster.ObjectMeta.Annotations[managedByKey] = "pmm"
 	return k.client.ApplyObject(ctx, cluster)
 }
 
