@@ -45,8 +45,8 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jotaen/kong-completion v0.0.4
-	github.com/lib/pq v1.10.7
-	github.com/minio/minio-go/v7 v7.0.44
+	github.com/lib/pq v1.10.6
+	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20221019084503-3649d46509df
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
@@ -66,7 +66,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.1
-	go.mongodb.org/mongo-driver v1.10.3
+	go.mongodb.org/mongo-driver v1.11.0
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/sync v0.1.0
