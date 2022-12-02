@@ -105,8 +105,28 @@ func TestPXCClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-
-	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
+	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
+	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
+		Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
+			{
+				Namespace: "space-x",
+				Name:      "I am the man with no name: Zapp Brannigan at your service",
+				Csv:       "percona-xtradb-cluster-operator-v1.2.3",
+				Approval:  "Manual",
+				Approved:  false,
+			},
+			{
+				Namespace: "space-x",
+				Name:      "I am the man with no name: Zapp Brannigan at your service",
+				Csv:       "percona-server-mongodb-operator-v1.2.3",
+				Approval:  "Manual",
+				Approved:  false,
+			},
+		},
+	}
+	dbaasClient.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
+	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,

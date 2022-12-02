@@ -601,8 +601,26 @@ func TestInstallOperator(t *testing.T) {
 	}
 	db, c, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
 
-	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
-	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
+	mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
+		Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
+			{
+				Namespace: "space-x",
+				Name:      "I am the man with no name: Zapp Brannigan at your service",
+				Csv:       "percona-xtradb-cluster-operator-v1.2.3",
+				Approval:  "Manual",
+				Approved:  false,
+			},
+			{
+				Namespace: "space-x",
+				Name:      "I am the man with no name: Zapp Brannigan at your service",
+				Csv:       "percona-server-mongodb-operator-v1.2.3",
+				Approval:  "Manual",
+				Approved:  false,
+			},
+		},
+	}
+	dbaasClient.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
+	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
 	defer cancel()
@@ -712,6 +730,29 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 			},
 		}, nil)
 
+		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
+			Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{
+				{
+					Namespace:    "space-x",
+					Name:         "psmdb-operator",
+					Package:      "percona-server-mongodb-operator",
+					Source:       "src",
+					Channel:      "nat-geo",
+					CurrentCsv:   "percona-server-mongodb-operator-v1.8.0",
+					InstalledCsv: "percona-server-mongodb-operator-v1.2.2",
+				},
+				{
+					Namespace:    "space-x",
+					Name:         "pxc-operator",
+					Package:      "percona-xtradb-cluster-operator",
+					Source:       "src",
+					Channel:      "nat-geo",
+					CurrentCsv:   "percona-xtradb-cluster-operator-v1.8.0",
+					InstalledCsv: "percona-xtradb-cluster-operator-v1.2.2",
+				},
+			},
+		}
+		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(mockSubscriptions, nil)
 		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
 		require.NoError(t, err)
 		cluster := resp.ClusterToComponents[clusterName]
@@ -732,6 +773,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 			},
 		}, nil)
 
+		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(&controllerv1beta1.ListSubscriptionsResponse{}, nil)
 		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
 		require.NoError(t, err)
 		cluster := resp.ClusterToComponents[clusterName]
@@ -752,6 +794,10 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 			},
 		}, nil)
 
+		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
+			Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{},
+		}
+		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(mockSubscriptions, nil)
 		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
 		require.NoError(t, err)
 		cluster := resp.ClusterToComponents[clusterName]
