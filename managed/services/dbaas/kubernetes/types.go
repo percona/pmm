@@ -56,6 +56,7 @@ var exposeAnnotationsMap = map[ClusterType]map[string]string{
 	},
 	ClusterTypeGeneric: make(map[string]string),
 }
+
 var pxcDefaultConfigurationTemplate = `
 [mysqld]
 wsrep_provider_options="gcache.size=%s"
