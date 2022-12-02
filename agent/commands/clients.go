@@ -159,7 +159,7 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 // serverRegister registers Node on PMM Server.
 //
 // This method is not thread-safe.
-func serverRegister(cfgSetup *config.Setup) (*node.RegisterNodeOKBodyPMMAgent, error) {
+func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) {
 	nodeTypes := map[string]string{
 		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
 		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
@@ -175,7 +175,7 @@ func serverRegister(cfgSetup *config.Setup) (*node.RegisterNodeOKBodyPMMAgent, e
 
 	customLabels, err := ParseCustomLabels(cfgSetup.CustomLabels)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
@@ -200,9 +200,9 @@ func serverRegister(cfgSetup *config.Setup) (*node.RegisterNodeOKBodyPMMAgent, e
 		Context: context.Background(),
 	})
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-	return res.Payload.PMMAgent, nil
+	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
 // check interfaces

@@ -135,7 +135,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
-	pmmAgent, err := serverRegister(&cfg.Setup)
+	agentID, token, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
@@ -157,7 +157,9 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 
 	fmt.Printf("Registered.\n")
-	cfg.ID, cfg.Server.Username, cfg.Server.Password = pmmAgent.AgentID, pmmAgent.Login, pmmAgent.Password
+	cfg.ID = agentID
+	cfg.Server.Username = "api_key"
+	cfg.Server.Password = token
 }
 
 func reload(l *logrus.Entry) {
