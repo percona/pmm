@@ -26,7 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
-	"github.com/percona/pmm/vmproxy/pkg/proxy"
+	"github.com/percona/pmm/vmproxy/proxy"
 )
 
 type flags struct {
