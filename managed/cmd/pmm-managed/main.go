@@ -720,7 +720,7 @@ func main() {
 
 	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
 
-	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
+	prom.MustRegister(sqlmetrics.NewCollector("pgx", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("pgx", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)

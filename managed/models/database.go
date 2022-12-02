@@ -823,7 +823,7 @@ func OpenDB(address, name, username, password string) (*sql.DB, error) {
 	}
 	dsn := uri.String()
 
-	db, err := sql.Open("postgres", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
