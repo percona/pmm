@@ -135,11 +135,10 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 
 	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.NodeName, rand.Int63())
-	_, res.PmmAgent.Password, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
 	if e != nil {
 		return res, e
 	}
 
-	res.PmmAgent.Login = "api_key"
 	return res, nil
 }

@@ -82,7 +82,6 @@ func TestNodeService(t *testing.T) {
 				ContainerNode: (*inventorypb.ContainerNode)(nil),
 				PmmAgent: &inventorypb.PMMAgent{
 					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
-					Login:        "api_key",
 					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
 				},
 			}
@@ -116,7 +115,6 @@ func TestNodeService(t *testing.T) {
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
 						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
-						Login:        "api_key",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
 				}
@@ -141,7 +139,6 @@ func TestNodeService(t *testing.T) {
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
 						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
-						Login:        "api_key",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
 				}
