@@ -28,11 +28,10 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
-	"github.com/lib/pq"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/utils/bcrypt"
 	"github.com/percona/pmm/version"
 )
 
@@ -186,10 +185,10 @@ type Agent struct {
 	MetricsPath           *string `reform:"metrics_path"`
 	MetricsScheme         *string `reform:"metrics_scheme"`
 
-	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool           `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
+	RDSBasicMetricsDisabled    bool        `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool        `reform:"rds_enhanced_metrics_disabled"`
+	PushMetrics                bool        `reform:"push_metrics"`
+	DisabledCollectors         StringArray `reform:"disabled_collectors"`
 
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`

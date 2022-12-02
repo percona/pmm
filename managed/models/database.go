@@ -23,7 +23,8 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/lib/pq"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -870,7 +871,7 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "28000" {
+	if pErr, ok := errDB.(*pgconn.PgError); ok && pErr.Code == "28000" {
 		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 		databaseName := params.Name
 		roleName := params.Username
@@ -917,7 +918,7 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 		}
 		errDB = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	}
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+	if pErr, ok := errDB.(*pgconn.PgError); ok && pErr.Code == pgerrcode.UndefinedTable { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 		errDB = nil
 	}
 

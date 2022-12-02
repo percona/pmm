@@ -33,6 +33,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -228,3 +229,11 @@ const (
 	Bool   = ParamType("bool")
 	String = ParamType("string")
 )
+
+var pgtypeMap = pgtype.NewMap()
+
+type StringArray []string
+
+func (s *StringArray) Scan(src any) error {
+	return pgtypeMap.SQLScanner((*[]string)(s)).Scan(src)
+}

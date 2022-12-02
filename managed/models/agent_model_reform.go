@@ -121,7 +121,7 @@ var AgentTable = &agentTableType{
 			{Name: "RDSBasicMetricsDisabled", Type: "bool", Column: "rds_basic_metrics_disabled"},
 			{Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"},
 			{Name: "PushMetrics", Type: "bool", Column: "push_metrics"},
-			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
+			{Name: "DisabledCollectors", Type: "StringArray", Column: "disabled_collectors"},
 			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},

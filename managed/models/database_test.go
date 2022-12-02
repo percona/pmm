@@ -23,7 +23,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/lib/pq"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -38,18 +39,18 @@ import (
 func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
-	pgErr := err.(*pq.Error)
-	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	require.IsType(t, pgconn.PgError{}, err)
+	pgErr := err.(*pgconn.PgError)
+	assert.EqualValues(t, pgerrcode.UniqueViolation, pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
 func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
-	pgErr := err.(*pq.Error)
-	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
+	require.IsType(t, pgconn.PgError{}, err)
+	pgErr := err.(*pgconn.PgError)
+	assert.EqualValues(t, pgerrcode.CheckViolation, pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }
 

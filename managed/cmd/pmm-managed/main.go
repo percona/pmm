@@ -594,7 +594,7 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	}
 
 	l := logrus.WithField("component", "reform/qan")
-	reformL := sqlmetrics.NewReform("postgres", dbName+"/qan", l.Tracef)
+	reformL := sqlmetrics.NewReform("pgx", dbName+"/qan", l.Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	return qan.NewClient(conn, db)
@@ -721,7 +721,7 @@ func main() {
 	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
-	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
+	reformL := sqlmetrics.NewReform("pgx", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
