@@ -3698,7 +3698,7 @@
                     "connected": {
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 3
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -3706,30 +3706,25 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 4
-                    },
-                    "login": {
-                      "description": "Login represent login for vmagent auth config.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "password": {
-                      "description": "Password represent password used in vmagent auth config.",
-                      "type": "string",
                       "x-order": 2
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 4
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 1
                     }
                   },
                   "x-order": 2
+                },
+                "token": {
+                  "description": "Token represents token for vmagent auth config.",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }

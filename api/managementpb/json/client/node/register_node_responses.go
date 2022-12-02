@@ -460,6 +460,9 @@ RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
+	// Token represents token for vmagent auth config.
+	Token string `json:"token,omitempty"`
+
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 
@@ -766,12 +769,6 @@ swagger:model RegisterNodeOKBodyPMMAgent
 type RegisterNodeOKBodyPMMAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
-
-	// Login represent login for vmagent auth config.
-	Login string `json:"login,omitempty"`
-
-	// Password represent password used in vmagent auth config.
-	Password string `json:"password,omitempty"`
 
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
