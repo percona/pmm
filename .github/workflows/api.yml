@@ -8,12 +8,12 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
-  pull_request:
-    paths:
-      - "api/**"
-      - "third_party/**"
-      - "tools/**"
-      - "golangci*"
+#  pull_request:
+#    paths:
+#      - "api/**"
+#      - "third_party/**"
+#      - "tools/**"
+#      - "golangci*"
 
   workflow_call:
     inputs:
