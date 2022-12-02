@@ -19,10 +19,12 @@ package main
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/alecthomas/kong"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
@@ -55,5 +57,8 @@ func main() {
 		TargetURL:     opts.TargetURL,
 	})
 
-	logrus.Error(err)
+	if !errors.Is(err, http.ErrServerClosed) {
+		logrus.Fatal(err)
+	}
+	logrus.Info(err)
 }
