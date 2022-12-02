@@ -23,7 +23,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	olmapiv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
@@ -51,6 +50,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+	deploymentutil "k8s.io/kubectl/pkg/util/deployment"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	kubeClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -427,6 +427,7 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 		if err != nil {
 			return nil, err
@@ -443,7 +444,6 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		curPhase olmapiv1alpha1.ClusterServiceVersionPhase
 		newPhase olmapiv1alpha1.ClusterServiceVersionPhase
 	)
-	once := sync.Once{}
 
 	kubeclient, err := c.getKubeclient()
 	if err != nil {
@@ -455,9 +455,6 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		err := kubeclient.Get(ctx, key, &csv)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				once.Do(func() {
-					log.Printf("  Waiting for ClusterServiceVersion %q to appear", key)
-				})
 				return false, nil
 			}
 			return false, err
@@ -465,7 +462,6 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		newPhase = csv.Status.Phase
 		if newPhase != curPhase {
 			curPhase = newPhase
-			log.Printf("  Found ClusterServiceVersion %q phase: %s", key, curPhase)
 		}
 
 		switch curPhase {
@@ -486,6 +482,34 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		}
 	}
 	return err
+}
+
+func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error) {
+	var csvKey types.NamespacedName
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return csvKey, err
+	}
+
+	subscriptionInstalledCSV := func() (bool, error) {
+		sub := olmapiv1alpha1.Subscription{}
+		err := kubeclient.Get(ctx, subKey, &sub)
+		if err != nil {
+			return false, err
+		}
+		installedCSV := sub.Status.InstalledCSV
+		if installedCSV == "" {
+			return false, nil
+		}
+		csvKey = types.NamespacedName{
+			Namespace: subKey.Namespace,
+			Name:      installedCSV,
+		}
+		log.Printf("  Found installed CSV %q", installedCSV)
+		return true, nil
+	}
+	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
 func (c *Client) getKubeclient() (kubeClient.Client, error) {
@@ -566,28 +590,68 @@ func (c Client) checkPodErrors(ctx context.Context, kubeclient kubeClient.Client
 	if err != nil {
 		return err
 	}
+
 	options := client.ListOptions{
 		LabelSelector: podLabelSelectors,
 		Namespace:     key.Namespace,
 	}
+
 	if err := kubeclient.List(ctx, podList, &options); err != nil {
-		return fmt.Errorf("error getting Pods: %v", err)
+		return errors.Wrap(err, "error getting Pods")
 	}
+
 	for _, p := range podList.Items {
 		for _, cs := range p.Status.ContainerStatuses {
 			if !cs.Ready {
 				if cs.State.Waiting != nil {
 					containerName := p.Name + ":" + cs.Name
-					podErr = append(podErr, podError{
-						resourceError{
-							name:  containerName,
-							issue: cs.State.Waiting.Message,
-						},
-					})
+					podErr = append(podErr, podError{resourceError{name: containerName, issue: cs.State.Waiting.Message}})
 				}
 			}
 		}
 	}
 
 	return podErr
+}
+
+func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) error {
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	rolloutComplete := func() (bool, error) {
+		deployment := appsv1.Deployment{}
+		err := kubeclient.Get(ctx, key, &deployment)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				// Waiting for Deployment to appear
+				return false, nil
+			}
+			return false, err
+		}
+		if deployment.Generation <= deployment.Status.ObservedGeneration {
+			cond := deploymentutil.GetDeploymentCondition(deployment.Status, appsv1.DeploymentProgressing)
+			if cond != nil && cond.Reason == deploymentutil.TimedOutReason {
+				return false, errors.New("progress deadline exceeded")
+			}
+			if deployment.Spec.Replicas != nil && deployment.Status.UpdatedReplicas < *deployment.Spec.Replicas {
+				// Waiting for Deployment to rollout. Not all replicas have been updated
+				return false, nil
+			}
+			if deployment.Status.Replicas > deployment.Status.UpdatedReplicas {
+				// Waiting for Deployment to rollout. Old replicas are pending termination
+				return false, nil
+			}
+			if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
+				// Waiting for Deployment to rollout. Not all updated replicas are available
+				return false, nil
+			}
+			// Deployment successfully rolled out
+			return true, nil
+		}
+		// Waiting for Deployment to rollout: waiting for deployment spec update to be observed
+		return false, nil
+	}
+	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
 }

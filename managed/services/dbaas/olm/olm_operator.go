@@ -18,18 +18,24 @@
 package olm
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io"
 	"io/fs"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/yaml"
 
+	olmapiv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
-	// dbaascontroller "github.com/percona-platform/dbaas-controller"
-	// "github.com/percona-platform/dbaas-controller/service/k8sclient"
 )
 
 const (
@@ -109,30 +115,78 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
-	key := types.NamespacedName{
-		Namespace: "default",
-		Name:      "catalogsources.operators.coreos.com",
+
+	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "olm-operator"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
+	}
+	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "catalog-operator"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
 	}
 
-	err = k8sclient.DoCSVWait(ctx, key)
+	crdResources, err := decodeResources(crdFile)
+	if err != nil {
+		return errors.Wrap(err, "cannot decode crd resources")
+	}
 
-	// if err := waitForDeployments(ctx, client, "olm"); err != nil {
-	// 	log.Errorf("error waiting olm deployments: %s", err)
-	// }
+	olmResources, err := decodeResources(olmFile)
+	if err != nil {
+		return errors.Wrap(err, "cannot decode olm resources")
+	}
 
-	// if err := waitForPackageServer(ctx, client, "olm"); err != nil {
-	// 	log.Errorf("error waiting olm package server to become ready: %s", err)
-	// }
+	resources := append(crdResources, olmResources...)
 
-	// key = types.NamespacedName{
-	// 	Namespace: "default",
-	// 	Name:      "packageserver",
-	// }
+	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
+		return r.GroupVersionKind() == schema.GroupVersionKind{
+			Group:   olmapiv1alpha1.GroupName,
+			Version: olmapiv1alpha1.GroupVersion,
+			Kind:    olmapiv1alpha1.SubscriptionKind,
+		}
+	})
 
-	// err = k8sclient.DoCSVWait(ctx, key)
-	// return response, nil
+	for _, sub := range subscriptions {
+		subscriptionKey := types.NamespacedName{Namespace: sub.GetNamespace(), Name: sub.GetName()}
+		log.Printf("Waiting for subscription/%s to install CSV", subscriptionKey.Name)
+		csvKey, err := k8sclient.GetSubscriptionCSV(ctx, subscriptionKey)
+		if err != nil {
+			return fmt.Errorf("subscription/%s failed to install CSV: %v", subscriptionKey.Name, err)
+		}
+		log.Printf("Waiting for clusterserviceversion/%s to reach 'Succeeded' phase", csvKey.Name)
+		if err := k8sclient.DoCSVWait(ctx, csvKey); err != nil {
+			return fmt.Errorf("clusterserviceversion/%s failed to reach 'Succeeded' phase", csvKey.Name)
+		}
+	}
+
+	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "packageserver"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
+	}
 
 	return nil
+}
+
+func decodeResources(f []byte) (objs []unstructured.Unstructured, err error) {
+	dec := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(f), 8)
+	for {
+		var u unstructured.Unstructured
+		err = dec.Decode(&u)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+		objs = append(objs, u)
+	}
+
+	return objs, nil
+}
+
+func filterResources(resources []unstructured.Unstructured, filter func(unstructured.
+	Unstructured) bool) (filtered []unstructured.Unstructured) {
+	for _, r := range resources {
+		if filter(r) {
+			filtered = append(filtered, r)
+		}
+	}
+	return filtered
 }
 
 func isInstalled(ctx context.Context, client *client.Client, namespace string) bool {
