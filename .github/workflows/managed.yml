@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
