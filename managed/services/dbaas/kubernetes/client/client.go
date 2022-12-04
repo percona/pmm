@@ -25,7 +25,12 @@ import (
 	"strings"
 	"time"
 
-	olmapiv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
+	v1 "github.com/operator-framework/api/pkg/operators/v1"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
+	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+
+	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -278,6 +283,101 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// // NamespaceExists checks if the specified namespace exists.
+// func (c *Client) NamespaceExists(ctx context.Context, namespace string) bool {
+// 	_, err := c.clientset.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+// 	if err == nil {
+// 		return true
+// 	}
+//
+// 	obj := client.Object{}
+//
+// 	return false
+// }
+
+func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	if namespace == "" {
+		namespace = c.namespace
+	}
+
+	return operatorClient.OperatorsV1().OperatorGroups(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	if namespace == "" {
+		namespace = c.namespace
+	}
+	og := &operatorsv1.OperatorGroup{}
+	og.SetName(name)
+
+	return operatorClient.OperatorsV1().OperatorGroups(namespace).Create(ctx, og, metav1.CreateOptions{})
+}
+
+/*
+
+	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+		fetchedInstallPlan, err = c.OperatorsV1alpha1().InstallPlans(namespace).Get(context.Background(), name, metav1.GetOptions{})
+		if err != nil || fetchedInstallPlan == nil {
+			return false, err
+		}
+
+		return checkPhase(fetchedInstallPlan), nil
+	})
+
+		// Approve the upgrade installplan and wait for
+		upgradeInstallPlan.Spec.Approved = true
+		_, err = crc.OperatorsV1alpha1().InstallPlans(generatedNamespace.GetName()).Update(context.Background(), upgradeInstallPlan, metav1.UpdateOptions{})
+		require.NoError(GinkgoT(), err)
+*/
+
+func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
+	packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval) (*v1alpha1.Subscription, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	subscription := &operatorsv1alpha1.Subscription{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       operatorsv1alpha1.SubscriptionKind,
+			APIVersion: operatorsv1alpha1.SubscriptionCRDAPIVersion,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      name,
+		},
+		Spec: &operatorsv1alpha1.SubscriptionSpec{
+			CatalogSource:          catalog,
+			CatalogSourceNamespace: catalogNamespace,
+			Package:                packageName,
+			Channel:                channel,
+			StartingCSV:            startingCSV,
+			InstallPlanApproval:    approval,
+		},
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
+}
+
+func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
 // Delete deletes object from the k8s cluster
 func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
@@ -441,8 +541,8 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 
 func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	var (
-		curPhase olmapiv1alpha1.ClusterServiceVersionPhase
-		newPhase olmapiv1alpha1.ClusterServiceVersionPhase
+		curPhase operatorsv1alpha1.ClusterServiceVersionPhase
+		newPhase operatorsv1alpha1.ClusterServiceVersionPhase
 	)
 
 	kubeclient, err := c.getKubeclient()
@@ -450,7 +550,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		return err
 	}
 
-	csv := olmapiv1alpha1.ClusterServiceVersion{}
+	csv := operatorsv1alpha1.ClusterServiceVersion{}
 	csvPhaseSucceeded := func() (bool, error) {
 		err := kubeclient.Get(ctx, key, &csv)
 		if err != nil {
@@ -465,9 +565,9 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		}
 
 		switch curPhase {
-		case olmapiv1alpha1.CSVPhaseFailed:
+		case operatorsv1alpha1.CSVPhaseFailed:
 			return false, fmt.Errorf("csv failed: reason: %q, message: %q", csv.Status.Reason, csv.Status.Message)
-		case olmapiv1alpha1.CSVPhaseSucceeded:
+		case operatorsv1alpha1.CSVPhaseSucceeded:
 			return true, nil
 		default:
 			return false, nil
@@ -493,7 +593,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	}
 
 	subscriptionInstalledCSV := func() (bool, error) {
-		sub := olmapiv1alpha1.Subscription{}
+		sub := operatorsv1alpha1.Subscription{}
 		err := kubeclient.Get(ctx, subKey, &sub)
 		if err != nil {
 			return false, err
@@ -531,7 +631,7 @@ func (c *Client) getKubeclient() (kubeClient.Client, error) {
 
 // checkDeploymentErrors function loops through deployment specs of a given CSV, and prints reason
 // in case of failures, based on deployment condition.
-func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv olmapiv1alpha1.ClusterServiceVersion) error {
+func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv operatorsv1alpha1.ClusterServiceVersion) error {
 	depErrs := deploymentErrors{}
 	if key.Namespace == "" {
 		return fmt.Errorf("no namespace provided to get deployment failures")

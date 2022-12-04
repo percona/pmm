@@ -23,17 +23,18 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
-	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/util/yaml"
 
-	olmapiv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
+	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -46,11 +47,15 @@ const (
 
 	// If version is not set, DBaaS controller will choose the latest from the repo.
 	// It doesn't work for offline installation.
-	latestOLMVersion  = "latest"
-	defaultOLMVersion = ""
+	latestOLMVersion    = "latest"
+	defaultOLMVersion   = ""
+	useDefaultNamespace = ""
 
 	// APIVersionCoreosV1 constant for some API requests.
 	APIVersionCoreosV1 = "operators.coreos.com/v1"
+
+	pollInterval = 1 * time.Second
+	pollDuration = 5 * time.Minute
 )
 
 // ErrEmptyVersionTag Got an empty version tag from GitHub API.
@@ -61,13 +66,8 @@ type OperatorService struct {
 	kubeConfig string
 }
 
-// NewOperatorService returns new OperatorService instance.
-func NewOperatorService() *OperatorService {
-	return new(OperatorService) //nolint:exhaustruct
-}
-
 // NewOperatorServiceFromConfig returns new OperatorService instance and intializes the config.
-func NewOperatorServiceFromConfig(kubeConfig string) *OperatorService {
+func New(kubeConfig string) *OperatorService {
 	return &OperatorService{ //nolint:exhaustruct
 		kubeConfig: kubeConfig,
 	}
@@ -75,9 +75,7 @@ func NewOperatorServiceFromConfig(kubeConfig string) *OperatorService {
 
 // InstallOLMOperator installs the OLM in the Kubernetes cluster.
 func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
-	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-
-	k8sclient, err := client.NewFromKubeConfigString(string(kubeconfig))
+	k8sclient, err := client.NewFromKubeConfigString(o.kubeConfig)
 	if err != nil {
 		return errors.Wrap(err, "cannot initialize the kubernetes client")
 	}
@@ -137,9 +135,9 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 
 	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
 		return r.GroupVersionKind() == schema.GroupVersionKind{
-			Group:   olmapiv1alpha1.GroupName,
-			Version: olmapiv1alpha1.GroupVersion,
-			Kind:    olmapiv1alpha1.SubscriptionKind,
+			Group:   operatorsv1alpha1.GroupName,
+			Version: operatorsv1alpha1.GroupVersion,
+			Kind:    operatorsv1alpha1.SubscriptionKind,
 		}
 	})
 
@@ -406,54 +404,68 @@ func isInstalled(ctx context.Context, client *client.Client, namespace string) b
 //  	return &manifestList, nil
 //  }
 //
-//  // OperatorInstallRequest holds the fields to make an operator install request.
-//  type OperatorInstallRequest struct {
-//  	Namespace              string
-//  	Name                   string
-//  	OperatorGroup          string
-//  	CatalogSource          string
-//  	CatalogSourceNamespace string
-//  	Channel                string
-//  	InstallPlanApproval    v1alpha1.Approval
-//  	StartingCSV            string
-//  }
-//
-//  // InstallOperator installs an operator via OLM.
-//  func (o *OperatorService) InstallOperator(ctx context.Context, req *controllerv1beta1.InstallOperatorRequest) (*controllerv1beta1.InstallOperatorResponse, error) {
-//  	client, err := k8sclient.New(ctx, req.KubeAuth.Kubeconfig)
-//  	if err != nil {
-//  		return nil, status.Error(codes.Internal, err.Error())
-//  	}
-//  	defer client.Cleanup() //nolint:errcheck
-//
-//  	exists, err := namespaceExists(ctx, client, req.Namespace)
-//  	if err != nil {
-//  		return nil, errors.Wrapf(err, "cannot determine is the namespace %q exists", req.Namespace)
-//  	}
-//  	if !exists {
-//  		if _, err := client.Run(ctx, []string{"create", "namespace", req.Namespace}); err != nil {
-//  			return nil, errors.Wrap(err, "cannot create namespace for subscription")
-//  		}
-//  	}
-//
-//  	ogExists, err := o.operatorGroupExists(ctx, client, req.Namespace, req.OperatorGroup)
-//  	if err != nil {
-//  		return nil, errors.Wrap(err, "cannot check if oprator group exists")
-//  	}
-//
-//  	if !ogExists {
-//  		if err := o.createOperatorGroup(ctx, client, req.Namespace, req.OperatorGroup); err != nil {
-//  			return nil, errors.Wrapf(err, "cannot create operator group %q", req.OperatorGroup)
-//  		}
-//  	}
-//
-//  	err = o.createSubscription(ctx, client, req)
-//  	if err != nil {
-//  		return nil, errors.Wrap(err, "cannot create a susbcription to install the operator")
-//  	}
-//
-//  	return new(controllerv1beta1.InstallOperatorResponse), nil
-//  }
+// InstallOperatorRequest holds the fields to make an operator install request.
+type InstallOperatorRequest struct {
+	Namespace              string
+	Name                   string
+	OperatorGroup          string
+	CatalogSource          string
+	CatalogSourceNamespace string
+	Channel                string
+	InstallPlanApproval    v1alpha1.Approval
+	StartingCSV            string
+}
+
+// InstallOperator installs an operator via OLM.
+func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperatorRequest) error {
+	client, err := client.NewFromKubeConfigString(o.kubeConfig)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize the kubernetes client")
+	}
+
+	if err := createOperatorGroupIfNeeded(ctx, client, "percona-operatorgroup"); err != nil {
+		return err
+	}
+
+	// func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
+	// packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval) (*v1alpha1.Subscription, error) {
+	subs, err := client.CreateSubscriptionForCatalog(ctx,
+		req.Namespace,
+		req.Name,
+		"olm",
+		req.CatalogSource,
+		req.Name,
+		req.Channel,
+		req.StartingCSV,
+		operatorsv1alpha1.ApprovalManual,
+	)
+	if err != nil {
+		return errors.Wrap(err, "cannot create a susbcription to install the operator")
+	}
+
+	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+		subs, err = client.GetSubscription(ctx, req.Namespace, req.Name)
+		if err != nil || subs == nil || (subs != nil && subs.Status.Install == nil) {
+			return false, err
+		}
+
+		return false, nil
+	})
+
+	return new(controllerv1beta1.InstallOperatorResponse), nil
+}
+
+func createOperatorGroupIfNeeded(ctx context.Context, client *client.Client, name string) error {
+	_, err := client.GetOperatorGroup(ctx, useDefaultNamespace, name)
+	if err == nil {
+		return nil
+	}
+
+	_, err = client.CreateOperatorGroup(ctx, useDefaultNamespace, name)
+
+	return err
+}
+
 //
 //
 //  func (o *OperatorService) operatorGroupExists(ctx context.Context, client *k8sclient.K8sClient, namespace, name string) (bool, error) {

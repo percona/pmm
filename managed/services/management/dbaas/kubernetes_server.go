@@ -37,6 +37,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -337,13 +338,10 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	go func() {
 		ctx := context.TODO()
 
+		olms := olm.New(req.KubeAuth.Kubeconfig)
+
 		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-			_, err = k.dbaasClient.InstallOLMOperator(ctx, &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-					Kubeconfig: req.KubeAuth.Kubeconfig,
-				},
-				Version: "", // Use dbaas-controller default.
-			})
+			err := olms.InstallOLMOperator(ctx)
 			if err != nil {
 				k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 			}
