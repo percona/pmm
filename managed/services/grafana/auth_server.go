@@ -352,9 +352,10 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 
 	filters := make([]string, 0, len(roles))
 	for _, r := range roles {
-		filters = append(filters, r.Filter)
+		if r.Filter != "" {
+			filters = append(filters, r.Filter)
+		}
 	}
-
 	return filters, nil
 }
 
