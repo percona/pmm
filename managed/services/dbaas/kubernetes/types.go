@@ -171,7 +171,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	return dbCluster, nil
 }
 
-func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *dbaasv1.DatabaseCluster {
+func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
 	}
@@ -206,10 +206,22 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *d
 	dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
 	dbCluster.Spec.LoadBalancer.Type = "mongos"
 	if cluster.Expose {
-		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return dbCluster, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return dbCluster, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+		}
 	}
 	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
-	return dbCluster
+	return dbCluster, nil
 }
 
 func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest) error {

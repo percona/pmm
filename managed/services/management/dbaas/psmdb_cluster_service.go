@@ -153,7 +153,14 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		req.Params.Replicaset.StorageClass = className
 	}
-	dbCluster := kubernetes.DatabaseClusterForPSMDB(req)
+	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	dbCluster, err := kubernetes.DatabaseClusterForPSMDB(req, clusterType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
 	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
 	var apiKeyID int64
