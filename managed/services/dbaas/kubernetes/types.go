@@ -57,12 +57,17 @@ var exposeAnnotationsMap = map[ClusterType]map[string]string{
 	ClusterTypeGeneric: make(map[string]string),
 }
 
-var pxcDefaultConfigurationTemplate = `
-[mysqld]
+const (
+	pxcDefaultConfigurationTemplate = `[mysqld]
 wsrep_provider_options="gcache.size=%s"
 wsrep_trx_fragment_unit='bytes'
 wsrep_trx_fragment_size=3670016
 `
+	psmdbDefaultConfigurationTemplate = `
+      operationProfiling:
+        mode: slowOp
+`
+)
 
 func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.ResourceRequirements, error) {
 	req := corev1.ResourceRequirements{}
@@ -167,6 +172,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 }
 
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest) *dbaasv1.DatabaseCluster {
+	if cluster.Params.Replicaset.Configuration == "" {
+		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
+	}
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: cluster.Name,
