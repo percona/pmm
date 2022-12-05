@@ -174,12 +174,12 @@ func (e ConfigFileDoesNotExistError) Error() string {
 // and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
-func Get(l *logrus.Entry) (*Config, string, error) {
-	return get(os.Args[1:], l)
+func Get(cfg *Config, l *logrus.Entry) (string, error) {
+	return get(os.Args[1:], cfg, l)
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) {
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -284,7 +284,6 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 	}()
 
 	// parse command-line flags and environment variables
-	cfg = &Config{}
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
 		return
@@ -308,7 +307,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		return
 	}
 
-	cfg = fileCfg
+	*cfg = *fileCfg
 	return //nolint:nakedret
 }
 
@@ -388,7 +387,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
+	app.Flag("log-lines-count",
+		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present

@@ -91,6 +91,9 @@ def setup():
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
         "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres14/postgresql.conf",
+        # Turns fsync off. Create database operations with fsync on are very slow on Ubuntu.
+        # Having fsync off in dev environment is fine.
+        "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
         "supervisorctl restart postgresql",
     ])

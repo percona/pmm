@@ -229,8 +229,8 @@ func TestBackupLocations(t *testing.T) {
 		updatedLoc, err := models.ChangeBackupLocation(q, location.ID, changeParams)
 		require.NoError(t, err)
 		assert.Equal(t, changeParams.Name, updatedLoc.Name)
-		// empty description in request, we expect no change
-		assert.Equal(t, createParams.Description, updatedLoc.Description)
+		// We should change Description even if empty value is passed, otherwise user cannot clear the field.
+		assert.Equal(t, changeParams.Description, updatedLoc.Description)
 		assert.Equal(t, models.S3BackupLocationType, updatedLoc.Type)
 		assert.Nil(t, updatedLoc.FilesystemConfig)
 		assert.Equal(t, changeParams.S3Config, updatedLoc.S3Config)
