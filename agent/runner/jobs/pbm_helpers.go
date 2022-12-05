@@ -328,6 +328,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
+	maxRetryCount := 5
 	for {
 		select {
 		case <-ticker.C:
@@ -338,7 +339,12 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
 			}
 			if err != nil {
-				return errors.Wrap(err, "failed to get restore status")
+				if maxRetryCount > 0 {
+					maxRetryCount--
+					l.Errorf("PMM failed to get backup restore status and will retry: %s", err)
+				} else {
+					return errors.Wrap(err, "failed to get restore status")
+				}
 			}
 
 			switch info.Status {
