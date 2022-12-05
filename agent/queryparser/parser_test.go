@@ -48,6 +48,19 @@ func TestMySQL(t *testing.T) {
 			ExpectedQuery:             "insert into people values (:v1, :v2, :v3)",
 			ExpectedPlaceHoldersCount: 3,
 		},
+		{
+			Query: `SELECT t.table_schema, t.table_name, column_name, auto_increment, pow(2, case data_type when
+				'tinyint' then 7 when 'smallint' then 15 when 'mediumint' then 23 when 'int' then 31 when 'bigint' then 63 
+				end +(column_type like '% unsigned')) -1 as max_int FROM information_schema.columns c STRAIGHT_JOIN 
+				information_schema.tables t ON BINARY t.table_schema = c.table_schema AND BINARY t.table_name = c.table_name
+		  		WHERE c.extra = 'auto_increment' AND t.auto_increment IS NOT NULL`,
+			ExpectedQuery: "select t.table_schema, t.table_name, column_name, `auto_increment`, pow(:1, case " +
+				"data_type when :2 then :3 when :4 then :5 when :6 then :7 when :8 then :9 when :10 then :11 end + " +
+				"(column_type like :12)) - :13 as max_int from information_schema.`columns` as c straight_join information_schema.`tables` " +
+				"as t on convert(t.table_schema, BINARY) = c.table_schema and convert(t.table_name, BINARY) = c.table_name where c.extra = :14 " +
+				"and t.`auto_increment` is not null",
+			ExpectedPlaceHoldersCount: 14,
+		},
 	}
 
 	for _, sql := range sqls {
