@@ -13,7 +13,7 @@
 %define full_pmm_version 2.0.0
 
 Name:		vmproxy
-Version:	%{version}
+Version:	%{full_pmm_version}
 Release:	%{rpm_release}
 Summary:	Percona VMProxy stateless reverse proxy for VictoriaMetrics
 
@@ -27,7 +27,7 @@ optionally adds `extra_filters` query based on the provided configuration.
 
 
 %prep
-%setup -q -n vmproxy-%{commit}
+%setup -q -n pmm-%{commit}
 mkdir -p src/github.com/percona
 ln -s $(pwd) src/%{provider}
 
