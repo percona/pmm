@@ -84,23 +84,18 @@ type bindataFileInfo struct {
 func (fi bindataFileInfo) Name() string {
 	return fi.name
 }
-
 func (fi bindataFileInfo) Size() int64 {
 	return fi.size
 }
-
 func (fi bindataFileInfo) Mode() os.FileMode {
 	return fi.mode
 }
-
 func (fi bindataFileInfo) ModTime() time.Time {
 	return fi.modTime
 }
-
 func (fi bindataFileInfo) IsDir() bool {
 	return false
 }
-
 func (fi bindataFileInfo) Sys() interface{} {
 	return nil
 }
@@ -877,13 +872,11 @@ const AssetDebug = false
 // directory embedded in the file by go-bindata.
 // For example if you run go-bindata on data/... and data contains the
 // following hierarchy:
-//
-//	data/
-//	  foo.txt
-//	  img/
-//	    a.png
-//	    b.png
-//
+//     data/
+//       foo.txt
+//       img/
+//         a.png
+//         b.png
 // then AssetDir("data") would return []string{"foo.txt", "img"},
 // AssetDir("data/img") would return []string{"a.png", "b.png"},
 // AssetDir("foo.txt") and AssetDir("notexist") would return an error, and
@@ -916,38 +909,38 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"01_init.down.sql":                            {_01_initDownSql, map[string]*bintree{}},
-	"01_init.up.sql":                              {_01_initUpSql, map[string]*bintree{}},
-	"02_postgresql_columns.down.sql":              {_02_postgresql_columnsDownSql, map[string]*bintree{}},
-	"02_postgresql_columns.up.sql":                {_02_postgresql_columnsUpSql, map[string]*bintree{}},
-	"03_add_agent_type.down.sql":                  {_03_add_agent_typeDownSql, map[string]*bintree{}},
-	"03_add_agent_type.up.sql":                    {_03_add_agent_typeUpSql, map[string]*bintree{}},
-	"04_add_tables_column.down.sql":               {_04_add_tables_columnDownSql, map[string]*bintree{}},
-	"04_add_tables_column.up.sql":                 {_04_add_tables_columnUpSql, map[string]*bintree{}},
-	"05_add_more_std_labels.down.sql":             {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
-	"05_add_more_std_labels.up.sql":               {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
-	"06_change_agent_type.down.sql":               {_06_change_agent_typeDownSql, map[string]*bintree{}},
-	"06_change_agent_type.up.sql":                 {_06_change_agent_typeUpSql, map[string]*bintree{}},
-	"07_pg_stat_monitor_columns.down.sql":         {_07_pg_stat_monitor_columnsDownSql, map[string]*bintree{}},
-	"07_pg_stat_monitor_columns.up.sql":           {_07_pg_stat_monitor_columnsUpSql, map[string]*bintree{}},
-	"08_add_agent_type_pg_stat_monitor.down.sql":  {_08_add_agent_type_pg_stat_monitorDownSql, map[string]*bintree{}},
-	"08_add_agent_type_pg_stat_monitor.up.sql":    {_08_add_agent_type_pg_stat_monitorUpSql, map[string]*bintree{}},
-	"09_pg_stat_monitor_09_columns.down.sql":      {_09_pg_stat_monitor_09_columnsDownSql, map[string]*bintree{}},
-	"09_pg_stat_monitor_09_columns.up.sql":        {_09_pg_stat_monitor_09_columnsUpSql, map[string]*bintree{}},
+	"01_init.down.sql": {_01_initDownSql, map[string]*bintree{}},
+	"01_init.up.sql": {_01_initUpSql, map[string]*bintree{}},
+	"02_postgresql_columns.down.sql": {_02_postgresql_columnsDownSql, map[string]*bintree{}},
+	"02_postgresql_columns.up.sql": {_02_postgresql_columnsUpSql, map[string]*bintree{}},
+	"03_add_agent_type.down.sql": {_03_add_agent_typeDownSql, map[string]*bintree{}},
+	"03_add_agent_type.up.sql": {_03_add_agent_typeUpSql, map[string]*bintree{}},
+	"04_add_tables_column.down.sql": {_04_add_tables_columnDownSql, map[string]*bintree{}},
+	"04_add_tables_column.up.sql": {_04_add_tables_columnUpSql, map[string]*bintree{}},
+	"05_add_more_std_labels.down.sql": {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
+	"05_add_more_std_labels.up.sql": {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
+	"06_change_agent_type.down.sql": {_06_change_agent_typeDownSql, map[string]*bintree{}},
+	"06_change_agent_type.up.sql": {_06_change_agent_typeUpSql, map[string]*bintree{}},
+	"07_pg_stat_monitor_columns.down.sql": {_07_pg_stat_monitor_columnsDownSql, map[string]*bintree{}},
+	"07_pg_stat_monitor_columns.up.sql": {_07_pg_stat_monitor_columnsUpSql, map[string]*bintree{}},
+	"08_add_agent_type_pg_stat_monitor.down.sql": {_08_add_agent_type_pg_stat_monitorDownSql, map[string]*bintree{}},
+	"08_add_agent_type_pg_stat_monitor.up.sql": {_08_add_agent_type_pg_stat_monitorUpSql, map[string]*bintree{}},
+	"09_pg_stat_monitor_09_columns.down.sql": {_09_pg_stat_monitor_09_columnsDownSql, map[string]*bintree{}},
+	"09_pg_stat_monitor_09_columns.up.sql": {_09_pg_stat_monitor_09_columnsUpSql, map[string]*bintree{}},
 	"10_pg_stat_monitor_09_columns_plan.down.sql": {_10_pg_stat_monitor_09_columns_planDownSql, map[string]*bintree{}},
-	"10_pg_stat_monitor_09_columns_plan.up.sql":   {_10_pg_stat_monitor_09_columns_planUpSql, map[string]*bintree{}},
-	"11_pg_stat_monitor_09_dimensions.down.sql":   {_11_pg_stat_monitor_09_dimensionsDownSql, map[string]*bintree{}},
-	"11_pg_stat_monitor_09_dimensions.up.sql":     {_11_pg_stat_monitor_09_dimensionsUpSql, map[string]*bintree{}},
-	"12_add_cmd_type_pg_stat_monitor.down.sql":    {_12_add_cmd_type_pg_stat_monitorDownSql, map[string]*bintree{}},
-	"12_add_cmd_type_pg_stat_monitor.up.sql":      {_12_add_cmd_type_pg_stat_monitorUpSql, map[string]*bintree{}},
-	"13_pg_stat_monitor_09_topquery.down.sql":     {_13_pg_stat_monitor_09_topqueryDownSql, map[string]*bintree{}},
-	"13_pg_stat_monitor_09_topquery.up.sql":       {_13_pg_stat_monitor_09_topqueryUpSql, map[string]*bintree{}},
-	"14_pg_stat_monitor_09_queryplan.down.sql":    {_14_pg_stat_monitor_09_queryplanDownSql, map[string]*bintree{}},
-	"14_pg_stat_monitor_09_queryplan.up.sql":      {_14_pg_stat_monitor_09_queryplanUpSql, map[string]*bintree{}},
-	"15_pg_stat_monitor_09_histogram.down.sql":    {_15_pg_stat_monitor_09_histogramDownSql, map[string]*bintree{}},
-	"15_pg_stat_monitor_09_histogram.up.sql":      {_15_pg_stat_monitor_09_histogramUpSql, map[string]*bintree{}},
-	"16_explain_columns.down.sql":                 {_16_explain_columnsDownSql, map[string]*bintree{}},
-	"16_explain_columns.up.sql":                   {_16_explain_columnsUpSql, map[string]*bintree{}},
+	"10_pg_stat_monitor_09_columns_plan.up.sql": {_10_pg_stat_monitor_09_columns_planUpSql, map[string]*bintree{}},
+	"11_pg_stat_monitor_09_dimensions.down.sql": {_11_pg_stat_monitor_09_dimensionsDownSql, map[string]*bintree{}},
+	"11_pg_stat_monitor_09_dimensions.up.sql": {_11_pg_stat_monitor_09_dimensionsUpSql, map[string]*bintree{}},
+	"12_add_cmd_type_pg_stat_monitor.down.sql": {_12_add_cmd_type_pg_stat_monitorDownSql, map[string]*bintree{}},
+	"12_add_cmd_type_pg_stat_monitor.up.sql": {_12_add_cmd_type_pg_stat_monitorUpSql, map[string]*bintree{}},
+	"13_pg_stat_monitor_09_topquery.down.sql": {_13_pg_stat_monitor_09_topqueryDownSql, map[string]*bintree{}},
+	"13_pg_stat_monitor_09_topquery.up.sql": {_13_pg_stat_monitor_09_topqueryUpSql, map[string]*bintree{}},
+	"14_pg_stat_monitor_09_queryplan.down.sql": {_14_pg_stat_monitor_09_queryplanDownSql, map[string]*bintree{}},
+	"14_pg_stat_monitor_09_queryplan.up.sql": {_14_pg_stat_monitor_09_queryplanUpSql, map[string]*bintree{}},
+	"15_pg_stat_monitor_09_histogram.down.sql": {_15_pg_stat_monitor_09_histogramDownSql, map[string]*bintree{}},
+	"15_pg_stat_monitor_09_histogram.up.sql": {_15_pg_stat_monitor_09_histogramUpSql, map[string]*bintree{}},
+	"16_explain_columns.down.sql": {_16_explain_columnsDownSql, map[string]*bintree{}},
+	"16_explain_columns.up.sql": {_16_explain_columnsUpSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.
@@ -960,7 +953,7 @@ func RestoreAsset(dir, name string) error {
 	if err != nil {
 		return err
 	}
-	err = os.MkdirAll(_filePath(dir, filepath.Dir(name)), os.FileMode(0o755))
+	err = os.MkdirAll(_filePath(dir, filepath.Dir(name)), os.FileMode(0755))
 	if err != nil {
 		return err
 	}
