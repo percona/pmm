@@ -407,3 +407,349 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 		assert.Equal(t, tt.expected, cluster, tt.name)
 	}
 }
+
+func TestUpdatePatchForPXC(t *testing.T) {
+	t.Parallel()
+	storageClass := "gp2"
+	testCases := []struct {
+		name          string
+		updateRequest *dbaasv1beta1.UpdatePXCClusterRequest
+		cluster       *dbaasv1.DatabaseCluster
+		expected      *dbaasv1.DatabaseCluster
+	}{
+		{
+			name: "Empty update does not update anything",
+			cluster: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			expected: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
+				Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{},
+			},
+		},
+		{
+			name: "Pause cluster",
+			cluster: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			expected: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					Pause:          true,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
+				Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+					Suspend: true,
+				},
+			},
+		},
+		{
+			name: "Resume cluster",
+			cluster: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					Pause:          true,
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			expected: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
+				Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+					Resume: true,
+				},
+			},
+		},
+		{
+			name: "Update Cluster",
+			cluster: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "pxc_image",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    1,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize: "2000",
+						CPU:      "200m",
+						Memory:   "2000",
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			expected: &dbaasv1.DatabaseCluster{
+
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pxc-whatever",
+				},
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: dbaasAPI,
+					Kind:       dbaasKind,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:       databasePXC,
+					DatabaseImage:  "updatedImage",
+					DatabaseConfig: "\n[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					ClusterSize:    3,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						DiskSize:         "2000",
+						CPU:              "300m",
+						Memory:           "3000",
+						StorageClassName: &storageClass,
+					},
+					Monitoring: dbaasv1.MonitoringSpec{
+						PMM: dbaasv1.PMMSpec{},
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type:                     "haproxy",
+						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						Image:                    "something",
+						Size:                     1,
+						Configuration:            "",
+						LoadBalancerSourceRanges: []string{},
+						Annotations:              map[string]string{},
+						Resources: corev1.ResourceRequirements{
+							Limits: corev1.ResourceList{
+								corev1.ResourceMemory: resource.MustParse("200"),
+								corev1.ResourceCPU:    resource.MustParse("200m"),
+							},
+						},
+					},
+					Backup: dbaasv1.BackupSpec{},
+				},
+			},
+			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
+				Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+					ClusterSize: 3,
+					Pxc: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC{
+						Image: "updatedImage",
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        300,
+							MemoryBytes: 3000,
+						},
+						StorageClass: "gp2",
+					},
+					Haproxy: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy{
+
+						ComputeResources: &dbaasv1beta1.ComputeResources{
+							CpuM:        200,
+							MemoryBytes: 200,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		tt := testCase
+		err := UpdatePatchForPXC(tt.cluster, tt.updateRequest)
+		assert.NoError(t, err)
+		assert.Equal(t, tt.expected, tt.cluster)
+	}
+
+}
