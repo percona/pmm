@@ -99,7 +99,7 @@ var vmProxyPrefixes = []string{
 	"/prometheus/api/v1/",
 }
 
-const vmProxyHeaderName = "X-Percona-Proxy-Filters"
+const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
