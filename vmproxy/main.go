@@ -32,6 +32,8 @@ import (
 )
 
 type flags struct {
+	Debug bool `help:"Enable debug logging"`
+
 	TargetURL     *url.URL `default:"http://127.0.0.1:9090" help:"Target URL where to proxy requests"`
 	ListenPort    int      `default:"1280" help:"Listen port for proxy"`
 	ListenAddress string   `default:"127.0.0.1" help:"Listen address for proxy"`
@@ -50,6 +52,10 @@ func main() {
 			NoExpandSubcommands: true,
 		}),
 	)
+
+	if opts.Debug {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
 
 	err := proxy.RunProxy(proxy.Config{
 		HeaderName:    opts.HeaderName,
