@@ -46,6 +46,8 @@ message PSMDBCluster {
   // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
   // If it's empty, no upgrade is available.
   string available_image = 7;
+  // Is DB cluster accessible via public internet.
+  bool internet_facing = 8;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -65,6 +67,8 @@ message PXCCluster {
   // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
   // If it's empty, no upgrade is available.
   string available_image = 7;
+  // Is DB cluster accessible via public internet.
+  bool internet_facing = 8;
 }
 
 message ListDBClustersRequest {

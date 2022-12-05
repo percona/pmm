@@ -4,11 +4,12 @@ import (
 	"testing"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
 
 func TestDatabaseClusterForPXC(t *testing.T) {
@@ -420,7 +421,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 		{
 			name: "Empty update does not update anything",
 			cluster: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -454,7 +454,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -494,7 +493,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 		{
 			name: "Pause cluster",
 			cluster: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -528,7 +526,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -571,7 +568,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 		{
 			name: "Resume cluster",
 			cluster: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -606,7 +602,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -648,7 +643,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 		{
 			name: "Update Cluster",
 			cluster: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -682,7 +676,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
-
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-pxc-whatever",
 				},
@@ -734,7 +727,6 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						StorageClass: "gp2",
 					},
 					Haproxy: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy{
-
 						ComputeResources: &dbaasv1beta1.ComputeResources{
 							CpuM:        200,
 							MemoryBytes: 200,
@@ -751,5 +743,4 @@ func TestUpdatePatchForPXC(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, tt.expected, tt.cluster)
 	}
-
 }

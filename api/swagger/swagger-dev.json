@@ -19614,6 +19614,11 @@
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
                       }
                     }
                   },
@@ -19744,6 +19749,11 @@
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
                       }
                     }
                   },

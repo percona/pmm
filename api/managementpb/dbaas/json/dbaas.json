@@ -1323,6 +1323,11 @@
                         "type": "string",
                         "x-order": 5
                       },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
+                      },
                       "name": {
                         "description": "Cluster name.",
                         "type": "string",
@@ -1452,6 +1457,11 @@
                         "description": "Installed XtraDB image.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
                       },
                       "name": {
                         "description": "Cluster name.",

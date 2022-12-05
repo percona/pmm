@@ -481,6 +481,9 @@ type ListDBClustersOKBodyPSMDBClustersItems0 struct {
 	// If it's empty, no upgrade is available.
 	AvailableImage string `json:"available_image,omitempty"`
 
+	// Is DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
 	// operation
 	Operation *ListDBClustersOKBodyPSMDBClustersItems0Operation `json:"operation,omitempty"`
 
@@ -978,6 +981,9 @@ type ListDBClustersOKBodyPXCClustersItems0 struct {
 	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
 	// If it's empty, no upgrade is available.
 	AvailableImage string `json:"available_image,omitempty"`
+
+	// Is DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
 
 	// operation
 	Operation *ListDBClustersOKBodyPXCClustersItems0Operation `json:"operation,omitempty"`

@@ -118,6 +118,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	if err != nil {
 		return nil, err
 	}
+	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PXCCluster{
 		// TODO: Add Haproxy/proxySQL resources
 		Name: cluster.Name,
@@ -129,10 +130,13 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 					CpuM:        int32(cpu),
 					MemoryBytes: memory,
 				},
+				Configuration: cluster.Spec.DatabaseConfig,
+				StorageClass:  *cluster.Spec.DBInstance.StorageClassName,
 			},
 		},
-		State:   dbClusterStates()[cluster.Status.State],
-		Exposed: cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
+		State:          dbClusterStates()[cluster.Status.State],
+		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
+		InternetFacing: internetFacing,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
@@ -147,6 +151,17 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 		}
 		c.Params.Proxysql = &dbaasv1beta1.PXCClusterParams_ProxySQL{
 			ComputeResources: compute,
+			Image:            cluster.Spec.LoadBalancer.Image,
+		}
+	}
+	if cluster.Spec.LoadBalancer.Type == "haproxy" {
+		compute, err := s.getComputeResources(cluster.Spec.LoadBalancer.Resources.Requests)
+		if err != nil {
+			s.l.Errorf("could not parse resources for proxysql %v", err)
+		}
+		c.Params.Haproxy = &dbaasv1beta1.PXCClusterParams_HAProxy{
+			ComputeResources: compute,
+			Image:            cluster.Spec.LoadBalancer.Image,
 		}
 	}
 	imageAndTag := strings.Split(cluster.Spec.DatabaseImage, ":")
@@ -201,6 +216,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 		return nil, err
 	}
 
+	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PSMDBCluster{
 		Name: cluster.Name,
 		Params: &dbaasv1beta1.PSMDBClusterParams{
@@ -211,10 +227,13 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 					CpuM:        int32(cpu),
 					MemoryBytes: memory,
 				},
+				Configuration: cluster.Spec.DatabaseConfig,
+				StorageClass:  *cluster.Spec.DBInstance.StorageClassName,
 			},
 		},
-		State:   dbClusterStates()[cluster.Status.State],
-		Exposed: cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
+		State:          dbClusterStates()[cluster.Status.State],
+		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
+		InternetFacing: internetFacing,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
