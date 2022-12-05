@@ -149,6 +149,9 @@ type AddQANPostgreSQLPgStatementsAgentBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// TLS CA certificate.
 	TLSCa string `json:"tls_ca,omitempty"`
 
@@ -504,6 +507,9 @@ type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struc
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -511,6 +517,8 @@ type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struc
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.

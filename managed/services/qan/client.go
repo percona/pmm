@@ -107,7 +107,7 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 }
 
 // QueryExists check if query value in request exists in clickhouse.
-// This avoid recieving custom queries.
+// This avoid receiving custom queries.
 func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error {
 	qanReq := &qanpb.QueryExistsRequest{
 		Serviceid: serviceID,
@@ -123,6 +123,22 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	}
 
 	return nil
+}
+
+// ExplainFingerprintByQueryID get query for given query ID.
+// This avoid receiving custom queries.
+func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
+		Serviceid: serviceID,
+		QueryId:   queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
@@ -175,6 +191,8 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 		}
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
+			ExplainFingerprint:   m.Common.ExplainFingerprint,
+			PlaceholdersCount:    m.Common.PlaceholdersCount,
 			Fingerprint:          m.Common.Fingerprint,
 			ServiceName:          service.ServiceName,
 			Database:             m.Common.Database,

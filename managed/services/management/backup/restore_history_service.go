@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -33,7 +33,7 @@ type RestoreHistoryService struct {
 	l  *logrus.Entry
 	db *reform.DB
 
-	backupv1beta1.UnimplementedRestoreHistoryServer
+	backuppb.UnimplementedRestoreHistoryServer
 }
 
 // NewRestoreHistoryService creates new restore history API service.
@@ -57,12 +57,12 @@ func (s *RestoreHistoryService) Enabled() bool {
 // ListRestoreHistory returns a list of restore history.
 func (s *RestoreHistoryService) ListRestoreHistory(
 	context.Context,
-	*backupv1beta1.ListRestoreHistoryRequest,
-) (*backupv1beta1.ListRestoreHistoryResponse, error) {
+	*backuppb.ListRestoreHistoryRequest,
+) (*backuppb.ListRestoreHistoryResponse, error) {
 	var items []*models.RestoreHistoryItem
 	var services map[string]*models.Service
 	var artifacts map[string]*models.Artifact
-	var locations map[string]*models.BackupLocation
+	var locationModels map[string]*models.BackupLocation
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		q := tx.Querier
@@ -88,7 +88,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 		for _, a := range artifacts {
 			locationIDs = append(locationIDs, a.LocationID)
 		}
-		locations, err = models.FindBackupLocationsByIDs(q, locationIDs)
+		locationModels, err = models.FindBackupLocationsByIDs(q, locationIDs)
 		if err != nil {
 			return err
 		}
@@ -104,29 +104,29 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 		return nil, err
 	}
 
-	artifactsResponse := make([]*backupv1beta1.RestoreHistoryItem, 0, len(artifacts))
+	artifactsResponse := make([]*backuppb.RestoreHistoryItem, 0, len(artifacts))
 	for _, i := range items {
-		convertedArtifact, err := convertRestoreHistoryItem(i, services, artifacts, locations)
+		convertedArtifact, err := convertRestoreHistoryItem(i, services, artifacts, locationModels)
 		if err != nil {
 			return nil, err
 		}
 
 		artifactsResponse = append(artifactsResponse, convertedArtifact)
 	}
-	return &backupv1beta1.ListRestoreHistoryResponse{
+	return &backuppb.ListRestoreHistoryResponse{
 		Items: artifactsResponse,
 	}, nil
 }
 
-func convertRestoreStatus(status models.RestoreStatus) (*backupv1beta1.RestoreStatus, error) {
-	var s backupv1beta1.RestoreStatus
+func convertRestoreStatus(status models.RestoreStatus) (*backuppb.RestoreStatus, error) {
+	var s backuppb.RestoreStatus
 	switch status {
 	case models.InProgressRestoreStatus:
-		s = backupv1beta1.RestoreStatus_RESTORE_STATUS_IN_PROGRESS
+		s = backuppb.RestoreStatus_RESTORE_STATUS_IN_PROGRESS
 	case models.SuccessRestoreStatus:
-		s = backupv1beta1.RestoreStatus_RESTORE_STATUS_SUCCESS
+		s = backuppb.RestoreStatus_RESTORE_STATUS_SUCCESS
 	case models.ErrorRestoreStatus:
-		s = backupv1beta1.RestoreStatus_RESTORE_STATUS_ERROR
+		s = backuppb.RestoreStatus_RESTORE_STATUS_ERROR
 	default:
 		return nil, errors.Errorf("invalid status '%s'", status)
 	}
@@ -140,7 +140,7 @@ func convertRestoreHistoryItem(
 	services map[string]*models.Service,
 	artifacts map[string]*models.Artifact,
 	locations map[string]*models.BackupLocation,
-) (*backupv1beta1.RestoreHistoryItem, error) {
+) (*backuppb.RestoreHistoryItem, error) {
 	startedAt := timestamppb.New(i.StartedAt)
 	if err := startedAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert startedAt timestamp")
@@ -151,6 +151,14 @@ func convertRestoreHistoryItem(
 		finishedAt = timestamppb.New(*i.FinishedAt)
 		if err := finishedAt.CheckValid(); err != nil {
 			return nil, errors.Wrap(err, "failed to convert finishedAt timestamp")
+		}
+	}
+
+	var pitrTimestamp *timestamppb.Timestamp
+	if i.PITRTimestamp != nil {
+		pitrTimestamp = timestamppb.New(*i.PITRTimestamp)
+		if err := pitrTimestamp.CheckValid(); err != nil {
+			return nil, errors.Wrap(err, "failed to convert PITR timestamp")
 		}
 	}
 
@@ -183,23 +191,24 @@ func convertRestoreHistoryItem(
 		return nil, errors.Wrapf(err, "restore history item id '%s'", i.ID)
 	}
 
-	return &backupv1beta1.RestoreHistoryItem{
-		RestoreId:    i.ID,
-		ArtifactId:   i.ArtifactID,
-		Name:         artifact.Name,
-		Vendor:       artifact.Vendor,
-		LocationId:   artifact.LocationID,
-		LocationName: l.Name,
-		ServiceId:    i.ServiceID,
-		ServiceName:  s.ServiceName,
-		DataModel:    dm,
-		Status:       *status,
-		StartedAt:    startedAt,
-		FinishedAt:   finishedAt,
+	return &backuppb.RestoreHistoryItem{
+		RestoreId:     i.ID,
+		ArtifactId:    i.ArtifactID,
+		Name:          artifact.Name,
+		Vendor:        artifact.Vendor,
+		LocationId:    artifact.LocationID,
+		LocationName:  l.Name,
+		ServiceId:     i.ServiceID,
+		ServiceName:   s.ServiceName,
+		DataModel:     dm,
+		Status:        *status,
+		StartedAt:     startedAt,
+		FinishedAt:    finishedAt,
+		PitrTimestamp: pitrTimestamp,
 	}, nil
 }
 
 // Check interfaces.
 var (
-	_ backupv1beta1.RestoreHistoryServer = (*RestoreHistoryService)(nil)
+	_ backuppb.RestoreHistoryServer = (*RestoreHistoryService)(nil)
 )

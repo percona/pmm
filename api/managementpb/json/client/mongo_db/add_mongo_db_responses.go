@@ -173,6 +173,9 @@ type AddMongoDBBody struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
+	//
+	// Disable query examples.
+	//  bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Use TLS for database connections.
@@ -189,6 +192,9 @@ type AddMongoDBBody struct {
 
 	// Certificate Authority certificate chain.
 	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
@@ -767,6 +773,8 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -979,7 +987,15 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	//
+	// True if query examples are disabled.
+	//  bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.

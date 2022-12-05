@@ -72,7 +72,7 @@ prepare_specs() {
         fi
 
         if [ -f "${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz" ]; then
-            echo SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skipping build
+            echo SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skip archiving...
         else
             git -C "${git_dir}" archive \
                 --format=tar.gz \
@@ -111,12 +111,14 @@ build() {
 
             printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
                 | sudo tee /etc/yum.repos.d/local.repo
+
             /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
 
             sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
             rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .el7' -ba SOURCES/${spec_name}.spec
+
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "

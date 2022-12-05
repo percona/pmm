@@ -43,6 +43,8 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
 	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
@@ -66,6 +68,7 @@ type AddPostgreSQLCommand struct {
 	TLSCertFile          string            `help:"TLS certificate file"`
 	TLSKeyFile           string            `help:"TLS certificate key file"`
 	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
@@ -189,6 +192,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			TLSKey:        tlsKey,
 			TLSSkipVerify: cmd.TLSSkipVerify,
 
+			MaxQueryLength:       cmd.MaxQueryLength,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),

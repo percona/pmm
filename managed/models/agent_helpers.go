@@ -356,7 +356,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 				if a == *row.PMMAgentID {
 					break
 				}
-				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID)
+				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID) //nolint:makezero
 			}
 		}
 	}
@@ -706,6 +706,7 @@ type CreateAgentParams struct {
 	MongoDBOptions                 *MongoDBOptions
 	PostgreSQLOptions              *PostgreSQLOptions
 	TableCountTablestatsGroupLimit int32
+	MaxQueryLength                 int32
 	QueryExamplesDisabled          bool
 	MaxQueryLogSize                int64
 	AWSAccessKey                   string
@@ -797,7 +798,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 }
 
 // CreateAgent creates Agent with given type.
-func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) {
+func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := "/agent_id/" + uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
@@ -853,6 +854,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:                 params.MongoDBOptions,
 		PostgreSQLOptions:              params.PostgreSQLOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
+		MaxQueryLength:                 params.MaxQueryLength,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
 		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
@@ -925,7 +927,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 }
 
 // RemoveAgent removes Agent by ID.
-func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) {
+func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) { //nolint:unparam
 	a, err := FindAgentByID(q, id)
 	if err != nil {
 		return nil, err

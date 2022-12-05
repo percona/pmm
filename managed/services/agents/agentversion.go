@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -23,24 +25,48 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
+type AgentNotSupportedError struct {
+	Functionality   string
+	AgentID         string
+	AgentVersion    string
+	MinAgentVersion string
+}
+
+func (e *AgentNotSupportedError) Error() string {
+	return fmt.Sprintf("%s is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
+		e.AgentID, e.AgentVersion, e.MinAgentVersion)
+}
+
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
-	if pmmAgent.Version == nil {
-		return errors.Errorf("pmm agent %q has no version info", pmmAgentID)
+	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
+}
+
+// isAgentSupported contains logic for PMMAgentSupported.
+func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+	if agentModel == nil {
+		return errors.New("nil agent")
 	}
-	pmmAgentVersion, err := version.NewVersion(*pmmAgent.Version)
+	if agentModel.Version == nil {
+		return errors.Errorf("pmm agent %q has no version info", agentModel.AgentID)
+	}
+	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {
-		return errors.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err)
+		return errors.Errorf("failed to parse PMM agent version %q: %s", *agentModel.Version, err)
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.Errorf("%s is not supported on pmm-agent %q version %q", functionalityPrefix,
-			pmmAgentID, *pmmAgent.Version)
+		return errors.WithStack(&AgentNotSupportedError{
+			AgentID:         agentModel.AgentID,
+			Functionality:   functionalityPrefix,
+			AgentVersion:    *agentModel.Version,
+			MinAgentVersion: pmmMinVersion.String(),
+		})
 	}
-
 	return nil
 }

@@ -152,7 +152,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
@@ -181,11 +181,15 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	default:
 	}
 
-	// do not use default compact representation for large/complex messages
-	if size := proto.Size(msg); size < 100 {
-		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
-	} else {
-		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
+	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		// do not use default compact representation for large/complex messages
+		if size := proto.Size(msg); size < 100 {
+			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+		} else {
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		}
 	}
 
 	err := c.s.Send(msg)
@@ -212,11 +216,15 @@ func (c *Channel) runReceiver() {
 		}
 		atomic.AddUint32(&c.mRecv, 1)
 
-		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
-		} else {
-			c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		// Check log level before calling formatting function.
+		// Do not waste resources in case debug level is not enabled.
+		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			// do not use default compact representation for large/complex messages
+			if size := proto.Size(msg); size < 100 {
+				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+			} else {
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+			}
 		}
 
 		switch p := msg.Payload.(type) {

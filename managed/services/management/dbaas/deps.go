@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains all APIs related to DBaaS.
+//
+//nolint:lll
 package dbaas
 
 import (
@@ -32,6 +34,10 @@ import (
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
+	// Connect connects the client to dbaas-controller API.
+	Connect(ctx context.Context) error
+	// Disconnect disconnects the client from dbaas-controller API.
+	Disconnect() error
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
 	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// ListPXCClusters returns a list of PXC clusters.
@@ -70,6 +76,8 @@ type dbaasClient interface {
 	StartMonitoring(ctx context.Context, in *controllerv1beta1.StartMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StartMonitoringResponse, error)
 	// StopMonitoring removes victoria metrics operator from the cluster.
 	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
+	// GetKubeConfig gets inluster config and converts it to kubeConfig
+	GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error)
 }
 
 type versionService interface {

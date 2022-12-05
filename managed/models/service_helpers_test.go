@@ -266,6 +266,15 @@ func TestServiceHelpers(t *testing.T) {
 		}})
 	})
 
+	t.Run("FindActiveServiceTypes", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		types, err := models.FindActiveServiceTypes(q)
+		assert.NoError(t, err)
+		assert.Equal(t, len(types), 5)
+	})
+
 	t.Run("RemoveService", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -391,6 +400,44 @@ func TestServiceHelpers(t *testing.T) {
 			Socket:      pointer.ToString("/tmp/proxysql_admin.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
+	})
+
+	t.Run("MongoDB find services in the same cluster", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		s1, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors1",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors2",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors3",
+			NodeID:      "N1",
+			Cluster:     "cluster1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		services, err := models.FindServices(q, models.ServiceFilters{
+			ServiceType: pointerToServiceType(models.MongoDBServiceType),
+			Cluster:     "cluster0",
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, services)
+		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 }
 

@@ -120,7 +120,7 @@ func (s *Service) Run(ctx context.Context) {
 			return nil
 		})
 		if err != nil {
-			s.l.Debugf("Failed to retrive settings: %s.", err)
+			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
 		if settings.Telemetry.Disabled {
@@ -211,7 +211,6 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	telemetryMetric, _ := s.makeMetric(ctx)
 
 	var totalTime time.Duration
-telemetryLoop:
 	for _, telemetry := range s.config.telemetry {
 		// locate DS
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
@@ -234,15 +233,23 @@ telemetryLoop:
 			continue
 		}
 
-		for _, each := range metrics {
-			if err != nil {
-				s.l.Debugf("failed to make Metric %v", err)
-				continue telemetryLoop
+		if telemetry.Transform != nil {
+			if telemetry.Transform.Type == JSONTransformType {
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformToJSON(&telemetryCopy, metrics)
+				if err != nil {
+					s.l.Debugf("failed to transform to JSON: %s", err)
+					continue
+				}
+			} else {
+				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
 			}
-
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
 		}
+
+		telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
 	}
+	telemetryMetric.Metrics = removeEmpty(telemetryMetric.Metrics)
+
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
 	return telemetryMetric

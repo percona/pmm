@@ -23,10 +23,14 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+// ErrInvalidServiceType is returned when unsupported service type is provided.
+var ErrInvalidServiceType = errors.New("provided service type not defined")
 
 func checkServiceUniqueID(q *reform.Querier, id string) error {
 	if id == "" {
@@ -85,6 +89,8 @@ type ServiceFilters struct {
 	ServiceType *ServiceType
 	// Return only Services with given external group.
 	ExternalGroup string
+	// Return only Services in the given cluster
+	Cluster string
 }
 
 // FindServices returns Services by filters.
@@ -105,6 +111,11 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	if filters.ServiceType != nil {
 		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
 		args = append(args, filters.ServiceType)
+		idx++
+	}
+	if filters.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
@@ -123,7 +134,34 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	return services, nil
 }
 
-// FindServiceByID finds Service by ID.
+// FindActiveServiceTypes returns all active Service Types.
+func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
+	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
+	rows, err := q.Query(query)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	defer func() {
+		if rowsErr := rows.Close(); rowsErr != nil {
+			logrus.Debug(rowsErr)
+		}
+	}()
+
+	var res []ServiceType
+	for rows.Next() {
+		var serviceType ServiceType
+		if err = rows.Scan(&serviceType); err != nil {
+			return nil, err
+		}
+
+		res = append(res, serviceType)
+	}
+
+	return res, nil
+}
+
+// FindServiceByID searches Service by ID.
 func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")
@@ -351,4 +389,19 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	return errors.Wrap(q.Delete(s), "failed to delete Service")
+}
+
+// ValidateServiceType checks argument value is in the list of supported types.
+func ValidateServiceType(serviceType ServiceType) error {
+	switch serviceType {
+	case MySQLServiceType,
+		MongoDBServiceType,
+		PostgreSQLServiceType,
+		ProxySQLServiceType,
+		HAProxyServiceType,
+		ExternalServiceType:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
+	}
 }

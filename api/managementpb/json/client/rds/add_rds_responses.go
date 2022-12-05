@@ -1011,6 +1011,8 @@ type AddRDSOKBodyMysqldExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1214,6 +1216,10 @@ type AddRDSOKBodyNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// TODO https://jira.percona.com/browse/PMM-4314
+	//  string az = 8;
+	//  string node_model = 9;
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
@@ -1559,10 +1565,15 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1756,6 +1767,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -1763,6 +1777,8 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1957,6 +1973,8 @@ type AddRDSOKBodyRDSExporter struct {
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1971,6 +1989,8 @@ type AddRDSOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
+	//
+	// Metric collections flags below.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.

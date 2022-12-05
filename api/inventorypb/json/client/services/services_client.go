@@ -28,6 +28,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOption) (*AddCustomLabelsOK, error)
+
 	AddExternalService(params *AddExternalServiceParams, opts ...ClientOption) (*AddExternalServiceOK, error)
 
 	AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error)
@@ -42,11 +44,54 @@ type ClientService interface {
 
 	GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error)
 
+	ListActiveServiceTypes(params *ListActiveServiceTypesParams, opts ...ClientOption) (*ListActiveServiceTypesOK, error)
+
 	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
+
+	RemoveCustomLabels(params *RemoveCustomLabelsParams, opts ...ClientOption) (*RemoveCustomLabelsOK, error)
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddCustomLabels adds replace custom labels
+
+Adds or replaces (if the key exists) custom labels for a Service.
+*/
+func (a *Client) AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOption) (*AddCustomLabelsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddCustomLabelsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddCustomLabels",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/CustomLabels/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddCustomLabelsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddCustomLabelsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddCustomLabelsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -323,6 +368,45 @@ func (a *Client) GetService(params *GetServiceParams, opts ...ClientOption) (*Ge
 }
 
 /*
+ListActiveServiceTypes lists active service types
+
+Returns a list of active Service types.
+*/
+func (a *Client) ListActiveServiceTypes(params *ListActiveServiceTypesParams, opts ...ClientOption) (*ListActiveServiceTypesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListActiveServiceTypesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListActiveServiceTypes",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/ListTypes",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListActiveServiceTypesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListActiveServiceTypesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListActiveServiceTypesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListServices lists services
 
 Returns a list of Services filtered by type.
@@ -358,6 +442,45 @@ func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListServicesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RemoveCustomLabels removes custom labels
+
+Removes custom labels from a Service by key.
+*/
+func (a *Client) RemoveCustomLabels(params *RemoveCustomLabelsParams, opts ...ClientOption) (*RemoveCustomLabelsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRemoveCustomLabelsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RemoveCustomLabels",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/CustomLabels/Remove",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveCustomLabelsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RemoveCustomLabelsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveCustomLabelsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

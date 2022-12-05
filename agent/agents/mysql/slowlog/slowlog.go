@@ -36,6 +36,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -61,6 +62,7 @@ type SlowLog struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   int64
 	SlowLogFilePrefix    string // for development and testing
@@ -365,12 +367,12 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
 			digest := query.Id(fingerprint)
-			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, fingerprint)
+			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -386,7 +388,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool) []*agentpb.MetricsBucket {
+func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
@@ -394,7 +396,13 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
-		fingerprint, isTruncated := truncate.Query(v.Fingerprint)
+		// In fingerprint field there is no fingerprint yet.
+		// It contains whole query without any changes.
+		// This in workaround to keep original query until field "Query" will be
+		// added here: https://github.com/percona/go-mysql/blob/PMM-2.0/event/class.go#L56
+		q := v.Fingerprint
+		v.Fingerprint = query.Fingerprint(v.Fingerprint)
+		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
@@ -415,13 +423,29 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		}
 
-		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query)
-			if truncated {
-				mb.Common.IsTruncated = truncated
+		if q != "" {
+			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
+			if err != nil {
+				l.Debugf("cannot parse query: %s", v.Example.Query)
+			} else {
+				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
+				if truncated {
+					mb.Common.IsTruncated = truncated
+				}
+				mb.Common.ExplainFingerprint = explainFingerprint
+				mb.Common.PlaceholdersCount = placeholdersCount
 			}
-			mb.Common.Example = example
-			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+		}
+
+		if v.Example != nil {
+			if !disableQueryExamples {
+				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+				if truncated {
+					mb.Common.IsTruncated = truncated
+				}
+				mb.Common.Example = example
+				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			}
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.

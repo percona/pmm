@@ -75,6 +75,8 @@ message AddMongoDBRequest {
   string tls_certificate_key_file_password = 22;
   // Certificate Authority certificate chain.
   string tls_ca = 23;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 32;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.

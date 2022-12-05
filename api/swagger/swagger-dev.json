@@ -893,6 +893,88 @@
         }
       }
     },
+    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
+        "operationId": "ExplainFingerprintByQueryID",
+        "parameters": [
+          {
+            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+              "type": "object",
+              "properties": {
+                "serviceid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "type": "object",
+              "properties": {
+                "explain_fingerprint": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "placeholders_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
@@ -1838,28 +1920,41 @@
                         "format": "int64",
                         "x-order": 3
                       },
-                      "example_metrics": {
-                        "type": "string",
+                      "placeholders_count": {
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 4
                       },
-                      "service_id": {
+                      "explain_fingerprint": {
                         "type": "string",
                         "x-order": 5
                       },
-                      "service_type": {
+                      "query_id": {
                         "type": "string",
                         "x-order": 6
                       },
-                      "schema": {
+                      "example_metrics": {
                         "type": "string",
                         "x-order": 7
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_type": {
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 10
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 11
                       }
                     }
                   },
@@ -2824,7 +2919,7 @@
                   "x-order": 8
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.",
+                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -3050,7 +3145,7 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -3306,7 +3401,7 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -4040,7 +4135,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4503,7 +4598,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4805,7 +4900,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5002,7 +5097,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5143,7 +5238,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5610,7 +5705,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5758,28 +5853,34 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "log_level": {
                   "type": "string",
@@ -5793,7 +5894,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
                 }
               }
             }
@@ -5844,13 +5945,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -5865,12 +5972,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -5884,7 +5991,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5987,10 +6094,16 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "max_query_length": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                  "x-order": 9
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -5998,12 +6111,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "log_level": {
                   "type": "string",
@@ -6017,7 +6130,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 12
+                  "x-order": 13
                 }
               }
             }
@@ -6083,18 +6196,24 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6109,12 +6228,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -6128,7 +6247,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -6231,16 +6350,22 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -6248,12 +6373,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "log_level": {
                   "type": "string",
@@ -6267,7 +6392,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
                 }
               }
             }
@@ -6333,24 +6458,30 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6365,12 +6496,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -6384,7 +6515,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -6472,10 +6603,16 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 6
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -6483,27 +6620,27 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "log_level": {
                   "type": "string",
@@ -6517,7 +6654,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 12
+                  "x-order": 13
                 }
               }
             }
@@ -6568,18 +6705,24 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6594,12 +6737,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "log_level": {
                       "type": "string",
@@ -6613,7 +6756,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -6714,20 +6857,26 @@
                   "type": "boolean",
                   "x-order": 7
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 8
+                },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "log_level": {
                   "type": "string",
@@ -6741,7 +6890,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 11
+                  "x-order": 12
                 }
               }
             }
@@ -6782,23 +6931,29 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6813,12 +6968,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -6832,7 +6987,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -6992,7 +7147,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7015,7 +7170,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -7199,7 +7354,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7587,7 +7742,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -7837,7 +7992,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8032,7 +8187,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8452,7 +8607,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8648,13 +8803,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8669,12 +8830,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -8688,7 +8849,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -8854,18 +9015,24 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8880,12 +9047,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -8899,7 +9066,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -9065,24 +9232,30 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -9097,12 +9270,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -9116,7 +9289,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -9267,18 +9440,24 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -9293,12 +9472,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "log_level": {
                       "type": "string",
@@ -9312,7 +9491,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -9453,23 +9632,29 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -9484,12 +9669,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -9503,7 +9688,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -9645,7 +9830,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9668,7 +9853,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -9793,7 +9978,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9823,7 +10008,7 @@
                       "x-order": 0
                     },
                     "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
+                      "description": "The pmm-agent identifier which runs this instance.\n\nStatus fields below.",
                       "type": "string",
                       "x-order": 1
                     },
@@ -9889,7 +10074,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10013,7 +10198,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10121,7 +10306,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10346,7 +10531,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10450,18 +10635,24 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10476,12 +10667,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -10495,7 +10686,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -10554,24 +10745,30 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10586,12 +10783,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -10605,7 +10802,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 8
@@ -10649,13 +10846,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10670,12 +10873,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -10689,7 +10892,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 9
@@ -10723,23 +10926,29 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10754,12 +10963,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -10773,7 +10982,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 10
@@ -10817,18 +11026,24 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10843,12 +11058,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "log_level": {
                       "type": "string",
@@ -10862,7 +11077,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 11
@@ -10897,7 +11112,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10920,7 +11135,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -11063,7 +11278,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -11323,7 +11538,7 @@
                         "x-order": 1
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -11356,7 +11571,7 @@
                         "x-order": 0
                       },
                       "pmm_agent_id": {
-                        "description": "The pmm-agent identifier which runs this instance.",
+                        "description": "The pmm-agent identifier which runs this instance.\n\nStatus fields below.",
                         "type": "string",
                         "x-order": 1
                       },
@@ -11425,7 +11640,7 @@
                         "x-order": 4
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -11552,7 +11767,7 @@
                         "x-order": 12
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -11663,7 +11878,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -11894,7 +12109,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -12001,18 +12216,24 @@
                         "type": "string",
                         "x-order": 9
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 10
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12027,12 +12248,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "log_level": {
                         "type": "string",
@@ -12046,7 +12267,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 14
+                        "x-order": 15
                       }
                     }
                   },
@@ -12108,24 +12329,30 @@
                         "type": "string",
                         "x-order": 9
                       },
+                      "max_query_length": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                        "x-order": 10
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "max_slowlog_file_size": {
                         "description": "Slowlog file is rotated at this size if \u003e 0.",
                         "type": "string",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12140,12 +12367,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "process_exec_path": {
                         "type": "string",
                         "title": "mod tidy",
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "log_level": {
                         "type": "string",
@@ -12159,7 +12386,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 15
+                        "x-order": 16
                       }
                     }
                   },
@@ -12206,13 +12433,19 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12227,12 +12460,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "log_level": {
                         "type": "string",
@@ -12246,7 +12479,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -12283,23 +12516,29 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12314,12 +12553,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "log_level": {
                         "type": "string",
@@ -12333,7 +12572,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -12380,18 +12619,24 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12406,12 +12651,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "log_level": {
                         "type": "string",
@@ -12425,7 +12670,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 11
+                        "x-order": 12
                       }
                     }
                   },
@@ -12463,7 +12708,7 @@
                         "x-order": 4
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12486,7 +12731,7 @@
                         "x-order": 6
                       },
                       "listen_port": {
-                        "description": "Listen port for scraping metrics (the same for several configurations).",
+                        "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 7
@@ -12635,7 +12880,7 @@
                         "x-order": 5
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -13506,7 +13751,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -13779,7 +14024,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -14117,7 +14362,7 @@
                         "x-order": 5
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -15273,6 +15518,154 @@
         }
       }
     },
+    "/v1/inventory/Services/CustomLabels/Add": {
+      "post": {
+        "description": "Adds or replaces (if the key exists) custom labels for a Service.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Add/replace custom labels",
+        "operationId": "AddCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels to be added.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/CustomLabels/Remove": {
+      "post": {
+        "description": "Removes custom labels from a Service by key.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Remove custom labels",
+        "operationId": "RemoveCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_label_keys": {
+                  "description": "Custom user-assigned label keys to be removed.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/Get": {
       "post": {
         "description": "Returns a single Service by ID.",
@@ -16135,6 +16528,85 @@
         }
       }
     },
+    "/v1/inventory/Services/ListTypes": {
+      "post": {
+        "description": "Returns a list of active Service types.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "List Active Service Types",
+        "operationId": "ListActiveServiceTypes",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_types": {
+                  "type": "array",
+                  "items": {
+                    "description": "ServiceType describes supported Service types.",
+                    "type": "string",
+                    "default": "SERVICE_TYPE_INVALID",
+                    "enum": [
+                      "SERVICE_TYPE_INVALID",
+                      "MYSQL_SERVICE",
+                      "MONGODB_SERVICE",
+                      "POSTGRESQL_SERVICE",
+                      "PROXYSQL_SERVICE",
+                      "HAPROXY_SERVICE",
+                      "EXTERNAL_SERVICE"
+                    ]
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/Remove": {
       "post": {
         "description": "Removes Service.",
@@ -16480,14 +16952,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -16573,14 +17058,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -16666,14 +17164,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -21926,7 +22437,7 @@
                   "x-order": 14
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.",
+                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -21955,6 +22466,12 @@
                   "type": "string",
                   "x-order": 20
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 21
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -21964,7 +22481,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -21972,22 +22489,22 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "stats_collections": {
                   "description": "List of collections to get stats from. Can use * .",
@@ -21995,18 +22512,18 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "collections_limit": {
                   "type": "integer",
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "enable_all_collectors": {
                   "type": "boolean",
                   "title": "Enable all collectors",
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "log_level": {
                   "type": "string",
@@ -22020,7 +22537,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 29
+                  "x-order": 30
                 }
               }
             }
@@ -22146,7 +22663,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -22254,13 +22771,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22275,12 +22798,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -22294,7 +22817,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -22505,47 +23028,53 @@
                   "type": "boolean",
                   "x-order": 16
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 17
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "tls_ca": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "tls_cert": {
                   "description": "Client certificate.",
                   "type": "string",
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "tls_key": {
                   "description": "Password for decrypting tls_cert.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -22556,7 +23085,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -22564,12 +23093,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "log_level": {
                   "type": "string",
@@ -22583,7 +23112,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 28
+                  "x-order": 29
                 }
               }
             }
@@ -22730,7 +23259,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -22839,18 +23368,24 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22865,12 +23400,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -22884,7 +23419,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 2
@@ -22943,24 +23478,30 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22975,12 +23516,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -22994,7 +23535,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -23294,7 +23835,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -23512,10 +24053,16 @@
                   "type": "boolean",
                   "x-order": 15
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 16
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -23523,22 +24070,22 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -23549,7 +24096,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -23557,27 +24104,27 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "log_level": {
                   "type": "string",
@@ -23591,7 +24138,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 27
+                  "x-order": 28
                 }
               }
             }
@@ -23801,23 +24348,29 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -23832,12 +24385,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -23851,7 +24404,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -23895,18 +24448,24 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -23921,12 +24480,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "log_level": {
                       "type": "string",
@@ -23940,7 +24499,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 3
@@ -24313,7 +24872,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -24623,7 +25182,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24663,7 +25222,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24686,7 +25245,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -24863,7 +25422,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -24972,18 +25531,24 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -24998,12 +25563,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -25017,7 +25582,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 4
@@ -25226,23 +25791,29 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -25257,12 +25828,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -25276,7 +25847,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 8
@@ -27566,6 +28137,94 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/ListPITRTimeranges": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimeranges",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timeranges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "start_timestamp": {
+                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
+                      },
+                      "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Backups/ChangeScheduled": {
       "post": {
         "tags": [
@@ -28233,6 +28892,12 @@
                   "description": "Artifact id to restore.",
                   "type": "string",
                   "x-order": 1
+                },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
                 }
               }
             }
@@ -28562,8 +29227,8 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -28572,17 +29237,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 3
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -28605,7 +29259,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -28688,8 +29342,8 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -28698,17 +29352,6 @@
                     }
                   },
                   "x-order": 3
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 4
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -28731,7 +29374,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -28822,8 +29465,8 @@
                         "title": "Short description",
                         "x-order": 2
                       },
-                      "pmm_client_config": {
-                        "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
                         "type": "object",
                         "properties": {
                           "path": {
@@ -28832,17 +29475,6 @@
                           }
                         },
                         "x-order": 3
-                      },
-                      "pmm_server_config": {
-                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 4
                       },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -28865,7 +29497,7 @@
                             "x-order": 3
                           }
                         },
-                        "x-order": 5
+                        "x-order": 4
                       }
                     }
                   },
@@ -28993,8 +29625,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -29003,17 +29635,6 @@
                     }
                   },
                   "x-order": 0
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -29036,7 +29657,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -29186,6 +29807,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       }
                     }
                   },
@@ -29604,7 +30231,7 @@
                               "type": "object",
                               "properties": {
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
@@ -29630,7 +30257,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.",
+                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -30489,7 +31116,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.",
+                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -30907,7 +31534,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -31378,7 +32005,7 @@
                           "type": "object",
                           "properties": {
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -31404,7 +32031,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.",
+                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -31839,7 +32466,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -31926,6 +32553,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },
@@ -31989,6 +32617,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }
@@ -32045,6 +32678,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 0
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 1
                 }
               }
             }
@@ -32066,6 +32704,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }

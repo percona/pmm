@@ -67,6 +67,8 @@ message SetStateRequest {
   message BuiltinAgent {
     inventory.AgentType type = 1;
     string dsn = 2;
+    // Limit query length in QAN (default: server-defined; -1: no limit).
+    int32 max_query_length = 8;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
@@ -324,6 +326,17 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+
+  // RestartSystemServiceParams describes an action request to restart a systemctl service on a node.
+  message RestartSystemServiceParams {
+    // SystemService is a systemctl service that can be restarted from PMM server
+    enum SystemService {
+      SYSTEM_SERVICE_INVALID = 0;
+      MONGOD = 1;
+      PBM_AGENT = 2;
+    }
+    SystemService system_service = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -346,6 +359,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
+    RestartSystemServiceParams restart_sys_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
@@ -472,6 +486,11 @@ message S3LocationConfig {
   string bucket_region = 5;
 }
 
+// FilesystemLocationConfig represents path for storing backup artifacts locally.
+message FilesystemLocationConfig {
+  string path = 1;
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
@@ -521,10 +540,11 @@ message StartJobRequest {
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
     // Backup data model (physical or logical).
-    backup.v1beta1.DataModel data_model = 8;
+    backup.v1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      FilesystemLocationConfig filesystem_config = 11;
     }
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
@@ -546,8 +566,10 @@ message StartJobRequest {
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      FilesystemLocationConfig filesystem_config = 11;
     }
   }
+
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -677,6 +699,8 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -686,8 +710,6 @@ message AgentMessage {
     StartJobResponse start_job = 13;
     StopJobResponse stop_job = 14;
     JobStatusResponse job_status = 15;
-    JobResult job_result = 16;
-    JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;

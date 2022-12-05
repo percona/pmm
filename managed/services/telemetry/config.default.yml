@@ -8,6 +8,22 @@ telemetry:
       - metric_name: "pmm_server_ia_enabled"
         column: "ia_enabled"
 
+  - id: PMMServerAlertsFire
+    source: VM
+    query: max_over_time(grafana_alerting_alerts{state="alerting"}[24h])
+    summary: "Maximum number of active concurrent alerts in the last 24 hours"
+    data:
+      - metric_name: "pmm_server_alerts_firing_max_24h"
+        value: 1
+
+  - id: PMMServerAlertRulesNumber
+    source: VM
+    query: grafana_alerting_schedule_alert_rules
+    summary: "Number of Alerts configured"
+    data:
+      - metric_name: "pmm_server_alert_rules_number"
+        value: 1
+
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
@@ -108,6 +124,107 @@ telemetry:
       - metric_name: "mongodb_version"
         label: "mongodb"
 
+  - id: MongoDBExporterMetricsGeneralStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="general"}
+    summary: "Runtime for general collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_general"
+        value : 1
+
+  - id: MongoDBExporterMetricsDiagnosticDataStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="diagnostic_data"}
+    summary: "Runtime for diagnostic data collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
+        value : 1
+
+  - id: MongoDBExporterMetricsCollectionStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="collstats"}
+    summary: "Runtime for collection statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_collstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsDBStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="dbstats"}
+    summary: "Runtime for database statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_dbstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsIndexStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="indexstats"}
+    summary: "Runtime for index statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_indexstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsTopStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="top"}
+    summary: "Runtime for top metrics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_top"
+        value : 1
+
+  - id: MongoDBExporterMetricsReplicationStatus
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="replset_status"}
+    summary: "Runtime for replication status collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_replset_status"
+        value : 1
+
+  - id: MongoDBEdition
+    source: VM
+    query: mongodb_version_info{service_type="mongodb"}
+    summary: "Monitored MongoDB edition"
+    data:
+      - metric_name: "mongodb_edition"
+        label: "edition"
+      - metric_name: "mongodb_vendor"
+        label: "vendor"
+
+  - id: MongoDBMembersCountByReplicaSet
+    source: VM
+    # use group operator to remove duplicated labels, because several mongo instances
+    # could be connected to PMM and send own metric `mongodb_members_id` which will be duplicated
+    query: count(group(mongodb_members_id) by (member_idx, rs_nm)) by (rs_nm)
+    summary: "Returns number of members in MongoDB replica set"
+    data:
+      - metric_name: "mongodb_replicaset_members_count"
+        value: 1
+
+  - id: MongoDBArbitersCountByReplicaSet
+    source: VM
+    query: count(group(mongodb_members_id{member_state="ARBITER"}) by (member_idx, rs_nm)) by (rs_nm)
+    summary: "Returns number of arbiters in MongoDB replica set"
+    data:
+      - metric_name: "mongodb_replicaset_arbiters_count"
+        value: 1
+
+  - id: MongoDBShardsCount
+    source: VM
+    # group by mongo instances by cluster label, return mongodb_mongos_sharding_shards_total value if it's sharded and 0 if it's not
+    query: (group(mongodb_up{cluster!=""}) by (cluster)) * on(cluster) group_left(cluster) mongodb_mongos_sharding_shards_total OR on (cluster) (group(mongodb_up{cluster!=""}) by (cluster)) - 1
+    summary: "Returns number of shards in MongoDB cluster. If cluster is not sharded it returns 0"
+    data:
+      - metric_name: "mongodb_shards_count_in_cluster"
+        value: 1
+
+  - id: MongoDBEngineType # check for inmemory engine type
+    source: VM
+    query: mongodb_mongod_storage_engine
+    summary: "Returns used engine type for MongoDB"
+    data:
+      - metric_name: "mongodb_storage_engine_type"
+        label: engine
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
@@ -158,6 +275,14 @@ telemetry:
       - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
 
+  - id: GrafanaStatTotalOrgs
+    source: VM
+    query: grafana_stat_total_orgs
+    summary: "Total Grafana organisations"
+    data:
+      - metric_name: "pmm_server_grafana_stat_total_orgs"
+        value: 1
+
   - id: GrafanaStatTotalsAnnotations
     source: VM
     query: grafana_stat_totals_annotations
@@ -206,6 +331,22 @@ telemetry:
     data:
       - metric_name: "pmm_server_usage_clusters_count"
         column: "clusters_count"
+
+  # Nodes information - v2
+  - id: NodesInfoPMMAgentV2
+    source: PMMDB_SELECT
+    query: version, agent_type, runs_on_node_id FROM agents
+    summary: "Agents versions"
+    transform:
+      type: JSON
+      metric: pmm_server_api_usage_combined
+    data:
+      - metric_name: "1"
+        column: "agent_type"
+      - metric_name: "2"
+        column: "runs_on_node_id"
+      - metric_name: "3"
+        column: "version"
 
   # Nodes information
   - id: NodesInfoPMMAgentEmbedded
@@ -441,3 +582,43 @@ telemetry:
     data:
       - metric_name: "k8s_clusters_count"
         column: "count"
+
+  # Advisor
+  - id: AdvisorChecksDownloadedCount
+    source: VM
+    query: pmm_managed_checks_checks_downloaded_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_downloaded"
+    summary: "Advisor - number of downloaded checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
+
+  - id: AdvisorChecksExecutedCount
+    source: VM
+    query: pmm_managed_checks_scripts_executed_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_executed"
+    summary: "Advisor - number of executed checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
+
+  - id: AdvisorChecksFailedCount
+    source: VM
+    query: pmm_managed_checks_alerts_generated_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_generated_fails"
+    summary: "Advisor - number of failed checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1

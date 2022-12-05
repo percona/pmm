@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//nolint:lll
 package models
 
 import (
@@ -741,6 +742,63 @@ var databaseSchema = [][]string{
 			'mysqld_exporter',
 			'postgres_exporter'
 		);`,
+	},
+	68: {
+		`ALTER TABLE agents
+			ADD COLUMN max_query_length INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN max_query_length DROP DEFAULT`,
+	},
+	69: {
+		`ALTER TABLE backup_locations
+			DROP COLUMN pmm_server_config`,
+	},
+	70: {
+		`ALTER TABLE restore_history
+			ADD COLUMN pitr_timestamp TIMESTAMP`,
+	},
+	71: {
+		`ALTER TABLE backup_locations
+			RENAME COLUMN pmm_client_config TO filesystem_config`,
+	},
+	72: {
+		`ALTER TABLE user_flags
+			ADD COLUMN alerting_tour_done BOOLEAN NOT NULL DEFAULT false`,
+	},
+	73: {
+		`CREATE TABLE roles (
+			id SERIAL PRIMARY KEY,
+			title VARCHAR NOT NULL UNIQUE,
+			filter TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		);
+
+		CREATE TABLE user_roles (
+			user_id INTEGER NOT NULL,
+			role_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			
+			PRIMARY KEY (user_id, role_id)
+		);
+
+		CREATE INDEX role_id_index ON user_roles (role_id);
+
+		WITH rows AS (
+			INSERT INTO roles
+			(title, filter, created_at, updated_at)
+			VALUES
+			('Full access', '', NOW(), NOW())
+			RETURNING id
+		), settings_id AS (
+			UPDATE settings SET settings['default_role_id'] = (SELECT to_jsonb(id) FROM rows)
+		)
+		
+		INSERT INTO user_roles
+		(user_id, role_id, created_at, updated_at)		
+		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
 	},
 }
 

@@ -15,6 +15,7 @@
 package perfschema
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -28,11 +29,15 @@ import (
 	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
+	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
+
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
@@ -50,7 +55,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 60, // +10
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -77,7 +82,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -111,7 +116,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -125,7 +130,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -146,7 +151,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 25,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -166,6 +171,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 
 type setupParams struct {
 	db                   *reform.DB
+	maxQueryLength       int32
 	disableQueryExamples bool
 }
 
@@ -182,6 +188,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		Querier:              sp.db.WithTag(queryTag),
 		DBCloser:             nil,
 		AgentID:              "agent_id",
+		MaxQueryLength:       sp.maxQueryLength,
 		DisableQueryExamples: sp.disableQueryExamples,
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}
@@ -250,7 +257,8 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, sqlDB)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 	case "5.6-oracle":
@@ -328,6 +336,8 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0.1, actual.Common.MQueryTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:  "select /* Sleep */ sleep(:1) from dual",
+				PlaceholdersCount:   1,
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -372,6 +382,7 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:  "select /* AllCities */ * from city",
 				Fingerprint:         "SELECT * FROM `city`",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -419,7 +430,7 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache())
 		var example string
-		switch mySQLVersion {
+		switch mySQLVersion.String() {
 		// Perf schema truncates queries with non-utf8 characters.
 		case "8.0":
 			example = "SELECT /* t1 */ * FROM t1 where col1='Bu"
@@ -428,7 +439,7 @@ func TestPerfSchema(t *testing.T) {
 		}
 
 		var numQueriesWithWarnings float32
-		if mySQLVendor != "mariadb" {
+		if mySQLVendor != version.MariaDBVendor {
 			numQueriesWithWarnings = 1
 		}
 

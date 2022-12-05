@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
@@ -13,6 +13,8 @@ on:
       - "agent/**"
       - "managed/**"
       - "docs/**"
+      - "qan-api2/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:
@@ -40,11 +42,11 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: percona-platform/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -59,7 +61,7 @@ jobs:
           echo "$GOBIN" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
-        uses: percona-platform/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}

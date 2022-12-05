@@ -25,5 +25,9 @@ fuzzing/
 backoff.png
 pmm-agent-dev.yaml
 
+/qan-api2/logs/
+
 # ViM temporary files
 *.sw[o,p]
+
+.env
