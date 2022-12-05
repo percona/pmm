@@ -17,8 +17,6 @@ package agents
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -58,7 +56,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 	var q string
 	switch {
 	case queryID != "":
-		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+		res, err := s.qanClient.FingerprintsByQueryID(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
@@ -67,12 +65,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
-		// parsed := res.ExplainFingerprint
-		// for k, v := range placeholders {
-		// 	parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
-		// }
-
-		q = res.ExplainFingerprint
+		q = res.Fingerprint
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -199,7 +192,7 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 	var q string
 	switch {
 	case queryID != "":
-		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+		res, err := s.qanClient.FingerprintsByQueryID(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
@@ -208,12 +201,7 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
-		parsed := res.ExplainFingerprint
-		for k, v := range placeholders {
-			parsed = strings.Replace(parsed, fmt.Sprintf("$%d", k+1), v, 1)
-		}
-
-		q = parsed
+		q = res.Fingerprint
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {

@@ -106,8 +106,12 @@ func (a *postgresqlExplainAction) explainDefault(ctx context.Context, db *sql.DB
 	}
 	defer tx.Rollback()
 
-	query := fmt.Sprintf("EXPLAIN ANALYZE /* pmm-agent */ %s", a.params.Query)
-	rows, err := tx.QueryContext(ctx, query)
+	inter := []any{}
+	for _, p := range a.params.Placeholders {
+		inter = append(inter, p)
+	}
+
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN ANALYZE /* pmm-agent */ %s", a.params.Query), inter...)
 	if err != nil {
 		return nil, err
 	}
