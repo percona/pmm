@@ -113,15 +113,24 @@ func getPGVersion(q *reform.Querier) (pgVersion float64, err error) {
 	return strconv.ParseFloat(v, 64)
 }
 
+func getPgStatVersion(q *reform.Querier) (pgVersion float64, err error) {
+	var v string
+	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion from pg_extension where pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
+	if err != nil {
+		return
+	}
+	return strconv.ParseFloat(v, 64)
+}
+
 func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
-	pgVersion, err := getPGVersion(q)
+	pgStatVersion, err := getPgStatVersion(q)
 	if err != nil {
 		return nil, err
 	}
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
 	switch {
-	case pgVersion >= 13:
+	case pgStatVersion >= 1.8:
 		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
 	}
 
