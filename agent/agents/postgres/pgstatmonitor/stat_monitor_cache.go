@@ -152,7 +152,6 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			newN++
 			fingerprint := c.Query
 			example := ""
-
 			if !normalizedQuery {
 				example = c.Query
 				fingerprint, err = ssc.generateFingerprint(c.Query)
@@ -173,11 +172,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				}
 				c.Example = c.Query
 				c.Fingerprint = c.Query
-
 				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
 			} else {
-				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
-
 				var isTruncated bool
 				c.Fingerprint, isTruncated = truncate.Query(fingerprint, maxQueryLength)
 				if isTruncated {
@@ -187,6 +183,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
+				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
 			}
 
 			if errParsing == nil {
