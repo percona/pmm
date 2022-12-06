@@ -160,7 +160,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 		cfg.Server.Username = "api_key"
 		cfg.Server.Password = token
 	} else {
-		fmt.Printf("PMM server responded with empty api-key token (please consider upgrade pmm-server to the latest version).\n")
+		l.Info("PMM Server responded with an empty api key token. Consider upgrading PMM Server to the latest version.")
 	}
 	fmt.Printf("Registered.\n")
 }
