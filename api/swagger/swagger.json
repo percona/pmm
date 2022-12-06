@@ -14249,7 +14249,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {
@@ -14355,7 +14355,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {
@@ -14461,7 +14461,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {

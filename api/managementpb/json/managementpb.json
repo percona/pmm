@@ -283,14 +283,6 @@
                   "type": "string",
                   "x-order": 5
                 },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 4
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
@@ -310,6 +302,14 @@
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
+                },
+                "values": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -389,14 +389,6 @@
                   "type": "string",
                   "x-order": 5
                 },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 4
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
@@ -416,6 +408,14 @@
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
+                },
+                "values": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 }
               }
             }
@@ -495,14 +495,6 @@
                   "type": "string",
                   "x-order": 5
                 },
-                "placeholders": {
-                  "type": "array",
-                  "title": "Array of placeholder values",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 4
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
@@ -522,6 +514,14 @@
                   "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
+                },
+                "values": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 }
               }
             }

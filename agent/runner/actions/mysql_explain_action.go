@@ -126,7 +126,7 @@ func (a *mysqlExplainAction) sealed() {}
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	inter := []any{}
-	for _, p := range a.params.Placeholders {
+	for _, p := range a.params.Values {
 		inter = append(inter, p)
 	}
 
@@ -168,7 +168,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	var b []byte
 
 	inter := []any{}
-	for _, p := range a.params.Placeholders {
+	for _, p := range a.params.Values {
 		inter = append(inter, p)
 	}
 
@@ -210,7 +210,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	inter := []any{}
-	for _, p := range a.params.Placeholders {
+	for _, p := range a.params.Values {
 		inter = append(inter, p)
 	}
 

@@ -61,7 +61,7 @@ message StartMySQLExplainActionRequest {
   // Query ID of query. 
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }
@@ -88,7 +88,7 @@ message StartMySQLExplainJSONActionRequest {
   // Query ID of query. 
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }
@@ -115,7 +115,7 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   // Query ID of query. 
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }

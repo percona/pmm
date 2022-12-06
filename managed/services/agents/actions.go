@@ -48,7 +48,7 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, values []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
 	if query == "" && queryID == "" {
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
@@ -61,7 +61,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 			return err
 		}
 
-		if res.PlaceholdersCount != uint32(len(placeholders)) {
+		if res.PlaceholdersCount != uint32(len(values)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
@@ -85,7 +85,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        q,
-				Placeholders: placeholders,
+				Values:       values,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
@@ -184,7 +184,7 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 }
 
 // StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, values []string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
 	if query == "" && queryID == "" {
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
@@ -197,7 +197,7 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 			return err
 		}
 
-		if res.PlaceholdersCount != uint32(len(placeholders)) {
+		if res.PlaceholdersCount != uint32(len(values)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
@@ -219,9 +219,9 @@ func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, p
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_PostgresqlExplainParams{
 			PostgresqlExplainParams: &agentpb.StartActionRequest_PostgreSQLExplainParams{
-				Dsn:          dsn,
-				Query:        q,
-				Placeholders: placeholders,
+				Dsn:    dsn,
+				Query:  q,
+				Values: values,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,

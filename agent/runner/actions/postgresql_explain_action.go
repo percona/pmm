@@ -107,7 +107,7 @@ func (a *postgresqlExplainAction) explainDefault(ctx context.Context, db *sql.DB
 	defer tx.Rollback()
 
 	inter := []any{}
-	for _, p := range a.params.Placeholders {
+	for _, p := range a.params.Values {
 		inter = append(inter, p)
 	}
 
