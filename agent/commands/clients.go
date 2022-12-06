@@ -202,11 +202,6 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) {
 	if err != nil {
 		return "", "", err
 	}
-
-	if res.Payload.Token == "" {
-		return "", "", errors.New("pmm-server responded with empty token (please consider upgrade pmm-server to the latest version).")
-	}
-
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
