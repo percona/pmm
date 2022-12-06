@@ -194,7 +194,7 @@ message QueryExistsRequest {
   string query = 2;
 }
 
-// FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.
+// FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.
 message FingerprintsByQueryIDRequest {
   string serviceid = 1;
   string query_id = 2;
