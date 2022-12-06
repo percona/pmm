@@ -139,7 +139,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63())
 	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
 	if e != nil {
-		return res, e
+		return nil, e
 	}
 
 	return res, nil
