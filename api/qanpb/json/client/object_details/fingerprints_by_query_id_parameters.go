@@ -62,7 +62,7 @@ FingerprintsByQueryIDParams contains all the parameters to send to the API endpo
 type FingerprintsByQueryIDParams struct {
 	/* Body.
 
-	   FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.
+	   FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.
 	*/
 	Body FingerprintsByQueryIDBody
 

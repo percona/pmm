@@ -1141,7 +1141,7 @@ func (x *QueryExistsRequest) GetQuery() string {
 	return ""
 }
 
-// FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.
+// FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.
 type FingerprintsByQueryIDRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

@@ -853,12 +853,12 @@
         "operationId": "FingerprintsByQueryID",
         "parameters": [
           {
-            "description": "FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.",
+            "description": "FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.",
+              "description": "FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.",
               "type": "object",
               "properties": {
                 "query_id": {

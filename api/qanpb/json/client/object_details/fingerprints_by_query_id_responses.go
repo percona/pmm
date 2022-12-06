@@ -119,7 +119,7 @@ func (o *FingerprintsByQueryIDDefault) readResponse(response runtime.ClientRespo
 }
 
 /*
-FingerprintsByQueryIDBody FingerprintsByQueryIDRequest get feingerprint, explain fingerprint for given query ID.
+FingerprintsByQueryIDBody FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.
 swagger:model FingerprintsByQueryIDBody
 */
 type FingerprintsByQueryIDBody struct {
