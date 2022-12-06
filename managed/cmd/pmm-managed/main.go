@@ -921,6 +921,10 @@ func main() {
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
 
+	if *enableAccessControl == true {
+		l.Info("Access control is enabled")
+	}
+
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
