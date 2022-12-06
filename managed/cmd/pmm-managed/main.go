@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
@@ -631,6 +632,8 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
