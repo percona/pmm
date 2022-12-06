@@ -802,7 +802,7 @@ var databaseSchema = [][]string{
 	},
 	74: {
 		`ALTER TABLE roles
-			ADD COLUMN description TEXT NOT NULL`,
+			ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
 	},
 }
 
