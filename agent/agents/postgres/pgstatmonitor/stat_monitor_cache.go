@@ -157,7 +157,6 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				fingerprint, err = ssc.generateFingerprint(c.Query)
 			}
 
-			var explainFingerprint string
 			var placeholdersCount uint32
 			var errParsing error
 			if err != nil {
@@ -172,7 +171,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				}
 				c.Example = c.Query
 				c.Fingerprint = c.Query
-				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
+				_, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
 			} else {
 				var isTruncated bool
 				c.Fingerprint, isTruncated = truncate.Query(fingerprint, maxQueryLength)
@@ -183,11 +182,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
-				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
+				_, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
 			}
 
 			if errParsing == nil {
-				c.ExplainFingerprint = explainFingerprint
 				c.PlaceholdersCount = placeholdersCount
 			}
 		}

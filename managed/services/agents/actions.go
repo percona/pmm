@@ -48,8 +48,10 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
+//
+//nolint:lll
 func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, values []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-	res, err := s.qanClient.FingerprintsByQueryID(ctx, serviceID, queryID)
+	res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
 	if err != nil {
 		return err
 	}
@@ -168,8 +170,10 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 }
 
 // StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action on pmm-agent.
+//
+//nolint:lll
 func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, values []string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-	res, err := s.qanClient.FingerprintsByQueryID(ctx, serviceID, queryID)
+	res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
 	if err != nil {
 		return err
 	}

@@ -351,9 +351,9 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	return wrapperspb.Bool(resp), nil
 }
 
-// FingerprintsByQueryID get explain fingerprint and placeholders count by query ID.
-func (s *Service) FingerprintsByQueryID(ctx context.Context, in *qanpb.FingerprintsByQueryIDRequest) (*qanpb.FingerprintsByQueryIDReply, error) {
-	res, err := s.mm.FingerprintsByQueryID(
+// FingerprintAndPlaceholdersCountByQueryID get explain fingerprint and placeholders count by query ID.
+func (s *Service) FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, in *qanpb.FingerprintAndPlaceholdersCountByQueryIDRequest) (*qanpb.FingerprintAndPlaceholdersCountByQueryIDReply, error) {
+	res, err := s.mm.FingerprintAndPlaceholdersCountByQueryID(
 		ctx,
 		in.Serviceid,
 		in.QueryId)

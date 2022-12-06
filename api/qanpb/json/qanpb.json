@@ -844,21 +844,21 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/FingerprintsByQueryID": {
+    "/v0/qan/ObjectDetails/FingerprintAndPlaceholdersCountByQueryID": {
       "post": {
         "tags": [
           "ObjectDetails"
         ],
-        "summary": "FingerprintsByQueryID get fingerprint, explain fingerprint and placeholders count for given query ID.",
-        "operationId": "FingerprintsByQueryID",
+        "summary": "FingerprintAndPlaceholdersCountByQueryID get fingerprint and placeholders count for given query ID.",
+        "operationId": "FingerprintAndPlaceholdersCountByQueryID",
         "parameters": [
           {
-            "description": "FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.",
+            "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "FingerprintsByQueryIDRequest gets fingerprint, explain fingerprint for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
                 "query_id": {
@@ -877,21 +877,17 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "FingerprintsByQueryIDReply is fingerprint, explain fingerprint and placeholders count for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDReply is fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
-                "explain_fingerprint": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "fingerprint": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 },
                 "placeholders_count": {
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 1
+                  "x-order": 0
                 }
               }
             }

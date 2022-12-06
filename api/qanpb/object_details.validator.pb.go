@@ -171,10 +171,10 @@ func (this *QueryExistsRequest) Validate() error {
 	return nil
 }
 
-func (this *FingerprintsByQueryIDRequest) Validate() error {
+func (this *FingerprintAndPlaceholdersCountByQueryIDRequest) Validate() error {
 	return nil
 }
 
-func (this *FingerprintsByQueryIDReply) Validate() error {
+func (this *FingerprintAndPlaceholdersCountByQueryIDReply) Validate() error {
 	return nil
 }
