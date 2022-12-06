@@ -51,7 +51,6 @@ digraph packages {
 	"/commands" -> "/config";
 	"/commands" -> "/connectionchecker";
 	"/commands" -> "/connectionuptime";
-	"/commands" -> "/defaultsfile";
 	"/commands" -> "/runner";
 	"/commands" -> "/tailog";
 	"/commands" -> "/versioner";
