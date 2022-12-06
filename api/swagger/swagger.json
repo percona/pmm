@@ -570,6 +570,17 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     }
                   },
                   "x-order": 0
@@ -826,6 +837,17 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     }
                   },
                   "x-order": 0

@@ -844,6 +844,7 @@ func main() {
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
+		EnableAccessControl:  *enableAccessControl,
 	}
 
 	server, err := server.NewServer(serverParams)
