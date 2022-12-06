@@ -157,6 +157,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				example = c.Query
 				fingerprint, err = ssc.generateFingerprint(c.Query)
 			}
+
+			var explainFingerprint string
+			var placeholdersCount uint32
+			var errParsing error
 			if err != nil {
 				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
 				if c.pgStatMonitor.Elevel != 0 {
@@ -169,12 +173,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				}
 				c.Example = c.Query
 				c.Fingerprint = c.Query
+
+				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
 			} else {
-				explainFingerprint, placeholdersCount, errParsing := queryparser.PostgreSQLNormalized(fingerprint)
-				if errParsing == nil {
-					c.ExplainFingerprint = explainFingerprint
-					c.PlaceholdersCount = placeholdersCount
-				}
+				explainFingerprint, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
 
 				var isTruncated bool
 				c.Fingerprint, isTruncated = truncate.Query(fingerprint, maxQueryLength)
@@ -185,6 +187,11 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
+			}
+
+			if errParsing == nil {
+				c.ExplainFingerprint = explainFingerprint
+				c.PlaceholdersCount = placeholdersCount
 			}
 		}
 
