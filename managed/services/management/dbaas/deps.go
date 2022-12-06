@@ -108,4 +108,5 @@ type kubernetesClient interface {
 	GetPSMDBOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
+	CreatePMMSecret(context.Context, string, map[string][]byte) error
 }

@@ -26,6 +26,7 @@ import (
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
@@ -266,4 +267,21 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.GetSecret(ctx, name)
+}
+
+func (k *Kubernetes) CreatePMMSecret(ctx context.Context, secretName string, secrets map[string][]byte) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	secret := &corev1.Secret{ //nolint: exhaustruct
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Secret",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: secretName,
+		},
+		Type: corev1.SecretTypeOpaque,
+		Data: secrets,
+	}
+	return k.client.ApplyObject(ctx, secret)
 }

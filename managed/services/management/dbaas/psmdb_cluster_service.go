@@ -17,7 +17,9 @@ package dbaas
 
 import (
 	"context"
+	cryptoRand "crypto/rand"
 	"fmt"
+	"math/big"
 	"math/rand"
 	"regexp"
 	"strings"
@@ -173,7 +175,31 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Password = apiKey
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		secrets := map[string][]byte{
+			"MONGODB_BACKUP_USER":          []byte("backup"),
+			"MONGODB_CLUSTER_ADMIN_USER":   []byte("clusterAdmin"),
+			"MONGODB_CLUSTER_MONITOR_USER": []byte("clusterMonitor"),
+			"MONGODB_USER_ADMIN_USER":      []byte("userAdmin"),
+			"PMM_SERVER_USER":              []byte("api_key"),
+			"PMM_SERVER_PASSWORD":          []byte(apiKey),
+		}
+		passwords, err := generatePasswords(map[string][]byte{
+			"MONGODB_BACKUP_PASSWORD":          {},
+			"MONGODB_CLUSTER_ADMIN_PASSWORD":   {},
+			"MONGODB_CLUSTER_MONITOR_PASSWORD": {},
+			"MONGODB_USER_ADMIN_PASSWORD":      {},
+		})
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range passwords {
+			secrets[k] = v
+		}
+		err = s.kubernetesClient.CreatePMMSecret(ctx, dbCluster.Spec.SecretsName, secrets)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// TODO: Setup backups
 
@@ -307,4 +333,34 @@ func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *
 			DiskSize:    disk,
 		},
 	}, nil
+}
+
+const (
+	passwordLength = 24
+)
+
+func generatePasswords(secrets map[string][]byte) (map[string][]byte, error) {
+	for key := range secrets {
+		password, err := generatePassword(passwordLength)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to generate password for  %s", key)
+		}
+		secrets[key] = []byte(password)
+	}
+	return secrets, nil
+}
+
+func generatePassword(n int) (string, error) {
+	// PSMDB do not support all special characters in password https://jira.percona.com/browse/K8SPSMDB-364
+	symbols := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	symbolsLen := len(symbols)
+	b := make([]rune, n)
+	for i := range b {
+		randomIndex, err := cryptoRand.Int(cryptoRand.Reader, big.NewInt(int64(symbolsLen)))
+		if err != nil {
+			return "", err
+		}
+		b[i] = symbols[randomIndex.Uint64()]
+	}
+	return string(b), nil
 }

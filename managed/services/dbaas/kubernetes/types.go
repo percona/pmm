@@ -122,7 +122,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				Memory:   strconv.FormatInt(cluster.Params.Pxc.ComputeResources.MemoryBytes, 10),
 			},
 			Monitoring: dbaasv1.MonitoringSpec{
-				PMM: dbaasv1.PMMSpec{},
+				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
 			Backup:       dbaasv1.BackupSpec{},
@@ -194,7 +194,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				Memory:   strconv.FormatInt(cluster.Params.Replicaset.ComputeResources.MemoryBytes, 10),
 			},
 			Monitoring: dbaasv1.MonitoringSpec{
-				PMM: dbaasv1.PMMSpec{},
+				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
 			Backup:       dbaasv1.BackupSpec{},

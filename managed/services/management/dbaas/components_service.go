@@ -18,6 +18,7 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 
 	goversion "github.com/hashicorp/go-version"
@@ -478,4 +479,32 @@ func DefaultComponent(m map[string]*dbaasv1beta1.Component) (*dbaasv1beta1.Compo
 	}
 
 	return nil, errors.New("cannot find a default version in the components list")
+}
+
+func getPMMClientImage() string {
+	pmmClientImage := "perconalab/pmm-client:dev-latest"
+
+	pmmClientImageEnv, ok := os.LookupEnv("PERCONA_TEST_DBAAS_PMM_CLIENT")
+	if ok {
+		pmmClientImage = pmmClientImageEnv
+		return pmmClientImage
+	}
+
+	if pmmversion.PMMVersion == "" { // No version set, use dev-latest.
+		return pmmClientImage
+	}
+
+	v, err := goversion.NewVersion(pmmversion.PMMVersion) // nolint: varnamelen
+	if err != nil {
+		return pmmClientImage
+	}
+	// if version has a suffix like 1.2.0-dev or 3.4.1-HEAD-something it is an unreleased version.
+	// Docker image won't exist in the repo so use latest stable.
+	if v.Core().String() != v.String() {
+		pmmClientImage = "percona/pmm-client:2"
+		return pmmClientImage
+	}
+
+	pmmClientImage = "percona/pmm-client:" + v.Core().String()
+	return pmmClientImage
 }

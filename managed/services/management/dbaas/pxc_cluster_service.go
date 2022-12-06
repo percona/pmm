@@ -182,7 +182,15 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Password = apiKey
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+
+		secrets := map[string][]byte{
+			"pmmserver": []byte(apiKey),
+		}
+		err = s.kubernetesClient.CreatePMMSecret(ctx, dbCluster.Spec.SecretsName, secrets)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = s.kubernetesClient.CreateDatabaseCluster(ctx, dbCluster)
 	if err != nil {
