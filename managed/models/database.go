@@ -800,6 +800,10 @@ var databaseSchema = [][]string{
 		(user_id, role_id, created_at, updated_at)		
 		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
 	},
+	74: {
+		`ALTER TABLE roles
+			ADD COLUMN description TEXT NOT NULL`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
