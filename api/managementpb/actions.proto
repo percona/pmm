@@ -55,15 +55,16 @@ message StartMySQLExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
-  string query = 3;
-  // Query ID of query. 
-  string query_id = 6;
+  // Query ID of query. Required. 
+  string query_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Array of placeholder values
-  repeated string values = 5; 
+  repeated string values = 4; 
   // Database name. Required if it can't be deduced from the query ID.
-  string database = 4;
+  string database = 3;
 }
 
 message StartMySQLExplainActionResponse {
@@ -82,15 +83,16 @@ message StartMySQLExplainJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
-  string query = 3;
-  // Query ID of query. 
-  string query_id = 6;
+  // Query ID of query. Required. 
+  string query_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Array of placeholder values
-  repeated string values = 5; 
+  repeated string values = 4; 
   // Database name. Required if it can't be deduced from the query ID.
-  string database = 4;
+  string database = 3;
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -109,15 +111,16 @@ message StartMySQLExplainTraditionalJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
-  string query = 3;
-  // Query ID of query. 
-  string query_id = 6;
+  // Query ID of query. Required. 
+  string query_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Array of placeholder values
-  repeated string values = 5; 
+  repeated string values = 4; 
   // Database name. Required if it can't be deduced from the query ID.
-  string database = 4;
+  string database = 3;
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {
@@ -214,15 +217,16 @@ message StartPostgreSQLExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
-  string query = 3;
-  // Query ID of query. 
-  string query_id = 6;
+  // Query ID of query. Required. 
+  string query_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string placeholders = 4; 
   // Database name. Required if it can't be deduced from the query ID.
-  string database = 4;
+  string database = 3;
 }
 
 message StartPostgreSQLExplainActionResponse {

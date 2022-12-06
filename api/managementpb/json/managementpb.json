@@ -281,22 +281,17 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                "query_id": {
+                  "description": "Query ID of query. Required.",
                   "type": "string",
                   "x-order": 2
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -309,7 +304,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -387,22 +382,17 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                "query_id": {
+                  "description": "Query ID of query. Required.",
                   "type": "string",
                   "x-order": 2
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -415,7 +405,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -493,22 +483,17 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                "query_id": {
+                  "description": "Query ID of query. Required.",
                   "type": "string",
                   "x-order": 2
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -521,7 +506,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -1216,7 +1201,7 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "placeholders": {
                   "type": "array",
@@ -1224,22 +1209,17 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
                 },
-                "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                "query_id": {
+                  "description": "Query ID of query. Required.",
                   "type": "string",
                   "x-order": 2
-                },
-                "query_id": {
-                  "description": "Query ID of query.",
-                  "type": "string",
-                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",

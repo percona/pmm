@@ -129,11 +129,7 @@ type StartPostgreSQLExplainActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Query ID or query is required.
-	// Value of query.
-	Query string `json:"query,omitempty"`
-
-	// Query ID of query.
+	// Query ID of query. Required.
 	QueryID string `json:"query_id,omitempty"`
 
 	// Array of placeholder values
