@@ -500,6 +500,41 @@ func getResources(resources corev1.ResourceList) (cpuMillis uint64, memoryBytes 
 	return cpuMillis, memoryBytes, nil
 }
 
+// GetConsumedCPUAndMemory returns consumed CPU and Memory in given namespace. If namespace
+// is empty, it tries to get them from all namespaces.
+func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace string) (
+	cpuMillis uint64, memoryBytes uint64, err error,
+) {
+	// Get CPU and Memory Requests of Pods' containers.
+	pods, err := k.GetPods(ctx, namespace)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get consumed resources")
+	}
+	for _, ppod := range pods.Items {
+		if ppod.Status.Phase != corev1.PodRunning {
+			continue
+		}
+		nonTerminatedInitContainers := make([]corev1.Container, 0, len(ppod.Spec.InitContainers))
+		for _, container := range ppod.Spec.InitContainers {
+			if !IsContainerInState(
+				ppod.Status.InitContainerStatuses, ContainerStateTerminated,
+			) {
+				nonTerminatedInitContainers = append(nonTerminatedInitContainers, container)
+			}
+		}
+		for _, container := range append(ppod.Spec.Containers, nonTerminatedInitContainers...) {
+			cpu, memory, err := getResources(container.Resources.Requests)
+			if err != nil {
+				return 0, 0, errors.Wrap(err, "failed to sum all consumed resources")
+			}
+			cpuMillis += cpu
+			memoryBytes += memory
+		}
+	}
+
+	return cpuMillis, memoryBytes, nil
+}
+
 // sumVolumesSize returns sum of persistent volumes storage size in bytes.
 func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) {
 	for _, pv := range pvs.Items {
