@@ -142,6 +142,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			if p, ok := m[c.QueryID]; ok {
 				oldN++
 				c.Fingerprint = p.Fingerprint
+				c.PlaceholdersCount = p.PlaceholdersCount
 				c.Example = p.Example
 				c.IsQueryTruncated = p.IsQueryTruncated
 				break
@@ -160,6 +161,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			var placeholdersCount uint32
 			var errParsing error
 			if err != nil {
+				_, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
 				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
 				if c.pgStatMonitor.Elevel != 0 {
 					c.IsQueryTruncated = false
@@ -171,8 +173,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				}
 				c.Example = c.Query
 				c.Fingerprint = c.Query
-				_, placeholdersCount, errParsing = queryparser.PostgreSQL(fingerprint)
 			} else {
+				_, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
 				var isTruncated bool
 				c.Fingerprint, isTruncated = truncate.Query(fingerprint, maxQueryLength)
 				if isTruncated {
@@ -182,7 +184,6 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
-				_, placeholdersCount, errParsing = queryparser.PostgreSQLNormalized(fingerprint)
 			}
 
 			if errParsing == nil {
