@@ -98,7 +98,7 @@ build() {
             set -o xtrace
             echo \"spec_name: ${spec_name}\"
             echo \"repo_name: ${repo_name}\"
-            echo \"rpm_verison: ${rpm_version}\"
+            echo \"rpm_version: ${rpm_version}\"
 
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
@@ -117,8 +117,9 @@ build() {
             sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .el7' -ba SOURCES/${spec_name}.spec
-
+            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
+                     --define 'dist .el7' \
+                     -ba SOURCES/${spec_name}.spec
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
