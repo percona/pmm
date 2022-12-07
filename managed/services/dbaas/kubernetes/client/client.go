@@ -403,6 +403,11 @@ func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
 }
 
+// GetNodes returns list of nodes
+func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+}
+
 // GetLogs returns logs for pod
 func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, error) {
 	defaultLogLines := int64(3000)
