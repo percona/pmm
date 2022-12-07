@@ -599,3 +599,8 @@ func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) {
 	}
 	return
 }
+
+// GetPersistentVolumes returns list of persistent volumes.
+func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return k.client.GetPersistentVolumes(ctx)
+}
