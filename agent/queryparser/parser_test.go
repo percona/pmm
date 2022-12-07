@@ -102,35 +102,3 @@ func TestPostgreSQL(t *testing.T) {
 		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
 	}
 }
-
-func TestPostgreSQLk(t *testing.T) {
-	sqls := []test{
-		{
-			Query:                     "SELECT name FROM people where city = 'Paris'",
-			ExpectedQuery:             "SELECT name FROM people where city = $1",
-			ExpectedPlaceHoldersCount: 1,
-		},
-		{
-			Query:                     "SELECT name FROM people where city = ?",
-			ExpectedQuery:             "SELECT name FROM people where city = ?",
-			ExpectedPlaceHoldersCount: 1,
-		},
-		{
-			Query:                     "INSERT INTO people VALUES('John', 'Paris', 70010)",
-			ExpectedQuery:             "INSERT INTO people VALUES($1, $2, $3)",
-			ExpectedPlaceHoldersCount: 3,
-		},
-		{
-			Query:                     "INSERT INTO people VALUES($1, $2, $3)",
-			ExpectedQuery:             "INSERT INTO people VALUES($1, $2, $3)",
-			ExpectedPlaceHoldersCount: 3,
-		},
-	}
-
-	for _, sql := range sqls {
-		query, placeholdersCount, err := PostgreSQLNormalized(sql.Query)
-		assert.NoError(t, err)
-		assert.Equal(t, sql.ExpectedQuery, query)
-		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
-	}
-}
