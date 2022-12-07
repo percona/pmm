@@ -27,6 +27,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
@@ -63,6 +65,7 @@ type Kubernetes struct {
 	client     *client.Client
 	l          *logrus.Entry
 	httpClient *http.Client
+	kubeconfig string
 }
 
 // ContainerState describes container's state - waiting, running, terminated.
@@ -126,6 +129,7 @@ func New(kubeconfig string) (*Kubernetes, error) {
 				IdleConnTimeout: 10 * time.Second,
 			},
 		},
+		kubeconfig: kubeconfig,
 	}, nil
 }
 
@@ -533,6 +537,55 @@ func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace stri
 	}
 
 	return cpuMillis, memoryBytes, nil
+}
+
+// GetConsumedDiskBytes returns consumed bytes. The strategy differs based on k8s cluster type.
+func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (consumedBytes uint64, err error) { //nolint: lll
+	switch clusterType {
+	case ClusterTypeUnknown:
+		return 0, errors.Errorf("unknown cluster type")
+	case ClusterTypeGeneric:
+		// TODO support other cluster types
+		return 0, nil
+	case ClusterTypeMinikube:
+		nodes, err := k.GetWorkerNodes(ctx)
+		if err != nil {
+			return 0, errors.Wrap(err, "can't compute consumed disk size: failed to get worker nodes")
+		}
+		clientConfig, err := clientcmd.NewClientConfigFromBytes([]byte(k.kubeconfig))
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build kubeconfig out of given path")
+		}
+		config, err := clientConfig.ClientConfig()
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build kubeconfig out of given path")
+		}
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build client out of submited kubeconfig")
+		}
+		for _, node := range nodes {
+			var summary NodeSummary
+			request := clientset.CoreV1().RESTClient().Get().Resource("nodes").Name(node.Name).SubResource("proxy").Suffix("stats/summary")
+			responseRawArrayOfBytes, err := request.DoRaw(context.Background())
+			if err != nil {
+				return 0, errors.Wrap(err, "failed to get stats from node")
+			}
+			if err := json.Unmarshal(responseRawArrayOfBytes, &summary); err != nil {
+				return 0, errors.Wrap(err, "failed to unmarshal response from kubernetes API")
+			}
+			consumedBytes += summary.Node.FileSystem.UsedBytes
+		}
+		return consumedBytes, nil
+	case ClusterTypeEKS:
+		consumedBytes, err := sumVolumesSize(volumes)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to sum persistent volumes storage sizes")
+		}
+		return consumedBytes, nil
+	}
+
+	return 0, nil
 }
 
 // sumVolumesSize returns sum of persistent volumes storage size in bytes.
