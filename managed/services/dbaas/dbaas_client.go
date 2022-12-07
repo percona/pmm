@@ -29,6 +29,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/version"
@@ -214,10 +215,70 @@ func (c *Client) GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsReque
 }
 
 // GetResources returns all and available resources of a Kubernetes cluster.
-func (c *Client) GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error) {
+func (c *Client) GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.kubernetesClient.GetResources(ctx, in, opts...)
+	kClient, err := kubernetes.New(in.KubeAuth.Kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get cluster type
+	clusterType, err := kClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var volumes *corev1.PersistentVolumeList
+	if clusterType == kubernetes.ClusterTypeEKS {
+		volumes, err = kClient.GetPersistentVolumes(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	allCPUMillis, allMemoryBytes, allDiskBytes, err := kClient.GetAllClusterResources(ctx, clusterType, volumes)
+	if err != nil {
+		return nil, err
+	}
+
+	consumedCPUMillis, consumedMemoryBytes, err := kClient.GetConsumedCPUAndMemory(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	consumedDiskBytes, err := kClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
+	if err != nil {
+		return nil, err
+	}
+
+	availableCPUMillis := allCPUMillis - consumedCPUMillis
+	// handle underflow
+	if availableCPUMillis > allCPUMillis {
+		availableCPUMillis = 0
+	}
+	availableMemoryBytes := allMemoryBytes - consumedMemoryBytes
+	// handle underflow
+	if availableMemoryBytes > allMemoryBytes {
+		availableMemoryBytes = 0
+	}
+	availableDiskBytes := allDiskBytes - consumedDiskBytes
+	// handle underflow
+	if availableDiskBytes > allDiskBytes {
+		availableDiskBytes = 0
+	}
+
+	return &controllerv1beta1.GetResourcesResponse{
+		All: &controllerv1beta1.Resources{
+			CpuM:        allCPUMillis,
+			MemoryBytes: allMemoryBytes,
+			DiskSize:    allDiskBytes,
+		},
+		Available: &controllerv1beta1.Resources{
+			CpuM:        availableCPUMillis,
+			MemoryBytes: availableMemoryBytes,
+			DiskSize:    availableDiskBytes,
+		},
+	}, nil
 }
 
 // InstallPXCOperator installs kubernetes pxc operator.
