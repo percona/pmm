@@ -12,9 +12,10 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
-      - "managed/**"
       - "docs/**"
+      - "managed/**"
       - "qan-api2/**"
+      - "update/**"
 
   workflow_call:
     inputs:

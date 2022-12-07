@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm-update/pkg/run"
+	"github.com/percona/pmm/update/pkg/run"
 )
 
 const ansibleCancelTimeout = 180 * time.Second // must be less than stopwaitsecs in supervisord config
@@ -37,11 +36,11 @@ type RunPlaybookOpts struct {
 // RunPlaybook runs ansible-playbook.
 func RunPlaybook(ctx context.Context, playbook string, opts *RunPlaybookOpts) error {
 	if opts == nil {
-		opts = new(RunPlaybookOpts)
+		opts = &RunPlaybookOpts{}
 	}
 
 	var verbose string
-	runOpts := new(run.Opts)
+	runOpts := &run.Opts{}
 	if opts.Debug {
 		verbose = "-vvv"
 	}
@@ -52,8 +51,8 @@ func RunPlaybook(ctx context.Context, playbook string, opts *RunPlaybookOpts) er
 
 	cmdLine := fmt.Sprintf(
 		`ansible-playbook --flush-cache %s %s %s`,
-		verbose, strings.Join(opts.ExtraFlags, ""), playbook,
-	)
+		verbose, strings.Join(opts.ExtraFlags, ""), playbook)
+
 	_, _, err := run.Run(ctx, ansibleCancelTimeout, cmdLine, runOpts)
 	return err
 }

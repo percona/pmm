@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,9 +25,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 // Opts contains run options.
@@ -44,7 +44,7 @@ func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string, opts 
 	}
 
 	if opts == nil {
-		opts = new(Opts)
+		opts = &Opts{}
 	}
 	if opts.Env == nil {
 		// inherit environment, not overwrite it

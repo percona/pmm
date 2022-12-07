@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-update/pkg/run"
+	"github.com/percona/pmm/update/pkg/run"
+	"github.com/percona/pmm/version"
 )
 
 const (

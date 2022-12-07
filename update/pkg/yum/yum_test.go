@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -27,7 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var gaReleaseDate = time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC) //nolint
+var gaReleaseDate = time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 
 const (
 	pmmManagedPackageName = "pmm-managed"

@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,12 +21,24 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-update", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
-	assert.NoError(t, err)
+	if err != nil {
+		// This branch is required for tests with pmm-server:2.0.0
+		// In this case the exit code is 2.
+		e, ok := err.(*exec.ExitError)
+		require.True(t, ok)
+
+		sb := string(b)
+		assert.Equal(t, 2, e.ExitCode())
+		assert.True(t, strings.Contains(sb, "ProjectName: pmm-update"), sb)
+	} else {
+		assert.NoError(t, err, string(b))
+	}
 
 	out := string(b)
 	assert.False(t, strings.Contains(out, "-httptest.serve"), `pmm-update should not import package "net/http/httptest"`)

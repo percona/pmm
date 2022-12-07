@@ -11,4 +11,4 @@ services:
       - PATH=/root/go/bin:$PATH
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
     volumes:
-      - .:/root/go/src/github.com/percona/pmm-update
+      - ..:/root/go/src/github.com/percona/pmm

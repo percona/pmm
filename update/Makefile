@@ -27,15 +27,11 @@ LD_FLAGS = -ldflags " \
 release:                        ## Build pmm-update release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-update
 
-init:                           ## Install development tools
-	rm -rf ./bin
-	cd tools && go generate -x -tags=tools
-
 install:                        ## Install pmm-update binary.
-	go install $(LD_FLAGS) ./...
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-update .
 
 install-race:                   ## Install pmm-update binary with race detector.
-	go install $(LD_FLAGS) -race ./...
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-update .
 
 TEST_FLAGS ?= -timeout=60s -count=1 -v -p 1
 
@@ -48,23 +44,6 @@ test-race:                      ## Run tests with race detector.
 test-cover:                     ## Run tests and collect per-package coverage information.
 	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
 
-check:                          ## Run required checkers and linters.
-	go run .github/check-license.go
-
-	ansible-playbook --syntax-check ansible/playbook/tasks/update.yml
-	ansible-playbook --check ansible/playbook/tasks/update.yml
-	ansible-lint ansible/playbook/tasks/update.yml
-
-check-all: check                ## Run all linters for new code.
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
-
-FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-
-format:                         ## Format source code.
-	$(BIN_PATH)/gofumpt -l -w $(FILES)
-	$(BIN_PATH)/goimports -local github.com/percona/pmm-update -l -w $(FILES)
-	$(BIN_PATH)/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm-update)" $(FILES)
-
 RUN_FLAGS ?=
 
 run: install _run               ## Run pmm-update.
@@ -72,7 +51,7 @@ run: install _run               ## Run pmm-update.
 run-race: install-race _run     ## Run pmm-update with race detector.
 
 run-race-cover: install-race    ## Run pmm-update with race detector and collect coverage information.
-	go test -coverpkg="github.com/percona/pmm-update/..." \
+	go test -coverpkg="github.com/percona/pmm/update/..." \
 			-tags maincover \
 			$(LD_FLAGS) \
 			-race -c -o pmm-update.test
@@ -88,9 +67,10 @@ env-up:                         ## Start development environment.
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
-ci-reviewdog:                   ## Runs reviewdog checks.
-	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
-
 install-dev-tools:
-	docker exec pmm-update-server /root/go/src/github.com/percona/pmm-update/.devcontainer/install-dev-tools.sh
+	docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh
+
+check:                          ## Run required checkers and linters.
+	ansible-playbook --syntax-check ansible/playbook/tasks/update.yml
+	ansible-playbook --check ansible/playbook/tasks/update.yml
+	ansible-lint ansible/playbook/tasks/update.yml

@@ -8,7 +8,7 @@ set -o errexit
 set -o xtrace
 
 # download (in the background) the same verison as used by PMM build process
-curl -sS https://dl.google.com/go/go1.17.8.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
+curl -sS https://dl.google.com/go/go1.19.4.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
 
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf
@@ -43,7 +43,7 @@ env GOPROXY=https://proxy.golang.org go get -v \
     github.com/go-delve/delve/cmd/dlv@latest \
     golang.org/x/tools/gopls@latest &
 
-cd /root/go/src/github.com/percona/pmm-update
+cd /root/go/src/github.com/percona/pmm
 make init
 
 fg || true

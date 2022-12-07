@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,12 +23,12 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm-update/pkg/ansible"
-	"github.com/percona/pmm-update/pkg/yum"
+	"github.com/percona/pmm/update/pkg/ansible"
+	"github.com/percona/pmm/update/pkg/yum"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -110,6 +109,7 @@ func perform(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts
 }
 
 // Flags have to be global variables for maincover_test.go to work.
+//
 //nolint:gochecknoglobals
 var (
 	installedF   = flag.Bool("installed", false, "Return installed version")

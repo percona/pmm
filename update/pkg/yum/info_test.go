@@ -1,4 +1,3 @@
-// pmm-update
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -118,7 +117,7 @@ func TestParseInfo(t *testing.T) {
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Tue Jul 30 12:23:10 2019
 			Summary     : Tool for updating packages and OS configuration for PMM Server
-			URL         : https://github.com/percona/pmm-update
+			URL         : https://github.com/percona/pmm/update
 			License     : AGPLv3
 			Description : Tool for updating packages and OS configuration for PMM Server
 		`, "\n")
@@ -133,7 +132,7 @@ func TestParseInfo(t *testing.T) {
 			"Committime":  "Fri Jun 30 12:00:00 2017",
 			"Buildtime":   "Tue Jul 30 12:23:10 2019",
 			"Summary":     "Tool for updating packages and OS configuration for PMM Server",
-			"URL":         "https://github.com/percona/pmm-update",
+			"URL":         "https://github.com/percona/pmm/update",
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
@@ -174,7 +173,7 @@ func TestParseInfo(t *testing.T) {
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Tue Jul 16 10:09:01 2019
 			Summary     : Tool for updating packages and OS configuration for PMM Server
-			URL         : https://github.com/percona/pmm-update
+			URL         : https://github.com/percona/pmm/update
 			License     : AGPLv3
 			Description : Tool for updating packages and OS configuration for PMM Server
 
@@ -188,7 +187,7 @@ func TestParseInfo(t *testing.T) {
 			Committime  : Fri Jun 30 12:00:00 2017
 			Buildtime   : Fri Mar 22 14:48:42 2019
 			Summary     : Tool for updating packages and OS configuration for PMM Server
-			URL         : https://github.com/percona/pmm-update
+			URL         : https://github.com/percona/pmm/update
 			License     : AGPLv3
 			Description : Tool for updating packages and OS configuration for PMM Server
 
@@ -205,7 +204,7 @@ func TestParseInfo(t *testing.T) {
 			"Committime":  "Fri Jun 30 12:00:00 2017",
 			"Buildtime":   "Tue Jul 16 10:09:01 2019",
 			"Summary":     "Tool for updating packages and OS configuration for PMM Server",
-			"URL":         "https://github.com/percona/pmm-update",
+			"URL":         "https://github.com/percona/pmm/update",
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
@@ -233,7 +232,7 @@ func TestParseInfo(t *testing.T) {
 			Committime  : Wed Sep 18 12:00:00 2019
 			Buildtime   : Wed Sep 18 05:51:01 2019
 			Summary     : Tool for updating packages and OS configuration for PMM Server
-			URL         : https://github.com/percona/pmm-update
+			URL         : https://github.com/percona/pmm/update
 			License     : AGPLv3
 			Description : Tool for updating packages and OS configuration for PMM Server
 
@@ -250,7 +249,7 @@ func TestParseInfo(t *testing.T) {
 			"Committime":  "Wed Sep 18 12:00:00 2019",
 			"Buildtime":   "Wed Sep 18 05:51:01 2019",
 			"Summary":     "Tool for updating packages and OS configuration for PMM Server",
-			"URL":         "https://github.com/percona/pmm-update",
+			"URL":         "https://github.com/percona/pmm/update",
 			"License":     "AGPLv3",
 			"Description": "Tool for updating packages and OS configuration for PMM Server",
 		}
