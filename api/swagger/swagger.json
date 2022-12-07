@@ -14239,10 +14239,15 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "query": {
+                  "description": "Deprecated: should not be used.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "query_id": {
                   "description": "Query ID of query. Required.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "values": {
                   "type": "array",
@@ -14250,12 +14255,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -14340,10 +14345,15 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "query": {
+                  "description": "Deprecated: should not be used.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "query_id": {
                   "description": "Query ID of query. Required.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "values": {
                   "type": "array",
@@ -14351,12 +14361,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
@@ -14441,10 +14451,15 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "query": {
+                  "description": "Deprecated: should not be used.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "query_id": {
                   "description": "Query ID of query. Required.",
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "values": {
                   "type": "array",
@@ -14452,12 +14467,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }
