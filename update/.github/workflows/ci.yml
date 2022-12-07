@@ -1,0 +1,111 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - percona/pmm-server:2.0.0 # oldest production version
+          - percona/pmm-server:2.16.0 # version with enabled expirimental repo
+          - percona/pmm-server:2 # latest production version
+          - perconalab/pmm-server:dev-latest # latest development version
+
+    env:
+      PMM_SERVER_IMAGE: ${{ matrix.image }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: percona-platform/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ env.WORKING_DIR }}
+
+      - name: Docker Up
+        run: docker-compose up -d
+
+      - name: Install dev tools in container
+        run: docker exec pmm-update-server /root/go/src/github.com/percona/pmm-update/.devcontainer/install-dev-tools.sh
+
+      - name: Run make format and diff
+        run: |
+          make format
+          git status
+          git diff --exit-code
+
+      - name: Run check and linters
+        run: |
+          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+          bin/golangci-lint run -c=.golangci.yml --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+
+      - name: Run install
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update install
+
+      - name: Run license check and ansible checks
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update check
+
+      - name: Run tests
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-race
+
+      - name: Run with race detector and collect coverage information
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update run-race-cover RUN_FLAGS='-debug -check'
+
+      - name: Run codecov
+        run: |
+          curl https://codecov.io/bash > codecov
+          chmod +x codecov
+          ./codecov -f cover.out -F cover -X fix
+          ./codecov -f *.runcover.out -F runcover -X fix
+
+  workflow_success:
+    needs: [build]
+    name: Slack Notification success
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#00FF00"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - uses: percona-platform/checkout@v3
+      - uses: percona-platform/setup-node@v3
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
+
+  workflow_failure:
+    if: ${{ failure() }}
+    needs: [build]
+    name: Slack Notification failure
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#FF0000"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+      SLACK_FOOTER: "Please check the Actions URL ^"
+
+    steps:
+      - uses: percona-platform/checkout@v3
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
