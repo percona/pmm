@@ -31,6 +31,20 @@ func (_m *mockKubernetesClient) CreateDatabaseCluster(_a0 context.Context, _a1 *
 	return r0
 }
 
+// CreatePMMSecret provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockKubernetesClient) CreatePMMSecret(_a0 context.Context, _a1 string, _a2 map[string][]byte) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string][]byte) error); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteDatabaseCluster provides a mock function with given fields: _a0, _a1
 func (_m *mockKubernetesClient) DeleteDatabaseCluster(_a0 context.Context, _a1 string) error {
 	ret := _m.Called(_a0, _a1)

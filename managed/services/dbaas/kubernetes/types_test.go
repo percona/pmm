@@ -70,7 +70,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:          "proxysql",
@@ -137,7 +137,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:          "haproxy",
@@ -200,7 +200,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -257,7 +257,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:       "haproxy",
@@ -321,7 +321,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -385,7 +385,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -439,7 +439,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -472,7 +472,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -511,7 +511,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -545,7 +545,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -587,7 +587,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -620,7 +620,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -661,7 +661,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						Memory:   "2000",
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
@@ -695,7 +695,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						StorageClassName: &storageClass,
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
-						PMM: dbaasv1.PMMSpec{},
+						PMM: &dbaasv1.PMMSpec{},
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
