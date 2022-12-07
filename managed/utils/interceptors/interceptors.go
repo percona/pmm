@@ -18,6 +18,8 @@ package interceptors
 
 import (
 	"context"
+	"io"
+	"os"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -88,6 +90,11 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	// set logger
 	l := logrus.WithField("request", logger.MakeRequestID())
 	ctx = logger.SetEntry(ctx, l)
+
+	if info.FullMethod == "/server.Server/Readiness" && os.Getenv("LESS_LOG_NOISE") != "" {
+		l = logrus.NewEntry(logrus.New())
+		l.Logger.SetOutput(io.Discard)
+	}
 
 	var res interface{}
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {

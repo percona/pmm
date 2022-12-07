@@ -282,7 +282,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
 	}
-	l.Infof("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
+	l.Debugf("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
 	r.mRoundTrip.Observe(roundtrip.Seconds())
 	r.mClockDrift.Observe(clockDrift.Seconds())
 	return nil
