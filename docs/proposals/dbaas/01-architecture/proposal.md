@@ -32,7 +32,7 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 1. Make DBaaS more Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters.
 2. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
-3. Reduce the complexity of installing/managing operators in terms of upgrading operators to a newer version.
+3. Reduce the complexity of managing operator's installation/management. OLM will implement lifecycle management for operators and we can drop code that does the same for PMM.
 4. Provide generic specifications to create/edit/delete a database cluster.
 5. Provide generic specifications to backup/restore a database cluster inside Kubernetes.
 6. Provide REST API that follows guidelines and provides a better developer experience for the automation and integration with PMM/DBaaS.
@@ -259,48 +259,70 @@ Note: Communication with dbaas-operator via client-go made without caches, howev
 
 ### User Stories
 
+#### Story 1
 As an SRE person, I should be able to register the Kubernetes cluster using a service account without admin access to the cluster.
 
+#### Story 2
 As an SRE person, I should be able to understand what’s going wrong during the bootstrapping DBaaS feature inside of PMM in case of insufficient permissions so that I can debug and solve my issues. (E.g. No permissions to run kube-state-metrics, pxc, or psmdb operator).
 
+#### Story 3
 As an SRE person, I should be able to rename a Kubernetes cluster once it was provisioned automatically so that I can keep my naming conventions.
 
+#### Story 4
 As an SRE person, I should be able to specify which database operators I need to install in the cluster.
 
+#### Story 5
 As an SRE person, I should be able to create logical spaces to deploy databases so that I can easily split my environments. (e.g. dev namespace goes to the dev environment and the staging namespace goes to the staging environment. For the production environment I should be able to register and setup an additional cluster.)
 
+#### Story 6
 As an SRE person, I should be able to limit access to create/edit/destroy database clusters for specified users so that no devs are bugging me to do it for them.
 
+#### Story 7
 As an SRE person, I should be able to create a resource template for a database engine so that I don’t need to manually provide it every time.
 
+#### Story 8
 As an SRE person, I should be able to create an engine configuration template for a database engine.
 
+#### Story 9
 As an SRE person, I should be able to manage database engine versions that are allowed to use because I need to control which versions are used in my environment.
 
+#### Story 10
 As an SRE person, I should be able to specify a backup schedule template for a database cluster.
 
+#### Story 11
 As an SRE person, I should be able to configure storage for backups.
 
+#### Story 12
 As a user, I should be able to deploy a database with the recommended defaults
 
+#### Story 13
 As a user, I should be able to deploy a database with the selected version or cluster size
 
+#### Story 14
 As a user, I should be able to select a resource template to deploy a database
 
+#### Story 15
 As a user, I should be able to select a resource template and database engine configuration template to deploy a database
 
+#### Story 16
 As a user, I should be able to edit a database cluster (If I have sufficient permissions)
 
+#### Story 17
 As a user, I should be able to delete a database cluster (If I have sufficient permissions)
 
+#### Story 18
 As a user, I should be able to create a database cluster from a provided backup file.
 
+#### Story 19
 As a DBA, I should be able to tune performance for a database cluster.
 
+#### Story 20
 As a DBA(?), I should be able to view cluster resources available before creating a database.
 
-
 ## Design Details
+
+### Air gapped environments
+The design does not support air gapped environments because of internet connectivity dependency. 
 
 ### PMM REST API high-level design 
 
@@ -327,78 +349,79 @@ PUT /dbaas/operator-versions - upgrade operator via OLM
 ```
 Go struct that represents the payload to create/list database clusters 
 ```go
-type (
-	// EngineType stands for the supported database engines. Right now it's only pxc
-	// and psmdb. However, it can be ps, pg and any other source
-	EngineType string
-	// LoadBalancerType contains supported loadbalancers. It can be proxysql or haproxy
-	// for PXC clusters and mongos for PSMDB clusters.
-	//
-	// Once PG support will be added, it can be pg-bouncer or something else.
-	LoadBalancerType string
-	// Database struct contains an unified API to create any database cluster
-	// via PMM/DBaaS
-	Database struct {
-		// Database type stands for supported databases by the PMM API
-		// Now it's pxc or psmdb types but we can extend it
-		Database EngineType `json:"database_type"`
-		// DatabaseVersion sets from version service and uses the recommended version
-		// by default
-		DatabaseVersion string `json:"databaseVersion"`
-		// DatabaseConfig contains a config settings for the specified database
-		DatabaseConfig string `json:"databaseConfig"`
-		// ClusterSize is amount of nodes that required for the cluster.
-		// A database starts in cluster mode if clusterSize >= 3.
-		// There's a possibility to setup a single node cluster but it's unsafe operation
-		// and does not support upgrades from 1 to 3 nodes.
-		// However, for clusterSize >= 3 dbaas-operator can scale it up to 5-7-N nodes
-		// and scale down to 3.
-		ClusterSize int32 `json:"clusterSize"`
-		// LoadBalancer contains a load balancer settings. For PXC it's haproxy
-		// or proxysql. For PSMDB it's mongos.
-		LoadBalancer struct {
-			Type      LoadBalancerType            `json:"type,omitempty"`
-			Resources corev1.ResourceRequirements `json:"resources,omitempty"`
-		} `json:"loadBalancer"`
-		Monitoring struct {
-			// Agent contains an image path for the agent used for monitoring
-			// It'll be a percona/pmm-client:2 by default
-			Agent string `json:"agent,omitempty"`
-			// PMM contains settings to setup integration with the PMM server.
-			// It contains public address, login and password for the authentication
-			// and resources to specify request/limit resources.
-			PMM struct {
-				PublicAddress string                      `json:"publicAddress,omitempty"`
-				Login         string                      `json:"login,omitempty"`
-				Password      string                      `json:"login,omitempty"`
-				Resources     corev1.ResourceRequirements `json:"resources,omitempty"`
-			} `json:"pmm,omitempty"`
-			// Prometheus contains a configuration options to use prometheus
-			// as a monitoring solution in case of using dbaas-operator
-			// without PMM installation.
-			// But it still requires a manual installation of operators via OLM or
-			// by managing
-			Prometheus struct {
-				Resources corev1.ResourceRequirements `json:"resources,omitempty"`
-			} `json:"prometheus,omitempty"`
-		} `json:"monitoring"`
-		DBInstanceSpec struct {
-			CPU      string `json:"cpu,omitempty"`
-			Memory   string `json:"cpu,omitempty"`
-			DiskSize string `json:"diskSize,omitempty"`
-		} `json:"dbInstance"`
-		Backup struct {
-			// TDB
-		} `json:"backup,omitempty"`
-	}
-
-)
-
 const (
-	PXCEngine   EngineType = "pxc"
-	PSMDBEngine EngineType = "psmdb"
-)
+        PXCEngine   EngineType = "pxc"
+        PSMDBEngine EngineType = "psmdb"
 
+        LoadBalancerMongos   LoadBalancerType = "mongos"
+        LoadBalancerHAProxy  LoadBalancerType = "haproxy"
+        LoadBalancerProxySQL LoadBalancerType = "proxysql"
+)
+type (
+        // EngineType stands for the supported database engines. Right now it's only pxc
+        // and psmdb. However, it can be ps, pg and any other source
+        EngineType string
+        // LoadBalancerType contains supported loadbalancers. It can be proxysql or haproxy
+        // for PXC clusters and mongos for PSMDB clusters.
+        //
+        // Once PG support will be added, it can be pg-bouncer or something else.
+        LoadBalancerType  string
+        // DatabaseSpec defines the desired state of Database
+        DatabaseSpec struct {
+                // Database type stands for supported databases by the PMM API
+                // Now it's pxc or psmdb types but we can extend it
+                Database EngineType `json:"databaseType"`
+                // DatabaseVersion sets from version service and uses the recommended version
+                // by default
+                DatabaseImage string `json:"databaseImage"`
+                // DatabaseConfig contains a config settings for the specified database
+                DatabaseConfig string `json:"databaseConfig"`
+                SecretsName    string `json:"secretsName,omitempty"`
+                Pause          bool   `json:"pause,omitempty"`
+                // ClusterSize is amount of nodes that required for the cluster.
+                // A database starts in cluster mode if clusterSize >= 3.
+                ClusterSize int32 `json:"clusterSize"`
+                // LoadBalancer contains a load balancer settings. For PXC it's haproxy
+                // or proxysql. For PSMDB it's mongos.
+                LoadBalancer LoadBalancerSpec `json:"loadBalancer,omitempty"`
+                Monitoring   MonitoringSpec   `json:"monitoring,omitempty"`
+                DBInstance   DBInstanceSpec   `json:"dbInstance"`
+                Backup       BackupSpec       `json:"backup,omitempty"`
+        }
+        // LoadBalancer contains a load balancer settings. For PXC it's haproxy
+        // or proxysql. For PSMDB it's mongos.
+        LoadBalancerSpec struct {
+                Type                     LoadBalancerType                        `json:"type,omitempty"`
+                ExposeType               corev1.ServiceType                      `json:"exposeType,omitempty"`
+                Image                    string                                  `json:"image,omitempty"`
+                Size                     int32                                   `json:"size,omitempty"`
+                Configuration            string                                  `json:"configuration,omitempty"`
+		LoadBalancerSourceRanges []string                                `json:"loadBalancerSourceRanges,omitempty"`
+                Annotations              map[string]string                       `json:"annotations,omitempty"`
+                TrafficPolicy            corev1.ServiceExternalTrafficPolicyType `json:"trafficPolicy,omitempty"`
+                Resources                corev1.ResourceRequirements             `json:"resources,omitempty"`
+        }
+        MonitoringSpec struct {
+                PMM                      *PMMSpec                    `json:"pmm,omitempty"`
+                ImagePullPolicy          corev1.PullPolicy           `json:"imagePullPolicy,omitempty"`
+                Resources                corev1.ResourceRequirements `json:"resources,omitempty"`
+                RuntimeClassName         *string                     `json:"runtimeClassName,omitempty"`
+                ContainerSecurityContext *corev1.SecurityContext     `json:"containerSecurityContext,omitempty"`
+        }
+        PMMSpec struct {
+                Image         string `json:"image,omitempty"`
+                ServerHost    string `json:"serverHost,omitempty"`
+                ServerUser    string `json:"serverUser,omitempty"`
+                PublicAddress string `json:"publicAddress,omitempty"`
+                Login         string `json:"login,omitempty"`
+                Password      string `json:"password,omitempty"`
+        }
+        DBInstanceSpec struct {
+                CPU              string  `json:"cpu,omitempty"`
+                Memory           string  `json:"memory,omitempty"`
+                DiskSize         string  `json:"diskSize,omitempty"`
+                StorageClassName *string `json:"storageClassName,omitempty"`
+        }
 ```
 Since, the main focus for the PMM/DBaaS is to support AWS EKS clusters. The main focus is supporting managed kubernetes clusters as a main provider. However, the requirements can be changed and PMM/DBaaS may support bare-metal or EC2 setups. That adds additional constraints on the architecture. Everything related to the current implementation of k8s provider is located under `managed/services/dbaas` folder. However, it would be great to have `managed/services/dbaas/provider.go` file with the following interface
 
@@ -410,9 +433,9 @@ type Provider interface {
   // all required operators that we need (pxc, psmdb, dbaas-operator and victoria metrics
   // operator via OLM
   ProvisionCluster() error
-  // CleanupCluster cleans up cluster and removes VM operator
+  // CleanupCluster cleans up cluster and removes VMAgent operator
   // and, or, dbaas-operator, pxc operator and psmdb operator via --force tag.
-  // At the moment PMM should remove VM operator only and keep everything that related to databases
+  // At the moment PMM should remove VMAgent operator only and keep everything that related to databases
   // untouched and the end user can decide what to clean
   CleanupCluster() error
   // CreateDatabase cluster creates a cluster by using Database struct
@@ -430,10 +453,6 @@ type Provider interface {
 ```
 Every additional provider should implement this interface. Kubernetes related implementations
 
-1. `managed/services/dbaas/kubernetes` is a parent package that implements generic `Provider`
-2. `managed/services/dbaas/kubernetes/k8sclient` contains the implementation using `client-go` to communicate with k8s cluster
-3. `managed/services/dbaas/kubernetes/olmclient` contains the implementation for `OLM`
-4. `managed/services/management/dbaas/` contains the REST API implementation for PMM UI and uses `managed/services/dbaas` package.
 
 ### Templates
 
