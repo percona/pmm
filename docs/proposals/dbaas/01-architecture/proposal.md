@@ -73,17 +73,24 @@ In that case, PMM DBaaS will provide a consistent way to get operator version. I
 A high-level architecture diagram of OLM
 ![OLM Architecture](./olm_arch.jpg)
 
-High-level sequence diagram that illustrates an Installation and upgrading process inside PMM/DBaaS in terms of end user
+High-level sequence diagram that illustrates registering of K8s cluster
 
 ```mermaid
 sequenceDiagram
-    autonumber
+    
     PMM UI->>ManageD: Add kubernetes cluster
     ManageD->>K8S: Install OLM
     break when olm is installed 
     	K8S->>OLM: provisions an OLM
     end
     Note right of K8S: OLM is provisioned!
+```    
+High-level sequence diagram that illustrates an Installation and upgrading process inside PMM/DBaaS in terms of end user
+
+```mermaid
+sequenceDiagram
+    Note right of PMM UI: Once OLM is available 
+    PMM UI->>Managed: Install operators 
     ManageD->>OLM: Install required operators and create a manual subscription 
     OLM->>Catalog: Gets the latest version of the operator 
     loop when subscription is created 
@@ -91,8 +98,7 @@ sequenceDiagram
     end
     Note right of OLM: A new version of operator is available
     OLM->>Catalog: Downloads and installs a new version of operator and waiting for a user approval to switch to a new version.
-    PMM UI->>ManageD: Check for operator update
-    ManageD->>OLM: Is there an update available?
+    PMM UI->>ManageD: Check for unapproved install plans
     OLM->>ManageD: Sure. I downloaded it for you and waiting for your approval to switch to a new version
     ManageD->>PMM UI: Yeah, there's a new version of operator available
     Note left of PMM UI: A user approved the upgrade request
