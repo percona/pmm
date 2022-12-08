@@ -350,7 +350,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		return nil, errors.Wrap(err, "report query")
 	}
 	defer rows.Close() //nolint:errcheck
-	resultsWithGaps := map[uint32]*qanpb.Point{}
+	resultsWithGaps := make(map[uint32]*qanpb.Point)
 
 	var mainMetricColumnName string
 	switch column {
@@ -471,7 +471,7 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) {
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
 	result := qanpb.FiltersReply{
 		Labels: make(map[string]*qanpb.ListLabels),
 	}
@@ -481,7 +481,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {
-		subDimensions := map[string][]string{}
+		subDimensions := make(map[string][]string)
 		for k, v := range dimensions {
 			if k == dimensionName {
 				continue
@@ -493,7 +493,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
 		}
 
-		totals := map[string]float32{}
+		totals := make(map[string]float32)
 		if mainMetricPerSec == 0 {
 			for _, label := range values {
 				totals[label.key] += label.mainMetricPerSec

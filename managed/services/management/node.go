@@ -42,7 +42,7 @@ func NewNodeService(db *reform.DB) *NodeService {
 }
 
 // Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
+func (s *NodeService) Register(_ context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	res := &managementpb.RegisterNodeResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

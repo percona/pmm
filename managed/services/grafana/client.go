@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
+//
+
 package grafana
 
 import (
@@ -106,7 +108,7 @@ func (e *clientError) Error() string {
 
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
-// ctx is used only for cancelation.
+// Ctx is used only for cancelation.
 func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, respBody interface{}) error {
 	u := url.URL{
 		Scheme:   "http",
@@ -155,6 +157,11 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	return nil
 }
 
+type authUser struct {
+	role   role
+	userID int
+}
+
 // role defines Grafana user role within the organization
 // (except grafanaAdmin that is a global flag that is more important than any other role).
 // Role with more permissions has larger numerical value: viewer < editor, admin < grafanaAdmin, etc.
@@ -185,7 +192,7 @@ func (r role) String() string {
 	}
 }
 
-// GetUserID returns user ID from Grafana for given user
+// GetUserID returns user ID from Grafana for the current user.
 func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
@@ -207,30 +214,45 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
-// getRole returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
+// getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
-// ctx is used only for cancelation.
-func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, error) {
+// Ctx is used only for cancelation.
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key
 	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
-		return c.getRoleForAPIKey(ctx, authHeaders)
+		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+		return authUser{
+			role:   role,
+			userID: 0,
+		}, err
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
 	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		return none, err
+		return authUser{
+			role:   none,
+			userID: 0,
+		}, err
 	}
 
+	id, _ := m["id"].(float64)
+	userID := int(id)
 	if a, _ := m["isGrafanaAdmin"].(bool); a {
-		return grafanaAdmin, nil
+		return authUser{
+			role:   grafanaAdmin,
+			userID: userID,
+		}, nil
 	}
 
 	// works only with Basic auth
 	var s []interface{}
 	if err := c.do(ctx, "GET", "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
-		return none, err
+		return authUser{
+			role:   none,
+			userID: userID,
+		}, err
 	}
 
 	for _, el := range s {
@@ -242,11 +264,17 @@ func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, er
 		// check only default organization (with ID 1)
 		if id, _ := m["orgId"].(float64); id == 1 {
 			role, _ := m["role"].(string)
-			return c.convertRole(role), nil
+			return authUser{
+				role:   c.convertRole(role),
+				userID: userID,
+			}, nil
 		}
 	}
 
-	return none, nil
+	return authUser{
+		role:   none,
+		userID: userID,
+	}, nil
 }
 
 func (c *Client) isAPIKeyAuth(authHeader string) bool {
@@ -636,7 +664,7 @@ type grafanaHealthResponse struct {
 	Version  string `json:"version"`
 }
 
-// IsReady calls Grafana API to check its status
+// IsReady calls Grafana API to check its status.
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
 	if err := c.do(ctx, "GET", "/api/health", "", nil, nil, &status); err != nil {
@@ -681,13 +709,13 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
 	}
 
 	return user.AccessToken, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*Client)(nil)
 	_ error          = (*clientError)(nil)

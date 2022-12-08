@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -82,7 +83,7 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
+func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -311,12 +312,12 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-L:
+loop:
 	for {
 		select {
 		case req, more := <-c.channel.Requests():
 			if !more {
-				break L
+				break loop
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
@@ -333,7 +334,7 @@ L:
 				responsePayload = &agentpb.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
 					responsePayload = nil
-					status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
 
@@ -389,7 +390,7 @@ L:
 			}
 			c.channel.Send(response)
 		case <-ctx.Done():
-			break L
+			break loop
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
@@ -501,9 +502,20 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+	case *agentpb.StartActionRequest_RestartSysServiceParams:
+		var service string
+		switch params.RestartSysServiceParams.SystemService {
+		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
+			service = "mongod"
+		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
+			service = "pbm-agent"
+		default:
+			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+		}
+		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Errorf("unknown action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
 	}
 
 	return c.runner.StartAction(action)
@@ -622,7 +634,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Socket:   j.MongodbRestoreBackup.Socket,
 		}
 
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
@@ -904,6 +917,19 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	return args
+}
+
+func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
+	var status *grpcstatus.Status
+	switch {
+	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
+	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
+		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	}
+	return status
 }
 
 // check interface
