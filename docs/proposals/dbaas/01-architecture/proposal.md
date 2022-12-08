@@ -483,7 +483,7 @@ type Provider interface {
 ```
 Every additional provider should implement this interface. Kubernetes related implementations
 
-### Further steps with OLM and dbaas-operator
+#### Further steps with OLM and dbaas-operator
 
 Since PMM used OLM to install/update operators, PMM can get the information about supported database engines from dbaas-operator. That will help us to make releases of PMM/DBaaS independent from PMM release cycle. As an additional feature, SRE or Admin can select database engines she wants to use and PMM will provision it accordingly 
 
@@ -524,7 +524,6 @@ As these kind of templates are more higher level, they would take priority over 
 
 Proposal on a current stage is to propagate low level templates (Database Engine defined by SRE/DBA in a cluster) to a higher level for the know fields. When middle level and high level templates (DBA, Dev) business logic would be better known, it will just a simple layer on top low level template and be presented to the user instead.
 
-TBD.
 
 #### Database Engine Templates
 
@@ -558,7 +557,7 @@ Also this use case defaults to namespace and cluster visibility. So if there wou
 **New parameter in API**
 ```go
           // Optional unique template name for specified EngineType
-		TemplateName string `json:"templateName,omitempty"`
+	  TemplateName string `json:"templateName,omitempty"`
 ```
 `dbass-operator` receives `TemplateName` parameters and get template from k8s by combining engine type and template name. Or would implement additional controller for templates and track them.
 
@@ -587,7 +586,6 @@ Annotations that are set by `dbaas-operator` for any engine to provide additiona
 - `dbaas.percona.com/dbtemplate-name: prod-app-X-small`
 - `dbaas.percona.com/origin: pmm`
 - `dbaas.percona.com/dbtemplate-default: yes`: default CR was created without origin and parameters
-- more annotations are TBD
 
 **Labels**
 
@@ -663,29 +661,25 @@ prod-app-n-large                                                  5m24s
 During moving from dbaas-controller to `dbaas-operator` we'll keep the same user experience for the end user
 
 #### Prerequisite testing updates
-// TBD
+
+1. Setup Github actions pipelines for dbaas-operator
+2. Setup Github actions pipelines for dbaas-catalog
+
 #### Unit tests
-// TBD
+
+1. Add unit tests for PMM integration with dbaas-operator
+2. Add unit tests for PMM CR generation
+3. Add unit tests for PMM k8s client
+
 #### Integration tests
-// TBD
+
+1. Use current PMM integration tests for DBaaS during the migration to understand what goes wrong 
+2. Add additional tests for OLM integration 
+
+
 #### e2e tests
-// TBD
-### Graduation Criteria
-// TBD
 
-## Production Readiness Review Questionnaire
-### Feature Enablement and Rollback
-// TBD
-### Rollout, Upgrade and Rollback Planning
-// TBD
-### Dependencies
+1. Add e2e tests for dbaas-operator to test create/upgrade/update/scale database cluster
+2. Add e2e tests to ensure dbaas-operator works well with only one installed operator
 
-There will be a new dependencies added to the PMM
-1. client-go
-2. olmclient
-3. dbaas-operator
-4. 
-
-### Scalability
-// TBD
 
