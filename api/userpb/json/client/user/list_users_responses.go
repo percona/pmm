@@ -365,7 +365,7 @@ type ListUsersOKBodyUsersItems0 struct {
 	// user id
 	UserID int64 `json:"user_id,omitempty"`
 
-	// List of role IDs assigned to the user
+	// List of role IDs assigned to the user.
 	RoleIds []int64 `json:"role_ids"`
 }
 

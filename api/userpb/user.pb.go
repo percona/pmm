@@ -278,7 +278,7 @@ type ListUsersResponse_UserDetail struct {
 	unknownFields protoimpl.UnknownFields
 
 	UserId uint32 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// List of role IDs assigned to the user
+	// List of role IDs assigned to the user.
 	RoleIds []uint32 `protobuf:"varint,2,rep,packed,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
 }
 

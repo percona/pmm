@@ -189,8 +189,8 @@
                     "type": "object",
                     "properties": {
                       "role_ids": {
+                        "description": "List of role IDs assigned to the user.",
                         "type": "array",
-                        "title": "List of role IDs assigned to the user",
                         "items": {
                           "type": "integer",
                           "format": "int64"
