@@ -5,7 +5,7 @@ datasources:
   orgId: 1
   type: prometheus
   access: proxy
-  url: http://127.0.0.1:9090/prometheus/
+  url: http://127.0.0.1:1280/prometheus/
   isDefault: true
   jsonData:
     httpMethod: POST
