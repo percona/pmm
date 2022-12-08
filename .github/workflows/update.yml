@@ -1,0 +1,68 @@
+name: Update
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+    paths-ignore:
+      - "admin/**"
+      - "agent/**"
+      - "docs/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "vmproxy/**"
+
+jobs:
+  build:
+    name: Build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - percona/pmm-server:2.0.0 # oldest production version
+          - percona/pmm-server:2.16.0 # version with enabled experimental repo
+          - percona/pmm-server:2 # latest production version
+          - perconalab/pmm-server:dev-latest # latest development version
+
+    env:
+      PMM_SERVER_IMAGE: ${{ matrix.image }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/update
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Docker Up
+        run: docker-compose up -d
+
+      - name: Install dev tools in container
+        run: docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh
+
+      - name: Run install
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update install
+
+      - name: Run license check and ansible checks
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update check
+
+      - name: Run tests
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update test-race
+
+      - name: Run with race detector and collect coverage information
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update run-race-cover RUN_FLAGS='-debug -check'
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v3
+        with:
+          file: cover.out
+          flags: update
+          fail_ci_if_error: false
