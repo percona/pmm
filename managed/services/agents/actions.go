@@ -50,14 +50,30 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
 //
 //nolint:lll
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, values []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-	res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
-	if err != nil {
-		return err
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, values []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	if query == "" && queryID == "" {
+		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
 
-	if res.PlaceholdersCount != uint32(len(values)) {
-		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+	var q string
+	switch {
+	case queryID != "":
+		res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+
+		if res.PlaceholdersCount != uint32(len(values)) {
+			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+		}
+
+		q = res.Fingerprint
+	default:
+		err := s.qanClient.QueryExists(ctx, serviceID, query)
+		if err != nil {
+			return err
+		}
+		q = query
 	}
 
 	agent, err := s.r.get(pmmAgentID)
@@ -70,7 +86,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				Query:        res.Fingerprint,
+				Query:        q,
 				Values:       values,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
