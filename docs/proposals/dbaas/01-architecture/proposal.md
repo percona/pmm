@@ -324,6 +324,36 @@ As a DBA(?), I should be able to view cluster resources available before creatin
 ### Air gapped environments
 The design does not support air gapped environments because of internet connectivity dependency. 
 
+### OLM installation
+PMM always installs the latest version of OLM using the following process:
+
+1. Get the latest release from Github
+2. Download crds.yaml and olm.yaml
+3. Apply crds.yaml and olm.yaml against Kubernetes cluster
+
+### Installation of dbaas-catalog
+
+PMM uses [Percona DBaaS catalog](https://github.com/percona/dbaas-catalog/blob/main/docs/design/Percona-DBaaS-Platform-design.md). Percona DBaaS catalog is a repository of metadata that Operator Lifecycle Manager (OLM) can query to discover and install Operators and their dependencies on a cluster. OLM always installs Operators from the latest version of a catalog. It installs the following operators from this catalog:
+
+1. Percona XtraDB Cluster Operator
+2. Percona Server MongoDB Operator
+3. Victoria Metrics Operator
+4. DBaaS operator
+
+Any additional operators should be added to the catalog. Installation of an operator has the following steps:
+
+1. PMM should have DBaaS operator installed 
+2. PMM creates [Operator Group](https://docs.openshift.com/container-platform/4.8/operators/understanding/olm/olm-understanding-operatorgroups.html) if it does not exist
+3. PMM creates [subscription](https://olm.operatorframework.io/docs/concepts/olm-architecture/) for the selected operator
+
+**Using OLM with pre-installed operators**
+
+1. PMM gets versions of installed operators
+2. PMM creates subscription with specified versions
+3. OLM installs [specific version](https://olm.operatorframework.io/docs/tasks/install-operator-with-olm/#example-install-a-specific-version-of-an-operator)
+4. Operator restarts and continues to work normally but now OLM manages installation of new versions
+
+
 ### PMM REST API high-level design 
 
 ```
@@ -452,6 +482,10 @@ type Provider interface {
 }
 ```
 Every additional provider should implement this interface. Kubernetes related implementations
+
+### Further steps with OLM and dbaas-operator
+
+Since PMM used OLM to install/update operators, PMM can get the information about supported database engines from dbaas-operator. That will help us to make releases of PMM/DBaaS independent from PMM release cycle. As an additional feature, SRE or Admin can select database engines she wants to use and PMM will provision it accordingly 
 
 
 ### Templates
