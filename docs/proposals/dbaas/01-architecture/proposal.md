@@ -2,7 +2,7 @@
 
 ## Summary
 
-PMM/DBaaS feature has a lot of functionality to install/manage operators and CRUD operations for Percona XtraDB/Percona Server For MongoDB clusters. However, the current implementation is not extensible enough and lacks scalability features.
+PMM DBaaS has a lot of functionality to install/manage operators and CRUD operations for either a Percona XtraDB or a Percona Server For MongoDB cluster. However, the current implementation is not extensible enough and lacks scalability features.
 
 This proposal introduces architectural changes that are required to make DBaaS more extensible and more native for K8S
 
