@@ -14,6 +14,7 @@ on:
       - "managed/**"
       - "docs/**"
       - "qan-api2/**"
+      - "update/**"
       - "vmproxy/**"
 
   workflow_call:
