@@ -30,20 +30,18 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Goals
 
-1. Make DBaaS more Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem.
-2. Improve the overall quality of DBaaS by adding an integration testing framework.
-3. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
-4. Reduce the complexity of installing/managing operators in terms of upgrading operators to a newer version.
-5. Provide generic specifications to create/edit/delete a database cluster.
-6. Provide generic specifications to backup/restore a database cluster inside Kubernetes.
-7. Provide REST API that follows guidelines and provides a better developer experience for the automation and integration with PMM/DBaaS.
-8. Provide a simplified way to create templates for a database cluster creation with sane defaults.
+1. Make DBaaS more Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters.
+2. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
+3. Reduce the complexity of installing/managing operators in terms of upgrading operators to a newer version.
+4. Provide generic specifications to create/edit/delete a database cluster.
+5. Provide generic specifications to backup/restore a database cluster inside Kubernetes.
+6. Provide REST API that follows guidelines and provides a better developer experience for the automation and integration with PMM/DBaaS.
+7. Provide a simplified way to create templates for a database cluster creation with sane defaults.
 
 ## Non-goals
 
 1. Bloat the size of PMM docker container
-2. Overcomplicate architecture
-3. Overcomplicate the overall development process
+2. Overcomplicate the overall development process
 
 
 ## Proposal
@@ -207,51 +205,56 @@ TIME="%e\n" time curl -k -s --request POST --url https://localhost:8443/v1/manag
 60.04
 ```
 
-**Listing database clusters that were created with crossplane (uses operator pattern).**
+**PMM integrated with dbaas-operator and communicates via client-go library**
 
 ```
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims?limit=5 | jq '.items | length'
-0.47
-5
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims?limit=5 | jq '.items | length'
-0.32
-5
+## Listing 10 clusters
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
-1.46
-20
+0.38s
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
-0.56
-20
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
-0.57
-20
+0.82s
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
-0.53
-20
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
-0.54
-10
+0.30s
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
-1.09
-10
+## Listing 20 database clusters
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
-2.03
-10
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
+0.67s
 
-TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
-1.36
-10
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
+1.14s
+
+time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "minikube"
+}'
+0.76s
+
+
+
 ```
+The environment for the benchmark above uses the same testing environment
 
-So, requesting a list of database clusters from `dbaas-operator` (it uses the same framework as well as crossplane) will improve request time drastically. In addition, PMM/DBaaS can use [client-go caches](https://pkg.go.dev/k8s.io/client-go/tools/cache) as well as [Limit and Continue](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ListOptions) params of metav1.ListOptions struct.
+1. PMM
+2. Remote kubernetes cluster
+3. Communicates either via dbaas-controller (first two test runs) or via dbaas-operator (the last test run)
+
+Note: Communication with dbaas-operator via client-go made without caches, however, using [client-go caches](https://pkg.go.dev/k8s.io/client-go/tools/cache) as well as [Limit and Continue](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ListOptions) will improve performance for large scale deployments (more than 500 clusters created)
 
 
 ### User Stories
