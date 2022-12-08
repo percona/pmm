@@ -132,7 +132,7 @@ type StartMySQLExplainJSONActionBody struct {
 	// Deprecated: should not be used.
 	Query string `json:"query,omitempty"`
 
-	// Query ID of query. Required.
+	// Query ID of query.
 	QueryID string `json:"query_id,omitempty"`
 
 	// Array of placeholder values

@@ -56,13 +56,9 @@ message StartMySQLExplainActionRequest {
     }
   ];
   // Deprecated: should not be used.
-  string query = 3 [deprecated = true];
-  // Query ID of query. Required. 
-  string query_id = 6 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string query = 3;
+  // Query ID of query.
+  string query_id = 6;
   // Array of placeholder values
   repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
@@ -86,13 +82,9 @@ message StartMySQLExplainJSONActionRequest {
     }
   ];
   // Deprecated: should not be used.
-  string query = 3 [deprecated = true];
-  // Query ID of query. Required. 
-  string query_id = 6 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string query = 3;
+  // Query ID of query.
+  string query_id = 6;
   // Array of placeholder values
   repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
@@ -116,13 +108,9 @@ message StartMySQLExplainTraditionalJSONActionRequest {
     }
   ];
   // Deprecated: should not be used.
-  string query = 3 [deprecated = true];
-  // Query ID of query. Required. 
-  string query_id = 6 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string query = 3;
+  // Query ID of query.
+  string query_id = 6;
   // Array of placeholder values
   repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
