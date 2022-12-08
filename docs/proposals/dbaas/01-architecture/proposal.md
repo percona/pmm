@@ -11,7 +11,7 @@ This proposal introduces architectural changes that are required to make DBaaS m
 The current architecture for DBaaS has the following components:
 
 1. PMM that exposes REST API for UI and some automation
-2. DBaaS-controller exposes gRPC API to the PMM and works with Kubernetes cluster
+2. DBaaS controller that exposes gRPC API to PMM and works with Kubernetes clusters
 
 ![Current DBaaS architecture](./current_arch.jpg)
 
