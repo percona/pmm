@@ -15,7 +15,7 @@ The current architecture for DBaaS has the following components:
 
 ![Current DBaaS architecture](./current_arch.jpg)
 
-As a proof of concept, this architecture covers everything. However, it has the following issues
+As a proof of concept, this architecture covers everything. However, it has the following issues:
 
 1. Non-native Kubernetes API to work with clusters. DBaaS controller has only gRPC API and this creates additional friction for community users to work/extend with the controller. One needs to generate a gRPC client to communicate with the DBaaS controller. Thus implementing the integration testing framework becomes a complex task to solve because popular frameworks such as codecept.js or playwright do not have gRPC support.
 2. DBaaS controller has a set of CRUD endpoints for each database type (e.g. PXC and PSMDB). It adds additional room for bugs/inconsistencies and has the following issues
