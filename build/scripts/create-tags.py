@@ -6,7 +6,6 @@ import os, subprocess, time
 REPOS = [
     "sources/grafana/src/github.com/grafana/grafana",
     "sources/grafana-dashboards",
-    "sources/pmm-update/src/github.com/percona/pmm-update",
     "sources/pmm/src/github.com/percona/pmm",
     ".",
 ]
