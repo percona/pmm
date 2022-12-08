@@ -47,7 +47,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 - [User interface](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html)
 - [Using Query Analytics](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html)
-- [Using Integrated Alerting](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html)
+- [Using Percona Alerting](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html)
 - [Using DBaaS](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html)
 - [Dashboards reference](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html)
 

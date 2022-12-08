@@ -8,7 +8,7 @@
     - Viewing graph details.
     - Annotating events.
 
-- [Integrated alerting](alerting.md)
+- [Percona Alerting](alerting.md)
 
 - [Backup and Restore](backup.md)
 
@@ -23,7 +23,7 @@
 
     - Backup;
     - DBaaS;
-    - Integrated Alerting;
+    - Percona Alerting;
     - Advisors.
 
     To use these features you must be logged in as a PMM Admin user and activate the features.
