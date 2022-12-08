@@ -47,8 +47,9 @@ const (
 	volumeCopyImage  = "alpine:3"
 )
 
-var copyLabelsToVolumeBackup = map[string]struct{}{
-	"org.opencontainers.image.version": {},
+var copyLabelsToVolumeBackup = []string{
+	"org.label-schema.version",
+	"org.opencontainers.image.version",
 }
 
 var (
@@ -147,9 +148,9 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 
 		// Copy labels from original container to backup volume
 		labels := make(map[string]string, 1+len(copyLabelsToVolumeBackup))
-		for k, v := range container.Config.Labels {
-			if _, ok := copyLabelsToVolumeBackup[k]; ok {
-				labels[k] = v
+		for _, l := range copyLabelsToVolumeBackup {
+			if _, ok := container.Config.Labels[l]; ok {
+				labels[l] = container.Config.Labels[l]
 			}
 		}
 
