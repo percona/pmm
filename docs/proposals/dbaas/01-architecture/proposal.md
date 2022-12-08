@@ -123,28 +123,32 @@ The sequential diagram illustrates a creation of PXC cluster
 
 ```mermaid
 sequenceDiagram
-    autonumber
+    
     PMM UI->>ManageD: Create a Database cluster
     Note right of PMM UI: (DatabaseType: PXC)
-    ManageD->>K8S: Create a Database Kind
-    K8S->>DBaaS Operator: Create a Database Kind object
-    DBaaS Operator->>PXC Operator: Create a PXC cluster
+    ManageD->>K8S: Create a DatabaseCluster Kind object
+    K8S->>DBaaS Operator: Reconcile DatabaseCluster object
+    DBaaS Operator->>PXC Operator: Create a PXC cluster Object
     Note right of DBaaS Operator: Binds objects to each other
     Note right of DBaaS Operator:  (Database->PerconaXtraDBCluster)
     break when PXC cluster is in ready state
     	PXC Operator->>Statefulset: provisions PXC cluster
     end
     Note right of PXC Operator: PXC Cluster is created
-    PMM UI->>ManageD: Get me a list of database clusters 
-    ManageD->>K8S: Get list of Database clusters 
-    K8S->>DBaaS Operator: Get list Database clusters
-    DBaaS Operator->>K8S: returns array of Database objects
-    Note right of K8S: They can be with DatabaseType either PXC or PSMDB
-    K8S->>ManageD: Returns list of databases
-    ManageD->>PMM UI: Returns list of database clusters
-    Note right of PMM UI:  Pagination is available by default as well as caches
+
     
 ```    
+
+Listing DatabaseClusters
+
+```mermaid
+sequenceDiagram
+    PMM UI->>ManageD: Give me a list of database clusters 
+    ManageD->>K8S: Get list of DatabaseCluster Kind objects
+    Note left of K8S: They can be with DatabaseType either PXC or PSMDB
+    K8S->>ManageD: Returns list of databases
+    ManageD->>PMM UI: Returns list of database clusters
+```
 
 #### Communication speed benchmarks
 
