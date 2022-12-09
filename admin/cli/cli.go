@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
+	"github.com/percona/pmm/admin/commands/pmm_updater/start"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -88,6 +89,24 @@ func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
 func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return run(ctx, globals)
+}
+
+// PMMUpdaterCommands stores all commands, flags and arguments for the "pmm-updater" binary.
+type PMMUpdaterCommands struct {
+	flags.GlobalFlags
+
+	Start      start.StartCommand         `cmd:"" help:"Start pmm-updater daemon"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
+}
+
+func (c *PMMUpdaterCommands) GetGlobalFlags() *flags.GlobalFlags {
+	return &c.GlobalFlags
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *PMMUpdaterCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return run(ctx, globals)
 }
 

@@ -53,6 +53,9 @@ func Bootstrap(opts any) {
 	case cli.PMMCommands:
 		kongParser = kong.Must(&o, getDefaultKongOptions("pmm")...)
 		parsedOpts = &o
+	case cli.PMMUpdaterCommands:
+		kongParser = kong.Must(&o, getDefaultKongOptions("pmm-updater")...)
+		parsedOpts = &o
 	}
 
 	kongcompletion.Register(kongParser)

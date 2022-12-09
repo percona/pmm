@@ -27,6 +27,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
@@ -259,4 +260,24 @@ func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateCo
 // ContainerWait waits until a container is in a specific state.
 func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
 	return b.Cli.ContainerWait(ctx, containerID, condition)
+}
+
+// ContainerList lists containers according to filters
+func (b *Base) ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error) {
+	return b.Cli.ContainerList(ctx, options)
+}
+
+// NetworkInspect returns the information for a specific network configured in the docker host.
+func (b *Base) NetworkInspect(ctx context.Context, networkID string, options types.NetworkInspectOptions) (types.NetworkResource, error) {
+	return b.Cli.NetworkInspect(ctx, networkID, options)
+}
+
+// NetworkCreate creates a new network in the docker host.
+func (b *Base) NetworkCreate(ctx context.Context, name string, options types.NetworkCreate) (types.NetworkCreateResponse, error) {
+	return b.Cli.NetworkCreate(ctx, name, options)
+}
+
+// NetworkConnect connects a container to an existent network in the docker host.
+func (b *Base) NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error {
+	return b.Cli.NetworkConnect(ctx, networkID, containerID, config)
 }

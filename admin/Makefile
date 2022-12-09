@@ -27,17 +27,20 @@ LD_FLAGS = -ldflags " \
 gen:                            ## Generate files.
 	go generate ./...
 
-release:                        ## Build pmm-admin release binary.
+release:                        ## Build release binaries.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-updater ./cmd/pmm-updater/
 
-install:                        ## Install pmm & pmm-admin binary.
+install:                        ## Install pmm, pmm-admin, pmm-updater binary.
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm ./cmd/pmm/
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-updater ./cmd/pmm-updater/
 
-install-race:                   ## Install pmm & pmm-admin binary with race detector.
+install-race:                   ## Install pmm, pmm-admin, pmm-updater binary with race detector.
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-updater ./cmd/pmm-updater/
 
 TEST_FLAGS ?= -timeout=20s
 
