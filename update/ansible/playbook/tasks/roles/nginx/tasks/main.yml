@@ -1,6 +1,6 @@
 ---
 # We already have nginx package in epel repo
-- name: Add Nginx repository for EL7
+- name: Add Nginx repository for RHEL7
   when:
     - ansible_distribution == 'CentOS'
     - ansible_distribution_major_version == '7'
@@ -11,7 +11,7 @@
     gpgcheck: no
     enabled: no
 
-- name: Add Nginx repository for EL9
+- name: Add Nginx repository for RHEL9
   when:
     - ansible_distribution == 'OracleLinux'
     - ansible_distribution_major_version == '9'
@@ -53,31 +53,11 @@
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
   loop:
-    - {
-        src: ca-certs.pem,
-        dest: /etc/nginx/ssl/ca-certs.pem,
-        mode: "u=rw,g=r,o=r",
-      }
-    - {
-        src: certificate.conf,
-        dest: /etc/nginx/ssl/certificate.conf,
-        mode: "u=rw,g=r,o=r",
-      }
-    - {
-        src: dhparam.pem,
-        dest: /etc/nginx/ssl/dhparam.pem,
-        mode: "u=rw,g=r,o=r",
-      }
-    - {
-        src: generate-ssl-certificate,
-        dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate,
-        mode: "u=rwx,g=rx,o=rx",
-      }
-    - {
-        src: upgrade-certificate,
-        dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate,
-        mode: "u=rwx,g=rx,o=rx",
-      }
+    - { src: ca-certs.pem, dest:  /etc/nginx/ssl/ca-certs.pem, mode: 'u=rw,g=r,o=r' }
+    - { src: certificate.conf, dest:  /etc/nginx/ssl/certificate.conf, mode: 'u=rw,g=r,o=r' }
+    - { src: dhparam.pem, dest:  /etc/nginx/ssl/dhparam.pem, mode: 'u=rw,g=r,o=r' }
+    - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: 'u=rwx,g=rx,o=rx' }
+    - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: 'u=rwx,g=rx,o=rx' }
 
 - name: NGINX                       | Copy nginx configs
   copy:
