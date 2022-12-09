@@ -10,7 +10,8 @@ if [ -f "${docker_client_tarball}" ]; then
     exit 0
 fi
 
-cp ${root_dir}/results/tarball/pmm2-client-*.tar.gz ${root_dir}/tmp/source/pmm/build/docker/client/pmm2-client.tar.gz
+DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
+cp ${root_dir}/results/tarball/pmm2-client-*.tar.gz ${root_dir}/${DOCKER_FILE_LOCATION}/pmm2-client.tar.gz
 
 if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
@@ -23,8 +24,9 @@ docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
              --squash \
              --no-cache \
-             -f ${docker_file} \
-             -t ${DOCKER_CLIENT_TAG} tmp/source/pmm/build/docker/client
+             -f ${DOCKER_FILE_LOCATION}/${docker_file} \
+             -t ${DOCKER_CLIENT_TAG} \
+             ${DOCKER_FILE_LOCATION}
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})
