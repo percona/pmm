@@ -132,34 +132,18 @@ build() {
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-        if [ "$rpmbuild_dist" = "el7" ]; then
-            if [ -n "$RPM_EPOCH" ]; then
-                aws s3 sync \
-                    --region us-east-2 \
-                    ${rpms_dir}/${spec_name}-${rpm_version} \
-                    s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
-                    || :
-            else
-                aws s3 sync \
-                    --region us-east-2 \
-                    ${rpms_dir}/${spec_name}-${rpm_version} \
-                    s3://pmm-build-cache/${spec_name}-${rpm_version} \
-                    || :
-            fi
+        if [ -n "$RPM_EPOCH" ]; then
+            aws s3 sync \
+                --region us-east-2 \
+                ${rpms_dir}/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                || :
         else
-            if [ -n "$RPM_EPOCH" ]; then
-                aws s3 sync \
-                    --region us-east-2 \
-                    ${rpms_dir}/${spec_name}-${rpm_version} \
-                    s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                    || :
-            else
-                aws s3 sync \
-                    --region us-east-2 \
-                    ${rpms_dir}/${spec_name}-${rpm_version} \
-                    s3://pmm-build-cache/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                    || :
-            fi
+            aws s3 sync \
+                --region us-east-2 \
+                ${rpms_dir}/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                || :
         fi
     fi
 }
