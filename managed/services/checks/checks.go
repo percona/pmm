@@ -107,8 +107,9 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted *prom.CounterVec
-	mAlertsGenerated *prom.CounterVec
+	mScriptsExecuted  *prom.CounterVec
+	mAlertsGenerated  *prom.CounterVec
+	mChecksDownloaded *prom.CounterVec
 }
 
 // New returns Service with given PMM version.
@@ -150,35 +151,28 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type",
-		}, []string{"service_type"}),
+			Help:      "Counter of check scripts executed per service type, check type and check name",
+		}, []string{"service_type", "check_type", "check_name"}),
 
 		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per service type per check type",
-		}, []string{"service_type", "check_type"}),
+			Help:      "Counter of alerts generated per service type, check type and check name",
+		}, []string{"service_type", "check_type", "check_name"}),
+
+		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "checks_downloaded_total",
+			Help:      "Counter of checks downloaded per service type, check type and check name",
+		}, []string{"service_type", "check_type", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
 		l.Warn("Start delay disabled.")
 		s.startDelay = 0
 	}
-
-	s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType))
-	s.mScriptsExecuted.WithLabelValues(string(models.PostgreSQLServiceType))
-	s.mScriptsExecuted.WithLabelValues(string(models.MongoDBServiceType))
-
-	s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(check.MySQLShow))
-	s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(check.MySQLSelect))
-	s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(check.PostgreSQLShow))
-	s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(check.PostgreSQLSelect))
-	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBBuildInfo))
-	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetCmdLineOpts))
-	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetParameter))
-	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBReplSetGetStatus))
-	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetDiagnosticData))
 
 	return s, nil
 }
@@ -729,8 +723,8 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			}
 			res = append(res, results...)
 
-			s.mScriptsExecuted.WithLabelValues(string(serviceType)).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type)).Add(float64(len(results)))
+			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
 		}
 	}
 
@@ -869,7 +863,7 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		}
 	}()
 
-	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
+	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil { //nolint:lll
 		return nil, errors.Wrap(err, "failed to start mySQL select action")
 	}
 	res, err := s.waitForResult(ctx, r.ID)
@@ -1378,6 +1372,8 @@ func (s *Service) CollectChecks(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded checks
 		}
+		// defer it to run after updateChecks
+		defer s.incChecksDownload()
 	}
 
 	s.updateChecks(s.filterSupportedChecks(checks))
@@ -1445,7 +1441,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
 	res := make([]check.Check, 0, len(checks))
 
-checksLoop:
+loop:
 	for _, c := range checks {
 		if c.Version > maxSupportedVersion {
 			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
@@ -1462,7 +1458,7 @@ checksLoop:
 			for _, query := range c.Queries {
 				if ok := isQueryTypeSupported(query.Type); !ok {
 					s.l.Warnf("Unsupported query type: %s.", query.Type)
-					continue checksLoop
+					continue loop
 				}
 			}
 		}
@@ -1519,12 +1515,27 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 func (s *Service) Describe(ch chan<- *prom.Desc) {
 	s.mScriptsExecuted.Describe(ch)
 	s.mAlertsGenerated.Describe(ch)
+	s.mChecksDownloaded.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mScriptsExecuted.Collect(ch)
 	s.mAlertsGenerated.Collect(ch)
+	s.mChecksDownloaded.Collect(ch)
+}
+
+func (s *Service) incChecksDownload() {
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(s.checks)
+	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
+	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
+	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
+}
+
+func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
+	for _, c := range checks {
+		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+	}
 }
 
 // check interfaces.

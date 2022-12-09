@@ -72,6 +72,7 @@ func TestRDSService(t *testing.T) {
 				"ap-northeast-2",
 				"ap-northeast-3",
 				"ap-south-1",
+				"ap-south-2",
 				"ap-southeast-1",
 				"ap-southeast-2",
 				"ap-southeast-3",
@@ -79,8 +80,10 @@ func TestRDSService(t *testing.T) {
 				"cn-north-1",
 				"cn-northwest-1",
 				"eu-central-1",
+				"eu-central-2",
 				"eu-north-1",
 				"eu-south-1",
+				"eu-south-2",
 				"eu-west-1",
 				"eu-west-2",
 				"eu-west-3",
@@ -103,7 +106,7 @@ func TestRDSService(t *testing.T) {
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
 			ctx := logger.Set(context.Background(), t.Name())
-			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:gosec
+			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:gosec,goconst
 
 			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,

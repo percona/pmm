@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
@@ -14,6 +14,8 @@ on:
       - "managed/**"
       - "docs/**"
       - "qan-api2/**"
+      - "update/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:
@@ -60,7 +62,7 @@ jobs:
           echo "$GOBIN" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}

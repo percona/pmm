@@ -539,6 +539,8 @@ type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.

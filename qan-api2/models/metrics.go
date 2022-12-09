@@ -479,7 +479,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate agruments in IN clause")
+		return nil, errors.Wrap(err, "populate arguments in IN clause")
 	}
 	query = m.db.Rebind(query)
 
@@ -492,7 +492,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	defer rows.Close() //nolint:errcheck
 
-	resultsWithGaps := map[uint32]*qanpb.Point{}
+	resultsWithGaps := make(map[uint32]*qanpb.Point)
 	for rows.Next() {
 		p := qanpb.Point{}
 		res := getPointFieldsList(&p, sparklinePointAllFields)
@@ -521,7 +521,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(example_format) AS example_format,
+SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
@@ -548,8 +548,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
-		"period_start_from": periodStartFrom,
 		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFrom,
 		"limit":             limit,
 	}
 
@@ -588,16 +588,19 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.Tables,
 			&row.ServiceId,
 			&row.ServiceType,
+			&row.QueryId,
+			&row.ExplainFingerprint,
+			&row.PlaceholdersCount,
 			&row.Example,
 			// TODO should we remove this field since it's deprecated?
 			&row.ExampleFormat, //nolint:staticcheck
 			&row.IsTruncated,
 			&row.ExampleType,
-			&row.ExampleMetrics,
-		)
+			&row.ExampleMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
+
 		res.QueryExamples = append(res.QueryExamples, &row)
 	}
 
@@ -680,32 +683,32 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 	defer rows.Close() //nolint:errcheck
 
-	labels := map[string]map[string]struct{}{}
-	labels["service_name"] = map[string]struct{}{}
-	labels["database"] = map[string]struct{}{}
-	labels["schema"] = map[string]struct{}{}
-	labels["client_host"] = map[string]struct{}{}
-	labels["username"] = map[string]struct{}{}
-	labels["replication_set"] = map[string]struct{}{}
-	labels["cluster"] = map[string]struct{}{}
-	labels["service_type"] = map[string]struct{}{}
-	labels["service_id"] = map[string]struct{}{}
-	labels["environment"] = map[string]struct{}{}
-	labels["az"] = map[string]struct{}{}
-	labels["region"] = map[string]struct{}{}
-	labels["node_model"] = map[string]struct{}{}
-	labels["node_id"] = map[string]struct{}{}
-	labels["node_name"] = map[string]struct{}{}
-	labels["node_type"] = map[string]struct{}{}
-	labels["machine_id"] = map[string]struct{}{}
-	labels["container_name"] = map[string]struct{}{}
-	labels["container_id"] = map[string]struct{}{}
-	labels["agent_id"] = map[string]struct{}{}
-	labels["agent_type"] = map[string]struct{}{}
-	labels["cmd_type"] = map[string]struct{}{}
-	labels["top_queryid"] = map[string]struct{}{}
-	labels["application_name"] = map[string]struct{}{}
-	labels["planid"] = map[string]struct{}{}
+	labels := make(map[string]map[string]struct{})
+	labels["service_name"] = make(map[string]struct{})
+	labels["database"] = make(map[string]struct{})
+	labels["schema"] = make(map[string]struct{})
+	labels["client_host"] = make(map[string]struct{})
+	labels["username"] = make(map[string]struct{})
+	labels["replication_set"] = make(map[string]struct{})
+	labels["cluster"] = make(map[string]struct{})
+	labels["service_type"] = make(map[string]struct{})
+	labels["service_id"] = make(map[string]struct{})
+	labels["environment"] = make(map[string]struct{})
+	labels["az"] = make(map[string]struct{})
+	labels["region"] = make(map[string]struct{})
+	labels["node_model"] = make(map[string]struct{})
+	labels["node_id"] = make(map[string]struct{})
+	labels["node_name"] = make(map[string]struct{})
+	labels["node_type"] = make(map[string]struct{})
+	labels["machine_id"] = make(map[string]struct{})
+	labels["container_name"] = make(map[string]struct{})
+	labels["container_id"] = make(map[string]struct{})
+	labels["agent_id"] = make(map[string]struct{})
+	labels["agent_type"] = make(map[string]struct{})
+	labels["cmd_type"] = make(map[string]struct{})
+	labels["top_queryid"] = make(map[string]struct{})
+	labels["application_name"] = make(map[string]struct{})
+	labels["planid"] = make(map[string]struct{})
 
 	for rows.Next() {
 		var row queryRowsLabels
@@ -736,8 +739,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			&row.CmdType,
 			&row.TopQueryID,
 			&row.ApplicationName,
-			&row.PlanID,
-		)
+			&row.PlanID)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
 		}
@@ -768,7 +770,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		labels["planid"][row.PlanID] = struct{}{}
 		if row.LabelKey != "" {
 			if labels[row.LabelKey] == nil {
-				labels[row.LabelKey] = map[string]struct{}{}
+				labels[row.LabelKey] = make(map[string]struct{})
 			}
 			labels[row.LabelKey][row.LabelValue] = struct{}{}
 		}
@@ -778,7 +780,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}
 
-	res.Labels = map[string]*qanpb.ListLabelValues{}
+	res.Labels = make(map[string]*qanpb.ListLabelValues)
 	// rearrange labels into gRPC response structure.
 	for key, values := range labels {
 		if res.Labels[key] == nil {
@@ -808,7 +810,7 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 
 	var fingerprint string
 	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return "", fmt.Errorf("QueryxContext error:%v", err)
 	}
 
@@ -823,8 +825,8 @@ func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.Q
 	defer cancel()
 
 	var res qanpb.QueryPlanReply
-	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID})
-	if err != nil && err != sql.ErrNoRows {
+	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("QueryxContext error:%v", err)
 	}
 
@@ -974,4 +976,53 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	}
 
 	return false, nil
+}
+
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
+WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
+`
+
+// ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
+func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query_id":   queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(queryByQueryIDTmpl)
+
+	res := &qanpb.ExplainFingerprintByQueryIDReply{}
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		err = rows.Scan(
+			&res.ExplainFingerprint,
+			&res.PlaceholdersCount)
+
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		return res, nil //nolint:staticcheck
+	}
+
+	return res, errors.New("query_id doesnt exists")
 }

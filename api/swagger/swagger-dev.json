@@ -893,6 +893,88 @@
         }
       }
     },
+    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
+        "operationId": "ExplainFingerprintByQueryID",
+        "parameters": [
+          {
+            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+              "type": "object",
+              "properties": {
+                "serviceid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "type": "object",
+              "properties": {
+                "explain_fingerprint": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "placeholders_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
@@ -1838,28 +1920,41 @@
                         "format": "int64",
                         "x-order": 3
                       },
-                      "example_metrics": {
-                        "type": "string",
+                      "placeholders_count": {
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 4
                       },
-                      "service_id": {
+                      "explain_fingerprint": {
                         "type": "string",
                         "x-order": 5
                       },
-                      "service_type": {
+                      "query_id": {
                         "type": "string",
                         "x-order": 6
                       },
-                      "schema": {
+                      "example_metrics": {
                         "type": "string",
                         "x-order": 7
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_type": {
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 10
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 11
                       }
                     }
                   },
@@ -2824,7 +2919,7 @@
                   "x-order": 8
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.",
+                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -3050,7 +3145,7 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -3306,7 +3401,7 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -4040,7 +4135,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4503,7 +4598,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4805,7 +4900,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5002,7 +5097,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5143,7 +5238,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5616,7 +5711,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5857,13 +5952,13 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6119,7 +6214,7 @@
                       "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6387,7 +6482,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6628,7 +6723,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6859,7 +6954,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7058,7 +7153,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7081,7 +7176,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -7265,7 +7360,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7653,7 +7748,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -7903,7 +7998,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8098,7 +8193,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8518,7 +8613,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8715,13 +8810,13 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -8938,7 +9033,7 @@
                       "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9161,7 +9256,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9363,7 +9458,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9560,7 +9655,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9741,7 +9836,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9764,7 +9859,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -9889,7 +9984,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9925,7 +10020,7 @@
                       "x-order": 0
                     },
                     "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
+                      "description": "The pmm-agent identifier which runs this instance.\n\nStatus fields below.",
                       "type": "string",
                       "x-order": 1
                     },
@@ -9991,7 +10086,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10115,7 +10210,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10223,7 +10318,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10448,7 +10543,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -10564,7 +10659,7 @@
                       "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10680,7 +10775,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10764,13 +10859,13 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10860,7 +10955,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10955,7 +11050,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -11029,7 +11124,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -11052,7 +11147,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -11195,7 +11290,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -11455,7 +11550,7 @@
                         "x-order": 1
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -11494,7 +11589,7 @@
                         "x-order": 0
                       },
                       "pmm_agent_id": {
-                        "description": "The pmm-agent identifier which runs this instance.",
+                        "description": "The pmm-agent identifier which runs this instance.\n\nStatus fields below.",
                         "type": "string",
                         "x-order": 1
                       },
@@ -11563,7 +11658,7 @@
                         "x-order": 4
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -11690,7 +11785,7 @@
                         "x-order": 12
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -11801,7 +11896,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -12032,7 +12127,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of disabled collector names.",
+                        "description": "List of disabled collector names.\n\nStatus fields below.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -12151,7 +12246,7 @@
                         "x-order": 11
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12270,7 +12365,7 @@
                         "x-order": 12
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12357,13 +12452,13 @@
                         "x-order": 6
                       },
                       "max_query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 7
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12456,7 +12551,7 @@
                         "x-order": 7
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12554,7 +12649,7 @@
                         "x-order": 8
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12631,7 +12726,7 @@
                         "x-order": 4
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -12654,7 +12749,7 @@
                         "x-order": 6
                       },
                       "listen_port": {
-                        "description": "Listen port for scraping metrics (the same for several configurations).",
+                        "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 7
@@ -12803,7 +12898,7 @@
                         "x-order": 5
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nStatus fields below.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -13674,7 +13769,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -13947,7 +14042,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -14285,7 +14380,7 @@
                         "x-order": 5
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.",
+                        "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -15405,6 +15500,154 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/CustomLabels/Add": {
+      "post": {
+        "description": "Adds or replaces (if the key exists) custom labels for a Service.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Add/replace custom labels",
+        "operationId": "AddCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels to be added.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/CustomLabels/Remove": {
+      "post": {
+        "description": "Removes custom labels from a Service by key.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Remove custom labels",
+        "operationId": "RemoveCustomLabels",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Unique Service ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_label_keys": {
+                  "description": "Custom user-assigned label keys to be removed.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -16727,14 +16970,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -16820,14 +17076,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -16913,14 +17182,27 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
@@ -22173,7 +22455,7 @@
                   "x-order": 14
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.",
+                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -22399,7 +22681,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -22508,13 +22790,13 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -22995,7 +23277,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -23116,7 +23398,7 @@
                       "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -23232,7 +23514,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -23571,7 +23853,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24107,7 +24389,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24202,7 +24484,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24614,7 +24896,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -24924,7 +25206,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24964,7 +25246,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -24987,7 +25269,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -25164,7 +25446,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -25285,7 +25567,7 @@
                       "x-order": 11
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -25550,7 +25832,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -29549,6 +29831,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       }
                     }
                   },
@@ -29967,7 +30255,7 @@
                               "type": "object",
                               "properties": {
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
@@ -29993,7 +30281,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.",
+                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -30852,7 +31140,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.",
+                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -31270,7 +31558,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -31741,7 +32029,7 @@
                           "type": "object",
                           "properties": {
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -31767,7 +32055,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.",
+                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -32202,7 +32490,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -32289,6 +32577,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },
@@ -32352,6 +32641,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }
@@ -32408,6 +32702,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 0
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 1
                 }
               }
             }
@@ -32429,6 +32728,11 @@
                   "type": "boolean",
                   "title": "Product Tour",
                   "x-order": 1
+                },
+                "alerting_tour_completed": {
+                  "type": "boolean",
+                  "title": "Alerting Tour",
+                  "x-order": 2
                 }
               }
             }

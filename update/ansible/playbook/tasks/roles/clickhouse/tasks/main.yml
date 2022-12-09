@@ -1,0 +1,88 @@
+---
+- name: Stop clickhouse before update
+  command: supervisorctl {{ item }} clickhouse
+  changed_when: True
+  loop:
+    - "stop"
+    - "remove"
+
+- name: Remove old clickhouse packages
+  yum:
+    state: absent
+    name:
+      - percona-clickhouse-client
+      - percona-clickhouse-server
+      - percona-clickhouse-common-static
+      - percona-clickhouse-server-common
+
+- name: Disable clickhouse-server in systemd
+  when: not is_docker
+  service:
+    name: clickhouse-server
+    state: stopped
+    enabled: no
+
+- name: Create clickhouse data directory
+  file:
+    path: "/srv/clickhouse"
+    state: directory
+    owner: root
+    group: pmm
+
+- name: Import clickhouse repo GPG key
+  rpm_key:
+    state: present
+    key: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
+
+- name: Install clickhouse repo
+  yum_repository:
+    name: clickhouse
+    file: clickhouse
+    description: "Clickhouse repo"
+    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    enabled: no
+    gpgcheck: 1
+    gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
+
+- name: Install clickhouse package
+  yum:
+    name:
+      - clickhouse-client-{{ clickhouse_version}}
+      - clickhouse-server-{{ clickhouse_version}}
+      - clickhouse-common-static-{{ clickhouse_version}}
+    state: installed
+    enablerepo: clickhouse
+  ignore_errors: '{{ ansible_check_mode }}' # We don't have clickhouse repo when we run ansible with --check
+
+- name: Copy clickhouse config to image
+  copy:
+    src: config.xml
+    dest: /etc/clickhouse-server/config.xml
+    mode: 0600
+
+# We need to remove capabilities because we run PMM in unprivileged container and we can't use it
+# But we run clickhouse under root user
+- name: Remove cap_ipc_lock from clickhouse binary
+  capabilities:
+    path: /usr/bin/clickhouse
+    state: absent
+    capability: "{{ item}}"
+  loop:
+    - cap_ipc_lock
+    - cap_sys_nice
+    - cap_net_admin
+
+- name: Remove clickhouse-odbc-bridge binary
+  file:
+    path: "/usr/bin/clickhouse-odbc-bridge"
+    state: absent
+
+- name: Change ownership for clickhouse directory
+  file:
+    path: /srv/clickhouse/
+    owner: root
+    group: root
+
+- name: Start clickhouse
+  command: supervisorctl add clickhouse
+  changed_when: True

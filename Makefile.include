@@ -145,13 +145,13 @@ clean: clean_swagger  ## Remove generated files.
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
 
 api-test:             ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.yaml make api-test` to run tests for DBaaS.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 check:                ## Run required checkers and linters.
-	bin/golangci-lint run -c=.golangci-required.yml
+	LOG_LEVEL=error bin/golangci-lint run
 	bin/go-sumtype ./...
 	bin/go-consistent -pedantic ./...
 

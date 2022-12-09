@@ -63,7 +63,7 @@ func (a listResultAgent) HumanReadableAgentType() string {
 func (a listResultAgent) NiceAgentStatus() string {
 	res := a.Status
 	if res == "" {
-		res = "unknown"
+		res = "unknown" //nolint:goconst
 	}
 	res = cases.Title(language.English).String(strings.ToLower(res))
 	if a.Disabled {
@@ -123,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) {
+func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {

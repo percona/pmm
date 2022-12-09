@@ -17,6 +17,8 @@ package grafana
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,11 +26,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -63,7 +71,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -106,7 +114,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -132,7 +140,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -159,7 +167,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker)
+	s := NewAuthServer(c, checker, nil, true)
 
 	req, err := http.NewRequest("GET", "/dummy", nil)
 	require.NoError(t, err)
@@ -173,7 +181,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, res)
 	})
 
@@ -183,7 +191,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		req, err := http.NewRequest("GET", "/foo", nil)
 		require.NoError(t, err)
 
-		res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
@@ -245,7 +253,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
-				res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+				_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
@@ -254,4 +262,110 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestAuthServerAddVMGatewayToken(t *testing.T) {
+	ctx := logger.Set(context.Background(), t.Name())
+	uuid.SetRand(&tests.IDReader{})
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	defer func(t *testing.T) {
+		t.Helper()
+
+		uuid.SetRand(nil)
+
+		require.NoError(t, sqlDB.Close())
+	}(t)
+
+	var checker mockAwsInstanceChecker
+	checker.Test(t)
+	defer checker.AssertExpectations(t)
+
+	c := NewClient("127.0.0.1:3000")
+	s := NewAuthServer(c, &checker, db, true)
+
+	var roleA models.Role
+	roleA.Title = "Role A"
+	roleA.Filter = "filter A"
+	err := models.CreateRole(db.Querier, &roleA)
+	require.NoError(t, err)
+
+	var roleB models.Role
+	roleB.Title = "Role B"
+	roleB.Filter = "filter B"
+	err = models.CreateRole(db.Querier, &roleB)
+	require.NoError(t, err)
+
+	for userID, roleIDs := range map[int][]int{
+		1337: {int(roleA.ID)},
+		1338: {int(roleA.ID), int(roleB.ID)},
+		1:    {int(roleA.ID)},
+	} {
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.AssignRoles(tx, userID, roleIDs)
+		})
+		require.NoError(t, err)
+	}
+
+	t.Run("shall properly evaluate adding filters", func(t *testing.T) {
+		for uri, shallAdd := range map[string]bool{
+			"/":                        false,
+			"/dummy":                   false,
+			"/prometheus/api/":         false,
+			"/prometheus/api/v1/":      true,
+			"/prometheus/api/v1/query": true,
+		} {
+			uri := uri
+			shallAdd := shallAdd
+
+			for _, userID := range []int{0, 1337, 1338} {
+				userID := userID
+				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
+					t.Parallel()
+					rw := httptest.NewRecorder()
+					req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+					require.NoError(t, err)
+					if userID == 0 {
+						req.SetBasicAuth("admin", "admin")
+					}
+
+					err = s.maybeAddVMProxyFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					require.NoError(t, err)
+
+					headerString := rw.Header().Get(vmProxyHeaderName)
+
+					if shallAdd {
+						require.True(t, len(headerString) > 0)
+					} else {
+						require.Equal(t, headerString, "")
+					}
+				})
+			}
+		}
+	})
+
+	//nolint:paralleltest
+	t.Run("shall be a valid JSON array", func(t *testing.T) {
+		rw := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
+		require.NoError(t, err)
+
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		headerString := rw.Header().Get(vmProxyHeaderName)
+		require.True(t, len(headerString) > 0)
+
+		filters, err := base64.StdEncoding.DecodeString(headerString)
+		require.NoError(t, err)
+		var parsed []string
+		err = json.Unmarshal(filters, &parsed)
+		require.NoError(t, err)
+
+		require.Equal(t, len(parsed), 2)
+		require.Equal(t, parsed[0], "filter A")
+		require.Equal(t, parsed[1], "filter B")
+	})
 }

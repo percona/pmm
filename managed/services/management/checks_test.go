@@ -368,9 +368,10 @@ func TestListSecurityChecks(t *testing.T) {
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
 		checksService.On("GetChecks", mock.Anything).
 			Return(map[string]check.Check{
-				"one":   {Name: "one"},
-				"two":   {Name: "two"},
-				"three": {Name: "three"},
+				"one":   {Name: "one", Interval: check.Standard},
+				"two":   {Name: "two", Interval: check.Frequent},
+				"three": {Name: "three", Interval: check.Rare},
+				"four":  {Name: "four", Interval: ""},
 			}, nil)
 
 		s := NewChecksAPIService(&checksService)
@@ -381,9 +382,10 @@ func TestListSecurityChecks(t *testing.T) {
 
 		assert.ElementsMatch(t, resp.Checks,
 			[]*managementpb.SecurityCheck{
-				{Name: "one", Disabled: false},
-				{Name: "two", Disabled: true},
-				{Name: "three", Disabled: false},
+				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
+				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_FREQUENT},
+				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_RARE},
+				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
 			},
 		)
 	})

@@ -314,7 +314,9 @@ func TestScheduleBackup(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.", serviceName)
+			pmmapitests.AssertAPIErrorf(t, err, 400,
+				codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.",
+				serviceName)
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
