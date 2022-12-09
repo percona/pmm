@@ -28,6 +28,8 @@ func Test_transformToJSON(t *testing.T) {
 		config  *Config
 		metrics []*pmmv1.ServerMetric_Metric
 	}
+	noMetrics := []*pmmv1.ServerMetric_Metric{}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -47,48 +49,67 @@ func Test_transformToJSON(t *testing.T) {
 			name: "empty metrics",
 			args: args{
 				config:  config(),
-				metrics: []*pmmv1.ServerMetric_Metric{},
+				metrics: noMetrics,
 			},
-			want:    []*pmmv1.ServerMetric_Metric{},
+			want:    noMetrics,
 			wantErr: assert.NoError,
 		},
 		{
 			name: "no Transform in config",
 			args: args{
 				config:  config().noTransform(),
-				metrics: []*pmmv1.ServerMetric_Metric{},
+				metrics: noMetrics,
 			},
-			want:    nil,
-			wantErr: assert.Error,
+			want:    noMetrics,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "no Metrics config",
 			args: args{
 				config:  config().noFirstMetricConfig(),
-				metrics: []*pmmv1.ServerMetric_Metric{},
+				metrics: noMetrics,
 			},
-			want:    nil,
-			wantErr: assert.Error,
+			want:    noMetrics,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "no Metric Name config",
 			args: args{
 				config:  config().noFirstMetricNameConfig(),
-				metrics: []*pmmv1.ServerMetric_Metric{},
+				metrics: noMetrics,
 			},
-			want:    nil,
-			wantErr: assert.Error,
+			want:    noMetrics,
+			wantErr: assert.NoError,
 		},
 		{
 			name: "invalid seq",
 			args: args{
 				config: config(),
 				metrics: []*pmmv1.ServerMetric_Metric{
-					{Key: "", Value: "v1"}, // no match with first metric
+					{Key: "my-metric", Value: "v1"},
+					{Key: "b", Value: "v1"},
+					{Key: "b", Value: "v1"}, // <--- will override second metric
+					{Key: "my-metric", Value: "v1"},
 				},
 			},
 			want:    nil,
 			wantErr: assert.Error,
+		},
+		{
+			name: "correct seq",
+			args: args{
+				config: config(),
+				metrics: []*pmmv1.ServerMetric_Metric{
+					{Key: "my-metric", Value: "v1"},
+					{Key: "b", Value: "v1"},
+					{Key: "my-metric", Value: "v1"},
+					{Key: "b", Value: "v1"},
+				},
+			},
+			want: []*pmmv1.ServerMetric_Metric{
+				{Key: config().Transform.Metric, Value: `{"v":[{"b":"v1","my-metric":"v1"},{"b":"v1","my-metric":"v1"}]}`},
+			},
+			wantErr: assert.NoError,
 		},
 		{
 			name: "happy path",

@@ -5,20 +5,20 @@
 %define _binaries_in_noarch_packages_terminate_build   0
 %define _unpackaged_files_terminate_build   0
 
-%global repo            pmm-update
+%global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global import_path     %{provider}
 %global commit	        592eddf656bce32a11bd958af0a32c62bd5ea34c
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         66
+%define release         67
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-Name:		%{repo}
-Version:	%{version}
+Name:		pmm-update
+Version:	%{full_pmm_version}
 Release:	%{rpm_release}
 Summary:	Tool for updating packages and OS configuration for PMM Server
 
@@ -42,16 +42,16 @@ export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/pmm-update
+cd src/github.com/percona/pmm/update
 make release
 
 
 %install
 install -d %{buildroot}%{_datadir}/%{name}
-cp -pav ./ansible %{buildroot}%{_datadir}/%{name}
+cp -pav ./update/ansible %{buildroot}%{_datadir}/%{name}
 
 install -d %{buildroot}%{_sbindir}
-cd src/github.com/percona/pmm-update
+cd src/github.com/percona/pmm/update
 install -p -m 0755 bin/pmm-update %{buildroot}%{_sbindir}/
 
 
@@ -63,6 +63,9 @@ install -p -m 0755 bin/pmm-update %{buildroot}%{_sbindir}/
 
 
 %changelog
+* Thu Dec 8 2022 Michal Kralik <michal.kralik@percona.com> - 2.34.0-67
+- PMM-11207 Migrate pmm-update to monorepo
+
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.29.0-1
 - https://per.co.na/pmm/latest
 

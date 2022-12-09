@@ -170,3 +170,11 @@ func (this *HistogramItem) Validate() error {
 func (this *QueryExistsRequest) Validate() error {
 	return nil
 }
+
+func (this *ExplainFingerprintByQueryIDRequest) Validate() error {
+	return nil
+}
+
+func (this *ExplainFingerprintByQueryIDReply) Validate() error {
+	return nil
+}
