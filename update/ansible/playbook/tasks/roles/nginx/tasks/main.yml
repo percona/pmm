@@ -1,10 +1,24 @@
 ---
 # We already have nginx package in epel repo
-- name: Add Nginx repository
+- name: Add Nginx repository for EL7
+  when:
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
   yum_repository:
     name: nginx
     description: nginx repo
     baseurl: http://nginx.org/packages/centos/7/$basearch/
+    gpgcheck: no
+    enabled: no
+
+- name: Add Nginx repository for EL9
+  when:
+    - ansible_distribution == 'OracleLinux'
+    - ansible_distribution_major_version == '9'
+  yum_repository:
+    name: nginx
+    description: nginx repo
+    baseurl: http://nginx.org/packages/rhel/9/$basearch/
     gpgcheck: no
     enabled: no
 
@@ -19,14 +33,14 @@
 
 - name: Install nginx rpm          | Install nginx rpm
   yum:
-    name: nginx-1.20.1
+    name: nginx-1.22.1
     state: installed
 
 - name: Add ssl-related files and scripts
   copy:
     src: "ssl/{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: '{{ item.mode }}'
+    mode: "{{ item.mode }}"
   loop:
     - { src: ca-certs.pem, dest:  /etc/nginx/ssl/ca-certs.pem, mode: 'u=rw,g=r,o=r' }
     - { src: certificate.conf, dest:  /etc/nginx/ssl/certificate.conf, mode: 'u=rw,g=r,o=r' }

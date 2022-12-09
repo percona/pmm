@@ -52,6 +52,8 @@
     path: /srv/postgres14
   register: is_postgres_14
 
+# From this line on, the script will only run if pg14 is not installed,
+# which means that PMM is about to migrate from pg11 to pg14
 - name: Upgrade (or init) postgres
   block:
     - name: Create Postgres data dir
@@ -63,7 +65,7 @@
 
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14
-      become: yes
+      become: True
       become_user: postgres
       become_method: su
 
@@ -83,7 +85,7 @@
 
     - name: Run Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
-      become: yes
+      become: True
       become_user: postgres
       become_method: su
       when: is_upgrade.stat.exists
@@ -97,14 +99,14 @@
 
     - name: Stop Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
-      become: yes
+      become: True
       become_user: postgres
       become_method: su
       when: is_upgrade.stat.exists
 
     - name: Start Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-      become: yes
+      become: True
       become_user: postgres
       become_method: su
 
@@ -138,7 +140,7 @@
 
     - name: Stop Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become: yes
+      become: True
       become_user: postgres
       become_method: su
 

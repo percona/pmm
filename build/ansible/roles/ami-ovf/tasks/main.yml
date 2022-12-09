@@ -1,46 +1,60 @@
 ---
-    - name: Packages                   | Remove PMM2 Testing Server repository
-      yum_repository:
-        name: pmm2-server
-        state: absent
+- name: Packages                   | Remove PMM2 Testing Server repository
+  yum_repository:
+    name: pmm2-server
+    state: absent
 
-    - name: Packages                   | Clean up yum metadata
-      command: yum clean metadata
-      args:
-        warn: no
+- name: Packages                   | Clean up yum metadata
+  command: yum clean metadata
+  args:
+    warn: no
 
-    - name: Packages                   | Add PMM2 release Server YUM repository
-      yum_repository:
-        name: pmm2-server
-        description: PMM Server YUM repository - x86_64
-        baseurl: https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
-        gpgcheck: yes
-        enabled: yes
-        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+- name: Packages                   | Add PMM2 release Server YUM repository for EL7
+  when:
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
+  yum_repository:
+    name: pmm2-server
+    description: PMM Server YUM repository - x86_64
+    baseurl: https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
+    gpgcheck: yes
+    enabled: yes
+    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-    - name: Disable SELinux
-      selinux:
-        policy: targeted
-        state: permissive
+- name: Packages                   | Add PMM2 release Server YUM repository for EL9
+  when:
+    - ansible_distribution == 'OracleLinux'
+    - ansible_distribution_major_version == '9'
+  yum_repository:
+    name: pmm2-server
+    description: PMM Server YUM repository - x86_64
+    baseurl: https://repo.percona.com/pmm2-components/yum/release/9/RPMS/x86_64/
+    gpgcheck: yes
+    enabled: yes
+    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-    - name: PMM                        | Add firewalld rule
-      firewalld: port={{ item }} permanent=true state=enabled immediate=yes
-      with_items:
-          - 80/tcp
-          - 443/tcp
+- name: Disable SELinux
+  selinux:
+    policy: targeted
+    state: permissive
 
-    - name: PMM                        | Add script which show PMM URL
-      copy:
-        src: show-pmm-url
-        dest: /var/lib/cloud/scripts/per-boot/show-pmm-url
-        mode: 0755
+- name: PMM                        | Add firewalld rule
+  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
+  with_items:
+    - 80/tcp
+    - 443/tcp
 
-    - name: PMM                        | Delete centos
-      shell: cd /tmp; nohup sh -c "trap 'userdel -r centos' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: PMM                        | Add script which show PMM URL
+  copy:
+    src: show-pmm-url
+    dest: /var/lib/cloud/scripts/per-boot/show-pmm-url
+    mode: 0755
 
-    - name: PMM                        | Delete vagrant
-      shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: PMM                        | Delete centos
+  shell: cd /tmp; nohup sh -c "trap 'userdel -r centos' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
 
-    - name: PMM                        | Delete Azure user
-      shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: PMM                        | Delete vagrant
+  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
 
+- name: PMM                        | Delete Azure user
+  shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
