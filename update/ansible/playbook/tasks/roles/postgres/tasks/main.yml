@@ -1,36 +1,70 @@
 ---
 # Install Postgres
-- name: Add PostgreSQL 14 YUM repository
-  yum_repository:
-    name: percona-ppg-14
-    description: PostgreSQL YUM repository - x86_64
-    baseurl: http://repo.percona.com/ppg-14/yum/release/7/RPMS/x86_64
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+- name: Install Postgres for EL7
+  block:
+    - name: Add PostgreSQL 14 YUM repository for EL7
+      yum_repository:
+        name: percona-ppg-14
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-14/yum/release/7/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Add PostgreSQL 11 YUM repository
-  yum_repository:
-    name: percona-ppg-11
-    description: PostgreSQL YUM repository - x86_64
-    baseurl: http://repo.percona.com/ppg-11/yum/release/7/RPMS/x86_64
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+    - name: Add PostgreSQL 11 YUM repository for EL7
+      yum_repository:
+        name: percona-ppg-11
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-11/yum/release/7/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# we need old postgres binary for upgrade process
-- name: Install Postgres
-  yum:
-    name:
-      - percona-postgresql14-server
-      - percona-postgresql14-contrib
-      - percona-postgresql14
-      - percona-postgresql11-server
-      - percona-postgresql11-contrib
-      - percona-postgresql11
-      - python-psycopg2
-    state: installed
-  when: not ansible_check_mode
+    # we need the old postgres binary for the upgrade process
+    - name: Install Postgres
+      when:
+        - not ansible_check_mode
+      yum:
+        name:
+          - percona-postgresql14-server
+          - percona-postgresql14-contrib
+          - percona-postgresql14
+          - percona-postgresql11-server
+          - percona-postgresql11-contrib
+          - percona-postgresql11
+          - python-psycopg2
+        state: installed
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+# https://www.postgresql.org/download/linux/redhat/
+- name: Install Postgres for EL9
+  block:
+    - name: Add PostgreSQL 14 YUM repository for EL9
+      dnf:
+        name: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+        state: present
+
+    - name: Disable mod_auth_openidc module
+      command: dnf -qy module disable postgresql
+      register: result
+      changed_when:
+        - '"Disabling module streams" in result.stdout'
+
+    - name: Install Postgres
+      when:
+        - not ansible_check_mode
+      dnf:
+        name:
+          - postgresql14-server
+          - postgresql14-contrib
+          - postgresql14
+          - python-psycopg2
+        state: installed
+  when:
+    - ansible_distribution == "OracleLinux"
+    - ansible_distribution_major_version == "9"
 
 - name: Create Postgres log file
   file:
