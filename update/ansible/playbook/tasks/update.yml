@@ -1,8 +1,8 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: True
+  gather_facts: True
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -18,13 +18,13 @@
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
-      no_log: yes
+      no_log: True
       register: srv_pmm_distribution
 
     - name: detect containers
       set_fact:
         is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: yes
+      no_log: True
       when: srv_pmm_distribution.stat.exists
 
     - name: force container
