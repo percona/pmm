@@ -137,7 +137,7 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
+    # see https://jira.percona.com/browse/PMM-8492 for details about the issue
     - name: Delete experimental repo file in 2.16 version
       file:
         path: "/etc/yum.repos.d/percona-original-experimental.repo"
