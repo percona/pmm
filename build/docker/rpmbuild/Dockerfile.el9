@@ -15,7 +15,7 @@ RUN yum update -y && \
     sudo \
     automake autoconf \
     rpmdevtools createrepo_c epel-release \
-    yum-utils rpm-build \
+    bison yum-utils rpm-build \
     rsync \
     wget \
     yarn && \
