@@ -1,92 +1,91 @@
 ---
-    - name: Install supervisor         | Install supervisor 3.4.0
-      pip:
-        name: supervisor==3.4.0
+- name: Install supervisor         | Install supervisor 4.2.4
+  pip:
+    name: supervisor==4.2.4
 
-    - name: Configure supervisor       | Create a defult configuration file for supervisord
-      shell: echo_supervisord_conf > /etc/supervisord.conf
+- name: Configure supervisor       | Create a defult configuration file for supervisord
+  shell: echo_supervisord_conf > /etc/supervisord.conf
 
-    - name: Configure supervisor       | Modify supervisord.conf
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: include
-        option: files
-        value: supervisord.d/*.ini
+- name: Configure supervisor       | Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: include
+    option: files
+    value: supervisord.d/*.ini
 
-    - name: Install supervisor         | Modify supervisord.conf
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: unix_http_server
-        option: file
-        value: /var/run/supervisor/supervisor.sock
+- name: Install supervisor         | Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: file
+    value: /var/run/supervisor/supervisor.sock
 
-    - name: Configure supervisor       | Modify supervisord.conf
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisord
-        option: logfile
-        value: "/srv/logs/supervisord.log"
+- name: Configure supervisor       | Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisord
+    option: logfile
+    value: "/srv/logs/supervisord.log"
 
-    - name: Configure supervisor       | Modify supervisord.conf
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisord
-        option: pidfile
-        value: /var/run/supervisord.pid
+- name: Configure supervisor       | Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisord
+    option: pidfile
+    value: /var/run/supervisord.pid
 
-    - name: Configure supervisor       | Modify supervisord.conf
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisorctl
-        option: serverurl
-        value: unix:///var/run/supervisor/supervisor.sock
+- name: Configure supervisor       | Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: serverurl
+    value: unix:///var/run/supervisor/supervisor.sock
 
-    - name: Configure supervisor       | Create dirs
-      file:
-        path: /var/run/supervisor
-        state: directory
-        mode: '0770'
+- name: Configure supervisor       | Create dirs
+  file:
+    path: /var/run/supervisor
+    state: directory
+    mode: "0770"
 
-    - name: Configure supervisor       | Create /etc/supervisord.d dir
-      file:
-        path: /etc/supervisord.d
-        mode: '0755'
-        state: directory
+- name: Configure supervisor       | Create /etc/supervisord.d dir
+  file:
+    path: /etc/supervisord.d
+    mode: "0755"
+    state: directory
 
-    - name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
-      when: ansible_virtualization_type != "docker"
-      copy:
-        content: |
-          D /var/run/supervisor 0775 root root -
-        dest: /etc/tmpfiles.d/supervisor.conf
-        mode: 0644
+- name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
+  when: ansible_virtualization_type != "docker"
+  copy:
+    content: |
+      D /var/run/supervisor 0775 root root -
+    dest: /etc/tmpfiles.d/supervisor.conf
+    mode: 0644
 
-    - name: Configure supervisor       | Fix credentials
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisorctl
-        option: username
-        value: dummy
+- name: Configure supervisor       | Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: username
+    value: dummy
 
-    - name: Configure supervisor       | Fix credentials
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisorctl
-        option: password
-        value: dummy
+- name: Configure supervisor       | Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: password
+    value: dummy
 
-    - name: Configure supervisor       | Increase number of open files for jobs
-      when: ansible_virtualization_type != "docker"
-      ini_file:
-        dest: /etc/supervisord.conf
-        section: supervisord
-        option: minfds
-        value: "800000"
+- name: Configure supervisor       | Increase number of open files for jobs
+  when: ansible_virtualization_type != "docker"
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisord
+    option: minfds
+    value: "800000"
 
-    - name: Configure supervisor       | Add supervisord.service
-      when: ansible_virtualization_type != "docker"
-      copy:
-        src: supervisord.service
-        dest: /usr/lib/systemd/system/
-        mode: 0644
-
+- name: Configure supervisor       | Add supervisord.service
+  when: ansible_virtualization_type != "docker"
+  copy:
+    src: supervisord.service
+    dest: /usr/lib/systemd/system/
+    mode: 0644

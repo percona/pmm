@@ -17,6 +17,7 @@ WORKDIR /opt
 # Read more: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
 RUN yum -y install python3-pip && \
     python3 -m pip install ansible && \
+    python3 -m pip install setuptools && \
     yum -y install epel-release
 
 COPY RPMS /tmp/RPMS
