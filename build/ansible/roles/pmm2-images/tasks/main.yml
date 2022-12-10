@@ -86,10 +86,10 @@
         gid: "{{ item.gid }}"
       loop:
         - { name: pmm, gid: 1000 }
-        - { name: nginx, gid: 998 }
-        - { name: grafana, gid: 996 }
-        - { name: clickhouse, gid: 995 }
-        - { name: pmm-agent, gid: 994 }
+        - { name: nginx, gid: 899 }
+        - { name: grafana, gid: 898 }
+        - { name: clickhouse, gid: 897 }
+        - { name: pmm-agent, gid: 896 }
 
     - name: Create users              | Create users
       user:
@@ -101,10 +101,10 @@
         group: "{{ item.group }}"
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm }
-        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx }
-        - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana }
-        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse }
-        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent }
+        - { name: nginx, uid: 899, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx }
+        - { name: grafana, uid: 898, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana }
+        - { name: clickhouse, uid: 897, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse }
+        - { name: pmm-agent, uid: 896, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
