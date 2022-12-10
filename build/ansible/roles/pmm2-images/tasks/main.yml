@@ -52,7 +52,7 @@
   yum:
     name: "*"
     state: latest
-    exclude: "ansible"
+    exclude: "ansible*"
     disablerepo: percona-release-x86_64
 
 - name: Packages                   | Install OS tools for EL7
