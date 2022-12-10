@@ -1,4 +1,9 @@
 ---
+- name: Install the GPG key for repo.percona.com
+  rpm_key:
+    state: present
+    key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
+
 - name: Packages                   | Add PMM2 Server YUM repository for EL7
   when:
     - ansible_distribution == "CentOS"
@@ -34,10 +39,14 @@
     enabled: no
 
 # we use it for pmm-client (TODO we'll need switch to pmm-client client repo)
+# To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
+# Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
+# Despite the error, this will still install the repo and the GPG key
 - name: Packages                   | Install percona-release rpm
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
+    ignore_errors: True
 
 - name: Packages                   | Update OS
   yum:
@@ -91,11 +100,46 @@
         shell: "{{ item.shell }}"
         group: "{{ item.group }}"
       loop:
-        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm }
-        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx }
-        - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana }
-        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse }
-        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent }
+        - {
+            name: pmm,
+            uid: 1000,
+            comment: "PMM Server",
+            shell: "/bin/false",
+            home: "/home/pmm",
+            group: pmm,
+          }
+        - {
+            name: nginx,
+            uid: 999,
+            comment: "nginx user",
+            shell: "/sbin/nologin",
+            home: "/var/cache/nginx",
+            group: nginx,
+          }
+        - {
+            name: grafana,
+            uid: 998,
+            comment: "Grafana Dashboard",
+            shell: "/sbin/nologin",
+            home: "/etc/grafana",
+            group: grafana,
+          }
+        - {
+            name: clickhouse,
+            uid: 997,
+            comment: "Clickhouse server",
+            shell: "/sbin/nologin",
+            home: "/var/lib/clickhouse",
+            group: clickhouse,
+          }
+        - {
+            name: pmm-agent,
+            uid: 996,
+            comment: "pmm-agent",
+            shell: "/bin/false",
+            home: "/usr/local/percona/",
+            group: pmm-agent,
+          }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
