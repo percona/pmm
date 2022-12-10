@@ -39,7 +39,6 @@
     - ansible_distribution_major_version == "7"
 
 # https://www.postgresql.org/download/linux/redhat/
-# This repository does not provide the GPG key
 - name: Install Postgres for EL9
   block:
     - name: Add PostgreSQL 14 YUM repository for EL9
@@ -48,11 +47,11 @@
         state: present
         disable_gpg_check: yes
 
-    - name: Disable mod_auth_openidc module
-      command: dnf -qy module disable postgresql
-      register: result
-      changed_when:
-        - '"Disabling module streams" in result.stdout'
+    # - name: Disable the built-in PostgreSQL module
+    #   command: dnf -qy module disable postgresql
+    #   register: result
+    #   changed_when:
+    #     - '"Disabling module streams" in result.stdout'
 
     - name: Install Postgres
       when:
@@ -61,7 +60,6 @@
         name:
           - postgresql14-server
           - postgresql14-contrib
-          - postgresql14
           - python-psycopg2
         state: installed
   when:
