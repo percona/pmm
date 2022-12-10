@@ -46,7 +46,7 @@
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
-    ignore_errors: True
+  ignore_errors: True
 
 - name: Packages                   | Update OS
   yum:
