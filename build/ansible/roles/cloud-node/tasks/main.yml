@@ -42,7 +42,7 @@
       - ansible
 
 - name: Firewalld                  | Start
-  when: ansible_distribution == 'CentOS'
+  when: ansible_os_family == 'RedHat'
   service: name=firewalld state=started enabled=yes
 
 - name: cleanup cache              | Cleanup cache
