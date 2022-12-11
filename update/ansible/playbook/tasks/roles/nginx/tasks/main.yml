@@ -36,7 +36,7 @@
     - ansible_distribution == 'CentOS'
     - ansible_distribution_major_version == '7'
   yum:
-    name: nginx-1.20.1
+    name: nginx=1.20.1
     state: installed
 
 - name: Install nginx rpm          | Install nginx rpm for RHEL9
@@ -44,7 +44,7 @@
     - ansible_distribution == 'OracleLinux'
     - ansible_distribution_major_version == '9'
   yum:
-    name: nginx-1.22.1
+    name: nginx=1.20.1
     state: installed
 
 - name: Add ssl-related files and scripts
