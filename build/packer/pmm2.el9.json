@@ -162,7 +162,7 @@
       "role_paths": [
         "ansible/roles/cloud-node",
         "ansible/roles/lvm-init",
-        "ansible/roles/pmm2-images-el9",
+        "ansible/roles/pmm2-images",
         "ansible/roles/supervisord-init",
         "ansible/roles/ami-ovf"
       ]

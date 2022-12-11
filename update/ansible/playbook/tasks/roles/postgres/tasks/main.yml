@@ -98,7 +98,7 @@
         group: postgres
 
     - name: Initialize Postgres database
-      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14
+      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth-local=trust
       become: True
       become_user: postgres
       become_method: su
