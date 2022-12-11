@@ -138,6 +138,7 @@
     replace: "Provisioning.UseCloudInit=y"
 
 - name: Azure tweaks
+  when: waagent_conf.stat.exists
   replace:
     dest: /usr/lib/python2.7/site-packages/azurelinuxagent/pa/deprovision/default.py
     regexp: "warnings, actions, deluser=deluser"
