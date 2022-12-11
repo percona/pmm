@@ -80,8 +80,8 @@
     dest: /etc/clickhouse-server/config.xml
     mode: 0600
 
-# We need to remove capabilities because we run PMM in unprivileged container and we can't use it
-# But we run clickhouse under root user
+# We need to remove capabilities because we run PMM in an unprivileged container
+# But we run clickhouse as root user
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:
     path: /usr/bin/clickhouse
@@ -104,5 +104,6 @@
     group: root
 
 - name: Start clickhouse
-  command: supervisorctl add clickhouse
-  changed_when: True
+  supervisorctl:
+    name: clickhouse
+    state: present
