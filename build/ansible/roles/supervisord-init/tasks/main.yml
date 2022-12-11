@@ -1,9 +1,18 @@
 ---
+- name: Print the contents of cloud.cfg
+  debug:
+    msg: "the value of cloud.cfg is {{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
+
+- name: Print the contents of cloud.cfg
+  debug:
+    msg: "the value of cloud.cfg is {{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
+
 - name: Install supervisor         | Install supervisor 4.2.4
   pip:
     name: supervisor==4.2.4
 
 - name: Configure supervisor       | Create a defult configuration file for supervisord
+  become: True
   shell: echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Configure supervisor       | Modify supervisord.conf

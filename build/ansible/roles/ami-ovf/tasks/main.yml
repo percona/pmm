@@ -1,5 +1,5 @@
 ---
-- name: Packages                   | Remove PMM2 Testing Server repository
+- name: Packages                   | Remove PMM2 Server testing repository
   yum_repository:
     name: pmm2-server
     state: absent
@@ -9,7 +9,7 @@
   args:
     warn: no
 
-- name: Packages                   | Add PMM2 release Server YUM repository for EL7
+- name: Packages                   | Add PMM2 Server release repository for EL7
   when:
     - ansible_distribution == 'CentOS'
     - ansible_distribution_major_version == '7'
@@ -21,7 +21,7 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Packages                   | Add PMM2 release Server YUM repository for EL9
+- name: Packages                   | Add PMM2 Server release repository for EL9
   when:
     - ansible_distribution == 'OracleLinux'
     - ansible_distribution_major_version == '9'

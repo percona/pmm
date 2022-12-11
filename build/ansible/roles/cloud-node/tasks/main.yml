@@ -43,7 +43,10 @@
 
 - name: Firewalld                  | Start
   when: ansible_os_family == 'RedHat'
-  service: name=firewalld state=started enabled=yes
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
 
 - name: cleanup cache              | Cleanup cache
   file: path={{ item }} state=absent
