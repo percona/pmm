@@ -31,20 +31,9 @@
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
 
-- name: Install nginx rpm          | Install nginx rpm for RHEL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
+- name: Install nginx rpm          | Install nginx
   yum:
-    name: nginx-1.20.1
-    state: installed
-
-- name: Install nginx rpm          | Install nginx rpm for RHEL9
-  when:
-    - ansible_distribution == 'OracleLinux'
-    - ansible_distribution_major_version == '9'
-  yum:
-    name: nginx-1.20.1
+    name: nginx
     state: installed
 
 - name: Add ssl-related files and scripts
