@@ -60,18 +60,8 @@ func (cmd *StartCommand) BeforeApply() error {
 	return nil
 }
 
-type nginxError string
-
-func (e nginxError) Error() string {
-	return "response from nginx: " + string(e)
-}
-
-func (e nginxError) GoString() string {
-	return fmt.Sprintf("nginxError(%q)", string(e))
-}
-
 // RunCmdWithContext runs command
-func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
+func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
 	logrus.Info("Starting updater")
 
 	c.globals = globals
