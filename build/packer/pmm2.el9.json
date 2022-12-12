@@ -70,8 +70,7 @@
       "export_opts": [
         "--ovf10",
         "--manifest",
-        "--vsys",
-        "0",
+        "--vsys", "0",
         "--product", "Percona Monitoring and Management",
         "--producturl", "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
         "--vendor", "Percona",
@@ -86,6 +85,7 @@
       "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
       "source_path": ".cache/4.2.6/box.ovf",
       "ssh_private_key_file": ".cache/id_rsa_vagrant",
+      "ssh_wait_timeout": "8m",
       "ssh_pty": true,
       "ssh_username": "vagrant",
       "vboxmanage": [
