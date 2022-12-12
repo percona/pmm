@@ -38,7 +38,9 @@ import (
 
 // StartCommand is used by Kong for CLI flags and commands.
 type StartCommand struct {
-	DockerNetworkName string `default:"pmm-updater" help:"Network name in Docker to be used to connect PMM Updater and PMM Server instances"`
+	DockerNetworkName string        `default:"pmm-updater" help:"Network name in Docker to be used to connect PMM Updater and PMM Server instances"`
+	DockerImage       string        `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
+	WaitBetweenChecks time.Duration `name:"wait" default:"60s" help:"Time duration to wait between checking for updates"`
 
 	dockerFn Functions
 	globals  *flags.GlobalFlags
@@ -145,9 +147,12 @@ func (c *StartCommand) runUpdateCheckLoop(ctx context.Context) error {
 		}
 
 		// Sleep for a bit
-		delay := 60 * time.Second
-		logrus.Infof("Sleeping for %s before next update check", delay)
-		<-time.After(delay)
+		logrus.Infof("Sleeping for %s before next update check", c.WaitBetweenChecks)
+		select {
+		case <-time.After(c.WaitBetweenChecks):
+		case <-ctx.Done():
+			return nil
+		}
 	}
 }
 
@@ -175,8 +180,15 @@ func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
 			continue
 		}
 
-		logrus.Debugf("Checking if update is requested for container %s", cont.ID)
-		isUpdateRequested, err := c.isUpdateRequested(ctx, cont.ID)
+		logrus.Debugf("Inspecting container %s", cont.ID)
+		cInspect, err := c.dockerFn.ContainerInspect(ctx, cont.ID)
+		if err != nil {
+			logrus.Errorf("Could not inspect container %s. Error: %v", cont.ID, err)
+			continue
+		}
+
+		logrus.Debugf("Checking if update is requested for container %s with hostname %q", cont.ID, cInspect.Config.Hostname)
+		isUpdateRequested, err := c.isUpdateRequested(ctx, cInspect.Config.Hostname)
 		if err != nil {
 			logrus.Errorf("Cannot check if update is requested for container %s. Error %v", cont.ID, err)
 			continue
@@ -186,7 +198,7 @@ func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
 			logrus.Debugf("Starting upgrade for container %s", cont.ID)
 			cmd := &dockerCmd.UpgradeCommand{
 				ContainerID:            cont.ID,
-				DockerImage:            "percona/pmm-server:2",
+				DockerImage:            c.DockerImage,
 				NewContainerNamePrefix: "pmm-server",
 			}
 
@@ -201,8 +213,8 @@ func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
 	return nil
 }
 
-func (c *StartCommand) isUpdateRequested(ctx context.Context, containerID string) (bool, error) {
-	u, err := url.Parse(fmt.Sprintf("http://%s/", containerID))
+func (c *StartCommand) isUpdateRequested(ctx context.Context, hostname string) (bool, error) {
+	u, err := url.Parse(fmt.Sprintf("http://%s/", hostname))
 	if err != nil {
 		return false, err
 	}
@@ -216,7 +228,7 @@ func (c *StartCommand) isUpdateRequested(ctx context.Context, containerID string
 
 	serverAPI := serverpb.New(transport, nil)
 
-	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{})
+	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{Context: ctx})
 	if err != nil {
 		return false, err
 	}
