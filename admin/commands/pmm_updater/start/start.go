@@ -40,7 +40,7 @@ import (
 type StartCommand struct {
 	DockerNetworkName string        `default:"pmm-updater" help:"Network name in Docker to be used to connect PMM Updater and PMM Server instances"`
 	DockerImage       string        `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
-	WaitBetweenChecks time.Duration `name:"wait" default:"60s" help:"Time duration to wait between checking for updates"`
+	WaitBetweenChecks time.Duration `name:"wait" default:"60s" help:"Time duration to wait between checks for updates"`
 
 	dockerFn Functions
 	globals  *flags.GlobalFlags
