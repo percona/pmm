@@ -13,7 +13,7 @@
     msg:
       - "Ansible user id: {{ ansible_user_id }}"
       - "Ansible user dir: {{ ansible_user_dir }}"
-      - "PATH env: {{ lookup('env', 'PATH' }}"
+      - "PATH env: {{ lookup('env', 'PATH') }}"
 
 - name: Packages                   | Add EPEL repository for EL7
   when:

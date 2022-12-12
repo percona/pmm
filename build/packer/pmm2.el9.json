@@ -132,12 +132,9 @@
       ]
     },
     {
-      "type": "shell",
-      "inline": [
-        "sudo whoami",
-        "whoami",
-        "sudo ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml"
-      ]
+      "type": "ansible-local",
+      "playbook_file": "update/tasks/update.yml",
+      "extra_arguments": ["-vvv"]
     },
     {
       "type": "ansible-local",
