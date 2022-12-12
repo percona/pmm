@@ -19,9 +19,13 @@ package olm
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
 	"testing"
 
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // func TestGetLatestVersion(t *testing.T) {
@@ -40,32 +44,67 @@ import (
 // }
 
 func TestInstallOlmOperator(t *testing.T) {
-	// kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-	// require.NoError(t, err)
+	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
+	require.NoError(t, err)
 
 	ctx := context.Background()
+	olms := New(string(kubeconfig))
 
-	// client, err := k8sclient.New(ctx, string(kubeconfig))
-	// assert.NoError(t, err)
+	t.Run("Install OLM Operator", func(t *testing.T) {
+		err = olms.InstallOLMOperator(ctx)
+		assert.NoError(t, err)
+	})
 
+	t.Run("Install PSMDB Operator", func(t *testing.T) {
+		// Install PSMDB Operator
+		subscriptionNamespace := "default"
+		operatorGroup := "percona-operators-group"
+		catalosSourceNamespace := "olm"
+		operatorName := "percona-server-mongodb-operator"
+		params := InstallOperatorRequest{
+			Namespace:              subscriptionNamespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "operatorhubio-catalog",
+			CatalogSourceNamespace: catalosSourceNamespace,
+			Channel:                "stable",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+			// StartingCsv:            "percona-server-mongodb-operator.v1.11.0",
+		}
+
+		err = olms.InstallOperator(ctx, params)
+		assert.NoError(t, err)
+
+		// var subscription *controllerv1beta1.GetSubscriptionResponse
+
+		// subscription, err = olms.GetSubscription(ctx, &controllerv1beta1.GetSubscriptionRequest{
+		// 	KubeAuth: &controllerv1beta1.KubeAuth{
+		// 		Kubeconfig: string(kubeconfig),
+		// 	},
+		// 	Name:      subscriptionName,
+		// 	Namespace: subscriptionNamespace,
+		// })
+	})
 	// t.Cleanup(func() {
-	// 	// Maintain the order, otherwise the Kubernetes deletetion will stuck in Terminating state.
-	// 	err := client.Delete(ctx, []string{"apiservices.apiregistration.k8s.io", "v1.packages.operators.coreos.com"})
+	// 	client, err := client.NewFromKubeConfigString(string(kubeconfig))
 	// 	assert.NoError(t, err)
+	// 	// Maintain the order, otherwise the Kubernetes deletetion will stuck in Terminating state.
+	// 	// TODO: with client-go I don't know yet how to delete these. What are they?
+	// 	// err := client.Delete(ctx, []string{"apiservices.apiregistration.k8s.io", "v1.packages.operators.coreos.com"})
+	// 	// assert.NoError(t, err)
 	// 	files := []string{
-	// 		"deploy/olm/crds.yaml",
-	// 		"deploy/olm/olm.yaml",
+	// 		"crds/crds.yaml",
+	// 		"crds/olm.yaml",
 	// 	}
 
 	// 	for _, file := range files {
 	// 		t.Logf("deleting %q\n", file)
-	// 		yamlFile, _ := dbaascontroller.DeployDir.ReadFile(file)
+	// 		yamlFile, err := fs.ReadFile(data.OLMCRDs, file)
+	// 		assert.NoError(t, err)
 	// 		// When deleting, some resources might be already deleted by the previous file so the returned error
 	// 		// should be considered only as a warning.
-	// 		_ = client.Delete(ctx, yamlFile)
+	// 		_ = client.DeleteFile(ctx, yamlFile)
 	// 	}
-
-	// 	_ = client.Cleanup()
 	// })
 
 	// req := &controllerv1beta1.InstallOLMOperatorRequest{
@@ -73,10 +112,6 @@ func TestInstallOlmOperator(t *testing.T) {
 	// 		Kubeconfig: string(kubeconfig),
 	// 	},
 	// }
-
-	olms := NewOperatorService()
-	err := olms.InstallOLMOperator(ctx)
-	assert.NoError(t, err)
 
 	// 	// Wait for the deployments
 	// 	_, err = client.Run(ctx, []string{"rollout", "status", "-w", "deployment/olm-operator", "-n", "olm"})

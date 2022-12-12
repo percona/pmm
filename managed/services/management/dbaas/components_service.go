@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 	"sync"
+	"time"
 
 	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -31,6 +32,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/stringset"
 	pmmversion "github.com/percona/pmm/version"
 )
@@ -39,6 +41,8 @@ const (
 	psmdbOperatorName = "percona-server-mongodb-operator"
 	pxcOperatorName   = "percona-xtradb-cluster-operator"
 	defaultNamespace  = "default"
+	pollInterval      = 1 * time.Second
+	pollDuration      = 5 * time.Minute
 )
 
 type ComponentsService struct {
@@ -408,25 +412,18 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	}
 	var component *models.Component
 	var installFunc func() error
+
+	olms := olm.New(kubernetesCluster.KubeConfig)
+
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, pxcOperatorName)
-			if err != nil {
-				return errors.Wrapf(err, "cannot get install plan for subscription %q", pxcOperatorName)
-			}
-
-			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
+			return olms.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, psmdbOperatorName)
-			if err != nil {
-				return errors.Wrapf(err, "cannot get install plan for subscription %q", psmdbOperatorName)
-			}
-
-			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
+			return olms.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
 	default:

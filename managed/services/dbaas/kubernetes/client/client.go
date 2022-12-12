@@ -29,7 +29,6 @@ import (
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-
 	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -283,18 +282,6 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-// // NamespaceExists checks if the specified namespace exists.
-// func (c *Client) NamespaceExists(ctx context.Context, namespace string) bool {
-// 	_, err := c.clientset.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
-// 	if err == nil {
-// 		return true
-// 	}
-//
-// 	obj := client.Object{}
-//
-// 	return false
-// }
-
 func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -317,31 +304,27 @@ func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string
 	if namespace == "" {
 		namespace = c.namespace
 	}
-	og := &operatorsv1.OperatorGroup{}
-	og.SetName(name)
+	og := &operatorsv1.OperatorGroup{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: operatorsv1.OperatorGroupSpec{
+			TargetNamespaces: []string{namespace},
+		},
+		Status: operatorsv1.OperatorGroupStatus{
+			LastUpdated: &metav1.Time{
+				Time: time.Now(),
+			},
+		},
+	}
 
 	return operatorClient.OperatorsV1().OperatorGroups(namespace).Create(ctx, og, metav1.CreateOptions{})
 }
 
-/*
-
-	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
-		fetchedInstallPlan, err = c.OperatorsV1alpha1().InstallPlans(namespace).Get(context.Background(), name, metav1.GetOptions{})
-		if err != nil || fetchedInstallPlan == nil {
-			return false, err
-		}
-
-		return checkPhase(fetchedInstallPlan), nil
-	})
-
-		// Approve the upgrade installplan and wait for
-		upgradeInstallPlan.Spec.Approved = true
-		_, err = crc.OperatorsV1alpha1().InstallPlans(generatedNamespace.GetName()).Update(context.Background(), upgradeInstallPlan, metav1.UpdateOptions{})
-		require.NoError(GinkgoT(), err)
-*/
-
 func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
-	packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval) (*v1alpha1.Subscription, error) {
+	packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval,
+) (*v1alpha1.Subscription, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
@@ -378,6 +361,24 @@ func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*
 	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*operatorsv1alpha1.InstallPlan, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *operatorsv1alpha1.InstallPlan) (*operatorsv1alpha1.InstallPlan, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Update(ctx, installPlan, metav1.UpdateOptions{})
+}
+
 // Delete deletes object from the k8s cluster
 func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
@@ -403,6 +404,20 @@ func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
 	helper := resource.NewHelper(cli, mapping)
 	err = deleteObject(helper, namespace, name)
 	return err
+}
+
+func (c *Client) DeleteFile(ctx context.Context, fileBytes []byte) error {
+	objs, err := c.getObjects(fileBytes)
+	if err != nil {
+		return err
+	}
+	for i := range objs {
+		err := c.DeleteObject(ctx, objs[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func deleteObject(helper *resource.Helper, namespace, name string) error {

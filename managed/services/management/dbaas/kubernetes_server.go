@@ -22,10 +22,9 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 
 	goversion "github.com/hashicorp/go-version"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -335,156 +334,132 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, err
 	}
 
-	go func() {
-		ctx := context.TODO()
+	operatorsToInstall := map[string]bool{}
+	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+		operatorsToInstall["olm"] = true
+		operatorsToInstall["vm"] = true
+	}
+	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+		operatorsToInstall["pxc"] = true
+	}
+	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+		operatorsToInstall["psmdb"] = true
+	}
 
-		olms := olm.New(req.KubeAuth.Kubeconfig)
+	// Install the operators in the background.
+	go k.installDefaultOperators(req.KubeAuth.Kubeconfig, operatorsToInstall)
 
-		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-			err := olms.InstallOLMOperator(ctx)
-			if err != nil {
-				k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
-			}
-		}
+	settings, err := models.GetSettings(k.db.Querier)
+	if err != nil {
+		k.l.Errorf("cannot get PMM settings to start Victoria Metrics: %s", err)
+		return nil, errors.Wrap(err, "cannot get PMM settings to start Victoria Metrics")
+	}
 
-		namespace := "default"
+	if settings.PMMPublicAddress != "" {
+		var apiKeyID int64
+		var apiKey string
+		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
 
-		if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
-			operator := "percona-xtradb-cluster-operator"
-
-			if err := k.installOperator(ctx, operator, namespace, "", "stable", req.KubeAuth.Kubeconfig); err != nil {
-				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-			}
-
-			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-			if err != nil {
-				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-			}
-
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-				k.l.Errorf("cannot approve the PXC install plan: %s", err)
-			}
-		}
-
-		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
-			operator := "percona-server-mongodb-operator"
-
-			if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
-				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
-			}
-
-			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-			if err != nil {
-				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-			}
-
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
-			}
-		}
-
-		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-			operator := "victoriametrics-operator"
-
-			if err := k.installOperator(ctx, operator, namespace, "", "beta", req.KubeAuth.Kubeconfig); err != nil {
-				k.l.Errorf("cannot install victoria metrics operator: %s", err)
-				return
-			}
-
-			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-			if err != nil {
-				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-			}
-
-			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
-			}
-		}
-
-		settings, err := models.GetSettings(k.db.Querier)
+		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 		if err != nil {
-			k.l.Errorf("cannot get PMM settings to start Victoria Metrics: %s", err)
-			return
+			k.l.Errorf("cannot create Grafana admin API key: %s", err)
+			return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 		}
-		if settings.PMMPublicAddress != "" {
-			var apiKeyID int64
-			var apiKey string
-			apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
-			apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-			if err != nil {
-				k.l.Errorf("cannot create Grafana admin API key: %s", err)
-				return
-			}
-			pmmParams := &dbaascontrollerv1beta1.PMMParams{
-				PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
-				Login:         "api_key",
-				Password:      apiKey,
-			}
 
-			_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
-				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-					Kubeconfig: req.KubeAuth.Kubeconfig,
-				},
-				Pmm: pmmParams,
-			})
-			if err != nil {
-				e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-				if e != nil {
-					k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
-				}
-				k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
-				return
-			}
+		pmmParams := &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+			Login:         "api_key",
+			Password:      apiKey,
 		}
-	}()
+
+		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Pmm: pmmParams,
+		})
+		if err != nil {
+			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+			}
+			k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
+			return nil, errors.Wrap(err, "couldn't start monitoring of the kubernetes cluster")
+		}
+	}
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, startingCSV, channel, kubeConfig string) error {
-	catalosSourceNamespace := "olm"
-	catalogSource := "operatorhubio-catalog"
+func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsToInstall map[string]bool) {
+	ctx := context.TODO()
 
-	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Namespace:              namespace,
-		Name:                   name,
-		OperatorGroup:          "percona-operators-group",
-		CatalogSource:          catalogSource,
-		CatalogSourceNamespace: catalosSourceNamespace,
-		Channel:                channel,
-		InstallPlanApproval:    "Manual",
-		StartingCsv:            startingCSV,
-	})
+	olms := olm.New(kubeconfig)
 
-	return err
-}
-
-func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) {
-	var subscription *controllerv1beta1.GetSubscriptionResponse
-	var err error
-	for i := 0; i < 6; i++ {
-		subscription, err = client.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubeConfig,
-			},
-			Namespace: namespace,
-			Name:      name,
-		})
+	if _, ok := operatorsToInstall["olm"]; ok {
+		err := olms.InstallOLMOperator(ctx)
+		k.l.Info(">> Installing OLM operator")
 		if err != nil {
-			return "", errors.Wrap(err, "cannot list subscriptions")
+			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 		}
-
-		if subscription.Subscription.InstallPlanName != "" {
-			break
-		}
-
-		time.Sleep(5 * time.Second)
 	}
 
-	return subscription.Subscription.InstallPlanName, nil
+	namespace := "default"
+	catalogSourceNamespace := "olm"
+	operatorGroup := "percona-operators-group"
+
+	if _, ok := operatorsToInstall["pxc"]; ok {
+		operatorName := "percona-xtradb-cluster-operator"
+		params := olm.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "operatorhubio-catalog",
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                "stable",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		k.l.Info(">> Installing pxc operator")
+		if err := olms.InstallOperator(ctx, params); err != nil {
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["psmdb"]; ok {
+		operatorName := "percona-server-mongodb-operator"
+		params := olm.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "operatorhubio-catalog",
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                "stable",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
+		}
+
+		if err := olms.InstallOperator(ctx, params); err != nil {
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["vm"]; ok {
+		operatorName := "victoriametrics-operator"
+		params := olm.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "operatorhubio-catalog",
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                "beta",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := olms.InstallOperator(ctx, params); err != nil {
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
