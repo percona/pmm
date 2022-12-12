@@ -97,9 +97,11 @@ func TestConfigCommandArgs(t *testing.T) {
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
 		args, switchedToTLS := cmd.args(&flags.GlobalFlags{
-			ServerURL:   u,
-			EnableDebug: true,
-			EnableTrace: true,
+			ServerURL: u,
+			GlobalFlagsBase: flags.GlobalFlagsBase{
+				EnableDebug: true,
+				EnableTrace: true,
+			},
 		})
 		expected := []string{
 			"--server-address=127.0.0.1:443",

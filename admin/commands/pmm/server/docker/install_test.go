@@ -77,7 +77,7 @@ func TestRunCmd(t *testing.T) {
 			ContainerName: "container-name",
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.NoError(t, err)
 	})
@@ -92,7 +92,7 @@ func TestRunCmd(t *testing.T) {
 
 		c := InstallCommand{dockerFn: m}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.Error(t, err)
 	})
@@ -121,7 +121,7 @@ func TestRunCmd(t *testing.T) {
 			SkipChangePassword: true,
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.NoError(t, err)
 	})
