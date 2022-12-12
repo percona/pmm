@@ -86,9 +86,7 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 		return nil, err
 	}
 
-	if err := c.runUpdateCheckLoop(ctx); err != nil {
-		return nil, err
-	}
+	c.runUpdateCheckLoop(ctx)
 
 	return &startResult{}, nil
 }
@@ -138,7 +136,7 @@ func (c *StartCommand) createNetwork(ctx context.Context) error {
 	return err
 }
 
-func (c *StartCommand) runUpdateCheckLoop(ctx context.Context) error {
+func (c *StartCommand) runUpdateCheckLoop(ctx context.Context) {
 	for {
 		logrus.Info("Checking update requests")
 
@@ -151,7 +149,7 @@ func (c *StartCommand) runUpdateCheckLoop(ctx context.Context) error {
 		select {
 		case <-time.After(c.WaitBetweenChecks):
 		case <-ctx.Done():
-			return nil
+			return
 		}
 	}
 }
