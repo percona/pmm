@@ -1,11 +1,4 @@
 ---
-- name: Print some debug information
-  debug:
-    msg:
-      - "PATH envvar: '{{ lookup('ansible.builtin.env', 'PATH') }}'"
-      - "Ansible user id: {{ ansible_user_id }}"
-      - "Ansible user dir: {{ ansible_user_dir }}"
-
 - name: Install supervisor         | Install supervisor 4.2.4
   pip:
     name: supervisor==4.2.4
