@@ -1,16 +1,8 @@
 ---
-- name: Print the contents of bashrc
-  debug:
-    msg: "the value of bashrc is {{lookup('ansible.builtin.file', '/etc/bashrc') }}"
-
-- name: Print the contents of cloud.cfg
-  debug:
-    msg: "{{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
-
 - name: Print some debug information
   debug:
     msg:
-      - "'{{ lookup('ansible.builtin.env', 'PATH') }}'"
+      - "PATH envvar: '{{ lookup('ansible.builtin.env', 'PATH') }}'"
       - "Ansible user id: {{ ansible_user_id }}"
       - "Ansible user dir: {{ ansible_user_dir }}"
 
@@ -19,8 +11,7 @@
     name: supervisor==4.2.4
 
 - name: Configure supervisor       | Create a defult configuration file for supervisord
-  become: True
-  shell: echo_supervisord_conf > /etc/supervisord.conf
+  shell: PATH=/usr/local/bin echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:

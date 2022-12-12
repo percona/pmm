@@ -13,13 +13,3 @@
           retries: 2
     dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
     mode: 0644
-
-- name: ovf                 | Add {{ extra_path }} to path
-  when:
-    - ansible_virtualization_type == "virtualbox"
-  lineinfile: >
-    dest=/etc/environment
-    state=present
-    backrefs=yes
-    regexp='PATH=(["]*)((?!.*?{{extra_path}}).*?)(["]*)$'
-    line="PATH=\1\2:{{extra_path}}\3"
