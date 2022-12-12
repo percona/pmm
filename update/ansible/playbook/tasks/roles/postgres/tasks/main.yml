@@ -192,11 +192,11 @@
       when: is_upgrade.stat.exists
 
     - name: Reread supervisord configuration
-      command: supervisorctl reread
+      command: PATH=/usr/local/bin supervisorctl reread
       when: is_upgrade.stat.exists
 
     - name: Restart Postgres
-      command: supervisorctl {{ item }} postgresql
+      command: PATH=/usr/local/bin supervisorctl {{ item }} postgresql
       changed_when: True
       loop:
         - stop
