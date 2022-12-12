@@ -1,11 +1,18 @@
 ---
-- name: Print the contents of cloud.cfg
+- name: Print the contents of bashrc
   debug:
-    msg: "the value of cloud.cfg is {{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
+    msg: "the value of bashrc is {{lookup('ansible.builtin.file', '/etc/bashrc') }}"
 
 - name: Print the contents of cloud.cfg
   debug:
-    msg: "the value of cloud.cfg is {{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
+    msg: "{{lookup('ansible.builtin.file', '/etc/cloud/cloud.cfg') }}"
+
+- name: Print some debug information
+  debug:
+    msg:
+      - "'{{ lookup('ansible.builtin.env', 'PATH') }}'"
+      - "Ansible user id: {{ ansible_user_id }}"
+      - "Ansible user dir: {{ ansible_user_dir }}"
 
 - name: Install supervisor         | Install supervisor 4.2.4
   pip:

@@ -1,7 +1,7 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
-export ORACLE_VERSION := 4.2.4
+export ORACLE_VERSION := 4.2.6
 
 ## ----------------- PACKER ------------------
 fetch:

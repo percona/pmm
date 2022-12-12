@@ -72,18 +72,12 @@
         "--manifest",
         "--vsys",
         "0",
-        "--product",
-        "Percona Monitoring and Management",
-        "--producturl",
-        "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
-        "--vendor",
-        "Percona",
-        "--vendorurl",
-        "https://www.percona.com",
-        "--version",
-        "{{isotime \"2006-01-02\"}}",
-        "--description",
-        "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
+        "--product", "Percona Monitoring and Management",
+        "--producturl", "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
+        "--vendor", "Percona",
+        "--vendorurl", "https://www.percona.com",
+        "--version", "{{isotime \"2006-01-02\"}}",
+        "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
       ],
       "format": "ovf",
       "guest_additions_mode": "disable",
@@ -97,39 +91,9 @@
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
-        [
-          "createhd",
-          "--format",
-          "VMDK",
-          "--filename",
-          "/tmp/{{.Name}}-disk2.vmdk",
-          "--variant",
-          "STREAM",
-          "--size",
-          "409600"
-        ],
-        [
-          "storagectl",
-          "{{.Name}}",
-          "--name",
-          "SCSI Controller",
-          "--add",
-          "scsi",
-          "--controller",
-          "LSILogic"
-        ],
-        [
-          "storageattach",
-          "{{.Name}}",
-          "--storagectl",
-          "SCSI Controller",
-          "--port",
-          "1",
-          "--type",
-          "hdd",
-          "--medium",
-          "/tmp/{{.Name}}-disk2.vmdk"
-        ]
+        [ "createhd", "--format", "VMDK", "--filename", "/tmp/{{.Name}}-disk2.vmdk", "--variant", "STREAM", "--size", "409600" ],
+        [ "storagectl", "{{.Name}}", "--name", "SCSI Controller", "--add", "scsi", "--controller", "LSILogic" ],
+        [ "storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/{{.Name}}-disk2.vmdk" ]
       ]
     },
     {
