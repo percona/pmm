@@ -682,7 +682,7 @@ redirect_stderr = true
 
 {{define "vmproxy"}}
 [program:vmproxy]
-priority = 7
+priority = 9
 command =
     /usr/sbin/vmproxy
       --target-url=http://127.0.0.1:9090/
