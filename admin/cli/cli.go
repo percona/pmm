@@ -94,14 +94,16 @@ func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 
 // PMMUpdaterCommands stores all commands, flags and arguments for the "pmm-updater" binary.
 type PMMUpdaterCommands struct {
-	flags.GlobalFlags
+	flags.GlobalFlagsBase
 
 	Start      start.StartCommand         `cmd:"" help:"Start pmm-updater daemon"`
 	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
 func (c *PMMUpdaterCommands) GetGlobalFlags() *flags.GlobalFlags {
-	return &c.GlobalFlags
+	return &flags.GlobalFlags{
+		GlobalFlagsBase: c.GlobalFlagsBase,
+	}
 }
 
 // Run function is a top-level function which handles running all commands
