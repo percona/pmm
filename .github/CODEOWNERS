@@ -9,5 +9,6 @@
 /managed/                               @BupycHuk @artemgavrilov @percona/pmm-review-be
 /managed/services/dbaas                 @gen1us2k @percona-csalguero @percona/pmm-review-be
 /managed/services/management/dbaas      @gen1us2k @percona-csalguero @percona/pmm-review-be
+/update/                                @BupycHuk @atymchuk @talhabinrizwan
 /api-tests/                             @BupycHuk @artemgavrilov @percona/pmm-review-be
 go.mod                                  @BupycHuk @artemgavrilov @percona/pmm-review-be

@@ -1,0 +1,50 @@
+---
+- name: Create grafana directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0775'
+  loop:
+    - /srv/grafana
+    - /srv/grafana/plugins
+
+- name: Set Grafana folder for plugins on /srv partition for all users
+  lineinfile:
+    path: /etc/bashrc
+    line: 'export GF_PLUGIN_DIR=/srv/grafana/plugins'
+
+- name: Copy new version of grafana.ini
+  copy:
+    src: grafana.ini
+    dest: /etc/grafana/grafana.ini
+    owner: grafana
+    group: grafana
+    mode: '0444'
+
+- name: Create provisioning directory
+  file:
+    path: "/usr/share/grafana/conf/provisioning/{{ item }}"
+    owner: grafana
+    group: grafana
+    state: directory
+  loop:
+    - datasources
+    - plugins
+    - dashboards
+
+- name: Copy grafana provisioning files
+  copy:
+    src: "{{ item }}.yml"
+    dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
+    owner: grafana
+    group: grafana
+  loop:
+    - datasources
+    - plugins
+    - dashboards
+
+- name: Upgrade grafana database (Get the latest schema)
+  command: grafana-cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+  changed_when: True

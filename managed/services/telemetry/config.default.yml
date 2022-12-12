@@ -622,12 +622,3 @@ telemetry:
         label: "check_name"
       - metric_name: 2
         value: 1
-
-  - id: GrafanaUsersCount
-    source: GRAFANADB_SELECT
-    query: count(*) AS count FROM user
-    summary: "Grafana Users Count"
-    data:
-      - metric_name: "grafana_users_count"
-        column: "count"
-
