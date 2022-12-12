@@ -77,23 +77,23 @@ High-level sequence diagram that illustrates registering of K8s cluster
 
 ```mermaid
 sequenceDiagram
-    
+
     PMM UI->>ManageD: Add kubernetes cluster
     ManageD->>K8S: Install OLM
-    break when olm is installed 
+    break when olm is installed
     	K8S->>OLM: provisions an OLM
     end
     Note right of K8S: OLM is provisioned!
-```    
+```
 High-level sequence diagram that illustrates an Installation and upgrading process inside PMM/DBaaS in terms of end user
 
 ```mermaid
 sequenceDiagram
-    Note right of PMM UI: Once OLM is available 
-    PMM UI->>Managed: Install operators 
-    ManageD->>OLM: Install required operators and create a manual subscription 
-    OLM->>Catalog: Gets the latest version of the operator 
-    loop when subscription is created 
+    Note right of PMM UI: Once OLM is available
+    PMM UI->>ManageD: Install operators
+    ManageD->>OLM: Install required operators and create a manual subscription
+    OLM->>Catalog: Gets the latest version of the operator
+    loop when subscription is created
         OLM->>Catalog: manages subscription and checks for a new version
     end
     Note right of OLM: A new version of operator is available
@@ -104,26 +104,26 @@ sequenceDiagram
     Note left of PMM UI: A user approved the upgrade request
     PMM UI->> ManageD: approve a new version of operator
     ManageD->>OLM: approve an subscription upgrade request
-    Note left of OLM: A new version of operator is available 
-```    
+    Note left of OLM: A new version of operator is available
+```
 This process makes version service usage for supported versions of operators obsolete because it gets the latest version of available operator from the catalog. However, the catalog can be managed by our team and we'll push only supported versions of operators to the catalog. This also will improve integration testing for unreleased versions of operators.
 
 ### Working with the databases
 
-The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the `dbaas-operator` will have the following benefits 
+The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the `dbaas-operator` will have the following benefits
 
 1. Kubernetes native way to work with database clusters via unified and general specifications.
 2. PMM DBaaS does need to care about the state of a managed database.
 3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. `dbaas-operator` can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
 4. Installation and upgrading of `dbaas-operator` will be managed by OLM as proposed above.
-5. `dbaas-operator` opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries against exposed/non-exposed database clusters. 
-6. PMM/DBaaS will have native integration with `dbaas-operator` via `client-go` package that will improve the overall performance on large-scale clusters 
+5. `dbaas-operator` opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries against exposed/non-exposed database clusters.
+6. PMM/DBaaS will have native integration with `dbaas-operator` via `client-go` package that will improve the overall performance on large-scale clusters
 
 The sequential diagram illustrates a creation of PXC cluster
 
 ```mermaid
 sequenceDiagram
-    
+
     PMM UI->>ManageD: Create a Database cluster
     Note right of PMM UI: (DatabaseType: PXC)
     ManageD->>K8S: Create a DatabaseCluster Kind object
@@ -136,14 +136,14 @@ sequenceDiagram
     end
     Note right of PXC Operator: PXC Cluster is created
 
-    
-```    
+
+```
 
 Listing DatabaseClusters
 
 ```mermaid
 sequenceDiagram
-    PMM UI->>ManageD: Give me a list of database clusters 
+    PMM UI->>ManageD: Give me a list of database clusters
     ManageD->>K8S: Get list of DatabaseCluster Kind objects
     Note left of K8S: They can be with DatabaseType either PXC or PSMDB
     K8S->>ManageD: Returns list of databases
@@ -332,7 +332,7 @@ As a DBA(?), I should be able to view cluster resources available before creatin
 ## Design Details
 
 ### Air gapped environments
-The design does not support air gapped environments because of internet connectivity dependency. 
+The design does not support air gapped environments because of internet connectivity dependency.
 
 ### OLM installation
 PMM always installs the latest version of OLM using the following process:
@@ -352,7 +352,7 @@ PMM uses [Percona DBaaS catalog](https://github.com/percona/dbaas-catalog/blob/m
 
 Any additional operators should be added to the catalog. Installation of an operator has the following steps:
 
-1. PMM should have DBaaS operator installed 
+1. PMM should have DBaaS operator installed
 2. PMM creates [Operator Group](https://docs.openshift.com/container-platform/4.8/operators/understanding/olm/olm-understanding-operatorgroups.html) if it does not exist
 3. PMM creates [subscription](https://olm.operatorframework.io/docs/concepts/olm-architecture/) for the selected operator
 
@@ -364,30 +364,30 @@ Any additional operators should be added to the catalog. Installation of an oper
 4. Operator restarts and continues to work normally but now OLM manages installation of new versions
 
 
-### PMM REST API high-level design 
+### PMM REST API high-level design
 
 ```
 POST /dbaas/kubernetes_clusters - Add k8s cluster to the PMM. Provision DBaaS feature. Kubeconfig should be base64 encoded. Extend with the namespace?
 GET /dbaas/kubernetes_clusters - List all kubernetes clusters
 GET /dbaas/kubernetes_cluster/{id} - get information about the selected k8s cluster
 GET /dbaas/dbclusters - list of created database clusters
-PUT /dbaas/dbclusters/{id} - update/edit a database cluster. 
+PUT /dbaas/dbclusters/{id} - update/edit a database cluster.
 GET /dbaas/dbclusters/{id} - get the detailed information about the database cluster
 POST /dbaas/dbclusters - create a new database cluster. The database struct is described below
 GET /dbaas/dbclusters/{id}/credentials - get credentials for the selected db cluster (it can be embedded to the LIstDBClusters endpoint)
-GET /dbaas/templates - get list of created templates that can be used as a CR template on a database cluster creating 
+GET /dbaas/templates - get list of created templates that can be used as a CR template on a database cluster creating
 POST /dbaas/templates - create a database cluster template
 PUT /dbaas/templates/{id} - update a database cluster template
 GET /dbaas/templates/{id} - get a database cluster template
-GET /dbaas/backup_templates - get list of created templates for backup schedule 
+GET /dbaas/backup_templates - get list of created templates for backup schedule
 POST /dbaas/backup_templates - create a backup schedule template
 PUT /dbaas/backup_templates/{id} - update a backup schedule template
 GET /dbaas/backup_templates/{id} - get a database schedule template
-GET /dbaas/versions - get supported versions of database clusters 
+GET /dbaas/versions - get supported versions of database clusters
 GET /dbaas/operator-versions - get operators' versions information from OLM and
 PUT /dbaas/operator-versions - upgrade operator via OLM
 ```
-Go struct that represents the payload to create/list database clusters 
+Go struct that represents the payload to create/list database clusters
 ```go
 const (
         PXCEngine   EngineType = "pxc"
@@ -495,7 +495,7 @@ Every additional provider should implement this interface. Kubernetes related im
 
 #### Further steps with OLM and dbaas-operator
 
-Since PMM used OLM to install/update operators, PMM can get the information about supported database engines from dbaas-operator. That will help us to make releases of PMM/DBaaS independent from PMM release cycle. As an additional feature, SRE or Admin can select database engines she wants to use and PMM will provision it accordingly 
+Since PMM used OLM to install/update operators, PMM can get the information about supported database engines from dbaas-operator. That will help us to make releases of PMM/DBaaS independent from PMM release cycle. As an additional feature, SRE or Admin can select database engines she wants to use and PMM will provision it accordingly
 
 
 ### Templates
@@ -557,7 +557,7 @@ Priority:
 Corner cases:
 - user uses PMM UI and there are no default template (or none selected)
   - PMM uses old scheme with version service and some default values
-- user uses k8s directly without PMM and there neither default templates and submits nor optional fields 
+- user uses k8s directly without PMM and there neither default templates and submits nor optional fields
   - `dbaas-operator` uses default CR that comes from alm-examples of CSV
 
 There are might be couple of ways for `dbaas-operator` to know about templates.
@@ -631,16 +631,16 @@ Here is example of 2 templates creation:
 ```sh
 minikube start
 
-kubectl apply -f pxctmpl.dbaas.percona.com.crd.yaml 
+kubectl apply -f pxctmpl.dbaas.percona.com.crd.yaml
 customresourcedefinition.apiextensions.k8s.io/pxctemplates.dbaas.percona.com created
 
-kubectl apply -f psmdbtpl.dbaas.percona.com.crd.yaml 
+kubectl apply -f psmdbtpl.dbaas.percona.com.crd.yaml
 customresourcedefinition.apiextensions.k8s.io/psmdbtemplates.dbaas.percona.com created
 
-kubectl apply -f pxctpl.dbaas.percona.com.cr.yaml 
+kubectl apply -f pxctpl.dbaas.percona.com.cr.yaml
 pxctemplate.dbaas.percona.com/prod-app-n-large created
 
-kubectl apply -f psmdbtpl.dbaas.percona.com.cr.yaml 
+kubectl apply -f psmdbtpl.dbaas.percona.com.cr.yaml
 psmdbtemplate.dbaas.percona.com/dev-app-x created
 
 kubectl get psmdbtpl,pxctpl
@@ -648,7 +648,7 @@ NAME                                        ENDPOINT   STATUS   AGE
 psmdbtemplate.dbaas.percona.com/dev-app-x                       31s
 
 NAME                                             ENDPOINT   STATUS   PXC   PROXYSQL   HAPROXY   AGE
-pxctemplate.dbaas.percona.com/prod-app-n-large  
+pxctemplate.dbaas.percona.com/prod-app-n-large
 
 ```
 
@@ -683,8 +683,8 @@ During moving from dbaas-controller to `dbaas-operator` we'll keep the same user
 
 #### Integration tests
 
-1. Use current PMM integration tests for DBaaS during the migration to understand what goes wrong 
-2. Add additional tests for OLM integration 
+1. Use current PMM integration tests for DBaaS during the migration to understand what goes wrong
+2. Add additional tests for OLM integration
 
 
 #### e2e tests
