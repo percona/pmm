@@ -4,7 +4,7 @@
     name: supervisor==4.2.4
 
 - name: Configure supervisor       | Create a defult configuration file for supervisord
-  shell: PATH=/usr/local/bin echo_supervisord_conf > /etc/supervisord.conf
+  shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:
