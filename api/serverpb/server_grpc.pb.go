@@ -34,6 +34,10 @@ type ServerClient interface {
 	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
+	// SideContainerUpdateRequest requests update to start via a side-container.
+	SideContainerUpdateRequest(ctx context.Context, in *SideContainerUpdateRequestRequest, opts ...grpc.CallOption) (*SideContainerUpdateRequestResponse, error)
+	// SideContainerUpdateStatus checks status of update via a side-container.
+	SideContainerUpdateStatus(ctx context.Context, in *SideContainerUpdateStatusRequest, opts ...grpc.CallOption) (*SideContainerUpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
@@ -97,6 +101,24 @@ func (c *serverClient) UpdateStatus(ctx context.Context, in *UpdateStatusRequest
 	return out, nil
 }
 
+func (c *serverClient) SideContainerUpdateRequest(ctx context.Context, in *SideContainerUpdateRequestRequest, opts ...grpc.CallOption) (*SideContainerUpdateRequestResponse, error) {
+	out := new(SideContainerUpdateRequestResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/SideContainerUpdateRequest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverClient) SideContainerUpdateStatus(ctx context.Context, in *SideContainerUpdateStatusRequest, opts ...grpc.CallOption) (*SideContainerUpdateStatusResponse, error) {
+	out := new(SideContainerUpdateStatusResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/SideContainerUpdateStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serverClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
 	out := new(GetSettingsResponse)
 	err := c.cc.Invoke(ctx, "/server.Server/GetSettings", in, out, opts...)
@@ -148,6 +170,10 @@ type ServerServer interface {
 	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
+	// SideContainerUpdateRequest requests update to start via a side-container.
+	SideContainerUpdateRequest(context.Context, *SideContainerUpdateRequestRequest) (*SideContainerUpdateRequestResponse, error)
+	// SideContainerUpdateStatus checks status of update via a side-container.
+	SideContainerUpdateStatus(context.Context, *SideContainerUpdateStatusRequest) (*SideContainerUpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
@@ -180,6 +206,14 @@ func (UnimplementedServerServer) StartUpdate(context.Context, *StartUpdateReques
 
 func (UnimplementedServerServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
+}
+
+func (UnimplementedServerServer) SideContainerUpdateRequest(context.Context, *SideContainerUpdateRequestRequest) (*SideContainerUpdateRequestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SideContainerUpdateRequest not implemented")
+}
+
+func (UnimplementedServerServer) SideContainerUpdateStatus(context.Context, *SideContainerUpdateStatusRequest) (*SideContainerUpdateStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SideContainerUpdateStatus not implemented")
 }
 
 func (UnimplementedServerServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
@@ -300,6 +334,42 @@ func _Server_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Server_SideContainerUpdateRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SideContainerUpdateRequestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).SideContainerUpdateRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/SideContainerUpdateRequest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).SideContainerUpdateRequest(ctx, req.(*SideContainerUpdateRequestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Server_SideContainerUpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SideContainerUpdateStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).SideContainerUpdateStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/SideContainerUpdateStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).SideContainerUpdateStatus(ctx, req.(*SideContainerUpdateStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Server_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSettingsRequest)
 	if err := dec(in); err != nil {
@@ -398,6 +468,14 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateStatus",
 			Handler:    _Server_UpdateStatus_Handler,
+		},
+		{
+			MethodName: "SideContainerUpdateRequest",
+			Handler:    _Server_SideContainerUpdateRequest_Handler,
+		},
+		{
+			MethodName: "SideContainerUpdateStatus",
+			Handler:    _Server_SideContainerUpdateStatus_Handler,
 		},
 		{
 			MethodName: "GetSettings",

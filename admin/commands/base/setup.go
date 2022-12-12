@@ -84,14 +84,30 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		}
 	}
 
+	transport := GetGRPCTransport(
+		ctx,
+		globalFlags.ServerURL,
+		globalFlags.EnableDebug || globalFlags.EnableTrace,
+		globalFlags.SkipTLSCertificateCheck,
+		logrus.Fields{"component": "server-transport"})
+
+	inventorypb.Default.SetTransport(transport)
+	managementpb.Default.SetTransport(transport)
+	serverpb.Default.SetTransport(transport)
+}
+
+// GetGRPCTransport returns a configured transport for gRPC.
+func GetGRPCTransport(ctx context.Context, url *url.URL, enableDebug, skipTLSCertificateCheck bool, logFields logrus.Fields) *httptransport.Runtime {
+	l := logrus.WithFields(logFields)
+
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(globalFlags.ServerURL.Host, globalFlags.ServerURL.Path, []string{globalFlags.ServerURL.Scheme})
-	if u := globalFlags.ServerURL.User; u != nil {
+	transport := httptransport.New(url.Host, url.Path, []string{url.Scheme})
+	if u := url.User; u != nil {
 		password, _ := u.Password()
 		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
 	}
-	transport.SetLogger(logrus.WithField("component", "server-transport"))
-	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
+	transport.SetLogger(l)
+	transport.SetDebug(enableDebug)
 	transport.Context = ctx
 
 	// set error handlers for nginx responses if pmm-managed is down
@@ -110,17 +126,15 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	// disable HTTP/2, set TLS config
 	httpTransport, ok := transport.Transport.(*http.Transport)
 	if !ok {
-		panic("cannot assert transport as http.Transport")
+		l.Panic("cannot assert transport as http.Transport")
 	}
 
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if globalFlags.ServerURL.Scheme == "https" {
+	if url.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = globalFlags.ServerURL.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
+		httpTransport.TLSClientConfig.ServerName = url.Hostname()
+		httpTransport.TLSClientConfig.InsecureSkipVerify = skipTLSCertificateCheck
 	}
 
-	inventorypb.Default.SetTransport(transport)
-	managementpb.Default.SetTransport(transport)
-	serverpb.Default.SetTransport(transport)
+	return transport
 }

@@ -18,17 +18,22 @@ package start
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/base"
 	dockerCmd "github.com/percona/pmm/admin/commands/pmm/server/docker"
 	"github.com/percona/pmm/admin/pkg/docker"
-	"github.com/sirupsen/logrus"
+	serverpb "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
 
 // StartCommand is used by Kong for CLI flags and commands.
@@ -53,6 +58,16 @@ func (r *startResult) String() string {
 func (cmd *StartCommand) BeforeApply() error {
 	commands.SetupClientsEnabled = false
 	return nil
+}
+
+type nginxError string
+
+func (e nginxError) Error() string {
+	return "response from nginx: " + string(e)
+}
+
+func (e nginxError) GoString() string {
+	return fmt.Sprintf("nginxError(%q)", string(e))
 }
 
 // RunCmdWithContext runs command
@@ -170,9 +185,15 @@ func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
 			continue
 		}
 
-		// API call to check for update
-		updateRequested := true
-		if updateRequested {
+		logrus.Debugf("Checking if update is requested for container %s", cont.ID)
+		isUpdateRequested, err := c.isUpdateRequested(ctx, cont.ID)
+		if err != nil {
+			logrus.Errorf("Cannot check if update is requested for container %s. Error %v", cont.ID, err)
+			continue
+		}
+
+		if isUpdateRequested {
+			logrus.Debugf("Starting upgrade for container %s", cont.ID)
 			cmd := &dockerCmd.UpgradeCommand{
 				ContainerID:            cont.ID,
 				DockerImage:            "percona/pmm-server:2",
@@ -188,4 +209,27 @@ func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (c *StartCommand) isUpdateRequested(ctx context.Context, containerID string) (bool, error) {
+	u, err := url.Parse(fmt.Sprintf("http://%s/", containerID))
+	if err != nil {
+		return false, err
+	}
+
+	transport := base.GetGRPCTransport(
+		ctx, u, c.globals.EnableDebug || c.globals.EnableTrace, true,
+		logrus.Fields{
+			"component": "server-transport",
+			"host":      u.Host,
+		})
+
+	serverAPI := serverpb.New(transport, nil)
+
+	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{})
+	if err != nil {
+		return false, err
+	}
+
+	return status.Payload.IsRequested, nil
 }
