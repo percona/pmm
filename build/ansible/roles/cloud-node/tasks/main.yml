@@ -1,5 +1,13 @@
 ---
 # Common things for all cloud images
+- name: Set the system path        | System path for EL9
+  when:
+    - ansible_distribution == 'OracleLinux'
+    - ansible_distribution_major_version == '9'
+  lineinfile:
+    path: /etc/profile.d/sh.local
+    line: export PATH=/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 - name: Packages                   | Add EPEL repository for EL7
   when:
     - ansible_distribution == 'CentOS'
