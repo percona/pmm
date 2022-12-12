@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN ia -> 'enabled' = 'true' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
+    query: (CASE WHEN ia->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS ia
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_ia_enabled"
