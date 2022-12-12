@@ -17,11 +17,18 @@ package queryparser
 import (
 	"regexp"
 	"strings"
+	"sync"
 
 	pg_query "github.com/pganalyze/pg_query_go"
 	"github.com/pkg/errors"
 	"vitess.io/vitess/go/vt/proto/query"
 	"vitess.io/vitess/go/vt/sqlparser"
+)
+
+var (
+	pgRegexp    *regexp.Regexp
+	pgRegexpErr error
+	onlyOnce    sync.Once
 )
 
 // MySQL parse query and return fingeprint and placeholders.
@@ -54,12 +61,17 @@ func PostgreSQL(q string) (string, uint32, error) {
 
 // PostgreSQLNormalized parse query, which is already normalized and return fingeprint and placeholders.
 func PostgreSQLNormalized(q string) (string, uint32, error) {
-	// PG 10 and above has $ as a placeholders.
-	r, err := regexp.Compile(`[\$]{1}\d`)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "cannot get placeholders count")
+	// To compile regexp only once.
+	onlyOnce.Do(func() {
+		// PG 10 and above has $ as a placeholders.
+		pgRegexp, pgRegexpErr = regexp.Compile(`[\$]{1}\d`)
+	})
+
+	if pgRegexpErr != nil {
+		return "", 0, errors.Wrap(pgRegexpErr, "cannot get placeholders count")
 	}
-	matches := r.FindAllString(q, -1)
+
+	matches := pgRegexp.FindAllString(q, -1)
 	if len(matches) != 0 {
 		return q, uint32(len(matches)), nil
 	}
