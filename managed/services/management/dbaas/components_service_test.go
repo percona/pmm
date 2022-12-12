@@ -731,7 +731,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		}, nil)
 
 		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
-			Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{
+			Items: []*controllerv1beta1.Subscription{
 				{
 					Namespace:    "space-x",
 					Name:         "psmdb-operator",
@@ -795,7 +795,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		}, nil)
 
 		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
-			Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{},
+			Items: []*controllerv1beta1.Subscription{},
 		}
 		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(mockSubscriptions, nil)
 		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
