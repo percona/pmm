@@ -8,6 +8,13 @@
     path: /etc/profile.d/sh.local
     line: export PATH=/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+- name: Print debug info           | Print debug info
+  debug:
+    msg:
+      - "Ansible user id: {{ ansible_user_id }}"
+      - "Ansible user dir: {{ ansible_user_dir }}"
+      - "PATH env: {{ lookup('env', 'PATH' }}"
+
 - name: Packages                   | Add EPEL repository for EL7
   when:
     - ansible_distribution == 'CentOS'
