@@ -1,8 +1,8 @@
 ---
 # This playbook contains tasks executed during initialization PMM Server
 - hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: True
+  gather_facts: True
   tasks:
     - name: Run initializaion role
       include_role:
