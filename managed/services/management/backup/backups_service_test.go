@@ -318,6 +318,7 @@ func TestScheduledBackups(t *testing.T) {
 			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 				CronExpression: "* * * * *",
 				Type:           models.ScheduledMySQLBackupTask,
+				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{CommonBackupTaskData: models.CommonBackupTaskData{Name: t.Name()}}},
 			})
 			require.NoError(t, err)
 
@@ -342,7 +343,7 @@ func TestScheduledBackups(t *testing.T) {
 
 			task, err = models.FindScheduledTaskByID(db.Querier, task.ID)
 			assert.Nil(t, task)
-			tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, id), err)
+			require.ErrorIs(t, err, models.ErrNotFound)
 
 			artifacts, err := models.FindArtifacts(db.Querier, models.ArtifactFilters{
 				ScheduleID: id,
