@@ -66,7 +66,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
@@ -109,7 +109,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
