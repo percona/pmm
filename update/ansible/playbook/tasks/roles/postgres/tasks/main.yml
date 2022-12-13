@@ -47,12 +47,6 @@
         state: present
         disable_gpg_check: yes
 
-    # - name: Disable the built-in PostgreSQL module
-    #   command: dnf -qy module disable postgresql
-    #   register: result
-    #   changed_when:
-    #     - '"Disabling module streams" in result.stdout'
-
     - name: Install Postgres
       when:
         - not ansible_check_mode
@@ -98,10 +92,10 @@
         group: postgres
 
     - name: Initialize Postgres database
-      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14
+      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 -c logging_collector=off --auth-local=trust
       become: True
       become_user: postgres
-      become_method: sudo
+      # become_method: sudo
 
     - name: Check that supervisor socket exists (Upgrade or init)
       stat:
@@ -121,7 +115,7 @@
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
       become: True
       become_user: postgres
-      become_method: sudo
+      # become_method: sudo
       when: is_upgrade.stat.exists
 
     - name: Dump pmm-managed database
@@ -135,14 +129,14 @@
       command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
       become: True
       become_user: postgres
-      become_method: sudo
+      # become_method: sudo
       when: is_upgrade.stat.exists
 
     - name: Start Postgres 14 database without supervisor
-      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -c logging_collector=off
       become: True
       become_user: postgres
-      become_method: sudo
+      # become_method: sudo
 
     - name: Create pmm-managed database
       postgresql_db:
@@ -176,7 +170,7 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: True
       become_user: postgres
-      become_method: sudo
+      # become_method: sudo
 
     - name: Rename old Postgres directory
       copy:
@@ -193,11 +187,13 @@
 
     - name: Reread supervisord configuration
       command: /usr/local/bin/supervisorctl reread
+      become: True
       when: is_upgrade.stat.exists
 
     - name: Restart Postgres
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
       changed_when: True
+      become: True
       loop:
         - stop
         - remove
@@ -208,5 +204,6 @@
       supervisorctl:
         name: pmm-managed
         state: started
+      become: True
       when: is_upgrade.stat.exists
   when: not is_postgres_14.stat.exists

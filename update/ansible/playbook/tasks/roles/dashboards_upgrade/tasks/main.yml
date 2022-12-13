@@ -89,6 +89,7 @@
   supervisorctl:
     name: grafana
     state: restarted
+  become: True
   ignore_errors: True
   # TODO we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
