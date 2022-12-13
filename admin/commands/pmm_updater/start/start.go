@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
 	"github.com/sirupsen/logrus"
@@ -226,7 +227,12 @@ func (c *StartCommand) isUpdateRequested(ctx context.Context, hostname string) (
 
 	serverAPI := serverpb.New(transport, nil)
 
-	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{Context: ctx})
+	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{
+		Context: ctx,
+		Body: server.SideContainerUpdateStatusBody{
+			Source: pointer.To(server.SideContainerUpdateStatusBodySourcePMMUPDATER),
+		},
+	})
 	if err != nil {
 		return false, err
 	}
