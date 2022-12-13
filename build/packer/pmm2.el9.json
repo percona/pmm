@@ -133,8 +133,19 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "update/tasks/update.yml",
-      "extra_arguments": ["-vvv"]
+      "playbook_file": "updat/tasks/update.yml",
+      "extra_arguments": ["-v"],
+      "role_paths": [
+        "update/tasks/roles/clickhouse",
+        "update/tasks/roles/dashboards_upgrade",
+        "update/tasks/roles/grafana",
+        "update/tasks/roles/initialization",
+        "update/tasks/roles/nginx",
+        "update/tasks/roles/postgres"
+      ],
+      "collection_paths": [
+        "update/tasks/files"
+      ]
     },
     {
       "type": "ansible-local",
