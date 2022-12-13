@@ -133,7 +133,7 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "updat/tasks/update.yml",
+      "playbook_file": "update/tasks/update.yml",
       "extra_arguments": ["-v"],
       "role_paths": [
         "update/tasks/roles/clickhouse",
