@@ -15,7 +15,6 @@ Choose from:
 
 | Use | <i class="uil uil-thumbs-up"></i> **Benefits** | <i class="uil uil-thumbs-down"></i> **Drawbacks**
 |---|---|---
-|                                                                                                                     |
 | [Docker] | 1. Quick.<br>2. Simple. | 1. Docker installation required.<br>2. Additional network configuration required.
 | [Podman] | 1. Quick.<br>2. Simple.<br>3. Rootless. | 1. Podman installation required.
 | [Helm] Technical Preview | 1. Quick.<br>2. Simple.<br>3. Cloud. | 1. Requires running Kubernetes cluster.
