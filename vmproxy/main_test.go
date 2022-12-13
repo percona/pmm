@@ -18,8 +18,9 @@ package main
 import (
 	"testing"
 
-	"github.com/percona/pmm/vmproxy/proxy"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/vmproxy/proxy"
 )
 
 func TestProxy(t *testing.T) {
