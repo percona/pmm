@@ -90,9 +90,10 @@
         state: directory
         owner: postgres
         group: postgres
+        mode: "0700"
 
     - name: Initialize Postgres database
-      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 -c logging_collector=off --auth-local=trust
+      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
       become: True
       become_user: postgres
       # become_method: sudo
