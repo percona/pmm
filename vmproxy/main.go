@@ -53,18 +53,27 @@ func main() {
 		}),
 	)
 
+	if err := runProxy(opts, proxy.RunProxy); err != nil {
+		logrus.Fatal(err)
+	}
+}
+
+func runProxy(opts flags, proxyFn func(cfg proxy.Config) error) error {
 	if opts.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	err := proxy.RunProxy(proxy.Config{
+	err := proxyFn(proxy.Config{
 		HeaderName:    opts.HeaderName,
 		ListenAddress: net.JoinHostPort(opts.ListenAddress, strconv.Itoa(opts.ListenPort)),
 		TargetURL:     opts.TargetURL,
 	})
 
 	if !errors.Is(err, http.ErrServerClosed) {
-		logrus.Fatal(err)
+		return err
 	}
+
 	logrus.Info(err)
+
+	return nil
 }
