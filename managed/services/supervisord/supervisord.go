@@ -686,7 +686,7 @@ priority = 9
 command =
     /usr/sbin/vmproxy
       --target-url=http://127.0.0.1:9090/
-      --listen-port=1280
+      --listen-port=8430
       --listen-address=127.0.0.1
       --header-name=X-Proxy-Filter
 user = pmm
