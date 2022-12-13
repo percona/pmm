@@ -26,9 +26,6 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// ErrNotFound returned when entity is not found.
-var ErrNotFound = errors.New("not found")
-
 // ArtifactFilters represents filters for artifacts list.
 type ArtifactFilters struct {
 	// Return only artifacts that provide insights for that Service.
@@ -151,7 +148,7 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 
 func checkUniqueArtifactName(q *reform.Querier, name string) error {
 	if name == "" {
-		panic("empty Location Name")
+		panic("empty Artifact Name")
 	}
 
 	var artifact Artifact
