@@ -1,9 +1,9 @@
 # Access Control
 
 PMM Server supports managing access to individual metrics in VictoriaMetrics.  
-[vmgateway](https://docs.victoriametrics.com/vmgateway.html) is placed in front of VictoriaMetrics and helps add extra filters to each query to filter access to metrics, such as `{env=~"prod|staging"}`.
+[vmproxy](https://github.com/percona/pmm/tree/main/vmproxy) is placed in front of VictoriaMetrics and helps add extra filters to each query to filter access to metrics, such as `{env=~"prod|staging"}`.
 
-Each Grafana user can be assigned multiple roles in PMM Server. A PMM Server role is different from  Grafana roles (viewer, editor, admin).  
+Each Grafana user can be assigned multiple roles in PMM Server. A PMM Server role is different from Grafana roles (viewer, editor, admin).  
 A PMM Server role defines extra filters to be applied to a query. This way access to metrics can be limited per role.
 
 ## Multiple roles for a user
