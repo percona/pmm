@@ -32,12 +32,12 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"
-	corev1 "k8s.io/api/core/v1"
 )
 
 var (
@@ -54,24 +54,29 @@ var (
 )
 
 type kubernetesServer struct {
-	l              *logrus.Entry
-	db             *reform.DB
-	dbaasClient    dbaasClient
-	versionService versionService
-	grafanaClient  grafanaClient
+	l                *logrus.Entry
+	db               *reform.DB
+	dbaasClient      dbaasClient
+	kubernetesClient kubernetesClient
+	versionService   versionService
+	grafanaClient    grafanaClient
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient,
+	kubernetesClient kubernetesClient, versionService versionService,
+	grafanaClient grafanaClient,
+) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:              l,
-		db:             db,
-		dbaasClient:    dbaasClient,
-		versionService: versionService,
-		grafanaClient:  grafanaClient,
+		l:                l,
+		db:               db,
+		dbaasClient:      dbaasClient,
+		kubernetesClient: kubernetesClient,
+		versionService:   versionService,
+		grafanaClient:    grafanaClient,
 	}
 }
 
@@ -473,35 +478,35 @@ func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.Ge
 		return nil, err
 	}
 
-	kClient, err := kubernetes.New(kubernetesCluster.KubeConfig)
+	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get cluster type
-	clusterType, err := kClient.GetClusterType(ctx)
+	clusterType, err := k.kubernetesClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var volumes *corev1.PersistentVolumeList
 	if clusterType == kubernetes.ClusterTypeEKS {
-		volumes, err = kClient.GetPersistentVolumes(ctx)
+		volumes, err = k.kubernetesClient.GetPersistentVolumes(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
-	allCPUMillis, allMemoryBytes, allDiskBytes, err := kClient.GetAllClusterResources(ctx, clusterType, volumes)
+	allCPUMillis, allMemoryBytes, allDiskBytes, err := k.kubernetesClient.GetAllClusterResources(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}
 
-	consumedCPUMillis, consumedMemoryBytes, err := kClient.GetConsumedCPUAndMemory(ctx, "")
+	consumedCPUMillis, consumedMemoryBytes, err := k.kubernetesClient.GetConsumedCPUAndMemory(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
-	consumedDiskBytes, err := kClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
+	consumedDiskBytes, err := k.kubernetesClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}

@@ -157,6 +157,7 @@ func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 		return err
 	}
 	k.client = client
+	k.kubeconfig = kubeconfig
 	return nil
 }
 

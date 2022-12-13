@@ -72,7 +72,7 @@ const psmdbKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPSMDBClusterService(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		componentsService *mockComponentsService, teardown func(t *testing.T),
+		kubernetesClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -83,6 +83,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		kubernetesClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
@@ -94,10 +95,10 @@ func TestPSMDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, componentsService, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, kubernetesClient, componentsService, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
 
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{

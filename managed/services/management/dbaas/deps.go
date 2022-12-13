@@ -24,14 +24,17 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 //go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -116,4 +119,13 @@ type componentsService interface {
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
+}
+
+type kubernetesClient interface {
+	SetKubeconfig(string) error
+	GetClusterType(context.Context) (kubernetes.ClusterType, error)
+	GetAllClusterResources(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, uint64, uint64, error)
+	GetConsumedCPUAndMemory(context.Context, string) (uint64, uint64, error)
+	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
+	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
 }
