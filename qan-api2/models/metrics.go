@@ -521,7 +521,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(example_format) AS example_format,
+SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
@@ -548,8 +548,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
-		"period_start_from": periodStartFrom,
 		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFrom,
 		"limit":             limit,
 	}
 
@@ -588,6 +588,9 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.Tables,
 			&row.ServiceId,
 			&row.ServiceType,
+			&row.QueryId,
+			&row.ExplainFingerprint,
+			&row.PlaceholdersCount,
 			&row.Example,
 			// TODO should we remove this field since it's deprecated?
 			&row.ExampleFormat, //nolint:staticcheck
@@ -597,6 +600,7 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
+
 		res.QueryExamples = append(res.QueryExamples, &row)
 	}
 
@@ -972,4 +976,53 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	}
 
 	return false, nil
+}
+
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
+WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
+`
+
+// ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
+func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query_id":   queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(queryByQueryIDTmpl)
+
+	res := &qanpb.ExplainFingerprintByQueryIDReply{}
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		err = rows.Scan(
+			&res.ExplainFingerprint,
+			&res.PlaceholdersCount)
+
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		return res, nil //nolint:staticcheck
+	}
+
+	return res, errors.New("query_id doesnt exists")
 }

@@ -146,7 +146,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
