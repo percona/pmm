@@ -1,6 +1,6 @@
 ---
 - name: Stop clickhouse before update
-  command: supervisorctl {{ item }} clickhouse
+  command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   changed_when: True
   loop:
     - "stop"
@@ -107,3 +107,4 @@
   supervisorctl:
     name: clickhouse
     state: present
+    supervisorctl_path: /usr/local/bin
