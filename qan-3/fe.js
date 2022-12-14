@@ -27,6 +27,19 @@ ws.onmessage = function (res) {
 ws.onopen = () => {
     document.querySelector(".overview-filters").innerText = "loading...";
     document.querySelector(".query-analytics-data").innerText = "loading...";
-    setTimeout(ws.send("filter"), 2000);
-    setTimeout(ws.send("content"), 3000);
+    setTimeout(() => { request("filter"); }, 2000);
+    setTimeout(() => { request("content"); }, 3000);
+}
+
+function request(type, data) {
+    if (!data) {
+        console.log("No data provied");
+    }
+
+    let req = JSON.stringify({
+        Type: type,
+        Data: data
+    });
+
+    ws.send(req);
 }

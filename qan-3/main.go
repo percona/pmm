@@ -26,6 +26,11 @@ var (
 	}
 )
 
+type request struct {
+	Kind string
+	Data string
+}
+
 type response struct {
 	Target string
 	HTML   string
@@ -53,7 +58,10 @@ func listener(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("recv: %s", message)
 
-		bytes, err := json.Marshal(router(message))
+		var body request
+		json.Unmarshal(message, &body)
+
+		bytes, err := json.Marshal(router(body.Kind))
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -67,7 +75,7 @@ func listener(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func router(name []byte) response {
+func router(name string) response {
 	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", name))
 	if err != nil {
 		return response{
