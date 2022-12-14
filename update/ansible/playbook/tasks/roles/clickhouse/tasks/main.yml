@@ -108,3 +108,4 @@
     name: clickhouse
     state: present
     supervisorctl_path: /usr/local/bin
+  become: True

@@ -8,13 +8,9 @@
     path: /etc/profile.d/sh.local
     line: export PATH=/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-- name: Read ansible config
-  file:
-    path: /etc/ansible/ansible.cfg
-  register: ansible_cfg
-
 - name: Print ansible ansible_cfg
-  debug: var=ansible_cfg.stdout_lines
+  debug:
+    msg: "{{ lookup('ansible.builtin.file', '/etc/ansible/ansible.cfg') }}"
 
 - name: Set path for vagrant user
   when:
