@@ -7,7 +7,7 @@ export ORACLE_VERSION := 4.2.6
 fetch:
 	mkdir -p ${PACKER_CACHE_DIR}/${CENTOS_ISO} || :
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
-	    || curl -L https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant \
+	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova \
@@ -19,7 +19,7 @@ fetch:
 fetch-el9:
 	mkdir -p ${PACKER_CACHE_DIR}/${ORACLE_VERSION} || :
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
-	    || curl -L https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant \
+	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova \
