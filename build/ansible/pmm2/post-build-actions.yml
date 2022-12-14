@@ -65,6 +65,7 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
+        supervisorctl_path: /usr/local/bin
       ignore_errors: True
 
     - name: Remove pmm-managed database from postgres

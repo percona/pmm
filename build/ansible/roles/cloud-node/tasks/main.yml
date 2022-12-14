@@ -8,6 +8,22 @@
     path: /etc/profile.d/sh.local
     line: export PATH=/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
+- name: Read ansible config
+  file:
+    path: /etc/ansible/ansible.cfg
+  register: ansible_cfg
+
+- name: Print ansible ansible_cfg
+  debug: var=ansible_cfg.stdout_lines
+
+- name: Set path for vagrant user
+  when:
+    - ansible_distribution == 'OracleLinux'
+    - ansible_distribution_major_version == '9'
+  lineinfile:
+    path: /home/vagrant/.bashrc
+    line: export PATH=/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 - name: Print debug info           | Print debug info
   debug:
     msg:
