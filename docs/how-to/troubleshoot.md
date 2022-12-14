@@ -52,6 +52,19 @@ If the PMM server wasn't updated correctly, or if you have concerns about the re
 
 3. Upgrade PMM server using [Docker](../setting-up/server/docker.md#upgrade).
 
+
+#### PMM server not showing latest versions available with the instances created from AWS
+
+For PMM versions prior to 2.33.0, in specific environments, including AWS, some EPEL repository mirrors did not respond within the time limit defined by `pmm-update` (currently set to 30 seconds). It was causing supervisord to kill pmm-update-checker, which determines if a newer PMM Server is available for upgrade.
+
+**Solution**
+
+Log in to the PMM Server and run the following command as a root user:
+
+```sh
+   $ yum-config-manager --setopt=epel.timeout=1 --save
+```
+
 ### Configuration issues
 
 This section focuses on configuration issues, such as PMM-agent connection, adding and removing services for monitoring, and so on.

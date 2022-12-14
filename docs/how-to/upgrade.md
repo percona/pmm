@@ -10,6 +10,10 @@
 
 ## Updating a Server
 
+!!! caution alert alert-warning "Caution"
+    PMM versions prior to 2.33.0 may not show the latest versions available with instances created from the AWS marketplace in specific environments, including AWS. For solution, see the [troubleshooting](../how-to/troubleshoot.md#pmm-server-not-showing-latest-versions-available-with-the-instances-created-from-aws) section.
+
+
 Client and server components are installed and updated separately.
 
 PMM Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. Each has its own installation and update steps.
