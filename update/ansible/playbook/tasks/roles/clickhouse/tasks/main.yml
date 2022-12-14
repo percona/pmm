@@ -107,5 +107,5 @@
   supervisorctl:
     name: clickhouse
     state: present
-    supervisorctl_path: /usr/local/bin
+    supervisorctl_path: /usr/local/bin/supervisorctl
   become: True

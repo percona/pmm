@@ -107,10 +107,11 @@
       supervisorctl:
         name: "{{ item }}"
         state: stopped
-        supervisorctl_path: /usr/local/bin
+        supervisorctl_path: /usr/local/bin/supervisorctl
       loop:
         - pmm-managed
         - postgresql
+      become: True
       when: is_upgrade.stat.exists
 
     - name: Run Postgres database without supervisor
@@ -206,7 +207,7 @@
       supervisorctl:
         name: pmm-managed
         state: started
-        supervisorctl_path: /usr/local/bin
+        supervisorctl_path: /usr/local/bin/supervisorctl
       become: True
       when: is_upgrade.stat.exists
   when: not is_postgres_14.stat.exists
