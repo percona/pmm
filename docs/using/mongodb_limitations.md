@@ -12,32 +12,7 @@ Creating and restoring MongoDB backups in PMM currently has the following limita
   
 ## Support matrix
 
-<style>
-  table th:first-of-type {
-    width: 0.5%
-  }
-  table th:nth-of-type(2) {
-    width: 0.5%
-  }
-  table th:nth-of-type(3) {
-    width: 0.1%
-  }
-  table th:nth-of-type(4) {
-    width: 0.1%
-  }
-  table th:nth-of-type(5) {
-    width: 0.1%
-  }
-  table th:nth-of-type(6) {
-    width: 0.1%
-  }
-  table th:nth-of-type(7) {
-    width: 90%
-  }
-  table td {
-    text-align:left; vertical-align: top;
-  }
-</style>
+
 
 | Operation (Backup or Restore) | Backup type (Logical or Physical) | Full or PITR | Storage type (S3 or Local) | DB running in container (Containerized) | Support level|                                                                    
 | -------------- | ---------------- | ---- | -------- | ------------- | --------------------------------------- |
