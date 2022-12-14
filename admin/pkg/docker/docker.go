@@ -216,7 +216,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.
-func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
+func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
 	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
@@ -224,19 +224,46 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 		return nil, err
 	}
 
-	if len(v.Volumes) != 0 {
-		return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+	for _, vol := range v.Volumes {
+		if vol.Name == volumeName {
+			return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+		}
 	}
 
+	volumeLabels := make(map[string]string, 1+len(labels))
+	for k, v := range labels {
+		volumeLabels[k] = v
+	}
+
+	volumeLabels["percona.pmm"] = "server"
+
 	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
-		Name: volumeName,
-		Labels: map[string]string{
-			"percona.pmm": "server",
-		},
+		Name:   volumeName,
+		Labels: volumeLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &volume, nil
+}
+
+// ContainerInspect returns information about a container.
+func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+	return b.Cli.ContainerInspect(ctx, containerID)
+}
+
+// ContainerStop stops a container.
+func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+	return b.Cli.ContainerStop(ctx, containerID, timeout)
+}
+
+// ContainerUpdate updates container configuration.
+func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+	return b.Cli.ContainerUpdate(ctx, containerID, updateConfig)
+}
+
+// ContainerWait waits until a container is in a specific state.
+func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
+	return b.Cli.ContainerWait(ctx, containerID, condition)
 }

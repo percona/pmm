@@ -383,7 +383,17 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb
 		return nil, errTx
 	}
 
+	// Update scrape configuration
 	ss.vmdb.RequestConfigurationUpdate()
+
+	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, a := range agents {
+		ss.state.RequestStateUpdate(ctx, a.AgentID)
+	}
 
 	return &inventorypb.AddCustomLabelsResponse{}, nil
 }
@@ -424,7 +434,17 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, errTx
 	}
 
+	// Update scrape configuration
 	ss.vmdb.RequestConfigurationUpdate()
+
+	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, a := range agents {
+		ss.state.RequestStateUpdate(ctx, a.AgentID)
+	}
 
 	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }

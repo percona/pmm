@@ -27,67 +27,6 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-func TestInstallDocker(t *testing.T) {
-	t.Parallel()
-
-	t.Run("shall not install Docker if installed", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
-
-		c := InstallCommand{dockerFn: m}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall install Docker if not installed", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
-		m.Mock.On("InstallDocker", mock.Anything).Return(nil)
-
-		c := InstallCommand{dockerFn: m}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall skip Docker check", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		c := InstallCommand{
-			dockerFn:        m,
-			SkipDockerCheck: true,
-		}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall skip Docker installation", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
-
-		c := InstallCommand{
-			dockerFn:          m,
-			SkipDockerInstall: true,
-		}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-}
-
 func TestRunContainer(t *testing.T) {
 	t.Parallel()
 
@@ -127,7 +66,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
@@ -170,7 +109,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{

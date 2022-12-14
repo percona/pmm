@@ -1,0 +1,95 @@
+name: VMProxy
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+  pull_request:
+    paths-ignore:
+      - "admin/**"
+      - "agent/**"
+      - "docs/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "update/**"
+
+  workflow_call:
+    inputs:
+      go-version:
+        description: An array of Go versions to be tested against, in a format of json string.
+        required: false
+        type: string
+        default: '["tip"]'
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+
+    env:
+      GO_VERSION: ${{ matrix.go-version }}
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/vmproxy
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Go release
+        if: env.GO_VERSION != 'tip'
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Set up Go tip
+        if: env.GO_VERSION == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+          echo "$GOBIN" >> $GITHUB_PATH
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Build and install
+        run: make install
+
+      - name: Run tests
+        run: make test-cover
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v3
+        with:
+          file: cover.out
+          flags: vmproxy
+          fail_ci_if_error: false
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
