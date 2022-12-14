@@ -83,7 +83,8 @@
     mode: 0644
 
 - name: Restart nginx
-  command: supervisorctl {{ item }} nginx
+  command: /usr/local/bin/supervisorctl {{ item }} nginx
+  become: True
   changed_when: True
   loop:
     - "stop"

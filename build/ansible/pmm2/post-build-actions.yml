@@ -54,7 +54,7 @@
         --server-insecure-tls
 
     - name: Reread supervisord configuration
-      command: supervisorctl reread
+      command: /usr/local/bin/supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -85,7 +85,7 @@
 
     - name: Supervisord stop           | Stop supervisord service for docker
       when: ansible_virtualization_type == "docker"
-      shell: supervisorctl shutdown
+      shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all
