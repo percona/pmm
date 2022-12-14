@@ -10,17 +10,8 @@
 ## Updating a Server
 
 !!! caution alert alert-warning "Caution"
-    While upgrading PMM to version 2.32.0, it fails. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0.
-
-
-    **Solution**
-
-    While PMM is being upgraded, log in to the PMM server and run the following command:
-    
-    ```sh
-    sed -i 's/- nginx/- nginx*/' /usr/share/pmm-update/ansible/playbook/tasks/update.yml
-    ```
-    PMM versions prior to 2.33.0 may not show the latest versions available with instances created from the AWS marketplace in specific environments, including AWS. For solution, see the [troubleshooting](../how-to/troubleshoot.md#pmm-server-not-showing-latest-versions-available-with-the-instances-created-from-aws) section.
+    - While upgrading PMM to version 2.32.0, it fails. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0. For solution, see the [troubleshooting](../how-to/troubleshoot.md#PMM-server-fails-while-upgrading-to-version-2.32.0) section.
+    - PMM versions prior to 2.33.0 may not show the latest versions available with instances created from the AWS marketplace in specific environments, including AWS. For solution, see the [troubleshooting](../how-to/troubleshoot.md#pmm-server-not-showing-latest-versions-available-with-the-instances-created-from-aws) section.
 
 
 Client and server components are installed and updated separately.

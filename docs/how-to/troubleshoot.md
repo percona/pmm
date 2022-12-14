@@ -65,6 +65,19 @@ Log in to the PMM Server and run the following command as a root user:
    $ yum-config-manager --setopt=epel.timeout=1 --save
 ```
 
+#### PMM server fails while upgrading to version 2.32.0
+
+A bug in PMM Server ansible scripts caused PMM to upgrade Nginx's dependencies without updating Nginx itself. Due to this, PMM throws an error while upgrading and cannot upgrade to a newer version. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0.
+
+
+**Solution**
+
+While PMM is being upgraded, log in to the PMM server and run the following command:
+
+```sh
+    sed -i
+```
+
 ### Configuration issues
 
 This section focuses on configuration issues, such as PMM-agent connection, adding and removing services for monitoring, and so on.
