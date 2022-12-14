@@ -1,0 +1,605 @@
+{
+  "labels":  {
+    "application_name":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "az":  {
+      "name":  [
+        {
+          "value":  "sfo2",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {},
+        {
+          "value":  "rdu1"
+        },
+        {
+          "value":  "sfo1"
+        }
+      ]
+    },
+    "client_host":  {
+      "name":  [
+        {
+          "main_metric_percent":  0.99710906,
+          "main_metric_per_sec":  6.516957
+        },
+        {
+          "value":  "localhost",
+          "main_metric_percent":  0.0028909713,
+          "main_metric_per_sec":  0.01889496
+        }
+      ]
+    },
+    "cluster":  {
+      "name":  [
+        {
+          "value":  "MySQLCluster1",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {},
+        {
+          "value":  "MongoDBCluster1"
+        },
+        {
+          "value":  "PXCCluster1"
+        },
+        {
+          "value":  "PostgreSQLCluster1"
+        },
+        {
+          "value":  "ps-80-gr"
+        },
+        {
+          "value":  "pxc-80-cluster"
+        }
+      ]
+    },
+    "cmd_type":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "container_id":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "container_name":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "database":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "config"
+        },
+        {
+          "value":  "local"
+        },
+        {
+          "value":  "pmm_metrics"
+        },
+        {
+          "value":  "postgres"
+        },
+        {
+          "value":  "sbtest"
+        }
+      ]
+    },
+    "environment":  {
+      "name":  [
+        {
+          "value":  "Prod",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {},
+        {
+          "value":  "Dev"
+        },
+        {
+          "value":  "Staging"
+        }
+      ]
+    },
+    "machine_id":  {
+      "name":  [
+        {
+          "value":  "/machine_id/dbf7b5f349a2d7304e67deeb5c34fc6f",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {},
+        {
+          "value":  "/machine_id/0ae725f6dc1b4baaaaf371d9fc34575d"
+        },
+        {
+          "value":  "/machine_id/0e89aeb71f5c94a02e501e3a5c34fc50"
+        },
+        {
+          "value":  "/machine_id/11ce9ab5e7ad4dd78126af1c1f067c92"
+        },
+        {
+          "value":  "/machine_id/19ba8c19e8754d46b16c02797e0129b5"
+        },
+        {
+          "value":  "/machine_id/3175ac08e1da4e0f90e94e1512730f8f"
+        },
+        {
+          "value":  "/machine_id/3b71cd22f97d4700916c259d36409246"
+        },
+        {
+          "value":  "/machine_id/4a72d0375acdafdc2d712a495d2e96a4"
+        },
+        {
+          "value":  "/machine_id/5df2f440e9a04cd989e7fe1615ed63b9"
+        },
+        {
+          "value":  "/machine_id/5f0ea272731a4f43a644d090c3deef93"
+        },
+        {
+          "value":  "/machine_id/729868ac676a49089adf2c9c15bbbee8"
+        },
+        {
+          "value":  "/machine_id/9332fec6e16c405d9648b0b1f7543c67"
+        },
+        {
+          "value":  "/machine_id/ad0ceab823a34cd7ba0b6a002d415633"
+        },
+        {
+          "value":  "/machine_id/b449b09920284a70aad1403f474b6ceb"
+        },
+        {
+          "value":  "/machine_id/bafd9429fd7c48c7b91fa5470d68d3f8"
+        },
+        {
+          "value":  "/machine_id/be13bbdd91e5419499d0a35e82fb882f"
+        },
+        {
+          "value":  "/machine_id/d0a59ad76de6480684564514e0b50bc4"
+        },
+        {
+          "value":  "/machine_id/d3013ba45b5d483c8009054f0205ea97"
+        },
+        {
+          "value":  "/machine_id/e1885c3e5532489e964661078a0a94df"
+        },
+        {
+          "value":  "/machine_id/f9de291ab1aceb1b9dfb858d5c34fc50"
+        }
+      ]
+    },
+    "node_id":  {
+      "name":  [
+        {
+          "value":  "/node_id/1f1b7744-bade-43df-973a-ed9f664e8a02",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "/node_id/01cf1661-95e3-4981-97f0-018c9f9453ef"
+        },
+        {
+          "value":  "/node_id/039c6595-3ba6-4803-8942-a4f0799e6186"
+        },
+        {
+          "value":  "/node_id/16164bba-6184-4213-84aa-7dd5f7920a8e"
+        },
+        {
+          "value":  "/node_id/33937bef-6366-40e1-a9c1-f42a182bccc4"
+        },
+        {
+          "value":  "/node_id/3acdc3b0-debf-444d-b6d5-c7ed730f538a"
+        },
+        {
+          "value":  "/node_id/5761899d-9c5c-4c8d-87ef-394841fcdb53"
+        },
+        {
+          "value":  "/node_id/58810d58-39cc-418e-b767-4ea0747a3ecf"
+        },
+        {
+          "value":  "/node_id/588dcc23-60a2-44b5-b276-ec086b9d81d2"
+        },
+        {
+          "value":  "/node_id/6394c319-1d04-471f-9989-368f200bba25"
+        },
+        {
+          "value":  "/node_id/68501ed5-4e66-4098-9055-23c8426877c5"
+        },
+        {
+          "value":  "/node_id/741e26a3-6dd5-44f2-9f0a-8642c66bc48c"
+        },
+        {
+          "value":  "/node_id/7502624f-4728-43be-bce2-a8a4cb4a3013"
+        },
+        {
+          "value":  "/node_id/83977c17-87f0-4261-924f-9f9ab1aaaced"
+        },
+        {
+          "value":  "/node_id/849c32b3-e6c2-428a-8750-106c92f5724e"
+        },
+        {
+          "value":  "/node_id/98bd7df8-7f13-4c03-b55e-b59b01231c1c"
+        },
+        {
+          "value":  "/node_id/9dc0283a-7eca-4d79-955b-4a9e0bd48243"
+        },
+        {
+          "value":  "/node_id/a80a1fe7-cca3-4236-8c03-bd642d8e7038"
+        },
+        {
+          "value":  "/node_id/b86dd014-f9f5-4054-ab2a-0ca3acab5d6d"
+        },
+        {
+          "value":  "/node_id/de58552f-c689-4bbe-b4da-a2bb24de3bcf"
+        },
+        {
+          "value":  "/node_id/fbc3368c-2e3f-4f6c-9f5b-29480a40def7"
+        }
+      ]
+    },
+    "node_model":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "node_name":  {
+      "name":  [
+        {
+          "value":  "ps-80-source",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "AzureDB-mysql"
+        },
+        {
+          "value":  "mariadb-105"
+        },
+        {
+          "value":  "mongo-config-1"
+        },
+        {
+          "value":  "mongo-config-2"
+        },
+        {
+          "value":  "mongo-config-3"
+        },
+        {
+          "value":  "mongo-mongos"
+        },
+        {
+          "value":  "mongo-rs1-1"
+        },
+        {
+          "value":  "mongo-rs1-2"
+        },
+        {
+          "value":  "mongo-rs1-3"
+        },
+        {
+          "value":  "mongo-rs2-1"
+        },
+        {
+          "value":  "mongo-rs2-2"
+        },
+        {
+          "value":  "mongo-rs2-3"
+        },
+        {
+          "value":  "pg11"
+        },
+        {
+          "value":  "ps-80-gr-1"
+        },
+        {
+          "value":  "ps-80-gr-2"
+        },
+        {
+          "value":  "ps-80-gr-3"
+        },
+        {
+          "value":  "pxc-80-1"
+        },
+        {
+          "value":  "pxc-80-2"
+        },
+        {
+          "value":  "pxc57-2"
+        },
+        {
+          "value":  "pxc57-3"
+        }
+      ]
+    },
+    "node_type":  {
+      "name":  [
+        {
+          "value":  "generic",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "remote"
+        }
+      ]
+    },
+    "planid":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "region":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "replication_set":  {
+      "name":  [
+        {
+          "value":  "MySQLReplSet1",
+          "main_metric_percent":  0.62133443,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "pxc-80-cluster",
+          "main_metric_percent":  0.32520327,
+          "main_metric_per_sec":  3.4208312
+        },
+        {
+          "main_metric_percent":  0.032368984,
+          "main_metric_per_sec":  0.34049112
+        },
+        {
+          "value":  "MongoDBReplSet3",
+          "main_metric_percent":  0.013406007,
+          "main_metric_per_sec":  0.14101852
+        },
+        {
+          "value":  "ps-80-gr",
+          "main_metric_percent":  0.0042893067,
+          "main_metric_per_sec":  0.045119453
+        },
+        {
+          "value":  "PXCReplSet1",
+          "main_metric_percent":  0.0021093327,
+          "main_metric_per_sec":  0.022188189
+        },
+        {
+          "value":  "PostgreSQLReplSet1",
+          "main_metric_percent":  0.0012886435,
+          "main_metric_per_sec":  0.013555312
+        }
+      ]
+    },
+    "schema":  {
+      "name":  [
+        {
+          "value":  "sbtest",
+          "main_metric_percent":  0.99710864,
+          "main_metric_per_sec":  6.516954
+        },
+        {
+          "main_metric_percent":  0.0028913466,
+          "main_metric_per_sec":  0.018897412
+        }
+      ]
+    },
+    "service_id":  {
+      "name":  [
+        {
+          "value":  "/service_id/a1c02d90-e3bd-49f8-b520-106955d2fd33",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "/service_id/03d49df4-3870-460b-a5e4-94647b56a99d"
+        },
+        {
+          "value":  "/service_id/04bc17d5-18dd-441d-b4c4-f54565258eee"
+        },
+        {
+          "value":  "/service_id/0bae8b40-6a70-475e-9b24-1c52916b7c90"
+        },
+        {
+          "value":  "/service_id/353a3412-43e6-4ea6-ab0b-e8961494f4f4"
+        },
+        {
+          "value":  "/service_id/36492472-97a6-4ef2-aa6c-4741e1345823"
+        },
+        {
+          "value":  "/service_id/40f99ebd-af4b-4b29-8efb-51a45fd37a1f"
+        },
+        {
+          "value":  "/service_id/6040b676-2f03-4ccf-ad40-60bd6bb57e8d"
+        },
+        {
+          "value":  "/service_id/6d9a2f3b-22f4-4953-8fc2-34124f76cc2d"
+        },
+        {
+          "value":  "/service_id/6f9f2bde-79d8-4095-bfce-f5cf017f6588"
+        },
+        {
+          "value":  "/service_id/80f6a795-90bd-4c75-bbe1-fdcc7dd5430a"
+        },
+        {
+          "value":  "/service_id/8752e76b-d5f1-4f29-885e-f783257a2ad4"
+        },
+        {
+          "value":  "/service_id/abc473af-1b6a-4c3f-8ff8-e213cf14f997"
+        },
+        {
+          "value":  "/service_id/abec2f6a-bd22-4c6a-bfe5-d91de1c4d236"
+        },
+        {
+          "value":  "/service_id/b7d08e88-d1cb-4c04-a1a8-063be3ed315d"
+        },
+        {
+          "value":  "/service_id/c171cb3d-1d91-4296-8a2a-db0fe4f70d68"
+        },
+        {
+          "value":  "/service_id/c400c998-292a-437b-9237-a581aba39e84"
+        },
+        {
+          "value":  "/service_id/cc7c3b4d-7f02-4c0b-b2a9-b27e3744eecb"
+        },
+        {
+          "value":  "/service_id/ce81acd7-93ae-476d-ae13-54063cabb846"
+        },
+        {
+          "value":  "/service_id/f3b4f69c-1ed2-49bd-bd13-7a5d68ea24c2"
+        },
+        {
+          "value":  "/service_id/f7a72752-6897-4038-803e-c33eeda55acc"
+        }
+      ]
+    },
+    "service_name":  {
+      "name":  [
+        {
+          "value":  "ps-80-source-mysql",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "AzureDB-mysql"
+        },
+        {
+          "value":  "mariadb-105-mysql"
+        },
+        {
+          "value":  "mongo-config-1-mongodb"
+        },
+        {
+          "value":  "mongo-config-2-mongodb"
+        },
+        {
+          "value":  "mongo-config-3-mongodb"
+        },
+        {
+          "value":  "mongo-mongos"
+        },
+        {
+          "value":  "mongo-rs1-1-mongodb"
+        },
+        {
+          "value":  "mongo-rs1-2-mongodb"
+        },
+        {
+          "value":  "mongo-rs1-3-mongodb"
+        },
+        {
+          "value":  "mongo-rs2-1-mongodb"
+        },
+        {
+          "value":  "mongo-rs2-2-mongodb"
+        },
+        {
+          "value":  "mongo-rs2-3-mongodb"
+        },
+        {
+          "value":  "pg11-postgresql"
+        },
+        {
+          "value":  "ps-80-gr-1-mysql"
+        },
+        {
+          "value":  "ps-80-gr-2-mysql"
+        },
+        {
+          "value":  "ps-80-gr-3-mysql"
+        },
+        {
+          "value":  "pxc-80-1-mysql"
+        },
+        {
+          "value":  "pxc-80-2-mysql"
+        },
+        {
+          "value":  "pxc57-2-mysql"
+        },
+        {
+          "value":  "pxc57-3-mysql"
+        }
+      ]
+    },
+    "service_type":  {
+      "name":  [
+        {
+          "value":  "mysql",
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        },
+        {
+          "value":  "mongodb"
+        },
+        {
+          "value":  "postgresql"
+        }
+      ]
+    },
+    "top_queryid":  {
+      "name":  [
+        {
+          "main_metric_percent":  1,
+          "main_metric_per_sec":  6.5358515
+        }
+      ]
+    },
+    "username":  {
+      "name":  [
+        {
+          "value":  "sysbench",
+          "main_metric_percent":  0.99710864,
+          "main_metric_per_sec":  6.516954
+        },
+        {
+          "value":  "pmm-metrics",
+          "main_metric_percent":  0.0028909713,
+          "main_metric_per_sec":  0.01889496
+        },
+        {
+          "value":  "proxysql",
+          "main_metric_percent":  3.7885764e-7,
+          "main_metric_per_sec":  0.0000024761573
+        },
+        {},
+        {
+          "value":  "pmm_metrics"
+        }
+      ]
+    }
+  }
+}
