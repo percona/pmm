@@ -15,6 +15,36 @@ type mockDbaasClient struct {
 	mock.Mock
 }
 
+// ApproveInstallPlan provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.ApproveInstallPlanResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ApproveInstallPlanRequest, ...grpc.CallOption) *controllerv1beta1.ApproveInstallPlanResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.ApproveInstallPlanResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ApproveInstallPlanRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CheckKubernetesClusterConnection provides a mock function with given fields: ctx, kubeConfig
 func (_m *mockDbaasClient) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
 	ret := _m.Called(ctx, kubeConfig)
@@ -336,6 +366,96 @@ func (_m *mockDbaasClient) GetResources(ctx context.Context, in *controllerv1bet
 	return r0, r1
 }
 
+// GetSubscription provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.GetSubscriptionResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetSubscriptionRequest, ...grpc.CallOption) *controllerv1beta1.GetSubscriptionResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.GetSubscriptionResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetSubscriptionRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// InstallOLMOperator provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.InstallOLMOperatorResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.InstallOLMOperatorRequest, ...grpc.CallOption) *controllerv1beta1.InstallOLMOperatorResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.InstallOLMOperatorResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.InstallOLMOperatorRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// InstallOperator provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.InstallOperatorResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.InstallOperatorRequest, ...grpc.CallOption) *controllerv1beta1.InstallOperatorResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.InstallOperatorResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.InstallOperatorRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // InstallPSMDBOperator provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -396,6 +516,36 @@ func (_m *mockDbaasClient) InstallPXCOperator(ctx context.Context, in *controlle
 	return r0, r1
 }
 
+// ListInstallPlans provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.ListInstallPlansResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListInstallPlansRequest, ...grpc.CallOption) *controllerv1beta1.ListInstallPlansResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.ListInstallPlansResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListInstallPlansRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListPSMDBClusters provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -448,6 +598,36 @@ func (_m *mockDbaasClient) ListPXCClusters(ctx context.Context, in *controllerv1
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListPXCClustersRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListSubscriptions provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.ListSubscriptionsResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListSubscriptionsRequest, ...grpc.CallOption) *controllerv1beta1.ListSubscriptionsResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.ListSubscriptionsResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListSubscriptionsRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
