@@ -4,9 +4,15 @@ ws.onmessage = function (res) {
 
     if (response.Error != "") {
         console.log(response.Error);
+        return;
     }
 
-    document.querySelector("section.panel-container").innerHTML = response.HTML;
+    let e = document.querySelector(response.Target)
+    if (!e) {
+        console.log("Element " + response.Target + " doesnt exists");
+        return;
+    } 
+    e.innerHTML = response.HTML;
 
     if (response.Script != "") { 
         let script = document.createElement('script');
@@ -14,9 +20,13 @@ ws.onmessage = function (res) {
         script.innerText = response.Script;
         document.head.appendChild(script);
 
-        if (typeof callback === "function") { 
+        if (typeof callback === "function")
             callback();
-        }
     }
 }
-ws.onopen = () => { ws.send("test"); }
+ws.onopen = () => {
+    document.querySelector(".overview-filters").innerText = "loading...";
+    document.querySelector(".query-analytics-data").innerText = "loading...";
+    setTimeout(ws.send("filter"), 2000);
+    setTimeout(ws.send("content"), 3000);
+}

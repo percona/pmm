@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -8,8 +9,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
+)
+
+const (
+	htmlCommentStart = "<!--"
+	htmlCommentEnd   = "-->"
 )
 
 var (
@@ -20,9 +27,15 @@ var (
 )
 
 type response struct {
+	Target string
 	HTML   string
 	Script string
 	Error  string
+}
+
+func main() {
+	http.HandleFunc("/", listener)
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
 func listener(w http.ResponseWriter, r *http.Request) {
@@ -54,15 +67,15 @@ func listener(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func router(message []byte) response {
-	html, err := os.ReadFile(fmt.Sprintf("./html/%s.html", message))
+func router(name []byte) response {
+	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", name))
 	if err != nil {
 		return response{
 			Error: err.Error(),
 		}
 	}
 
-	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", message))
+	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", name))
 	if err != nil {
 		// script is optional.
 		if !errors.Is(err, os.ErrNotExist) {
@@ -73,14 +86,40 @@ func router(message []byte) response {
 	}
 
 	return response{
+		Target: target,
 		HTML:   string(html),
 		Script: string(script),
 	}
 }
 
-func main() {
-	flag.Parse()
-	log.SetFlags(0)
-	http.HandleFunc("/", listener)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+func readHTMLFile(path string) (string, string, error) {
+	readFile, err := os.Open(path)
+	if err != nil {
+		return "", "", err
+	}
+
+	target := ""
+	html := []string{}
+	lineNumber := 0
+	fileScanner := bufio.NewScanner(readFile)
+	fileScanner.Split(bufio.ScanLines)
+	for fileScanner.Scan() {
+		lineNumber++
+
+		if lineNumber == 1 {
+			line := fileScanner.Text()
+			fmt.Println(line)
+			if !strings.Contains(line, htmlCommentStart) || !strings.Contains(line, htmlCommentEnd) {
+				return "", "", fmt.Errorf("file %s doesnt contains target on first line", path)
+			}
+			target = strings.Replace(strings.Replace(line, htmlCommentStart, "", 1), htmlCommentEnd, "", 1)
+
+			continue
+		}
+
+		html = append(html, fileScanner.Text())
+	}
+	readFile.Close()
+
+	return target, strings.Join(html, ""), nil
 }
