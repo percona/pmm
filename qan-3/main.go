@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -10,11 +12,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var (
+	addr     = flag.String("addr", "localhost:8080", "http service address")
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+)
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
-} // use default options
+type response struct {
+	HTML   string
+	Script string
+	Error  string
+}
 
 func listener(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -31,9 +40,13 @@ func listener(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("recv: %s", message)
 
-		response := router(string(message))
+		bytes, err := json.Marshal(router(message))
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
 
-		err = c.WriteMessage(mt, []byte(response))
+		err = c.WriteMessage(mt, bytes)
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -41,13 +54,28 @@ func listener(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func router(message string) string {
-	data, err := os.ReadFile(fmt.Sprintf("./templates/%s.html", message))
+func router(message []byte) response {
+	html, err := os.ReadFile(fmt.Sprintf("./html/%s.html", message))
 	if err != nil {
-		return err.Error()
+		return response{
+			Error: err.Error(),
+		}
 	}
 
-	return string(data)
+	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", message))
+	if err != nil {
+		// script is optional.
+		if !errors.Is(err, os.ErrNotExist) {
+			return response{
+				Error: err.Error(),
+			}
+		}
+	}
+
+	return response{
+		HTML:   string(html),
+		Script: string(script),
+	}
 }
 
 func main() {
