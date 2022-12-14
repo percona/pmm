@@ -19,9 +19,6 @@ this is it! tests are good to go on specified PMM Server and/or Client.
   * **Setup PMM Server**
 
       _coming soon_
-      
-    * **Run CLI tests upon remote PMM server:**  
-      _coming soon_
 
 ### Running tests:
 Execute command in the Project Root folder

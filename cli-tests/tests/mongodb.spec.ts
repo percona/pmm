@@ -39,7 +39,7 @@ test.describe('Spec file for MongoDB CLI tests ', async () => {
         [ "$status" -eq 0 ]
     echo "${output}" | grep "host"
 */
-    await test.step('Verify "metrics-mode="auto"" is present', async () => {
+    await test.step('Verify "metrics-mode="auto" is present', async () => {
       await output.assertSuccess();
       await expect(output.stdout).toContain('Usage: pmm-admin add mongodb [<name> [<address>]]');
       await expect(output.stdout).toContain('host');

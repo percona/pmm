@@ -3,6 +3,10 @@ import * as cli from '@helpers/cliHelper';
 import PMMRestClient from '@support/types/request';
 
 test.describe('PMM binary tests @pmm-cli', async () => {
+  test.afterEach(async ({}) => {
+    await cli.exec('docker rm -f $(docker ps -a -q)')
+  })
+
   test('--version', async ({}) => {
     const output = await cli.exec('pmm --version');
     await output.assertSuccess();
