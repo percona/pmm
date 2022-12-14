@@ -67,7 +67,12 @@ Log in to the PMM Server and run the following command as a root user:
 
 #### PMM server fails while upgrading
 
-A bug in PMM Server ansible scripts caused PMM to upgrade Nginx's dependencies without updating Nginx itself. Due to this, PMM throws an error while upgrading and cannot upgrade to a newer version. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0.
+A bug in PMM Server ansible scripts caused PMM to upgrade Nginx's dependencies without updating Nginx itself. Due to this, PMM throws an error while upgrading and cannot upgrade to a newer version. 
+
+!!! caution alert alert-warning "Important"
+    This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0.
+
+  
 
 
 **Solution**
