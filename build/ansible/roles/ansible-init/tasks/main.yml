@@ -1,0 +1,24 @@
+---
+# Common things for all cloud images
+- name: Provide ansible.cfg
+  copy:
+    src: ansible.cfg
+    dest: /etc/ansible/ansible.cfg
+    mode: 0644
+
+- name: Print debug info           | Print debug info
+  debug:
+    msg:
+      - "Ansible user id: {{ ansible_user_id }}"
+      - "Ansible user dir: {{ ansible_user_dir }}"
+      - "PATH env: {{ lookup('env', 'PATH') }}"
+      - "{{ lookup('ansible.builtin.file', '/etc/passwd')}}"
+      - "{{ lookup('ansible.builtin.file', '/etc/ansible/ansible.cfg') }}"
+
+- name: Set path for vagrant user
+  when:
+    - ansible_distribution == 'OracleLinux'
+    - ansible_distribution_major_version == '9'
+  lineinfile:
+    path: /home/vagrant/.bashrc
+    line: export PATH=/home/vagrant/.local/bin:/home/vagrant/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

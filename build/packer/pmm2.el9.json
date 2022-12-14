@@ -117,6 +117,12 @@
     },
     {
       "type": "ansible-local",
+      "playbook_file": "ansible/pmm2/init.yml",
+      "extra_arguments": [ "-v" ],
+      "role_paths": [ "ansible/roles/ansible-init" ]
+    },
+    {
+      "type": "ansible-local",
       "playbook_file": "ansible/pmm2/main.yml",
       "extra_arguments": [
         "-v",
