@@ -18,13 +18,13 @@
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
-      no_log: True
+      # no_log: True
       register: srv_pmm_distribution
 
     - name: detect containers
       set_fact:
         is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: True
+      # no_log: True
       when: srv_pmm_distribution.stat.exists
 
     - name: force container
@@ -219,10 +219,11 @@
           - logrotate # https://jira.percona.com/browse/PMM-7627
           - screen
           - yum-cron
+          - pmm-server
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
-      file:
+      copy:
         src: resize-xfs-lvm
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755
