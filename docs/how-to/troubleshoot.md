@@ -75,7 +75,7 @@ A bug in PMM Server ansible scripts caused PMM to upgrade Nginx's dependencies w
 While PMM is being upgraded, log in to the PMM server and run the following command:
 
 ```sh
-    sed -i
+   sed -i 's/- nginx/- nginx*/' /usr/share/pmm-update/ansible/playbook/tasks/update.yml
 ```
 
 ### Configuration issues
