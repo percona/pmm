@@ -35,7 +35,7 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall properly upgrade", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		c := UpgradeCommand{dockerFn: m}
@@ -67,7 +67,7 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall stop on PMM Server container not found", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		c := UpgradeCommand{dockerFn: m}
@@ -85,7 +85,7 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall backup all volumes", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		c := UpgradeCommand{dockerFn: m}
@@ -132,7 +132,7 @@ func TestUpgradeCmd(t *testing.T) {
 	})
 }
 
-func setWaitForContainerMock(m *MockFunctions) {
+func setWaitForContainerMock(m *mockFunctions) {
 	ch := func() <-chan container.ContainerWaitOKBody {
 		c := make(chan container.ContainerWaitOKBody)
 		close(c)

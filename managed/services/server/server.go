@@ -18,7 +18,6 @@ package server
 
 import (
 	"context"
-	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -31,17 +30,20 @@ import (
 	"time"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/updatepb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -312,7 +314,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	return res, nil
 }
 
-// StartUpdate starts PMM Server update.
+// StartUpdate starts PMM Server update through pmm-updater.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
@@ -322,62 +324,81 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 	}
 
-	offset, err := s.supervisord.StartUpdate()
+	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
 	}
 
-	authToken := uuid.New().String()
-	if err = s.writeUpdateAuthToken(authToken); err != nil {
+	conn, err := s.getGRPCConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	c := updatepb.NewUpdateClient(conn)
+
+	ctxApi, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	res, err := c.StartUpdate(ctxApi, &updatepb.StartUpdateRequest{Hostname: hostname})
+	if err != nil {
 		return nil, err
 	}
 
 	return &serverpb.StartUpdateResponse{
-		AuthToken: authToken,
-		LogOffset: offset,
+		AuthToken: res.LogsToken,
+		LogOffset: 0,
 	}, nil
 }
 
-// UpdateStatus returns PMM Server update status.
+// UpdateStatus returns PMM Server update status from pmm-updater.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
-	token, err := s.readUpdateAuthToken()
+	conn, err := s.getGRPCConnection(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(token)) == 0 {
-		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
-	}
+	defer conn.Close()
 
-	// wait up to 30 seconds for new log lines
-	var lines []string
-	var newOffset uint32
-	var done bool
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	c := updatepb.NewUpdateClient(conn)
+
+	// The request can wait for up to 30 seconds before returning
+	ctxApi, cancel := context.WithTimeout(ctx, 35*time.Second)
 	defer cancel()
-	for ctx.Err() == nil {
-		done = !s.supervisord.UpdateRunning()
-		if done {
-			// give supervisord a second to flush logs to file
-			time.Sleep(time.Second)
-		}
 
-		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
-		if err != nil {
-			s.l.Warn(err)
-		}
-
-		if len(lines) != 0 || done {
-			break
-		}
-
-		time.Sleep(200 * time.Millisecond)
+	res, err := c.UpdateStatus(ctxApi, &updatepb.UpdateStatusRequest{
+		LogsToken: req.AuthToken,
+		Offset:    req.LogOffset,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return &serverpb.UpdateStatusResponse{
-		LogLines:  lines,
-		LogOffset: newOffset,
-		Done:      done,
+		LogLines:  res.Lines,
+		LogOffset: res.Offset,
+		Done:      res.Done,
 	}, nil
+}
+
+func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error) {
+	backoffConfig := backoff.DefaultConfig
+	backoffConfig.MaxDelay = 10 * time.Second
+	opts := []grpc.DialOption{
+		grpc.WithBlock(), // Dial blocks, we do not connect in background.
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff:           backoffConfig,
+			MinConnectTimeout: 10 * time.Second,
+		}),
+		grpc.WithUserAgent("pmm-managed/" + version.Version),
+	}
+
+	conn, err := grpc.DialContext(ctx, "unix:/srv/pmm-updater.sock", opts...)
+	if err != nil {
+		return nil, errors.Errorf("failed to connect to pmm-updater API: %v", err)
+	}
+
+	return conn, nil
 }
 
 func (s *Server) SideContainerUpdateRequest(ctx context.Context, req *serverpb.SideContainerUpdateRequestRequest) (*serverpb.SideContainerUpdateRequestResponse, error) {

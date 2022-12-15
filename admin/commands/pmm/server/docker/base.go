@@ -35,7 +35,7 @@ type prepareOpts struct {
 	install bool
 }
 
-func prepareDocker(ctx context.Context, dockerFn Functions, opts prepareOpts) (Functions, error) {
+func prepareDocker(ctx context.Context, dockerFn functions, opts prepareOpts) (functions, error) {
 	if dockerFn == nil {
 		d, err := docker.New(nil)
 		if err != nil {
@@ -58,7 +58,7 @@ func prepareDocker(ctx context.Context, dockerFn Functions, opts prepareOpts) (F
 	return dockerFn, nil
 }
 
-func installDocker(ctx context.Context, dockerFn Functions) error {
+func installDocker(ctx context.Context, dockerFn functions) error {
 	isInstalled, err := dockerFn.IsDockerInstalled()
 	if err != nil {
 		return err

@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package update;
+
+option go_package = "api/updatepb;updatepb";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+message StartUpdateRequest {
+  // Hostname of the PMM Server
+  string hostname = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message StartUpdateResponse {
+  // Logs token to be used for status.
+  string logs_token = 1;
+}
+
+message UpdateStatusRequest {
+  // Token as returned by StartUpdateResponse.
+  string logs_token = 1;
+  // Offset where to start reading logs.
+  uint32 offset = 2;
+}
+
+message UpdateStatusResponse {
+  // Individual log lines.
+  repeated string lines = 1;
+  // Offset for the next log line.
+  uint32 offset = 2;
+  // True when update has finished.
+  bool done = 3;
+}
+
+// Update service provides public APIs for pmm-updater.
+service Update {
+  // StartUpdate starts PMM Server update.
+  rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Start"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start update"
+      description: "Starts PMM Server update."
+    };
+  }
+  // UpdateStatus returns PMM Server update status.
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Status"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update status"
+      description: "Returns PMM Server update status."
+    };
+  }
+}

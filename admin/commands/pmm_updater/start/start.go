@@ -18,23 +18,31 @@ package start
 import (
 	"context"
 	"fmt"
-	"net/url"
+	"net"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	channelz "google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/commands/base"
-	dockerCmd "github.com/percona/pmm/admin/commands/pmm/server/docker"
 	"github.com/percona/pmm/admin/pkg/docker"
-	serverpb "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	"github.com/percona/pmm/admin/services/update"
+	"github.com/percona/pmm/api/updatepb"
+)
+
+const (
+	gRPCMessageMaxSize = 100 * 1024 * 1024
+	shutdownTimeout    = 1 * time.Second
 )
 
 // StartCommand is used by Kong for CLI flags and commands.
@@ -43,7 +51,7 @@ type StartCommand struct {
 	DockerImage       string        `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
 	WaitBetweenChecks time.Duration `name:"wait" default:"60s" help:"Time duration to wait between checks for updates"`
 
-	dockerFn Functions
+	dockerFn functions
 	globals  *flags.GlobalFlags
 }
 
@@ -87,7 +95,7 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 		return nil, err
 	}
 
-	c.runUpdateCheckLoop(ctx)
+	c.runAPIServer(ctx)
 
 	return &startResult{}, nil
 }
@@ -137,105 +145,63 @@ func (c *StartCommand) createNetwork(ctx context.Context) error {
 	return err
 }
 
-func (c *StartCommand) runUpdateCheckLoop(ctx context.Context) {
-	for {
-		logrus.Info("Checking update requests")
+func (c *StartCommand) runAPIServer(ctx context.Context) {
+	l := logrus.WithField("component", "local-server/gRPC")
 
-		if err := c.checkForUpdateRequest(ctx); err != nil {
-			logrus.Error(err)
+	gRPCServer := grpc.NewServer(
+		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_validator.UnaryServerInterceptor(),
+		)),
+	)
+
+	u, err := update.New(c.DockerImage, gRPCMessageMaxSize)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	updatepb.RegisterUpdateServer(gRPCServer, u)
+
+	if c.globals.EnableDebug {
+		l.Debug("Reflection and channelz are enabled.")
+		reflection.Register(gRPCServer)
+		channelz.RegisterChannelzServiceToServer(gRPCServer)
+	}
+
+	// run server until it is stopped gracefully or not
+	go func() {
+		var err error
+		for {
+			l.Infof("Starting server on unix:///srv/pmm-updater.sock")
+
+			listener, err := net.Listen("unix", "/srv/pmm-updater.sock")
+			if err != nil {
+				logrus.Panic(err)
+			}
+
+			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
+			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
+				break
+			}
 		}
-
-		// Sleep for a bit
-		logrus.Infof("Sleeping for %s before next update check", c.WaitBetweenChecks)
-		select {
-		case <-time.After(c.WaitBetweenChecks):
-		case <-ctx.Done():
+		if err != nil {
+			l.Errorf("Failed to serve: %s", err)
 			return
 		}
-	}
-}
+		l.Debug("Server stopped.")
+	}()
 
-func (c *StartCommand) checkForUpdateRequest(ctx context.Context) error {
-	containers, err := c.dockerFn.FindServerContainers(ctx)
-	if err != nil {
-		return err
-	}
+	<-ctx.Done()
 
-	net, err := c.dockerFn.NetworkInspect(ctx, c.DockerNetworkName, types.NetworkInspectOptions{})
-	if err != nil {
-		return err
-	}
-
-	logrus.Debugf("Found %d containers with PMM Server", len(containers))
-
-	for _, cont := range containers {
-		if cont.State != "running" {
-			logrus.Debugf("Container %s it not running. Skipping.", cont.ID)
-			continue
-		}
-		logrus.Debugf("Connecting container %s to network", cont.ID)
-		if err := c.connectContainerToNetwork(ctx, net, cont.ID); err != nil {
-			logrus.Errorf("Could not connect container %s to updater network. Error: %v", cont.ID, err)
-			continue
-		}
-
-		logrus.Debugf("Inspecting container %s", cont.ID)
-		cInspect, err := c.dockerFn.ContainerInspect(ctx, cont.ID)
-		if err != nil {
-			logrus.Errorf("Could not inspect container %s. Error: %v", cont.ID, err)
-			continue
-		}
-
-		logrus.Debugf("Checking if update is requested for container %s with hostname %q", cont.ID, cInspect.Config.Hostname)
-		isUpdateRequested, err := c.isUpdateRequested(ctx, cInspect.Config.Hostname)
-		if err != nil {
-			logrus.Errorf("Cannot check if update is requested for container %s. Error %v", cont.ID, err)
-			continue
-		}
-
-		if isUpdateRequested {
-			logrus.Debugf("Starting upgrade for container %s", cont.ID)
-			cmd := &dockerCmd.UpgradeCommand{
-				ContainerID:            cont.ID,
-				DockerImage:            c.DockerImage,
-				NewContainerNamePrefix: "pmm-server",
-			}
-
-			_, err := cmd.RunCmdWithContext(ctx, c.globals)
-			if err != nil {
-				logrus.Errorf("Could not upgrade container %s. Error: %v", cont.ID, err)
-				continue
-			}
-		}
-	}
-
-	return nil
-}
-
-func (c *StartCommand) isUpdateRequested(ctx context.Context, hostname string) (bool, error) {
-	u, err := url.Parse(fmt.Sprintf("http://%s/", hostname))
-	if err != nil {
-		return false, err
-	}
-
-	transport := base.GetGRPCTransport(
-		ctx, u, c.globals.EnableDebug || c.globals.EnableTrace, true,
-		logrus.Fields{
-			"component": "server-transport",
-			"host":      u.Host,
-		})
-
-	serverAPI := serverpb.New(transport, nil)
-
-	status, err := serverAPI.Server.SideContainerUpdateStatus(&server.SideContainerUpdateStatusParams{
-		Context: ctx,
-		Body: server.SideContainerUpdateStatusBody{
-			Source: pointer.To(server.SideContainerUpdateStatusBodySourcePMMUPDATER),
-		},
-	})
-	if err != nil {
-		return false, err
-	}
-
-	return status.Payload.IsRequested, nil
+	// Try to stop server gracefully and force the stop after a timeout.
+	stopped := make(chan struct{})
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	go func() {
+		<-shutdownCtx.Done()
+		gRPCServer.Stop()
+		close(stopped)
+	}()
+	gRPCServer.GracefulStop()
+	shutdownCancel()
+	<-stopped
 }

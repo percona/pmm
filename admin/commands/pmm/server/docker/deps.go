@@ -27,12 +27,12 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-//go:generate ../../../../../bin/mockery -name=Functions -case=snake -inpkg -testonly
+//go:generate ../../../../../bin/mockery -name=functions -case=snake -inpkg -testonly
 
-// Functions contain methods required to interact with Docker.
-type Functions interface {
-	Imager
-	Installer
+// functions contain methods required to interact with Docker.
+type functions interface {
+	imager
+	installer
 
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
@@ -46,14 +46,14 @@ type Functions interface {
 	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
 }
 
-// Imager holds methods to interact with Docker images.
-type Imager interface {
+// imager holds methods to interact with Docker images.
+type imager interface {
 	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
 }
 
-// Installer holds methods related to Docker installation.
-type Installer interface {
+// installer holds methods related to Docker installation.
+type installer interface {
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker(ctx context.Context) error
 	IsDockerInstalled() (bool, error)

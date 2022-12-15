@@ -22,11 +22,11 @@ import (
 	"github.com/docker/docker/client"
 )
 
-//go:generate ../../../../bin/mockery -name=Functions -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=functions -case=snake -inpkg -testonly
 
-// Functions contain methods required to interact with Docker.
-type Functions interface {
-	Network
+// functions contain methods required to interact with Docker.
+type functions interface {
+	dockerNet
 
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
@@ -36,8 +36,8 @@ type Functions interface {
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 }
 
-// Network contains method for interacting with Docker network.
-type Network interface {
+// dockerNet contains method for interacting with Docker network.
+type dockerNet interface {
 	NetworkInspect(ctx context.Context, networkID string, options types.NetworkInspectOptions) (types.NetworkResource, error)
 	NetworkCreate(ctx context.Context, name string, options types.NetworkCreate) (types.NetworkCreateResponse, error)
 	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
