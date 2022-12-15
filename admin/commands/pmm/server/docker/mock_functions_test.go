@@ -116,13 +116,13 @@ func (_m *MockFunctions) ContainerWait(ctx context.Context, containerID string, 
 	return r0, r1
 }
 
-// CreateVolume provides a mock function with given fields: ctx, volumeName
-func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
-	ret := _m.Called(ctx, volumeName)
+// CreateVolume provides a mock function with given fields: ctx, volumeName, labels
+func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
+	ret := _m.Called(ctx, volumeName, labels)
 
 	var r0 *types.Volume
-	if rf, ok := ret.Get(0).(func(context.Context, string) *types.Volume); ok {
-		r0 = rf(ctx, volumeName)
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) *types.Volume); ok {
+		r0 = rf(ctx, volumeName, labels)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*types.Volume)
@@ -130,8 +130,8 @@ func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string) (*
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, volumeName)
+	if rf, ok := ret.Get(1).(func(context.Context, string, map[string]string) error); ok {
+		r1 = rf(ctx, volumeName, labels)
 	} else {
 		r1 = ret.Error(1)
 	}
