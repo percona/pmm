@@ -178,14 +178,14 @@
     - name: Wait for pmm-managed
       pause: seconds=5
 
-    - name: See the status for pmm-managed
-      command: /usr/local/bin/supervisorctl status pmm-managed
+    - name: See supervisord status
+      command: /usr/local/bin/supervisorctl status
       become: True
-      register: pmm_managed_status
+      register: supervisord_status
       changed_when: True
 
     - name: See the status for pmm-managed
-      debug: var=pmm_managed_status
+      debug: var=supervisord_status.stdout_lined
 
     - name: Tails pmm-managed's logs
       command: tail -n 50 /srv/logs/pmm-managed.log
