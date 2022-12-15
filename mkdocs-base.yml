@@ -116,15 +116,30 @@ nav:
           - setting-up/client/external.md
           - setting-up/client/haproxy.md
           - setting-up/client/remote.md
-  - Using:
-      - using/index.md
-      - using/interface.md
-      - using/alerting.md
-      - Backup and restore:
-          - using/backup.md
-          - using/mongodb_limitations.md
-      - using/query-analytics.md
-      - using/dbaas.md
+  - Get started:
+      - get-started/index.md
+      - get-started/interface.md
+      - get-started/alerting.md
+      - Backup and Restore:
+          - get-started/backup/index.md
+          - get-started/backup/prepare_storage_location.md
+          - MongoDB backups:
+                - get-started/backup/backup_mongo.md
+                - get-started/backup/mongo-prerequisites.md
+                - get-started/backup/create_mongo_on_demand.md
+                - get-started/backup/create_PITR_mongo.md
+                - get-started/backup/restore_MongoDB_backups.md
+                - get-started/backup/mongodb_limitations.md
+          - MySQL backups:
+                - get-started/backup/backup_mysql.md
+                - get-started/backup/create_mysql_backup.md
+                - get-started/backup/restore_mysql_backup.md
+          - get-started/backup/edit_scheduled.md
+          - get-started/backup/delete_a_backup.md
+
+      - get-started/query-analytics.md
+      - get-started/dbaas.md
+      - get-started/advisors.md
   - How to:
       - how-to/index.md
       - how-to/configure.md
@@ -139,7 +154,6 @@ nav:
       - Integrate with Percona Platform:
           - how-to/integrate-platform.md
           - how-to/account-info.md
-          - how-to/advisors.md
   - Details:
       - details/index.md
       - details/architecture.md
