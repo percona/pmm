@@ -39,7 +39,7 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	case nil:
 		return res, nil
 	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "ScheduledTask with ID %q not found.", id)
+		return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
 	default:
 		return nil, errors.WithStack(err)
 	}
@@ -52,6 +52,7 @@ type ScheduledTasksFilter struct {
 	ServiceID  string
 	LocationID string
 	Mode       BackupMode
+	Name       string
 }
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
@@ -95,6 +96,13 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'mode' = "+q.Placeholder(idx))
 		args = append(args, filters.Mode)
+		idx++
+	}
+	if filters.Name != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'name' = "+q.Placeholder(idx))
+		args = append(args, filters.Name)
+		// idx++
 	}
 
 	var tail strings.Builder
@@ -147,10 +155,21 @@ func (p CreateScheduledTaskParams) Validate() error {
 }
 
 // CreateScheduledTask creates scheduled task.
+// Must be performed in transaction.
 func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*ScheduledTask, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
+
+	newName, err := nameFromTaskData(params.Type, params.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
+	}
+
 	id := "/scheduled_task_id/" + uuid.New().String()
 	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
@@ -194,6 +213,7 @@ func (p ChangeScheduledTaskParams) Validate() error {
 }
 
 // ChangeScheduledTask updates existing scheduled task.
+// Must be performed in transaction.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
@@ -221,6 +241,21 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if params.Data != nil {
+		newName, err := nameFromTaskData(row.Type, params.Data)
+		if err != nil {
+			return nil, err
+		}
+		oldName, err := nameFromTaskData(row.Type, row.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if newName != oldName {
+			if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
+			}
+		}
+
 		row.Data = params.Data
 	}
 
@@ -265,4 +300,33 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 	default:
 		return errors.WithStack(err)
 	}
+}
+
+func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: name})
+	if err != nil {
+		return err
+	}
+	if len(tasks) != 0 {
+		return ErrAlreadyExists
+	}
+	return nil
+}
+
+func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (string, error) {
+	if taskData != nil {
+		switch taskType {
+		case ScheduledMySQLBackupTask:
+			if taskData.MySQLBackupTask != nil {
+				return taskData.MySQLBackupTask.Name, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if taskData.MongoDBBackupTask != nil {
+				return taskData.MongoDBBackupTask.Name, nil
+			}
+		default:
+			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
+		}
+	}
+	return "", nil
 }
