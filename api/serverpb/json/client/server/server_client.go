@@ -42,10 +42,6 @@ type ClientService interface {
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
 
-	SideContainerUpdateRequest(params *SideContainerUpdateRequestParams, opts ...ClientOption) (*SideContainerUpdateRequestOK, error)
-
-	SideContainerUpdateStatus(params *SideContainerUpdateStatusParams, opts ...ClientOption) (*SideContainerUpdateStatusOK, error)
-
 	StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error)
 
 	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error)
@@ -288,84 +284,6 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ReadinessDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-SideContainerUpdateRequest requests update via side container
-
-Requests update to be started from a side-container.
-*/
-func (a *Client) SideContainerUpdateRequest(params *SideContainerUpdateRequestParams, opts ...ClientOption) (*SideContainerUpdateRequestOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewSideContainerUpdateRequestParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "SideContainerUpdateRequest",
-		Method:             "POST",
-		PathPattern:        "/v1/Updates/SideContainer/Request",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &SideContainerUpdateRequestReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*SideContainerUpdateRequestOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*SideContainerUpdateRequestDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-SideContainerUpdateStatus checks status of update via side container
-
-Checks for status of update via side-container.
-*/
-func (a *Client) SideContainerUpdateStatus(params *SideContainerUpdateStatusParams, opts ...ClientOption) (*SideContainerUpdateStatusOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewSideContainerUpdateStatusParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "SideContainerUpdateStatus",
-		Method:             "POST",
-		PathPattern:        "/v1/Updates/SideContainer/Status",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &SideContainerUpdateStatusReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*SideContainerUpdateStatusOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*SideContainerUpdateStatusDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

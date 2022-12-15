@@ -97,22 +97,6 @@ func (this *UpdateStatusResponse) Validate() error {
 	return nil
 }
 
-func (this *SideContainerUpdateStatusRequest) Validate() error {
-	return nil
-}
-
-func (this *SideContainerUpdateStatusResponse) Validate() error {
-	return nil
-}
-
-func (this *SideContainerUpdateRequestRequest) Validate() error {
-	return nil
-}
-
-func (this *SideContainerUpdateRequestResponse) Validate() error {
-	return nil
-}
-
 func (this *MetricsResolutions) Validate() error {
 	if this.Hr != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Hr); err != nil {

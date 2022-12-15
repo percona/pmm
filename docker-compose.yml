@@ -65,6 +65,8 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      # Used by pmm-updater to share a unix socket
+      - managed-dev:/srv
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
@@ -145,6 +147,7 @@ services:
       - root-cache:/root/.cache
 
 volumes:
+  managed-dev:
   go-modules:
   root-cache:
 

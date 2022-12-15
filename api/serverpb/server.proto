@@ -100,27 +100,6 @@ message UpdateStatusResponse {
   bool done = 3;
 }
 
-enum SideContainerUpdateStatusSource {
-  GENERIC = 0;
-  PMM_UPDATER = 1;
-}
-
-message SideContainerUpdateStatusRequest {
-  // Source application checking for status.
-  SideContainerUpdateStatusSource source = 1; 
-}
-
-message SideContainerUpdateStatusResponse {
-  // True when this update method is available.
-  bool is_available = 1;
-  // True when update is requested.
-  bool is_requested = 2;
-}
-
-message SideContainerUpdateRequestRequest {}
-
-message SideContainerUpdateRequestResponse {}
-
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 message MetricsResolutions {
   // High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
@@ -362,30 +341,6 @@ service Server {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update status"
       description: "Returns PMM Server update status."
-    };
-  }
-
-  // SideContainerUpdateRequest requests update to start via a side-container.
-  rpc SideContainerUpdateRequest(SideContainerUpdateRequestRequest) returns (SideContainerUpdateRequestResponse) {
-    option (google.api.http) = {
-      post: "/v1/Updates/SideContainer/Request"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Request update via side-container"
-      description: "Requests update to be started from a side-container."
-    };
-  }
-
-  // SideContainerUpdateStatus checks status of update via a side-container.
-  rpc SideContainerUpdateStatus(SideContainerUpdateStatusRequest) returns (SideContainerUpdateStatusResponse) {
-    option (google.api.http) = {
-      post: "/v1/Updates/SideContainer/Status"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Check status of update via side-container"
-      description: "Checks for status of update via side-container."
     };
   }
 

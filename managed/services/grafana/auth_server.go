@@ -58,7 +58,6 @@ var rules = map[string]role{
 	"/v1/Updates/Status":                          none, // special token-based auth
 	"/v1/AWSInstanceCheck":                        none, // special case - used before Grafana can be accessed
 	"/v1/Updates/":                                admin,
-	"/v1/Updates/SideContainer/Status":            none, // special case - no authentication required
 	"/v1/Settings/":                               admin,
 	"/v1/Platform/Connect":                        admin,
 	"/v1/Platform/Disconnect":                     admin,

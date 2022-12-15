@@ -401,26 +401,6 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 	return conn, nil
 }
 
-func (s *Server) SideContainerUpdateRequest(ctx context.Context, req *serverpb.SideContainerUpdateRequestRequest) (*serverpb.SideContainerUpdateRequestResponse, error) {
-	sideContainerUpdateStatus.requestUpdate()
-	return &serverpb.SideContainerUpdateRequestResponse{}, nil
-}
-
-func (s *Server) SideContainerUpdateStatus(ctx context.Context, req *serverpb.SideContainerUpdateStatusRequest) (*serverpb.SideContainerUpdateStatusResponse, error) {
-	if req.Source == serverpb.SideContainerUpdateStatusSource_PMM_UPDATER {
-		sideContainerUpdateStatus.updateLastUpdaterCheck()
-	}
-
-	resp := &serverpb.SideContainerUpdateStatusResponse{
-		IsRequested: sideContainerUpdateStatus.isRequested(),
-	}
-	if time.Since(sideContainerUpdateStatus.getLastUpdaterCheck()) < 5*time.Minute {
-		resp.IsAvailable = true
-	}
-
-	return resp, nil
-}
-
 // writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
 //
 // We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
