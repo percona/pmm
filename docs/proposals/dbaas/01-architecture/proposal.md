@@ -30,7 +30,7 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Goals
 
-1. Make DBaaS more Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters.
+1. Make DBaaS Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters.
 2. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
 3. Reduce the complexity of managing operator's installation/management. OLM will implement lifecycle management for operators and we can drop code that does the same for PMM.
 4. Provide generic specifications to create/edit/delete a database cluster.
@@ -113,7 +113,7 @@ This process makes version service usage for supported versions of operators obs
 The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the `dbaas-operator` will have the following benefits
 
 1. Kubernetes native way to work with database clusters via unified and general specifications.
-2. PMM DBaaS does need to care about the state of a managed database.
+2. PMM DBaaS does not need to care about the state of a managed database.
 3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. `dbaas-operator` can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
 4. Installation and upgrading of `dbaas-operator` will be managed by OLM as proposed above.
 5. `dbaas-operator` opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries against exposed/non-exposed database clusters.
@@ -324,7 +324,7 @@ As a user, I should be able to delete a database cluster (If I have sufficient p
 As a user, I should be able to create a database cluster from a provided backup file.
 
 #### Story 19
-As a DBA, I should be able to tune performance for a database cluster.
+As a DBA, I should be able to edit database configuration parameters.
 
 #### Story 20
 As a DBA(?), I should be able to view cluster resources available before creating a database.
