@@ -119,6 +119,15 @@ func TestPSMDBClusterService(t *testing.T) {
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
+	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
+		Subscription: &controllerv1beta1.Subscription{
+			InstallPlanName: "mocked-install-plan",
+		},
+	}
+	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
+	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: psmdbKubernetesClusterNameTest,
