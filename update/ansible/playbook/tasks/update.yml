@@ -178,6 +178,15 @@
     - name: Wait for pmm-managed
       pause: seconds=5
 
+    - name: See the status for pmm-managed
+      command: /usr/local/bin/supervisorctl status pmm-managed
+      become: True
+      register: pmm_managed_status
+      changed_when: True
+
+    - name: See the status for pmm-managed
+      debug: var=pmm_managed_status.stdout_lines
+
     - name: Update system packages
       yum:
         name: "*"
