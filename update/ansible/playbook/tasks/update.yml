@@ -183,6 +183,7 @@
       become: True
       register: supervisord_status
       changed_when: True
+      ignore_errors: True
 
     - name: See the status for pmm-managed
       debug: var=supervisord_status.stdout_lined

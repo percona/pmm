@@ -1,7 +1,7 @@
 ---
-- name: Install supervisor         | Install supervisor 4.2.4
+- name: Install supervisor         | Install supervisor 3.4.0 (4.2.4 is latest)
   pip:
-    name: supervisor==4.2.4
+    name: supervisor==3.4.0
 
 - name: Configure supervisor       | Create a defult configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
