@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/user"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -70,9 +69,6 @@ type Server struct {
 
 	l *logrus.Entry
 
-	pmmUpdateAuthFileM sync.Mutex
-	pmmUpdateAuthFile  string
-
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
@@ -84,10 +80,6 @@ type Server struct {
 type dbaasInitializer interface {
 	Enable(ctx context.Context) error
 	Disable(ctx context.Context) error
-}
-
-type pmmUpdateAuth struct {
-	AuthToken string `json:"auth_token"`
 }
 
 // Params holds the parameters needed to create a new service.
@@ -111,12 +103,6 @@ type Params struct {
 
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
-	path := os.TempDir()
-	if _, err := os.Stat(path); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	path = filepath.Join(path, "pmm-update.json")
-
 	s := &Server{
 		db:                   params.DB,
 		vmdb:                 params.VMDB,
@@ -134,7 +120,6 @@ func NewServer(params *Params) (*Server, error) {
 		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
-		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
 	}
 	return s, nil
