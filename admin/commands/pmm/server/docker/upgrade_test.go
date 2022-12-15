@@ -49,7 +49,7 @@ func TestUpgradeCmd(t *testing.T) {
 				HostConfig: &container.HostConfig{},
 			},
 			Config: &container.Config{
-				Labels: map[string]string{"percona.pmm": "server"},
+				Labels: map[string]string{"percona.pmm.source": "cli"},
 			},
 		}, nil)
 		m.Mock.On("PullImage", mock.Anything, c.DockerImage, mock.Anything).Return(&bytes.Buffer{}, nil)
@@ -99,7 +99,7 @@ func TestUpgradeCmd(t *testing.T) {
 				HostConfig: &container.HostConfig{},
 			},
 			Config: &container.Config{
-				Labels: map[string]string{"percona.pmm": "server"},
+				Labels: map[string]string{"percona.pmm.source": "cli"},
 			},
 			Mounts: []types.MountPoint{
 				{Type: mount.TypeVolume, Name: "vol1"},

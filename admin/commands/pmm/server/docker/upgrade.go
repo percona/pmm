@@ -135,10 +135,13 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 }
 
 func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
-	for k, v := range container.Config.Labels {
-		if k == "percona.pmm" && v == "server" {
-			return true
-		}
+	if container.Config == nil {
+		return false
+	}
+
+	v, ok := container.Config.Labels["percona.pmm.source"]
+	if ok && v == "cli" {
+		return true
 	}
 
 	return false
@@ -203,7 +206,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 		Image: volumeCopyImage,
 		Cmd:   strslice.StrSlice{"cp", "-prT", "/srv-original", "/srv-backup"},
 		Labels: map[string]string{
-			"percona.pmm": "backup-container",
+			"percona.pmm.source": "cli-backup-container",
 		},
 	}, &container.HostConfig{
 		Binds: []string{

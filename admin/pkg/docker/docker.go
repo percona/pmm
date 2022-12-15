@@ -137,7 +137,7 @@ func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, err
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "percona.pmm=server",
+			Value: "percona.pmm.source=cli",
 		}),
 	})
 }
@@ -238,7 +238,7 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[s
 		volumeLabels[k] = v
 	}
 
-	volumeLabels["percona.pmm"] = "server"
+	volumeLabels["percona.pmm.source"] = "cli"
 
 	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
 		Name:   volumeName,

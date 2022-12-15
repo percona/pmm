@@ -54,7 +54,7 @@ func startPMMServer(
 	return dockerFn.RunContainer(ctx, &container.Config{
 		Image: dockerImage,
 		Labels: map[string]string{
-			"percona.pmm": "server",
+			"percona.pmm.source": "cli",
 		},
 	}, hostConfig, containerName)
 }
