@@ -12,8 +12,6 @@
       - "Ansible user id: {{ ansible_user_id }}"
       - "Ansible user dir: {{ ansible_user_dir }}"
       - "PATH env: {{ lookup('env', 'PATH') }}"
-      - "{{ lookup('ansible.builtin.file', '/etc/passwd')}}"
-      - "{{ lookup('ansible.builtin.file', '/etc/ansible/ansible.cfg') }}"
 
 - name: Set path for vagrant user
   when:

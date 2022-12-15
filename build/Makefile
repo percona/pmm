@@ -25,6 +25,7 @@ fetch-el9:
 	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova \
 		|| wget --progress=dot:giga https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box \
 		-O ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
+	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
 	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/box.ovf \
 		|| tar -C ${PACKER_CACHE_DIR}/${ORACLE_VERSION} -xf ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
 
