@@ -19,7 +19,6 @@ package olm
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -28,27 +27,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// func TestGetLatestVersion(t *testing.T) {
-// 	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-// 	require.NoError(t, err)
-//
-// 	ctx := context.Background()
-//
-// 	client, err := k8sclient.New(ctx, string(kubeconfig))
-// 	assert.NoError(t, err)
-// 	defer client.Cleanup() //nolint:errcheck
-//
-// 	latest, err := getLatestVersion(ctx, olmRepo)
-// 	assert.NoError(t, err)
-// 	assert.NotEmpty(t, latest)
-// }
-
 func TestInstallOlmOperator(t *testing.T) {
-	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
+	kubeconfig, err := os.ReadFile(os.Getenv("HOME") + "/.kube/config")
 	require.NoError(t, err)
 
 	ctx := context.Background()
-	olms := New(string(kubeconfig))
+	olms, err := NewFromKubeConfig(string(kubeconfig))
+	assert.NoError(t, err)
 
 	t.Run("Install OLM Operator", func(t *testing.T) {
 		err = olms.InstallOLMOperator(ctx)
@@ -75,15 +60,15 @@ func TestInstallOlmOperator(t *testing.T) {
 		err = olms.InstallOperator(ctx, params)
 		assert.NoError(t, err)
 
-		// var subscription *controllerv1beta1.GetSubscriptionResponse
+		var subscription *controllerv1beta1.GetSubscriptionResponse
 
-		// subscription, err = olms.GetSubscription(ctx, &controllerv1beta1.GetSubscriptionRequest{
-		// 	KubeAuth: &controllerv1beta1.KubeAuth{
-		// 		Kubeconfig: string(kubeconfig),
-		// 	},
-		// 	Name:      subscriptionName,
-		// 	Namespace: subscriptionNamespace,
-		// })
+		subscription, err = olms.GetSubscription(ctx, &controllerv1beta1.GetSubscriptionRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: string(kubeconfig),
+			},
+			Name:      subscriptionName,
+			Namespace: subscriptionNamespace,
+		})
 	})
 	// t.Cleanup(func() {
 	// 	client, err := client.NewFromKubeConfigString(string(kubeconfig))

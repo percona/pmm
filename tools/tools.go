@@ -34,6 +34,7 @@ import (
 	_ "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators"
 	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
+	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/cmd/mockery"
 	_ "golang.org/x/perf/cmd/benchstat"
 	_ "golang.org/x/tools/cmd/goimports"
@@ -66,4 +67,5 @@ import (
 //go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 //go:generate go build -o ../bin/swagger-order github.com/Percona-Lab/swagger-order
+//go:generate go build -o ../bin/ifacemaker github.com/vburenin/ifacemaker
 //go:generate env CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye

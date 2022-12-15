@@ -45,6 +45,7 @@ const (
 	pollDuration      = 5 * time.Minute
 )
 
+// ComponentsService holds unexported fields and public methods to handle Components Service.
 type ComponentsService struct {
 	l                    *logrus.Entry
 	db                   *reform.DB
@@ -81,6 +82,7 @@ func (c *ComponentsService) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
+// GetPSMDBComponents retrieves all PSMDB components for a specific cluster.
 func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
@@ -413,7 +415,10 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	var component *models.Component
 	var installFunc func() error
 
-	olms := olm.New(kubernetesCluster.KubeConfig)
+	olms, err := olm.NewFromKubeConfig(kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+	}
 
 	switch req.OperatorType {
 	case pxcOperator:

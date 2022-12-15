@@ -40,15 +40,7 @@ import (
 )
 
 const (
-	olmRepo              = "operator-lifecycle-manager"
-	githubAPIURLTemplate = "https://api.github.com/repos/operator-framework/%s/releases/latest"
-	baseDownloadURL      = "github.com/operator-framework/operator-lifecycle-manager/releases/download"
-	olmNamespace         = "olm"
-
-	// If version is not set, DBaaS controller will choose the latest from the repo.
-	// It doesn't work for offline installation.
-	latestOLMVersion    = "latest"
-	defaultOLMVersion   = ""
+	olmNamespace        = "olm"
 	useDefaultNamespace = ""
 
 	// APIVersionCoreosV1 constant for some API requests.
@@ -64,23 +56,29 @@ var ErrEmptyVersionTag error = errors.New("got an empty version tag from Github"
 // OperatorService holds methods to handle the OLM operator.
 type OperatorService struct {
 	kubeConfig string
+	k8sclient  *client.Client
 }
 
-// NewOperatorServiceFromConfig returns new OperatorService instance and intializes the config.
-func New(kubeConfig string) *OperatorService {
-	return &OperatorService{ //nolint:exhaustruct
-		kubeConfig: kubeConfig,
+// New returns new OperatorService instance and intializes the config.
+func New(k8sclient *client.Client) (*OperatorService, error) {
+	return &OperatorService{
+		k8sclient: k8sclient,
+	}, nil
+}
+
+// New returns new OperatorService instance from a kubeconfig string.
+func NewFromKubeConfig(kubeConfig string) (*OperatorService, error) {
+	k8sclient, err := client.NewFromKubeConfigString(kubeConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot initialize the kubernetes client")
 	}
+
+	return &OperatorService{k8sclient: k8sclient}, nil
 }
 
 // InstallOLMOperator installs the OLM in the Kubernetes cluster.
 func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
-	k8sclient, err := client.NewFromKubeConfigString(o.kubeConfig)
-	if err != nil {
-		return errors.Wrap(err, "cannot initialize the kubernetes client")
-	}
-
-	deployment, err := k8sclient.GetDeployment(ctx, "olm-operator")
+	deployment, err := o.k8sclient.GetDeployment(ctx, "olm-operator")
 	if err == nil && deployment != nil && deployment.ObjectMeta.Name != "" {
 		return nil // already installed
 	}
@@ -92,7 +90,7 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrapf(err, "failed to read OLM CRDs file")
 	}
 
-	if err := k8sclient.ApplyFile(ctx, crdFile); err != nil {
+	if err := o.k8sclient.ApplyFile(ctx, crdFile); err != nil {
 		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
@@ -104,15 +102,15 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrapf(err, "failed to read OLM file")
 	}
 
-	if err := k8sclient.ApplyFile(ctx, olmFile); err != nil {
+	if err := o.k8sclient.ApplyFile(ctx, olmFile); err != nil {
 		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
 
-	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "olm-operator"}); err != nil {
+	if err := o.k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: olmNamespace, Name: "olm-operator"}); err != nil {
 		return errors.Wrap(err, "error while waiting for deployment rollout")
 	}
-	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "catalog-operator"}); err != nil {
+	if err := o.k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "catalog-operator"}); err != nil {
 		return errors.Wrap(err, "error while waiting for deployment rollout")
 	}
 
@@ -139,17 +137,17 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 	for _, sub := range subscriptions {
 		subscriptionKey := types.NamespacedName{Namespace: sub.GetNamespace(), Name: sub.GetName()}
 		log.Printf("Waiting for subscription/%s to install CSV", subscriptionKey.Name)
-		csvKey, err := k8sclient.GetSubscriptionCSV(ctx, subscriptionKey)
+		csvKey, err := o.k8sclient.GetSubscriptionCSV(ctx, subscriptionKey)
 		if err != nil {
 			return fmt.Errorf("subscription/%s failed to install CSV: %v", subscriptionKey.Name, err)
 		}
 		log.Printf("Waiting for clusterserviceversion/%s to reach 'Succeeded' phase", csvKey.Name)
-		if err := k8sclient.DoCSVWait(ctx, csvKey); err != nil {
+		if err := o.k8sclient.DoCSVWait(ctx, csvKey); err != nil {
 			return fmt.Errorf("clusterserviceversion/%s failed to reach 'Succeeded' phase", csvKey.Name)
 		}
 	}
 
-	if err := k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "packageserver"}); err != nil {
+	if err := o.k8sclient.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "packageserver"}); err != nil {
 		return errors.Wrap(err, "error while waiting for deployment rollout")
 	}
 
@@ -183,13 +181,6 @@ func filterResources(resources []unstructured.Unstructured, filter func(unstruct
 	return filtered
 }
 
-func isInstalled(ctx context.Context, client *client.Client, namespace string) bool {
-	if _, err := client.GetDeployment(ctx, "olm-operator"); err == nil {
-		return true
-	}
-	return false
-}
-
 // InstallOperatorRequest holds the fields to make an operator install request.
 type InstallOperatorRequest struct {
 	Namespace              string
@@ -204,16 +195,11 @@ type InstallOperatorRequest struct {
 
 // InstallOperator installs an operator via OLM.
 func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperatorRequest) error {
-	client, err := client.NewFromKubeConfigString(o.kubeConfig)
-	if err != nil {
-		return errors.Wrap(err, "cannot initialize the kubernetes client")
-	}
-
-	if err := createOperatorGroupIfNeeded(ctx, client, "percona-operatorgroup"); err != nil {
+	if err := createOperatorGroupIfNeeded(ctx, o.k8sclient, "percona-operatorgroup"); err != nil {
 		return err
 	}
 
-	subs, err := client.CreateSubscriptionForCatalog(ctx,
+	subs, err := o.k8sclient.CreateSubscriptionForCatalog(ctx,
 		req.Namespace,
 		req.Name,
 		"olm",
@@ -228,7 +214,7 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 	}
 
 	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
-		subs, err = client.GetSubscription(ctx, req.Namespace, req.Name)
+		subs, err = o.k8sclient.GetSubscription(ctx, req.Namespace, req.Name)
 		if err != nil || subs == nil || (subs != nil && subs.Status.Install == nil) {
 			return false, err
 		}
@@ -243,13 +229,13 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 		return fmt.Errorf("cannot get an install plan for the operator subscription: %q", req.Name)
 	}
 
-	ip, err := client.GetInstallPlan(ctx, req.Namespace, subs.Status.Install.Name)
+	ip, err := o.k8sclient.GetInstallPlan(ctx, req.Namespace, subs.Status.Install.Name)
 	if err != nil {
 		return err
 	}
 
 	ip.Spec.Approved = true
-	_, err = client.UpdateInstallPlan(ctx, req.Namespace, ip)
+	_, err = o.k8sclient.UpdateInstallPlan(ctx, req.Namespace, ip)
 
 	return err
 }
@@ -265,7 +251,7 @@ func createOperatorGroupIfNeeded(ctx context.Context, client *client.Client, nam
 	return err
 }
 
-// GetSubscription list all available subscriptions.
+// UpgradeOperator upgrades an operator to the next available version.
 func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name string) error {
 	k8sclient, err := client.NewFromKubeConfigString(o.kubeConfig)
 	if err != nil {

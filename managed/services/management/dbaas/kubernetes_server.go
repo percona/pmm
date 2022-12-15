@@ -264,33 +264,33 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
-func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
-	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeconfig,
-		},
-		Version: version,
-	}
+// func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
+// 	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
+// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+// 			Kubeconfig: kubeconfig,
+// 		},
+// 		Version: version,
+// 	}
+//
+// 	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
+// 		return errors.Wrap(err, "cannot install OLM operator")
+// 	}
+//
+// 	return nil
+// }
 
-	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
-		return errors.Wrap(err, "cannot install OLM operator")
-	}
-
-	return nil
-}
-
-func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
-	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Name:      name,
-		Namespace: namespace,
-	}
-	_, err := client.ApproveInstallPlan(ctx, req)
-
-	return err
-}
+// func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
+// 	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
+// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+// 			Kubeconfig: kubeConfig,
+// 		},
+// 		Name:      name,
+// 		Namespace: namespace,
+// 	}
+// 	_, err := client.ApproveInstallPlan(ctx, req)
+//
+// 	return err
+// }
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
@@ -394,7 +394,11 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsToInstall map[string]bool) {
 	ctx := context.TODO()
 
-	olms := olm.New(kubeconfig)
+	olms, err := olm.NewFromKubeConfig(kubeconfig)
+	if err != nil {
+		k.l.Errorf("cannot connect to the Kubernetes cluster: %s", err)
+		return
+	}
 
 	if _, ok := operatorsToInstall["olm"]; ok {
 		err := olms.InstallOLMOperator(ctx)

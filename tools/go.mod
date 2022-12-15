@@ -161,6 +161,7 @@ require (
 	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/toqueteos/webbrowser v1.2.0 // indirect
+	github.com/vburenin/ifacemaker v1.2.0 // indirect
 	github.com/vvakame/sdlog v0.0.0-20200409072131-7c0d359efddc // indirect
 	github.com/xanzy/go-gitlab v0.63.0 // indirect
 	go.mongodb.org/mongo-driver v1.9.0 // indirect
