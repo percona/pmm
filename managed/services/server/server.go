@@ -310,7 +310,42 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
+	if res.UpdateAvailable {
+		ready, err := s.isUpdaterReady(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		res.UpdaterReady = ready
+	}
+
 	return res, nil
+}
+
+func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
+	ctxConn, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	conn, err := s.getGRPCConnection(ctxConn)
+	if err != nil {
+		if errors.Is(ctxConn.Err(), context.DeadlineExceeded) {
+			return false, nil
+		}
+
+		return false, err
+	}
+	defer conn.Close()
+
+	c := updatepb.NewStatusClient(conn)
+
+	ctxApi, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if _, err := c.Ready(ctxApi, &updatepb.ReadyRequest{}); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // StartUpdate starts PMM Server update through pmm-updater.

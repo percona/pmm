@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/docker"
+	"github.com/percona/pmm/admin/services/status"
 	"github.com/percona/pmm/admin/services/update"
 	"github.com/percona/pmm/api/updatepb"
 )
@@ -160,6 +161,7 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 		logrus.Fatal(err)
 	}
 
+	updatepb.RegisterStatusServer(gRPCServer, status.New())
 	updatepb.RegisterUpdateServer(gRPCServer, u)
 
 	if c.globals.EnableDebug {

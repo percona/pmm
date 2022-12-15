@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package update;
+
+option go_package = "api/updatepb;updatepb";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+
+message ReadyRequest {}
+
+message ReadyResponse {}
+
+// Status service provides public status APIs for pmm-updater.
+service Status {
+  // Ready checks if updater is ready.
+  rpc Ready(ReadyRequest) returns (ReadyResponse) {
+    option (google.api.http) = {
+      post: "/v1/Ready"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check if updater is ready"
+      description: "Checks if updater is ready."
+    };
+  }
+}

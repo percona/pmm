@@ -199,7 +199,6 @@ func (s *Server) getLogs(filePath string, offset uint32) ([]string, uint32, erro
 func (s *Server) isValidLogPath(filePath string) error {
 	filename := path.Base(filePath)
 	match, err := path.Match(logsFileNamePattern, filename)
-
 	if err != nil {
 		return err
 	}

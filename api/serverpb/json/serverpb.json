@@ -1081,6 +1081,11 @@
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
                   "x-order": 2
+                },
+                "updater_ready": {
+                  "description": "True if pmm-updater is ready for an update.",
+                  "type": "boolean",
+                  "x-order": 5
                 }
               }
             }
