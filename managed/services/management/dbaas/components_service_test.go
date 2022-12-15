@@ -600,7 +600,7 @@ func TestInstallOperator(t *testing.T) {
 			},
 		},
 	}
-	db, c, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
+	_, _, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
 
 	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
 		Subscription: &controllerv1beta1.Subscription{
@@ -609,9 +609,6 @@ func TestInstallOperator(t *testing.T) {
 	}
 	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
 	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
-
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
-	defer cancel()
 
 	t.Run("Defaults not supported", func(t *testing.T) {
 		_, c, _ := setup(t, clusterName, response, "5497", defaultPXCVersion, defaultPSMDBVersion)

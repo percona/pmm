@@ -94,10 +94,6 @@ func TestKubernetesServer(t *testing.T) {
 		}, nil)
 		dc.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
 
-		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
-		require.NoError(t, err)
-		require.Empty(t, clusters.KubernetesClusters)
-
 		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
 		mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
