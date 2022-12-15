@@ -185,7 +185,14 @@
       changed_when: True
 
     - name: See the status for pmm-managed
-      debug: var=pmm_managed_status.stdout_lines
+      debug: var=pmm_managed_status
+
+    - name: Tails pmm-managed's logs
+      command: tail -n 50 -f /srv/logs/pmm-managed.log
+      register: pmm_managed_logtail
+
+    - name: See the logs for pmm-managed
+      debug: var=pmm_managed_logtail.stdout_lines
 
     - name: Update system packages
       yum:
