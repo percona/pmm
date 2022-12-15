@@ -30,6 +30,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/pkg/common"
@@ -78,6 +79,7 @@ func (b *Base) IsDockerInstalled() (bool, error) {
 // HaveDockerAccess checks if the current user has access to Docker.
 func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 	if _, err := b.Cli.Info(ctx); err != nil {
+		logrus.Error(errors.WithStack(err))
 		return false
 	}
 

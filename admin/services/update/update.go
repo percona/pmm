@@ -34,6 +34,8 @@ import (
 )
 
 type Server struct {
+	// Context coming from cli commands. When cancelled, the command has been cancelled.
+	cliCtx             context.Context
 	dockerFn           dockerFunctions
 	dockerImage        string
 	gRPCMessageMaxSize uint32
@@ -43,13 +45,14 @@ type Server struct {
 }
 
 // New returns new instance of Server.
-func New(dockerImage string, gRPCMessageMaxSize uint32) (*Server, error) {
+func New(ctx context.Context, dockerImage string, gRPCMessageMaxSize uint32) (*Server, error) {
 	d, err := docker.New(nil)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Server{
+		cliCtx:             ctx,
 		dockerFn:           d,
 		dockerImage:        dockerImage,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
@@ -95,14 +98,15 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
 		cmd.SetLogger(logger.WithField("update", logFile.Name()))
 
+		// Store update in progress info.
 		s.updateInProgress[logFile.Name()] = struct{}{}
 		defer func() {
 			delete(s.updateInProgress, logFile.Name())
 		}()
 
-		_, err := cmd.RunCmdWithContext(ctx, &flags.GlobalFlags{})
+		_, err := cmd.RunCmdWithContext(s.cliCtx, &flags.GlobalFlags{})
 		if err != nil {
-			logrus.Errorf("Could not update container %s. Error: %v", containerID, err)
+			logger.Errorf("Could not update container %s. Error: %v", containerID, err)
 		}
 	}()
 

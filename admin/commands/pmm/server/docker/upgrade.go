@@ -129,6 +129,8 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 		c.l.Errorf("Error for reference: %#v", err)
 	}
 
+	c.l.Info("PMM Server update finished successfully")
+
 	return &upgradeResult{}, nil
 }
 

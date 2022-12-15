@@ -66,7 +66,7 @@ func (r *startResult) String() string {
 }
 
 // BeforeApply is run before the command is applied.
-func (cmd *StartCommand) BeforeApply() error {
+func (c *StartCommand) BeforeApply() error {
 	commands.SetupClientsEnabled = false
 	return nil
 }
@@ -155,7 +155,7 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 		)),
 	)
 
-	u, err := update.New(c.DockerImage, gRPCMessageMaxSize)
+	u, err := update.New(ctx, c.DockerImage, gRPCMessageMaxSize)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -172,7 +172,7 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 	go func() {
 		var err error
 		for {
-			l.Infof("Starting server on unix:///srv/pmm-updater.sock")
+			l.Infof("Starting gRPC server on unix:///srv/pmm-updater.sock")
 
 			listener, err := net.Listen("unix", "/srv/pmm-updater.sock")
 			if err != nil {
