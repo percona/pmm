@@ -188,7 +188,7 @@
       debug: var=pmm_managed_status
 
     - name: Tails pmm-managed's logs
-      command: tail -n 50 -f /srv/logs/pmm-managed.log
+      command: tail -n 50 /srv/logs/pmm-managed.log
       register: pmm_managed_logtail
 
     - name: See the logs for pmm-managed
