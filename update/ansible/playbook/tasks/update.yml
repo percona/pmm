@@ -219,7 +219,6 @@
           - logrotate # https://jira.percona.com/browse/PMM-7627
           - screen
           - yum-cron
-          - pmm-server
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
