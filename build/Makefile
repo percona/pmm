@@ -1,7 +1,7 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
-export ORACLE_VERSION := 4.2.6
+export ORACLE_VERSION := 4.2.6  # if pulled from vagrant repository (see below)
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -17,17 +17,19 @@ fetch:
 		|| tar -C ${PACKER_CACHE_DIR}/${CENTOS_ISO} -xf ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova
 
 fetch-el9:
-	mkdir -p ${PACKER_CACHE_DIR}/${ORACLE_VERSION} || :
+	mkdir -p ${PACKER_CACHE_DIR}/box || :
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
 	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
-	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova \
-		|| wget --progress=dot:giga https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box \
-		-O ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
-	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
-	test -f ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/box.ovf \
-		|| tar -C ${PACKER_CACHE_DIR}/${ORACLE_VERSION} -xf ${PACKER_CACHE_DIR}/${ORACLE_VERSION}/oracle9.ova
+	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
+		|| wget --progress=dot:giga https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box \
+		-O ${PACKER_CACHE_DIR}/box/oracle9.ova
+	# test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
+	# 	|| wget --progress=dot:giga https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box \
+	# 	-O ${PACKER_CACHE_DIR}/box/oracle9.ova
+	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+		|| tar -C ${PACKER_CACHE_DIR}/box -xf ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
