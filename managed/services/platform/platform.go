@@ -140,10 +140,9 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	if req.Force {
 		err = s.forceDisconnect(ctx)
 		if err != nil {
-			s.l.Error("Force disconnect failed: %s", err)
+			s.l.Errorf("Force disconnect failed: %s", err)
 			return nil, err
 		}
-		s.l.Info("Successfully finished force disconnect.")
 		return &platformpb.DisconnectResponse{}, nil
 	}
 
