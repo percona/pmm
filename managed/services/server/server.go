@@ -18,7 +18,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/user"
@@ -399,50 +398,6 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 	}
 
 	return conn, nil
-}
-
-// writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
-//
-// We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
-// is being changed during update.
-func (s *Server) writeUpdateAuthToken(token string) error {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	a := &pmmUpdateAuth{
-		AuthToken: token,
-	}
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	return errors.WithStack(json.NewEncoder(f).Encode(a))
-}
-
-// readUpdateAuthToken reads authentication token for getting update status and logs from the file.
-func (s *Server) readUpdateAuthToken() (string, error) {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	var a pmmUpdateAuth
-	err = json.NewDecoder(f).Decode(&a)
-	return a.AuthToken, errors.WithStack(err)
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
