@@ -137,6 +137,16 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 		return nil, err
 	}
 
+	if req.Force {
+		err = s.forceDisconnect(ctx)
+		if err != nil {
+			s.l.Error("Force disconnect failed: %s", err)
+			return nil, err
+		}
+		s.l.Info("Successfully finished force disconnect.")
+		return &platformpb.DisconnectResponse{}, nil
+	}
+
 	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
@@ -171,6 +181,22 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	}
 
 	return &platformpb.DisconnectResponse{}, nil
+}
+
+// forceDisconnect cleans up records of platform connection only from PMM side.
+// this should only be used in case a user with admin credentials tries to disconnect.
+// The SSO details should be removed from both the DB and grafana config.
+func (s *Service) forceDisconnect(ctx context.Context) error {
+	err := models.DeletePerconaSSODetails(s.db.Querier)
+	if err != nil {
+		s.l.Errorf("Failed to delete SSO details: %s", err)
+		return err
+	}
+	if err = s.UpdateSupervisordConfigurations(ctx); err != nil {
+		s.l.Errorf("Failed to update configuration of grafana after disconnect from Platform: %s", err)
+		return err
+	}
+	return nil
 }
 
 func (s *Service) UpdateSupervisordConfigurations(ctx context.Context) error {
