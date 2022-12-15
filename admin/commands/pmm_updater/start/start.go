@@ -43,6 +43,7 @@ import (
 
 const (
 	gRPCMessageMaxSize = 100 * 1024 * 1024
+	socketPath         = "/srv/pmm-updater.sock"
 	shutdownTimeout    = 1 * time.Second
 )
 
@@ -174,9 +175,13 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 	go func() {
 		var err error
 		for {
-			l.Infof("Starting gRPC server on unix:///srv/pmm-updater.sock")
+			l.Infof("Starting gRPC server on unix://%s", socketPath)
+			err := os.Remove(socketPath)
+			if err != nil && !errors.Is(err, os.ErrNotExist) {
+				logrus.Panic(err)
+			}
 
-			listener, err := net.Listen("unix", "/srv/pmm-updater.sock")
+			listener, err := net.Listen("unix", socketPath)
 			if err != nil {
 				logrus.Panic(err)
 			}
