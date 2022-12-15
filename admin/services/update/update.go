@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -32,6 +33,9 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 	"github.com/percona/pmm/api/updatepb"
 )
+
+// Make sure this does not include any directories, just a basename.
+const logsFileNamePattern = "upgrade.*.log"
 
 type Server struct {
 	// Context coming from cli commands. When cancelled, the command has been cancelled.
@@ -75,7 +79,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 		return nil, fmt.Errorf("container %s it not running", containerID)
 	}
 
-	logFile, err := os.CreateTemp("", "upgrade.*.log")
+	logFile, err := os.CreateTemp("", logsFileNamePattern)
 	if err != nil {
 		return nil, err
 	}
@@ -156,8 +160,12 @@ func (s *Server) isUpdateRunning(name string) bool {
 
 // getLogs returns some lines and a new offset from a log file starting from the given offset.
 // It may return zero lines and the same offset. Caller is expected to handle this.
-func (s *Server) getLogs(path string, offset uint32) ([]string, uint32, error) {
-	f, err := os.Open(path)
+func (s *Server) getLogs(filePath string, offset uint32) ([]string, uint32, error) {
+	if err := s.isValidLogPath(filePath); err != nil {
+		return nil, 0, errors.WithStack(err)
+	}
+
+	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
@@ -185,4 +193,19 @@ func (s *Server) getLogs(path string, offset uint32) ([]string, uint32, error) {
 		}
 		return lines, newOffset, errors.WithStack(err)
 	}
+}
+
+func (s *Server) isValidLogPath(filePath string) error {
+	filename := path.Base(filePath)
+	match, err := path.Match(logsFileNamePattern, filename)
+
+	if err != nil {
+		return err
+	}
+
+	if !match {
+		return fmt.Errorf("invalid log file path provided")
+	}
+
+	return nil
 }
