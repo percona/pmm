@@ -122,7 +122,8 @@ func (c *StartCommand) initDockerNetwork(ctx context.Context) error {
 	return c.connectContainerToNetwork(ctx, net, selfName)
 }
 
-// connectContainerToNetwork connects container to a network. It's a no-op if the container is already connected.
+// connectContainerToNetwork connects container to a network.
+// It's a no-op if the container is already connected.
 func (c *StartCommand) connectContainerToNetwork(ctx context.Context, net types.NetworkResource, containerID string) error {
 	found := false
 	for contID := range net.Containers {

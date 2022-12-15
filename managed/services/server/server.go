@@ -48,6 +48,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const updaterSocketPath = "/srv/pmm-updater.sock"
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	db                   *reform.DB
@@ -427,7 +429,7 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 	}
 
-	conn, err := grpc.DialContext(ctx, "unix:/srv/pmm-updater.sock", opts...)
+	conn, err := grpc.DialContext(ctx, "unix:"+updaterSocketPath, opts...)
 	if err != nil {
 		return nil, errors.Errorf("failed to connect to pmm-updater API: %v", err)
 	}
