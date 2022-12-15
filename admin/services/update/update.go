@@ -101,6 +101,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 		logger := logrus.New()
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
 		cmd.SetLogger(logger.WithField("update", logFile.Name()))
+		cmd.SetWaitBeforeContainerStop(5 * time.Second)
 
 		// Store update in progress info.
 		s.updateInProgress[logFile.Name()] = struct{}{}

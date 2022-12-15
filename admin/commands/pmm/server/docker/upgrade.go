@@ -39,8 +39,9 @@ type UpgradeCommand struct {
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
 
-	dockerFn functions
-	l        *logrus.Entry
+	dockerFn                functions
+	l                       *logrus.Entry
+	waitBeforeContainerStop time.Duration
 }
 
 const (
@@ -77,6 +78,12 @@ func (c *UpgradeCommand) SetLogger(l *logrus.Entry) {
 	c.l = l
 }
 
+// SetWaitBeforeContainerStop sets time duration to wait before container is stopped.
+// This is useful when streaming logs to wait for the logs to be sent to client.
+func (c *UpgradeCommand) SetWaitBeforeContainerStop(d time.Duration) {
+	c.waitBeforeContainerStop = d
+}
+
 // RunCmdWithContext runs upgrade command.
 func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	if c.l == nil {
@@ -106,6 +113,11 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	c.l.Infof("Stopping PMM Server in container %q", currentContainer.Name)
+
+	// We wait a bit so the logs can be requested by pmm-managed before
+	// the container is stopped.
+	<-time.After(c.waitBeforeContainerStop)
+
 	noTimeout := -1 * time.Second
 	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
