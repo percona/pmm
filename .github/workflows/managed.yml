@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
@@ -17,6 +17,8 @@ on:
       - "agent/**"
       - "docs/**"
       - "qan-api2/**"
+      - "update/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:

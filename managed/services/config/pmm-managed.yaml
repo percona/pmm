@@ -17,6 +17,10 @@ services:
         separate_credentials:
           username: pmm
           password: pmm
+      GRAFANADB_SELECT:
+        enabled: true
+        timeout: 5s
+        db_file: /srv/grafana/grafana.db
     reporting:
       send: true
       send_on_start: false
