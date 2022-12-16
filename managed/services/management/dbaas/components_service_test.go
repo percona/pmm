@@ -672,7 +672,6 @@ func TestInstallOperator(t *testing.T) {
 }
 
 func TestCheckForOperatorUpdate(t *testing.T) {
-	t.Parallel()
 	response := &VersionServiceResponse{
 		Versions: []Version{
 			{
