@@ -19,24 +19,34 @@ package olm
 
 import (
 	"context"
-	"os"
 	"testing"
 
+	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
+	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/mock"
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 )
 
 func TestInstallOlmOperator(t *testing.T) {
-	kubeconfig, err := os.ReadFile(os.Getenv("HOME") + "/.kube/config")
-	require.NoError(t, err)
-
 	ctx := context.Background()
-	olms, err := NewFromKubeConfig(string(kubeconfig))
-	assert.NoError(t, err)
+	k8sclient := &client.MockKubeClientConnector{}
+	olms := New(k8sclient)
 
 	t.Run("Install OLM Operator", func(t *testing.T) {
-		err = olms.InstallOLMOperator(ctx)
+		k8sclient.On("CreateSubscriptionForCatalog", mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(&v1alpha1.Subscription{}, nil)
+		k8sclient.On("GetDeployment", ctx, mock.Anything).Return(&appsv1.Deployment{}, nil)
+		k8sclient.On("ApplyFile", ctx, mock.Anything).Return(nil)
+		k8sclient.On("DoRolloutWait", ctx, mock.Anything).Return(nil)
+		k8sclient.On("GetSubscriptionCSV", ctx, mock.Anything).Return(types.NamespacedName{}, nil)
+		k8sclient.On("DoRolloutWait", ctx, mock.Anything).Return(nil)
+		err := olms.InstallOLMOperator(ctx)
 		assert.NoError(t, err)
 	})
 
@@ -54,155 +64,21 @@ func TestInstallOlmOperator(t *testing.T) {
 			CatalogSourceNamespace: catalosSourceNamespace,
 			Channel:                "stable",
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			// StartingCsv:            "percona-server-mongodb-operator.v1.11.0",
 		}
 
-		err = olms.InstallOperator(ctx, params)
-		assert.NoError(t, err)
-
-		var subscription *controllerv1beta1.GetSubscriptionResponse
-
-		subscription, err = olms.GetSubscription(ctx, &controllerv1beta1.GetSubscriptionRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: string(kubeconfig),
+		k8sclient.On("GetOperatorGroup", ctx, "", operatorGroup).Return(&v1.OperatorGroup{}, nil)
+		mockSubscription := &v1alpha1.Subscription{
+			Status: v1alpha1.SubscriptionStatus{
+				Install: &v1alpha1.InstallPlanReference{
+					Name: "abcd1234",
+				},
 			},
-			Name:      subscriptionName,
-			Namespace: subscriptionNamespace,
-		})
+		}
+		k8sclient.On("GetSubscription", ctx, subscriptionNamespace, operatorName).Return(mockSubscription, nil)
+		mockInstallPlan := &operatorsv1alpha1.InstallPlan{}
+		k8sclient.On("GetInstallPlan", ctx, subscriptionNamespace, mockSubscription.Status.Install.Name).Return(mockInstallPlan, nil)
+		k8sclient.On("UpdateInstallPlan", ctx, subscriptionNamespace, mockInstallPlan).Return(mockInstallPlan, nil)
+		err := olms.InstallOperator(ctx, params)
+		assert.NoError(t, err)
 	})
-	// t.Cleanup(func() {
-	// 	client, err := client.NewFromKubeConfigString(string(kubeconfig))
-	// 	assert.NoError(t, err)
-	// 	// Maintain the order, otherwise the Kubernetes deletetion will stuck in Terminating state.
-	// 	// TODO: with client-go I don't know yet how to delete these. What are they?
-	// 	// err := client.Delete(ctx, []string{"apiservices.apiregistration.k8s.io", "v1.packages.operators.coreos.com"})
-	// 	// assert.NoError(t, err)
-	// 	files := []string{
-	// 		"crds/crds.yaml",
-	// 		"crds/olm.yaml",
-	// 	}
-
-	// 	for _, file := range files {
-	// 		t.Logf("deleting %q\n", file)
-	// 		yamlFile, err := fs.ReadFile(data.OLMCRDs, file)
-	// 		assert.NoError(t, err)
-	// 		// When deleting, some resources might be already deleted by the previous file so the returned error
-	// 		// should be considered only as a warning.
-	// 		_ = client.DeleteFile(ctx, yamlFile)
-	// 	}
-	// })
-
-	// req := &controllerv1beta1.InstallOLMOperatorRequest{
-	// 	KubeAuth: &controllerv1beta1.KubeAuth{
-	// 		Kubeconfig: string(kubeconfig),
-	// 	},
-	// }
-
-	// 	// Wait for the deployments
-	// 	_, err = client.Run(ctx, []string{"rollout", "status", "-w", "deployment/olm-operator", "-n", "olm"})
-	// 	assert.NoError(t, err)
-	// 	_, err = client.Run(ctx, []string{"rollout", "status", "-w", "deployment/catalog-operator", "-n", "olm"})
-	// 	assert.NoError(t, err)
-	//
-	// 	catalosSourceNamespace := "olm"
-	// 	operatorName := "percona-server-mongodb-operator"
-	//
-	// 	manifests, err := olms.AvailableOperators(ctx, client, catalosSourceNamespace, operatorName)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, 1, len(manifests.Items))
-	//
-	// 	subscriptionName := "percona-server-mongodb-operator"
-	// 	subscriptionNamespace := fmt.Sprintf("test-namespace-%04d", rand.Int63n(9999))
-	// 	subscriptionNamespace = "default"
-	// 	operatorGroup := "percona-operators-group"
-	//
-	// 	t.Run("Subscribe", func(t *testing.T) {
-	// 		kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-	// 		require.NoError(t, err)
-	//
-	// 		ctx := context.Background()
-	//
-	// 		client, err := k8sclient.New(ctx, string(kubeconfig))
-	// 		assert.NoError(t, err)
-	// 		defer client.Cleanup() //nolint:errcheck
-	//
-	// 		// Install PSMDB Operator
-	// 		params := &controllerv1beta1.InstallOperatorRequest{
-	// 			KubeAuth: &controllerv1beta1.KubeAuth{
-	// 				Kubeconfig: string(kubeconfig),
-	// 			},
-	// 			Namespace:              subscriptionNamespace,
-	// 			Name:                   subscriptionName,
-	// 			OperatorGroup:          operatorGroup,
-	// 			CatalogSource:          "operatorhubio-catalog",
-	// 			CatalogSourceNamespace: catalosSourceNamespace,
-	// 			Channel:                "stable",
-	// 			InstallPlanApproval:    string(v1alpha1.ApprovalManual),
-	// 			StartingCsv:            "percona-server-mongodb-operator.v1.11.0",
-	// 		}
-	//
-	// 		_, err = olms.InstallOperator(ctx, params)
-	// 		assert.NoError(t, err)
-	//
-	// 		var subscription *controllerv1beta1.GetSubscriptionResponse
-	//
-	// 		subscription, err = olms.GetSubscription(ctx, &controllerv1beta1.GetSubscriptionRequest{
-	// 			KubeAuth: &controllerv1beta1.KubeAuth{
-	// 				Kubeconfig: string(kubeconfig),
-	// 			},
-	// 			Name:      subscriptionName,
-	// 			Namespace: subscriptionNamespace,
-	// 		})
-	//
-	// 		approveRequest := &controllerv1beta1.ApproveInstallPlanRequest{
-	// 			KubeAuth: &controllerv1beta1.KubeAuth{
-	// 				Kubeconfig: string(kubeconfig),
-	// 			},
-	// 			Namespace: subscriptionNamespace,
-	// 			Name:      subscription.Subscription.InstallPlanName,
-	// 		}
-	//
-	// 		_, err = olms.ApproveInstallPlan(ctx, approveRequest)
-	// 		assert.NoError(t, err)
-	//
-	// 		t.Log("Waiting for deployment")
-	// 		// Loop until the deployment exists and THEN we can wait.
-	// 		// Sometimes the test reaches this point too fast and we get an error saying that the
-	// 		// deplyment doesn't exists.
-	// 		for i := 0; i < 5; i++ {
-	// 			_, err = client.Run(ctx, []string{"wait", "--for=condition=Available", "deployment", params.Name, "-n", params.Namespace, "--timeout=380s"})
-	// 			if err == nil {
-	// 				t.Logf("Deployment ready at try number %d", i)
-	// 				break
-	// 			}
-	// 			time.Sleep(30 * time.Second)
-	// 		}
-	// 		assert.NoError(t, err)
-	//
-	// 		// We installed PSMDB operator 1.11 but in the catalog, 1.12 is already available.
-	// 		// There must be a new and unapproved install plan to upgrade the operator to 1.12.
-	// 		ipListReq := &controllerv1beta1.ListInstallPlansRequest{
-	// 			KubeAuth: &controllerv1beta1.KubeAuth{
-	// 				Kubeconfig: string(kubeconfig),
-	// 			},
-	// 			Namespace:       subscriptionNamespace,
-	// 			Name:            subscriptionName,
-	// 			NotApprovedOnly: true,
-	// 		}
-	// 		installPlansForUpgrade, err := olms.ListInstallPlans(ctx, ipListReq)
-	// 		assert.NoError(t, err)
-	// 		assert.True(t, len(installPlansForUpgrade.Items) > 0)
-	//
-	// 		err = client.Delete(ctx, []string{"subscription", subscriptionName, "-n", params.Namespace})
-	// 		assert.NoError(t, err)
-	// 		err = client.Delete(ctx, []string{"operatorgroup", params.OperatorGroup, "-n", params.Namespace})
-	// 		assert.NoError(t, err)
-	// 		err = client.Delete(ctx, []string{"deployment", params.Name, "-n", params.Namespace})
-	// 		assert.NoError(t, err)
-	//
-	// 		if params.Namespace != "default" {
-	// 			err = client.Delete(ctx, []string{"namespace", params.Namespace})
-	// 			assert.NoError(t, err)
-	// 		}
-	//	})
 }

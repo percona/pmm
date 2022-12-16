@@ -56,14 +56,14 @@ var ErrEmptyVersionTag error = errors.New("got an empty version tag from Github"
 // OperatorService holds methods to handle the OLM operator.
 type OperatorService struct {
 	kubeConfig string
-	k8sclient  *client.Client
+	k8sclient  client.KubeClientConnector
 }
 
 // New returns new OperatorService instance and intializes the config.
-func New(k8sclient *client.Client) (*OperatorService, error) {
+func New(k8sclient client.KubeClientConnector) *OperatorService {
 	return &OperatorService{
 		k8sclient: k8sclient,
-	}, nil
+	}
 }
 
 // New returns new OperatorService instance from a kubeconfig string.
@@ -195,7 +195,7 @@ type InstallOperatorRequest struct {
 
 // InstallOperator installs an operator via OLM.
 func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperatorRequest) error {
-	if err := createOperatorGroupIfNeeded(ctx, o.k8sclient, "percona-operatorgroup"); err != nil {
+	if err := createOperatorGroupIfNeeded(ctx, o.k8sclient, req.OperatorGroup); err != nil {
 		return err
 	}
 
@@ -240,7 +240,7 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 	return err
 }
 
-func createOperatorGroupIfNeeded(ctx context.Context, client *client.Client, name string) error {
+func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientConnector, name string) error {
 	_, err := client.GetOperatorGroup(ctx, useDefaultNamespace, name)
 	if err == nil {
 		return nil

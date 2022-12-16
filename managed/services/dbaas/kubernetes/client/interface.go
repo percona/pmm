@@ -18,8 +18,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
-// kubeClientConnector ...
-type kubeClientConnector interface {
+// KubeClientConnector ...
+type KubeClientConnector interface {
 	// GetSecretsForServiceAccount returns secret by given service account name
 	GetSecretsForServiceAccount(ctx context.Context, accountName string) (*corev1.Secret, error)
 	// GenerateKubeConfig generates kubeconfig
