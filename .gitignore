@@ -36,3 +36,4 @@ pmm-agent-dev.yaml
 .env
 
 cli-tests/node_modules/
+cli-tests/playwright-report/
