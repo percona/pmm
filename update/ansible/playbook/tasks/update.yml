@@ -108,8 +108,6 @@
     - name: Supervisord start         | Start supervisord for docker
       when: is_docker and not is_supervisor_running.stat.exists
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
-      args:
-        warn: yes
 
     - name: Run initialization playbook
       include_role:
@@ -174,7 +172,7 @@
     - name: Restart pmm-managed
       command: /usr/local/bin/supervisorctl {{ item }} pmm-managed
       become: true
-      changed_when: True
+      changed_when: true
       with_items: ["stop", "remove", "add"]
 
     # give pmm-managed time to update supervisord configuration,
@@ -182,18 +180,17 @@
     - name: Wait for pmm-managed
       pause: seconds=5
 
-    - name: See supervisord status
-      command: /usr/local/bin/supervisorctl status
+    - name: Tail supervisord logs
+      command: /usr/local/bin/supervisorctl tail -20000
       become: true
       register: supervisord_status
-      changed_when: True
-      ignore_errors: True
+      changed_when: false
 
     - name: See the status for pmm-managed
-      debug: var=supervisord_status.stdout_lined
+      debug: var=supervisord_status.stdout_lines
 
     - name: Tails pmm-managed's logs
-      command: tail -n 50 /srv/logs/pmm-managed.log
+      command: tail -n 100 /srv/logs/pmm-managed.log
       register: pmm_managed_logtail
 
     - name: See the logs for pmm-managed
@@ -288,7 +285,7 @@
     - name: Restart services
       command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
       become: true
-      changed_when: True
+      changed_when: true
       with_nested:
         - - alertmanager
           - grafana
@@ -331,7 +328,7 @@
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
-      shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+      shell: /usr/local/bin/supervisorctl tail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       become: true
       register: maintail_result
       changed_when: False
