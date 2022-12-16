@@ -12,7 +12,6 @@
       - "Ansible user id: {{ ansible_user_id }}"
       - "Ansible user dir: {{ ansible_user_dir }}"
       - "PATH env: {{ lookup('env', 'PATH') }}"
-      - "supervisord.conf: {{ lookup('ansible.builtin.file', '/etc/supervisord.conf') }}"
 
 - name: Set path for vagrant user
   when:

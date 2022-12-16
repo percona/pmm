@@ -89,3 +89,8 @@
     src: supervisord.service
     dest: /usr/lib/systemd/system/
     mode: 0644
+
+- name: Print debug info            | Print the contents of supervisord.conf
+  debug:
+    msg:
+      - "supervisord.conf: {{ lookup('ansible.builtin.file', '/etc/supervisord.conf') }}"
