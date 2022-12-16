@@ -181,7 +181,7 @@
       pause: seconds=5
 
     - name: Tail supervisord logs
-      command: /usr/local/bin/supervisorctl maintail -20000
+      command: /usr/local/bin/supervisorctl maintail -100000
       become: true
       register: supervisord_status
       changed_when: false
