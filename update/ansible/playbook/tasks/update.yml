@@ -181,7 +181,7 @@
       pause: seconds=5
 
     - name: Tail supervisord logs
-      command: /usr/local/bin/supervisorctl tail -20000
+      command: /usr/local/bin/supervisorctl maintail -20000
       become: true
       register: supervisord_status
       changed_when: false
@@ -328,7 +328,7 @@
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
-      shell: /usr/local/bin/supervisorctl tail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+      shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       become: true
       register: maintail_result
       changed_when: False
