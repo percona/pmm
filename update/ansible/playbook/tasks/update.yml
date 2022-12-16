@@ -1,8 +1,8 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: True
-  gather_facts: True
+  become: true
+  gather_facts: true
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -18,15 +18,17 @@
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
-      # no_log: True
+      no_log: true
       register: srv_pmm_distribution
 
     - name: detect containers
       set_fact:
         is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      # no_log: True
+      no_log: true
       when: srv_pmm_distribution.stat.exists
 
+    # NOTE: this fact is surprisingly set to true when it builds AMI/OVF,
+    # since the `/srv/distibution` file does not exist before post-build-action.yml is called
     - name: force container
       set_fact:
         is_docker: True
@@ -106,6 +108,8 @@
     - name: Supervisord start         | Start supervisord for docker
       when: is_docker and not is_supervisor_running.stat.exists
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
+      args:
+        warn: yes
 
     - name: Run initialization playbook
       include_role:
@@ -131,7 +135,7 @@
 
     - name: Reread supervisord configuration
       command: /usr/local/bin/supervisorctl reread
-      become: True
+      become: true
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -169,7 +173,7 @@
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
       command: /usr/local/bin/supervisorctl {{ item }} pmm-managed
-      become: True
+      become: true
       changed_when: True
       with_items: ["stop", "remove", "add"]
 
@@ -180,7 +184,7 @@
 
     - name: See supervisord status
       command: /usr/local/bin/supervisorctl status
-      become: True
+      become: true
       register: supervisord_status
       changed_when: True
       ignore_errors: True
@@ -274,7 +278,7 @@
 
     - name: Reread supervisord configuration again
       command: /usr/local/bin/supervisorctl reread
-      become: True
+      become: true
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -283,7 +287,7 @@
 
     - name: Restart services
       command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
-      become: True
+      become: true
       changed_when: True
       with_nested:
         - - alertmanager
@@ -311,13 +315,13 @@
 
     - name: Reread pmm-update-perform-init supervisor config
       command: /usr/local/bin/supervisorctl reread
-      become: True
+      become: true
       register: reread_init__result
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
     - name: Update/restart other services
       command: /usr/local/bin/supervisorctl update
-      become: True
+      become: true
       register: update_result
       changed_when: "'updated' in update_result.stdout"
 
@@ -328,7 +332,7 @@
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
       shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
-      become: True
+      become: true
       register: maintail_result
       changed_when: False
 

@@ -62,7 +62,7 @@
         name: grafana
         state: stopped
         supervisorctl_path: /usr/local/bin/supervisorctl
-      become: True
+      become: true
       ignore_errors: True
       # FIXME: we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
@@ -92,7 +92,7 @@
     name: grafana
     state: restarted
     supervisorctl_path: /usr/local/bin/supervisorctl
-  become: True
+  become: true
   ignore_errors: True
   # TODO we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 

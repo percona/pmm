@@ -94,7 +94,7 @@
 
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
-      become: True
+      become: true
       become_user: postgres
       # become_method: sudo
 
@@ -111,12 +111,12 @@
       loop:
         - pmm-managed
         - postgresql
-      become: True
+      become: true
       when: is_upgrade.stat.exists
 
     - name: Run Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
-      become: True
+      become: true
       become_user: postgres
       # become_method: sudo
       when: is_upgrade.stat.exists
@@ -130,14 +130,14 @@
 
     - name: Stop Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
-      become: True
+      become: true
       become_user: postgres
       # become_method: sudo
       when: is_upgrade.stat.exists
 
     - name: Start Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
-      become: True
+      become: true
       become_user: postgres
       # become_method: sudo
 
@@ -171,7 +171,7 @@
 
     - name: Stop Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become: True
+      become: true
       become_user: postgres
       # become_method: sudo
 
@@ -190,13 +190,13 @@
 
     - name: Reread supervisord configuration
       command: /usr/local/bin/supervisorctl reread
-      become: True
+      become: true
       when: is_upgrade.stat.exists
 
     - name: Restart Postgres
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
       changed_when: True
-      become: True
+      become: true
       loop:
         - stop
         - remove
@@ -208,6 +208,6 @@
         name: pmm-managed
         state: started
         supervisorctl_path: /usr/local/bin/supervisorctl
-      become: True
+      become: true
       when: is_upgrade.stat.exists
   when: not is_postgres_14.stat.exists

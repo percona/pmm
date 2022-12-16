@@ -1,6 +1,6 @@
 - hosts: localhost
-  become: True
-  gather_facts: True
+  become: true
+  gather_facts: true
   tasks:
     - name: Stop supervisord
       service:
