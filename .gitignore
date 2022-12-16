@@ -34,3 +34,5 @@ pmm-agent-dev.yaml
 *.sw[o,p]
 
 .env
+
+cli-tests/node_modules/
