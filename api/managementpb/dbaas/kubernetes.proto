@@ -124,6 +124,20 @@ message GetResourcesResponse {
   Resources available = 2;
 }
 
+message ListStorageClassesRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListStorageClassesResponse {
+  // Kubernetes storage classes names.
+  repeated string storage_classes = 1;
+}
+
 // Kubernetes service provides public methods for managing Kubernetes clusters.
 service Kubernetes {
   // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -161,6 +175,13 @@ service Kubernetes {
   rpc GetResources(GetResourcesRequest) returns (GetResourcesResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Kubernetes/Resources/Get"
+      body: "*"
+    };
+  }
+  // ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+  rpc ListStorageClasses(ListStorageClassesRequest) returns (ListStorageClassesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Kubernetes/StorageClasses/List"
       body: "*"
     };
   }
