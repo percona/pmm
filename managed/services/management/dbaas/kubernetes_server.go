@@ -40,6 +40,11 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
+const (
+	catalogSourceNamespace = "olm"
+	catalogSource          = "percona-dbaas-catalog"
+)
+
 var (
 	operatorIsForbiddenRegexp          = regexp.MustCompile(`.*\.percona\.com is forbidden`)
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
@@ -364,7 +369,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
 			operator := "percona-xtradb-cluster-operator"
 
-			if err := k.installOperator(ctx, operator, namespace, "", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			if err := k.installOperator(ctx, operator, namespace, "", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 			}
 
@@ -381,7 +386,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
 			operator := "percona-server-mongodb-operator"
 
-			if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
+			if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 			}
 
@@ -394,11 +399,28 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
+		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+			operator := "dbaas-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
+				k.l.Errorf("cannot install dbaas operator: %s", err)
+				return
+			}
+
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
+				k.l.Errorf("cannot approve the dbaas install plan: %s", err)
+			}
+		}
 
 		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
 			operator := "victoriametrics-operator"
 
-			if err := k.installOperator(ctx, operator, namespace, "", "beta", req.KubeAuth.Kubeconfig); err != nil {
+			if err := k.installOperator(ctx, operator, namespace, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
 				k.l.Errorf("cannot install victoria metrics operator: %s", err)
 				return
 			}
@@ -454,8 +476,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 }
 
 func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, startingCSV, channel, kubeConfig string) error {
-	catalosSourceNamespace := "olm"
-	catalogSource := "operatorhubio-catalog"
 
 	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
@@ -465,7 +485,7 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 		Name:                   name,
 		OperatorGroup:          "percona-operators-group",
 		CatalogSource:          catalogSource,
-		CatalogSourceNamespace: catalosSourceNamespace,
+		CatalogSourceNamespace: catalogSourceNamespace,
 		Channel:                channel,
 		InstallPlanApproval:    "Manual",
 		StartingCsv:            startingCSV,
