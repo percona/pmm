@@ -44,10 +44,9 @@ type ServiceConfig struct {
 	telemetry    []Config `yaml:"-"`
 	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
-		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
+		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
+		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -69,13 +68,6 @@ type DataSourceVictoriaMetrics struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
-}
-
-// DSGrafanaSqliteDB telemetry config.
-type DSGrafanaSqliteDB struct {
-	Enabled bool          `yaml:"enabled"`
-	Timeout time.Duration `yaml:"timeout"`
-	DBFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.

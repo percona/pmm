@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/connectionuptime"
+	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
@@ -69,9 +70,10 @@ func Run() {
 	connectionUptimeService.RunCleanupGoroutine(ctx)
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, &cfg.LogLinesCount)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
+	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
 	r := runner.New(cfg.RunnerCapacity)
-	client := client.New(&cfg, supervisor, r, connectionChecker, v, connectionUptimeService, logStore)
+	client := client.New(&cfg, supervisor, r, connectionChecker, v, defaultsFileParser, connectionUptimeService, logStore)
 	localServer := agentlocal.NewServer(&cfg, supervisor, client, configFilepath, logStore)
 
 	var wg sync.WaitGroup

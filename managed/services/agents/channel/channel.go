@@ -283,6 +283,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.GetVersions)
 		case *agentpb.AgentMessage_PbmSwitchPitr:
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
+		case *agentpb.AgentMessage_ParseDefaultsFile:
+			c.publish(msg.Id, msg.Status, p.ParseDefaultsFile)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
 

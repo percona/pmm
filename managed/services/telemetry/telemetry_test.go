@@ -193,10 +193,9 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
+			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
@@ -230,11 +229,6 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					DB:     "pmm-managed-dev",
 					Params: "sslmode=disable",
 				},
-			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
-				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
@@ -300,10 +294,9 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 		},
 		SaasHostname: "",
 		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
 			Send:         true,

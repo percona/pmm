@@ -10,7 +10,7 @@ require (
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
 	github.com/bufbuild/buf v1.9.0
 	github.com/daixiang0/gci v0.8.1
-	github.com/go-delve/delve v1.20.1
+	github.com/go-delve/delve v1.9.1
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
