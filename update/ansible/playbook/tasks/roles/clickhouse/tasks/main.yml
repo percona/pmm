@@ -109,13 +109,12 @@
     path: /srv/clickhouse/
     owner: root
     group: root
-
-- name: Start clickhouse
-  supervisorctl:
-    name: clickhouse
-    state: "{{ item }}"
-    supervisorctl_path: /usr/local/bin/supervisorctl
-  become: true
-  loop:
-    - present
-    - started
+# - name: Start clickhouse
+#   supervisorctl:
+#     name: clickhouse
+#     state: "{{ item }}"
+#     supervisorctl_path: /usr/local/bin/supervisorctl
+#   become: true
+#   loop:
+#     - present
+#     - started
