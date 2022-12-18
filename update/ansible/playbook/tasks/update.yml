@@ -289,7 +289,10 @@
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
     - name: Check reread results
-      debug: var=reread_result.stdout_lines
+      debug:
+        mag:
+          - reread_result.stdout_lines
+          - '{{ lookup("file", "/srv/logs/pmm-managed.log", errors="ignore") }}'
 
     - name: Restart services
       command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
