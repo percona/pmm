@@ -276,12 +276,12 @@ telemetry:
         value: 1
 
   - id: GrafanaStatDailyActiveUsers
-    source: VM
-    query: grafana_stat_daily_active_users
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user WHERE last_seen_at > time('now') - 86400
     summary: "Daily active users"
     data:
       - metric_name: "pmm_server_grafana_stat_daily_active_users"
-        value: 1
+        column: "count"
 
   - id: GrafanaStatTotalOrgs
     source: VM
