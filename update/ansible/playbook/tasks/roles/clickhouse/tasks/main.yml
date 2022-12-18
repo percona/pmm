@@ -1,17 +1,16 @@
 ---
-- name: Find clickhouse's socket
+- name: Find supervisord's socket
   stat:
-    path: var/run/supervisor/supervisor.sock
-  register: clickhouse_socket
+    path: /var/run/supervisor/supervisor.sock
+  register: supervisord_socket
 
-- name: Stop clickhouse before update
-  when: clickhouse_socket.stat.exists
-  command: /usr/local/bin/supervisorctl stop clickhouse
+- name: Stop and remove clickhouse before update
+  when: supervisord_socket.stat.exists
+  command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
-
-- name: Remove clickhouse config before update
-  command: /usr/local/bin/supervisorctl remove clickhouse
-  become: true
+  loop:
+    - stop
+    - remove
 
 - name: Remove old clickhouse packages
   yum:
