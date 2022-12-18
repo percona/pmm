@@ -117,17 +117,10 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "ansible/pmm2/init.yml",
-      "extra_arguments": [ "-v", "-u root", "-e ANSIBLE_FORCE_COLOR=0" ],
-      "role_paths": [ "ansible/roles/ansible-init" ]
-    },
-    {
-      "type": "ansible-local",
       "playbook_file": "ansible/pmm2/main.yml",
       "extra_arguments": [
         "-v",
         "-u root",
-        "-e ANSIBLE_FORCE_COLOR=0",
         "--extra-vars",
         "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
       ],
@@ -143,7 +136,7 @@
       "type": "ansible-local",
       "playbook_dir": "update/tasks",
       "playbook_file": "update/tasks/update.yml",
-      "extra_arguments": ["-vvv", "-e ANSIBLE_FORCE_COLOR=0", "-u root"],
+      "extra_arguments": ["-vvv", "-u root"],
       "role_paths": [
         "update/tasks/roles/clickhouse",
         "update/tasks/roles/dashboards_upgrade",

@@ -15,24 +15,30 @@
       - pmm2-client
       - pmm-dump
   pre_tasks:
-    - name: detect /srv/pmm-distribution
-      stat:
-        path: /srv/pmm-distribution
-      no_log: true
-      register: srv_pmm_distribution
+    # - name: detect /srv/pmm-distribution
+    #   stat:
+    #     path: /srv/pmm-distribution
+    #   no_log: true
+    #   register: srv_pmm_distribution
 
-    - name: detect containers
+    - name: Distribution              | Detect docker
       set_fact:
-        is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: true
-      when: srv_pmm_distribution.stat.exists
+        is_docker: ansible_virtualization_type == "docker"
+        # is_docker: '{{ lookup("file", "/srv/pmm-distribution", errors="ignore") == "docker" }}'
+      # no_log: true
+      # when: srv_pmm_distribution.stat.exists
 
-    # NOTE: this fact is surprisingly set to true when it builds AMI/OVF,
-    # since the `/srv/distibution` file does not exist before post-build-action.yml is called
-    - name: force container
-      set_fact:
-        is_docker: True
-      when: is_docker is undefined
+    # NOTE: this fact was surprisingly getting set to true when it was being buildt for AMI/OVF,
+    # since the `/srv/distibution` file did not exist before post-build-action.yml was called.
+    # - name: force container
+    #   set_fact:
+    #     is_docker: True
+    #   when: is_docker is undefined
+    - name: Info                      | Print debug information
+      debug:
+        msg:
+          - '{{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") }}'
+
   tasks:
     # we need install this package here because it contain VERSION file
     - name: Remove percona-dashboard without architecture
@@ -47,12 +53,12 @@
           - percona-grafana
         state: latest
 
-    - name: Create supervisor dir
+    - name: Create supervisord dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Upgrade supervisor config
+    - name: Copy supervisord config
       copy:
         src: pmm.ini
         dest: /etc/supervisord.d/pmm.ini
@@ -85,6 +91,19 @@
       file:
         path: /etc/systemd/system/supervisord.service
         state: absent
+
+    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
+    # to support Docker-way (swap image) updates.
+    # https://jira.percona.com/browse/PMM-7024
+
+    - name: Create working directory for Alertmanager
+      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+    - name: Create working directory for VictoriaMetrics
+      file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+
+    - name: Create empty configuration file for VictoriaMetrics
+      file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
     # Start the services
     - name: Enable supervisord        | Make the service persist between reboots
@@ -204,12 +223,15 @@
         exclude:
           - nginx*
 
-    - name: Updating vulnerable packages
+    - name: Updating only select packages
       yum:
         name: "{{ item }}"
         state: latest
       loop:
         - nss
+        - tzdata
+        - libssh2
+        - sshpass
 
     - name: Install nginx
       include_role:
@@ -228,7 +250,7 @@
         enabled: no
       when: not is_docker
 
-    - name: Remove old packages
+    - name: Remove old or redundant packages
       yum:
         state: absent
         name:
@@ -259,19 +281,6 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
         replace: ""
-
-    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
-    # to support Docker-way (swap image) updates.
-    # https://jira.percona.com/browse/PMM-7024
-
-    - name: Create working directory for Alertmanager
-      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
-
-    - name: Create working directory for VictoriaMetrics
-      file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
-
-    - name: Create empty configuration file for VictoriaMetrics
-      file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
     - name: Reread supervisord configuration again
       command: /usr/local/bin/supervisorctl reread
