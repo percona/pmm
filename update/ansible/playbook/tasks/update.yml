@@ -148,20 +148,21 @@
         name: supervisord
         enabled: yes
 
-    - name: Supervisord start        | Start supervisord service for AMI/OVF
-      when: not is_docker
-      systemd:
-        name: supervisord
-        state: started # supervisord may already be running
-        daemon_reload: yes
+    # - name: Supervisord start         | Start supervisord service for AMI/OVF
+    #   when: not is_docker
+    #   systemd:
+    #     name: supervisord
+    #     state: started # supervisord may already be running
+    #     daemon_reload: yes
 
     - name: Check that supervisor socket exists
       stat:
         path: /var/run/supervisor/supervisor.sock
-      register: is_supervisor_running
+      register: supervisor_socket
 
     - name: Supervisord start         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists
+      # when: is_docker and not supervisor_socket.stat.exists
+      when: not supervisor_socket.stat.exists
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
