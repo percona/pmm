@@ -63,12 +63,12 @@
         src: pmm.ini
         dest: /etc/supervisord.d/pmm.ini
 
-    - name: Remove supervisord block from pmm.ini
-      ini_file:
-        path: /etc/supervisord.d/pmm.ini
-        section: supervisord
-        state: absent
-      when: not is_docker
+    # - name: Remove supervisord block from pmm.ini
+    #   ini_file:
+    #     path: /etc/supervisord.d/pmm.ini
+    #     section: supervisord
+    #     state: absent
+    #   when: not is_docker
 
     - name: Create grafana config
       include_role:
@@ -214,14 +214,14 @@
       register: supervisord_status
       changed_when: false
 
-    - name: See the status for pmm-managed
+    - name: Check the logs of supervisord
       debug: var=supervisord_status.stdout_lines
 
-    - name: Tails pmm-managed's logs
-      command: tail -n 100 /srv/logs/pmm-managed.log
+    - name: Tail pmm-managed logs
+      command: tail -n 10000 /srv/logs/pmm-managed.log
       register: pmm_managed_logtail
 
-    - name: See the logs for pmm-managed
+    - name: Check the logs of pmm-managed
       debug: var=pmm_managed_logtail.stdout_lines
 
     - name: Update system packages
@@ -276,7 +276,7 @@
         mode: 0755
 
     # https://jira.percona.com/browse/PMM-5271
-    - name: Check volume size
+    - name: Patch volume size script
       when: not is_docker
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
@@ -291,7 +291,7 @@
 
     - name: Check reread results
       debug:
-        mag:
+        msg:
           - reread_result.stdout_lines
           - '{{ lookup("file", "/srv/logs/pmm-managed.log", errors="ignore") }}'
 

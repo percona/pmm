@@ -6,7 +6,7 @@
 
 - name: Copy plugins from old plugin directory
   block:
-    - name: Find custom plugin in old plugin dir
+    - name: Find custom plugins in old plugin dir
       find:
         paths: /var/lib/grafana/plugins
         recurse: no
@@ -63,28 +63,28 @@
         state: stopped
         supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
-      ignore_errors: True
+      ignore_errors: true
       # FIXME: we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
     - name: Remove old DBaaS dashboard (Before provisioning times)
       command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
-      changed_when: True
+      changed_when: true
 
     - name: Remove old PMM Inventory (Before provisioning times)
       command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
-      changed_when: True
+      changed_when: true
 
     - name: Remove old PMM Add Instance dashboard (Before provisioning times)
       command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
-      changed_when: True
+      changed_when: true
 
     - name: Remove old PMM Database Checks dashboard (Before provisioning times)
       command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
-      changed_when: True
+      changed_when: true
 
     - name: Remove old PMM Settings dashboard (Before provisioning times)
       command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
-      changed_when: True
+      changed_when: true
   when: sqlite_grafana.stat.exists
 
 - name: Restart grafana with new plugins
@@ -93,8 +93,9 @@
     state: restarted
     supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
-  ignore_errors: True
-  # TODO we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
+  ignore_errors: true
+  # TODO: fix the race condition.
+  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
 
 - name: Copy file with image version
   copy:
