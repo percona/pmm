@@ -74,7 +74,7 @@
 
 - name: Check nginx configuration
   command: nginx -t
-  changed_when: False
+  changed_when: false
 
 - name: Copy local-rss.xml file
   copy:

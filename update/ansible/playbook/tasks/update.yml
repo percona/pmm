@@ -299,7 +299,8 @@
       become: true
       changed_when: true
       with_nested:
-        - - alertmanager
+        - - nginx
+          - alertmanager
           - grafana
           - qan-api2
           - pmm-agent
