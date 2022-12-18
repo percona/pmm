@@ -27,6 +27,7 @@
     name: clickhouse-server
     state: stopped
     enabled: no
+  ignore_errors: true
 
 - name: Create clickhouse data directory
   file:
