@@ -22,8 +22,10 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	goversion "github.com/hashicorp/go-version"
+	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -43,6 +45,7 @@ var (
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
 	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
 	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
+	errNoInstallPlanToApprove          = errors.New("there are no install plans to approve")
 
 	flagClusterName              = "--cluster-name"
 	flagRegion                   = "--region"
@@ -102,7 +105,7 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
-func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
+func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) { //nolint:lll
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
 	if err != nil {
 		return nil, err
@@ -261,8 +264,36 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
+func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
+	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeconfig,
+		},
+		Version: version,
+	}
+
+	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
+		return errors.Wrap(err, "cannot install OLM operator")
+	}
+
+	return nil
+}
+
+func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
+	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Name:      name,
+		Namespace: namespace,
+	}
+	_, err := client.ApproveInstallPlan(ctx, req)
+
+	return err
+}
+
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
-func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
+func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
@@ -274,6 +305,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
+
 	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
 	err = k.db.InTransaction(func(t *reform.TX) error {
 		var e error
@@ -291,6 +323,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
+
 	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -300,68 +333,164 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
-	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
-		_, err = k.dbaasClient.InstallPXCOperator(ctx, &dbaascontrollerv1beta1.InstallPXCOperatorRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Version: pxcOperatorVersion.String(),
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
-		_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Version: psmdbOperatorVersion.String(),
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
 
-	settings, err := models.GetSettings(k.db.Querier)
-	if err != nil {
-		return nil, err
-	}
-	if settings.PMMPublicAddress != "" {
-		var apiKeyID int64
-		var apiKey string
-		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
-		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-		if err != nil {
-			return nil, err
-		}
-		pmmParams := &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
-			Login:         "api_key",
-			Password:      apiKey,
-		}
+	go func() {
+		ctx := context.TODO()
 
-		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Pmm: pmmParams,
-		})
-		if err != nil {
-			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-			if e != nil {
-				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+			_, err = k.dbaasClient.InstallOLMOperator(ctx, &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
+				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+					Kubeconfig: req.KubeAuth.Kubeconfig,
+				},
+				Version: "", // Use dbaas-controller default.
+			})
+			if err != nil {
+				k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 			}
-			k.l.Warnf("couldn't start monitoring of the kubernetes cluster: %s", err)
-			return nil, status.Errorf(codes.Internal, "couldn't start monitoring of the kubernetes cluster: %s", err.Error())
 		}
-	}
+
+		namespace := "default"
+
+		if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+			operator := "percona-xtradb-cluster-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "", "stable", req.KubeAuth.Kubeconfig); err != nil {
+				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			}
+
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
+				k.l.Errorf("cannot approve the PXC install plan: %s", err)
+			}
+		}
+
+		if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+			operator := "percona-server-mongodb-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable", req.KubeAuth.Kubeconfig); err != nil {
+				k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
+			}
+
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
+				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
+			}
+		}
+
+		if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+			operator := "victoriametrics-operator"
+
+			if err := k.installOperator(ctx, operator, namespace, "", "beta", req.KubeAuth.Kubeconfig); err != nil {
+				k.l.Errorf("cannot install victoria metrics operator: %s", err)
+				return
+			}
+
+			installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
+			if err != nil {
+				k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+			}
+
+			if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
+				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
+			}
+		}
+
+		settings, err := models.GetSettings(k.db.Querier)
+		if err != nil {
+			k.l.Errorf("cannot get PMM settings to start Victoria Metrics: %s", err)
+			return
+		}
+		if settings.PMMPublicAddress != "" {
+			var apiKeyID int64
+			var apiKey string
+			apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
+			apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+			if err != nil {
+				k.l.Errorf("cannot create Grafana admin API key: %s", err)
+				return
+			}
+			pmmParams := &dbaascontrollerv1beta1.PMMParams{
+				PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+				Login:         "api_key",
+				Password:      apiKey,
+			}
+
+			_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+					Kubeconfig: req.KubeAuth.Kubeconfig,
+				},
+				Pmm: pmmParams,
+			})
+			if err != nil {
+				e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+				if e != nil {
+					k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+				}
+				k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
+				return
+			}
+		}
+	}()
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
+func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, startingCSV, channel, kubeConfig string) error {
+	catalosSourceNamespace := "olm"
+	catalogSource := "operatorhubio-catalog"
+
+	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Namespace:              namespace,
+		Name:                   name,
+		OperatorGroup:          "percona-operators-group",
+		CatalogSource:          catalogSource,
+		CatalogSourceNamespace: catalosSourceNamespace,
+		Channel:                channel,
+		InstallPlanApproval:    "Manual",
+		StartingCsv:            startingCSV,
+	})
+
+	return err
+}
+
+func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) {
+	var subscription *controllerv1beta1.GetSubscriptionResponse
+	var err error
+	for i := 0; i < 6; i++ {
+		subscription, err = client.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: kubeConfig,
+			},
+			Namespace: namespace,
+			Name:      name,
+		})
+		if err != nil {
+			return "", errors.Wrap(err, "cannot list subscriptions")
+		}
+
+		if subscription.Subscription.InstallPlanName != "" {
+			break
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return subscription.Subscription.InstallPlanName, nil
+}
+
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
-func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) {
+func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {

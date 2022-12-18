@@ -59,7 +59,7 @@ func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	}
 }
 
-func checkPMMClientLocationConfig(c *PMMClientLocationConfig) error {
+func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 	if c == nil {
 		return status.Error(codes.InvalidArgument, "PMM client location config is empty.")
 	}
@@ -194,8 +194,8 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 // BackupLocationConfig groups all backup locations configs.
 type BackupLocationConfig struct {
-	PMMClientConfig *PMMClientLocationConfig
-	S3Config        *S3LocationConfig
+	FilesystemConfig *FilesystemLocationConfig
+	S3Config         *S3LocationConfig
 }
 
 // BackupLocationValidationParams contains typed params for backup location validate.
@@ -213,9 +213,9 @@ func (c BackupLocationConfig) Validate(params BackupLocationValidationParams) er
 		err = checkS3Config(c.S3Config, params.WithBucketRegion)
 	}
 
-	if c.PMMClientConfig != nil {
+	if c.FilesystemConfig != nil {
 		configCount++
-		err = checkPMMClientLocationConfig(c.PMMClientConfig)
+		err = checkFilesystemLocationConfig(c.FilesystemConfig)
 	}
 
 	if configCount > 1 {
@@ -235,10 +235,10 @@ func (c BackupLocationConfig) FillLocationModel(locationModel *BackupLocation) {
 	case c.S3Config != nil:
 		locationModel.Type = S3BackupLocationType
 		locationModel.S3Config = c.S3Config
-		locationModel.PMMClientConfig = nil
-	case c.PMMClientConfig != nil:
-		locationModel.Type = PMMClientBackupLocationType
-		locationModel.PMMClientConfig = c.PMMClientConfig
+		locationModel.FilesystemConfig = nil
+	case c.FilesystemConfig != nil:
+		locationModel.Type = FilesystemBackupLocationType
+		locationModel.FilesystemConfig = c.FilesystemConfig
 		locationModel.S3Config = nil
 	}
 }
@@ -314,9 +314,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 		row.Name = params.Name
 	}
 
-	if params.Description != "" {
-		row.Description = params.Description
-	}
+	// We cannot know whether field is empty or not provided, so if value is empty we should set it anyway.
+	row.Description = params.Description
 
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)

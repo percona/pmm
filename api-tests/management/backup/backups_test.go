@@ -68,7 +68,7 @@ func TestScheduleBackup(t *testing.T) {
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+				FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 					Path: "/tmp",
 				},
 			},
@@ -164,7 +164,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing1",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        true,
@@ -181,7 +181,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing2",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        true,
@@ -202,7 +202,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing1",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        false,
@@ -219,7 +219,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing2",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        false,
@@ -236,7 +236,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing3",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
@@ -256,7 +256,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing1",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
@@ -273,7 +273,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      serviceID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
+					Name:           "testing2",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
@@ -314,7 +314,9 @@ func TestScheduleBackup(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.", serviceName)
+			pmmapitests.AssertAPIErrorf(t, err, 400,
+				codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.",
+				serviceName)
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {

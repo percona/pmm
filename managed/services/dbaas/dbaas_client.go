@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains logic related to communication with dbaas-controller.
+//
+//nolint:lll
 package dbaas
 
 import (
@@ -28,6 +30,7 @@ import (
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/version"
 )
 
@@ -40,6 +43,7 @@ type Client struct {
 	logsClient                controllerv1beta1.LogsAPIClient
 	pxcOperatorClient         controllerv1beta1.PXCOperatorAPIClient
 	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
+	olmOperatorClient         controllerv1beta1.OLMOperatorAPIClient
 	connM                     sync.RWMutex
 	conn                      *grpc.ClientConn
 	dbaasControllerAPIAddress string
@@ -84,6 +88,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	c.logsClient = controllerv1beta1.NewLogsAPIClient(conn)
 	c.psmdbOperatorClient = controllerv1beta1.NewPSMDBOperatorAPIClient(conn)
 	c.pxcOperatorClient = controllerv1beta1.NewPXCOperatorAPIClient(conn)
+	c.olmOperatorClient = controllerv1beta1.NewOLMOperatorAPIClient(conn)
 
 	c.l.Info("Connected to dbaas-controller API.")
 	return nil
@@ -109,7 +114,7 @@ func (c *Client) Disconnect() error {
 }
 
 // CheckKubernetesClusterConnection checks connection with kubernetes cluster.
-func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
+func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) { //nolint:unparam
 	c.connM.RLock()
 	defer c.connM.RUnlock()
 	in := &controllerv1beta1.CheckKubernetesClusterConnectionRequest{
@@ -245,8 +250,54 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 	return c.kubernetesClient.StopMonitoring(ctx, in, opts...)
 }
 
-func (c *Client) GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
+func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKubeconfigRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.kubernetesClient.GetKubeconfig(ctx, in, opts...)
+
+	kClient, err := kubernetes.NewIncluster()
+	if err != nil {
+		return nil, err
+	}
+
+	kubeConfig, err := kClient.GetKubeconfig(ctx)
+	return &controllerv1beta1.GetKubeconfigResponse{
+		Kubeconfig: kubeConfig,
+	}, err
+}
+
+// InstallOLMOperator installs the OLM operator.
+func (c *Client) InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.InstallOLMOperator(ctx, in, opts...)
+}
+
+func (c *Client) InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.InstallOperator(ctx, in, opts...)
+}
+
+func (c *Client) ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ListInstallPlans(ctx, in, opts...)
+}
+
+func (c *Client) ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ApproveInstallPlan(ctx, in, opts...)
+}
+
+func (c *Client) ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ListSubscriptions(ctx, in, opts...)
+}
+
+func (c *Client) GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.GetSubscription(ctx, in, opts...)
 }

@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
@@ -51,7 +51,7 @@ jobs:
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
@@ -66,11 +66,16 @@ jobs:
       - name: Install development tools
         run: make init
 
-      - name: Format sources
-        run: make format
-
       - name: Check build
         run: make release
+
+      - name: Check files are formatted and no source code changes
+        run: |
+          make format
+          pushd tools && go mod tidy -v
+          popd        && go mod tidy -v
+          git status
+          git diff --exit-code
 
       - name: Run check-license
         run: |
@@ -82,7 +87,7 @@ jobs:
 
       - name: Run required linters
         uses: reviewdog/action-golangci-lint@v2
-        with: 
+        with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
@@ -111,7 +116,7 @@ jobs:
       - name: Run optional linters
         if: github.event_name == 'pull_request'
         uses: reviewdog/action-golangci-lint@v2
-        with: 
+        with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
@@ -122,12 +127,6 @@ jobs:
 
       - name: Test common API
         run: make test-common
-
-      - name: Check that there are no source code changes
-        run: |
-          pushd tools && go mod tidy -v
-          popd        && go mod tidy -v
-          git diff --exit-code
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
@@ -145,7 +144,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@v1.1.1
+        uses: upsidr/merge-gatekeeper@v1
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}

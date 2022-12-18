@@ -44,9 +44,10 @@ type ServiceConfig struct {
 	telemetry    []Config `yaml:"-"`
 	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
-		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -68,6 +69,13 @@ type DataSourceVictoriaMetrics struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
+}
+
+// DSGrafanaSqliteDB telemetry config.
+type DSGrafanaSqliteDB struct {
+	Enabled bool          `yaml:"enabled"`
+	Timeout time.Duration `yaml:"timeout"`
+	DBFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.
@@ -94,12 +102,27 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID      string `yaml:"id"`
-	Source  string `yaml:"source"`
-	Query   string `yaml:"query"`
-	Summary string `yaml:"summary"`
-	Data    []ConfigData
+	ID        string           `yaml:"id"`
+	Source    string           `yaml:"source"`
+	Query     string           `yaml:"query"`
+	Summary   string           `yaml:"summary"`
+	Transform *ConfigTransform `yaml:"transform"`
+	Data      []ConfigData
 }
+
+// ConfigTransform telemetry config transformation.
+type ConfigTransform struct {
+	Type   ConfigTransformType `yaml:"type"`
+	Metric string              `yaml:"metric"`
+}
+
+// ConfigTransformType config transform type.
+type ConfigTransformType string
+
+const (
+	// JSONTransformType JSON type.
+	JSONTransformType = ConfigTransformType("JSON")
+)
 
 // ConfigData telemetry config.
 type ConfigData struct {

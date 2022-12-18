@@ -15,43 +15,92 @@
 package version
 
 import (
+	"context"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"gopkg.in/reform.v1"
 )
 
-// regexps to extract version numbers from the `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'` output.
-var (
-	mysqlDBRegexp = regexp.MustCompile(`^\d+\.\d+`)
+// MySQLVendor represents MySQL vendor.
+type MySQLVendor byte
+
+// MySQLVendor represent MySQL vendors.
+const (
+	OracleVendor MySQLVendor = iota + 1
+	PerconaVendor
+	MariaDBVendor
 )
 
-// GetMySQLVersion return parsed version of MySQL and vendor.
-func GetMySQLVersion(q *reform.Querier) (string, string, error) {
-	var name, ver string
-	err := q.QueryRow(`SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`).Scan(&name, &ver)
+// MySQLVersion represent major, minor numbers of mysql version separated by comma.
+type MySQLVersion struct {
+	text   string
+	number float64
+}
+
+const (
+	perconaComment = "percona"
+	mariaDBComment = "mariadb"
+	debianComment  = "debian"
+
+	versionQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'`
+	commentQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`
+)
+
+var (
+	// Regexps to extract version numbers from the `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'` output.
+	mysqlDBRegexp = regexp.MustCompile(`^\d+\.\d+`)
+	// Vendors to represent MySQLVendor enum in string format with default value unknown.
+	vendors = [...]string{"unknown", "oracle", "percona", "mariadb"}
+)
+
+// GetMySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.) and vendor.
+func GetMySQLVersion(ctx context.Context, q *reform.Querier) (MySQLVersion, MySQLVendor, error) {
+	var name, version string
+	err := q.QueryRowContext(ctx, versionQuery).Scan(&name, &version)
 	if err != nil {
-		return "", "", err
+		return MySQLVersion{}, 0, err
 	}
 	var ven string
-	err = q.QueryRow(`SHOW /* pmm-agent:mysqlversion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&name, &ven)
+	err = q.QueryRowContext(ctx, commentQuery).Scan(&name, &ven)
 	if err != nil {
-		return "", "", err
+		return MySQLVersion{}, 0, err
 	}
 
-	version := mysqlDBRegexp.FindString(ver)
+	text := mysqlDBRegexp.FindString(version)
+	number, err := strconv.ParseFloat(text, 64)
+	if err != nil {
+		return MySQLVersion{}, 0, err
+	}
 
-	var vendor string
+	var vendor MySQLVendor
 	switch {
-	case strings.Contains(strings.ToLower(ven), "percona"):
-		vendor = "percona"
-	case strings.Contains(strings.ToLower(ven), "mariadb"):
-		vendor = "mariadb"
-	case strings.Contains(strings.ToLower(ven), "debian") && strings.Contains(strings.ToLower(ver), "mariadb"):
-		vendor = "mariadb"
+	case strings.Contains(strings.ToLower(ven), perconaComment):
+		vendor = PerconaVendor
+	case strings.Contains(strings.ToLower(ven), mariaDBComment):
+		vendor = MariaDBVendor
+	case strings.Contains(strings.ToLower(ven), debianComment) && strings.Contains(strings.ToLower(version), mariaDBComment):
+		vendor = MariaDBVendor
 	default:
-		vendor = "oracle"
+		vendor = OracleVendor
 	}
 
-	return version, vendor, nil
+	return MySQLVersion{text: text, number: number}, vendor, nil
+}
+
+func (v MySQLVendor) String() string {
+	if int(v) >= len(vendors) {
+		return vendors[0]
+	}
+	return vendors[v]
+}
+
+// Float represent mysql version in float format.
+func (v MySQLVersion) Float() float64 {
+	return v.number
+}
+
+func (v MySQLVersion) String() string {
+	return v.text
 }

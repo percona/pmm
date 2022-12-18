@@ -20,14 +20,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,10 +37,11 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMongoLogicalBackupAndRestore    = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMySQLBackupAndRestore           = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore   = version.Must(version.NewVersion("2.31.0-0"))
-	pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
+	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoPITRRestore              = version.Must(version.NewVersion("2.32.0-0"))
 )
 
 const (
@@ -131,8 +134,8 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	if locationModel != nil {
 		locationConfig = &models.BackupLocationConfig{
-			PMMClientConfig: locationModel.PMMClientConfig,
-			S3Config:        locationModel.S3Config,
+			FilesystemConfig: locationModel.FilesystemConfig,
+			S3Config:         locationModel.S3Config,
 		}
 	}
 
@@ -161,7 +164,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -180,9 +183,12 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, job.Type)
 			}
 
-			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
+			artifact, err := models.UpdateArtifact(
+				t.Querier,
+				job.Data.MySQLBackup.ArtifactID,
+				models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+				})
 			if err != nil {
 				return err
 			}
@@ -195,9 +201,12 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
 			}
 
-			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
+			artifact, err := models.UpdateArtifact(
+				t.Querier,
+				job.Data.MongoDBBackup.ArtifactID,
+				models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+				})
 			if err != nil {
 				return err
 			}
@@ -214,7 +223,8 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				t.Querier,
 				job.Data.MySQLRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
+					Status:     models.SuccessRestoreStatus,
+					FinishedAt: pointer.ToTime(models.Now()),
 				})
 			if err != nil {
 				return err
@@ -225,11 +235,55 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			_, err := models.ChangeRestoreHistoryItem(
+			logChunkID := 0
+			var logParams models.CreateJobLogParams
+			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				logParams = models.CreateJobLogParams{
+					JobID:     job.ID,
+					ChunkID:   logChunkID,
+					LastChunk: false,
+					Data:      "restore successfully completed, PMM will restart mongod and pbm-agent.",
+				}
+			} else {
+				logParams = models.CreateJobLogParams{
+					JobID:     job.ID,
+					ChunkID:   logChunkID,
+					LastChunk: true,
+					Data:      "restore successfully completed.",
+				}
+			}
+			if err := createJobLog(t.Querier, logParams.JobID, logParams.Data, logParams.ChunkID, logParams.LastChunk); err != nil {
+				s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+			}
+
+			logChunkID++
+			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
+					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
+					if logErr := createJobLog(t.Querier, job.ID, err.Error(), logChunkID, true); logErr != nil {
+						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+					}
+					_, err = models.ChangeRestoreHistoryItem(
+						t.Querier,
+						job.Data.MongoDBRestoreBackup.RestoreID,
+						models.ChangeRestoreHistoryItemParams{
+							Status:     models.ErrorRestoreStatus,
+							FinishedAt: pointer.ToTime(models.Now()),
+						})
+					return err
+				} else {
+					if logErr := createJobLog(t.Querier, job.ID, "successfully restarted mongod and pbm-agent", logChunkID, true); logErr != nil {
+						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
+					}
+				}
+			}
+
+			_, err = models.ChangeRestoreHistoryItem(
 				t.Querier,
 				job.Data.MongoDBRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
+					Status:     models.SuccessRestoreStatus,
+					FinishedAt: pointer.ToTime(models.Now()),
 				})
 			if err != nil {
 				return err
@@ -268,14 +322,16 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			s.db.Querier,
 			job.Data.MySQLRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
+				Status:     models.ErrorRestoreStatus,
+				FinishedAt: pointer.ToTime(models.Now()),
 			})
 	case models.MongoDBRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(
 			s.db.Querier,
 			job.Data.MongoDBRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
+				Status:     models.ErrorRestoreStatus,
+				FinishedAt: pointer.ToTime(models.Now()),
 			})
 	default:
 		return errors.Errorf("unknown job type %s", job.Type)
@@ -285,7 +341,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 		restartCtx, cancel := context.WithTimeout(context.Background(), maxRestartInterval)
 		defer cancel()
 		restartErr := s.RestartJob(restartCtx, job.ID)
-		if restartErr != nil && restartErr != ErrRetriesExhausted {
+		if restartErr != nil && !errors.Is(restartErr, ErrRetriesExhausted) {
 			s.l.Errorf("restart job %s: %v", job.ID, restartErr)
 		}
 	}()
@@ -293,15 +349,10 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	return err
 }
 
-func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.JobProgress) {
+func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.JobProgress) {
 	switch result := progress.Result.(type) {
 	case *agentpb.JobProgress_Logs_:
-		_, err := models.CreateJobLog(s.db.Querier, models.CreateJobLogParams{
-			JobID:     progress.JobId,
-			ChunkID:   int(result.Logs.ChunkId),
-			Data:      result.Logs.Data,
-			LastChunk: result.Logs.Done,
-		})
+		err := createJobLog(s.db.Querier, progress.JobId, result.Logs.Data, int(result.Logs.ChunkId), result.Logs.Done)
 		if err != nil {
 			s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", progress.JobId, result.Logs.ChunkId)
 		}
@@ -311,7 +362,7 @@ func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.J
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
@@ -352,7 +403,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		return err
 	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-		return errors.Errorf("failed to start MySQL job: %s", e)
+		return errors.Errorf("failed to start MySQL backup job: %s", e)
 	}
 
 	return nil
@@ -402,14 +453,14 @@ func (s *JobsService) StartMongoDBBackupJob(
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
-	case locationConfig.PMMClientConfig != nil:
+	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
-		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig{
-			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig{
+			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
 	default:
 		return errors.Errorf("unsupported location config")
@@ -432,7 +483,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
-		return errors.Errorf("failed to start MongoDB job: %s", e)
+		return errors.Errorf("failed to start MongoDB backup job: %s", e)
 	}
 
 	return nil
@@ -495,6 +546,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
+	pitrTimestamp time.Time,
 ) error {
 	var err error
 	switch dataModel {
@@ -511,13 +563,23 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		return err
 	}
 
+	if pitrTimestamp.Unix() != 0 {
+		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
+		// then invoke PMMAgentSupported
+		if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
+			return err
+		}
+	}
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
-		Name:     name,
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
+		Name:          name,
+		User:          dbConfig.User,
+		Password:      dbConfig.Password,
+		Address:       dbConfig.Address,
+		Port:          int32(dbConfig.Port),
+		Socket:        dbConfig.Socket,
+		PitrTimestamp: timestamppb.New(pitrTimestamp),
 	}
 
 	switch {
@@ -525,14 +587,14 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
-	case locationConfig.PMMClientConfig != nil:
+	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
-		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig{
-			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig{
+			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
 	default:
 		return errors.Errorf("unsupported location config")
@@ -562,7 +624,92 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	return nil
 }
 
-// StopJob stops job with given given id.
+func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID string) error {
+	service, err := models.FindServiceByID(querier, serviceID)
+	if err != nil {
+		return err
+	}
+	if service.Cluster == "" {
+		return errors.Errorf("service '%s' has an empty cluster name and needs to be manually restarted", service.ServiceID)
+	}
+
+	serviceType := models.MongoDBServiceType
+	clusterMembers, err := models.FindServices(
+		querier,
+		models.ServiceFilters{
+			ServiceType: &serviceType,
+			Cluster:     service.Cluster,
+		})
+	if err != nil {
+		return err
+	}
+
+	clusterAgents := make([]*models.Agent, 0, len(clusterMembers))
+	for _, service := range clusterMembers {
+		s.l.Debugf("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
+		serviceAgents, err := models.FindPMMAgentsForService(querier, service.ServiceID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", service.ServiceID)
+		}
+		if len(serviceAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", service.ServiceID)
+		}
+		clusterAgents = append(clusterAgents, serviceAgents[0])
+	}
+
+	// mongoRestarts is a list of PMM agent IDs on which we successfully restarted mongod
+	mongoRestarts := make(map[string]struct{})
+	// pbmRestarts is a list of PMM agent IDs on which we successfully restarted pbm-agent
+	pbmAgentRestarts := make(map[string]struct{})
+
+	for _, pmmAgent := range clusterAgents {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
+			return err
+		}
+		mongoRestarts[pmmAgent.AgentID] = struct{}{}
+	}
+	s.l.Infof("successfully restarted mongod on all %d services", len(mongoRestarts))
+
+	// pbm-agents will fail if all members of the mongo replica set are not available,
+	// hence we restart them only if mongod have been started on all the member agents.
+	for _, pmmAgent := range clusterAgents {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
+			return err
+		}
+		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
+	}
+	s.l.Infof("successfully restarted pbm-agent on all %d services", len(pbmAgentRestarts))
+	return nil
+}
+
+func (s *JobsService) restartSystemService(agentID string, service agentpb.StartActionRequest_RestartSystemServiceParams_SystemService) error {
+	s.l.Infof("sending request to restart %s on %s", service, agentID)
+	action, err := models.CreateActionResult(s.db.Querier, agentID)
+	if err != nil {
+		return err
+	}
+
+	req := &agentpb.StartActionRequest{
+		ActionId: action.ID,
+		Params: &agentpb.StartActionRequest_RestartSysServiceParams{
+			RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
+				SystemService: service,
+			},
+		},
+	}
+
+	agent, err := s.r.get(agentID)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get information about PMM agent: %s", agentID)
+	}
+	_, err = agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return errors.Wrapf(err, "failed to restart %s on agent: %s", service, agentID)
+	}
+	return nil
+}
+
+// StopJob stops job with given id.
 func (s *JobsService) StopJob(jobID string) error {
 	jobResult, err := models.FindJobByID(s.db.Querier, jobID)
 	if err != nil {
@@ -594,13 +741,25 @@ func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationCo
 	}
 }
 
-func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backupv1beta1.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backupv1beta1.DataModel_LOGICAL, nil
+		return backuppb.DataModel_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}
+}
+
+func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, lastChunk bool) error {
+	_, err := models.CreateJobLog(
+		querier,
+		models.CreateJobLogParams{
+			JobID:     jobID,
+			ChunkID:   chunkID,
+			Data:      data,
+			LastChunk: lastChunk,
+		})
+	return err
 }

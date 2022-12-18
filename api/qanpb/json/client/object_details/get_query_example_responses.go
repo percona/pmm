@@ -528,6 +528,15 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
 
+	// placeholders count
+	PlaceholdersCount int64 `json:"placeholders_count,omitempty"`
+
+	// explain fingerprint
+	ExplainFingerprint string `json:"explain_fingerprint,omitempty"`
+
+	// query id
+	QueryID string `json:"query_id,omitempty"`
+
 	// example metrics
 	ExampleMetrics string `json:"example_metrics,omitempty"`
 

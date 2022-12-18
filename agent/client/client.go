@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -56,11 +57,10 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                *config.Config
-	supervisor         supervisor
-	connectionChecker  connectionChecker
-	softwareVersioner  softwareVersioner
-	defaultsFileParser defaultsFileParser
+	cfg               *config.Config
+	supervisor        supervisor
+	connectionChecker connectionChecker
+	softwareVersioner softwareVersioner
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -82,20 +82,18 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
+func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:                cfg,
-		supervisor:         supervisor,
-		connectionChecker:  connectionChecker,
-		softwareVersioner:  sv,
-		l:                  logrus.WithField("component", "client"),
-		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:               make(chan struct{}),
-		dialTimeout:        dialTimeout,
-		runner:             runner.New(cfg.RunnerCapacity),
-		defaultsFileParser: dfp,
-		cus:                cus,
-		logStore:           logStore,
+		cfg:               cfg,
+		supervisor:        supervisor,
+		connectionChecker: connectionChecker,
+		softwareVersioner: sv,
+		l:                 logrus.WithField("component", "client"),
+		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
+		dialTimeout:       dialTimeout,
+		runner:            r,
+		cus:               cus,
+		logStore:          logStore,
 	}
 }
 
@@ -108,6 +106,10 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
+
+	c.rw.Lock()
+	c.done = make(chan struct{})
+	c.rw.Unlock()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -185,31 +187,30 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
-	oneDone := make(chan struct{}, 5)
+	oneDone := make(chan struct{}, 4)
 	go func() {
-		c.runner.Run(ctx)
+		c.processActionResults(ctx)
+		c.l.Debug("processActionResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
-		c.processActionResults()
+		c.processJobsResults(ctx)
+		c.l.Debug("processJobsResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
-		c.processJobsResults()
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processSupervisorRequests()
+		c.processSupervisorRequests(ctx)
+		c.l.Debug("processSupervisorRequests is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
 		c.processChannelRequests(ctx)
+		c.l.Debug("processChannelRequests is finished")
 		oneDone <- struct{}{}
 	}()
 
 	<-oneDone
 	go func() {
-		<-oneDone
 		<-oneDone
 		<-oneDone
 		<-oneDone
@@ -224,144 +225,170 @@ func (c *Client) Done() <-chan struct{} {
 	return c.done
 }
 
-func (c *Client) processActionResults() {
-	for result := range c.runner.ActionsResults() {
-		resp, err := c.channel.SendAndWaitResponse(result)
-		if err != nil {
-			c.l.Error(err)
-			continue
-		}
-		if resp == nil {
-			c.l.Warn("Failed to send ActionResult request.")
+func (c *Client) processActionResults(ctx context.Context) {
+	for {
+		select {
+		case result := <-c.runner.ActionsResults():
+			resp, err := c.channel.SendAndWaitResponse(result)
+			if err != nil {
+				c.l.Error(err)
+				continue
+			}
+			if resp == nil {
+				c.l.Warn("Failed to send ActionResult request.")
+			}
+		case <-ctx.Done():
+			c.l.Infof("Actions runner Results() channel drained.")
+			return
 		}
 	}
-	c.l.Debugf("Actions runner Results() channel drained.")
 }
 
-func (c *Client) processJobsResults() {
-	for message := range c.runner.JobsMessages() {
-		c.channel.Send(&channel.AgentResponse{
-			ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
-			Payload: message,
-		})
+func (c *Client) processJobsResults(ctx context.Context) {
+	for {
+		select {
+		case message := <-c.runner.JobsMessages():
+			c.channel.Send(&channel.AgentResponse{
+				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
+				Payload: message,
+			})
+		case <-ctx.Done():
+			c.l.Infof("Jobs runner Messages() channel drained.")
+			return
+		}
 	}
-	c.l.Debugf("Jobs runner Messages() channel drained.")
 }
 
-func (c *Client) processSupervisorRequests() {
+func (c *Client) processSupervisorRequests(ctx context.Context) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		for state := range c.supervisor.Changes() {
-			resp, err := c.channel.SendAndWaitResponse(state)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send StateChanged request.")
+		for {
+			select {
+			case state := <-c.supervisor.Changes():
+				resp, err := c.channel.SendAndWaitResponse(state)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send StateChanged request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor Changes() channel drained.")
+				return
 			}
 		}
-		c.l.Debugf("Supervisor Changes() channel drained.")
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		for collect := range c.supervisor.QANRequests() {
-			resp, err := c.channel.SendAndWaitResponse(collect)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send QanCollect request.")
+		for {
+			select {
+			case collect := <-c.supervisor.QANRequests():
+				resp, err := c.channel.SendAndWaitResponse(collect)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send QanCollect request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor QANRequests() channel drained.")
+				return
 			}
 		}
-		c.l.Debugf("Supervisor QANRequests() channel drained.")
 	}()
 
 	wg.Wait()
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-	for req := range c.channel.Requests() {
-		var responsePayload agentpb.AgentResponsePayload
-		var status *grpcstatus.Status
-		switch p := req.Payload.(type) {
-		case *agentpb.Ping:
-			responsePayload = &agentpb.Pong{
-				CurrentTime: timestamppb.Now(),
+loop:
+	for {
+		select {
+		case req, more := <-c.channel.Requests():
+			if !more {
+				break loop
 			}
-		case *agentpb.SetStateRequest:
-			c.supervisor.SetState(p)
-			responsePayload = &agentpb.SetStateResponse{}
+			var responsePayload agentpb.AgentResponsePayload
+			var status *grpcstatus.Status
+			switch p := req.Payload.(type) {
+			case *agentpb.Ping:
+				responsePayload = &agentpb.Pong{
+					CurrentTime: timestamppb.Now(),
+				}
+			case *agentpb.SetStateRequest:
+				c.supervisor.SetState(p)
+				responsePayload = &agentpb.SetStateResponse{}
 
-		case *agentpb.StartActionRequest:
-			responsePayload = &agentpb.StartActionResponse{}
-			if err := c.handleStartActionRequest(p); err != nil {
-				responsePayload = nil
-				status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
-				break
+			case *agentpb.StartActionRequest:
+				responsePayload = &agentpb.StartActionResponse{}
+				if err := c.handleStartActionRequest(p); err != nil {
+					responsePayload = nil
+					status = convertAgentErrorToGrpcStatus(err)
+					break
+				}
+
+			case *agentpb.StopActionRequest:
+				c.runner.Stop(p.ActionId)
+				responsePayload = &agentpb.StopActionResponse{}
+
+			case *agentpb.CheckConnectionRequest:
+				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
+
+			case *agentpb.StartJobRequest:
+				var resp agentpb.StartJobResponse
+				if err := c.handleStartJobRequest(p); err != nil {
+					resp.Error = err.Error()
+				}
+				responsePayload = &resp
+
+			case *agentpb.StopJobRequest:
+				c.runner.Stop(p.JobId)
+				responsePayload = &agentpb.StopJobResponse{}
+
+			case *agentpb.JobStatusRequest:
+				alive := c.runner.IsRunning(p.JobId)
+				responsePayload = &agentpb.JobStatusResponse{Alive: alive}
+
+			case *agentpb.GetVersionsRequest:
+				responsePayload = &agentpb.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
+			case *agentpb.PBMSwitchPITRRequest:
+				var resp agentpb.PBMSwitchPITRResponse
+				if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+					resp.Error = err.Error()
+				}
+				responsePayload = &resp
+			case *agentpb.AgentLogsRequest:
+				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
+				responsePayload = &agentpb.AgentLogsResponse{
+					Logs:                     logs,
+					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+				}
+			default:
+				c.l.Errorf("Unhandled server request: %v.", req)
 			}
+			c.cus.RegisterConnectionStatus(time.Now(), true)
 
-		case *agentpb.StopActionRequest:
-			c.runner.Stop(p.ActionId)
-			responsePayload = &agentpb.StopActionResponse{}
-
-		case *agentpb.CheckConnectionRequest:
-			responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
-
-		case *agentpb.StartJobRequest:
-			var resp agentpb.StartJobResponse
-			if err := c.handleStartJobRequest(p); err != nil {
-				resp.Error = err.Error()
+			response := &channel.AgentResponse{
+				ID:      req.ID,
+				Payload: responsePayload,
 			}
-			responsePayload = &resp
-
-		case *agentpb.StopJobRequest:
-			c.runner.Stop(p.JobId)
-			responsePayload = &agentpb.StopJobResponse{}
-
-		case *agentpb.JobStatusRequest:
-			alive := c.runner.IsRunning(p.JobId)
-			responsePayload = &agentpb.JobStatusResponse{Alive: alive}
-
-		case *agentpb.GetVersionsRequest:
-			responsePayload = &agentpb.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
-		case *agentpb.PBMSwitchPITRRequest:
-			var resp agentpb.PBMSwitchPITRResponse
-			if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
-				resp.Error = err.Error()
+			if status != nil {
+				response.Status = status
 			}
-			responsePayload = &resp
-		case *agentpb.ParseDefaultsFileRequest:
-			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
-		case *agentpb.AgentLogsRequest:
-			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
-			responsePayload = &agentpb.AgentLogsResponse{
-				Logs:                     logs,
-				AgentConfigLogLinesCount: uint32(configLogLinesCount),
-			}
-		default:
-			c.l.Errorf("Unhandled server request: %v.", req)
+			c.channel.Send(response)
+		case <-ctx.Done():
+			break loop
 		}
-		c.cus.RegisterConnectionStatus(time.Now(), true)
-
-		response := &channel.AgentResponse{
-			ID:      req.ID,
-			Payload: responsePayload,
-		}
-		if status != nil {
-			response.Status = status
-		}
-		c.channel.Send(response)
 	}
-
 	if err := c.channel.Wait(); err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
 		return
@@ -471,9 +498,20 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+	case *agentpb.StartActionRequest_RestartSysServiceParams:
+		var service string
+		switch params.RestartSysServiceParams.SystemService {
+		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
+			service = "mongod"
+		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
+			service = "pbm-agent"
+		default:
+			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+		}
+		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Errorf("unknown action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
 	}
 
 	return c.runner.StartAction(action)
@@ -543,10 +581,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+		case *agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig:
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
@@ -575,10 +613,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+		case *agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig:
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
@@ -591,7 +629,9 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbRestoreBackup.Port),
 			Socket:   j.MongodbRestoreBackup.Socket,
 		}
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, dbConnCfg, locationConfig)
+
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
@@ -873,6 +913,19 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	return args
+}
+
+func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
+	var status *grpcstatus.Status
+	switch {
+	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
+	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
+		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	}
+	return status
 }
 
 // check interface
