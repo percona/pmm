@@ -167,8 +167,14 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		}
 
 	}
-	if len(cluster.SourceRanges) != 0 {
-		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	var sourceRanges []string
+	for _, sourceRange := range cluster.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
 	return dbCluster, nil
 }
@@ -222,8 +228,14 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
 	}
-	if len(cluster.SourceRanges) != 0 {
-		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	var sourceRanges []string
+	for _, sourceRange := range cluster.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
 	return dbCluster, nil
 }
