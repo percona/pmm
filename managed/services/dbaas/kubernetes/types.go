@@ -167,7 +167,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		}
 
 	}
-	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	if len(cluster.SourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	}
 	return dbCluster, nil
 }
 
@@ -220,7 +222,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
 	}
-	dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	if len(cluster.SourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = cluster.SourceRanges
+	}
 	return dbCluster, nil
 }
 
