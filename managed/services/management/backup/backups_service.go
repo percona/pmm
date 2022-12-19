@@ -232,7 +232,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
-// ListScheduledBackups lists all tasks related to backup.
+// ListScheduledBackups lists all tasks related to a backup.
 func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
@@ -413,7 +413,48 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
+// GetJobLogs returns logs for a given job.
+func (s *BackupsService) GetJobLogs(ctx context.Context, req *backuppb.GetJobLogsRequest) (*backuppb.GetJobLogsResponse, error) {
+	job, err := models.FindJobByID(s.db.Querier, req.JobId)
+	if err != nil {
+		return nil, err
+	}
+	if job == nil {
+		return nil, status.Error(codes.NotFound, "No matching job was found.")
+	}
+
+	filter := models.JobLogsFilter{
+		JobID:  job.ID,
+		Offset: int(req.Offset),
+	}
+	if req.Limit > 0 {
+		filter.Limit = pointer.ToInt(int(req.Limit))
+	}
+
+	jobLogs, err := models.FindJobLogs(s.db.Querier, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &backuppb.GetJobLogsResponse{
+		Logs: make([]*backuppb.LogChunk, 0, len(jobLogs)),
+	}
+	for _, log := range jobLogs {
+		if log.LastChunk {
+			res.End = true
+			break
+		}
+		res.Logs = append(res.Logs, &backuppb.LogChunk{
+			ChunkId: uint32(log.ChunkID),
+			Data:    log.Data,
+		})
+	}
+
+	return res, nil
+}
+
 // GetLogs returns logs for artifact.
+// Deprecated: use GetJobLogs instead.
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
 		ArtifactID: req.ArtifactId,

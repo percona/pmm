@@ -4,25 +4,27 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/percona/pmm/api/agentpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/url"
 	"sync/atomic"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 type pbmEvent string
 
 const (
-	pbmBackupEvent pbmEvent = "backup"
+	pbmBackupEvent  pbmEvent = "backup"
 	pbmRestoreEvent pbmEvent = "restore"
 )
 
 type pbmEventLog struct {
-	dbURL     *url.URL
-	eventType pbmEvent
+	dbURL       *url.URL
+	eventType   pbmEvent
 	parentJobID string
-	logChunkID uint32
+	logChunkID  uint32
 }
 
 func newPbmEventLog(parentJobId string, eventType pbmEvent, mongoUrl *url.URL) *pbmEventLog {
@@ -33,7 +35,6 @@ func newPbmEventLog(parentJobId string, eventType pbmEvent, mongoUrl *url.URL) *
 		dbURL:       mongoUrl,
 	}
 }
-
 
 func (l *pbmEventLog) sendLog(send Send, data string, done bool) {
 	send(&agentpb.JobProgress{

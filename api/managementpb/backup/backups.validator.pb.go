@@ -224,7 +224,25 @@ func (this *GetLogsRequest) Validate() error {
 	return nil
 }
 
+func (this *GetJobLogsRequest) Validate() error {
+	if this.JobId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("JobId", fmt.Errorf(`value '%v' must not be an empty string`, this.JobId))
+	}
+	return nil
+}
+
 func (this *GetLogsResponse) Validate() error {
+	for _, item := range this.Logs {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Logs", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *GetJobLogsResponse) Validate() error {
 	for _, item := range this.Logs {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {

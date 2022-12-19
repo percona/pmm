@@ -46,7 +46,7 @@ type MongoDBRestoreJob struct {
 	dbURL           *url.URL
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
-	eventLog *pbmEventLog
+	eventLog        *pbmEventLog
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
@@ -69,7 +69,7 @@ func NewMongoDBRestoreJob(
 		dbURL:           dbURL,
 		locationConfig:  locationConfig,
 		agentsRestarter: restarter,
-		eventLog: newPbmEventLog(id, pbmRestoreEvent, dbURL),
+		eventLog:        newPbmEventLog(id, pbmRestoreEvent, dbURL),
 	}
 }
 
