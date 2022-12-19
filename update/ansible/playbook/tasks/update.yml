@@ -2,7 +2,12 @@
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
   become: true
+  remote_user: root
   gather_facts: true
+
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -37,7 +42,11 @@
     - name: Info                      | Print debug information
       debug:
         msg:
-          - '{{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") }}'
+          - 'Contents of /etc/cloud/cloud.cfg: {{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") }}'
+          - 'Contents of /etc/passwd: {{ lookup("file", "/etc/passwd") }}'
+          - 'Contents of /etc/group: {{ lookup("file", "/etc/group") }}'
+          - 'Environment PATH: {{ lookup("env", "PATH") }}'
+          - "Current user: {{ ansible_user_id }}"
 
   tasks:
     # we need install this package here because it contain VERSION file
