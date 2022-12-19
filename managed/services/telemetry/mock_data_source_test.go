@@ -14,6 +14,20 @@ type MockDataSource struct {
 	mock.Mock
 }
 
+// Dispose provides a mock function with given fields: ctx
+func (_m *MockDataSource) Dispose(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Enabled provides a mock function with given fields:
 func (_m *MockDataSource) Enabled() bool {
 	ret := _m.Called()
@@ -49,4 +63,18 @@ func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([]*p
 	}
 
 	return r0, r1
+}
+
+// Init provides a mock function with given fields: ctx
+func (_m *MockDataSource) Init(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
