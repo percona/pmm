@@ -48,7 +48,7 @@ const (
 
 // Kubernetes is a client for Kubernetes.
 type Kubernetes struct {
-	lock       sync.RWMutex
+	lock       *sync.RWMutex
 	client     *client.Client
 	l          *logrus.Entry
 	httpClient *http.Client
@@ -66,6 +66,7 @@ func NewIncluster() (*Kubernetes, error) {
 	return &Kubernetes{
 		client: client,
 		l:      l,
+		lock:   &sync.RWMutex{},
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
 			Transport: &http.Transport{
@@ -88,6 +89,7 @@ func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
 	return &Kubernetes{
 		client: client,
 		l:      l,
+		lock:   &sync.RWMutex{},
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
 			Transport: &http.Transport{
@@ -102,6 +104,7 @@ func New(ctx context.Context, kubeconfig string) (*Kubernetes, error) {
 func NewEmpty() *Kubernetes {
 	return &Kubernetes{
 		client: &client.Client{},
+		lock:   &sync.RWMutex{},
 		l:      logrus.WithField("component", "kubernetes"),
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
@@ -239,8 +242,6 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 
 // GetOperatorVersion parses operator version from operator deployment
 func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
-	k.lock.RLock()
-	defer k.lock.RUnlock()
 	deployment, err := k.client.GetDeployment(ctx, name)
 	if err != nil {
 		return "", err

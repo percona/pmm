@@ -129,7 +129,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 		i := i
 		cluster := cluster
 		wg.Add(1)
-		go func() {
+		go func(cluster *models.KubernetesCluster) {
 			defer wg.Done()
 			clusters[i] = &dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
 				KubernetesClusterName: cluster.KubernetesClusterName,
@@ -165,7 +165,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 
 			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
-		}()
+		}(cluster)
 	}
 	wg.Wait()
 	return &dbaasv1beta1.ListKubernetesClustersResponse{KubernetesClusters: clusters}, nil
