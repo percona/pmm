@@ -436,6 +436,12 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
+		err = k.db.InTransaction(func(t *reform.TX) error {
+			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
+		})
+		if err != nil {
+			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
+		}
 
 		settings, err := models.GetSettings(k.db.Querier)
 		if err != nil {
@@ -471,12 +477,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
 				return
 			}
-		}
-		err = k.db.InTransaction(func(t *reform.TX) error {
-			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
-		})
-		if err != nil {
-			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 		}
 	}()
 
