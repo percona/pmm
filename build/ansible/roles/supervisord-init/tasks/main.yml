@@ -93,4 +93,4 @@
 - name: Print debug info            | Print the contents of supervisord.conf
   debug:
     msg:
-      - "supervisord.conf: {{ lookup('ansible.builtin.file', '/etc/supervisord.conf') }}"
+      - "supervisord.conf: {{ lookup('file', '/etc/supervisord.conf') }}"

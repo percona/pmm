@@ -175,6 +175,7 @@
         "inline": [
           "set -o errexit",
           "set -o xtrace",
+          "if [ -z $NOOP ]; then",
           "pushd pmm2-virtualbox-ovf",
           "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
           "    sed -i'' -e 's/virtualbox-2.2/vmx-10/'        *.ovf",
@@ -196,7 +197,8 @@
           "        > ${NAME}.mf",
           "    tar -cpf ${NAME}.ova *.ovf *.mf *-disk001.vmdk *-disk002.vmdk",
           "    rm -rf               *.ovf *.mf *-disk001.vmdk *-disk002.vmdk",
-          "popd"
+          "popd",
+          "fi"
         ]
       }
     ],
