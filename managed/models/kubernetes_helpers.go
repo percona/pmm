@@ -113,6 +113,7 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 
 	return row, nil
 }
+
 func ChangeKubernetesClusterToReady(q *reform.Querier, name string) error {
 	c, err := FindKubernetesClusterByName(q, name)
 	if err != nil {
