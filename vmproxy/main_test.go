@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2022 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,28 +13,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+package main
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/vmproxy/proxy"
 )
 
-func TestCreateRequest(t *testing.T) {
+func TestProxy(t *testing.T) {
 	t.Parallel()
-	response, err := createRequest("/path/to/file", models.MySQLServiceType)
 
-	require.NoError(t, err)
-	require.NotNil(t, response, "ParseDefaultsFileRequest is nil")
-}
+	t.Run("shall run proxy with no error", func(t *testing.T) {
+		err := runProxy(flags{}, func(cfg proxy.Config) error {
+			return nil
+		})
 
-func TestCreateRequestNotSupported(t *testing.T) {
-	t.Parallel()
-	response, err := createRequest("/path/to/file", models.PostgreSQLServiceType)
-
-	require.Error(t, err)
-	require.Nil(t, response, "ParseDefaultsFileRequest is not nil")
+		require.NoError(t, err)
+	})
 }
