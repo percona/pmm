@@ -346,9 +346,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		operatorsToInstall["psmdb"] = true
 	}
 
-	// Install the operators in the background.
-	go k.installDefaultOperators(req.KubeAuth.Kubeconfig, operatorsToInstall)
-
 	settings, err := models.GetSettings(k.db.Querier)
 	if err != nil {
 		k.l.Errorf("cannot get PMM settings to start Victoria Metrics: %s", err)
@@ -387,6 +384,9 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			return nil, errors.Wrap(err, "couldn't start monitoring of the kubernetes cluster")
 		}
 	}
+
+	// Install the operators in the background.
+	go k.installDefaultOperators(req.KubeAuth.Kubeconfig, operatorsToInstall)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
