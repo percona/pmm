@@ -47,6 +47,7 @@
           - 'Contents of /etc/group: {{ lookup("file", "/etc/group") }}'
           - 'Environment PATH: {{ lookup("env", "PATH") }}'
           - "Current user: {{ ansible_user_id }}"
+          - "Current user home: {{ ansible_user_dir }}"
 
   tasks:
     # we need install this package here because it contain VERSION file
