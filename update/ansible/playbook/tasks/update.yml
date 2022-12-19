@@ -42,7 +42,7 @@
     - name: Info                      | Print debug information
       debug:
         msg:
-          - 'Contents of /etc/cloud/cloud.cfg: {{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") }}'
+          - 'Contents of /etc/cloud/cloud.cfg: {{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") | to_nice_yaml(indent=4) }}'
           - 'Contents of /etc/passwd: {{ lookup("file", "/etc/passwd") }}'
           - 'Contents of /etc/group: {{ lookup("file", "/etc/group") }}'
           - 'Environment PATH: {{ lookup("env", "PATH") }}'
