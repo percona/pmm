@@ -10,11 +10,11 @@
 
 - [Percona Alerting](alerting.md)
 
-- [Backup and Restore](backup.md)
+- [Backup and Restore](../get-started/backup/index.md)
 
 - [Query Analytics](query-analytics.md), a specialized dashboard for detailed query analysis.
 
-- [Advisors](../how-to/advisors.md): Enabling and seeing the results of database Advisor checks.
+- [Advisors](../get-started/advisors.md): Enabling and seeing the results of database Advisor checks.
 
 - [DBaaS](dbaas.md): Configuration for DBaaS and UI for creating Database clusters.
 

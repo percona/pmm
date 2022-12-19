@@ -132,14 +132,14 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
 !!! caution alert alert-warning "Caution"
     DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
 
-Enables/disables [DBaaS features](../using/dbaas.md) on this server.
+Enables/disables [DBaaS features](../get-started/dbaas.md) on this server.
 
 !!! caution alert alert-warning "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
 
 ### Alerting
 
-Enables [Percona Alerting](../using/alerting.md) and reveals the **Percona templated alerts** option on the Alerting page.
+Enables [Percona Alerting](../get-started/alerting.md) and reveals the **Percona templated alerts** option on the Alerting page.
 
 ### Microsoft Azure Monitoring
 
@@ -167,7 +167,7 @@ Alertmanager manages alerts, de-duplicating, grouping, and routing them to the a
 This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
 
 !!! hint alert alert-success "Tip"
-    If possible, use [Integrated Alerting](../using/alerting.md) instead of Alertmanager.
+    If possible, use [Integrated Alerting](../get-started/alerting.md) instead of Alertmanager.
 
 - The *Alertmanager URL* field should contain the URL of the Alertmanager which would serve your PMM alerts.
 - The *Prometheus Alerting rules* field is used to specify alerting rules in the YAML configuration format.

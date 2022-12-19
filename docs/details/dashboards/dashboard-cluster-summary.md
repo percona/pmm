@@ -5,6 +5,6 @@
 
 ![!image](../../_images/PMM_Experimental_DB_Cluster_Summary_Dashboard.png)
 
-This Dashboard is a part of [DBaaS solution](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html) inside PMM.
+This Dashboard is a part of [DBaaS solution](https://www.percona.com/doc/percona-monitoring-and-management/2.x/get-started/dbaas.html) inside PMM.
 
 This Dashboard is designed to show the resource consumption inside Kubernetes (K8s) Cluster.

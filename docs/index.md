@@ -6,7 +6,7 @@ It allows you to observe the health of your database systems, explore new patter
 
 - PMM **collects** thousands of out-of-the-box performance **metrics** from databases and their hosts.
 
-- The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
+- The PMM [web UI](get-started/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
 - Additional features include [advisors for database health assessments](details/develop-checks/index.md).
 
@@ -45,10 +45,9 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 #### For Users
 
-- [User interface](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html)
-- [Using Query Analytics](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html)
-- [Using Percona Alerting](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html)
-- [Using DBaaS](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html)
+- [User interface](https://docs.percona.com/percona-monitoring-and-management/get-started/interface.html)
+- [Using Query Analytics](https://docs.percona.com/percona-monitoring-and-management/get-started/query-analytics.html)
+- [Using Percona Alerting](https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html)
 - [Dashboards reference](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html)
 
 ??? note alert alert-info "Full section map (click to show/hide)"
@@ -106,12 +105,12 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
         <line x1="1029" y1="563" x2="1009" y2="563" stroke="#9A1E39" stroke-width="2"/>
         <rect x="915" y="222" width="188" height="48" rx="9" fill="#B6D7E4" stroke="#9A1E39" stroke-width="2"/>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="980.453" y="252.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/">How to</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="568.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html">DBaaS</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="519.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html">Advisors</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="469.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html">Query Analytics</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="419.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/backup.html">Backup and Restore</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="369.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html">Integrated Alerting</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="319.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html">User Interface</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="568.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/dbaas.html">DBaaS</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="519.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/advisors.html">Advisors</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="469.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/query-analytics.html">Query Analytics</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="419.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/backup/index.html">Backup and Restore</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="369.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html">Percona  Alerting</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="319.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/interface.html">User Interface</a></tspan></text>
         <line x1="727" y1="271" x2="727" y2="562" stroke="#9A1E39" stroke-width="2"/>
         <line x1="746" y1="315" x2="726" y2="315" stroke="#9A1E39" stroke-width="2"/>
         <line x1="746" y1="363" x2="726" y2="363" stroke="#9A1E39" stroke-width="2"/>
@@ -120,7 +119,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
         <line x1="746" y1="513" x2="726" y2="513" stroke="#9A1E39" stroke-width="2"/>
         <line x1="746" y1="563" x2="726" y2="563" stroke="#9A1E39" stroke-width="2"/>
         <rect x="632" y="222" width="188" height="48" rx="9" fill="#B6D7E4" stroke="#9A1E39" stroke-width="2"/>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="703.298" y="252.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/">Using</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="703.298" y="252.152"><a href="https://docs.percona.com/percona-monitoring-and-management/get-started/index.html">Get started</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="486" y="443.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/mysql.html">MySQL</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="486" y="493.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/mongodb.html">MongoDB</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="486" y="543.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/postgresql.html">PostgreSQL</a></tspan></text>

@@ -27,7 +27,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | ![!image](../_images/haproxy-dashboard.png)    | HAproxy     | HAproxy dashboard
 | ![!image](../_images/qan-dashboard.png)| Query Analytics (QAN) | Query Analytics
 | <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
-| <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../using/alerting.md), Create new alerts and manage your alert rules and alert templates.
+| <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../get-started/alerting.md), Create new alerts and manage your alert rules and alert templates.
 | <i class="uil uil-cog"></i>        | Configuration        |
 | ![!image](../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
 | ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
@@ -139,4 +139,4 @@ This item lists shortcuts to utility pages.
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
-[BACKUP]: ../using/backup.md
+[BACKUP]: ../get-started/backup/index.md

@@ -1,6 +1,6 @@
 # DBaaS
 
-To enable and use the Database as a Service (DBaaS) feature in PMM, see [DBaaS](../../using/dbaas.html).
+To enable and use the Database as a Service (DBaaS) feature in PMM, see [DBaaS](../../get-started/dbaas.html).
 
 You can use [free K8s provided by Percona](https://www.percona.com/blog/private-dbaas-with-free-kubernetes-cluster/) for evaluation. 
 You can also create K8s on AWS using these [instructions](https://www.percona.com/blog/dbaas-kubernetes-in-under-20-min/). 
@@ -62,7 +62,7 @@ alias kubectl='minikube kubectl --'
     ```
 
 !!! caution alert alert-warning "Important"
-    You must [activate DBaaS](../../using/dbaas.md#activate-dbaas) using the PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
+    You must [activate DBaaS](../../get-started/dbaas.md#activate-dbaas) using the PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
 
 ## Create a Kubernetes cluster
 
@@ -84,7 +84,7 @@ alias kubectl='minikube kubectl --'
     ```
 
     !!! note alert alert-primary ""
-        You will need to copy this output to your clipboard and continue with [adding a Kubernetes cluster to PMM](../../using/dbaas.md#add-a-kubernetes-cluster).
+        You will need to copy this output to your clipboard and continue with [adding a Kubernetes cluster to PMM](../../get-started/dbaas.md#add-a-kubernetes-cluster).
 
 ### Amazon AWS EKS
 
@@ -93,7 +93,7 @@ alias kubectl='minikube kubectl --'
     ```sh
     eksctl create cluster --write-kubeconfig --name=your-cluster-name --zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
     ```
-2. Follow the instructions on [How to add a Kubernetes cluster](../../using/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
+2. Follow the instructions on [How to add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
 
     !!! note alert alert-primary ""
         If possible, the connection details will show the cluster's external IP (not possible with minikube).
@@ -201,7 +201,7 @@ alias kubectl='minikube kubectl --'
     "
     ```
 
-5. Follow the instructions on [How to add a Kubernetes cluster](../../using/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
+5. Follow the instructions on [How to add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
 
 ## Deleting clusters
 
@@ -271,9 +271,9 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
 
 3. Set the public address for PMM Server in PMM settings UI
 
-4. Follow the steps for [Add a Kubernetes cluster](../../using/dbaas.md#add-a-kubernetes-cluster).
+4. Follow the steps for [Add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster).
 
-5. Follow the steps for [Add a DB Cluster](../../using/dbaas.md#add-a-db-cluster).
+5. Follow the steps for [Add a DB Cluster](../../get-started/dbaas.md#add-a-db-cluster).
 
 6. Get the IP address to connect your app/service:
 
@@ -290,7 +290,7 @@ kubectl expose deployment hello-world --type=NodePort.
 ```
 
 !!! seealso alert alert-info "See also"
-    - [DBaaS Dashboard](../../using/dbaas.md)
+    - [DBaaS Dashboard](../../get-started/dbaas.md)
     - [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
     - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller][STANDALONE_MYSQL_K8S]
     - [Use a Service to Access an Application in a Cluster][KUBERNETES_ACCESS_APP]
