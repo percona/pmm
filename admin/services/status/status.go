@@ -30,7 +30,7 @@ func New() *Server {
 	return &Server{}
 }
 
-// Ready returns no error if pmm-updater is ready.
+// Ready returns no error if the daemon is ready.
 func (s *Server) Ready(ctx context.Context, req *updatepb.ReadyRequest) (*updatepb.ReadyResponse, error) {
 	return &updatepb.ReadyResponse{}, nil
 }

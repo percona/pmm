@@ -11,7 +11,7 @@ message ReadyRequest {}
 
 message ReadyResponse {}
 
-// Status service provides public status APIs for pmm-updater.
+// Status service provides public status APIs for pmm-server-upgrade.
 service Status {
   // Ready checks if updater is ready.
   rpc Ready(ReadyRequest) returns (ReadyResponse) {

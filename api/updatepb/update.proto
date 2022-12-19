@@ -40,7 +40,7 @@ message UpdateStatusResponse {
   bool done = 3;
 }
 
-// Update service provides public APIs for pmm-updater.
+// Update service provides public APIs for pmm-server-upgrade.
 service Update {
   // StartUpdate starts PMM Server update.
   rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {

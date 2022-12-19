@@ -18,7 +18,6 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 )
 
@@ -26,19 +25,10 @@ import (
 
 // functions contain methods required to interact with Docker.
 type functions interface {
-	dockerNet
-
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	GetDockerClient() *client.Client
 	HaveDockerAccess(ctx context.Context) bool
 	IsErrNotFound(err error) bool
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
-}
-
-// dockerNet contains method for interacting with Docker network.
-type dockerNet interface {
-	NetworkInspect(ctx context.Context, networkID string, options types.NetworkInspectOptions) (types.NetworkResource, error)
-	NetworkCreate(ctx context.Context, name string, options types.NetworkCreate) (types.NetworkCreateResponse, error)
-	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
 }

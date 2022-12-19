@@ -73,7 +73,7 @@ message CheckUpdatesResponse {
   string latest_news_url = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
-  // True if pmm-updater is ready for an update.
+  // True if pmm-server-upgrade is ready for an update.
   bool updater_ready = 6;
 }
 

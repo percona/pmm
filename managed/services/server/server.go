@@ -47,7 +47,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const updaterSocketPath = "/srv/pmm-updater.sock"
+const updaterSocketPath = "/srv/pmm-server-upgrade.sock"
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
@@ -335,7 +335,7 @@ func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
-// StartUpdate starts PMM Server update through pmm-updater.
+// StartUpdate starts PMM Server update through pmm-server-upgrade.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
@@ -372,7 +372,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	}, nil
 }
 
-// UpdateStatus returns PMM Server update status from pmm-updater.
+// UpdateStatus returns PMM Server update status from pmm-server-upgrade.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
 	conn, err := s.getGRPCConnection(ctx)
 	if err != nil {
@@ -416,7 +416,7 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 
 	conn, err := grpc.DialContext(ctx, "unix:"+updaterSocketPath, opts...)
 	if err != nil {
-		return nil, errors.Errorf("failed to connect to pmm-updater API: %v", err)
+		return nil, errors.Errorf("failed to connect to pmm-server-upgrade API: %v", err)
 	}
 
 	return conn, nil

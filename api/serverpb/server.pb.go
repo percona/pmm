@@ -423,7 +423,7 @@ type CheckUpdatesResponse struct {
 	LatestNewsUrl string `protobuf:"bytes,4,opt,name=latest_news_url,json=latestNewsUrl,proto3" json:"latest_news_url,omitempty"`
 	// Last check time.
 	LastCheck *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_check,json=lastCheck,proto3" json:"last_check,omitempty"`
-	// True if pmm-updater is ready for an update.
+	// True if pmm-server-upgrade is ready for an update.
 	UpdaterReady bool `protobuf:"varint,6,opt,name=updater_ready,json=updaterReady,proto3" json:"updater_ready,omitempty"`
 }
 

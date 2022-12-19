@@ -1083,7 +1083,7 @@
                   "x-order": 4
                 },
                 "updater_ready": {
-                  "description": "True if pmm-updater is ready for an update.",
+                  "description": "True if pmm-server-upgrade is ready for an update.",
                   "type": "boolean",
                   "x-order": 5
                 }

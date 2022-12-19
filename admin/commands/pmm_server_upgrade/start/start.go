@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package start holds logic for starting pmm-updater.
+// Package start holds logic for starting pmm-server-upgrade.
 package start
 
 import (
@@ -20,11 +20,8 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/network"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"github.com/pkg/errors"
@@ -43,15 +40,13 @@ import (
 
 const (
 	gRPCMessageMaxSize = 100 * 1024 * 1024
-	socketPath         = "/srv/pmm-updater.sock"
+	socketPath         = "/srv/pmm-server-upgrade.sock"
 	shutdownTimeout    = 1 * time.Second
 )
 
 // StartCommand is used by Kong for CLI flags and commands.
 type StartCommand struct {
-	DockerNetworkName string        `default:"pmm-updater" help:"Network name in Docker to be used to connect PMM Updater and PMM Server instances"`
-	DockerImage       string        `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
-	WaitBetweenChecks time.Duration `name:"wait" default:"60s" help:"Time duration to wait between checks for updates"`
+	DockerImage string `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
 
 	dockerFn functions
 	globals  *flags.GlobalFlags
@@ -75,7 +70,7 @@ func (c *StartCommand) BeforeApply() error {
 
 // RunCmdWithContext runs command
 func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
-	logrus.Info("Starting updater")
+	logrus.Info("Starting PMM Server Upgrade")
 
 	c.globals = globals
 
@@ -92,60 +87,9 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the docker socket")
 	}
 
-	logrus.Info("Initializing network")
-	if err := c.initDockerNetwork(ctx); err != nil {
-		return nil, err
-	}
-
 	c.runAPIServer(ctx)
 
 	return &startResult{}, nil
-}
-
-func (c *StartCommand) initDockerNetwork(ctx context.Context) error {
-	net, err := c.dockerFn.NetworkInspect(ctx, c.DockerNetworkName, types.NetworkInspectOptions{})
-	if err != nil {
-		if c.dockerFn.IsErrNotFound(err) {
-			err = c.createNetwork(ctx)
-		}
-
-		if err != nil {
-			return err
-		}
-	}
-
-	selfName, err := os.Hostname()
-	if err != nil {
-		return err
-	}
-
-	return c.connectContainerToNetwork(ctx, net, selfName)
-}
-
-// connectContainerToNetwork connects container to a network.
-// It's a no-op if the container is already connected.
-func (c *StartCommand) connectContainerToNetwork(ctx context.Context, net types.NetworkResource, containerID string) error {
-	found := false
-	for contID := range net.Containers {
-		if strings.HasPrefix(contID, containerID) {
-			found = true
-		}
-	}
-
-	if found {
-		logrus.Debugf("Container %s already connected to network %s", containerID, net.Name)
-		return nil
-	}
-
-	return c.dockerFn.NetworkConnect(ctx, c.DockerNetworkName, containerID, &network.EndpointSettings{})
-}
-
-func (c *StartCommand) createNetwork(ctx context.Context) error {
-	_, err := c.dockerFn.NetworkCreate(ctx, c.DockerNetworkName, types.NetworkCreate{
-		Driver: "bridge",
-	})
-
-	return err
 }
 
 func (c *StartCommand) runAPIServer(ctx context.Context) {
