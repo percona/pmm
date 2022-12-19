@@ -120,7 +120,6 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	}
 	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PXCCluster{
-		// TODO: Add Haproxy/proxySQL resources
 		Name: cluster.Name,
 		Params: &dbaasv1beta1.PXCClusterParams{
 			ClusterSize: cluster.Spec.ClusterSize,
@@ -254,6 +253,45 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
 	return c, nil
+}
+
+func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.GetDBClusterRequest) (*dbaasv1beta1.GetDBClusterResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting the database cluster")
+	}
+	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting psmdb operator version")
+	}
+
+	pxcOperatorVersion, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting pxc operator version")
+	}
+	resp := &dbaasv1beta1.GetDBClusterResponse{}
+	if dbCluster.Spec.Database == "pxc" {
+		c, err := s.getPXCCluster(ctx, *dbCluster, pxcOperatorVersion)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed getting PXC cluster")
+		}
+		resp.PxcCluster = c
+	}
+	if dbCluster.Spec.Database == "psmdb" {
+		c, err := s.getPSMDBCluster(ctx, *dbCluster, psmdbOperatorVersion)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed getting PSMDB cluster")
+		}
+		resp.PsmdbCluster = c
+	}
+	return resp, nil
 }
 
 // RestartDBCluster restarts DB cluster by given name and type.

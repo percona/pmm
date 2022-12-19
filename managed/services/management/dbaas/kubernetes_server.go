@@ -96,7 +96,6 @@ func (k *kubernetesServer) Enabled() bool {
 // getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
 // dbaas-controller does not have a clue what's supported, so we have to do it here.
 func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
-	k.l.Error(operatorVersion)
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED, nil
 	}
@@ -436,9 +435,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 			}
 		}
-		err = k.db.InTransaction(func(t *reform.TX) error {
-			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
-		})
+		err = models.ChangeKubernetesClusterToReady(k.db.Querier, req.KubernetesClusterName)
 		if err != nil {
 			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 		}
