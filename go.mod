@@ -48,7 +48,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.45
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20221124165531-bd24900964a7
+	github.com/percona-platform/dbaas-api v0.0.0-20221214134301-b6a331250826
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/dbaas-operator v0.0.5
 	github.com/percona/exporter_shared v0.7.3
@@ -77,7 +77,6 @@ require (
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.0
@@ -118,6 +117,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/ini.v1 v1.66.6 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
