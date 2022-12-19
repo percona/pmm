@@ -146,7 +146,9 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			}
 
 			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus(resp.Status)
-
+			if !cluster.IsReady {
+				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING
+			}
 			if resp.Operators == nil {
 				return
 			}
@@ -470,13 +472,18 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 				return
 			}
 		}
+		err = k.db.InTransaction(func(t *reform.TX) error {
+			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
+		})
+		if err != nil {
+			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
+		}
 	}()
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
 func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, startingCSV, channel, kubeConfig string) error {
-
 	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubeConfig,

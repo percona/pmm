@@ -26,6 +26,8 @@ enum KubernetesClusterStatus {
   KUBERNETES_CLUSTER_STATUS_OK = 1;
   // KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.
   KUBERNETES_CLUSTER_STATUS_UNAVAILABLE = 2;
+  // KUBERNETES_CLUSTER_STATUS_PROVISIONING represents that Kubernetes cluster is privisioning.
+  KUBERNETES_CLUSTER_STATUS_PROVISIONING = 4;
 }
 
 // Operator contains all information about operator installed in Kubernetes cluster.

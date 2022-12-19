@@ -20146,13 +20146,14 @@
                         "x-order": 1
                       },
                       "status": {
-                        "description": "KubernetesClusterStatus defines status of Kubernetes cluster.\n\n - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.\n - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.\n - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.",
+                        "description": "KubernetesClusterStatus defines status of Kubernetes cluster.\n\n - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.\n - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.\n - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.\n - KUBERNETES_CLUSTER_STATUS_PROVISIONING: KUBERNETES_CLUSTER_STATUS_PROVISIONING represents that Kubernetes cluster is privisioning.",
                         "type": "string",
                         "default": "KUBERNETES_CLUSTER_STATUS_INVALID",
                         "enum": [
                           "KUBERNETES_CLUSTER_STATUS_INVALID",
                           "KUBERNETES_CLUSTER_STATUS_OK",
-                          "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+                          "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE",
+                          "KUBERNETES_CLUSTER_STATUS_PROVISIONING"
                         ],
                         "x-order": 2
                       }

@@ -105,12 +105,24 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 		ID:                    id,
 		KubernetesClusterName: params.KubernetesClusterName,
 		KubeConfig:            params.KubeConfig,
+		IsReady:               false,
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return row, nil
+}
+func ChangeKubernetesClusterToReady(q *reform.Querier, name string) error {
+	c, err := FindKubernetesClusterByName(q, name)
+	if err != nil {
+		return err
+	}
+	c.IsReady = true
+	if err = q.Update(c); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
 
 // RemoveKubernetesCluster removes Kubernetes cluster with provided name.

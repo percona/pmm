@@ -373,7 +373,8 @@ type ListKubernetesClustersOKBodyKubernetesClustersItems0 struct {
 	//  - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.
 	//  - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.
 	//  - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.
-	// Enum: [KUBERNETES_CLUSTER_STATUS_INVALID KUBERNETES_CLUSTER_STATUS_OK KUBERNETES_CLUSTER_STATUS_UNAVAILABLE]
+	//  - KUBERNETES_CLUSTER_STATUS_PROVISIONING: KUBERNETES_CLUSTER_STATUS_PROVISIONING represents that Kubernetes cluster is privisioning.
+	// Enum: [KUBERNETES_CLUSTER_STATUS_INVALID KUBERNETES_CLUSTER_STATUS_OK KUBERNETES_CLUSTER_STATUS_UNAVAILABLE KUBERNETES_CLUSTER_STATUS_PROVISIONING]
 	Status *string `json:"status,omitempty"`
 
 	// operators
@@ -402,7 +403,7 @@ var listKubernetesClustersOkBodyKubernetesClustersItems0TypeStatusPropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["KUBERNETES_CLUSTER_STATUS_INVALID","KUBERNETES_CLUSTER_STATUS_OK","KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["KUBERNETES_CLUSTER_STATUS_INVALID","KUBERNETES_CLUSTER_STATUS_OK","KUBERNETES_CLUSTER_STATUS_UNAVAILABLE","KUBERNETES_CLUSTER_STATUS_PROVISIONING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -420,6 +421,9 @@ const (
 
 	// ListKubernetesClustersOKBodyKubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSUNAVAILABLE captures enum value "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
 	ListKubernetesClustersOKBodyKubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSUNAVAILABLE string = "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+
+	// ListKubernetesClustersOKBodyKubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSPROVISIONING captures enum value "KUBERNETES_CLUSTER_STATUS_PROVISIONING"
+	ListKubernetesClustersOKBodyKubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSPROVISIONING string = "KUBERNETES_CLUSTER_STATUS_PROVISIONING"
 )
 
 // prop value enum
