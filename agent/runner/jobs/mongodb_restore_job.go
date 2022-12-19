@@ -17,6 +17,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"os/exec"
@@ -45,6 +46,7 @@ type MongoDBRestoreJob struct {
 	dbURL           *url.URL
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
+	eventLog *pbmEventLog
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
@@ -57,15 +59,17 @@ func NewMongoDBRestoreJob(
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
 ) *MongoDBRestoreJob {
+	dbURL := createDBURL(dbConfig)
 	return &MongoDBRestoreJob{
 		id:              id,
 		timeout:         timeout,
 		l:               logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:            name,
 		pitrTimestamp:   pitrTimestamp,
-		dbURL:           createDBURL(dbConfig),
+		dbURL:           dbURL,
 		locationConfig:  locationConfig,
 		agentsRestarter: restarter,
+		eventLog: newPbmEventLog(id, pbmRestoreEvent, dbURL),
 	}
 }
 
@@ -86,6 +90,8 @@ func (j *MongoDBRestoreJob) Timeout() time.Duration {
 
 // Run starts Job execution.
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
+	defer j.eventLog.sendLog(send, "", true)
+
 	if _, err := exec.LookPath(pbmBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
@@ -120,10 +126,21 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.agentsRestarter.RestartAgents()
 	restoreOut, err := j.startRestore(ctx, snapshot.Name)
 	if err != nil {
+		j.eventLog.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
+	streamCtx, streamCancel := context.WithCancel(ctx)
+	defer streamCancel()
+	go func() {
+		err := j.eventLog.streamLogs(streamCtx, send, pbmRestoreEvent, restoreOut.Name)
+		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
+			j.l.Errorf("stream logs: %v", err)
+		}
+	}()
+
 	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile); err != nil {
+		j.eventLog.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
