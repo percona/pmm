@@ -89,6 +89,9 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
+	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
+		return nil, errors.New("pxc cluster must have one and only one proxy type defined")
+	}
 	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
 	gCacheSize := "600M"
 	if cluster.Params.Pxc.Configuration == "" {
