@@ -220,7 +220,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			StartAt:        t,
 		})
 		if err != nil {
-			return err
+			return convertModelError(err)
 		}
 
 		id = scheduledTask.ID
@@ -295,7 +295,7 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		scheduledTask, err := models.FindScheduledTaskByID(tx.Querier, req.ScheduledBackupId)
 		if err != nil {
-			return err
+			return convertModelError(err)
 		}
 
 		var data *models.CommonBackupTaskData
@@ -346,7 +346,9 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			params.CronExpression = pointer.ToString(req.CronExpression.Value)
 		}
 
-		return s.scheduleService.Update(req.ScheduledBackupId, params)
+		err = s.scheduleService.Update(req.ScheduledBackupId, params)
+
+		return convertModelError(err)
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -681,6 +683,22 @@ func convertRestoreBackupError(restoreError error) error {
 	}
 
 	return st.Err()
+}
+
+func convertModelError(modelError error) error {
+	if modelError == nil {
+		return nil
+	}
+
+	switch {
+	case errors.Is(modelError, models.ErrNotFound):
+		return status.Error(codes.NotFound, modelError.Error())
+	case errors.Is(modelError, models.ErrAlreadyExists):
+		return status.Error(codes.AlreadyExists, modelError.Error())
+
+	default:
+		return modelError
+	}
 }
 
 // Check interfaces.

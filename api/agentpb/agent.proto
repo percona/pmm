@@ -407,27 +407,6 @@ message PBMSwitchPITRResponse {
   // Error message.
   string error = 1;
 }
-// ParseDefaultsFileRequest is an ServerMessage asking pmm-agent to parse defaults file.
-message ParseDefaultsFileRequest {
-  // Service type.
-  inventory.ServiceType service_type = 1;
-
-  // Defaults config path
-  string config_path = 2;
-}
-
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
-message ParseDefaultsFileResponse {
-
-  // Error message if parse failed.
-  string error = 1;
-
-  string username = 2;
-  string password = 3;
-  string host = 4;
-  uint32 port = 5;
-  string socket = 6;
-}
 
 // AgentLogsRequest is an ServerMessage asking logs by Agent ID.
 message AgentLogsRequest {
@@ -720,7 +699,6 @@ message AgentMessage {
     JobStatusResponse job_status = 15;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
-    ParseDefaultsFileResponse parse_defaults_file = 20;
     AgentLogsResponse agent_logs = 21;
   }
 }
@@ -752,7 +730,6 @@ message ServerMessage {
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
-    ParseDefaultsFileRequest parse_defaults_file = 18;
     AgentLogsRequest agent_logs = 19;
   }
 }

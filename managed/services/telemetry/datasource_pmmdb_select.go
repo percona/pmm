@@ -97,3 +97,11 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
+
+func (d *dsPmmDBSelect) Init(ctx context.Context) error {
+	return nil
+}
+
+func (d *dsPmmDBSelect) Dispose(ctx context.Context) error {
+	return nil
+}
