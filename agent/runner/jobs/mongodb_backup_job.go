@@ -47,7 +47,7 @@ type MongoDBBackupJob struct {
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
-	eventLog       *pbmEventLog
+	eventLog       *pbmEventLogger
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -77,7 +77,7 @@ func NewMongoDBBackupJob(
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		eventLog:       newPbmEventLog(id, pbmBackupEvent, dbURL),
+		eventLog:       newPbmEventLogger(id, dbURL),
 	}, nil
 }
 
