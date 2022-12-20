@@ -347,21 +347,25 @@
       register: update_result
       changed_when: "'updated' in update_result.stdout"
 
-    - name: Check other services
+    - name: Print other services's logs
       debug: var=update_result.stdout_lines
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
-    - name: Get supervisord log
+    - name: Get supervisord logs
       shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       become: true
       register: maintail_result
       changed_when: False
 
-    - name: Check supervisord log
+    - name: Print supervisord logs
       debug: var=maintail_result.stdout_lines
 
-    - name: Delete content & directory
+    - name: Cleanup yum cache
       file:
         state: absent
         path: /var/cache/yum
+
+    - name: Print qan-api2 logs
+      debug:
+        msg: "{{ lookup('file', '/srv/logs/qan-api2.log', errors='ignore') }}"
