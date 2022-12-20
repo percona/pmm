@@ -75,7 +75,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -142,7 +142,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -205,7 +205,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -262,7 +262,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -326,7 +326,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -390,7 +390,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -444,7 +444,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -477,7 +477,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -516,7 +516,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -549,7 +549,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -591,7 +591,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					Pause:          true,
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
@@ -625,7 +625,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -666,7 +666,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
@@ -699,7 +699,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Kind:       dbaasKind,
 				},
 				Spec: dbaasv1.DatabaseSpec{
-					Database:       databasePXC,
+					Database:       DatabaseTypePXC,
 					DatabaseImage:  "updatedImage",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    3,
