@@ -64,8 +64,6 @@ github.com/Microsoft/go-winio v0.5.2 h1:a9IhgEQBCUEk6QCdml9CiJGhAws+YwffDHEMp1VM
 github.com/Microsoft/go-winio v0.5.2/go.mod h1:WpS1mjBmmwHBEWmogvA2mj8546UReBk4v8QkMxJ6pZY=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible h1:N5oM40aAatvf8bCYjv69YsVdxJLIUhY/MerUG1jRL9Y=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible/go.mod h1:UC6j/e2eqpHBB/vn+5214ExsoDLiEo6BfUGBhbtf+x0=
-github.com/Percona-Lab/pg_query_go v1.0.3-percona h1:z0co9LzCdA9YuZBgOWTSr3+bGj14T/ngFIsHJA8A46E=
-github.com/Percona-Lab/pg_query_go v1.0.3-percona/go.mod h1:tR53lU3ddnExxb0XeLyYuQIK3dkR03FjQ9sj8AV/up8=
 github.com/Percona-Lab/spec v0.20.5-percona h1:ViCJVq52QIZxpP8/Nv4/nIed+WnqUirNjPtXvHhset4=
 github.com/Percona-Lab/spec v0.20.5-percona/go.mod h1:2OpW+JddWPrpXSCIX8eOx7lZ5iyuWj3RYR6VaaBKcWA=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
@@ -574,6 +572,8 @@ github.com/percona/percona-toolkit v3.2.1+incompatible h1:5jLvtZKcu9fDmaLRB8qA4b
 github.com/percona/percona-toolkit v3.2.1+incompatible/go.mod h1:netQWdWMaF1cnmwiIS+i5uyaqNXz46yNeM6HKkR6yeI=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
 github.com/percona/promconfig v0.2.5/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
+github.com/pganalyze/pg_query_go/v2 v2.2.0 h1:OW+reH+ZY7jdEuPyuLGlf1m7dLbE+fDudKXhLs0Ttpk=
+github.com/pganalyze/pg_query_go/v2 v2.2.0/go.mod h1:XAxmVqz1tEGqizcQ3YSdN90vCOHBWjJi8URL1er5+cA=
 github.com/philhofer/fwd v1.0.0 h1:UbZqGr5Y38ApvM/V/jEljVxwocdweyH+vmYvRPBnbqQ=
 github.com/philhofer/fwd v1.0.0/go.mod h1:gk3iGcWd9+svBvR0sR+KPcfE+RNWozjowpeBVG3ZVNU=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=

@@ -20,8 +20,7 @@ import (
 	"sort"
 	"strings"
 
-	pgquery "github.com/pganalyze/pg_query_go"
-	pgquerynodes "github.com/pganalyze/pg_query_go/nodes"
+	pgquery "github.com/pganalyze/pg_query_go/v2"
 	"github.com/pkg/errors"
 )
 
@@ -44,16 +43,27 @@ func ExtractTables(query string) (tables []string, err error) {
 		return
 	}
 
-	var list []json.RawMessage
+	var list map[string]json.RawMessage
 	if err = json.Unmarshal([]byte(jsonTree), &list); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal JSON")
 		return
 	}
 
+	var list2 []json.RawMessage
+	if err = json.Unmarshal(list["stmts"], &list2); err != nil {
+		err = errors.Wrap(err, "failed to unmarshal JSON")
+		return
+	}
+
+	for k, v := range list2 {
+		input := json.RawMessage(fmt.Sprintf("%s%s%s", `{"RawStmt":`, v, `}`))
+		list2[k] = input
+	}
+
 	tables = []string{}
 	tableNames := make(map[string]bool)
 	excludedtableNames := make(map[string]bool)
-	foundTables, excludeTables := extractTableNames(list...)
+	foundTables, excludeTables := extractTableNames(list2...)
 	for _, tableName := range excludeTables {
 		if _, ok := excludedtableNames[tableName]; !ok {
 			excludedtableNames[tableName] = true
@@ -76,6 +86,9 @@ func ExtractTables(query string) (tables []string, err error) {
 func extractTableNames(stmts ...json.RawMessage) ([]string, []string) {
 	var tables, excludeTables []string
 	for _, input := range stmts {
+		fmt.Println("-----------------------------")
+		fmt.Println(string(input))
+		fmt.Println("-----------------------------")
 		if input == nil || string(input) == "null" || !(strings.HasPrefix(string(input), "{") || strings.HasPrefix(string(input), "[")) {
 			continue
 		}
@@ -104,11 +117,11 @@ func extractTableNames(stmts ...json.RawMessage) ([]string, []string) {
 			var foundTables, tmpExcludeTables []string
 			switch nodeType {
 			case "RangeVar":
-				var outNode pgquerynodes.RangeVar
+				var outNode pgquery.RangeVar
 				if err := json.Unmarshal(jsonText, &outNode); err != nil {
 					panic(err)
 				}
-				tables = append(tables, *outNode.Relname)
+				tables = append(tables, outNode.Relname)
 				continue
 
 			case "List":
