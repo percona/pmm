@@ -95,7 +95,7 @@ jobs:
           git status
 
   cli-test:
-    name: CLI Test
+    name: CLI Tests
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
