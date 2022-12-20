@@ -139,8 +139,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
-			// TODO: Add messages
-			Message: "",
+			Message:       cluster.Status.Message,
 		},
 	}
 	if cluster.Spec.LoadBalancer.Type == "proxysql" {
