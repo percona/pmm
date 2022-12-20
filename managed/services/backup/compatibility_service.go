@@ -208,6 +208,12 @@ func (s *CompatibilityService) CheckArtifactCompatibility(artifactID, targetDBVe
 		return err
 	}
 
+	return s.artifactCompatibility(artifactModel, serviceModel, targetDBVersion)
+}
+
+// artifactCompatibility contains logic for CheckArtifactCompatibility
+func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artifact, serviceModel *models.Service, targetDBVersion string) error {
+	var err error
 	if artifactModel.DBVersion != "" && artifactModel.DBVersion != targetDBVersion {
 		switch serviceModel.ServiceType {
 		case models.MySQLServiceType:

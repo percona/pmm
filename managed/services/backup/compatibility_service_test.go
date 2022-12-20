@@ -35,27 +35,40 @@ func TestCheckCompatibility(t *testing.T) {
 	mockVersioner := mockVersioner{}
 	cSvc := NewCompatibilityService(nil, &mockVersioner)
 
-	t.Run("returns empty if non-mysql service", func(t *testing.T) {
-		dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: models.MongoDBServiceType}, &models.Agent{})
-		assert.NoError(t, err)
-		assert.Equal(t, "", dbVersion)
-	})
+	//t.Run("returns empty if non-mysql service", func(t *testing.T) {
+	//	dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: models.MongoDBServiceType}, &models.Agent{})
+	//	assert.NoError(t, err)
+	//	assert.Equal(t, "", dbVersion)
+	//})
 
 	agentModel := models.Agent{AgentID: "test_agent_id"}
-	software := []agents.Software{
+
+	mysqlSoftware := agents.GetSoftwareList(models.MySQLServiceType)
+	expectedMysqlSoftware := []agents.Software{
 		&agents.Mysqld{},
 		&agents.Xtrabackup{},
 		&agents.Xbcloud{},
 		&agents.Qpress{},
 	}
+	require.Equal(t, expectedMysqlSoftware, mysqlSoftware)
 
-	for _, test := range []struct {
+	mongoSoftware := agents.GetSoftwareList(models.MongoDBServiceType)
+	expectedMongoSoftware := []agents.Software{
+		&agents.MongoDB{},
+		&agents.PBM{},
+	}
+	require.Equal(t, expectedMongoSoftware, mongoSoftware)
+
+	for _, tc := range []struct {
 		name          string
+		serviceType   models.ServiceType
 		versions      []agents.Version
 		expectedError error
 	}{
+		// mysql cases
 		{
-			name: "xtrabackup not installed",
+			name:        "xtrabackup not installed",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: ""},
@@ -65,7 +78,8 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrXtrabackupNotInstalled,
 		},
 		{
-			name: "invalid xtrabackup",
+			name:        "invalid xtrabackup",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: "8.0.24"},
@@ -75,7 +89,8 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrInvalidXtrabackup,
 		},
 		{
-			name: "incompatible xtrabackup",
+			name:        "incompatible xtrabackup",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: "8.0.24"},
@@ -85,7 +100,8 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrIncompatibleXtrabackup,
 		},
 		{
-			name: "qpress no installed",
+			name:        "qpress no installed",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: "8.0.25"},
@@ -95,7 +111,8 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrIncompatibleService,
 		},
 		{
-			name: "mysql no installed",
+			name:        "mysql no installed",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: ""},
 				{Version: "8.0.25"},
@@ -105,7 +122,8 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrIncompatibleService,
 		},
 		{
-			name: "error in software version",
+			name:        "error in software version",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: "8.0.25", Error: "Some error"},
@@ -115,14 +133,16 @@ func TestCheckCompatibility(t *testing.T) {
 			expectedError: ErrComparisonImpossible,
 		},
 		{
-			name: "different version list len",
+			name:        "different version list len",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 			},
 			expectedError: ErrComparisonImpossible,
 		},
 		{
-			name: "successful",
+			name:        "successful",
+			serviceType: models.MySQLServiceType,
 			versions: []agents.Version{
 				{Version: "8.0.25"},
 				{Version: "8.0.25"},
@@ -131,16 +151,60 @@ func TestCheckCompatibility(t *testing.T) {
 			},
 			expectedError: nil,
 		},
+		//mongodb cases
+		{
+			name:        "successful",
+			serviceType: models.MongoDBServiceType,
+			versions: []agents.Version{
+				{Version: "6.0.2-1"},
+				{Version: "2.0.1"},
+			},
+			expectedError: nil,
+		},
+		{
+			name:        "incompatible pbm version",
+			serviceType: models.MongoDBServiceType,
+			versions: []agents.Version{
+				{Version: "6.0.2-1"},
+				{Version: "2.0.0"},
+			},
+			expectedError: ErrIncompatiblePBMVersion,
+		},
+		{
+			name:        "mongo not installed",
+			serviceType: models.MongoDBServiceType,
+			versions: []agents.Version{
+				{Version: ""},
+				{Version: "2.0.1"},
+			},
+			expectedError: ErrIncompatibleService,
+		},
+		{
+			name:        "pbm not installed",
+			serviceType: models.MongoDBServiceType,
+			versions: []agents.Version{
+				{Version: "6.0.2-1"},
+				{Version: ""},
+			},
+			expectedError: ErrIncompatibleService,
+		},
 	} {
-		t.Run(test.name, func(t *testing.T) {
-			mockVersioner.On("GetVersions", agentModel.AgentID, software).Return(test.versions, nil).Once()
-			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: models.MySQLServiceType}, &agentModel)
-			if test.expectedError != nil {
-				assert.ErrorIs(t, err, test.expectedError)
+		t.Run(string(tc.serviceType)+"_"+tc.name, func(t *testing.T) {
+			var sw []agents.Software
+			switch tc.serviceType {
+			case models.MySQLServiceType:
+				sw = mysqlSoftware
+			case models.MongoDBServiceType:
+				sw = mongoSoftware
+			}
+			mockVersioner.On("GetVersions", agentModel.AgentID, sw).Return(tc.versions, nil).Once()
+			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: tc.serviceType}, &agentModel)
+			if tc.expectedError != nil {
+				assert.ErrorIs(t, err, tc.expectedError)
 				assert.Equal(t, "", dbVersion)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, test.versions[0].Version, dbVersion)
+				assert.Equal(t, tc.versions[0].Version, dbVersion)
 			}
 		})
 	}
@@ -505,6 +569,85 @@ func TestFindArtifactCompatibleServices(t *testing.T) { //nolint:maintidx
 		assert.NoError(t, err)
 		assert.ElementsMatch(t, []*models.Service{serviceModel, &svsData4.service}, res)
 	})
+}
+
+func TestArtifactCompatibility(t *testing.T) {
+	t.Parallel()
+	mockVersioner := mockVersioner{}
+	cSvc := NewCompatibilityService(nil, &mockVersioner)
+
+	artifactModelMySQL := &models.Artifact{DBVersion: "8.0.25"}
+	artifactModelMongo := &models.Artifact{DBVersion: "6.0.2"}
+
+	serviceModelMySQL := &models.Service{ServiceType: models.MySQLServiceType}
+	serviceModelMongo := &models.Service{ServiceType: models.MongoDBServiceType}
+
+	tests := []struct {
+		name            string
+		artifact        *models.Artifact
+		service         *models.Service
+		targetDBVersion string
+		expectedErr     error
+	}{
+		// mysql cases
+		{
+			name:            "mysql successful",
+			artifact:        artifactModelMySQL,
+			service:         serviceModelMySQL,
+			targetDBVersion: "8.0.25",
+			expectedErr:     nil,
+		},
+		{
+			name:            "mysql empty artifact version successful",
+			artifact:        &models.Artifact{},
+			service:         serviceModelMySQL,
+			targetDBVersion: "8.0.25",
+			expectedErr:     nil,
+		},
+		{
+			name:            "mysql incompatible version",
+			artifact:        artifactModelMySQL,
+			service:         serviceModelMySQL,
+			targetDBVersion: "8.0.24",
+			expectedErr:     ErrIncompatibleTargetMySQL,
+		},
+		{
+			name:            "mysql empty target db version",
+			artifact:        artifactModelMySQL,
+			service:         serviceModelMySQL,
+			targetDBVersion: "",
+			expectedErr:     ErrIncompatibleTargetMySQL,
+		},
+
+		// mongo cases
+		{
+			name:            "mongo successful",
+			artifact:        artifactModelMongo,
+			service:         serviceModelMongo,
+			targetDBVersion: "6.0.2",
+			expectedErr:     nil,
+		},
+		{
+			name:            "mongo incompatible version",
+			artifact:        artifactModelMongo,
+			service:         serviceModelMongo,
+			targetDBVersion: "6.0.1",
+			expectedErr:     ErrIncompatibleTargetMongoDB,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := cSvc.artifactCompatibility(tc.artifact, tc.service, tc.targetDBVersion)
+
+			if tc.expectedErr == nil {
+				require.NoError(t, err)
+				return
+			}
+
+			assert.ErrorIs(t, err, tc.expectedErr)
+		})
+	}
 }
 
 func setupSoftwareTest(t *testing.T, db *reform.DB) (*models.Service, *models.Node, *models.BackupLocation) {

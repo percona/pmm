@@ -198,8 +198,13 @@ func mySQLBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]strin
 }
 
 func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]string) error {
-	if svm[models.PBMSoftwareName] == "" {
-		return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", models.PBMSoftwareName)
+	for _, name := range []models.SoftwareName{
+		models.MongoDBSoftwareName,
+		models.PBMSoftwareName,
+	} {
+		if svm[name] == "" {
+			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
+		}
 	}
 
 	pbmVersion, err := version.NewVersion(svm[models.PBMSoftwareName])
