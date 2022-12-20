@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -44,6 +45,7 @@ type Server struct {
 	dockerImage        string
 	gRPCMessageMaxSize uint32
 	updateInProgress   map[string]struct{}
+	updateMu           sync.RWMutex
 
 	updatepb.UnimplementedUpdateServer
 }
@@ -76,7 +78,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 	}
 
 	if !container.State.Running {
-		return nil, fmt.Errorf("container %s it not running", containerID)
+		return nil, fmt.Errorf("container %s is not running", containerID)
 	}
 
 	logFile, err := os.CreateTemp("", logsFileNamePattern)
@@ -85,27 +87,34 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 	}
 
 	go func() {
-		logrus.Debugf("Starting update for container %s", containerID)
+		logrus.Infof("Starting update of container %s with log file %s", containerID, logFile.Name())
 		defer func() {
 			// Keep the log around for a short period of time
 			<-time.After(5 * time.Minute)
-			os.Remove(logFile.Name())
+			if err := os.Remove(logFile.Name()); err != nil {
+				logrus.Error(err)
+			}
 		}()
-
-		cmd := &dockerCmd.UpgradeCommand{
-			ContainerID:            containerID,
-			DockerImage:            s.dockerImage,
-			NewContainerNamePrefix: "pmm-server",
-		}
 
 		logger := logrus.New()
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
-		cmd.SetLogger(logger.WithField("update", logFile.Name()))
-		cmd.SetWaitBeforeContainerStop(5 * time.Second)
+
+		cmd := dockerCmd.New(
+			logger.WithField("update", logFile.Name()),
+			5*time.Second)
+		cmd.ContainerID = containerID
+		cmd.DockerImage = s.dockerImage
+		cmd.NewContainerNamePrefix = "pmm-server"
 
 		// Store update in progress info.
+		s.updateMu.Lock()
 		s.updateInProgress[logFile.Name()] = struct{}{}
+		s.updateMu.Unlock()
+
 		defer func() {
+			s.updateMu.Lock()
+			defer s.updateMu.Unlock()
+
 			delete(s.updateInProgress, logFile.Name())
 		}()
 
@@ -155,7 +164,11 @@ func (s *Server) UpdateStatus(ctx context.Context, req *updatepb.UpdateStatusReq
 }
 
 func (s *Server) isUpdateRunning(name string) bool {
+	s.updateMu.RLock()
+	defer s.updateMu.RUnlock()
+
 	_, ok := s.updateInProgress[name]
+
 	return ok
 }
 

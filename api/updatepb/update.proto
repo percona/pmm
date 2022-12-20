@@ -60,7 +60,7 @@ service Update {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Update status"
+      summary: "Return update status"
       description: "Returns PMM Server update status."
     };
   }

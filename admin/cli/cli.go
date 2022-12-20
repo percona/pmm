@@ -96,7 +96,7 @@ func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 type PMMServerUpgradeCommands struct {
 	flags.GlobalFlagsBase
 
-	Start      start.StartCommand         `cmd:"" help:"Start pmm-server-upgrade daemon"`
+	Start      start.StartCommand         `cmd:"" help:"Start daemon"`
 	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 

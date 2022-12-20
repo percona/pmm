@@ -73,15 +73,11 @@ func (u *upgradeResult) String() string {
 	return "ok"
 }
 
-// SetLogger sets the default logger.
-func (c *UpgradeCommand) SetLogger(l *logrus.Entry) {
-	c.l = l
-}
-
-// SetWaitBeforeContainerStop sets time duration to wait before container is stopped.
-// This is useful when streaming logs to wait for the logs to be sent to client.
-func (c *UpgradeCommand) SetWaitBeforeContainerStop(d time.Duration) {
-	c.waitBeforeContainerStop = d
+func New(l *logrus.Entry, waitBeforeContainerStop time.Duration) *UpgradeCommand {
+	return &UpgradeCommand{
+		l:                       l,
+		waitBeforeContainerStop: waitBeforeContainerStop,
+	}
 }
 
 // RunCmdWithContext runs upgrade command.

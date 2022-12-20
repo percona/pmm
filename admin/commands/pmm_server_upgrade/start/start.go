@@ -59,7 +59,7 @@ func (r *startResult) Result() {}
 
 // String stringifies command result.
 func (r *startResult) String() string {
-	return "ok"
+	return "Exiting"
 }
 
 // BeforeApply is run before the command is applied.
@@ -84,7 +84,7 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 	}
 
 	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the docker socket")
+		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 
 	c.runAPIServer(ctx)
@@ -111,12 +111,12 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 	updatepb.RegisterUpdateServer(gRPCServer, u)
 
 	if c.globals.EnableDebug {
-		l.Debug("Reflection and channelz are enabled.")
+		l.Debug("Reflection and channelz are enabled")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 	}
 
-	// run server until it is stopped gracefully or not
+	// run server until it is stopped gracefully
 	go func() {
 		var err error
 		for {
@@ -140,12 +140,12 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 			l.Errorf("Failed to serve: %s", err)
 			return
 		}
-		l.Debug("Server stopped.")
+		l.Debug("Server stopped")
 	}()
 
 	<-ctx.Done()
 
-	// Try to stop server gracefully and force the stop after a timeout.
+	// Try to stop server gracefully or force the stop after a timeout.
 	stopped := make(chan struct{})
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	go func() {

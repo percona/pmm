@@ -315,7 +315,7 @@ func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
 
 	conn, err := s.getGRPCConnection(ctxConn)
 	if err != nil {
-		if errors.Is(ctxConn.Err(), context.DeadlineExceeded) {
+		if errors.Is(err, context.DeadlineExceeded) {
 			return false, nil
 		}
 
@@ -416,7 +416,7 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 
 	conn, err := grpc.DialContext(ctx, "unix:"+updaterSocketPath, opts...)
 	if err != nil {
-		return nil, errors.Errorf("failed to connect to pmm-server-upgrade API: %v", err)
+		return nil, errors.Wrapf(err, "failed to connect to pmm-server-upgrade API: %v", err)
 	}
 
 	return conn, nil
