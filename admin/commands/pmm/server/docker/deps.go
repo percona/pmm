@@ -39,7 +39,7 @@ type Functions interface {
 	ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error
 	ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error)
 	ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error)
-	CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error)
+	CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error)
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 	GetDockerClient() *client.Client
 	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)

@@ -76,7 +76,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 	c.dockerFn = d
 
-	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
+	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName, nil)
 	if err != nil {
 		return nil, err
 	}

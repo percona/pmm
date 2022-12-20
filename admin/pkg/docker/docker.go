@@ -87,7 +87,9 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
 
 func (b *Base) downloadDockerInstallScript(ctx context.Context) (io.ReadCloser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://get.docker.com/", nil)
+	logrus.Debug("Downloading Docker installation script")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://get.docker.com/", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,6 +113,13 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 		return err
 	}
 
+	defer func() {
+		if err := script.Close(); err != nil {
+			logrus.Error(err)
+		}
+	}()
+
+	logrus.Debug("Running Docker installation script")
 	cmd := exec.Command("sh", "-s")
 	cmd.Stdin = script
 	cmd.Stdout = os.Stdout
@@ -119,6 +128,8 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
+	logrus.Debug("Finished Docker installation")
 
 	return nil
 }
@@ -216,7 +227,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.
-func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
+func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
 	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
@@ -224,15 +235,22 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 		return nil, err
 	}
 
-	if len(v.Volumes) != 0 {
-		return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+	for _, vol := range v.Volumes {
+		if vol.Name == volumeName {
+			return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+		}
 	}
 
+	volumeLabels := make(map[string]string, 1+len(labels))
+	for k, v := range labels {
+		volumeLabels[k] = v
+	}
+
+	volumeLabels["percona.pmm"] = "server"
+
 	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
-		Name: volumeName,
-		Labels: map[string]string{
-			"percona.pmm": "server",
-		},
+		Name:   volumeName,
+		Labels: volumeLabels,
 	})
 	if err != nil {
 		return nil, err
