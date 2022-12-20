@@ -469,3 +469,76 @@ func TestGetLogs(t *testing.T) {
 		assert.Equal(t, tc.expect, chunkIDs)
 	}
 }
+
+func TestGetJobLogs(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	backupService := &mockBackupService{}
+	schedulerService := &mockScheduleService{}
+	backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
+	t.Cleanup(func() {
+		_ = sqlDB.Close()
+	})
+
+	job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+		PMMAgentID: "agent",
+		Type:       models.MongoDBBackupJob,
+		Data: &models.JobData{
+			MongoDBBackup: &models.MongoDBBackupJobData{
+				ServiceID:  "svc",
+				ArtifactID: "artifact",
+			},
+		},
+	})
+	require.NoError(t, err)
+	for chunkID := 0; chunkID < 5; chunkID++ {
+		_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+			JobID:   job.ID,
+			ChunkID: chunkID,
+			Data:    "not important",
+		})
+		assert.NoError(t, err)
+	}
+
+	type testCase struct {
+		offset uint32
+		limit  uint32
+		expect []uint32
+	}
+	testCases := []testCase{
+		{
+			expect: []uint32{0, 1, 2, 3, 4},
+		},
+		{
+			offset: 3,
+			expect: []uint32{3, 4},
+		},
+		{
+			limit:  2,
+			expect: []uint32{0, 1},
+		},
+		{
+			offset: 1,
+			limit:  3,
+			expect: []uint32{1, 2, 3},
+		},
+		{
+			offset: 5,
+			expect: []uint32{},
+		},
+	}
+	for _, tc := range testCases {
+		logs, err := backupSvc.GetJobLogs(ctx, &backuppb.GetJobLogsRequest{
+			JobId:  job.ID,
+			Offset: tc.offset,
+			Limit:  tc.limit,
+		})
+		assert.NoError(t, err)
+		chunkIDs := make([]uint32, 0, len(logs.Logs))
+		for _, log := range logs.Logs {
+			chunkIDs = append(chunkIDs, log.ChunkId)
+		}
+		assert.Equal(t, tc.expect, chunkIDs)
+	}
+}
