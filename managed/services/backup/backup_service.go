@@ -232,7 +232,9 @@ func checkMongoBackupPreconditions(q *reform.Querier, service *models.Service, s
 	return nil
 }
 
-type prepareRestoreJobParams struct {
+type restoreJobParams struct {
+	JobID         string
+	ServiceID     string
 	AgentID       string
 	ArtifactName  string
 	DBVersion     string
@@ -254,19 +256,43 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", err
 	}
 
-	var params *prepareRestoreJobParams
-	var jobID, restoreID string
+	var params restoreJobParams
+	var restoreID string
 	if errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID, pitrTimestamp)
+		service, err := models.FindServiceByID(tx.Querier, serviceID)
 		if err != nil {
 			return err
 		}
 
-		if params.ServiceType == models.MySQLServiceType && params.DBVersion != "" {
-			if params.DBVersion != dbVersion {
+		dbConfig, err := models.FindDBConfigForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
+		}
+		agentID := pmmAgents[0].AgentID
+
+		artifact, err := models.FindArtifactByID(tx.Querier, artifactID)
+		if err != nil {
+			return err
+		}
+
+		location, err := models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+		if err != nil {
+			return err
+		}
+
+		if service.ServiceType == models.MySQLServiceType && artifact.DBVersion != "" {
+			if artifact.DBVersion != dbVersion {
 				return errors.Wrapf(ErrIncompatibleTargetMySQL, "artifact db version %q != db version %q",
-					params.DBVersion, dbVersion)
+					artifact.DBVersion, dbVersion)
 			}
 		}
 
@@ -281,11 +307,6 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		restoreID = restore.ID
-
-		service, err := models.FindServiceByID(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
 
 		var jobType models.JobType
 		var jobData *models.JobData
@@ -303,7 +324,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
 					ServiceID: serviceID,
 					RestoreID: restoreID,
-					DataModel: params.DataModel,
+					DataModel: artifact.DataModel,
 				},
 			}
 		case models.PostgreSQLServiceType,
@@ -316,7 +337,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		job, err := models.CreateJob(tx.Querier, models.CreateJobParams{
-			PMMAgentID: params.AgentID,
+			PMMAgentID: agentID,
 			Type:       jobType,
 			Data:       jobData,
 		})
@@ -324,14 +345,25 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			return err
 		}
 
-		jobID = job.ID
+		params = restoreJobParams{
+			JobID:         job.ID,
+			ServiceID:     serviceID,
+			AgentID:       agentID,
+			ArtifactName:  artifact.Name,
+			DBVersion:     artifact.DBVersion,
+			LocationModel: location,
+			ServiceType:   service.ServiceType,
+			DBConfig:      dbConfig,
+			DataModel:     artifact.DataModel,
+			PITRTimestamp: pitrTimestamp,
+		}
 
-		return err
+		return nil
 	}); errTx != nil {
 		return "", errTx
 	}
 
-	if err := s.startRestoreJob(jobID, serviceID, params); err != nil {
+	if err := s.startRestoreJob(&params); err != nil {
 		return "", err
 	}
 
@@ -383,56 +415,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		enabled)
 }
 
-func (s *Service) prepareRestoreJob(
-	q *reform.Querier,
-	serviceID string,
-	artifactID string,
-	pitrTimestamp time.Time,
-) (*prepareRestoreJobParams, error) {
-	service, err := models.FindServiceByID(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-
-	artifact, err := models.FindArtifactByID(q, artifactID)
-	if err != nil {
-		return nil, err
-	}
-	if artifact.Status != models.SuccessBackupStatus {
-		return nil, errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
-	}
-
-	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
-	if err != nil {
-		return nil, err
-	}
-
-	dbConfig, err := models.FindDBConfigForService(q, service.ServiceID)
-	if err != nil {
-		return nil, err
-	}
-
-	pmmAgents, err := models.FindPMMAgentsForService(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-	if len(pmmAgents) == 0 {
-		return nil, errors.Errorf("cannot find pmm agent for service %s", serviceID)
-	}
-
-	return &prepareRestoreJobParams{
-		AgentID:       pmmAgents[0].AgentID,
-		ArtifactName:  artifact.Name,
-		DBVersion:     artifact.DBVersion,
-		LocationModel: location,
-		ServiceType:   service.ServiceType,
-		DBConfig:      dbConfig,
-		DataModel:     artifact.DataModel,
-		PITRTimestamp: pitrTimestamp,
-	}, nil
-}
-
-func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestoreJobParams) error {
+func (s *Service) startRestoreJob(params *restoreJobParams) error {
 	locationConfig := &models.BackupLocationConfig{
 		FilesystemConfig: params.LocationModel.FilesystemConfig,
 		S3Config:         params.LocationModel.S3Config,
@@ -440,27 +423,23 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 
 	switch params.ServiceType {
 	case models.MySQLServiceType:
-		if err := s.jobsService.StartMySQLRestoreBackupJob(
-			jobID,
+		return s.jobsService.StartMySQLRestoreBackupJob(
+			params.JobID,
 			params.AgentID,
-			serviceID,
+			params.ServiceID, // TODO: It seems that this parameter is redundant
 			0,
 			params.ArtifactName,
-			locationConfig); err != nil {
-			return err
-		}
+			locationConfig)
 	case models.MongoDBServiceType:
-		if err := s.jobsService.StartMongoDBRestoreBackupJob(
-			jobID,
+		return s.jobsService.StartMongoDBRestoreBackupJob(
+			params.JobID,
 			params.AgentID,
 			0,
 			params.ArtifactName,
 			params.DBConfig,
 			params.DataModel,
 			locationConfig,
-			params.PITRTimestamp); err != nil {
-			return err
-		}
+			params.PITRTimestamp)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -469,8 +448,6 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 	default:
 		return status.Errorf(codes.Unknown, "Unknown service: %s", params.ServiceType)
 	}
-
-	return nil
 }
 
 func (s *Service) prepareBackupJob(
@@ -541,6 +518,10 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
 	if err != nil {
 		return err
+	}
+
+	if artifact.Status != models.SuccessBackupStatus {
+		return errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
 	}
 
 	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
