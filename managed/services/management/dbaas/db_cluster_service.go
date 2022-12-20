@@ -31,6 +31,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 type DBClusterService struct {
@@ -82,13 +83,13 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 
 	for _, cluster := range dbClusters.Items {
 		switch cluster.Spec.Database {
-		case "pxc":
+		case kubernetes.DatabaseTypePXC:
 			c, err := s.getPXCCluster(ctx, cluster, pxcOperatorVersion)
 			if err != nil {
 				s.l.Errorf("failed getting PXC cluster: %v", err)
 			}
 			pxcClusters = append(pxcClusters, c)
-		case "psmdb":
+		case kubernetes.DatabaseTypePSMDB:
 			c, err := s.getPSMDBCluster(ctx, cluster, psmdbOperatorVersion)
 			if err != nil {
 				s.l.Errorf("failed getting PSMDB cluster: %v", err)
@@ -280,14 +281,14 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
 	resp := &dbaasv1beta1.GetDBClusterResponse{}
-	if dbCluster.Spec.Database == "pxc" {
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePXC {
 		c, err := s.getPXCCluster(ctx, *dbCluster, pxcOperatorVersion)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed getting PXC cluster")
 		}
 		resp.PxcCluster = c
 	}
-	if dbCluster.Spec.Database == "psmdb" {
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePSMDB {
 		c, err := s.getPSMDBCluster(ctx, *dbCluster, psmdbOperatorVersion)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed getting PSMDB cluster")
@@ -331,9 +332,9 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	var clusterType string
 	switch req.ClusterType {
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:
-		clusterType = "pxc"
+		clusterType = string(kubernetes.DatabaseTypePXC)
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
-		clusterType = "psmdb"
+		clusterType = string(kubernetes.DatabaseTypePSMDB)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "unexpected DB cluster type")
 	}

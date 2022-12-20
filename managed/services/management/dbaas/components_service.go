@@ -488,7 +488,7 @@ func getPMMClientImage() string {
 		return pmmClientImage
 	}
 
-	v, err := goversion.NewVersion(pmmversion.PMMVersion) // nolint: varnamelen
+	v, err := goversion.NewVersion(pmmversion.PMMVersion) //nolint: varnamelen
 	if err != nil {
 		return pmmClientImage
 	}

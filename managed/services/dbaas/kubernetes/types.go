@@ -29,10 +29,10 @@ import (
 )
 
 const (
-	dbaasAPI                         = "dbaas.percona.com/v1"
-	dbaasKind                        = "DatabaseCluster"
-	databasePXC   dbaasv1.EngineType = "pxc"
-	databasePSMDB dbaasv1.EngineType = "psmdb"
+	dbaasAPI                             = "dbaas.percona.com/v1"
+	dbaasKind                            = "DatabaseCluster"
+	DatabaseTypePXC   dbaasv1.EngineType = "pxc"
+	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
 
 	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
 	memoryMediumSize = int64(8) * 1000 * 1000 * 1000
@@ -115,7 +115,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 			Kind:       dbaasKind,
 		},
 		Spec: dbaasv1.DatabaseSpec{
-			Database:       databasePXC,
+			Database:       DatabaseTypePXC,
 			DatabaseImage:  cluster.Params.Pxc.Image,
 			DatabaseConfig: cluster.Params.Pxc.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
@@ -195,7 +195,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			Kind:       dbaasKind,
 		},
 		Spec: dbaasv1.DatabaseSpec{
-			Database:       databasePSMDB,
+			Database:       DatabaseTypePSMDB,
 			DatabaseImage:  cluster.Params.Image,
 			DatabaseConfig: cluster.Params.Replicaset.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
