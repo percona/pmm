@@ -103,17 +103,14 @@ func TestDBClusterService(t *testing.T) {
 	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "",
-			PsmdbOperatorVersion: "",
+			PxcOperatorVersion:   "1.11.0",
+			PsmdbOperatorVersion: "1.11.0",
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-
-	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
-	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
 
 	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)

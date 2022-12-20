@@ -130,7 +130,6 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 					MemoryBytes: memory,
 				},
 				Configuration: cluster.Spec.DatabaseConfig,
-				StorageClass:  *cluster.Spec.DBInstance.StorageClassName,
 			},
 		},
 		State:          dbClusterStates()[cluster.Status.State],
@@ -141,6 +140,9 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 			FinishedSteps: cluster.Status.Ready,
 			Message:       cluster.Status.Message,
 		},
+	}
+	if cluster.Spec.DBInstance.StorageClassName != nil {
+		c.Params.Pxc.StorageClass = *cluster.Spec.DBInstance.StorageClassName
 	}
 	if cluster.Spec.LoadBalancer.Type == "proxysql" {
 		compute, err := s.getComputeResources(cluster.Spec.LoadBalancer.Resources.Requests)
@@ -226,7 +228,6 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 					MemoryBytes: memory,
 				},
 				Configuration: cluster.Spec.DatabaseConfig,
-				StorageClass:  *cluster.Spec.DBInstance.StorageClassName,
 			},
 		},
 		State:          dbClusterStates()[cluster.Status.State],
@@ -238,6 +239,9 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 			// TODO: Add messages
 			Message: "",
 		},
+	}
+	if cluster.Spec.DBInstance.StorageClassName != nil {
+		c.Params.Replicaset.StorageClass = *cluster.Spec.DBInstance.StorageClassName
 	}
 	imageAndTag := strings.Split(cluster.Spec.DatabaseImage, ":")
 	if len(imageAndTag) != 2 {

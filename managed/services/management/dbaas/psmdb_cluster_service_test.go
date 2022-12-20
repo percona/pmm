@@ -113,8 +113,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
-	kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
@@ -186,7 +185,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
 
 		componentsService.On("GetPSMDBComponents", mock.Anything, mock.Anything).Return(mockGetPSMDBComponentsResponse, nil)
-		kubernetesClient.On("CreateDatabaseCluster", ctx, mock.Anything).Return(nil)
+		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -249,7 +248,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		componentsService.On("GetPSMDBComponents", ctx, mock.Anything).Return(psmdbComponents, nil)
 
 		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
-		kubernetesClient.On("CreateDatabaseCluster", ctx, mock.Anything).Return(nil)
+		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -292,7 +291,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		}
 
 		kubernetesClient.On("GetDatabaseCluster", ctx, "third-psmdb-test").Return(dbMock, nil)
-		kubernetesClient.On("PatchDatabaseCluster", ctx, mock.Anything).Return(nil)
+		kubernetesClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.UpdatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,

@@ -544,6 +544,7 @@ func setup(t *testing.T, clusterName string, response *VersionServiceResponse, p
 }
 
 func TestInstallOperator(t *testing.T) {
+	t.Parallel()
 	pmmversion.PMMVersion = "2.19.0"
 
 	response := &VersionServiceResponse{
@@ -600,17 +601,9 @@ func TestInstallOperator(t *testing.T) {
 			},
 		},
 	}
-	_, _, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
-
-	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
-		Subscription: &controllerv1beta1.Subscription{
-			InstallPlanName: "mocked-install-plan",
-		},
-	}
-	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	t.Run("Defaults not supported", func(t *testing.T) {
+		t.Parallel()
 		_, c, _ := setup(t, clusterName, response, "5497", defaultPXCVersion, defaultPSMDBVersion)
 		ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
 		defer cancel()
@@ -632,10 +625,8 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
-		db, c, dbaasClient := setup(t, clusterName, response, "5498", defaultPXCVersion, defaultPSMDBVersion)
-
-		dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
-		dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
+		t.Parallel()
+		db, c, _ := setup(t, clusterName, response, "5498", defaultPXCVersion, defaultPSMDBVersion)
 
 		ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
 		defer cancel()
@@ -667,6 +658,7 @@ func TestInstallOperator(t *testing.T) {
 }
 
 func TestCheckForOperatorUpdate(t *testing.T) {
+	t.Parallel()
 	response := &VersionServiceResponse{
 		Versions: []Version{
 			{
@@ -715,6 +707,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	pmmversion.PMMVersion = twoPointEighteen
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-available"
 		_, cs, dbaasClient := setup(t, clusterName, response, "9873", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, mock.Anything).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
@@ -760,6 +753,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-not-available"
 		_, cs, dbaasClient := setup(t, clusterName, response, "7895", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
@@ -782,6 +776,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 
 	t.Run("User's operators version is ahead of version service", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-available-pmm-update"
 		_, cs, dbaasClient := setup(t, clusterName, response, "5863", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{

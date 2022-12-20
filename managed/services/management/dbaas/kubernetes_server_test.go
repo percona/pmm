@@ -42,6 +42,7 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
 		t.Helper()
 
@@ -77,8 +78,9 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
 		ctx, ks, dc, kubernetesClient, teardown := setup(t)
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -92,7 +94,6 @@ func TestKubernetesServer(t *testing.T) {
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
-		dc.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
 
 		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
@@ -131,7 +132,7 @@ func TestKubernetesServer(t *testing.T) {
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
 				},
-				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
+				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING,
 			},
 		}
 		assert.Equal(t, expected, clusters.KubernetesClusters)
