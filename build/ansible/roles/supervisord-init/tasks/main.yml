@@ -90,7 +90,7 @@
     dest: /usr/lib/systemd/system/
     mode: 0644
 
-- name: Print debug info            | Print the contents of supervisord.conf
+- name: Debug                      | Print the contents of supervisord.conf
   debug:
     msg:
-      - "supervisord.conf: {{ lookup('file', '/etc/supervisord.conf') }}"
+      - "{{ lookup('file', '/etc/supervisord.conf') }}"

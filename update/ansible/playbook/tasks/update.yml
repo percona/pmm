@@ -49,7 +49,6 @@
           - 'Environment PATH: {{ lookup("env", "PATH") }}'
           - "Current user: {{ ansible_user_id }}"
           - "Current user home: {{ ansible_user_dir }}"
-          - "Authorized users: {{ users | subelements('authorized') }}"
 
   tasks:
     # we need install this package here because it contain VERSION file

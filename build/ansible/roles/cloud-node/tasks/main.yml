@@ -35,6 +35,7 @@
     - ansible_distribution_major_version == '9'
   yum:
     name:
+      - screen
       - yum-utils
       - cloud-init
       - firewalld
