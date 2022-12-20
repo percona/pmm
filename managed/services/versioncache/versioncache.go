@@ -63,6 +63,7 @@ func New(db *reform.DB, v Versioner) *Service {
 
 type service struct {
 	ServiceID     string
+	ServiceType   models.ServiceType
 	CheckAfter    time.Duration
 	WaitNextCheck bool
 	PMMAgentID    string
@@ -102,9 +103,16 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		if err != nil {
 			return err
 		}
-		if service.ServiceType != models.MySQLServiceType {
+
+		// We're checking only services in this list and ignoring the others.
+		switch service.ServiceType {
+		case models.MySQLServiceType:
+		case models.MongoDBServiceType:
+		default:
 			return nil
 		}
+
+		results.ServiceType = service.ServiceType
 
 		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, servicesVersions[0].ServiceID)
 		if err != nil {
@@ -133,38 +141,24 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 	return results, nil
 }
 
-func softwareName(s agents.Software) (models.SoftwareName, error) {
-	var softwareName models.SoftwareName
-	switch software := s.(type) {
-	case *agents.Mysqld:
-		softwareName = models.MysqldSoftwareName
-	case *agents.Xtrabackup:
-		softwareName = models.XtrabackupSoftwareName
-	case *agents.Xbcloud:
-		softwareName = models.XbcloudSoftwareName
-	case *agents.Qpress:
-		softwareName = models.QpressSoftwareName
-	default:
-		return "", errors.Errorf("invalid software type %T", software)
-	}
-
-	return softwareName, nil
-}
-
 // updateVersionsForNextService tries to find a service that needs update and performs update if such service is found.
 // Returns desired time interval to wait before next call of the updateVersionsForNextService.
 func (s *Service) updateVersionsForNextService() (time.Duration, error) {
-	foundService, err := s.findServiceForUpdate()
+	serviceForUpdate, err := s.findServiceForUpdate()
 	if err != nil {
 		return minCheckInterval, err
 	}
 
-	if !foundService.WaitNextCheck {
-		return foundService.CheckAfter, nil
+	if !serviceForUpdate.WaitNextCheck {
+		return serviceForUpdate.CheckAfter, nil
 	}
 
-	softwares := []agents.Software{&agents.Mysqld{}, &agents.Xtrabackup{}, &agents.Xbcloud{}, &agents.Qpress{}}
-	versions, err := s.v.GetVersions(foundService.PMMAgentID, softwares)
+	softwares := agents.GetSoftwareList(serviceForUpdate.ServiceType)
+	if len(softwares) == 0 {
+		return minCheckInterval, errors.Wrapf(ErrInvalidArgument, "no required software found for service type %q", serviceForUpdate.ServiceType)
+	}
+
+	versions, err := s.v.GetVersions(serviceForUpdate.PMMAgentID, softwares)
 	if err != nil {
 		return minCheckInterval, err
 	}
@@ -175,10 +169,7 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 
 	svs := make([]models.SoftwareVersion, 0, len(softwares))
 	for i, software := range softwares {
-		name, err := softwareName(software)
-		if err != nil {
-			return minCheckInterval, err
-		}
+		name := software.Name()
 
 		if versions[i].Error != "" {
 			s.l.Warnf("failed to get version of %q software: %s", name, versions[i].Error)
@@ -195,7 +186,7 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 	}
 
 	nextCheckAt := time.Now().UTC().Add(serviceCheckInterval)
-	if _, err := models.UpdateServiceSoftwareVersions(s.db.Querier, foundService.ServiceID,
+	if _, err := models.UpdateServiceSoftwareVersions(s.db.Querier, serviceForUpdate.ServiceID,
 		models.UpdateServiceSoftwareVersionsParams{
 			NextCheckAt:      &nextCheckAt,
 			SoftwareVersions: svs,

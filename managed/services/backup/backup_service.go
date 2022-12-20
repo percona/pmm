@@ -235,7 +235,6 @@ func checkMongoBackupPreconditions(q *reform.Querier, service *models.Service, s
 type prepareRestoreJobParams struct {
 	AgentID       string
 	ArtifactName  string
-	DBVersion     string
 	LocationModel *models.BackupLocation
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
@@ -249,8 +248,11 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", err
 	}
 
-	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
+	targetDBVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
+		return "", err
+	}
+	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
 		return "", err
 	}
 
@@ -261,13 +263,6 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID, pitrTimestamp)
 		if err != nil {
 			return err
-		}
-
-		if params.ServiceType == models.MySQLServiceType && params.DBVersion != "" {
-			if params.DBVersion != dbVersion {
-				return errors.Wrapf(ErrIncompatibleTargetMySQL, "artifact db version %q != db version %q",
-					params.DBVersion, dbVersion)
-			}
 		}
 
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
@@ -423,7 +418,6 @@ func (s *Service) prepareRestoreJob(
 	return &prepareRestoreJobParams{
 		AgentID:       pmmAgents[0].AgentID,
 		ArtifactName:  artifact.Name,
-		DBVersion:     artifact.DBVersion,
 		LocationModel: location,
 		ServiceType:   service.ServiceType,
 		DBConfig:      dbConfig,

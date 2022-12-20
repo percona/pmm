@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 type mysqlAndPXBVersions struct {
@@ -288,7 +287,7 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			err := mySQLSoftwaresInstalledAndCompatible(test.input)
+			err := mySQLBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
 				assert.ErrorIs(t, err, test.err)
 			} else {
@@ -296,10 +295,4 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestConvertSoftwareName(t *testing.T) {
-	res, err := convertSoftwareName(&agents.Mysqld{})
-	assert.NoError(t, err)
-	assert.Equal(t, models.MysqldSoftwareName, res)
 }

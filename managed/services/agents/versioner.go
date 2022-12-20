@@ -20,6 +20,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 var pmmAgentMinVersionForSoftwareVersions = version.Must(version.NewVersion("2.22"))
@@ -46,62 +47,95 @@ type Version struct {
 // Software interface.
 type Software interface {
 	isSoftware()
+	// Name returns string name, one of defined in the models package.
+	Name() models.SoftwareName
+	// GetVersionRequest
+	GetVersionRequest() *agentpb.GetVersionsRequest_Software
 }
 
 // Mysqld represents mysqld software.
 type Mysqld struct{}
 
-func (*Mysqld) isSoftware() {}
+func (*Mysqld) isSoftware()               {}
+func (*Mysqld) Name() models.SoftwareName { return models.MysqldSoftwareName }
+func (*Mysqld) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Mysqld{},
+	}
+}
 
 // Xtrabackup represents xtrabackup software.
 type Xtrabackup struct{}
 
-func (*Xtrabackup) isSoftware() {}
+func (*Xtrabackup) isSoftware()               {}
+func (*Xtrabackup) Name() models.SoftwareName { return models.XtrabackupSoftwareName }
+func (*Xtrabackup) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Xtrabackup{},
+	}
+}
 
 // Xbcloud represents xbcloud software.
 type Xbcloud struct{}
 
-func (*Xbcloud) isSoftware() {}
+func (*Xbcloud) isSoftware()               {}
+func (*Xbcloud) Name() models.SoftwareName { return models.XbcloudSoftwareName }
+func (*Xbcloud) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Xbcloud{},
+	}
+}
 
 // Qpress represents qpress software.
 type Qpress struct{}
 
-func (*Qpress) isSoftware() {}
-
-func convertSoftwares(softwares []Software) ([]*agentpb.GetVersionsRequest_Software, error) {
-	softwaresRequest := make([]*agentpb.GetVersionsRequest_Software, 0, len(softwares))
-	for _, software := range softwares {
-		switch s := software.(type) {
-		case *Mysqld:
-			softwaresRequest = append(softwaresRequest, &agentpb.GetVersionsRequest_Software{
-				Software: &agentpb.GetVersionsRequest_Software_Mysqld{
-					Mysqld: &agentpb.GetVersionsRequest_MySQLd{},
-				},
-			})
-		case *Xtrabackup:
-			softwaresRequest = append(softwaresRequest, &agentpb.GetVersionsRequest_Software{
-				Software: &agentpb.GetVersionsRequest_Software_Xtrabackup{
-					Xtrabackup: &agentpb.GetVersionsRequest_Xtrabackup{},
-				},
-			})
-		case *Xbcloud:
-			softwaresRequest = append(softwaresRequest, &agentpb.GetVersionsRequest_Software{
-				Software: &agentpb.GetVersionsRequest_Software_Xbcloud{
-					Xbcloud: &agentpb.GetVersionsRequest_Xbcloud{},
-				},
-			})
-		case *Qpress:
-			softwaresRequest = append(softwaresRequest, &agentpb.GetVersionsRequest_Software{
-				Software: &agentpb.GetVersionsRequest_Software_Qpress{
-					Qpress: &agentpb.GetVersionsRequest_Qpress{},
-				},
-			})
-		default:
-			return nil, errors.Errorf("unexpected software type: %T", s)
-		}
+func (*Qpress) isSoftware()               {}
+func (*Qpress) Name() models.SoftwareName { return models.QpressSoftwareName }
+func (*Qpress) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Qpress{},
 	}
+}
 
-	return softwaresRequest, nil
+// MongoDB represents mongod software.
+type MongoDB struct{}
+
+func (*MongoDB) isSoftware()               {}
+func (*MongoDB) Name() models.SoftwareName { return models.MongoDBSoftwareName }
+func (*MongoDB) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Mongod{},
+	}
+}
+
+// PBM represents pbm software.
+type PBM struct{}
+
+func (*PBM) isSoftware()               {}
+func (*PBM) Name() models.SoftwareName { return models.PBMSoftwareName }
+func (*PBM) GetVersionRequest() *agentpb.GetVersionsRequest_Software {
+	return &agentpb.GetVersionsRequest_Software{
+		Software: &agentpb.GetVersionsRequest_Software_Pbm{},
+	}
+}
+
+func getMysqlSoftwareList() []Software {
+	return []Software{&Mysqld{}, &Xtrabackup{}, &Xbcloud{}, &Qpress{}}
+}
+
+func getMongodbSoftwareList() []Software {
+	return []Software{&MongoDB{}, &PBM{}}
+}
+
+// GetSoftwareList maps service type into list of required software. Returns empty list if no software specified for the type.
+func GetSoftwareList(serviceType models.ServiceType) []Software {
+	switch serviceType {
+	case models.MySQLServiceType:
+		return getMysqlSoftwareList()
+	case models.MongoDBServiceType:
+		return getMongodbSoftwareList()
+	}
+	return nil
 }
 
 // GetVersions retrieves software versions.
@@ -116,24 +150,24 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) 
 		return nil, errors.WithStack(err)
 	}
 
-	softwaresRequest, err := convertSoftwares(softwares)
-	if err != nil {
-		return nil, err
+	softwareRequest := make([]*agentpb.GetVersionsRequest_Software, 0, len(softwares))
+	for _, software := range softwares {
+		softwareRequest = append(softwareRequest, software.GetVersionRequest())
 	}
 
-	request := &agentpb.GetVersionsRequest{Softwares: softwaresRequest}
+	request := &agentpb.GetVersionsRequest{Softwares: softwareRequest}
 	response, err := agent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	versionsResponse := response.(*agentpb.GetVersionsResponse).Versions
-	if len(versionsResponse) != len(softwaresRequest) {
+	if len(versionsResponse) != len(softwareRequest) {
 		return nil, errors.Errorf("response and request slice length mismatch %d != %d",
-			len(versionsResponse), len(softwaresRequest))
+			len(versionsResponse), len(softwareRequest))
 	}
 
-	versions := make([]Version, 0, len(softwaresRequest))
+	versions := make([]Version, 0, len(softwareRequest))
 	for _, v := range versionsResponse {
 		versions = append(versions, Version{
 			Version: v.Version,

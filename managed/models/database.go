@@ -800,6 +800,25 @@ var databaseSchema = [][]string{
 		(user_id, role_id, created_at, updated_at)		
 		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
 	},
+	74: {
+		`INSERT INTO service_software_versions(
+			service_id,
+			service_type,
+			software_versions,
+			next_check_at,
+			created_at,
+			updated_at
+		)
+		SELECT
+			service_id,
+			service_type,
+			'[]' AS software_versions,
+			(NOW() AT TIME ZONE 'utc') AS next_check_at,
+			(NOW() AT TIME ZONE 'utc') AS created_at,
+			(NOW() AT TIME ZONE 'utc') AS updated_at
+		FROM services
+        WHERE service_type = 'mongodb';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -315,7 +315,7 @@
                   "x-order": 11
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
+                  "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -391,7 +391,7 @@
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
@@ -647,7 +647,7 @@
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
@@ -1302,7 +1302,6 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },

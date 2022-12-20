@@ -44,26 +44,22 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 
 // checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
-	// Only MySQL compatibility checking implemented for now.
-	if serviceModel.ServiceType != models.MySQLServiceType {
+	softwareList := agents.GetSoftwareList(serviceModel.ServiceType)
+	if len(softwareList) == 0 {
 		return "", nil
 	}
 
-	softwares := []agents.Software{&agents.Mysqld{}, &agents.Xtrabackup{}, &agents.Xbcloud{}, &agents.Qpress{}}
-	svs, err := s.v.GetVersions(agentModel.AgentID, softwares)
+	svs, err := s.v.GetVersions(agentModel.AgentID, softwareList)
 	if err != nil {
 		return "", err
 	}
-	if len(svs) != len(softwares) {
-		return "", errors.Wrapf(ErrComparisonImpossible, "response slice len %d != request len %d", len(svs), len(softwares))
+	if len(svs) != len(softwareList) {
+		return "", errors.Wrapf(ErrComparisonImpossible, "response slice len %d != request len %d", len(svs), len(softwareList))
 	}
 
-	svm := make(map[models.SoftwareName]string, len(softwares))
-	for i, software := range softwares {
-		name, err := convertSoftwareName(software)
-		if err != nil {
-			return "", err
-		}
+	svm := make(map[models.SoftwareName]string, len(softwareList))
+	for i, software := range softwareList {
+		name := software.Name()
 		if svs[i].Error != "" {
 			return "", errors.Wrapf(ErrComparisonImpossible, "failed to get software %s version: %s", name, svs[i].Error)
 		}
@@ -71,11 +67,22 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 		svm[name] = svs[i].Version
 	}
 
-	if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
+	var binaryName models.SoftwareName
+	switch serviceModel.ServiceType {
+	case models.MySQLServiceType:
+		binaryName = models.MysqldSoftwareName
+		err = mySQLBackupSoftwareInstalledAndCompatible(svm)
+	case models.MongoDBServiceType:
+		binaryName = models.MongoDBSoftwareName
+		err = mongoDBBackupSoftwareInstalledAndCompatible(svm)
+	default:
+		return "", nil
+	}
+	if err != nil {
 		return "", err
 	}
 
-	return svm[models.MysqldSoftwareName], nil
+	return svm[binaryName], nil
 }
 
 // findCompatibleServiceIDs looks for services compatible to artifact in given array of services' software versions.
@@ -84,7 +91,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 	for _, sv := range svs {
 		svm := softwareVersionsToMap(sv.SoftwareVersions)
 
-		if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
+		if err := mySQLBackupSoftwareInstalledAndCompatible(svm); err != nil {
 			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
 			continue
 		}
@@ -187,4 +194,31 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 	}
 
 	return compatibleServices, nil
+}
+
+// CheckArtifactCompatibility check compatibility between artifact and target database.
+func (s *CompatibilityService) CheckArtifactCompatibility(artifactID, targetDBVersion string) error {
+	artifactModel, err := models.FindArtifactByID(s.db.Querier, artifactID)
+	if err != nil {
+		return err
+	}
+
+	serviceModel, err := models.FindServiceByID(s.db.Querier, artifactModel.ServiceID)
+	if err != nil {
+		return err
+	}
+
+	if artifactModel.DBVersion != "" && artifactModel.DBVersion != targetDBVersion {
+		switch serviceModel.ServiceType {
+		case models.MySQLServiceType:
+			err = ErrIncompatibleTargetMySQL
+		case models.MongoDBServiceType:
+			err = ErrIncompatibleTargetMongoDB
+		default:
+			return nil
+		}
+		return errors.Wrapf(err, "artifact db version %q != db version %q", artifactModel.DBVersion, targetDBVersion)
+	}
+
+	return nil
 }

@@ -508,8 +508,6 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.

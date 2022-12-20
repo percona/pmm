@@ -816,6 +816,14 @@ func (this *GetVersionsRequest_Qpress) Validate() error {
 	return nil
 }
 
+func (this *GetVersionsRequest_MongoDB) Validate() error {
+	return nil
+}
+
+func (this *GetVersionsRequest_PBM) Validate() error {
+	return nil
+}
+
 func (this *GetVersionsRequest_Software) Validate() error {
 	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Mysqld); ok {
 		if oneOfNester.Mysqld != nil {
@@ -842,6 +850,20 @@ func (this *GetVersionsRequest_Software) Validate() error {
 		if oneOfNester.Qpress != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Qpress); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Qpress", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Mongod); ok {
+		if oneOfNester.Mongod != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Mongod); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mongod", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetSoftware().(*GetVersionsRequest_Software_Pbm); ok {
+		if oneOfNester.Pbm != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Pbm); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Pbm", err)
 			}
 		}
 	}

@@ -541,8 +541,6 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
-	//
-	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
