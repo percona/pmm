@@ -65,14 +65,16 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
       ignore_errors: True
 
-    - name: Wait to let pmm-managed close the database connections
-      wait_for:
-        port: 5432
-        state: stopped
-        timeout: 10
+    - name: Close all connections to pmm-managed
+      postgresql_query:
+        db: pmm-managed
+        # login_user: pmm
+        # login_password: mysecretpass
+        query: 'SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = "pmm-managed";'
 
     - name: Wait for pmm-managed to shut down completely
       pause: seconds=5
