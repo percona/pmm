@@ -65,7 +65,6 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
-        supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
       ignore_errors: True
 

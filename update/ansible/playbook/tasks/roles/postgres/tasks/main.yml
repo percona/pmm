@@ -32,7 +32,7 @@
           - percona-postgresql11-server
           - percona-postgresql11-contrib
           - percona-postgresql11
-          - python-psycopg2
+          - python-psycopg2 # Python PostgreSQL database adapter§
         state: installed
   when:
     - ansible_distribution == "CentOS"
@@ -54,7 +54,7 @@
         name:
           - postgresql14-server
           - postgresql14-contrib
-          - python-psycopg2
+          - python-psycopg2 # Python PostgreSQL database adapter
         state: installed
   when:
     - ansible_distribution == "OracleLinux"

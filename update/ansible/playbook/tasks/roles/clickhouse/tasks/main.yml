@@ -114,7 +114,6 @@
   supervisorctl:
     name: clickhouse
     state: "{{ item }}"
-    supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
   loop:
     - present
