@@ -104,27 +104,6 @@
         path: /etc/systemd/system/supervisord.service
         state: absent
 
-    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
-    # to support Docker-way (swap image) updates.
-    # https://jira.percona.com/browse/PMM-7024
-
-    - name: Create working directory for Alertmanager
-      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
-
-    - name: Create working directory for VictoriaMetrics
-      file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
-
-    - name: Create empty configuration file for VictoriaMetrics
-      file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
-
-    - name: Install nginx
-      include_role:
-        name: nginx
-
-    - name: Install clickhouse
-      include_role:
-        name: clickhouse
-
     # Start the services
     - name: Enable supervisord        | Make the service persist between reboots
       when: not is_docker
@@ -253,6 +232,14 @@
         - libssh2
         - sshpass
 
+    - name: Install nginx
+      include_role:
+        name: nginx
+
+    - name: Install clickhouse
+      include_role:
+        name: clickhouse
+
     # Fix things that should be fixed before restarts.
 
     - name: Stop systemd pmm-agent service, if running
@@ -294,6 +281,19 @@
         regexp: "set -o errexit"
         replace: ""
 
+    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
+    # to support Docker-way (swap image) updates.
+    # https://jira.percona.com/browse/PMM-7024
+
+    - name: Create working directory for Alertmanager
+      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+    - name: Create working directory for VictoriaMetrics
+      file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+
+    - name: Create empty configuration file for VictoriaMetrics
+      file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
+
     - name: Reread supervisord configuration again
       command: /usr/local/bin/supervisorctl reread
       become: true
@@ -311,8 +311,8 @@
       become: true
       changed_when: true
       with_nested:
-        - - nginx
-          - alertmanager
+        - - alertmanager
+          - nginx
           - grafana
           - qan-api2
           - pmm-agent
