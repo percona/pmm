@@ -89,7 +89,9 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
 
 func (b *Base) downloadDockerInstallScript(ctx context.Context) (io.ReadCloser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://get.docker.com/", nil)
+	logrus.Debug("Downloading Docker installation script")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://get.docker.com/", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +115,13 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 		return err
 	}
 
+	defer func() {
+		if err := script.Close(); err != nil {
+			logrus.Error(err)
+		}
+	}()
+
+	logrus.Debug("Running Docker installation script")
 	cmd := exec.Command("sh", "-s")
 	cmd.Stdin = script
 	cmd.Stdout = os.Stdout
@@ -121,6 +130,8 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
+	logrus.Debug("Finished Docker installation")
 
 	return nil
 }
