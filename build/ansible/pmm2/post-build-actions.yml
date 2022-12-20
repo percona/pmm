@@ -74,10 +74,7 @@
         db: pmm-managed
         # login_user: pmm
         # login_password: mysecretpass
-        query: 'SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = "pmm-managed";'
-
-    - name: Wait for pmm-managed to shut down completely
-      pause: seconds=5
+        query: "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'pmm-managed';"
 
     - name: Remove pmm-managed database from postgres
       postgresql_db:
