@@ -30,8 +30,6 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error)
 
-	GetJobLogs(params *GetJobLogsParams, opts ...ClientOption) (*GetJobLogsOK, error)
-
 	GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error)
 
 	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error)
@@ -83,43 +81,6 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeScheduledBackupDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-GetJobLogs gets logs returns logs for a given job
-*/
-func (a *Client) GetJobLogs(params *GetJobLogsParams, opts ...ClientOption) (*GetJobLogsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetJobLogsParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "GetJobLogs",
-		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Backups/GetJobLogs",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetJobLogsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetJobLogsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*GetJobLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

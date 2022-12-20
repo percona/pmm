@@ -37,12 +37,8 @@ type BackupsClient interface {
 	ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
 	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
-	// Deprecated: Do not use.
 	// GetLogs returns logs for provided artifact.
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
-	// Deprecated: Do not use.
-	// GetLogs returns logs for a given job.
-	GetJobLogs(ctx context.Context, in *GetJobLogsRequest, opts ...grpc.CallOption) (*GetJobLogsResponse, error)
 }
 
 type backupsClient struct {
@@ -116,20 +112,9 @@ func (c *backupsClient) RemoveScheduledBackup(ctx context.Context, in *RemoveSch
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *backupsClient) GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error) {
 	out := new(GetLogsResponse)
 	err := c.cc.Invoke(ctx, "/backup.v1.Backups/GetLogs", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *backupsClient) GetJobLogs(ctx context.Context, in *GetJobLogsRequest, opts ...grpc.CallOption) (*GetJobLogsResponse, error) {
-	out := new(GetJobLogsResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1.Backups/GetJobLogs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,12 +139,8 @@ type BackupsServer interface {
 	ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
 	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
-	// Deprecated: Do not use.
 	// GetLogs returns logs for provided artifact.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
-	// Deprecated: Do not use.
-	// GetLogs returns logs for a given job.
-	GetJobLogs(context.Context, *GetJobLogsRequest) (*GetJobLogsResponse, error)
 	mustEmbedUnimplementedBackupsServer()
 }
 
@@ -196,10 +177,6 @@ func (UnimplementedBackupsServer) RemoveScheduledBackup(context.Context, *Remove
 
 func (UnimplementedBackupsServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
-}
-
-func (UnimplementedBackupsServer) GetJobLogs(context.Context, *GetJobLogsRequest) (*GetJobLogsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetJobLogs not implemented")
 }
 func (UnimplementedBackupsServer) mustEmbedUnimplementedBackupsServer() {}
 
@@ -358,24 +335,6 @@ func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_GetJobLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetJobLogsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BackupsServer).GetJobLogs(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/backup.v1.Backups/GetJobLogs",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).GetJobLogs(ctx, req.(*GetJobLogsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Backups_ServiceDesc is the grpc.ServiceDesc for Backups service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -414,10 +373,6 @@ var Backups_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLogs",
 			Handler:    _Backups_GetLogs_Handler,
-		},
-		{
-			MethodName: "GetJobLogs",
-			Handler:    _Backups_GetJobLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

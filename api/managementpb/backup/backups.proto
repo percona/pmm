@@ -206,30 +206,20 @@ message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
   string artifact_id = 1 [
+    deprecated = true,
     (validator.field) = {
       string_not_empty: true
     }
   ];
   uint32 offset = 2;
   uint32 limit = 3;
-}
-
-message GetJobLogsRequest {
-  string job_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  uint32 offset = 2;
-  uint32 limit = 3;
+  oneof job_id {
+    string backup_artifact_id = 4;
+    string restore_id = 5;
+  };
 }
 
 message GetLogsResponse {
-  repeated LogChunk logs = 1;
-  bool end = 2;
-}
-
-message GetJobLogsResponse {
   repeated LogChunk logs = 1;
   bool end = 2;
 }
@@ -299,18 +289,8 @@ service Backups {
   }
   // GetLogs returns logs for provided artifact.
   rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
-    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/GetLogs"
-      body: "*"
-    };
-  }
-
-  // GetLogs returns logs for a given job.
-  rpc GetJobLogs(GetJobLogsRequest) returns (GetJobLogsResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/management/backup/Backups/GetJobLogs"
       body: "*"
     };
   }

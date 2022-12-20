@@ -413,56 +413,27 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
-// GetJobLogs returns logs for a given job.
-func (s *BackupsService) GetJobLogs(ctx context.Context, req *backuppb.GetJobLogsRequest) (*backuppb.GetJobLogsResponse, error) {
-	job, err := models.FindJobByID(s.db.Querier, req.JobId)
-	if err != nil {
-		return nil, err
-	}
-	if job == nil {
-		return nil, status.Error(codes.NotFound, "No matching job was found.")
-	}
-
-	filter := models.JobLogsFilter{
-		JobID:  job.ID,
-		Offset: int(req.Offset),
-	}
-	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
-	}
-
-	jobLogs, err := models.FindJobLogs(s.db.Querier, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &backuppb.GetJobLogsResponse{
-		Logs: make([]*backuppb.LogChunk, 0, len(jobLogs)),
-	}
-	for _, log := range jobLogs {
-		if log.LastChunk {
-			res.End = true
-			break
-		}
-		res.Logs = append(res.Logs, &backuppb.LogChunk{
-			ChunkId: uint32(log.ChunkID),
-			Data:    log.Data,
-		})
-	}
-
-	return res, nil
-}
-
-// GetLogs returns logs for artifact.
-// Deprecated: use GetJobLogs instead.
+// GetLogs returns logs for a backup event (such as backup or restore).
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
-	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
-		ArtifactID: req.ArtifactId,
+	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
 			models.MongoDBBackupJob,
+			models.MongoDBRestoreBackupJob,
 		},
-	})
+	}
+	if req.GetRestoreId() != "" && req.GetBackupArtifactId() != "" {
+		return nil, status.Error(codes.InvalidArgument, "only one of artifact ID or restore ID should be set")
+	}
+	if req.GetBackupArtifactId() != "" {
+		jobsFilter.ArtifactID = req.GetBackupArtifactId()
+	} else if req.GetRestoreId() != "" {
+		jobsFilter.RestoreID = req.GetRestoreId()
+	} else {
+		return nil, status.Error(codes.InvalidArgument, "one of artifact ID or restore ID is required")
+	}
+
+	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +441,7 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
 	}
 	if len(jobs) > 1 {
-		s.l.Warnf("artifact %s appear in more than one job", req.ArtifactId)
+		s.l.Warnf("%s appear in more than one job", req.JobId)
 	}
 
 	filter := models.JobLogsFilter{
