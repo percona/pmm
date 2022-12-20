@@ -109,17 +109,17 @@ type componentsService interface {
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
 type kubernetesClient interface {
-	SetKubeconfig(context.Context, string) error
+	SetKubeconfig(string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
 	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)
 	RestartDatabaseCluster(context.Context, string) error
-	PatchDatabaseCluster(context.Context, *dbaasv1.DatabaseCluster) error
-	CreateDatabaseCluster(context.Context, *dbaasv1.DatabaseCluster) error
+	PatchDatabaseCluster(*dbaasv1.DatabaseCluster) error
+	CreateDatabaseCluster(*dbaasv1.DatabaseCluster) error
 	DeleteDatabaseCluster(context.Context, string) error
 	GetDefaultStorageClassName(context.Context) (string, error)
 	GetPXCOperatorVersion(context.Context) (string, error)
 	GetPSMDBOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
-	CreatePMMSecret(context.Context, string, map[string][]byte) error
+	CreatePMMSecret(string, map[string][]byte) error
 }

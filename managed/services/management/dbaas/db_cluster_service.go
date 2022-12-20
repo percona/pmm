@@ -61,7 +61,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbClusters, err := s.kubernetesClient.ListDatabaseClusters(ctx)
@@ -259,7 +259,7 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
@@ -299,7 +299,7 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	err = s.kubernetesClient.RestartDatabaseCluster(ctx, req.Name)
@@ -316,7 +316,7 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	err = s.kubernetesClient.DeleteDatabaseCluster(ctx, req.Name)

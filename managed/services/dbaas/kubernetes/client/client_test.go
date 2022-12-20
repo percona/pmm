@@ -156,6 +156,7 @@ func TestGetServerVersion(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, expectedVersion.Minor, ver.Minor)
 }
+
 func TestGetPods(t *testing.T) {
 	t.Parallel()
 

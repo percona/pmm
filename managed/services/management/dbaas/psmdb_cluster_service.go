@@ -84,7 +84,7 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
@@ -122,7 +122,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 
@@ -196,14 +196,14 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		for k, v := range passwords {
 			secrets[k] = v
 		}
-		err = s.kubernetesClient.CreatePMMSecret(ctx, dbCluster.Spec.SecretsName, secrets)
+		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
 		if err != nil {
 			return nil, err
 		}
 	}
 	// TODO: Setup backups
 
-	err = s.kubernetesClient.CreateDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -289,7 +289,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(ctx, kubernetesCluster.KubeConfig); err != nil {
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
 	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
@@ -301,7 +301,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
-	err = s.kubernetesClient.PatchDatabaseCluster(ctx, dbCluster)
+	err = s.kubernetesClient.PatchDatabaseCluster(dbCluster)
 	if err != nil {
 		return nil, err
 	}

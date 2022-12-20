@@ -127,7 +127,7 @@ func NewEmpty() *Kubernetes {
 	}
 }
 
-// SetKubeconfig changes kubeconfig for active client
+// nges kubeconfig for active client
 func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -251,8 +251,8 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 	return ClusterTypeGeneric, nil
 }
 
-// GetOperatorVersion parses operator version from operator deployment
-func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
+// getOperatorVersion parses operator version from operator deployment
+func (k *Kubernetes) getOperatorVersion(ctx context.Context, name string) (string, error) {
 	deployment, err := k.client.GetDeployment(ctx, name)
 	if err != nil {
 		return "", err
@@ -264,14 +264,14 @@ func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (strin
 func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.GetOperatorVersion(ctx, psmdbDeploymentName)
+	return k.getOperatorVersion(ctx, psmdbDeploymentName)
 }
 
 // GetPXCOperatorVersion parses PXC operator version from operator deployment
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.GetOperatorVersion(ctx, pxcDeploymentName)
+	return k.getOperatorVersion(ctx, pxcDeploymentName)
 }
 
 // GetSecret returns secret by name
@@ -281,7 +281,7 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	return k.client.GetSecret(ctx, name)
 }
 
-func (k *Kubernetes) CreatePMMSecret(ctx context.Context, secretName string, secrets map[string][]byte) error {
+func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byte) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
 	secret := &corev1.Secret{ //nolint: exhaustruct
@@ -295,7 +295,7 @@ func (k *Kubernetes) CreatePMMSecret(ctx context.Context, secretName string, sec
 		Type: corev1.SecretTypeOpaque,
 		Data: secrets,
 	}
-	return k.client.ApplyObject(ctx, secret)
+	return k.client.ApplyObject(secret)
 }
 
 // GetPods returns list of pods based on given filters. Filters are args to
