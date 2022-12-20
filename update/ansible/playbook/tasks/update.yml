@@ -369,3 +369,7 @@
     - name: Print qan-api2 logs
       debug:
         msg: "{{ lookup('file', '/srv/logs/qan-api2.log', errors='ignore') }}"
+
+    - name: Print clickhouse-server logs
+      debug:
+        msg: "{{ lookup('file', '/srv/logs/clickhouse-server.log', errors='ignore') }}"
