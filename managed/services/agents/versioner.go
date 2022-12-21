@@ -49,7 +49,7 @@ type Software interface {
 	isSoftware()
 	// Name returns string name, one of defined in the models package.
 	Name() models.SoftwareName
-	// GetVersionRequest
+	// GetVersionRequest returns prepared struct for gRPC request.
 	GetVersionRequest() *agentpb.GetVersionsRequest_Software
 }
 

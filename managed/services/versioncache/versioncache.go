@@ -62,11 +62,12 @@ func New(db *reform.DB, v Versioner) *Service {
 }
 
 type service struct {
-	ServiceID     string
-	ServiceType   models.ServiceType
-	CheckAfter    time.Duration
-	WaitNextCheck bool
-	PMMAgentID    string
+	ServiceID          string
+	ServiceType        models.ServiceType
+	CheckAfter         time.Duration
+	WaitNextCheck      bool
+	PMMAgentID         string
+	BackupSoftwareList []agents.Software
 }
 
 // findServiceForUpdate checks if there is any service that needs software versions update in the cache and
@@ -104,15 +105,14 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 			return err
 		}
 
-		// We're checking only services in this list and ignoring the others.
-		switch service.ServiceType {
-		case models.MySQLServiceType:
-		case models.MongoDBServiceType:
-		default:
+		swList := agents.GetSoftwareList(service.ServiceType)
+		// Stop if no software specified for the service type.
+		if len(swList) == 0 {
 			return nil
 		}
 
 		results.ServiceType = service.ServiceType
+		results.BackupSoftwareList = swList
 
 		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, servicesVersions[0].ServiceID)
 		if err != nil {
@@ -153,22 +153,22 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 		return serviceForUpdate.CheckAfter, nil
 	}
 
-	softwares := agents.GetSoftwareList(serviceForUpdate.ServiceType)
-	if len(softwares) == 0 {
+	softwareList := serviceForUpdate.BackupSoftwareList
+	if len(softwareList) == 0 {
 		return minCheckInterval, errors.Wrapf(ErrInvalidArgument, "no required software found for service type %q", serviceForUpdate.ServiceType)
 	}
 
-	versions, err := s.v.GetVersions(serviceForUpdate.PMMAgentID, softwares)
+	versions, err := s.v.GetVersions(serviceForUpdate.PMMAgentID, softwareList)
 	if err != nil {
 		return minCheckInterval, err
 	}
-	if len(versions) != len(softwares) {
+	if len(versions) != len(softwareList) {
 		return minCheckInterval, errors.Errorf("slices length mismatch: versions len %d != softwares len %d",
-			len(versions), len(softwares))
+			len(versions), len(softwareList))
 	}
 
-	svs := make([]models.SoftwareVersion, 0, len(softwares))
-	for i, software := range softwares {
+	svs := make([]models.SoftwareVersion, 0, len(softwareList))
+	for i, software := range softwareList {
 		name := software.Name()
 
 		if versions[i].Error != "" {
