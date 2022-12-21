@@ -42,6 +42,11 @@ func (this *Operators) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Psmdb", err)
 		}
 	}
+	if this.Dbaas != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Dbaas); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Dbaas", err)
+		}
+	}
 	return nil
 }
 

@@ -37,6 +37,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -136,7 +137,16 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				Operators: &dbaasv1beta1.Operators{
 					Pxc:   &dbaasv1beta1.Operator{},
 					Psmdb: &dbaasv1beta1.Operator{},
+					Dbaas: &dbaasv1beta1.Operator{},
 				},
+			}
+			kubeClient, err := kubernetes.New(cluster.KubeConfig)
+			if err != nil {
+				return
+			}
+			version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			if err != nil {
+				return
 			}
 			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
 			if e != nil {
@@ -165,6 +175,8 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 
 			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
+			clusters[i].Operators.Dbaas.Version = version
+			clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)
 	}
 	wg.Wait()

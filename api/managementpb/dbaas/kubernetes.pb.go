@@ -195,6 +195,8 @@ type Operators struct {
 	Pxc *Operator `protobuf:"bytes,1,opt,name=pxc,proto3" json:"pxc,omitempty"`
 	// Percona Server for MongoDB Operator.
 	Psmdb *Operator `protobuf:"bytes,2,opt,name=psmdb,proto3" json:"psmdb,omitempty"`
+	// DBaaS operator.
+	Dbaas *Operator `protobuf:"bytes,3,opt,name=dbaas,proto3" json:"dbaas,omitempty"`
 }
 
 func (x *Operators) Reset() {
@@ -239,6 +241,13 @@ func (x *Operators) GetPxc() *Operator {
 func (x *Operators) GetPsmdb() *Operator {
 	if x != nil {
 		return x.Psmdb
+	}
+	return nil
+}
+
+func (x *Operators) GetDbaas() *Operator {
+	if x != nil {
+		return x.Dbaas
 	}
 	return nil
 }
@@ -829,14 +838,17 @@ var file_managementpb_dbaas_kubernetes_proto_rawDesc = []byte{
 	0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61,
 	0x74, 0x6f, 0x72, 0x73, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74,
 	0x75, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x22, 0x65, 0x0a, 0x09,
-	0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0x29, 0x0a, 0x03, 0x70, 0x78, 0x63,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x52,
-	0x03, 0x70, 0x78, 0x63, 0x12, 0x2d, 0x0a, 0x05, 0x70, 0x73, 0x6d, 0x64, 0x62, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x22, 0x94, 0x01, 0x0a,
+	0x09, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x12, 0x29, 0x0a, 0x03, 0x70, 0x78,
+	0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72,
+	0x52, 0x03, 0x70, 0x78, 0x63, 0x12, 0x2d, 0x0a, 0x05, 0x70, 0x73, 0x6d, 0x64, 0x62, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x05, 0x70,
+	0x73, 0x6d, 0x64, 0x62, 0x12, 0x2d, 0x0a, 0x05, 0x64, 0x62, 0x61, 0x61, 0x73, 0x18, 0x03, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x64, 0x62, 0x61, 0x61, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x05, 0x70, 0x73,
-	0x6d, 0x64, 0x62, 0x22, 0x1f, 0x0a, 0x1d, 0x4c, 0x69, 0x73, 0x74, 0x4b, 0x75, 0x62, 0x65, 0x72,
+	0x74, 0x61, 0x31, 0x2e, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x52, 0x05, 0x64, 0x62,
+	0x61, 0x61, 0x73, 0x22, 0x1f, 0x0a, 0x1d, 0x4c, 0x69, 0x73, 0x74, 0x4b, 0x75, 0x62, 0x65, 0x72,
 	0x6e, 0x65, 0x74, 0x65, 0x73, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x73, 0x52, 0x65, 0x71,
 	0x75, 0x65, 0x73, 0x74, 0x22, 0xc4, 0x02, 0x0a, 0x1e, 0x4c, 0x69, 0x73, 0x74, 0x4b, 0x75, 0x62,
 	0x65, 0x72, 0x6e, 0x65, 0x74, 0x65, 0x73, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x73, 0x52,
@@ -1032,28 +1044,29 @@ var file_managementpb_dbaas_kubernetes_proto_depIdxs = []int32{
 	15, // 0: dbaas.v1beta1.Operator.status:type_name -> dbaas.v1beta1.OperatorsStatus
 	2,  // 1: dbaas.v1beta1.Operators.pxc:type_name -> dbaas.v1beta1.Operator
 	2,  // 2: dbaas.v1beta1.Operators.psmdb:type_name -> dbaas.v1beta1.Operator
-	14, // 3: dbaas.v1beta1.ListKubernetesClustersResponse.kubernetes_clusters:type_name -> dbaas.v1beta1.ListKubernetesClustersResponse.Cluster
-	1,  // 4: dbaas.v1beta1.RegisterKubernetesClusterRequest.kube_auth:type_name -> dbaas.v1beta1.KubeAuth
-	1,  // 5: dbaas.v1beta1.GetKubernetesClusterResponse.kube_auth:type_name -> dbaas.v1beta1.KubeAuth
-	16, // 6: dbaas.v1beta1.GetResourcesResponse.all:type_name -> dbaas.v1beta1.Resources
-	16, // 7: dbaas.v1beta1.GetResourcesResponse.available:type_name -> dbaas.v1beta1.Resources
-	3,  // 8: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster.operators:type_name -> dbaas.v1beta1.Operators
-	0,  // 9: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster.status:type_name -> dbaas.v1beta1.KubernetesClusterStatus
-	4,  // 10: dbaas.v1beta1.Kubernetes.ListKubernetesClusters:input_type -> dbaas.v1beta1.ListKubernetesClustersRequest
-	6,  // 11: dbaas.v1beta1.Kubernetes.RegisterKubernetesCluster:input_type -> dbaas.v1beta1.RegisterKubernetesClusterRequest
-	8,  // 12: dbaas.v1beta1.Kubernetes.UnregisterKubernetesCluster:input_type -> dbaas.v1beta1.UnregisterKubernetesClusterRequest
-	10, // 13: dbaas.v1beta1.Kubernetes.GetKubernetesCluster:input_type -> dbaas.v1beta1.GetKubernetesClusterRequest
-	12, // 14: dbaas.v1beta1.Kubernetes.GetResources:input_type -> dbaas.v1beta1.GetResourcesRequest
-	5,  // 15: dbaas.v1beta1.Kubernetes.ListKubernetesClusters:output_type -> dbaas.v1beta1.ListKubernetesClustersResponse
-	7,  // 16: dbaas.v1beta1.Kubernetes.RegisterKubernetesCluster:output_type -> dbaas.v1beta1.RegisterKubernetesClusterResponse
-	9,  // 17: dbaas.v1beta1.Kubernetes.UnregisterKubernetesCluster:output_type -> dbaas.v1beta1.UnregisterKubernetesClusterResponse
-	11, // 18: dbaas.v1beta1.Kubernetes.GetKubernetesCluster:output_type -> dbaas.v1beta1.GetKubernetesClusterResponse
-	13, // 19: dbaas.v1beta1.Kubernetes.GetResources:output_type -> dbaas.v1beta1.GetResourcesResponse
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2,  // 3: dbaas.v1beta1.Operators.dbaas:type_name -> dbaas.v1beta1.Operator
+	14, // 4: dbaas.v1beta1.ListKubernetesClustersResponse.kubernetes_clusters:type_name -> dbaas.v1beta1.ListKubernetesClustersResponse.Cluster
+	1,  // 5: dbaas.v1beta1.RegisterKubernetesClusterRequest.kube_auth:type_name -> dbaas.v1beta1.KubeAuth
+	1,  // 6: dbaas.v1beta1.GetKubernetesClusterResponse.kube_auth:type_name -> dbaas.v1beta1.KubeAuth
+	16, // 7: dbaas.v1beta1.GetResourcesResponse.all:type_name -> dbaas.v1beta1.Resources
+	16, // 8: dbaas.v1beta1.GetResourcesResponse.available:type_name -> dbaas.v1beta1.Resources
+	3,  // 9: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster.operators:type_name -> dbaas.v1beta1.Operators
+	0,  // 10: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster.status:type_name -> dbaas.v1beta1.KubernetesClusterStatus
+	4,  // 11: dbaas.v1beta1.Kubernetes.ListKubernetesClusters:input_type -> dbaas.v1beta1.ListKubernetesClustersRequest
+	6,  // 12: dbaas.v1beta1.Kubernetes.RegisterKubernetesCluster:input_type -> dbaas.v1beta1.RegisterKubernetesClusterRequest
+	8,  // 13: dbaas.v1beta1.Kubernetes.UnregisterKubernetesCluster:input_type -> dbaas.v1beta1.UnregisterKubernetesClusterRequest
+	10, // 14: dbaas.v1beta1.Kubernetes.GetKubernetesCluster:input_type -> dbaas.v1beta1.GetKubernetesClusterRequest
+	12, // 15: dbaas.v1beta1.Kubernetes.GetResources:input_type -> dbaas.v1beta1.GetResourcesRequest
+	5,  // 16: dbaas.v1beta1.Kubernetes.ListKubernetesClusters:output_type -> dbaas.v1beta1.ListKubernetesClustersResponse
+	7,  // 17: dbaas.v1beta1.Kubernetes.RegisterKubernetesCluster:output_type -> dbaas.v1beta1.RegisterKubernetesClusterResponse
+	9,  // 18: dbaas.v1beta1.Kubernetes.UnregisterKubernetesCluster:output_type -> dbaas.v1beta1.UnregisterKubernetesClusterResponse
+	11, // 19: dbaas.v1beta1.Kubernetes.GetKubernetesCluster:output_type -> dbaas.v1beta1.GetKubernetesClusterResponse
+	13, // 20: dbaas.v1beta1.Kubernetes.GetResources:output_type -> dbaas.v1beta1.GetResourcesResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_managementpb_dbaas_kubernetes_proto_init() }

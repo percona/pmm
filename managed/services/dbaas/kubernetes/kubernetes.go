@@ -35,16 +35,20 @@ import (
 type ClusterType string
 
 const (
-	ClusterTypeUnknown        ClusterType = "unknown"
-	ClusterTypeMinikube       ClusterType = "minikube"
-	ClusterTypeEKS            ClusterType = "eks"
-	ClusterTypeGeneric        ClusterType = "generic"
-	pxcDeploymentName                     = "percona-xtradb-cluster-operator"
-	psmdbDeploymentName                   = "percona-server-mongodb-operator"
-	databaseClusterKind                   = "DatabaseCluster"
-	databaseClusterAPIVersion             = "dbaas.percona.com/v1"
-	restartAnnotationKey                  = "dbaas.percona.com/restart"
-	managedByKey                          = "dbaas.percona.com/managed-by"
+	ClusterTypeUnknown         ClusterType = "unknown"
+	ClusterTypeMinikube        ClusterType = "minikube"
+	ClusterTypeEKS             ClusterType = "eks"
+	ClusterTypeGeneric         ClusterType = "generic"
+	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
+	psmdbDeploymentName                    = "percona-server-mongodb-operator"
+	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
+	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
+	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
+	dbaasOperatorContainerName             = "dbaas-operator"
+	databaseClusterKind                    = "DatabaseCluster"
+	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
+	restartAnnotationKey                   = "dbaas.percona.com/restart"
+	managedByKey                           = "dbaas.percona.com/managed-by"
 
 	// ContainerStateWaiting represents a state when container requires some
 	// operations being done in order to complete start up.
@@ -252,26 +256,38 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 }
 
 // getOperatorVersion parses operator version from operator deployment
-func (k *Kubernetes) getOperatorVersion(ctx context.Context, name string) (string, error) {
-	deployment, err := k.client.GetDeployment(ctx, name)
+func (k *Kubernetes) getOperatorVersion(ctx context.Context, deploymentName, containerName string) (string, error) {
+	deployment, err := k.client.GetDeployment(ctx, deploymentName)
 	if err != nil {
 		return "", err
 	}
-	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
+	for _, container := range deployment.Spec.Template.Spec.Containers {
+		if container.Name == containerName {
+			return strings.Split(container.Image, ":")[1], nil
+		}
+	}
+	return "", errors.New("unknown version of operator")
 }
 
 // GetPSMDBOperatorVersion parses PSMDB operator version from operator deployment
 func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.getOperatorVersion(ctx, psmdbDeploymentName)
+	return k.getOperatorVersion(ctx, psmdbDeploymentName, psmdbOperatorContainerName)
 }
 
 // GetPXCOperatorVersion parses PXC operator version from operator deployment
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.getOperatorVersion(ctx, pxcDeploymentName)
+	return k.getOperatorVersion(ctx, pxcDeploymentName, pxcOperatorContainerName)
+}
+
+// GetDBaaSOperatorVersion parses DBaaS operator version from operator deployment
+func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
 }
 
 // GetSecret returns secret by name

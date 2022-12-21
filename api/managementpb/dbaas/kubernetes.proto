@@ -42,6 +42,8 @@ message Operators {
   Operator pxc = 1;
   // Percona Server for MongoDB Operator.
   Operator psmdb = 2;
+  // DBaaS operator.
+  Operator dbaas = 3;
 }
 
 message ListKubernetesClustersRequest {}

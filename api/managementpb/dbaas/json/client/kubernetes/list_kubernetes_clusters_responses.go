@@ -518,6 +518,9 @@ ListKubernetesClustersOKBodyKubernetesClustersItems0Operators Operators contains
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0Operators
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0Operators struct {
+	// dbaas
+	Dbaas *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas `json:"dbaas,omitempty"`
+
 	// psmdb
 	PSMDB *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB `json:"psmdb,omitempty"`
 
@@ -528,6 +531,10 @@ type ListKubernetesClustersOKBodyKubernetesClustersItems0Operators struct {
 // Validate validates this list kubernetes clusters OK body kubernetes clusters items0 operators
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateDbaas(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validatePSMDB(formats); err != nil {
 		res = append(res, err)
@@ -540,6 +547,25 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Validate
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) validateDbaas(formats strfmt.Registry) error {
+	if swag.IsZero(o.Dbaas) { // not required
+		return nil
+	}
+
+	if o.Dbaas != nil {
+		if err := o.Dbaas.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("operators" + "." + "dbaas")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("operators" + "." + "dbaas")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -585,6 +611,10 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) validate
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateDbaas(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePSMDB(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -596,6 +626,21 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) ContextV
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextValidateDbaas(ctx context.Context, formats strfmt.Registry) error {
+	if o.Dbaas != nil {
+		if err := o.Dbaas.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("operators" + "." + "dbaas")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("operators" + "." + "dbaas")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -640,6 +685,109 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) MarshalB
 // UnmarshalBinary interface implementation
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) UnmarshalBinary(b []byte) error {
 	var res ListKubernetesClustersOKBodyKubernetesClustersItems0Operators
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas Operator contains all information about operator installed in Kubernetes cluster.
+swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas
+*/
+type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas struct {
+	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
+	//
+	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
+	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
+	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
+	//  - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
+	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_NOT_INSTALLED]
+	Status *string `json:"status,omitempty"`
+
+	// version
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this list kubernetes clusters OK body kubernetes clusters items0 operators dbaas
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_NOT_INSTALLED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum = append(listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
+	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
+
+	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
+	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
+
+	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
+	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
+
+	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
+	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaasStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
+)
+
+// prop value enum
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("operators"+"."+"dbaas"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list kubernetes clusters OK body kubernetes clusters items0 operators dbaas based on context it is used
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) UnmarshalBinary(b []byte) error {
+	var res ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

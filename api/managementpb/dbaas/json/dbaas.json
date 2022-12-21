@@ -2378,6 +2378,29 @@
                         "description": "Operators contains list of operators installed in Kubernetes cluster.",
                         "type": "object",
                         "properties": {
+                          "dbaas": {
+                            "description": "Operator contains all information about operator installed in Kubernetes cluster.",
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                                "type": "string",
+                                "default": "OPERATORS_STATUS_INVALID",
+                                "enum": [
+                                  "OPERATORS_STATUS_INVALID",
+                                  "OPERATORS_STATUS_OK",
+                                  "OPERATORS_STATUS_UNSUPPORTED",
+                                  "OPERATORS_STATUS_NOT_INSTALLED"
+                                ],
+                                "x-order": 0
+                              },
+                              "version": {
+                                "type": "string",
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 2
+                          },
                           "psmdb": {
                             "description": "Operator contains all information about operator installed in Kubernetes cluster.",
                             "type": "object",
