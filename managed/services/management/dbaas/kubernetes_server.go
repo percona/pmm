@@ -144,14 +144,6 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Dbaas: &dbaasv1beta1.Operator{},
 				},
 			}
-			kubeClient, err := kubernetes.New(cluster.KubeConfig)
-			if err != nil {
-				return
-			}
-			version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
-			if err != nil {
-				return
-			}
 			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
 			if e != nil {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
@@ -179,6 +171,15 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 
 			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
+
+			kubeClient, err := kubernetes.New(cluster.KubeConfig)
+			if err != nil {
+				return
+			}
+			version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			if err != nil {
+				return
+			}
 			clusters[i].Operators.Dbaas.Version = version
 			clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)

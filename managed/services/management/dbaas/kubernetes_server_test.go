@@ -81,6 +81,7 @@ func TestKubernetesServer(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		ctx, ks, dc, kubernetesClient, teardown := setup(t)
 		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -131,6 +132,7 @@ func TestKubernetesServer(t *testing.T) {
 				Operators: &dbaasv1beta1.Operators{
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+					Dbaas: &dbaasv1beta1.Operator{Version: "", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
