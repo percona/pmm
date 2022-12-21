@@ -27,8 +27,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
+	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
 )
 
 type ClusterType string
@@ -51,6 +54,9 @@ const (
 	// ContainerStateTerminated indicates that container began execution and
 	// then either ran to completion or failed for some reason.
 	ContainerStateTerminated ContainerState = "terminated"
+
+	// Max size of volume for AWS Elastic Block Storage service is 16TiB.
+	maxVolumeSizeEBS uint64 = 16 * 1024 * 1024 * 1024 * 1024
 )
 
 // Kubernetes is a client for Kubernetes.
@@ -59,10 +65,28 @@ type Kubernetes struct {
 	client     *client.Client
 	l          *logrus.Entry
 	httpClient *http.Client
+	kubeconfig string
 }
 
 // ContainerState describes container's state - waiting, running, terminated.
 type ContainerState string
+
+// NodeSummaryNode holds information about Node inside Node's summary.
+type NodeSummaryNode struct {
+	FileSystem NodeFileSystemSummary `json:"fs,omitempty"`
+}
+
+// NodeSummary holds summary of the Node.
+// One gets this by requesting Kubernetes API endpoint:
+// /v1/nodes/<node-name>/proxy/stats/summary.
+type NodeSummary struct {
+	Node NodeSummaryNode `json:"node,omitempty"`
+}
+
+// NodeFileSystemSummary holds a summary of Node's filesystem.
+type NodeFileSystemSummary struct {
+	UsedBytes uint64 `json:"usedBytes,omitempty"`
+}
 
 // NewIncluster returns new Kubernetes object.
 func NewIncluster() (*Kubernetes, error) {
@@ -105,6 +129,7 @@ func New(kubeconfig string) (*Kubernetes, error) {
 				IdleConnTimeout: 10 * time.Second,
 			},
 		},
+		kubeconfig: kubeconfig,
 	}, nil
 }
 
@@ -132,6 +157,7 @@ func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 		return err
 	}
 	k.client = client
+	k.kubeconfig = kubeconfig
 	return nil
 }
 
@@ -240,7 +266,9 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 		if strings.Contains(storageClass.Provisioner, "aws") {
 			return ClusterTypeEKS, nil
 		}
-		if strings.Contains(storageClass.Provisioner, "minikube") || strings.Contains(storageClass.Provisioner, "kubevirt.io/hostpath-provisioner") || strings.Contains(storageClass.Provisioner, "standard") {
+		if strings.Contains(storageClass.Provisioner, "minikube") ||
+			strings.Contains(storageClass.Provisioner, "kubevirt.io/hostpath-provisioner") ||
+			strings.Contains(storageClass.Provisioner, "standard") {
 			return ClusterTypeMinikube, nil
 		}
 	}
@@ -340,4 +368,240 @@ func IsContainerInState(containerStatuses []corev1.ContainerStatus, state Contai
 	}
 
 	return false
+}
+
+// IsNodeInCondition returns true if node's condition given as an argument has
+// status "True". Otherwise it returns false.
+func IsNodeInCondition(node corev1.Node, conditionType corev1.NodeConditionType) bool {
+	for _, condition := range node.Status.Conditions {
+		if condition.Status == corev1.ConditionTrue && condition.Type == conditionType {
+			return true
+		}
+	}
+	return false
+}
+
+// GetWorkerNodes returns list of cluster workers nodes.
+func (k *Kubernetes) GetWorkerNodes(ctx context.Context) ([]corev1.Node, error) {
+	nodes, err := k.client.GetNodes(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get nodes of Kubernetes cluster")
+	}
+	forbidenTaints := map[string]corev1.TaintEffect{
+		"node.cloudprovider.kubernetes.io/uninitialized": corev1.TaintEffectNoSchedule,
+		"node.kubernetes.io/unschedulable":               corev1.TaintEffectNoSchedule,
+		"node-role.kubernetes.io/master":                 corev1.TaintEffectNoSchedule,
+	}
+	workers := make([]corev1.Node, 0, len(nodes.Items))
+	for _, node := range nodes.Items {
+		if len(node.Spec.Taints) == 0 {
+			workers = append(workers, node)
+			continue
+		}
+		for _, taint := range node.Spec.Taints {
+			effect, keyFound := forbidenTaints[taint.Key]
+			if !keyFound || effect != taint.Effect {
+				workers = append(workers, node)
+			}
+		}
+	}
+	return workers, nil
+}
+
+// GetAllClusterResources goes through all cluster nodes and sums their allocatable resources.
+func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (
+	cpuMillis uint64, memoryBytes uint64, diskSizeBytes uint64, err error,
+) {
+	nodes, err := k.GetWorkerNodes(ctx)
+	if err != nil {
+		return 0, 0, 0, errors.Wrap(err, "could not get a list of nodes")
+	}
+	var volumeCountEKS uint64
+	for _, node := range nodes {
+		cpu, memory, err := getResources(node.Status.Allocatable)
+		if err != nil {
+			return 0, 0, 0, errors.Wrap(err, "could not get allocatable resources of the node")
+		}
+		cpuMillis += cpu
+		memoryBytes += memory
+
+		switch clusterType {
+		case ClusterTypeUnknown:
+			return 0, 0, 0, errors.Errorf("unknown cluster type")
+		case ClusterTypeGeneric:
+			// TODO support other cluster types
+			return 0, 0, 0, nil
+		case ClusterTypeMinikube:
+			storage, ok := node.Status.Allocatable[corev1.ResourceEphemeralStorage]
+			if !ok {
+				return 0, 0, 0, errors.Errorf("could not get storage size of the node")
+			}
+			bytes, err := convertors.StrToBytes(storage.String())
+			if err != nil {
+				return 0, 0, 0, errors.Wrapf(err, "could not convert storage size '%s' to bytes", storage.String())
+			}
+			diskSizeBytes += bytes
+		case ClusterTypeEKS:
+			// See https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#scheduler.
+			if IsNodeInCondition(node, corev1.NodeDiskPressure) {
+				continue
+			}
+
+			// Get nodes's type.
+			nodeType, ok := node.Labels["beta.kubernetes.io/instance-type"]
+			if !ok {
+				return 0, 0, 0, errors.New("dealing with AWS EKS cluster but the node does not have label 'beta.kubernetes.io/instance-type'")
+			}
+			// 39 is a default limit for EKS cluster nodes ...
+			volumeLimitPerNode := uint64(39)
+			typeAndSize := strings.Split(strings.ToLower(nodeType), ".")
+			if len(typeAndSize) < 2 {
+				return 0, 0, 0, errors.Errorf("failed to parse EKS node type '%s', it's not in expected format 'type.size'", nodeType)
+			}
+			// ... however, if the node type is one of M5, C5, R5, T3, Z1D it's 25.
+			limitedVolumesSet := map[string]struct{}{
+				"m5": {}, "c5": {}, "r5": {}, "t3": {}, "t1d": {},
+			}
+			if _, ok := limitedVolumesSet[typeAndSize[0]]; ok {
+				volumeLimitPerNode = 25
+			}
+			volumeCountEKS += volumeLimitPerNode
+		}
+	}
+	if clusterType == ClusterTypeEKS {
+		volumeCountEKSBackup := volumeCountEKS
+		volumeCountEKS -= uint64(len(volumes.Items))
+		if volumeCountEKS > volumeCountEKSBackup {
+			// handle uint underflow
+			volumeCountEKS = 0
+		}
+
+		consumedBytes, err := sumVolumesSize(volumes)
+		if err != nil {
+			return 0, 0, 0, errors.Wrap(err, "failed to sum persistent volumes storage sizes")
+		}
+		diskSizeBytes = (volumeCountEKS * maxVolumeSizeEBS) + consumedBytes
+	}
+	return cpuMillis, memoryBytes, diskSizeBytes, nil
+}
+
+// getResources extracts resources out of corev1.ResourceList and converts them to int64 values.
+// Millicpus are used for CPU values and bytes for memory.
+func getResources(resources corev1.ResourceList) (cpuMillis uint64, memoryBytes uint64, err error) {
+	cpu, ok := resources[corev1.ResourceCPU]
+	if ok {
+		cpuMillis, err = convertors.StrToMilliCPU(cpu.String())
+		if err != nil {
+			return 0, 0, errors.Wrapf(err, "failed to convert '%s' to millicpus", cpu.String())
+		}
+	}
+	memory, ok := resources[corev1.ResourceMemory]
+	if ok {
+		memoryBytes, err = convertors.StrToBytes(memory.String())
+		if err != nil {
+			return 0, 0, errors.Wrapf(err, "failed to convert '%s' to bytes", memory.String())
+		}
+	}
+	return cpuMillis, memoryBytes, nil
+}
+
+// GetConsumedCPUAndMemory returns consumed CPU and Memory in given namespace. If namespace
+// is empty, it tries to get them from all namespaces.
+func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace string) (
+	cpuMillis uint64, memoryBytes uint64, err error,
+) {
+	// Get CPU and Memory Requests of Pods' containers.
+	pods, err := k.GetPods(ctx, namespace)
+	if err != nil {
+		return 0, 0, errors.Wrap(err, "failed to get consumed resources")
+	}
+	for _, ppod := range pods.Items {
+		if ppod.Status.Phase != corev1.PodRunning {
+			continue
+		}
+		nonTerminatedInitContainers := make([]corev1.Container, 0, len(ppod.Spec.InitContainers))
+		for _, container := range ppod.Spec.InitContainers {
+			if !IsContainerInState(
+				ppod.Status.InitContainerStatuses, ContainerStateTerminated,
+			) {
+				nonTerminatedInitContainers = append(nonTerminatedInitContainers, container)
+			}
+		}
+		for _, container := range append(ppod.Spec.Containers, nonTerminatedInitContainers...) {
+			cpu, memory, err := getResources(container.Resources.Requests)
+			if err != nil {
+				return 0, 0, errors.Wrap(err, "failed to sum all consumed resources")
+			}
+			cpuMillis += cpu
+			memoryBytes += memory
+		}
+	}
+
+	return cpuMillis, memoryBytes, nil
+}
+
+// GetConsumedDiskBytes returns consumed bytes. The strategy differs based on k8s cluster type.
+func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (consumedBytes uint64, err error) { //nolint: lll
+	switch clusterType {
+	case ClusterTypeUnknown:
+		return 0, errors.Errorf("unknown cluster type")
+	case ClusterTypeGeneric:
+		// TODO support other cluster types
+		return 0, nil
+	case ClusterTypeMinikube:
+		nodes, err := k.GetWorkerNodes(ctx)
+		if err != nil {
+			return 0, errors.Wrap(err, "can't compute consumed disk size: failed to get worker nodes")
+		}
+		clientConfig, err := clientcmd.NewClientConfigFromBytes([]byte(k.kubeconfig))
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build kubeconfig out of given path")
+		}
+		config, err := clientConfig.ClientConfig()
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build kubeconfig out of given path")
+		}
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to build client out of submited kubeconfig")
+		}
+		for _, node := range nodes {
+			var summary NodeSummary
+			request := clientset.CoreV1().RESTClient().Get().Resource("nodes").Name(node.Name).SubResource("proxy").Suffix("stats/summary")
+			responseRawArrayOfBytes, err := request.DoRaw(context.Background())
+			if err != nil {
+				return 0, errors.Wrap(err, "failed to get stats from node")
+			}
+			if err := json.Unmarshal(responseRawArrayOfBytes, &summary); err != nil {
+				return 0, errors.Wrap(err, "failed to unmarshal response from kubernetes API")
+			}
+			consumedBytes += summary.Node.FileSystem.UsedBytes
+		}
+		return consumedBytes, nil
+	case ClusterTypeEKS:
+		consumedBytes, err := sumVolumesSize(volumes)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to sum persistent volumes storage sizes")
+		}
+		return consumedBytes, nil
+	}
+
+	return 0, nil
+}
+
+// sumVolumesSize returns sum of persistent volumes storage size in bytes.
+func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) {
+	for _, pv := range pvs.Items {
+		bytes, err := convertors.StrToBytes(pv.Spec.Capacity.Storage().String())
+		if err != nil {
+			return 0, err
+		}
+		sum += bytes
+	}
+	return
+}
+
+// GetPersistentVolumes returns list of persistent volumes.
+func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return k.client.GetPersistentVolumes(ctx)
 }
