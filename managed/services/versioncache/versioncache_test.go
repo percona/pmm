@@ -224,5 +224,4 @@ func TestVersionCache(t *testing.T) {
 
 		versionerMock.AssertNotCalled(t, "GetVersions")
 	})
-
 }
