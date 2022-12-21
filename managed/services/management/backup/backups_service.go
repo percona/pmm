@@ -189,6 +189,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 
 		backupParams := &scheduler.BackupTaskParams{
 			ServiceID:     svc.ServiceID,
+			ClusterName:   svc.Cluster,
 			LocationID:    req.LocationId,
 			Name:          req.Name,
 			Description:   req.Description,
@@ -207,7 +208,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			if svc.Cluster == "" {
+			if backupParams.ClusterName == "" {
 				return status.Errorf(codes.FailedPrecondition, "service should be a member of a cluster or replica set")
 			}
 

@@ -45,6 +45,7 @@ func (c *common) ID() string {
 // BackupTaskParams contains common fields for all backup tasks.
 type BackupTaskParams struct {
 	ServiceID     string
+	ClusterName   string
 	LocationID    string
 	Name          string
 	Description   string
@@ -61,8 +62,8 @@ func (p *BackupTaskParams) Validate() error {
 		return errors.New("backup name can't be empty")
 	}
 
-	if p.ServiceID == "" {
-		return errors.New("service id can't be empty")
+	if p.ServiceID == "" && p.ClusterName == "" {
+		return errors.New("backup task should have service id or cluster name")
 	}
 
 	if p.LocationID == "" {
@@ -123,6 +124,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 		MySQLBackupTask: &models.MySQLBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,
@@ -183,6 +185,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 		MongoDBBackupTask: &models.MongoBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,

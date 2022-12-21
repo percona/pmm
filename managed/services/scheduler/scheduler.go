@@ -305,6 +305,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 			},
 			BackupTaskParams: &BackupTaskParams{
 				ServiceID:     data.ServiceID,
+				ClusterName:   data.ClusterName,
 				LocationID:    data.LocationID,
 				Name:          data.Name,
 				Description:   data.Description,
@@ -323,6 +324,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 			},
 			BackupTaskParams: &BackupTaskParams{
 				ServiceID:     data.ServiceID,
+				ClusterName:   data.ClusterName,
 				LocationID:    data.LocationID,
 				Name:          data.Name,
 				Description:   data.Description,
