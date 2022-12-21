@@ -77,8 +77,8 @@ const pxcKubeconfigTest = `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPXCClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, kubernetesClient *mockKubernetesClient,
-		componentsService *mockComponentsService, teardown func(t *testing.T),
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
+		kubernetesClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
 	) {
 		t.Helper()
 

@@ -382,6 +382,11 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	return yaml.Marshal(jsonObj)
 }
 
+// GetPersistentVolumes returns Persistent Volumes available in the cluster
+func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return c.clientset.CoreV1().PersistentVolumes().List(ctx, metav1.ListOptions{})
+}
+
 // GetPods returns list of pods
 func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
 	options := metav1.ListOptions{}
@@ -401,6 +406,11 @@ func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (
 	}
 
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
+}
+
+// GetNodes returns list of nodes
+func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 }
 
 // GetLogs returns logs for pod

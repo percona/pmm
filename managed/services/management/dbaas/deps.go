@@ -122,4 +122,8 @@ type kubernetesClient interface {
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
 	CreatePMMSecret(string, map[string][]byte) error
+	GetAllClusterResources(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, uint64, uint64, error)
+	GetConsumedCPUAndMemory(context.Context, string) (uint64, uint64, error)
+	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
+	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
 }

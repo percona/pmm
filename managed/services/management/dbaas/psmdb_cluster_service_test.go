@@ -77,8 +77,8 @@ const psmdbKubeconfTest = `
 const psmdbKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPSMDBClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, kubernetesClient *mockKubernetesClient,
-		componentsService *mockComponentsService, teardown func(t *testing.T),
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
+		kubernetesClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -89,6 +89,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		kubernetesClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
 		kubernetesClient = &mockKubernetesClient{}
 
