@@ -8,6 +8,9 @@ release-dev-managed:              ## Build pmm-managed
 release-dev-agent:                ## Build pmm-agent
 	make -C agent release-dev
 
+release-dev-update:               ## Build pmm-agent
+	make -C update release
+
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -24,6 +27,10 @@ run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
+
+run-update: release-dev-update      ## Replace pmm-update from build
+	cp $(PMM_RELEASE_PATH)/pmm-update /usr/sbin/pmm-update
+	pmm-update -run-playbook -playbook /root/go/src/github.com/percona/pmm/update/ansible/playbook/tasks/update.yml
 
 run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 
