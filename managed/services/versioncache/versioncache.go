@@ -105,13 +105,13 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 			return err
 		}
 
+		results.ServiceType = service.ServiceType
 		swList := agents.GetSoftwareList(service.ServiceType)
 		// Stop if no software specified for the service type.
 		if len(swList) == 0 {
 			return nil
 		}
 
-		results.ServiceType = service.ServiceType
 		results.BackupSoftwareList = swList
 
 		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, servicesVersions[0].ServiceID)
