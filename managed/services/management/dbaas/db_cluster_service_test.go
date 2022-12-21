@@ -34,6 +34,7 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	pmmversion "github.com/percona/pmm/version"
 )
 
 const dbKubeconfigTest = `
@@ -72,6 +73,10 @@ const dbKubeconfigTest = `
 const dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
 
 func TestDBClusterService(t *testing.T) {
+	if pmmversion.PMMVersion == "" {
+		pmmversion.PMMVersion = "2.30.0"
+	}
+
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
 		olmsMock *olm.MockOperatorServiceManager, teardown func(t *testing.T)) {
 		t.Helper()
@@ -106,8 +111,8 @@ func TestDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	// dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-	// dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
 	// mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
 	// 	Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{

@@ -93,27 +93,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.Empty(t, clusters.KubernetesClusters)
 
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
-		// dc.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-		// mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
-		// 	Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
-		// 		{
-		// 			Namespace: "space-x",
-		// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
-		// 			Csv:       "percona-xtradb-cluster-operator-v1.2.3",
-		// 			Approval:  "Manual",
-		// 			Approved:  false,
-		// 		},
-		// 		{
-		// 			Namespace: "space-x",
-		// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
-		// 			Csv:       "percona-server-mongodb-operator-v1.2.3",
-		// 			Approval:  "Manual",
-		// 			Approved:  false,
-		// 		},
-		// 	},
-		// }
-		// dc.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
-		// dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
+		olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -140,7 +120,7 @@ func TestKubernetesServer(t *testing.T) {
 				KubernetesClusterName: kubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
-					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},

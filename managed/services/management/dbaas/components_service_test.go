@@ -609,6 +609,9 @@ func TestInstallOperator(t *testing.T) {
 	db, c, _, olms := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
 
 	olms.On("SetKubeConfig", mock.Anything).Return(nil)
+	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+	olms.On("UpgradeOperator", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
 	defer cancel()
@@ -632,7 +635,6 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
-		t.Skip("Defaults supported")
 		response.Versions[1].Matrix.Pxc[defaultPXCVersion] = componentVersion{}
 		response.Versions[3].Matrix.Mongod[defaultPSMDBVersion] = componentVersion{}
 
@@ -709,51 +711,50 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 
 	pmmversion.PMMVersion = twoPointEighteen
 	ctx := context.Background()
-	// 	t.Run("Update available", func(t *testing.T) {
-	// 		clusterName := "update-available"
-	// 		_, cs, dbaasClient := setup(t, clusterName, response, "9873", defaultPXCVersion, defaultPSMDBVersion)
-	// 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-	// 			Operators: &controllerv1beta1.Operators{
-	// 				PsmdbOperatorVersion: onePointSeven,
-	// 				PxcOperatorVersion:   onePointSeven,
-	// 			},
-	// 		}, nil)
-	//
-	// 		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
-	// 			Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{
-	// 				{
-	// 					Namespace:    "space-x",
-	// 					Name:         "psmdb-operator",
-	// 					Package:      "percona-server-mongodb-operator",
-	// 					Source:       "src",
-	// 					Channel:      "nat-geo",
-	// 					CurrentCsv:   "percona-server-mongodb-operator-v1.8.0",
-	// 					InstalledCsv: "percona-server-mongodb-operator-v1.2.2",
-	// 				},
-	// 				{
-	// 					Namespace:    "space-x",
-	// 					Name:         "pxc-operator",
-	// 					Package:      "percona-xtradb-cluster-operator",
-	// 					Source:       "src",
-	// 					Channel:      "nat-geo",
-	// 					CurrentCsv:   "percona-xtradb-cluster-operator-v1.8.0",
-	// 					InstalledCsv: "percona-xtradb-cluster-operator-v1.2.2",
-	// 				},
-	// 			},
-	// 		}
-	// 		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(mockSubscriptions, nil)
-	// 		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
-	// 		require.NoError(t, err)
-	// 		cluster := resp.ClusterToComponents[clusterName]
-	// 		require.NotNil(t, cluster)
-	// 		require.NotNil(t, cluster.ComponentToUpdateInformation)
-	// 		require.NotNil(t, cluster.ComponentToUpdateInformation[psmdbOperator])
-	// 		require.NotNil(t, cluster.ComponentToUpdateInformation[pxcOperator])
-	// 		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[psmdbOperator].AvailableVersion)
-	// 		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
-	// 	})
+	t.Run("Update available", func(t *testing.T) {
+		clusterName := "update-available"
+		_, cs, dbaasClient, _ := setup(t, clusterName, response, "9873", defaultPXCVersion, defaultPSMDBVersion)
+		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+			Operators: &controllerv1beta1.Operators{
+				PsmdbOperatorVersion: onePointSeven,
+				PxcOperatorVersion:   onePointSeven,
+			},
+		}, nil)
+
+		mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
+			Items: []*controllerv1beta1.Subscription{
+				{
+					Namespace:    "space-x",
+					Name:         "psmdb-operator",
+					Package:      "percona-server-mongodb-operator",
+					Source:       "src",
+					Channel:      "nat-geo",
+					CurrentCsv:   "percona-server-mongodb-operator-v1.8.0",
+					InstalledCsv: "percona-server-mongodb-operator-v1.2.2",
+				},
+				{
+					Namespace:    "space-x",
+					Name:         "pxc-operator",
+					Package:      "percona-xtradb-cluster-operator",
+					Source:       "src",
+					Channel:      "nat-geo",
+					CurrentCsv:   "percona-xtradb-cluster-operator-v1.8.0",
+					InstalledCsv: "percona-xtradb-cluster-operator-v1.2.2",
+				},
+			},
+		}
+		dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(mockSubscriptions, nil)
+		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
+		require.NoError(t, err)
+		cluster := resp.ClusterToComponents[clusterName]
+		require.NotNil(t, cluster)
+		require.NotNil(t, cluster.ComponentToUpdateInformation)
+		require.NotNil(t, cluster.ComponentToUpdateInformation[psmdbOperator])
+		require.NotNil(t, cluster.ComponentToUpdateInformation[pxcOperator])
+		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[psmdbOperator].AvailableVersion)
+		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
+	})
 	t.Run("Update NOT available", func(t *testing.T) {
-		t.Skip("lllllllllllllllllllllllllllll")
 		clusterName := "update-not-available"
 		_, cs, dbaasClient, _ := setup(t, clusterName, response, "7895", defaultPXCVersion, defaultPSMDBVersion)
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
