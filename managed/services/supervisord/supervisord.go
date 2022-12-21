@@ -423,11 +423,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 
-	postgresAddr := getValueFromENV(models.EnvPostgresAddr, models.DefaultPostgresAddr)
-	postgresDBName := getValueFromENV(models.EnvPostgresDBName, models.DefaultPostgresDBName)
-	postgresDBUsername := getValueFromENV(models.EnvPostgresDBUsername, models.DefaultPostgresDBUsername)
-	postgresDBPassword := getValueFromENV(models.EnvPostgresDBPassword, models.DefaultPostgresDBPassword)
-
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
@@ -439,15 +434,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatabase":       clickhouseDatabase,
 		"ClickhousePoolSize":       clickhousePoolSize,
 		"ClickhouseBlockSize":      clickhouseBlockSize,
-		"PostgresAddr":             postgresAddr,
-		"PostgresDBName":           postgresDBName,
-		"PostgresDBUsername":       postgresDBUsername,
-		"PostgresDBPassword":       postgresDBPassword,
-		"EnvPostgresAddr":          models.EnvPostgresAddr,
-		"EnvPostgresDBName":        models.EnvPostgresDBName,
-		"EnvPostgresDBUsername":    models.EnvPostgresDBUsername,
-		"EnvPostgresDBPassword":    models.EnvPostgresDBPassword,
 	}
+
+	addPostgresParams(templateParams)
 
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
@@ -502,6 +491,19 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
 
 	return nil
+}
+
+// addPostgresParams adds pmm-server postgres database params to template config for grafana.
+func addPostgresParams(templateParams map[string]interface{}) {
+	templateParams["PostgresAddr"] = getValueFromENV(models.EnvPostgresAddr, models.DefaultPostgresAddr)
+	templateParams["PostgresDBName"] = getValueFromENV(models.EnvPostgresDBName, models.DefaultPostgresDBName)
+	templateParams["PostgresDBUsername"] = getValueFromENV(models.EnvPostgresDBUsername, models.DefaultPostgresDBUsername)
+	templateParams["PostgresDBPassword"] = getValueFromENV(models.EnvPostgresDBPassword, models.DefaultPostgresDBPassword)
+
+	templateParams["EnvPostgresAddr"] = models.EnvPostgresAddr
+	templateParams["EnvPostgresDBName"] = models.EnvPostgresDBName
+	templateParams["EnvPostgresDBUsername"] = models.EnvPostgresDBUsername
+	templateParams["EnvPostgresDBPassword"] = models.EnvPostgresDBPassword
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
