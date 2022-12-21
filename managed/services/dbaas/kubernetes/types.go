@@ -29,9 +29,11 @@ import (
 )
 
 const (
-	dbaasAPI                             = "dbaas.percona.com/v1"
-	dbaasKind                            = "DatabaseCluster"
-	DatabaseTypePXC   dbaasv1.EngineType = "pxc"
+	dbaasAPI  = "dbaas.percona.com/v1"
+	dbaasKind = "DatabaseCluster"
+	// DatabaseTypePXC is a pxc database
+	DatabaseTypePXC dbaasv1.EngineType = "pxc"
+	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
 
 	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
@@ -92,6 +94,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 	return req, nil
 }
 
+// DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
 func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
 		return nil, errors.New("pxc cluster must have one and only one proxy type defined")
@@ -193,6 +196,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	return dbCluster, nil
 }
 
+// DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
@@ -260,6 +264,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	return dbCluster, nil
 }
 
+// UpdatePatchForPSMDB returns a patch to update a database cluster
 func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest) error {
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
@@ -305,6 +310,7 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	return nil
 }
 
+// UpdatePatchForPXC returns a patch to update a database cluster
 func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest) error {
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous

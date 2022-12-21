@@ -157,7 +157,7 @@ func NewEmpty() *Kubernetes {
 	}
 }
 
-// nges kubeconfig for active client
+// SetKubeconfig changes kubeconfig for active client
 func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -326,6 +326,7 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	return k.client.GetSecret(ctx, name)
 }
 
+// CreatePMMSecret creates pmm secret in kubernetes.
 func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byte) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
