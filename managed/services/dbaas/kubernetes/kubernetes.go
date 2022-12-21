@@ -47,7 +47,7 @@ const (
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
 	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
 	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
-	dbaasOperatorContainerName             = "dbaas-operator"
+	dbaasOperatorContainerName             = "manager"
 	databaseClusterKind                    = "DatabaseCluster"
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
