@@ -31,6 +31,19 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
+// PostgreSQL configuration defaults.
+const (
+	EnvPostgresAddr       = "POSTGRES_ADDR"
+	EnvPostgresDBName     = "POSTGRES_DBNAME"
+	EnvPostgresDBUsername = "POSTGRES_USERNAME"
+	EnvPostgresDBPassword = "POSTGRES_PASSWORD"
+
+	DefaultPostgresAddr       = "127.0.0.1:5432"
+	DefaultPostgresDBName     = "pmm-managed"
+	DefaultPostgresDBUsername = "postgres"
+	DefaultPostgresDBPassword = ""
+)
+
 // PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 const PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 
