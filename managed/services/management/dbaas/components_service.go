@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"regexp"
 	"sync"
-	"time"
 
 	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -41,8 +40,6 @@ const (
 	psmdbOperatorName = "percona-server-mongodb-operator"
 	pxcOperatorName   = "percona-xtradb-cluster-operator"
 	defaultNamespace  = "default"
-	pollInterval      = 1 * time.Second
-	pollDuration      = 5 * time.Minute
 )
 
 // ComponentsService holds unexported fields and public methods to handle Components Service.
@@ -51,6 +48,7 @@ type ComponentsService struct {
 	db                   *reform.DB
 	dbaasClient          dbaasClient
 	versionServiceClient versionService
+	olmOperatorService   olm.OperatorServiceManager
 
 	dbaasv1beta1.UnimplementedComponentsServer
 }
@@ -62,13 +60,14 @@ type installedComponentsVersion struct {
 }
 
 // NewComponentsService creates Components Service.
-func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
+func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService, olmOperatorService olm.OperatorServiceManager) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
 	return &ComponentsService{
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
 		versionServiceClient: versionServiceClient,
+		olmOperatorService:   olmOperatorService,
 	}
 }
 
@@ -415,20 +414,19 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	var component *models.Component
 	var installFunc func() error
 
-	olms, err := olm.NewFromKubeConfig(kubernetesCluster.KubeConfig)
-	if err != nil {
+	if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
 		return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
 	}
 
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			return olms.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
+			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			return olms.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
+			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
 	default:

@@ -55,24 +55,26 @@ var (
 )
 
 type kubernetesServer struct {
-	l              *logrus.Entry
-	db             *reform.DB
-	dbaasClient    dbaasClient
-	versionService versionService
-	grafanaClient  grafanaClient
+	l                  *logrus.Entry
+	db                 *reform.DB
+	dbaasClient        dbaasClient
+	versionService     versionService
+	grafanaClient      grafanaClient
+	olmOperatorService olm.OperatorServiceManager
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient, olms olm.OperatorServiceManager) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:              l,
-		db:             db,
-		dbaasClient:    dbaasClient,
-		versionService: versionService,
-		grafanaClient:  grafanaClient,
+		l:                  l,
+		db:                 db,
+		dbaasClient:        dbaasClient,
+		versionService:     versionService,
+		grafanaClient:      grafanaClient,
+		olmOperatorService: olms,
 	}
 }
 
@@ -264,34 +266,6 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
-// func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
-// 	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-// 			Kubeconfig: kubeconfig,
-// 		},
-// 		Version: version,
-// 	}
-//
-// 	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
-// 		return errors.Wrap(err, "cannot install OLM operator")
-// 	}
-//
-// 	return nil
-// }
-
-// func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
-// 	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-// 			Kubeconfig: kubeConfig,
-// 		},
-// 		Name:      name,
-// 		Namespace: namespace,
-// 	}
-// 	_, err := client.ApproveInstallPlan(ctx, req)
-//
-// 	return err
-// }
-
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
 	var err error
@@ -386,22 +360,16 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	}
 
 	// Install the operators in the background.
-	go k.installDefaultOperators(req.KubeAuth.Kubeconfig, operatorsToInstall)
+	go k.installDefaultOperators(operatorsToInstall)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsToInstall map[string]bool) {
+func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool) {
 	ctx := context.TODO()
 
-	olms, err := olm.NewFromKubeConfig(kubeconfig)
-	if err != nil {
-		k.l.Errorf("cannot connect to the Kubernetes cluster: %s", err)
-		return
-	}
-
 	if _, ok := operatorsToInstall["olm"]; ok {
-		err := olms.InstallOLMOperator(ctx)
+		err := k.olmOperatorService.InstallOLMOperator(ctx)
 		k.l.Info(">> Installing OLM operator")
 		if err != nil {
 			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
@@ -425,7 +393,7 @@ func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsTo
 		}
 
 		k.l.Info(">> Installing pxc operator")
-		if err := olms.InstallOperator(ctx, params); err != nil {
+		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
@@ -443,7 +411,7 @@ func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsTo
 			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
 		}
 
-		if err := olms.InstallOperator(ctx, params); err != nil {
+		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
@@ -460,7 +428,7 @@ func (k kubernetesServer) installDefaultOperators(kubeconfig string, operatorsTo
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
-		if err := olms.InstallOperator(ctx, params); err != nil {
+		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}

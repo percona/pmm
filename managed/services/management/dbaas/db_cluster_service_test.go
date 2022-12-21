@@ -30,6 +30,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -71,7 +72,8 @@ const dbKubeconfigTest = `
 const dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
 
 func TestDBClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
+		olmsMock *olm.MockOperatorServiceManager, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -81,6 +83,7 @@ func TestDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		olmsMock = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -90,12 +93,12 @@ func TestDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, olms, teardown := setup(t)
 	defer teardown(t)
 
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",
@@ -103,29 +106,29 @@ func TestDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	// dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
+	// dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
 
-	mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
-		Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
-			{
-				Namespace: "space-x",
-				Name:      "I am the man with no name: Zapp Brannigan at your service",
-				Csv:       "percona-xtradb-cluster-operator-v1.2.3",
-				Approval:  "Manual",
-				Approved:  false,
-			},
-			{
-				Namespace: "space-x",
-				Name:      "I am the man with no name: Zapp Brannigan at your service",
-				Csv:       "percona-server-mongodb-operator-v1.2.3",
-				Approval:  "Manual",
-				Approved:  false,
-			},
-		},
-	}
-	dbaasClient.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
+	// mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
+	// 	Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
+	// 		{
+	// 			Namespace: "space-x",
+	// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
+	// 			Csv:       "percona-xtradb-cluster-operator-v1.2.3",
+	// 			Approval:  "Manual",
+	// 			Approved:  false,
+	// 		},
+	// 		{
+	// 			Namespace: "space-x",
+	// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
+	// 			Csv:       "percona-server-mongodb-operator-v1.2.3",
+	// 			Approval:  "Manual",
+	// 			Approved:  false,
+	// 		},
+	// 	},
+	// }
+	// dbaasClient.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
+	// dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: dbKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: dbKubeconfigTest},

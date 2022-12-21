@@ -17,9 +17,8 @@ package dbaas
 
 import (
 	"context"
-	"io/ioutil"
-	"os"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -34,6 +33,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -41,7 +41,8 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
+		olms *olm.MockOperatorServiceManager, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -51,6 +52,7 @@ func TestKubernetesServer(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient := &mockGrafanaClient{}
+		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -58,7 +60,7 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
 		return
 	}
 
@@ -75,7 +77,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, teardown := setup(t)
+		ctx, ks, dc, olms, teardown := setup(t)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -90,28 +92,28 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
-		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-		mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
-			Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
-				{
-					Namespace: "space-x",
-					Name:      "I am the man with no name: Zapp Brannigan at your service",
-					Csv:       "percona-xtradb-cluster-operator-v1.2.3",
-					Approval:  "Manual",
-					Approved:  false,
-				},
-				{
-					Namespace: "space-x",
-					Name:      "I am the man with no name: Zapp Brannigan at your service",
-					Csv:       "percona-server-mongodb-operator-v1.2.3",
-					Approval:  "Manual",
-					Approved:  false,
-				},
-			},
-		}
-		dc.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
-		dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
+		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+		// dc.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+		// mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
+		// 	Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
+		// 		{
+		// 			Namespace: "space-x",
+		// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
+		// 			Csv:       "percona-xtradb-cluster-operator-v1.2.3",
+		// 			Approval:  "Manual",
+		// 			Approved:  false,
+		// 		},
+		// 		{
+		// 			Namespace: "space-x",
+		// 			Name:      "I am the man with no name: Zapp Brannigan at your service",
+		// 			Csv:       "percona-server-mongodb-operator-v1.2.3",
+		// 			Approval:  "Manual",
+		// 			Approved:  false,
+		// 		},
+		// 	},
+		// }
+		// dc.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
+		// dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -209,11 +211,14 @@ func TestInstallDefaultOperators(t *testing.T) {
 
 	// _, ks, _, teardown := setup(t)
 	// defer teardown(t)
-	kubeconfig, err := ioutil.ReadFile(os.Getenv("HOME") + "/.kube/config")
-	require.NoError(t, err)
+
+	olms := &olm.MockOperatorServiceManager{}
+	olms.On("InstallOLMOperator", mock.Anything).Return(nil)
+	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
 	ks := kubernetesServer{
-		l: logrus.WithField("component", "kubernetes_server"),
+		l:                  logrus.WithField("component", "kubernetes_server"),
+		olmOperatorService: olms,
 	}
 
 	operatorsToInstall := map[string]bool{
@@ -223,7 +228,7 @@ func TestInstallDefaultOperators(t *testing.T) {
 		"vm":    true,
 	}
 
-	ks.installDefaultOperators(string(kubeconfig), operatorsToInstall)
+	ks.installDefaultOperators(operatorsToInstall)
 }
 
 func TestGetFlagValue(t *testing.T) {

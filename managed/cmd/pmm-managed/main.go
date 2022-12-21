@@ -75,6 +75,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -201,6 +202,7 @@ type gRPCServerDeps struct {
 	componentsService    *managementdbaas.ComponentsService
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
+	olmOperatorService   *olm.OperatorService
 }
 
 type gRPCServerFeatures struct {
@@ -275,14 +277,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient, deps.olmOperatorService)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.olmOperatorService))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -814,6 +816,7 @@ func main() {
 
 	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
+	olmOperatorService := olm.NewEmpty()
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
@@ -824,7 +827,7 @@ func main() {
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 	defaultsFileParser := agents.NewDefaultsFileParser(agentsRegistry)
 
-	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
+	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, olmOperatorService)
 
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
@@ -1014,6 +1017,7 @@ func main() {
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
+				olmOperatorService:   olmOperatorService,
 			}, gRPCServerFeatures{
 				enableAccessControl: *enableAccessControl,
 			})

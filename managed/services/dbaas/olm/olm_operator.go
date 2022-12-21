@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//go:generate ../../../..//bin/ifacemaker -f olm_operator.go -s OperatorService -i OperatorServiceManager -p olm -o operator_service_interface.go
+//go:generate ../../../../bin/mockery -name=OperatorServiceManager -case=snake -inpkg
+
 // Package olm contains logic related to kubernetes operators.
 package olm
 
@@ -59,8 +62,16 @@ type OperatorService struct {
 	k8sclient  client.KubeClientConnector
 }
 
+// NewEmpty returns a new empty OperatorService instance.
+// This is needed in order to be able to inject mocked up instances for testing.
+// In some cases it is not possible to inject an already configured instance since to connect to
+// a kubernetes cluster we need the kubeconfig, but that information is only available per request.
+func NewEmpty() *OperatorService {
+	return &OperatorService{}
+}
+
 // New returns new OperatorService instance and intializes the config.
-func New(k8sclient client.KubeClientConnector) *OperatorService {
+func NewFromConnector(k8sclient client.KubeClientConnector) *OperatorService {
 	return &OperatorService{
 		k8sclient: k8sclient,
 	}
@@ -74,6 +85,17 @@ func NewFromKubeConfig(kubeConfig string) (*OperatorService, error) {
 	}
 
 	return &OperatorService{k8sclient: k8sclient}, nil
+}
+
+func (o *OperatorService) SetKubeConfig(kubeConfig string) error {
+	k8sclient, err := client.NewFromKubeConfigString(kubeConfig)
+	if err != nil {
+		return errors.Wrap(err, "cannot initialize the kubernetes client")
+	}
+
+	o.k8sclient = k8sclient
+
+	return nil
 }
 
 // InstallOLMOperator installs the OLM in the Kubernetes cluster.

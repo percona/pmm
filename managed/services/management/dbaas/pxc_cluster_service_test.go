@@ -30,9 +30,11 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	pmmversion "github.com/percona/pmm/version"
 )
 
 const pxcKubeconfigTest = `
@@ -71,8 +73,19 @@ const pxcKubeconfigTest = `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPXCClusterService(t *testing.T) {
+	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
+	// these lines in kubernetes_server.go will throw an error and tests won't finish.
+	//
+	//     pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	//     if err != nil {
+	//     	return nil, status.Error(codes.Internal, err.Error())
+	//     }
+	//
+	if pmmversion.PMMVersion == "" {
+		pmmversion.PMMVersion = "2.30.0"
+	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		componentsService *mockComponentsService, teardown func(t *testing.T),
+		componentsService *mockComponentsService, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -84,6 +97,7 @@ func TestPXCClusterService(t *testing.T) {
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
 		componentsService = &mockComponentsService{}
+		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -93,11 +107,11 @@ func TestPXCClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, componentsClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, componentsClient, olms, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",
@@ -105,28 +119,6 @@ func TestPXCClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-	mockIPResponse := &controllerv1beta1.ListInstallPlansResponse{
-		Items: []*controllerv1beta1.ListInstallPlansResponse_InstallPlan{
-			{
-				Namespace: "space-x",
-				Name:      "I am the man with no name: Zapp Brannigan at your service",
-				Csv:       "percona-xtradb-cluster-operator-v1.2.3",
-				Approval:  "Manual",
-				Approved:  false,
-			},
-			{
-				Namespace: "space-x",
-				Name:      "I am the man with no name: Zapp Brannigan at your service",
-				Csv:       "percona-server-mongodb-operator-v1.2.3",
-				Approval:  "Manual",
-				Approved:  false,
-			},
-		},
-	}
-	dbaasClient.On("ListInstallPlans", mock.Anything, mock.Anything).Return(mockIPResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,

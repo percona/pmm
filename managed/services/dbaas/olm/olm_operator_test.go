@@ -35,7 +35,7 @@ import (
 func TestInstallOlmOperator(t *testing.T) {
 	ctx := context.Background()
 	k8sclient := &client.MockKubeClientConnector{}
-	olms := New(k8sclient)
+	olms := NewFromConnector(k8sclient)
 
 	t.Run("Install OLM Operator", func(t *testing.T) {
 		k8sclient.On("CreateSubscriptionForCatalog", mock.Anything, mock.Anything, mock.Anything,
