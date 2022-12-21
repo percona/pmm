@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/blang/semver"
 	_ "github.com/lib/pq" // register SQL driver
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,7 +36,6 @@ import (
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -46,6 +46,8 @@ const (
 	statStatementsCacheSize = 5000           // cache size rows limit
 	queryStatStatements     = time.Minute
 )
+
+var pgStatVer18 = semver.MustParse("1.8.0")
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
@@ -103,23 +105,18 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (pgVersion float64, err error) {
+func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
+	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
 	if err != nil {
 		return
 	}
-	v = version.ParsePostgreSQLVersion(v)
-	return strconv.ParseFloat(v, 64)
-}
 
-func getPgStatVersion(q *reform.Querier) (pgVersion float64, err error) {
-	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion from pg_extension where pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
-	if err != nil {
-		return
+	if strings.Count(v, ".") == 1 {
+		v += ".0"
 	}
-	return strconv.ParseFloat(v, 64)
+
+	return semver.Parse(v)
 }
 
 func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
@@ -130,7 +127,7 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
 	switch {
-	case pgStatVersion >= 1.8:
+	case pgStatVersion.GE(pgStatVer18):
 		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
 	}
 
