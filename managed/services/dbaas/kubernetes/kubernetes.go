@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -604,4 +605,9 @@ func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) {
 // GetPersistentVolumes returns list of persistent volumes.
 func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
 	return k.client.GetPersistentVolumes(ctx)
+}
+
+// GetStorageClasses returns all storage classes available in the cluster.
+func (k *Kubernetes) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
+	return k.client.GetStorageClasses(ctx)
 }
