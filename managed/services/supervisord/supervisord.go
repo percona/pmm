@@ -771,10 +771,10 @@ command =
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
         {{- end}}
 environment =
-	{{ .EnvPostgresAddr }}="{{ .PostgresAddr }}",
-	{{ .EnvPostgresDBName }}="{{ .PostgresDBName }}",
-	{{ .EnvPostgresDBUsername }}="{{ .PostgresDBUsername }}",
-	{{ .EnvPostgresDBPassword }}="{{ .PostgresDBPassword }}",
+    {{ .EnvPostgresAddr }}="{{ .PostgresAddr }}",
+    {{ .EnvPostgresDBName }}="{{ .PostgresDBName }}",
+    {{ .EnvPostgresDBUsername }}="{{ .PostgresDBUsername }}",
+    {{ .EnvPostgresDBPassword }}="{{ .PostgresDBPassword }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
 	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana
