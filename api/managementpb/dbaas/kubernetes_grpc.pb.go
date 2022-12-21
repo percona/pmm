@@ -37,6 +37,8 @@ type KubernetesClient interface {
 	//	list and get Pods from all Namespaces. Also getting and listing Nodes
 	//	has to be allowed.
 	GetResources(ctx context.Context, in *GetResourcesRequest, opts ...grpc.CallOption) (*GetResourcesResponse, error)
+	// ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+	ListStorageClasses(ctx context.Context, in *ListStorageClassesRequest, opts ...grpc.CallOption) (*ListStorageClassesResponse, error)
 }
 
 type kubernetesClient struct {
@@ -92,6 +94,15 @@ func (c *kubernetesClient) GetResources(ctx context.Context, in *GetResourcesReq
 	return out, nil
 }
 
+func (c *kubernetesClient) ListStorageClasses(ctx context.Context, in *ListStorageClassesRequest, opts ...grpc.CallOption) (*ListStorageClassesResponse, error) {
+	out := new(ListStorageClassesResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.Kubernetes/ListStorageClasses", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KubernetesServer is the server API for Kubernetes service.
 // All implementations must embed UnimplementedKubernetesServer
 // for forward compatibility
@@ -110,6 +121,8 @@ type KubernetesServer interface {
 	//	list and get Pods from all Namespaces. Also getting and listing Nodes
 	//	has to be allowed.
 	GetResources(context.Context, *GetResourcesRequest) (*GetResourcesResponse, error)
+	// ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+	ListStorageClasses(context.Context, *ListStorageClassesRequest) (*ListStorageClassesResponse, error)
 	mustEmbedUnimplementedKubernetesServer()
 }
 
@@ -134,6 +147,10 @@ func (UnimplementedKubernetesServer) GetKubernetesCluster(context.Context, *GetK
 
 func (UnimplementedKubernetesServer) GetResources(context.Context, *GetResourcesRequest) (*GetResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
+}
+
+func (UnimplementedKubernetesServer) ListStorageClasses(context.Context, *ListStorageClassesRequest) (*ListStorageClassesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListStorageClasses not implemented")
 }
 func (UnimplementedKubernetesServer) mustEmbedUnimplementedKubernetesServer() {}
 
@@ -238,6 +255,24 @@ func _Kubernetes_GetResources_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Kubernetes_ListStorageClasses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListStorageClassesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KubernetesServer).ListStorageClasses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.Kubernetes/ListStorageClasses",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KubernetesServer).ListStorageClasses(ctx, req.(*ListStorageClassesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Kubernetes_ServiceDesc is the grpc.ServiceDesc for Kubernetes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -264,6 +299,10 @@ var Kubernetes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetResources",
 			Handler:    _Kubernetes_GetResources_Handler,
+		},
+		{
+			MethodName: "ListStorageClasses",
+			Handler:    _Kubernetes_ListStorageClasses_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

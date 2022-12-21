@@ -26,6 +26,7 @@ import (
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
@@ -126,4 +127,5 @@ type kubernetesClient interface {
 	GetConsumedCPUAndMemory(context.Context, string) (uint64, uint64, error)
 	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
+	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 }

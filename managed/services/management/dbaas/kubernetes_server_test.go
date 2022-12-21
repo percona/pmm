@@ -31,6 +31,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -367,6 +368,105 @@ current-context: local`
 		kubernetesClient.On("GetConsumedDiskBytes", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(0), errors.New("error"))
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
+			KubernetesClusterName: "test-cluster",
+		})
+		assert.NotNil(t, err)
+	})
+}
+
+func TestListStorageClasses(t *testing.T) {
+	const (
+		clusterName = "test-cluster"
+		kubeConfig  = `apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    server: https://localhost:6443
+  name: local
+contexts:
+- context:
+    cluster: local
+    user: local
+  name: local
+current-context: local`
+	)
+	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
+		t.Helper()
+
+		uuid.SetRand(&tests.IDReader{})
+
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		dbaasClient := &mockDbaasClient{}
+		kubernetesClient = &mockKubernetesClient{}
+		grafanaClient := &mockGrafanaClient{}
+
+		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
+			KubernetesClusterName: clusterName,
+			KubeConfig:            kubeConfig,
+		})
+		require.NoError(t, err)
+
+		teardown = func(t *testing.T) {
+			uuid.SetRand(nil)
+			dbaasClient.AssertExpectations(t)
+			assert.NoError(t, db.Delete(kubernetesCluster))
+			require.NoError(t, sqlDB.Close())
+		}
+		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
+		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
+		return
+	}
+	t.Run("ListStorageClasses", func(t *testing.T) {
+		ks, kubernetesClient, teardown := setup(t)
+		defer teardown(t)
+
+		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubernetesClient.On("GetStorageClasses", mock.Anything).Return(&storagev1.StorageClassList{
+			Items: []storagev1.StorageClass{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "local-storage",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "standard",
+					},
+				},
+			},
+		}, nil)
+		resp, err := ks.ListStorageClasses(context.Background(), &dbaasv1beta1.ListStorageClassesRequest{
+			KubernetesClusterName: "test-cluster",
+		})
+		assert.Nil(t, err)
+		assert.Equal(t, &dbaasv1beta1.ListStorageClassesResponse{
+			StorageClasses: []string{
+				"local-storage",
+				"standard",
+			},
+		}, resp)
+	})
+
+	t.Run("ListStorageClasses invalid cluster name", func(t *testing.T) {
+		ks, _, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ks.ListStorageClasses(context.Background(), &dbaasv1beta1.ListStorageClassesRequest{
+			KubernetesClusterName: "invalid-cluster",
+		})
+		assert.NotNil(t, err)
+	})
+
+	t.Run("ListStorageClasses GetStorageClasses error", func(t *testing.T) {
+		ks, kubernetesClient, teardown := setup(t)
+		defer teardown(t)
+
+		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+
+		kubernetesClient.On("GetStorageClasses", mock.Anything).Return(nil, errors.New("error"))
+
+		_, err := ks.ListStorageClasses(context.Background(), &dbaasv1beta1.ListStorageClassesRequest{
 			KubernetesClusterName: "test-cluster",
 		})
 		assert.NotNil(t, err)
