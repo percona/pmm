@@ -806,6 +806,11 @@ var databaseSchema = [][]string{
 			WHERE "data"->"type"->>'name' IN (SELECT "data"->"type"->>'name' nm FROM scheduled_tasks GROUP BY nm HAVING COUNT(*) > 1);
 		CREATE UNIQUE INDEX scheduled_tasks_data_name_idx ON scheduled_tasks(("data"->"type"->>'name'))`,
 	},
+	75: {
+		`UPDATE scheduled_tasks
+			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
+			WHERE type = 'mongodb_backup'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
