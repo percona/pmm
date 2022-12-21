@@ -107,17 +107,32 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 }
 
 func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
-	disk := (&instance.DiskSize).String()
-	diskSize, err = strconv.ParseInt(disk, 10, 64)
-	if err != nil {
-		return
+	disk, ok := (&instance.DiskSize).AsInt64()
+	if ok {
+		diskSize = disk
 	}
-	mem := (&instance.Memory).String()
-	memory, err = strconv.ParseInt(mem, 10, 64)
-	if err != nil {
-		return
+	mem, ok := (&instance.Memory).AsInt64()
+	if ok {
+		memory = mem
 	}
-	cpu, err = strconv.Atoi(strings.Replace((&instance.CPU).String(), "m", "", -1))
+	cpuResource := (&instance.CPU).String()
+	var cpuMillis int64
+	if strings.HasSuffix(cpuResource, "m") {
+		cpuResource = cpuResource[:len(cpuResource)-1]
+		cpuMillis, err = strconv.ParseInt(cpuResource, 10, 64)
+		if err != nil {
+			return
+		}
+	}
+	cpu = int(cpuMillis)
+	var floatCPU float64
+	if cpuMillis == 0 {
+		floatCPU, err = strconv.ParseFloat(cpuResource, 64)
+		if err != nil {
+			return
+		}
+		cpu = int(floatCPU * 1000)
+	}
 	return
 }
 
