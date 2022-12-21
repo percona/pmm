@@ -16,7 +16,6 @@
 package models_test
 
 import (
-	"github.com/percona/pmm/managed/services/agents"
 	"testing"
 	"time"
 
@@ -29,6 +28,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -482,7 +482,6 @@ func TestServiceHelpers(t *testing.T) {
 			assert.ErrorIs(t, err, models.ErrNotFound)
 			assert.Nil(t, swVersions)
 		}
-
 	})
 }
 

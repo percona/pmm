@@ -16,10 +16,12 @@
 package agents
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSoftwareName(t *testing.T) {

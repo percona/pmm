@@ -151,7 +151,7 @@ func TestCheckCompatibility(t *testing.T) {
 			},
 			expectedError: nil,
 		},
-		//mongodb cases
+		// mongodb cases
 		{
 			name:        "successful",
 			serviceType: models.MongoDBServiceType,
