@@ -68,7 +68,7 @@ func TestGetVersionRequest(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			res := tc.sw.Name()
-			assert.Equal(t, tc.name, res)
+			assert.Equal(t, tc.request, res)
 		})
 	}
 }

@@ -111,7 +111,7 @@ Build Info: {
     ...
 `)
 		execMock.On("LookPath", mongodbBin).Return("", nil).Once()
-		execMock.On("CommandContext", mock.Anything, mongodbBin).
+		execMock.On("CommandContext", mock.Anything, mongodbBin, "--version").
 			Return(&mockedExec{Output: mongodVersionOutput}).Once()
 		version, err := versioner.MongoDBVersion()
 		assert.NoError(t, err)
@@ -125,7 +125,7 @@ GitCommit: 3ec38a5fc6706515fb1be72b015972af1500aa17
 ...
 `)
 		execMock.On("LookPath", pbmBin).Return("", nil).Once()
-		execMock.On("CommandContext", mock.Anything, mongodbBin).
+		execMock.On("CommandContext", mock.Anything, mongodbBin, "version").
 			Return(&mockedExec{Output: pbmVersionOutput}).Once()
 		version, err := versioner.PBMVersion()
 		assert.NoError(t, err)
