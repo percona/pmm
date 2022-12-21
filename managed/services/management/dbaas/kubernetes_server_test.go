@@ -135,7 +135,13 @@ func TestKubernetesServer(t *testing.T) {
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
 		}
-		assert.Equal(t, expected, clusters.KubernetesClusters)
+		assert.Equal(t, expected[0].Operators, clusters.KubernetesClusters[0].Operators)
+		assert.Equal(t, expected[0].KubernetesClusterName, clusters.KubernetesClusters[0].KubernetesClusterName)
+		assert.True(
+			t,
+			clusters.KubernetesClusters[0].Status == dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK ||
+				clusters.KubernetesClusters[0].Status == dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING,
+		)
 		mockK8sResp := []dbaasv1.DatabaseCluster{
 			{
 				ObjectMeta: metav1.ObjectMeta{

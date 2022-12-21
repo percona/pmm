@@ -183,22 +183,30 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 func (s DBClusterService) getComputeResources(resources corev1.ResourceList) (*dbaasv1beta1.ComputeResources, error) {
 	compute := &dbaasv1beta1.ComputeResources{}
 	cpuLimit, ok := resources[corev1.ResourceCPU]
-	cpu := (&cpuLimit).String()
-	if ok && cpu != "" {
-		res, err := strconv.Atoi(strings.Replace(cpu, "m", "", -1))
-		if err != nil {
-			return compute, err
+	if ok {
+		cpu := (&cpuLimit).String()
+		if strings.HasSuffix(cpu, "m") {
+			cpu = cpu[:len(cpu)-1]
+			millis, err := strconv.ParseUint(cpu, 10, 64)
+			if err != nil {
+				return compute, err
+			}
+			compute.CpuM = int32(millis)
 		}
-		compute.CpuM = int32(res)
+		if compute.CpuM == 0 {
+			floatCPU, err := strconv.ParseFloat(cpu, 64)
+			if err != nil {
+				return compute, err
+			}
+			compute.CpuM = int32(floatCPU * 1000)
+		}
 	}
 	memLimit, ok := resources[corev1.ResourceMemory]
-	mem := (&memLimit).String()
-	if ok && mem != "" {
-		res, err := strconv.ParseInt(mem, 10, 64)
-		if err != nil {
-			return compute, err
+	if ok {
+		mem, ok := (&memLimit).AsInt64()
+		if ok {
+			compute.MemoryBytes = mem
 		}
-		compute.MemoryBytes = res
 	}
 	return compute, nil
 }

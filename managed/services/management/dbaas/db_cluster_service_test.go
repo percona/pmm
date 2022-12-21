@@ -277,4 +277,17 @@ func TestDBClusterService(t *testing.T) {
 		_, err := s.DeleteDBCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
+	t.Run("GetComputeResource", func(t *testing.T) {
+		cs := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
+		s := cs.(*DBClusterService)
+		compute, err := s.getComputeResources(corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse("1000m"),
+			corev1.ResourceMemory: resource.MustParse("1G"),
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, &dbaasv1beta1.ComputeResources{
+			CpuM:        1000,
+			MemoryBytes: 1000000000,
+		}, compute)
+	})
 }
