@@ -423,6 +423,11 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 
+	postgresAddr := getValueFromENV(models.EnvPostgresAddr, models.DefaultPostgresAddr)
+	postgresDBName := getValueFromENV(models.EnvPostgresDBName, models.DefaultPostgresDBName)
+	postgresDBUsername := getValueFromENV(models.EnvPostgresDBUsername, models.DefaultPostgresDBUsername)
+	postgresDBPassword := getValueFromENV(models.EnvPostgresDBPassword, models.DefaultPostgresDBPassword)
+
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
@@ -434,6 +439,14 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatabase":       clickhouseDatabase,
 		"ClickhousePoolSize":       clickhousePoolSize,
 		"ClickhouseBlockSize":      clickhouseBlockSize,
+		"PostgresAddr":             postgresAddr,
+		"PostgresDBName":           postgresDBName,
+		"PostgresDBUsername":       postgresDBUsername,
+		"PostgresDBPassword":       postgresDBPassword,
+		"EnvPostgresAddr":          models.EnvPostgresAddr,
+		"EnvPostgresDBName":        models.EnvPostgresDBName,
+		"EnvPostgresDBUsername":    models.EnvPostgresDBUsername,
+		"EnvPostgresDBPassword":    models.EnvPostgresDBPassword,
 	}
 
 	if ssoDetails != nil {
@@ -756,6 +769,10 @@ command =
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
         {{- end}}
 environment =
+	{{ .EnvPostgresAddr }}="{{ .PostgresAddr }}",
+	{{ .EnvPostgresDBName }}="{{ .PostgresDBName }}",
+	{{ .EnvPostgresDBUsername }}="{{ .PostgresDBUsername }}",
+	{{ .EnvPostgresDBPassword }}="{{ .PostgresDBPassword }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
 	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana

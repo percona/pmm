@@ -16,12 +16,14 @@ datasources:
   orgId: 1
   type: postgres
   access: proxy
-  url: localhost:5432
-  user: postgres
-  database: pmm-managed
+  url: ${POSTGRES_ADDR}
+  user: ${POSTGRES_USERNAME}
+  database: ${POSTGRES_DBNAME}
   jsonData:
     postgresVersion: "1100"
     sslmode: disable
+  secureJsonData:
+    password: ${POSTGRES_PASSWORD}
 - name: ClickHouse
   version: 2
   orgId: 1
