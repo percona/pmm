@@ -140,9 +140,9 @@ func TestDBClusterService(t *testing.T) {
 					DatabaseImage: "percona/percona-xtradb-cluster:8.0.27-18.1",
 					ClusterSize:   5,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						CPU:      "3m",
-						Memory:   "256",
-						DiskSize: "1073741824",
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type: "proxysql",
@@ -168,9 +168,9 @@ func TestDBClusterService(t *testing.T) {
 					DatabaseImage: "percona/percona-server-mongodb:4.4.5-7",
 					ClusterSize:   5,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						CPU:      "3m",
-						Memory:   "256",
-						DiskSize: "1073741824",
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type: "mongos",

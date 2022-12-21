@@ -105,21 +105,26 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 		PsmdbClusters: psmdbClusters,
 	}, nil
 }
-
+func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
+	disk := (&instance.DiskSize).String()
+	diskSize, err = strconv.ParseInt(disk, 10, 64)
+	if err != nil {
+		return
+	}
+	mem := (&instance.Memory).String()
+	memory, err = strconv.ParseInt(mem, 10, 64)
+	if err != nil {
+		return
+	}
+	cpu, err = strconv.Atoi(strings.Replace((&instance.CPU).String(), "m", "", -1))
+	return
+}
 func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PXCCluster, error) {
-	diskSize, err := strconv.ParseInt(cluster.Spec.DBInstance.DiskSize, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	memory, err := strconv.ParseInt(cluster.Spec.DBInstance.Memory, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	cpu, err := strconv.Atoi(strings.Replace(cluster.Spec.DBInstance.CPU, "m", "", -1))
-	if err != nil {
-		return nil, err
-	}
 	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
+	if err != nil {
+		return nil, err
+	}
 	c := &dbaasv1beta1.PXCCluster{
 		Name: cluster.Name,
 		Params: &dbaasv1beta1.PXCClusterParams{
@@ -212,19 +217,10 @@ func (s DBClusterService) getComputeResources(resources corev1.ResourceList) (*d
 }
 
 func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PSMDBCluster, error) {
-	diskSize, err := strconv.ParseInt(cluster.Spec.DBInstance.DiskSize, 10, 64)
+	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
 	if err != nil {
 		return nil, err
 	}
-	memory, err := strconv.ParseInt(cluster.Spec.DBInstance.Memory, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	cpu, err := strconv.Atoi(strings.Replace(cluster.Spec.DBInstance.CPU, "m", "", -1))
-	if err != nil {
-		return nil, err
-	}
-
 	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PSMDBCluster{
 		Name: cluster.Name,
