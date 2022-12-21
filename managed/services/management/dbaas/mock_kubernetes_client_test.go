@@ -7,6 +7,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 	v1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 
 	kubernetes "github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
@@ -131,6 +132,29 @@ func (_m *mockKubernetesClient) GetPersistentVolumes(ctx context.Context) (*v1.P
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v1.PersistentVolumeList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetStorageClasses provides a mock function with given fields: ctx
+func (_m *mockKubernetesClient) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
+	ret := _m.Called(ctx)
+
+	var r0 *storagev1.StorageClassList
+	if rf, ok := ret.Get(0).(func(context.Context) *storagev1.StorageClassList); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*storagev1.StorageClassList)
 		}
 	}
 
