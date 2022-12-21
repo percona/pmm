@@ -42,7 +42,6 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	t.Parallel()
 	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
 		t.Helper()
 
@@ -78,7 +77,6 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
 		ctx, ks, dc, kubernetesClient, teardown := setup(t)
 		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
