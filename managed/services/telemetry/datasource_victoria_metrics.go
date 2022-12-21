@@ -98,3 +98,11 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 
 	return metrics, nil
 }
+
+func (d *dataSourceVictoriaMetrics) Init(ctx context.Context) error {
+	return nil
+}
+
+func (d *dataSourceVictoriaMetrics) Dispose(ctx context.Context) error {
+	return nil
+}

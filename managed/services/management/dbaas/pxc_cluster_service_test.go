@@ -72,7 +72,7 @@ const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPXCClusterService(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		componentsService *mockComponentsService, teardown func(t *testing.T),
+		kubernetesClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -83,6 +83,7 @@ func TestPXCClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		kubernetesClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
@@ -93,11 +94,11 @@ func TestPXCClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, componentsClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, kubernetesClient, componentsClient, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",
@@ -105,8 +106,15 @@ func TestPXCClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-
-	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
+	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
+	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
+		Subscription: &controllerv1beta1.Subscription{
+			InstallPlanName: "mocked-install-plan",
+		},
+	}
+	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
+	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,

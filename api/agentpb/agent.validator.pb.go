@@ -300,6 +300,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_RestartSysServiceParams); ok {
+		if oneOfNester.RestartSysServiceParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RestartSysServiceParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RestartSysServiceParams", err)
+			}
+		}
+	}
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
@@ -468,6 +475,10 @@ func (this *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) Validate() e
 	return nil
 }
 
+func (this *StartActionRequest_RestartSystemServiceParams) Validate() error {
+	return nil
+}
+
 func (this *StartActionResponse) Validate() error {
 	return nil
 }
@@ -498,14 +509,6 @@ func (this *PBMSwitchPITRRequest) Validate() error {
 }
 
 func (this *PBMSwitchPITRResponse) Validate() error {
-	return nil
-}
-
-func (this *ParseDefaultsFileRequest) Validate() error {
-	return nil
-}
-
-func (this *ParseDefaultsFileResponse) Validate() error {
 	return nil
 }
 
@@ -970,13 +973,6 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_ParseDefaultsFile); ok {
-		if oneOfNester.ParseDefaultsFile != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseDefaultsFile); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ParseDefaultsFile", err)
-			}
-		}
-	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_AgentLogs); ok {
 		if oneOfNester.AgentLogs != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AgentLogs); err != nil {
@@ -1088,13 +1084,6 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.PbmSwitchPitr != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmSwitchPitr); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PbmSwitchPitr", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_ParseDefaultsFile); ok {
-		if oneOfNester.ParseDefaultsFile != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseDefaultsFile); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ParseDefaultsFile", err)
 			}
 		}
 	}

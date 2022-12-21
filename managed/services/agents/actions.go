@@ -17,8 +17,12 @@ package agents
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -46,10 +50,35 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	err := s.qanClient.QueryExists(ctx, serviceID, query)
-	if err != nil {
-		return err
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	if query == "" && queryID == "" {
+		return status.Error(codes.FailedPrecondition, "query or query_id is required")
+	}
+
+	var q string
+	switch {
+	case queryID != "":
+		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+
+		if res.PlaceholdersCount != uint32(len(placeholders)) {
+			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+		}
+
+		parsed := res.ExplainFingerprint
+		for k, v := range placeholders {
+			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
+		}
+
+		q = parsed
+	default:
+		err := s.qanClient.QueryExists(ctx, serviceID, query)
+		if err != nil {
+			return err
+		}
+		q = query
 	}
 
 	agent, err := s.r.get(pmmAgentID)
@@ -62,7 +91,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				Query:        query,
+				Query:        q,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

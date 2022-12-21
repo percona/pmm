@@ -152,7 +152,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
@@ -283,8 +283,6 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.GetVersions)
 		case *agentpb.AgentMessage_PbmSwitchPitr:
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
-		case *agentpb.AgentMessage_ParseDefaultsFile:
-			c.publish(msg.Id, msg.Status, p.ParseDefaultsFile)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
 

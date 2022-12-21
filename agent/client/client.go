@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -56,11 +57,10 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                *config.Config
-	supervisor         supervisor
-	connectionChecker  connectionChecker
-	softwareVersioner  softwareVersioner
-	defaultsFileParser defaultsFileParser
+	cfg               *config.Config
+	supervisor        supervisor
+	connectionChecker connectionChecker
+	softwareVersioner softwareVersioner
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -82,19 +82,18 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:                cfg,
-		supervisor:         supervisor,
-		connectionChecker:  connectionChecker,
-		softwareVersioner:  sv,
-		l:                  logrus.WithField("component", "client"),
-		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		dialTimeout:        dialTimeout,
-		runner:             r,
-		defaultsFileParser: dfp,
-		cus:                cus,
-		logStore:           logStore,
+		cfg:               cfg,
+		supervisor:        supervisor,
+		connectionChecker: connectionChecker,
+		softwareVersioner: sv,
+		l:                 logrus.WithField("component", "client"),
+		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
+		dialTimeout:       dialTimeout,
+		runner:            r,
+		cus:               cus,
+		logStore:          logStore,
 	}
 }
 
@@ -333,7 +332,7 @@ loop:
 				responsePayload = &agentpb.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
 					responsePayload = nil
-					status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
 
@@ -367,8 +366,6 @@ loop:
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
-			case *agentpb.ParseDefaultsFileRequest:
-				responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 			case *agentpb.AgentLogsRequest:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentpb.AgentLogsResponse{
@@ -501,9 +498,20 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+	case *agentpb.StartActionRequest_RestartSysServiceParams:
+		var service string
+		switch params.RestartSysServiceParams.SystemService {
+		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
+			service = "mongod"
+		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
+			service = "pbm-agent"
+		default:
+			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+		}
+		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Errorf("unknown action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
 	}
 
 	return c.runner.StartAction(action)
@@ -905,6 +913,19 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	return args
+}
+
+func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
+	var status *grpcstatus.Status
+	switch {
+	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
+	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
+		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	}
+	return status
 }
 
 // check interface

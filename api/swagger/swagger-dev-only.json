@@ -845,6 +845,88 @@
         }
       }
     },
+    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
+        "operationId": "ExplainFingerprintByQueryID",
+        "parameters": [
+          {
+            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+              "type": "object",
+              "properties": {
+                "serviceid": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "type": "object",
+              "properties": {
+                "explain_fingerprint": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "placeholders_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
@@ -1790,28 +1872,41 @@
                         "format": "int64",
                         "x-order": 3
                       },
-                      "example_metrics": {
-                        "type": "string",
+                      "placeholders_count": {
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 4
                       },
-                      "service_id": {
+                      "explain_fingerprint": {
                         "type": "string",
                         "x-order": 5
                       },
-                      "service_type": {
+                      "query_id": {
                         "type": "string",
                         "x-order": 6
                       },
-                      "schema": {
+                      "example_metrics": {
                         "type": "string",
                         "x-order": 7
+                      },
+                      "service_id": {
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_type": {
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 10
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 11
                       }
                     }
                   },
@@ -4830,6 +4925,81 @@
                     }
                   },
                   "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Kubernetes/StorageClasses/List": {
+      "post": {
+        "tags": [
+          "Kubernetes"
+        ],
+        "summary": "ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.",
+        "operationId": "ListStorageClasses",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "storage_classes": {
+                  "description": "Kubernetes storage classes names.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -9049,6 +9219,12 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 11
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       }
                     }
                   },
@@ -9467,7 +9643,7 @@
                               "type": "object",
                               "properties": {
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
@@ -9493,7 +9669,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.",
+                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -10352,7 +10528,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.",
+                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -10770,7 +10946,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -11241,7 +11417,7 @@
                           "type": "object",
                           "properties": {
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -11267,7 +11443,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.",
+                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -11702,7 +11878,7 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [

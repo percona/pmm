@@ -18,6 +18,9 @@ agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
 agent/agents/mysql/slowlog/parser/parser-fuzz.zip
 
+update/*.runcover.out
+update/*.test
+
 fuzzing/
 *-fuzz.zip
 *.bench
@@ -31,3 +34,6 @@ pmm-agent-dev.yaml
 *.sw[o,p]
 
 .env
+
+cli-tests/node_modules/
+cli-tests/playwright-report/

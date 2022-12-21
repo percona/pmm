@@ -4,16 +4,18 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
   pull_request:
     paths-ignore:
       - "admin/**"
-      - "managed/**"
-      - "docs/**"
       - "agent/**"
+      - "docs/**"
+      - "managed/**"
+      - "update/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:

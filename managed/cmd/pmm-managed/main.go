@@ -63,6 +63,7 @@ import (
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/userpb"
@@ -74,6 +75,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -176,10 +178,10 @@ type gRPCServerDeps struct {
 	actions              *agents.ActionsService
 	agentsStateUpdater   *agents.StateUpdater
 	connectionCheck      *agents.ConnectionChecker
-	defaultsFileParser   *agents.DefaultsFileParser
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
+	kubernetesClient     *kubernetes.Kubernetes
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
@@ -202,10 +204,14 @@ type gRPCServerDeps struct {
 	agentService         *agents.AgentService
 }
 
+type gRPCServerFeatures struct {
+	enableAccessControl bool
+}
+
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll
-func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
+func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServerFeatures) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
@@ -238,7 +244,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodeSvc := management.NewNodeService(deps.db)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache, deps.defaultsFileParser)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
@@ -256,6 +262,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+	if features.enableAccessControl {
+		rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
+	}
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
@@ -267,13 +276,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
@@ -386,6 +395,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
+		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
 		iav1beta1.RegisterAlertsHandlerFromEndpoint,
 		iav1beta1.RegisterChannelsHandlerFromEndpoint,
@@ -661,6 +671,8 @@ func main() {
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
+	enableAccessControl := kingpin.Flag("enable-access-control", "Enable access control").Default("false").Envar("ENABLE_RBAC").Bool()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -757,7 +769,7 @@ func main() {
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams)
+	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
@@ -806,12 +818,12 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
+	kubernetesClient := kubernetes.NewEmpty()
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
-	defaultsFileParser := agents.NewDefaultsFileParser(agentsRegistry)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 
@@ -907,7 +919,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -982,6 +994,7 @@ func main() {
 				grafanaClient:        grafanaClient,
 				checksService:        checksService,
 				dbaasClient:          dbaasClient,
+				kubernetesClient:     kubernetesClient,
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
@@ -999,10 +1012,11 @@ func main() {
 				versionCache:         versionCache,
 				supervisord:          supervisord,
 				config:               &cfg.Config,
-				defaultsFileParser:   defaultsFileParser,
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
+			}, gRPCServerFeatures{
+				enableAccessControl: *enableAccessControl,
 			})
 	}()
 

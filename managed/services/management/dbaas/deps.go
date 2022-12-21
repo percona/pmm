@@ -24,14 +24,18 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 //go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -68,6 +72,10 @@ type dbaasClient interface {
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error)
+	// InstallOLMOperator installs the OLM operator.
+	InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error)
+	// InstallOperator installs an operator via OLM.
+	InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error)
 	// InstallPXCOperator installs kubernetes pxc operator.
 	InstallPXCOperator(ctx context.Context, in *controllerv1beta1.InstallPXCOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPXCOperatorResponse, error)
 	// InstallPSMDBOperator installs kubernetes psmdb operator.
@@ -78,6 +86,15 @@ type dbaasClient interface {
 	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
 	// GetKubeConfig gets inluster config and converts it to kubeConfig
 	GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error)
+	// ListInstallPlans list all available install plans.
+	ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error)
+	// ApproveInstallPlan approves an install plan.
+	ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error)
+	// ListSubscriptions list all available subscriptions. Used to check if there are updates. If installed crv is different than current csv (latest)
+	// there is an update available.
+	ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error)
+	// GetSubscription retrieves a subscription by namespace and name.
+	GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error)
 }
 
 type versionService interface {
@@ -116,4 +133,14 @@ type componentsService interface {
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
+}
+
+type kubernetesClient interface {
+	SetKubeconfig(string) error
+	GetClusterType(context.Context) (kubernetes.ClusterType, error)
+	GetAllClusterResources(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, uint64, uint64, error)
+	GetConsumedCPUAndMemory(context.Context, string) (uint64, uint64, error)
+	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
+	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
+	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 }
