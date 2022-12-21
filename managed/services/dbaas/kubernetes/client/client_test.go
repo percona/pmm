@@ -151,7 +151,7 @@ func TestGetSecretsForServiceAccountNoSecrets(t *testing.T) {
 func TestGetServerVersion(t *testing.T) {
 	clientset := fake.NewSimpleClientset()
 	client := &Client{clientset: clientset, namespace: "default"}
-	ver, err := client.GetServerVersion(context.TODO())
+	ver, err := client.GetServerVersion()
 	expectedVersion := &version.Info{}
 	require.NoError(t, err)
 	assert.Equal(t, expectedVersion.Minor, ver.Minor)

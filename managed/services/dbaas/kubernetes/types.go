@@ -63,6 +63,10 @@ wsrep_provider_options="gcache.size=%s"
 wsrep_trx_fragment_unit='bytes'
 wsrep_trx_fragment_size=3670016
 `
+	haProxyDefaultConfigurationTemplate = `timeout client 28800s
+timeout connect 100500
+timeout server 28800s
+`
 	psmdbDefaultConfigurationTemplate = `
       operationProfiling:
         mode: slowOp
@@ -143,6 +147,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
 		dbCluster.Spec.LoadBalancer.Resources = resources
 		dbCluster.Spec.LoadBalancer.Type = "haproxy"
+		dbCluster.Spec.LoadBalancer.Configuration = haProxyDefaultConfigurationTemplate
 	}
 	if cluster.Params.Proxysql != nil {
 		resources, err := convertComputeResource(cluster.Params.Proxysql.ComputeResources)
