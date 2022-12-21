@@ -92,7 +92,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 			dataModel = models.PhysicalDataModel
 		case models.MongoDBServiceType:
 			if svc.Cluster == "" {
-				return status.Errorf(codes.FailedPrecondition, "Service %s should be a member of a cluster")
+				return status.Errorf(codes.FailedPrecondition, "Service %s should be a member of a cluster", svc.ServiceName)
 			}
 
 			if err = checkMongoDBBackupPreconditions(tx.Querier, models.Snapshot, svc.Cluster, svc.ServiceID, ""); err != nil {
