@@ -105,6 +105,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 		PsmdbClusters: psmdbClusters,
 	}, nil
 }
+
 func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
 	disk := (&instance.DiskSize).String()
 	diskSize, err = strconv.ParseInt(disk, 10, 64)
@@ -119,6 +120,7 @@ func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (d
 	cpu, err = strconv.Atoi(strings.Replace((&instance.CPU).String(), "m", "", -1))
 	return
 }
+
 func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PXCCluster, error) {
 	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)

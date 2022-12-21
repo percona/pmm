@@ -79,9 +79,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -146,9 +146,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -209,9 +209,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -266,9 +266,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -330,9 +330,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -394,9 +394,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -448,9 +448,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -481,9 +481,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -520,9 +520,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -554,9 +554,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					ClusterSize:    1,
 					Pause:          true,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -596,9 +596,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -629,9 +629,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -670,9 +670,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize: "2000",
-						CPU:      "200m",
-						Memory:   "2000",
+						DiskSize: resource.MustParse("2000"),
+						CPU:      resource.MustParse("200m"),
+						Memory:   resource.MustParse("2000"),
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
 						PMM: &dbaasv1.PMMSpec{},
@@ -703,9 +703,9 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    3,
 					DBInstance: dbaasv1.DBInstanceSpec{
-						DiskSize:         "2000",
-						CPU:              "300m",
-						Memory:           "3000",
+						DiskSize:         resource.MustParse("2000"),
+						CPU:              resource.MustParse("300m"),
+						Memory:           resource.MustParse("3000"),
 						StorageClassName: &storageClass,
 					},
 					Monitoring: dbaasv1.MonitoringSpec{
