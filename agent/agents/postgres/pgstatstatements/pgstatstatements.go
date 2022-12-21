@@ -112,8 +112,11 @@ func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) {
 		return
 	}
 
-	if strings.Count(v, ".") == 1 {
+	switch strings.Count(v, ".") {
+	case 1:
 		v += ".0"
+	case 0:
+		v += ".0.0"
 	}
 
 	return semver.Parse(v)
