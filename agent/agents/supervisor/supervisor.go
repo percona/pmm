@@ -435,6 +435,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 				Status:          status,
 				ListenPort:      uint32(port),
 				ProcessExecPath: processParams.Path,
+				Version:         "PMM-11154-TODO",
 			}
 		}
 		close(done)
