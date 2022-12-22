@@ -319,11 +319,8 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, updatedArtifact)
 
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("8.0.25", nil).Once()
-
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
-			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
 	})
@@ -342,11 +339,8 @@ func TestRestoreBackup(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("", nil).Once()
-
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
-			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
 
@@ -363,7 +357,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
-			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
 	})
