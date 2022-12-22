@@ -669,3 +669,30 @@ func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.Ge
 		},
 	}, nil
 }
+
+// ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+func (k kubernetesServer) ListStorageClasses(ctx context.Context, req *dbaasv1beta1.ListStorageClassesRequest) (*dbaasv1beta1.ListStorageClassesResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	storageClasses, err := k.kubernetesClient.GetStorageClasses(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	storageClassesNames := make([]string, 0, len(storageClasses.Items))
+	for _, storageClass := range storageClasses.Items {
+		storageClassesNames = append(storageClassesNames, storageClass.Name)
+	}
+
+	return &dbaasv1beta1.ListStorageClassesResponse{
+		StorageClasses: storageClassesNames,
+	}, nil
+}
