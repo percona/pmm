@@ -1,5 +1,6 @@
 function callback() {
     alert("script loaded successfully.");
+    document.querySelector("body").setAttribute("style", "background-color: white");
 }
 
 function openDetails(e) {
@@ -7,5 +8,5 @@ function openDetails(e) {
         console.log("Not valid element");
     }
 
-    let query = e.querySelector("*[role='cell']:nth-child(2)");
+    let query = e.querySelector("*[role='cell']:first-child:first-child");
 }

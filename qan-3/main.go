@@ -40,6 +40,7 @@ type response struct {
 
 func main() {
 	http.HandleFunc("/", listener)
+	http.HandleFunc("/fe.js", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "fe.js") })
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
 
@@ -61,7 +62,7 @@ func listener(w http.ResponseWriter, r *http.Request) {
 		var body request
 		json.Unmarshal(message, &body)
 
-		bytes, err := json.Marshal(router(body.Kind))
+		bytes, err := json.Marshal(router(body.Kind, body.Data))
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -75,15 +76,26 @@ func listener(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func router(name string) response {
-	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", name))
+func router(kind, data string) response {
+	switch kind {
+	case "get":
+		return get(kind, data)
+	default:
+		return response{
+			Error: "not supported kind",
+		}
+	}
+}
+
+func get(kind, data string) response {
+	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", data))
 	if err != nil {
 		return response{
 			Error: err.Error(),
 		}
 	}
 
-	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", name))
+	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", data))
 	if err != nil {
 		// script is optional.
 		if !errors.Is(err, os.ErrNotExist) {
@@ -116,7 +128,6 @@ func readHTMLFile(path string) (string, string, error) {
 
 		if lineNumber == 1 {
 			line := fileScanner.Text()
-			fmt.Println(line)
 			if !strings.Contains(line, htmlCommentStart) || !strings.Contains(line, htmlCommentEnd) {
 				return "", "", fmt.Errorf("file %s doesnt contains target on first line", path)
 			}
