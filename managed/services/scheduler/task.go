@@ -62,8 +62,8 @@ func (p *BackupTaskParams) Validate() error {
 		return errors.New("backup name can't be empty")
 	}
 
-	if p.ServiceID == "" && p.ClusterName == "" {
-		return errors.New("backup task should have service id or cluster name")
+	if p.ServiceID == "" {
+		return errors.New("service id can't be empty")
 	}
 
 	if p.LocationID == "" {

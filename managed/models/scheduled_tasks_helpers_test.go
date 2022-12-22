@@ -108,6 +108,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			MongoDBBackupTask: &models.MongoBackupTaskData{
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:  "svc2",
+					ClusterName: "cluster",
 					LocationID: "loc1",
 					Name:       "mongo",
 				},
@@ -267,6 +268,12 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			{
 				filter: models.ScheduledTasksFilter{
 					ServiceID: "svc2",
+				},
+				ids: []string{task4.ID},
+			},
+			{
+				filter: models.ScheduledTasksFilter{
+					ClusterName: "cluster",
 				},
 				ids: []string{task4.ID},
 			},
