@@ -90,7 +90,7 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 	if filters.ClusterName != "" {
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'cluster_name' = "+q.Placeholder(idx))
-		args = append(args, filters.ServiceID)
+		args = append(args, filters.ClusterName)
 		idx++
 	}
 	if filters.LocationID != "" {
