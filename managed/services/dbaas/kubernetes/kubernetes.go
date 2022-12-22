@@ -465,7 +465,7 @@ func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType Clu
 		switch clusterType {
 		case ClusterTypeUnknown:
 			return 0, 0, 0, errors.Errorf("unknown cluster type")
-		case ClusterTypeGenericL:
+		case ClusterTypeGeneric:
 			// TODO support other cluster types
 			continue
 		case ClusterTypeMinikube:
