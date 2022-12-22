@@ -22,8 +22,23 @@ esac
 
 if [ "$1" = "purge" ]; then
     userdel pmm-agent || true
-    if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
-        rm -f /usr/local/percona/pmm2/config/pmm-agent.yaml
+    if [ -f /usr/local/percona ]; then
+        echo -n "Deleting percona directory..."
+        rm -f /usr/local/percona
+        echo "OK"
+    fi
+
+    # delete binaries if we are purging
+    if [ -f /usr/sbin/pmm-admin ]; then
+      echo -n "Deleting pmm-admin..."
+      rm -f /usr/sbin/pmm-admin
+      echo "OK"
+    fi
+
+    if [ -f /usr/sbin/pmm-agent ]; then
+      echo -n "Deleting pmm-agent..."
+      rm -f /usr/sbin/pmm-agent
+      echo "OK"
     fi
 fi
 
