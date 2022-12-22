@@ -177,7 +177,6 @@
           "pushd pmm2-virtualbox-ovf",
           "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
           "    # sed -i'' -e 's/virtualbox-2.2/vmx-10/'        *.ovf",
-          "    # sed -i'' -e 's/virtualbox-2.2/vmx-10/'        *.ovf",
           "    # sed -i'' -e 's/ovf:id=\"80\"/ovf:id=\"102\"/' *.ovf",
           "    # sed -i'' -e 's/>Oracle_64</>otherGuest</'     *.ovf",
           "    # sed -i'' -e 'N;/StorageController name=\"SCSI/,1d' *.ovf",

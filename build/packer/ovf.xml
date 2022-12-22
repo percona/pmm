@@ -76,6 +76,7 @@
         <rasd:Connection>NAT</rasd:Connection>
         <rasd:ElementName>Ethernet adapter on 'NAT'</rasd:ElementName>
         <rasd:InstanceID>7</rasd:InstanceID>
+        <rasd:ResourceSubType>E1000</rasd:ResourceSubType>
         <rasd:ResourceType>10</rasd:ResourceType>
       </Item>
     </VirtualHardwareSection>
