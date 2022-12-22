@@ -233,7 +233,7 @@ telemetry:
       - metric_name: "mongodb_encryption_at_rest_enabled"
         value: 1
 
-  - id: MongoDBIsEncryptionType
+  - id: MongoDBEncryptionType
     source: VM
     query: mongodb_security_encryption_enabled
     summary: "Returns the type of how encryption at rest was enabled (using local file, kmip or vault)"
