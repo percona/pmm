@@ -41,7 +41,7 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName, clusterName string) *models.Agent {
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
@@ -56,6 +56,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	var service *models.Service
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
+		Cluster:     clusterName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
 		Port:        pointer.ToUint16(60000),
@@ -82,7 +83,7 @@ func TestStartBackup(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		backupSvc := NewBackupsService(db, backupService, nil, nil)
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		for _, tc := range []struct {
 			testName    string
@@ -134,7 +135,7 @@ func TestStartBackup(t *testing.T) {
 	t.Run("mongodb", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
 		locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name:        "Test location snapshots",
@@ -251,7 +252,7 @@ func TestScheduledBackups(t *testing.T) {
 		schedulerService := scheduler.New(db, backupService)
 		backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
 
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		t.Run("schedule/change", func(t *testing.T) {
 			req := &backuppb.ScheduleBackupRequest{
@@ -355,9 +356,9 @@ func TestScheduledBackups(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
-		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
+		t.Run("PITR unsupported for physical model", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
@@ -377,7 +378,7 @@ func TestScheduledBackups(t *testing.T) {
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
 		})
 
-		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
+		t.Run("normal", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
