@@ -39,9 +39,23 @@ deps:
 pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
-pmm2-ovf-el9: fetch-el9
+pmm2-ovf-el9-rc: fetch-el9
 	cp packer/ovf.xml ${PACKER_CACHE_DIR}/box/box.ovf
-	packer build -only virtualbox-ovf packer/pmm2.el9.json
+	/usr/bin/packer build \
+			-var 'pmm_client_repos=original testing' \
+			-var 'pmm_client_repo_name=percona-testing-x86_64' \
+			-var 'pmm2_server_repo=testing' \
+			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
+					| tee build.log
+
+pmm2-ovf-el9-dev-latest: fetch-el9
+	cp packer/ovf.xml ${PACKER_CACHE_DIR}/box/box.ovf
+	/usr/bin/packer build \
+			-var 'pmm_client_repos=original experimental' \
+			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+			-var 'pmm2_server_repo=experimental' \
+			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
+					| tee build.log
 
 pmm2-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm2.json
