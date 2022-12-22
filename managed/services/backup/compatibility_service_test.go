@@ -196,6 +196,7 @@ func TestCheckCompatibility(t *testing.T) {
 				sw = mysqlSoftware
 			case models.MongoDBServiceType:
 				sw = mongoSoftware
+			default: // just to satisfy linters
 			}
 			mockVersioner.On("GetVersions", agentModel.AgentID, sw).Return(tc.versions, nil).Once()
 			dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: tc.serviceType}, &agentModel)

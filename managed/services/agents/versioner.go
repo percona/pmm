@@ -134,8 +134,9 @@ func GetSoftwareList(serviceType models.ServiceType) []Software {
 		return getMysqlSoftwareList()
 	case models.MongoDBServiceType:
 		return getMongodbSoftwareList()
+	default:
+		return nil
 	}
-	return nil
 }
 
 // GetVersions retrieves software versions.

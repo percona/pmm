@@ -356,6 +356,8 @@ func TestRestoreBackup(t *testing.T) {
 			Mode:       models.Snapshot,
 			Status:     models.SuccessBackupStatus,
 		})
+		require.NoError(t, err)
+
 		artifactNoVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mongodb-artifact-name-no-version",
 			Vendor:     string(models.MongoDBSoftwareName),

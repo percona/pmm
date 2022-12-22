@@ -413,6 +413,8 @@ func initSoftwareVersions(q *reform.Querier, serviceId string, serviceType Servi
 		}); err != nil {
 			return errors.Wrapf(err, "Couldn't initialize software versions for service %s", serviceId)
 		}
+	default:
+		return nil
 	}
 	return nil
 }
