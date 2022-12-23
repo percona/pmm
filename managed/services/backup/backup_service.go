@@ -20,7 +20,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -122,10 +121,6 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 			}
 
-			if err = checkMongoBackupPreconditions(tx.Querier, svc, params.ScheduleID); err != nil {
-				return err
-			}
-
 			// For PITR backups reuse existing artifact if it's present.
 			if params.Mode == models.PITR {
 				artifact, err = models.FindArtifactByName(tx.Querier, name)
@@ -210,26 +205,6 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	}
 
 	return artifact.ID, nil
-}
-
-func checkMongoBackupPreconditions(q *reform.Querier, service *models.Service, scheduleID string) error {
-	tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-		Disabled:  pointer.ToBool(false),
-		ServiceID: service.ServiceID,
-		Mode:      models.PITR,
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, task := range tasks {
-		if task.ID != scheduleID {
-			return status.Errorf(codes.FailedPrecondition, "Can't make a backup because service %s already has "+
-				"scheduled PITR backups. Please disable them if you want to make another backup.", service.ServiceName)
-		}
-	}
-
-	return nil
 }
 
 type restoreJobParams struct {

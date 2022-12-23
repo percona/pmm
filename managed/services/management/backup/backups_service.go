@@ -545,10 +545,7 @@ func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 	switch mode {
 	case models.PITR:
 		// PITR backup can be enabled only if there is no other scheduled backups.
-		tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-			Disabled:    pointer.ToBool(false),
-			ClusterName: clusterName,
-		})
+		tasks, err := models.FindScheduledTasks(q, filter)
 		if err != nil {
 			return err
 		}
