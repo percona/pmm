@@ -292,48 +292,45 @@ As an SRE person, I should be able to specify which database operators I need to
 As an SRE person, I should be able to create logical spaces to deploy databases so that I can easily split my environments. (e.g. dev namespace goes to the dev environment and the staging namespace goes to the staging environment. For the production environment I should be able to register and setup an additional cluster.)
 
 #### Story 6
-As an SRE person, I should be able to limit access to create/edit/destroy database clusters for specified users so that no devs are bugging me to do it for them.
-
-#### Story 7
 As an SRE person, I should be able to create a resource template for a database engine so that I don’t need to manually provide it every time.
 
-#### Story 8
+#### Story 7
 As an SRE person, I should be able to create an engine configuration template for a database engine.
 
-#### Story 9
+#### Story 8
 As an SRE person, I should be able to manage database engine versions that are allowed to use because I need to control which versions are used in my environment.
 
-#### Story 10
+#### Story 9
 As an SRE person, I should be able to specify a backup schedule template for a database cluster.
 
-#### Story 11
+#### Story 10
 As an SRE person, I should be able to configure storage for backups.
 
-#### Story 12
+#### Story 11
 As a user, I should be able to deploy a database with the recommended defaults
 
-#### Story 13
+#### Story 12
 As a user, I should be able to deploy a database with the selected version or cluster size
 
-#### Story 14
+#### Story 13
 As a user, I should be able to select a resource template to deploy a database
 
-#### Story 15
+#### Story 14
 As a user, I should be able to select a resource template and database engine configuration template to deploy a database
 
-#### Story 16
+#### Story 15
 As a user, I should be able to edit a database cluster (If I have sufficient permissions)
 
-#### Story 17
+#### Story 16
 As a user, I should be able to delete a database cluster (If I have sufficient permissions)
 
-#### Story 18
+#### Story 17
 As a user, I should be able to create a database cluster from a provided backup file.
 
-#### Story 19
+#### Story 18
 As a DBA, I should be able to edit database configuration parameters.
 
-#### Story 20
+#### Story 19
 As a DBA(?), I should be able to view cluster resources available before creating a database.
 
 ## Design Details
