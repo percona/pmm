@@ -284,7 +284,7 @@ service Backups {
       body: "*"
     };
   }
-  // GetLogs returns logs for provided artifact.
+  // GetLogs returns logs from the underlying tools for a backup/restore job.
   rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/GetLogs"

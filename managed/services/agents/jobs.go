@@ -235,13 +235,10 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
-				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
-			} else {
+			if job.Data.MongoDBRestoreBackup.DataModel == models.LogicalDataModel {
 				s.l.Info("restore successfully completed")
-			}
-
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+			} else if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
 				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
 

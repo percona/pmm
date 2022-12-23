@@ -434,7 +434,7 @@
         "tags": [
           "Backups"
         ],
-        "summary": "GetLogs returns logs for provided artifact.",
+        "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogs",
         "parameters": [
           {

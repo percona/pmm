@@ -413,7 +413,7 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
-// GetLogs returns logs for a backup event (such as backup or restore).
+// GetLogs returns logs from the underlying tools for a backup/restore job.
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
 	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
