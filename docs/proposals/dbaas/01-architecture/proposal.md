@@ -368,29 +368,8 @@ Any additional operators should be added to the catalog. Installation of an oper
 4. Operator restarts and continues to work normally but now OLM manages installation of new versions
 
 
-### PMM REST API high-level design
+### CR design for dbaas-operator 
 
-```
-POST /dbaas/kubernetes_clusters - Add k8s cluster to the PMM. Provision DBaaS feature. Kubeconfig should be base64 encoded. Extend with the namespace?
-GET /dbaas/kubernetes_clusters - List all kubernetes clusters
-GET /dbaas/kubernetes_cluster/{id} - get information about the selected k8s cluster
-GET /dbaas/dbclusters - list of created database clusters
-PUT /dbaas/dbclusters/{id} - update/edit a database cluster.
-GET /dbaas/dbclusters/{id} - get the detailed information about the database cluster
-POST /dbaas/dbclusters - create a new database cluster. The database struct is described below
-GET /dbaas/dbclusters/{id}/credentials - get credentials for the selected db cluster (it can be embedded to the LIstDBClusters endpoint)
-GET /dbaas/templates - get list of created templates that can be used as a CR template on a database cluster creating
-POST /dbaas/templates - create a database cluster template
-PUT /dbaas/templates/{id} - update a database cluster template
-GET /dbaas/templates/{id} - get a database cluster template
-GET /dbaas/backup_templates - get list of created templates for backup schedule
-POST /dbaas/backup_templates - create a backup schedule template
-PUT /dbaas/backup_templates/{id} - update a backup schedule template
-GET /dbaas/backup_templates/{id} - get a database schedule template
-GET /dbaas/versions - get supported versions of database clusters
-GET /dbaas/operator-versions - get operators' versions information from OLM and
-PUT /dbaas/operator-versions - upgrade operator via OLM
-```
 Go struct that represents the payload to create/list database clusters
 ```go
 const (
