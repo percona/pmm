@@ -157,6 +157,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Resources = resources
 		dbCluster.Spec.LoadBalancer.Type = "haproxy"
 		dbCluster.Spec.LoadBalancer.Configuration = haProxyDefaultConfigurationTemplate
+		dbCluster.Spec.LoadBalancer.TrafficPolicy = "Cluster"
 	}
 	if cluster.Params.Proxysql != nil {
 		resources, err := convertComputeResource(cluster.Params.Proxysql.ComputeResources)
