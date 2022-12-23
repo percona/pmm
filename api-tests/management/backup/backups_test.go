@@ -335,8 +335,8 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			pmmapitests.AssertAPIErrorf(t, err, 400,
-				codes.FailedPrecondition, "A snapshot backup for cluster 'test_cluster' can be done only if there is no enabled PITR backup.",
-				mongo1Name)
+				codes.FailedPrecondition, "A snapshot backup for cluster 'test_cluster' can be done only if " +
+				"there is no enabled PITR backup for this cluster.")
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {

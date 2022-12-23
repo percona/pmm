@@ -567,7 +567,7 @@ func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 		}
 
 		if len(tasks) != 0 {
-			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if there is no enabled PITR backup.", clusterName)
+			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if there is no enabled PITR backup for this cluster.", clusterName)
 		}
 	case models.Incremental:
 		return status.Error(codes.InvalidArgument, "Incremental backups unsupported for MongoDB")
