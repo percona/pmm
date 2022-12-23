@@ -187,6 +187,21 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		secrets := map[string][]byte{
 			"pmmserver": []byte(apiKey),
 		}
+		passwords, err := generatePasswords(map[string][]byte{
+			"root":         {},
+			"xtrabackup":   {},
+			"monitor":      {},
+			"clustercheck": {},
+			"proxyadmin":   {},
+			"operator":     {},
+			"replication":  {},
+		})
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range passwords {
+			secrets[k] = v
+		}
 		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
 		if err != nil {
 			return nil, err
