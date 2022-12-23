@@ -30,7 +30,7 @@ if [ "$1" = "purge" ]; then
 
     # delete binaries if we are purging
     if [ -f /usr/sbin/pmm-admin ]; then
-      echo -n "Deleting pmm-admin..."
+      echo -n "Deleting pmm-admin binary..."
       rm -f /usr/sbin/pmm-admin
       echo "OK"
     fi
