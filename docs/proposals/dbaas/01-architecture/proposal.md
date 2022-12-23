@@ -163,104 +163,56 @@ Also if there is no good connection to the k8s cluster situation would be much w
 
 Here are some measurements made against PMM in different setups (local PMM -> Remote k8s, Remote PMM inside the same cluster, Direct API calls against K8S)
 
-**PMM inside the same k8s cluster**
+**Local PMM connected to LKE cluster 
 
 ```
-TIME="%e\n" time curl -k -s -o file.out --request POST --url https://172.105.146.244/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46VyUrMS5bVCszMV5LemQ7Nw==' --header 'content-type: application
-/json' --data '
-{
-     "kubernetes_cluster_name": "default-pmm-cluster"
-}
-'
-7.42
-
-TIME="%e\n" time curl -k -s -o file.out --request POST --url https://172.105.146.244/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46VyUrMS5bVCszMV5LemQ7Nw==' --header 'content-type: application/json' --data '
-{
-     "kubernetes_cluster_name": "default-pmm-cluster"
-}
-'
-7.90
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost:81/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
+}'
+9.08s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost:81/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
+}'
+9.08s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost:81/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
+}'
+11.06s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost:81/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
+}'
+10.19s
+➜  ~
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost:81/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
+}'
 ```
 
-**PMM runs on local machine and communicates with remote k8s cluster**
-
-```
-TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
-{
-     "kubernetes_cluster_name": "lke75856"
-}
-'
-
-TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
-{
-     "kubernetes_cluster_name": "lke75856"
-}
-'
-30.66
-
-TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
-{
-     "kubernetes_cluster_name": "lke75856"
-}
-'
-26.60
-
-TIME="%e\n" time curl -k -s --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
-{
-     "kubernetes_cluster_name": "lke75856"
-}
-'
-<html>
-<head><title>504 Gateway Time-out</title></head>
-<body>
-<center><h1>504 Gateway Time-out</h1></center>
-<hr><center>nginx</center>
-</body>
-</html>
-60.04
-```
-
-**PMM integrated with dbaas-operator and communicates via client-go library**
+** Same as above but uses dbaas-operator and communicates via client-go library**
 
 ```
 
 ## Listing 10 clusters
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
 }'
-
-0.38s
-
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
+1.02s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
 }'
-
-0.82s
-
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
+0.99s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
 }'
-
-0.30s
-
-## Listing 20 database clusters
-
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
+1.07s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
 }'
-0.67s
-
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
+0.90s
+➜  ~ time curl  -s -k -o file1.out --request POST --url http://localhost/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' -u "admin:admin" --header 'content-type: application/json' --data '{
+     "kubernetes_cluster_name": "lke84438"
 }'
-1.14s
-
-time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '{
-     "kubernetes_cluster_name": "minikube"
-}'
-0.76s
-
-
+0.90s
 
 ```
 The environment for the benchmark above uses the same testing environment
