@@ -47,7 +47,7 @@ type MongoDBBackupJob struct {
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
-	eventLog       *pbmEventLogger
+	jobLogger      *pbmJobLogger
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -77,7 +77,7 @@ func NewMongoDBBackupJob(
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		eventLog:       newPbmEventLogger(id, dbURL),
+		jobLogger:      newPbmJobLogger(id, dbURL),
 	}, nil
 }
 
@@ -98,7 +98,7 @@ func (j *MongoDBBackupJob) Timeout() time.Duration {
 
 // Run starts Job execution.
 func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
-	defer j.eventLog.sendLog(send, "", true)
+	defer j.jobLogger.sendLog(send, "", true)
 
 	if _, err := exec.LookPath(pbmBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
@@ -128,20 +128,20 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 
 	pbmBackupOut, err := j.startBackup(ctx)
 	if err != nil {
-		j.eventLog.sendLog(send, err.Error(), false)
+		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to start backup")
 	}
 	streamCtx, streamCancel := context.WithCancel(ctx)
 	defer streamCancel()
 	go func() {
-		err := j.eventLog.streamLogs(streamCtx, send, pbmBackupEvent, pbmBackupOut.Name)
+		err := j.jobLogger.streamLogs(streamCtx, send, pbmBackupJob, pbmBackupOut.Name)
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			j.l.Errorf("stream logs: %v", err)
 		}
 	}()
 
 	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
-		j.eventLog.sendLog(send, err.Error(), false)
+		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
 	send(&agentpb.JobResult{

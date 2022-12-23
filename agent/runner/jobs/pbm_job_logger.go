@@ -27,30 +27,30 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
-type pbmEvent string
+type pbmJob string
 
 const (
-	pbmBackupEvent  pbmEvent = "backup"
-	pbmRestoreEvent pbmEvent = "restore"
+	pbmBackupJob  pbmJob = "backup"
+	pbmRestoreJob pbmJob = "restore"
 )
 
-type pbmEventLogger struct {
-	dbURL       *url.URL
-	parentJobID string
-	logChunkID  uint32
+type pbmJobLogger struct {
+	dbURL      *url.URL
+	jobI       string
+	logChunkID uint32
 }
 
-func newPbmEventLogger(parentJobId string, mongoUrl *url.URL) *pbmEventLogger {
-	return &pbmEventLogger{
-		parentJobID: parentJobId,
-		logChunkID:  0,
-		dbURL:       mongoUrl,
+func newPbmJobLogger(parentJobId string, mongoUrl *url.URL) *pbmJobLogger {
+	return &pbmJobLogger{
+		jobI:       parentJobId,
+		logChunkID: 0,
+		dbURL:      mongoUrl,
 	}
 }
 
-func (l *pbmEventLogger) sendLog(send Send, data string, done bool) {
+func (l *pbmJobLogger) sendLog(send Send, data string, done bool) {
 	send(&agentpb.JobProgress{
-		JobId:     l.parentJobID,
+		JobId:     l.jobI,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobProgress_Logs_{
 			Logs: &agentpb.JobProgress_Logs{
@@ -62,7 +62,7 @@ func (l *pbmEventLogger) sendLog(send Send, data string, done bool) {
 	})
 }
 
-func (l *pbmEventLogger) streamLogs(ctx context.Context, send Send, eventType pbmEvent, eventName string) error {
+func (l *pbmJobLogger) streamLogs(ctx context.Context, send Send, jobType pbmJob, name string) error {
 	var (
 		err    error
 		logs   []pbmLogEntry
@@ -77,7 +77,7 @@ func (l *pbmEventLogger) streamLogs(ctx context.Context, send Send, eventType pb
 	for {
 		select {
 		case <-ticker.C:
-			logs, err = retrieveLogs(ctx, l.dbURL, fmt.Sprintf("%s/%s", eventType, eventName))
+			logs, err = retrieveLogs(ctx, l.dbURL, fmt.Sprintf("%s/%s", jobType, name))
 			if err != nil {
 				return err
 			}

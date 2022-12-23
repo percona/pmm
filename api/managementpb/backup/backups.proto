@@ -206,10 +206,7 @@ message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
   string artifact_id = 1 [
-    deprecated = true,
-    (validator.field) = {
-      string_not_empty: true
-    }
+    deprecated = true
   ];
   uint32 offset = 2;
   uint32 limit = 3;

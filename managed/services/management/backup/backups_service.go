@@ -425,11 +425,12 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 	if req.GetRestoreId() != "" && req.GetBackupArtifactId() != "" {
 		return nil, status.Error(codes.InvalidArgument, "only one of artifact ID or restore ID should be set")
 	}
-	if req.GetBackupArtifactId() != "" {
+	switch {
+	case req.GetBackupArtifactId() != "":
 		jobsFilter.ArtifactID = req.GetBackupArtifactId()
-	} else if req.GetRestoreId() != "" {
+	case req.GetRestoreId() != "":
 		jobsFilter.RestoreID = req.GetRestoreId()
-	} else {
+	default:
 		return nil, status.Error(codes.InvalidArgument, "one of artifact ID or restore ID is required")
 	}
 
@@ -445,7 +446,7 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 	}
 
 	filter := models.JobLogsFilter{
-		JobID:  jobs[len(jobs)-1].ID,
+		JobID:  jobs[0].ID,
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {

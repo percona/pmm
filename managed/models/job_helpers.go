@@ -82,7 +82,6 @@ func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'restore_id' = "+q.Placeholder(idx))
 		args = append(args, filters.RestoreID)
-		idx++
 	}
 
 	var tail strings.Builder
