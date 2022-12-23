@@ -124,6 +124,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: psmdbKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: psmdbKubeconfTest},
