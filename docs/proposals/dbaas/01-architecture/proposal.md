@@ -17,31 +17,38 @@ The current architecture for DBaaS has the following components:
 
 As a proof of concept, this architecture covers everything. However, it has the following issues:
 
-1. Non-native Kubernetes API to work with clusters. DBaaS controller has only gRPC API and this creates additional friction for community users to work/extend with the controller. One needs to generate a gRPC client to communicate with the DBaaS controller. Thus implementing the integration testing framework becomes a complex task to solve because test frameworks such as playwright or codecept.js do not have gRPC support.
+1. Non-native Kubernetes API to work with clusters. DBaaS controller has only gRPC API and this creates additional friction for community users to work with the controller. One needs to generate a gRPC client to communicate with the DBaaS controller. 
 2. DBaaS controller has a set of CRUD endpoints for each database type (e.g. PXC and PSMDB). It adds additional room for bugs/inconsistencies and has the following issues:
     * There’s no simple and generic API for any database cluster
     * PMM needs to make two requests to get a list of created clusters (one for PSMDB and one for PXC clusters). In case we need to add support for another database, DBaaS controller would have an additional set of CRUD endpoints and PMM whould also call the list method for the new database type.
 
 3. DBaaS controller suffers from insufficient test coverage and integration testing because of the reasons mentioned above. Yet we can create an integration testing framework and increase coverage, but in that case it’ll require a substantial effort.
 4. Currently, DBaaS controller has only basic features such as CRUD operators for the database cluster and a lack of backup/restore features and additional configuration. There’s no way to specify additional parameters (Database configuration options, load balancer rules, storage class, backup schedule)
-5. REST API for PMM does not follow REST guidelines.
+5. DBaaS logic is coupled with PMM release lifecycle. Using operator and OLM we can make DBaaS released independent from PMM release lifecycle. 
+6. The current implementation requires to implement 5 endpoints to add a new database/operator support (Create, Update, List, Restart, Delete). However, following operator pattern a software engineer needs to implement reconcile logic. 
+7. Listing database clusters on the current solution has performance issues. Firstly, it requires making one request per database cluster type to list them (e.g. `kubectl get pxc` to get PXC clusters and `kubectl get psmdb` to get PSMDB clusters. For any new database cluster it required to run an additional request against Kubernetes cluster). Secondly, it requires its own implementation of working with client-go caches. Using the operator provides cache integration out-of-the-box and having cr bound to underlying operator's CR (e.g. for PXC and PSMDB) will provide a one call to get all database clusters created. 
 
-Moving to OLM and a DBaaS operator will improve this situation.
+Moving to OLM and a DBaaS operator will improve this situation because of the following reasons
+
+1. It'll be better for the Percona community because the operator pattern as well as OLM are widely spread industry standards. Using standard tools requires no additional learning, hence, better developer/user experience of using the product and contributing to it. From the implementation standpoint we do not need to implemnent custom CLI tools to manage DBaaS/Database clusters because it will be integrated with kubectl. 
+2. It'll be easier to implement an independent release cycle by removing all hardcoded parameters from PMM and integrating it with dbaas-operator. The dbaas-operator knows about supported databases and it can return available databases engines via `kubectl get dbengines` command
+3. Dbaas-operator can be easily added to any other service because it contains everything dbaas-specific such as database configuration templates, supported engines, database cluster sizes and other features. 
+4. OLM provides a robust way to manage operator lifecycle (Install/Update/Delete operator, resolving conflicts, managind dependencies of one operator from another and so on). It's preinstalled 
 
 ## Goals
 
-1. Make DBaaS Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters.
+1. Make DBaaS Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters. 
 2. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
 3. Reduce the complexity of managing operator's installation/management. OLM will implement lifecycle management for operators and we can drop code that does the same for PMM.
 4. Provide generic specifications to create/edit/delete a database cluster.
 5. Provide generic specifications to backup/restore a database cluster inside Kubernetes.
-6. Provide REST API that follows guidelines and provides a better developer experience for the automation and integration with PMM/DBaaS.
-7. Provide a simplified way to create templates for a database cluster creation with sane defaults.
+6. Provide a simplified way to create templates for a database cluster creation with sane defaults.
 
 ## Non-goals
 
 1. Bloat the size of PMM docker container
 2. Overcomplicate the overall development process
+3. Change REST API design. It'll be changed by providing an additional proposal 
 
 
 ## Proposal
@@ -114,7 +121,7 @@ The second part of the proposal is implementing the generic and simplified API t
 
 1. Kubernetes native way to work with database clusters via unified and general specifications.
 2. PMM DBaaS does not need to care about the state of a managed database.
-3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. `dbaas-operator` can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
+3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS. Yet, it manages clusters that were created via Percona operators now. `dbaas-operator` uses its own custom resources to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
 4. Installation and upgrading of `dbaas-operator` will be managed by OLM as proposed above.
 5. `dbaas-operator` opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries against exposed/non-exposed database clusters.
 6. PMM/DBaaS will have native integration with `dbaas-operator` via `client-go` package that will improve the overall performance on large-scale clusters
