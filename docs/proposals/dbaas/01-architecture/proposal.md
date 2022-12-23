@@ -32,17 +32,15 @@ Moving to OLM and a DBaaS operator will improve this situation because of the fo
 
 1. It'll be better for the Percona community because the operator pattern as well as OLM are widely spread industry standards. Using standard tools requires no additional learning, hence, better developer/user experience of using the product and contributing to it. From the implementation standpoint we do not need to implemnent custom CLI tools to manage DBaaS/Database clusters because it will be integrated with kubectl. 
 2. It'll be easier to implement an independent release cycle by removing all hardcoded parameters from PMM and integrating it with dbaas-operator. The dbaas-operator knows about supported databases and it can return available databases engines via `kubectl get dbengines` command
-3. Dbaas-operator can be easily added to any other service because it contains everything dbaas-specific such as database configuration templates, supported engines, database cluster sizes and other features. 
+3. DBaaS-operator can be easily added to any other service because it contains everything dbaas-specific such as database configuration templates, supported engines, database cluster sizes and other features. 
 4. OLM provides a robust way to manage operator lifecycle (Install/Update/Delete operator, resolving conflicts, managind dependencies of one operator from another and so on). It's preinstalled 
 
 ## Goals
 
 1. Make DBaaS Kubernetes native will make it a first-class citizen in the Kubernetes ecosystem. End users can use kubectl to work with PMM/DBaaS to edit/manage database clusters. 
-2. Improve performance of PMM DBaaS via the native communication with Kubernetes. PMM will directly call k8s API endpoints and use client-go caches for large-scale deployments.
+2. Provide a simplified way to create templates for a database cluster creation with sane defaults.
 3. Reduce the complexity of managing operator's installation/management. OLM will implement lifecycle management for operators and we can drop code that does the same for PMM.
-4. Provide generic specifications to create/edit/delete a database cluster.
-5. Provide generic specifications to backup/restore a database cluster inside Kubernetes.
-6. Provide a simplified way to create templates for a database cluster creation with sane defaults.
+
 
 ## Non-goals
 
