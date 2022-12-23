@@ -36,7 +36,7 @@ if [ "$1" = "purge" ]; then
     fi
 
     if [ -f /usr/sbin/pmm-agent ]; then
-      echo -n "Deleting pmm-agent..."
+      echo -n "Deleting pmm-agent binary..."
       rm -f /usr/sbin/pmm-agent
       echo "OK"
     fi
