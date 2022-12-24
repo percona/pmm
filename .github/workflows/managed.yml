@@ -11,14 +11,14 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
-  pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "docs/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
+#  pull_request:
+#    paths-ignore:
+#      - "admin/**"
+#      - "agent/**"
+#      - "docs/**"
+#      - "qan-api2/**"
+#      - "update/**"
+#      - "vmproxy/**"
 
   workflow_call:
     inputs:
