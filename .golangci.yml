@@ -127,7 +127,6 @@ linters:
     - forbidigo #temporary, needs to be processed
     - errcheck #temporary, needs to be processed
     - dupl #temporary, needs to be processed
-    - depguard #temporary, needs to be processed
     - containedctx #temporary, needs to be processed
 
 
