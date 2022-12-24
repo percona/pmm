@@ -25,8 +25,8 @@ import (
 
 const periodForRunningDeletingOldEvents = time.Minute
 
-// Service calculates connection up time between agent and server
-// based on the connection events events
+// Service calculates connection uptime between agent and server
+// based on the connection events
 type Service struct {
 	mx           sync.Mutex
 	events       []connectionEvent

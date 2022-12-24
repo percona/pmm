@@ -47,7 +47,7 @@ var (
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
 	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
 	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
-	errNoInstallPlanToApprove          = errors.New("there are no install plans to approve")
+	// errNoInstallPlanToApprove          = errors.New("there are no install plans to approve") TODO: @Carlos do we still need it?
 
 	flagClusterName              = "--cluster-name"
 	flagRegion                   = "--region"
@@ -271,22 +271,23 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
-func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
-	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeconfig,
-		},
-		Version: version,
-	}
+// TODO: @Carlos do we still need it?
+// func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
+// 	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
+// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+// 			Kubeconfig: kubeconfig,
+// 		},
+// 		Version: version,
+// 	}
+//
+// 	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
+// 		return errors.Wrap(err, "cannot install OLM operator")
+// 	}
+//
+// 	return nil
+// }
 
-	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
-		return errors.Wrap(err, "cannot install OLM operator")
-	}
-
-	return nil
-}
-
-func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error {
+func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error { //nolint:unparam
 	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubeConfig,
@@ -300,7 +301,7 @@ func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, nam
 }
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
-func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
+func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll,cyclop
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
@@ -471,7 +472,7 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 	return err
 }
 
-func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) {
+func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) { //nolint:unparam
 	var subscription *controllerv1beta1.GetSubscriptionResponse
 	var err error
 	for i := 0; i < 6; i++ {
