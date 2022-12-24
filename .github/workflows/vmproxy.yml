@@ -8,14 +8,14 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
-#  pull_request:
-#    paths-ignore:
-#      - "admin/**"
-#      - "agent/**"
-#      - "docs/**"
-#      - "managed/**"
-#      - "qan-api2/**"
-#      - "update/**"
+  pull_request:
+    paths-ignore:
+      - "admin/**"
+      - "agent/**"
+      - "docs/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "update/**"
 
   workflow_call:
     inputs:
