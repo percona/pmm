@@ -101,7 +101,7 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 
 	res := make([]*iav1beta1.Channel, len(channels))
 	for i, channel := range channels {
-		c, err := convertChannel(channel) //nolint:gosec
+		c, err := convertChannel(channel)
 		if err != nil {
 			return nil, err
 		}

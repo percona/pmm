@@ -126,7 +126,7 @@ func TestStarlarkSandbox(t *testing.T) {
 			if !present {
 				releasePath = "./../../bin"
 			}
-			cmd := exec.Command(releasePath + "/pmm-managed-starlark")
+			cmd := exec.Command(releasePath + "/pmm-managed-starlark") //nolint:gosec
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin

@@ -25,7 +25,7 @@ import (
 	"math"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
 	"strconv"
 	"strings"
@@ -311,7 +311,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     address,
 		Handler:  mux,
 		ErrorLog: log.New(os.Stderr, "local-server/JSON: ", 0),

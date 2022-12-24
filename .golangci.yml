@@ -110,7 +110,6 @@ linters:
     - forcetypeassert #temporary, needs to be processed
     - golint #temporary, needs to be processed
     - deadcode #temporary, needs to be processed
-    - gosec #temporary, needs to be processed
     - nonamedreturns #temporary, needs to be processed
     - noctx #temporary, needs to be processed
     - usestdlibvars #temporary, needs to be processed
