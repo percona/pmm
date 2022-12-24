@@ -25,7 +25,6 @@ import (
 	"time"
 
 	goversion "github.com/hashicorp/go-version"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -188,7 +187,7 @@ type kubectlUserWithName struct {
 
 type kubectlConfig struct {
 	Kind           string                 `yaml:"kind,omitempty"`
-	ApiVersion     string                 `yaml:"apiVersion,omitempty"`
+	APIVersion     string                 `yaml:"apiVersion,omitempty"`
 	CurrentContext string                 `yaml:"current-context,omitempty"`
 	Clusters       []interface{}          `yaml:"clusters,omitempty"`
 	Contexts       []interface{}          `yaml:"contexts,omitempty"`
@@ -473,7 +472,7 @@ func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, 
 }
 
 func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) { //nolint:unparam
-	var subscription *controllerv1beta1.GetSubscriptionResponse
+	var subscription *dbaascontrollerv1beta1.GetSubscriptionResponse
 	var err error
 	for i := 0; i < 6; i++ {
 		subscription, err = client.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{

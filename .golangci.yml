@@ -100,7 +100,6 @@ linters:
     - revive #temporary, needs to be processed
     - nosnakecase #temporary, needs to be processed
     - paralleltest #temporary, needs to be processed
-    - stylecheck #temporary, needs to be processed
     - ireturn #temporary, needs to be processed
     - gocognit #temporary, needs to be processed
     - maintidx #temporary, needs to be processed

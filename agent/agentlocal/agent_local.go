@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package agentlocal provides local pmm-agent API server functionality.
 package agentlocal
 
 import (

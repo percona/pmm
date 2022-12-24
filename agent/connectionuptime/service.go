@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package connectionuptime contains functionality for connection uptime calculation.
 package connectionuptime
 
 import (
