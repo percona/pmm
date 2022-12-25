@@ -43,8 +43,7 @@ pmm2-ovf-el9-rc: fetch-el9
 			-var 'pmm_client_repos=original testing' \
 			-var 'pmm_client_repo_name=percona-testing-x86_64' \
 			-var 'pmm2_server_repo=testing' \
-			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
-					| tee build.log
+			-only virtualbox-ovf -color=false packer/pmm2.el9.json
 
 pmm2-ovf-el9-dev-latest: fetch-el9
 	/usr/bin/packer build \
