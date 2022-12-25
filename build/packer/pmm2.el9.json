@@ -91,8 +91,14 @@
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
-        [ "createhd", "--format", "VMDK", "--filename", "/tmp/{{.Name}}-disk2.vmdk", "--variant", "STREAM", "--size", "409600" ],
-        [ "storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/{{.Name}}-disk2.vmdk" ]
+        ["modifyvm", "{{.Name}}", "--nic1", "nat", "--nictype1", "82540EM"],
+        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
+        ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "AHCI", "--remove"],
+        ["storagectl", "{{.Name}}", "--name", "SCSI Controller", "--add", "scsi", "--controller", "LSILogic", "--portcount", "16", "--hostiocache", "on", "--bootable", "on"],
+        ["storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "0", "--type", "hdd", "--medium", "./.cache/box/box-disk001.vmdk"],
+        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/{{.Name}}-disk2.vmdk"],
+        ["storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/{{.Name}}-disk2.vmdk"],
+        ["showvminfo", "{{.Name}}"]
       ]
     },
     {
