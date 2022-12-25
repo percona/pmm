@@ -49,7 +49,6 @@ pmm2-ovf-el9-rc: fetch-el9
 					| tee build.log
 
 pmm2-ovf-el9-dev-latest: fetch-el9
-	cp packer/ovf.xml ${PACKER_CACHE_DIR}/box/box.ovf
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original experimental' \
 			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
