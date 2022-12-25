@@ -85,19 +85,14 @@
       "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
       "source_path": ".cache/box/box.ovf",
       "ssh_private_key_file": ".cache/id_rsa_vagrant",
-      "ssh_wait_timeout": "10m",
+      "ssh_wait_timeout": "8m",
       "ssh_pty": true,
       "ssh_username": "vagrant",
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
         ["modifyvm", "{{.Name}}", "--cpus", "4"],
-        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
-        ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "AHCI", "--remove"],
-        ["storagectl", "{{.Name}}", "--name", "SCSI Controller", "--add", "scsi", "--controller", "LSILogic", "--portcount", "16", "--hostiocache", "on", "--bootable", "on"],
-        ["storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "0", "--device", "0", "--type", "hdd", "--medium", "./.cache/box/box-disk001.vmdk"],
-        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/{{.Name}}-disk2.vmdk"],
-        ["storageattach", "{{.Name}}", "--storagectl", "SCSI Controller", "--port", "1", "--device", "0", "--type", "hdd", "--medium", "/tmp/{{.Name}}-disk2.vmdk"]
+        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"]
       ]
     },
     {
