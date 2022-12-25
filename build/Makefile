@@ -40,7 +40,6 @@ pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
 pmm2-ovf-el9-rc: fetch-el9
-	cp packer/ovf.xml ${PACKER_CACHE_DIR}/box/box.ovf
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original testing' \
 			-var 'pmm_client_repo_name=percona-testing-x86_64' \
