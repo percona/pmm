@@ -97,6 +97,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		kubernetesClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
 		olms = &olm.MockOperatorServiceManager{}
 

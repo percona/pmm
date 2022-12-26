@@ -182,6 +182,7 @@ type gRPCServerDeps struct {
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
+	kubernetesClient     *kubernetes.Kubernetes
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
@@ -820,6 +821,7 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
+	kubernetesClient := kubernetes.NewEmpty()
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
@@ -996,6 +998,7 @@ func main() {
 				grafanaClient:        grafanaClient,
 				checksService:        checksService,
 				dbaasClient:          dbaasClient,
+				kubernetesClient:     kubernetesClient,
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,

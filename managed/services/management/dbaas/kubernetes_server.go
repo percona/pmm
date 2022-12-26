@@ -33,6 +33,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
+	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -544,25 +545,93 @@ func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.Ge
 	if err != nil {
 		return nil, err
 	}
-	in := &dbaascontrollerv1beta1.GetResourcesRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-	}
-	response, err := k.dbaasClient.GetResources(ctx, in)
+
+	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
 	if err != nil {
 		return nil, err
 	}
+
+	// Get cluster type
+	clusterType, err := k.kubernetesClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var volumes *corev1.PersistentVolumeList
+	if clusterType == kubernetes.ClusterTypeEKS {
+		volumes, err = k.kubernetesClient.GetPersistentVolumes(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	allCPUMillis, allMemoryBytes, allDiskBytes, err := k.kubernetesClient.GetAllClusterResources(ctx, clusterType, volumes)
+	if err != nil {
+		return nil, err
+	}
+
+	consumedCPUMillis, consumedMemoryBytes, err := k.kubernetesClient.GetConsumedCPUAndMemory(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	consumedDiskBytes, err := k.kubernetesClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
+	if err != nil {
+		return nil, err
+	}
+
+	availableCPUMillis := allCPUMillis - consumedCPUMillis
+	// handle underflow
+	if availableCPUMillis > allCPUMillis {
+		availableCPUMillis = 0
+	}
+	availableMemoryBytes := allMemoryBytes - consumedMemoryBytes
+	// handle underflow
+	if availableMemoryBytes > allMemoryBytes {
+		availableMemoryBytes = 0
+	}
+	availableDiskBytes := allDiskBytes - consumedDiskBytes
+	// handle underflow
+	if availableDiskBytes > allDiskBytes {
+		availableDiskBytes = 0
+	}
+
 	return &dbaasv1beta1.GetResourcesResponse{
 		All: &dbaasv1beta1.Resources{
-			CpuM:        response.All.CpuM,
-			MemoryBytes: response.All.MemoryBytes,
-			DiskSize:    response.All.DiskSize,
+			CpuM:        allCPUMillis,
+			MemoryBytes: allMemoryBytes,
+			DiskSize:    allDiskBytes,
 		},
 		Available: &dbaasv1beta1.Resources{
-			CpuM:        response.Available.CpuM,
-			MemoryBytes: response.Available.MemoryBytes,
-			DiskSize:    response.Available.DiskSize,
+			CpuM:        availableCPUMillis,
+			MemoryBytes: availableMemoryBytes,
+			DiskSize:    availableDiskBytes,
 		},
+	}, nil
+}
+
+// ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+func (k kubernetesServer) ListStorageClasses(ctx context.Context, req *dbaasv1beta1.ListStorageClassesRequest) (*dbaasv1beta1.ListStorageClassesResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	storageClasses, err := k.kubernetesClient.GetStorageClasses(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	storageClassesNames := make([]string, 0, len(storageClasses.Items))
+	for _, storageClass := range storageClasses.Items {
+		storageClassesNames = append(storageClassesNames, storageClass.Name)
+	}
+
+	return &dbaasv1beta1.ListStorageClassesResponse{
+		StorageClasses: storageClassesNames,
 	}, nil
 }
