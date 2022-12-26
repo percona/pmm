@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"net/url"
 	"os"
 	"os/signal"
@@ -431,7 +431,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     http1Addr,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
@@ -493,7 +493,7 @@ func runDebugServer(ctx context.Context) {
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     debugAddr,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}

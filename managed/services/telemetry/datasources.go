@@ -81,7 +81,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	// to minimize risk of modifying DB
 	defer tx.Rollback() //nolint:errcheck
 
-	rows, err := tx.Query("SELECT " + config.Query)
+	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}

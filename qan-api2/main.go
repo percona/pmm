@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" //nolint:gosec
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -174,7 +174,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	mux := http.NewServeMux()
 	mux.Handle("/", proxyMux)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     jsonBindF,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
@@ -236,7 +236,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     debugBindF,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package client TODO
 package client
 
 import (
@@ -84,6 +85,8 @@ const (
 )
 
 // Each level has 2 spaces for PrefixWriter
+//
+//nolint:stylecheck
 const (
 	LEVEL_0 = iota
 	LEVEL_1
@@ -303,7 +306,17 @@ func (c *Client) GetStorageClasses(ctx context.Context) (*storagev1.StorageClass
 	return c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
 }
 
-// Delete deletes object from the k8s cluster
+// GetDeployment returns deployment by name
+func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
+	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+// GetSecret returns secret by name
+func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
+	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+// DeleteObject deletes object from the k8s cluster
 func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {

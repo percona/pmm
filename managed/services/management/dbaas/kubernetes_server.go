@@ -47,7 +47,7 @@ var (
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
 	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
 	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
-	errNoInstallPlanToApprove          = errors.New("there are no install plans to approve")
+	// errNoInstallPlanToApprove          = errors.New("there are no install plans to approve") TODO: @Carlos do we still need it?
 
 	flagClusterName              = "--cluster-name"
 	flagRegion                   = "--region"
@@ -189,7 +189,7 @@ type kubectlUserWithName struct {
 
 type kubectlConfig struct {
 	Kind           string                 `yaml:"kind,omitempty"`
-	ApiVersion     string                 `yaml:"apiVersion,omitempty"`
+	APIVersion     string                 `yaml:"apiVersion,omitempty"`
 	CurrentContext string                 `yaml:"current-context,omitempty"`
 	Clusters       []interface{}          `yaml:"clusters,omitempty"`
 	Contexts       []interface{}          `yaml:"contexts,omitempty"`
@@ -272,8 +272,21 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
+func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error { //nolint:unparam
+	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Name:      name,
+		Namespace: namespace,
+	}
+	_, err := client.ApproveInstallPlan(ctx, req)
+
+	return err
+}
+
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
-func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
+func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll,cyclop
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
@@ -344,6 +357,20 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 			k.l.Errorf("cannot create Grafana admin API key: %s", err)
 			return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 		}
+		if settings.PMMPublicAddress != "" {
+			var apiKeyID int64
+			var apiKey string
+			apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63()) //nolint:gosec
+			apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+			if err != nil {
+				k.l.Errorf("cannot create Grafana admin API key: %s", err)
+				return
+			}
+			pmmParams := &dbaascontrollerv1beta1.PMMParams{
+				PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+				Login:         "api_key",
+				Password:      apiKey,
+			}
 
 		pmmParams := &dbaascontrollerv1beta1.PMMParams{
 			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
