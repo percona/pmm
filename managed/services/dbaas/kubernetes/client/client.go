@@ -20,44 +20,35 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"os"
+	"sort"
 	"strings"
+	"text/tabwriter"
 	"time"
 
-	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
-	v1 "github.com/operator-framework/api/pkg/operators/v1"
-	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	yamlSerializer "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/wait"
-	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/apimachinery/pkg/util/duration"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
-	deploymentutil "k8s.io/kubectl/pkg/util/deployment"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	kubeClient "sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"k8s.io/client-go/tools/reference"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 )
@@ -71,9 +62,19 @@ const (
 
 	defaultQPSLimit   = 100
 	defaultBurstLimit = 150
+	defaultChunkSize  = 500
 
 	defaultAPIURIPath  = "/api"
 	defaultAPIsURIPath = "/apis"
+)
+
+// Each level has 2 spaces for PrefixWriter
+const (
+	LEVEL_0 = iota
+	LEVEL_1
+	LEVEL_2
+	LEVEL_3
+	LEVEL_4
 )
 
 var (
@@ -91,39 +92,19 @@ type Client struct {
 	namespace       string
 }
 
-type resourceError struct {
-	name  string
-	issue string
+// SortableEvents implements sort.Interface for []api.Event based on the Timestamp field
+type SortableEvents []corev1.Event
+
+func (list SortableEvents) Len() int {
+	return len(list)
 }
 
-type podError struct {
-	resourceError
+func (list SortableEvents) Swap(i, j int) {
+	list[i], list[j] = list[j], list[i]
 }
 
-type deploymentError struct {
-	resourceError
-	podErrs podErrors
-}
-
-type (
-	deploymentErrors []deploymentError
-	podErrors        []podError
-)
-
-func (e deploymentErrors) Error() string {
-	var sb strings.Builder
-	for _, i := range e {
-		sb.WriteString(fmt.Sprintf("deployment %s has error: %s\n%s", i.name, i.issue, i.podErrs.Error()))
-	}
-	return sb.String()
-}
-
-func (e podErrors) Error() string {
-	var sb strings.Builder
-	for _, i := range e {
-		sb.WriteString(fmt.Sprintf("\tpod %s has error: %s\n", i.name, i.issue))
-	}
-	return sb.String()
+func (list SortableEvents) Less(i, j int) bool {
+	return list[i].LastTimestamp.Time.Before(list[j].LastTimestamp.Time)
 }
 
 // NewFromInCluster returns a client object which uses the service account
@@ -189,7 +170,7 @@ func (c *Client) initOperatorClients() error {
 		return err
 	}
 	c.dbClusterClient = dbClusterClient
-	_, err = c.GetServerVersion(context.Background())
+	_, err = c.GetServerVersion()
 	return err
 }
 
@@ -249,7 +230,7 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 }
 
 // GetServerVersion returns server version
-func (c *Client) GetServerVersion(ctx context.Context) (*version.Info, error) {
+func (c *Client) GetServerVersion() (*version.Info, error) {
 	return c.clientset.Discovery().ServerVersion()
 }
 
@@ -282,105 +263,8 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	if namespace == "" {
-		namespace = c.namespace
-	}
-
-	return operatorClient.OperatorsV1().OperatorGroups(namespace).Get(ctx, name, metav1.GetOptions{})
-}
-
-func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	if namespace == "" {
-		namespace = c.namespace
-	}
-	og := &operatorsv1.OperatorGroup{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: operatorsv1.OperatorGroupSpec{
-			TargetNamespaces: []string{namespace},
-		},
-		Status: operatorsv1.OperatorGroupStatus{
-			LastUpdated: &metav1.Time{
-				Time: time.Now(),
-			},
-		},
-	}
-
-	return operatorClient.OperatorsV1().OperatorGroups(namespace).Create(ctx, og, metav1.CreateOptions{})
-}
-
-func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
-	packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval,
-) (*v1alpha1.Subscription, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	subscription := &operatorsv1alpha1.Subscription{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       operatorsv1alpha1.SubscriptionKind,
-			APIVersion: operatorsv1alpha1.SubscriptionCRDAPIVersion,
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: namespace,
-			Name:      name,
-		},
-		Spec: &operatorsv1alpha1.SubscriptionSpec{
-			CatalogSource:          catalog,
-			CatalogSourceNamespace: catalogNamespace,
-			Package:                packageName,
-			Channel:                channel,
-			StartingCSV:            startingCSV,
-			InstallPlanApproval:    approval,
-		},
-	}
-
-	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
-}
-
-func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
-}
-
-func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*operatorsv1alpha1.InstallPlan, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Get(ctx, name, metav1.GetOptions{})
-}
-
-func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *operatorsv1alpha1.InstallPlan) (*operatorsv1alpha1.InstallPlan, error) {
-	operatorClient, err := versioned.NewForConfig(c.restConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create an operator client instance")
-	}
-
-	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Update(ctx, installPlan, metav1.UpdateOptions{})
-}
-
 // Delete deletes object from the k8s cluster
-func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
@@ -406,20 +290,6 @@ func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
 	return err
 }
 
-func (c *Client) DeleteFile(ctx context.Context, fileBytes []byte) error {
-	objs, err := c.getObjects(fileBytes)
-	if err != nil {
-		return err
-	}
-	for i := range objs {
-		err := c.DeleteObject(ctx, objs[i])
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func deleteObject(helper *resource.Helper, namespace, name string) error {
 	if _, err := helper.Get(namespace, name); err == nil {
 		_, err = helper.Delete(namespace, name)
@@ -430,7 +300,7 @@ func deleteObject(helper *resource.Helper, namespace, name string) error {
 	return nil
 }
 
-func (c *Client) ApplyObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) ApplyObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
@@ -512,261 +382,223 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	return yaml.Marshal(jsonObj)
 }
 
-// ApplyFile accepts manifest file contents, parses into []runtime.Object
-// and applies them against the cluster
-func (c *Client) ApplyFile(ctx context.Context, fileBytes []byte) error {
-	objs, err := c.getObjects(fileBytes)
-	if err != nil {
-		return err
-	}
-	for i := range objs {
-		err := c.ApplyObject(ctx, objs[i])
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+// GetPersistentVolumes returns Persistent Volumes available in the cluster
+func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return c.clientset.CoreV1().PersistentVolumes().List(ctx, metav1.ListOptions{})
 }
 
-func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
-	objs := []runtime.Object{}
-	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(f), 100)
-	var err error
-	for {
-		var rawObj runtime.RawExtension
-		if err = decoder.Decode(&rawObj); err != nil {
-			break
-		}
-
-		obj, _, err := yamlSerializer.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawObj.Raw, nil, nil)
+// GetPods returns list of pods
+func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != "" {
+		parsed, err := metav1.ParseToLabelSelector(labelSelector)
 		if err != nil {
 			return nil, err
 		}
 
-		unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+		selector, err := parsed.Marshal()
 		if err != nil {
 			return nil, err
 		}
 
-		objs = append(objs, &unstructured.Unstructured{Object: unstructuredMap})
+		options.LabelSelector = string(selector)
+		options.LabelSelector = labelSelector
 	}
 
-	return objs, nil
+	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
 }
 
-func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
-	var (
-		curPhase operatorsv1alpha1.ClusterServiceVersionPhase
-		newPhase operatorsv1alpha1.ClusterServiceVersionPhase
-	)
-
-	kubeclient, err := c.getKubeclient()
-	if err != nil {
-		return err
-	}
-
-	csv := operatorsv1alpha1.ClusterServiceVersion{}
-	csvPhaseSucceeded := func() (bool, error) {
-		err := kubeclient.Get(ctx, key, &csv)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				return false, nil
-			}
-			return false, err
-		}
-		newPhase = csv.Status.Phase
-		if newPhase != curPhase {
-			curPhase = newPhase
-		}
-
-		switch curPhase {
-		case operatorsv1alpha1.CSVPhaseFailed:
-			return false, fmt.Errorf("csv failed: reason: %q, message: %q", csv.Status.Reason, csv.Status.Message)
-		case operatorsv1alpha1.CSVPhaseSucceeded:
-			return true, nil
-		default:
-			return false, nil
-		}
-	}
-
-	err = wait.PollImmediateUntil(time.Second, csvPhaseSucceeded, ctx.Done())
-	if err != nil && errors.Is(err, context.DeadlineExceeded) {
-		depCheckErr := c.checkDeploymentErrors(ctx, key, csv)
-		if depCheckErr != nil {
-			return depCheckErr
-		}
-	}
-	return err
+// GetNodes returns list of nodes
+func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 }
 
-func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error) {
-	var csvKey types.NamespacedName
+// GetLogs returns logs for pod
+func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, error) {
+	defaultLogLines := int64(3000)
+	options := &corev1.PodLogOptions{}
+	if container != "" {
+		options.Container = container
+	}
 
-	kubeclient, err := c.getKubeclient()
+	options.TailLines = &defaultLogLines
+	buf := &bytes.Buffer{}
+
+	req := c.clientset.CoreV1().Pods(c.namespace).GetLogs(pod, options)
+	podLogs, err := req.Stream(ctx)
 	if err != nil {
-		return csvKey, err
+		return buf.String(), err
 	}
 
-	subscriptionInstalledCSV := func() (bool, error) {
-		sub := operatorsv1alpha1.Subscription{}
-		err := kubeclient.Get(ctx, subKey, &sub)
-		if err != nil {
-			return false, err
-		}
-		installedCSV := sub.Status.InstalledCSV
-		if installedCSV == "" {
-			return false, nil
-		}
-		csvKey = types.NamespacedName{
-			Namespace: subKey.Namespace,
-			Name:      installedCSV,
-		}
-		log.Printf("  Found installed CSV %q", installedCSV)
-		return true, nil
+	_, err = io.Copy(buf, podLogs)
+	if err != nil {
+		return buf.String(), err
 	}
-	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
+
+	return buf.String(), nil
 }
 
-func (c *Client) getKubeclient() (kubeClient.Client, error) {
-	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
+func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
+	pod, err := c.clientset.CoreV1().Pods(c.namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")
-	}
-
-	cl, err := kubeClient.New(c.restConfig, client.Options{
-		Scheme: scheme.Scheme,
-		Mapper: rm,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create client")
-	}
-
-	return cl, nil
-}
-
-// checkDeploymentErrors function loops through deployment specs of a given CSV, and prints reason
-// in case of failures, based on deployment condition.
-func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv operatorsv1alpha1.ClusterServiceVersion) error {
-	depErrs := deploymentErrors{}
-	if key.Namespace == "" {
-		return fmt.Errorf("no namespace provided to get deployment failures")
-	}
-
-	kubeclient, err := c.getKubeclient()
-	if err != nil {
-		return err
-	}
-
-	dep := &appsv1.Deployment{}
-	for _, ds := range csv.Spec.InstallStrategy.StrategySpec.DeploymentSpecs {
-		depKey := types.NamespacedName{
-			Namespace: key.Namespace,
-			Name:      ds.Name,
+		eventsInterface := c.clientset.CoreV1().Events(c.namespace)
+		selector := eventsInterface.GetFieldSelector(&name, &c.namespace, nil, nil)
+		initialOpts := metav1.ListOptions{
+			FieldSelector: selector.String(),
+			Limit:         defaultChunkSize,
 		}
-		depSelectors := ds.Spec.Selector
-		if err := kubeclient.Get(ctx, depKey, dep); err != nil {
-			depErrs = append(depErrs, deploymentError{
-				resourceError: resourceError{
-					name:  ds.Name,
-					issue: err.Error(),
-				},
+		events := &corev1.EventList{}
+		err2 := resource.FollowContinue(&initialOpts,
+			func(options metav1.ListOptions) (runtime.Object, error) {
+				newList, err := eventsInterface.List(ctx, options)
+				if err != nil {
+					return nil, resource.EnhanceListError(err, options, "events")
+				}
+
+				events.Items = append(events.Items, newList.Items...)
+				return newList, nil
 			})
-			continue
+
+		if err2 == nil && len(events.Items) != 0 {
+			return tabbedString(func(out io.Writer) error {
+				w := NewPrefixWriter(out)
+				w.Writef(0, "Pod '%v': error '%v', but found events.\n", name, err)
+				DescribeEvents(events, w)
+				return nil
+			})
 		}
-		for _, s := range dep.Status.Conditions {
-			if s.Type == appsv1.DeploymentAvailable && s.Status != corev1.ConditionTrue {
-				depErr := deploymentError{
-					resourceError: resourceError{
-						name:  ds.Name,
-						issue: s.Reason,
-					},
-				}
-				podErr := c.checkPodErrors(ctx, kubeclient, depSelectors, key)
-				podErrs := podErrors{}
-				if errors.As(podErr, &podErrs) {
-					depErr.podErrs = append(depErr.podErrs, podErrs...)
-				} else {
-					return podErr
-				}
-				depErrs = append(depErrs, depErr)
-			}
-		}
+
+		return "", err
 	}
 
-	return depErrs
+	var events *corev1.EventList
+	if ref, err := reference.GetReference(scheme.Scheme, pod); err != nil {
+		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err)
+	} else {
+		ref.Kind = ""
+		if _, isMirrorPod := pod.Annotations[corev1.MirrorPodAnnotationKey]; isMirrorPod {
+			ref.UID = types.UID(pod.Annotations[corev1.MirrorPodAnnotationKey])
+		}
+
+		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize)
+	}
+
+	return tabbedString(func(out io.Writer) error {
+		w := NewPrefixWriter(out)
+		w.Writef(LEVEL_0, name+" ")
+		DescribeEvents(events, w)
+		return nil
+	})
 }
 
-// checkPodErrors loops through pods, and returns pod errors if any.
-func (c Client) checkPodErrors(ctx context.Context, kubeclient kubeClient.Client, depSelectors *metav1.LabelSelector, key types.NamespacedName) error {
-	// loop through pods and return specific error message.
-	podErr := podErrors{}
-	podList := &corev1.PodList{}
-	podLabelSelectors, err := metav1.LabelSelectorAsSelector(depSelectors)
+func tabbedString(f func(io.Writer) error) (string, error) {
+	out := &tabwriter.Writer{}
+	buf := &bytes.Buffer{}
+	out.Init(buf, 0, 8, 2, ' ', 0)
+
+	err := f(out)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	options := client.ListOptions{
-		LabelSelector: podLabelSelectors,
-		Namespace:     key.Namespace,
-	}
-
-	if err := kubeclient.List(ctx, podList, &options); err != nil {
-		return errors.Wrap(err, "error getting Pods")
-	}
-
-	for _, p := range podList.Items {
-		for _, cs := range p.Status.ContainerStatuses {
-			if !cs.Ready {
-				if cs.State.Waiting != nil {
-					containerName := p.Name + ":" + cs.Name
-					podErr = append(podErr, podError{resourceError{name: containerName, issue: cs.State.Waiting.Message}})
-				}
-			}
-		}
-	}
-
-	return podErr
+	out.Flush()
+	str := buf.String()
+	return str, nil
 }
 
-func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) error {
-	kubeclient, err := c.getKubeclient()
-	if err != nil {
-		return err
+func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
+	if len(el.Items) == 0 {
+		w.Writef(LEVEL_0, "Events:\t<none>\n")
+		return
 	}
 
-	rolloutComplete := func() (bool, error) {
-		deployment := appsv1.Deployment{}
-		err := kubeclient.Get(ctx, key, &deployment)
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				// Waiting for Deployment to appear
-				return false, nil
-			}
-			return false, err
+	w.Flush()
+	sort.Sort(SortableEvents(el.Items))
+	w.Writef(LEVEL_0, "Events:\n  Type\tReason\tAge\tFrom\tMessage\n")
+	w.Writef(LEVEL_1, "----\t------\t----\t----\t-------\n")
+	for _, e := range el.Items {
+		var interval string
+		firstTimestampSince := translateMicroTimestampSince(e.EventTime)
+		if e.EventTime.IsZero() {
+			firstTimestampSince = translateTimestampSince(e.FirstTimestamp)
 		}
-		if deployment.Generation <= deployment.Status.ObservedGeneration {
-			cond := deploymentutil.GetDeploymentCondition(deployment.Status, appsv1.DeploymentProgressing)
-			if cond != nil && cond.Reason == deploymentutil.TimedOutReason {
-				return false, errors.New("progress deadline exceeded")
-			}
-			if deployment.Spec.Replicas != nil && deployment.Status.UpdatedReplicas < *deployment.Spec.Replicas {
-				// Waiting for Deployment to rollout. Not all replicas have been updated
-				return false, nil
-			}
-			if deployment.Status.Replicas > deployment.Status.UpdatedReplicas {
-				// Waiting for Deployment to rollout. Old replicas are pending termination
-				return false, nil
-			}
-			if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
-				// Waiting for Deployment to rollout. Not all updated replicas are available
-				return false, nil
-			}
-			// Deployment successfully rolled out
-			return true, nil
+
+		if e.Series != nil {
+			interval = fmt.Sprintf("%s (x%d over %s)", translateMicroTimestampSince(e.Series.LastObservedTime), e.Series.Count, firstTimestampSince)
+		} else if e.Count > 1 {
+			interval = fmt.Sprintf("%s (x%d over %s)", translateTimestampSince(e.LastTimestamp), e.Count, firstTimestampSince)
+		} else {
+			interval = firstTimestampSince
 		}
-		// Waiting for Deployment to rollout: waiting for deployment spec update to be observed
-		return false, nil
+
+		source := e.Source.Component
+		if source == "" {
+			source = e.ReportingController
+		}
+
+		w.Writef(LEVEL_1, "%v\t%v\t%s\t%v\t%v\n",
+			e.Type,
+			e.Reason,
+			interval,
+			source,
+			strings.TrimSpace(e.Message))
 	}
-	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
+}
+
+// searchEvents finds events about the specified object.
+// It is very similar to CoreV1.Events.Search, but supports the Limit parameter.
+func searchEvents(client corev1client.EventsGetter, objOrRef runtime.Object, limit int64) (*corev1.EventList, error) {
+	ref, err := reference.GetReference(scheme.Scheme, objOrRef)
+	if err != nil {
+		return nil, err
+	}
+
+	stringRefKind := ref.Kind
+	var refKind *string
+	if len(stringRefKind) > 0 {
+		refKind = &stringRefKind
+	}
+
+	stringRefUID := string(ref.UID)
+	var refUID *string
+	if len(stringRefUID) > 0 {
+		refUID = &stringRefUID
+	}
+
+	e := client.Events(ref.Namespace)
+	fieldSelector := e.GetFieldSelector(&ref.Name, &ref.Namespace, refKind, refUID)
+	initialOpts := metav1.ListOptions{FieldSelector: fieldSelector.String(), Limit: limit}
+	eventList := &corev1.EventList{}
+	err = resource.FollowContinue(&initialOpts,
+		func(options metav1.ListOptions) (runtime.Object, error) {
+			newEvents, err := e.List(context.TODO(), options)
+			if err != nil {
+				return nil, resource.EnhanceListError(err, options, "events")
+			}
+
+			eventList.Items = append(eventList.Items, newEvents.Items...)
+			return newEvents, nil
+		})
+
+	return eventList, err
+}
+
+// translateMicroTimestampSince returns the elapsed time since timestamp in
+// human-readable approximation.
+func translateMicroTimestampSince(timestamp metav1.MicroTime) string {
+	if timestamp.IsZero() {
+		return "<unknown>"
+	}
+
+	return duration.HumanDuration(time.Since(timestamp.Time))
+}
+
+// translateTimestampSince returns the elapsed time since timestamp in
+// human-readable approximation.
+func translateTimestampSince(timestamp metav1.Time) string {
+	if timestamp.IsZero() {
+		return "<unknown>"
+	}
+
+	return duration.HumanDuration(time.Since(timestamp.Time))
 }
