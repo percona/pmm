@@ -84,7 +84,7 @@ require (
 	k8s.io/cli-runtime v0.26.0
 	k8s.io/client-go v0.26.0
 	modernc.org/sqlite v1.19.5
-	vitess.io/vitess v0.15.0
+	vitess.io/vitess v0.15.2
 )
 
 require (
