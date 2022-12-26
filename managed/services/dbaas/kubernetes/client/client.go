@@ -16,10 +16,16 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"sort"
+	"strings"
+	"text/tabwriter"
+	"time"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -31,13 +37,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/duration"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/reference"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 )
@@ -51,9 +62,19 @@ const (
 
 	defaultQPSLimit   = 100
 	defaultBurstLimit = 150
+	defaultChunkSize  = 500
 
 	defaultAPIURIPath  = "/api"
 	defaultAPIsURIPath = "/apis"
+)
+
+// Each level has 2 spaces for PrefixWriter
+const (
+	LEVEL_0 = iota
+	LEVEL_1
+	LEVEL_2
+	LEVEL_3
+	LEVEL_4
 )
 
 var (
@@ -69,6 +90,21 @@ type Client struct {
 	dbClusterClient *database.DatabaseClusterClient
 	restConfig      *rest.Config
 	namespace       string
+}
+
+// SortableEvents implements sort.Interface for []api.Event based on the Timestamp field
+type SortableEvents []corev1.Event
+
+func (list SortableEvents) Len() int {
+	return len(list)
+}
+
+func (list SortableEvents) Swap(i, j int) {
+	list[i], list[j] = list[j], list[i]
+}
+
+func (list SortableEvents) Less(i, j int) bool {
+	return list[i].LastTimestamp.Time.Before(list[j].LastTimestamp.Time)
 }
 
 // NewFromInCluster returns a client object which uses the service account
@@ -134,7 +170,7 @@ func (c *Client) initOperatorClients() error {
 		return err
 	}
 	c.dbClusterClient = dbClusterClient
-	_, err = c.GetServerVersion(context.Background())
+	_, err = c.GetServerVersion()
 	return err
 }
 
@@ -194,7 +230,7 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 }
 
 // GetServerVersion returns server version
-func (c *Client) GetServerVersion(ctx context.Context) (*version.Info, error) {
+func (c *Client) GetServerVersion() (*version.Info, error) {
 	return c.clientset.Discovery().ServerVersion()
 }
 
@@ -228,7 +264,7 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 }
 
 // Delete deletes object from the k8s cluster
-func (c *Client) DeleteObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
@@ -264,7 +300,7 @@ func deleteObject(helper *resource.Helper, namespace, name string) error {
 	return nil
 }
 
-func (c *Client) ApplyObject(ctx context.Context, obj runtime.Object) error {
+func (c *Client) ApplyObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
 		return err
@@ -344,4 +380,225 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	}
 
 	return yaml.Marshal(jsonObj)
+}
+
+// GetPersistentVolumes returns Persistent Volumes available in the cluster
+func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return c.clientset.CoreV1().PersistentVolumes().List(ctx, metav1.ListOptions{})
+}
+
+// GetPods returns list of pods
+func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != "" {
+		parsed, err := metav1.ParseToLabelSelector(labelSelector)
+		if err != nil {
+			return nil, err
+		}
+
+		selector, err := parsed.Marshal()
+		if err != nil {
+			return nil, err
+		}
+
+		options.LabelSelector = string(selector)
+		options.LabelSelector = labelSelector
+	}
+
+	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
+}
+
+// GetNodes returns list of nodes
+func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+}
+
+// GetLogs returns logs for pod
+func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, error) {
+	defaultLogLines := int64(3000)
+	options := &corev1.PodLogOptions{}
+	if container != "" {
+		options.Container = container
+	}
+
+	options.TailLines = &defaultLogLines
+	buf := &bytes.Buffer{}
+
+	req := c.clientset.CoreV1().Pods(c.namespace).GetLogs(pod, options)
+	podLogs, err := req.Stream(ctx)
+	if err != nil {
+		return buf.String(), err
+	}
+
+	_, err = io.Copy(buf, podLogs)
+	if err != nil {
+		return buf.String(), err
+	}
+
+	return buf.String(), nil
+}
+
+func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
+	pod, err := c.clientset.CoreV1().Pods(c.namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		eventsInterface := c.clientset.CoreV1().Events(c.namespace)
+		selector := eventsInterface.GetFieldSelector(&name, &c.namespace, nil, nil)
+		initialOpts := metav1.ListOptions{
+			FieldSelector: selector.String(),
+			Limit:         defaultChunkSize,
+		}
+		events := &corev1.EventList{}
+		err2 := resource.FollowContinue(&initialOpts,
+			func(options metav1.ListOptions) (runtime.Object, error) {
+				newList, err := eventsInterface.List(ctx, options)
+				if err != nil {
+					return nil, resource.EnhanceListError(err, options, "events")
+				}
+
+				events.Items = append(events.Items, newList.Items...)
+				return newList, nil
+			})
+
+		if err2 == nil && len(events.Items) != 0 {
+			return tabbedString(func(out io.Writer) error {
+				w := NewPrefixWriter(out)
+				w.Writef(0, "Pod '%v': error '%v', but found events.\n", name, err)
+				DescribeEvents(events, w)
+				return nil
+			})
+		}
+
+		return "", err
+	}
+
+	var events *corev1.EventList
+	if ref, err := reference.GetReference(scheme.Scheme, pod); err != nil {
+		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err)
+	} else {
+		ref.Kind = ""
+		if _, isMirrorPod := pod.Annotations[corev1.MirrorPodAnnotationKey]; isMirrorPod {
+			ref.UID = types.UID(pod.Annotations[corev1.MirrorPodAnnotationKey])
+		}
+
+		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize)
+	}
+
+	return tabbedString(func(out io.Writer) error {
+		w := NewPrefixWriter(out)
+		w.Writef(LEVEL_0, name+" ")
+		DescribeEvents(events, w)
+		return nil
+	})
+}
+
+func tabbedString(f func(io.Writer) error) (string, error) {
+	out := &tabwriter.Writer{}
+	buf := &bytes.Buffer{}
+	out.Init(buf, 0, 8, 2, ' ', 0)
+
+	err := f(out)
+	if err != nil {
+		return "", err
+	}
+
+	out.Flush()
+	str := buf.String()
+	return str, nil
+}
+
+func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
+	if len(el.Items) == 0 {
+		w.Writef(LEVEL_0, "Events:\t<none>\n")
+		return
+	}
+
+	w.Flush()
+	sort.Sort(SortableEvents(el.Items))
+	w.Writef(LEVEL_0, "Events:\n  Type\tReason\tAge\tFrom\tMessage\n")
+	w.Writef(LEVEL_1, "----\t------\t----\t----\t-------\n")
+	for _, e := range el.Items {
+		var interval string
+		firstTimestampSince := translateMicroTimestampSince(e.EventTime)
+		if e.EventTime.IsZero() {
+			firstTimestampSince = translateTimestampSince(e.FirstTimestamp)
+		}
+
+		if e.Series != nil {
+			interval = fmt.Sprintf("%s (x%d over %s)", translateMicroTimestampSince(e.Series.LastObservedTime), e.Series.Count, firstTimestampSince)
+		} else if e.Count > 1 {
+			interval = fmt.Sprintf("%s (x%d over %s)", translateTimestampSince(e.LastTimestamp), e.Count, firstTimestampSince)
+		} else {
+			interval = firstTimestampSince
+		}
+
+		source := e.Source.Component
+		if source == "" {
+			source = e.ReportingController
+		}
+
+		w.Writef(LEVEL_1, "%v\t%v\t%s\t%v\t%v\n",
+			e.Type,
+			e.Reason,
+			interval,
+			source,
+			strings.TrimSpace(e.Message))
+	}
+}
+
+// searchEvents finds events about the specified object.
+// It is very similar to CoreV1.Events.Search, but supports the Limit parameter.
+func searchEvents(client corev1client.EventsGetter, objOrRef runtime.Object, limit int64) (*corev1.EventList, error) {
+	ref, err := reference.GetReference(scheme.Scheme, objOrRef)
+	if err != nil {
+		return nil, err
+	}
+
+	stringRefKind := ref.Kind
+	var refKind *string
+	if len(stringRefKind) > 0 {
+		refKind = &stringRefKind
+	}
+
+	stringRefUID := string(ref.UID)
+	var refUID *string
+	if len(stringRefUID) > 0 {
+		refUID = &stringRefUID
+	}
+
+	e := client.Events(ref.Namespace)
+	fieldSelector := e.GetFieldSelector(&ref.Name, &ref.Namespace, refKind, refUID)
+	initialOpts := metav1.ListOptions{FieldSelector: fieldSelector.String(), Limit: limit}
+	eventList := &corev1.EventList{}
+	err = resource.FollowContinue(&initialOpts,
+		func(options metav1.ListOptions) (runtime.Object, error) {
+			newEvents, err := e.List(context.TODO(), options)
+			if err != nil {
+				return nil, resource.EnhanceListError(err, options, "events")
+			}
+
+			eventList.Items = append(eventList.Items, newEvents.Items...)
+			return newEvents, nil
+		})
+
+	return eventList, err
+}
+
+// translateMicroTimestampSince returns the elapsed time since timestamp in
+// human-readable approximation.
+func translateMicroTimestampSince(timestamp metav1.MicroTime) string {
+	if timestamp.IsZero() {
+		return "<unknown>"
+	}
+
+	return duration.HumanDuration(time.Since(timestamp.Time))
+}
+
+// translateTimestampSince returns the elapsed time since timestamp in
+// human-readable approximation.
+func translateTimestampSince(timestamp metav1.Time) string {
+	if timestamp.IsZero() {
+		return "<unknown>"
+	}
+
+	return duration.HumanDuration(time.Since(timestamp.Time))
 }

@@ -221,7 +221,7 @@
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
-      file:
+      copy:
         src: resize-xfs-lvm
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755
