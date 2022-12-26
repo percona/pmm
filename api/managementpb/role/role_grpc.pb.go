@@ -8,7 +8,6 @@ package rolev1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -132,32 +131,27 @@ type RoleServer interface {
 }
 
 // UnimplementedRoleServer must be embedded to have forward compatible implementations.
-type UnimplementedRoleServer struct{}
+type UnimplementedRoleServer struct {
+}
 
 func (UnimplementedRoleServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
-
 func (UnimplementedRoleServer) UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
 }
-
 func (UnimplementedRoleServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
-
 func (UnimplementedRoleServer) GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
-
 func (UnimplementedRoleServer) ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
-
 func (UnimplementedRoleServer) AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRoles not implemented")
 }
-
 func (UnimplementedRoleServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultRole not implemented")
 }

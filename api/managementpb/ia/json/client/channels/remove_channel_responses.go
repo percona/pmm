@@ -60,12 +60,12 @@ type RemoveChannelOK struct {
 func (o *RemoveChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] removeChannelOk  %+v", 200, o.Payload)
 }
-
 func (o *RemoveChannelOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveChannelOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *RemoveChannelDefault) Code() int {
 func (o *RemoveChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] RemoveChannel default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RemoveChannelDefault) GetPayload() *RemoveChannelDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveChannelDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RemoveChannelDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ RemoveChannelBody remove channel body
 swagger:model RemoveChannelBody
 */
 type RemoveChannelBody struct {
+
 	// channel id
 	ChannelID string `json:"channel_id,omitempty"`
 }
@@ -158,6 +159,7 @@ RemoveChannelDefaultBody remove channel default body
 swagger:model RemoveChannelDefaultBody
 */
 type RemoveChannelDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,7 +225,9 @@ func (o *RemoveChannelDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *RemoveChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -234,6 +238,7 @@ func (o *RemoveChannelDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -262,6 +267,7 @@ RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
 swagger:model RemoveChannelDefaultBodyDetailsItems0
 */
 type RemoveChannelDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

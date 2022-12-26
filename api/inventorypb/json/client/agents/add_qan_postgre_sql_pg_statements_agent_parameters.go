@@ -60,6 +60,7 @@ AddQANPostgreSQLPgStatementsAgentParams contains all the parameters to send to t
 	Typically these are written to a http.Request.
 */
 type AddQANPostgreSQLPgStatementsAgentParams struct {
+
 	// Body.
 	Body AddQANPostgreSQLPgStatementsAgentBody
 
@@ -129,6 +130,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentParams) SetBody(body AddQANPostgreSQLP
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddQANPostgreSQLPgStatementsAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

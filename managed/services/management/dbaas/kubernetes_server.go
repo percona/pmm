@@ -37,6 +37,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/dbaas/olm"
 	pmmversion "github.com/percona/pmm/version"
 )
@@ -61,18 +62,22 @@ type kubernetesServer struct {
 	dbaasClient        dbaasClient
 	versionService     versionService
 	grafanaClient      grafanaClient
+	kubernetesClient   kubernetesClient
 	olmOperatorService olm.OperatorServiceManager
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient, olms olm.OperatorServiceManager) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, kubernetesClient kubernetesClient, versionService versionService,
+	grafanaClient grafanaClient, olms olm.OperatorServiceManager,
+) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
 		l:                  l,
 		db:                 db,
 		dbaasClient:        dbaasClient,
+		kubernetesClient:   kubernetesClient,
 		versionService:     versionService,
 		grafanaClient:      grafanaClient,
 		olmOperatorService: olms,
@@ -280,6 +285,8 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
+
+	k.olmOperatorService.SetKubeConfig(req.KubeAuth.Kubeconfig)
 
 	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
 	err = k.db.InTransaction(func(t *reform.TX) error {

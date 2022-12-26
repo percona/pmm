@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//go:generate ../../../..//bin/ifacemaker -f olm_operator.go -s OperatorService -i OperatorServiceManager -p olm -o operator_service_interface.go
+//go:generate ../../../../bin/ifacemaker -f olm_operator.go -s OperatorService -i OperatorServiceManager -p olm -o operator_service_interface.go
 //go:generate ../../../../bin/mockery -name=OperatorServiceManager -case=snake -inpkg
 
 // Package olm contains logic related to kubernetes operators.
@@ -27,6 +27,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
@@ -58,6 +59,7 @@ var ErrEmptyVersionTag error = errors.New("got an empty version tag from Github"
 
 // OperatorService holds methods to handle the OLM operator.
 type OperatorService struct {
+	lock       *sync.Mutex
 	kubeConfig string
 	k8sclient  client.KubeClientConnector
 }
@@ -67,12 +69,15 @@ type OperatorService struct {
 // In some cases it is not possible to inject an already configured instance since to connect to
 // a kubernetes cluster we need the kubeconfig, but that information is only available per request.
 func NewEmpty() *OperatorService {
-	return &OperatorService{}
+	return &OperatorService{
+		lock: &sync.Mutex{},
+	}
 }
 
 // New returns new OperatorService instance and intializes the config.
 func NewFromConnector(k8sclient client.KubeClientConnector) *OperatorService {
 	return &OperatorService{
+		lock:      &sync.Mutex{},
 		k8sclient: k8sclient,
 	}
 }
@@ -84,10 +89,16 @@ func NewFromKubeConfig(kubeConfig string) (*OperatorService, error) {
 		return nil, errors.Wrap(err, "cannot initialize the kubernetes client")
 	}
 
-	return &OperatorService{k8sclient: k8sclient}, nil
+	return &OperatorService{
+		lock:      &sync.Mutex{},
+		k8sclient: k8sclient,
+	}, nil
 }
 
 func (o *OperatorService) SetKubeConfig(kubeConfig string) error {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+
 	k8sclient, err := client.NewFromKubeConfigString(kubeConfig)
 	if err != nil {
 		return errors.Wrap(err, "cannot initialize the kubernetes client")

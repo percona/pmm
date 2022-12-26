@@ -8,7 +8,6 @@ package backupv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -54,7 +53,8 @@ type RestoreHistoryServer interface {
 }
 
 // UnimplementedRestoreHistoryServer must be embedded to have forward compatible implementations.
-type UnimplementedRestoreHistoryServer struct{}
+type UnimplementedRestoreHistoryServer struct {
+}
 
 func (UnimplementedRestoreHistoryServer) ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestoreHistory not implemented")

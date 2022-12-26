@@ -7,11 +7,10 @@
 package qanv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1069,17 +1068,14 @@ func file_qanpb_qan_proto_rawDescGZIP() []byte {
 	return file_qanpb_qan_proto_rawDescData
 }
 
-var (
-	file_qanpb_qan_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_qanpb_qan_proto_msgTypes  = make([]protoimpl.MessageInfo, 2)
-	file_qanpb_qan_proto_goTypes   = []interface{}{
-		(ExampleFormat)(0),    // 0: qan.v1beta1.ExampleFormat
-		(ExampleType)(0),      // 1: qan.v1beta1.ExampleType
-		(*Point)(nil),         // 2: qan.v1beta1.Point
-		(*MapFieldEntry)(nil), // 3: qan.v1beta1.MapFieldEntry
-	}
-)
-
+var file_qanpb_qan_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_qanpb_qan_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_qanpb_qan_proto_goTypes = []interface{}{
+	(ExampleFormat)(0),    // 0: qan.v1beta1.ExampleFormat
+	(ExampleType)(0),      // 1: qan.v1beta1.ExampleType
+	(*Point)(nil),         // 2: qan.v1beta1.Point
+	(*MapFieldEntry)(nil), // 3: qan.v1beta1.MapFieldEntry
+}
 var file_qanpb_qan_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

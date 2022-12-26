@@ -25,13 +25,31 @@ type KubeClientConnector interface {
 	// GenerateKubeConfig generates kubeconfig
 	GenerateKubeConfig(secret *corev1.Secret) ([]byte, error)
 	// GetServerVersion returns server version
-	GetServerVersion(ctx context.Context) (*version.Info, error)
+	GetServerVersion() (*version.Info, error)
 	// ListDatabaseClusters returns list of managed PCX clusters.
 	ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error)
 	// GetDatabaseCluster returns PXC clusters by provided name.
 	GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error)
 	// GetStorageClasses returns all storage classes available in the cluster
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
+	// Delete deletes object from the k8s cluster
+	DeleteObject(obj runtime.Object) error
+	ApplyObject(obj runtime.Object) error
+	// GetPersistentVolumes returns Persistent Volumes available in the cluster
+	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
+	// GetPods returns list of pods
+	GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error)
+	// GetNodes returns list of nodes
+	GetNodes(ctx context.Context) (*corev1.NodeList, error)
+	// GetLogs returns logs for pod
+	GetLogs(ctx context.Context, pod, container string) (string, error)
+	GetEvents(ctx context.Context, name string) (string, error)
+	// ApplyFile accepts manifest file contents, parses into []runtime.Object
+	// and applies them against the cluster
+	ApplyFile(ctx context.Context, fileBytes []byte) error
+	DoCSVWait(ctx context.Context, key types.NamespacedName) error
+	GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error)
+	DoRolloutWait(ctx context.Context, key types.NamespacedName) error
 	// GetDeployment returns deployment by name
 	GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error)
 	// GetSecret returns secret by name
@@ -42,14 +60,4 @@ type KubeClientConnector interface {
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
 	GetInstallPlan(ctx context.Context, namespace string, name string) (*operatorsv1alpha1.InstallPlan, error)
 	UpdateInstallPlan(ctx context.Context, namespace string, installPlan *operatorsv1alpha1.InstallPlan) (*operatorsv1alpha1.InstallPlan, error)
-	// Delete deletes object from the k8s cluster
-	DeleteObject(ctx context.Context, obj runtime.Object) error
-	DeleteFile(ctx context.Context, fileBytes []byte) error
-	ApplyObject(ctx context.Context, obj runtime.Object) error
-	// ApplyFile accepts manifest file contents, parses into []runtime.Object
-	// and applies them against the cluster
-	ApplyFile(ctx context.Context, fileBytes []byte) error
-	DoCSVWait(ctx context.Context, key types.NamespacedName) error
-	GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error)
-	DoRolloutWait(ctx context.Context, key types.NamespacedName) error
 }

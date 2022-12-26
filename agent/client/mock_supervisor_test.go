@@ -3,9 +3,8 @@
 package client
 
 import (
-	mock "github.com/stretchr/testify/mock"
-
 	agentpb "github.com/percona/pmm/api/agentpb"
+	mock "github.com/stretchr/testify/mock"
 
 	prometheus "github.com/prometheus/client_golang/prometheus"
 )

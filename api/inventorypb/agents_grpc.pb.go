@@ -8,7 +8,6 @@ package inventorypb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -444,128 +443,99 @@ type AgentsServer interface {
 }
 
 // UnimplementedAgentsServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentsServer struct{}
+type UnimplementedAgentsServer struct {
+}
 
 func (UnimplementedAgentsServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
-
 func (UnimplementedAgentsServer) GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
-
 func (UnimplementedAgentsServer) AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPMMAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddNodeExporter(context.Context, *AddNodeExporterRequest) (*AddNodeExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNodeExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeNodeExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddMySQLdExporter(context.Context, *AddMySQLdExporterRequest) (*AddMySQLdExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLdExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeMySQLdExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddMongoDBExporter(context.Context, *AddMongoDBExporterRequest) (*AddMongoDBExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeMongoDBExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddPostgresExporter(context.Context, *AddPostgresExporterRequest) (*AddPostgresExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgresExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePostgresExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddProxySQLExporter(context.Context, *AddProxySQLExporterRequest) (*AddProxySQLExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeProxySQLExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLPerfSchemaAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLPerfSchemaAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLSlowlogAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLSlowlogAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMongoDBProfilerAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMongoDBProfilerAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddQANPostgreSQLPgStatementsAgent(context.Context, *AddQANPostgreSQLPgStatementsAgentRequest) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatementsAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatementsAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddQANPostgreSQLPgStatMonitorAgent(context.Context, *AddQANPostgreSQLPgStatMonitorAgentRequest) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatMonitorAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatMonitorAgent not implemented")
 }
-
 func (UnimplementedAgentsServer) AddRDSExporter(context.Context, *AddRDSExporterRequest) (*AddRDSExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDSExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeRDSExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddExternalExporter(context.Context, *AddExternalExporterRequest) (*AddExternalExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternalExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeExternalExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) AddAzureDatabaseExporter(context.Context, *AddAzureDatabaseExporterRequest) (*AddAzureDatabaseExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabaseExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAzureDatabaseExporter not implemented")
 }
-
 func (UnimplementedAgentsServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveAgent not implemented")
 }

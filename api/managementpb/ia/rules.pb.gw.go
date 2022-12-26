@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_Rules_ListAlertRules_0(ctx context.Context, marshaler runtime.Marshaler, client RulesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListAlertRulesRequest
@@ -47,6 +45,7 @@ func request_Rules_ListAlertRules_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.ListAlertRules(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Rules_ListAlertRules_0(ctx context.Context, marshaler runtime.Marshaler, server RulesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_Rules_ListAlertRules_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.ListAlertRules(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Rules_CreateAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, client RulesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,6 +79,7 @@ func request_Rules_CreateAlertRule_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.CreateAlertRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Rules_CreateAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, server RulesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,6 +96,7 @@ func local_request_Rules_CreateAlertRule_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.CreateAlertRule(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Rules_UpdateAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, client RulesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +113,7 @@ func request_Rules_UpdateAlertRule_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.UpdateAlertRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Rules_UpdateAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, server RulesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,6 +130,7 @@ func local_request_Rules_UpdateAlertRule_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.UpdateAlertRule(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Rules_ToggleAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, client RulesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -143,6 +147,7 @@ func request_Rules_ToggleAlertRule_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.ToggleAlertRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Rules_ToggleAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, server RulesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -159,6 +164,7 @@ func local_request_Rules_ToggleAlertRule_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.ToggleAlertRule(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, client RulesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -175,6 +181,7 @@ func request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.DeleteAlertRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtime.Marshaler, server RulesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -191,6 +198,7 @@ func local_request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.DeleteAlertRule(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterRulesHandlerServer registers the http handlers for service Rules to "mux".
@@ -198,6 +206,7 @@ func local_request_Rules_DeleteAlertRule_0(ctx context.Context, marshaler runtim
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRulesHandlerFromEndpoint instead.
 func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RulesServer) error {
+
 	mux.Handle("POST", pattern_Rules_ListAlertRules_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -220,6 +229,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Rules_ListAlertRules_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_CreateAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -244,6 +254,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Rules_CreateAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_UpdateAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -268,6 +279,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Rules_UpdateAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_ToggleAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -292,6 +304,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Rules_ToggleAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_DeleteAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -316,6 +329,7 @@ func RegisterRulesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Rules_DeleteAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -358,6 +372,7 @@ func RegisterRulesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RulesClient" to call the correct interceptors.
 func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RulesClient) error {
+
 	mux.Handle("POST", pattern_Rules_ListAlertRules_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -377,6 +392,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Rules_ListAlertRules_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_CreateAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -398,6 +414,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Rules_CreateAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_UpdateAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -419,6 +436,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Rules_UpdateAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_ToggleAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -440,6 +458,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Rules_ToggleAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Rules_DeleteAlertRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -461,6 +480,7 @@ func RegisterRulesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Rules_DeleteAlertRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

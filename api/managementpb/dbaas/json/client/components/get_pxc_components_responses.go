@@ -60,12 +60,12 @@ type GetPXCComponentsOK struct {
 func (o *GetPXCComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] getPxcComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPXCComponentsOK) GetPayload() *GetPXCComponentsOKBody {
 	return o.Payload
 }
 
 func (o *GetPXCComponentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCComponentsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetPXCComponentsDefault) Code() int {
 func (o *GetPXCComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] GetPXCComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPXCComponentsDefault) GetPayload() *GetPXCComponentsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPXCComponentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCComponentsDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ GetPXCComponentsBody get PXC components body
 swagger:model GetPXCComponentsBody
 */
 type GetPXCComponentsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -163,6 +164,7 @@ GetPXCComponentsDefaultBody get PXC components default body
 swagger:model GetPXCComponentsDefaultBody
 */
 type GetPXCComponentsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *GetPXCComponentsDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *GetPXCComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *GetPXCComponentsDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ GetPXCComponentsDefaultBodyDetailsItems0 get PXC components default body details
 swagger:model GetPXCComponentsDefaultBodyDetailsItems0
 */
 type GetPXCComponentsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ GetPXCComponentsOKBody get PXC components OK body
 swagger:model GetPXCComponentsOKBody
 */
 type GetPXCComponentsOKBody struct {
+
 	// versions
 	Versions []*GetPXCComponentsOKBodyVersionsItems0 `json:"versions"`
 }
@@ -363,7 +370,9 @@ func (o *GetPXCComponentsOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *GetPXCComponentsOKBody) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -374,6 +383,7 @@ func (o *GetPXCComponentsOKBody) contextValidateVersions(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -402,6 +412,7 @@ GetPXCComponentsOKBodyVersionsItems0 OperatorVersion contains information about 
 swagger:model GetPXCComponentsOKBodyVersionsItems0
 */
 type GetPXCComponentsOKBodyVersionsItems0 struct {
+
 	// product
 	Product string `json:"product,omitempty"`
 
@@ -460,6 +471,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0) ContextValidate(ctx context.Conte
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0) contextValidateMatrix(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Matrix != nil {
 		if err := o.Matrix.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -497,6 +509,7 @@ GetPXCComponentsOKBodyVersionsItems0Matrix Matrix contains all available compone
 swagger:model GetPXCComponentsOKBodyVersionsItems0Matrix
 */
 type GetPXCComponentsOKBodyVersionsItems0Matrix struct {
+
 	// mongod
 	Mongod map[string]GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon `json:"mongod,omitempty"`
 
@@ -815,96 +828,120 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx context
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateMongod(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Mongod {
+
 		if val, ok := o.Mongod[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.PXC {
+
 		if val, ok := o.PXC[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidatePMM(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.PMM {
+
 		if val, ok := o.PMM[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Proxysql {
+
 		if val, ok := o.Proxysql[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Haproxy {
+
 		if val, ok := o.Haproxy[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Backup {
+
 		if val, ok := o.Backup[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateOperator(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Operator {
+
 		if val, ok := o.Operator[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateLogCollector(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.LogCollector {
+
 		if val, ok := o.LogCollector[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -933,6 +970,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains informat
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -985,6 +1023,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains informa
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1037,6 +1076,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains in
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1089,6 +1129,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains informat
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1141,6 +1182,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains inform
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1193,6 +1235,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1245,6 +1288,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1297,6 +1341,7 @@ GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains inform
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 

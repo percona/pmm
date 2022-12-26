@@ -78,7 +78,8 @@ func TestDBClusterService(t *testing.T) {
 	}
 
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		olmsMock *olm.MockOperatorServiceManager, teardown func(t *testing.T)) {
+		kubernetesClient *mockKubernetesClient, olmsMock *olm.MockOperatorServiceManager, teardown func(t *testing.T),
+	) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -88,6 +89,8 @@ func TestDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		kubernetesClient = &mockKubernetesClient{}
+
 		olmsMock = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
@@ -98,12 +101,12 @@ func TestDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, olms, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, kubernetesClient, olms, teardown := setup(t)
 	defer teardown(t)
 
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
+	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",

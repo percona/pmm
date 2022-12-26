@@ -86,7 +86,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		pmmversion.PMMVersion = "2.30.0"
 	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		componentsService *mockComponentsService, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
+		componentsService *mockComponentsService, kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -110,10 +110,10 @@ func TestPSMDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, componentsService, olms, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, componentsService, kubernetesClient, olms, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
-	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
+	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
 
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{

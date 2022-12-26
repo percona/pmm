@@ -62,12 +62,12 @@ type AddExternalOK struct {
 func (o *AddExternalOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
 }
-
 func (o *AddExternalOK) GetPayload() *AddExternalOKBody {
 	return o.Payload
 }
 
 func (o *AddExternalOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddExternalOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddExternalDefault) Code() int {
 func (o *AddExternalDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddExternalDefault) GetPayload() *AddExternalDefaultBody {
 	return o.Payload
 }
 
 func (o *AddExternalDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddExternalDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddExternalBody add external body
 swagger:model AddExternalBody
 */
 type AddExternalBody struct {
+
 	// Node identifier on which an external exporter is been running.
 	// runs_on_node_id always should be passed with node_id.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
@@ -284,6 +285,7 @@ func (o *AddExternalBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *AddExternalBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -321,6 +323,7 @@ AddExternalDefaultBody add external default body
 swagger:model AddExternalDefaultBody
 */
 type AddExternalDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -386,7 +389,9 @@ func (o *AddExternalDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddExternalDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -397,6 +402,7 @@ func (o *AddExternalDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -425,6 +431,7 @@ AddExternalDefaultBodyDetailsItems0 add external default body details items0
 swagger:model AddExternalDefaultBodyDetailsItems0
 */
 type AddExternalDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -462,6 +469,7 @@ AddExternalOKBody add external OK body
 swagger:model AddExternalOKBody
 */
 type AddExternalOKBody struct {
+
 	// external exporter
 	ExternalExporter *AddExternalOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
@@ -544,6 +552,7 @@ func (o *AddExternalOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddExternalOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -559,6 +568,7 @@ func (o *AddExternalOKBody) contextValidateExternalExporter(ctx context.Context,
 }
 
 func (o *AddExternalOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -596,6 +606,7 @@ AddExternalOKBodyExternalExporter ExternalExporter runs on any Node type, includ
 swagger:model AddExternalOKBodyExternalExporter
 */
 type AddExternalOKBodyExternalExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -663,6 +674,7 @@ AddExternalOKBodyService ExternalService represents a generic External service i
 swagger:model AddExternalOKBodyService
 */
 type AddExternalOKBodyService struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -721,6 +733,7 @@ AddExternalParamsBodyAddNode AddNodeParams is a params to add new node to invent
 swagger:model AddExternalParamsBodyAddNode
 */
 type AddExternalParamsBodyAddNode struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

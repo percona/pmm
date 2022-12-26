@@ -60,12 +60,12 @@ type GetAgentLogsOK struct {
 func (o *GetAgentLogsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetAgentLogsOK) GetPayload() *GetAgentLogsOKBody {
 	return o.Payload
 }
 
 func (o *GetAgentLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentLogsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetAgentLogsDefault) Code() int {
 func (o *GetAgentLogsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetAgentLogsDefault) GetPayload() *GetAgentLogsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetAgentLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentLogsDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ GetAgentLogsBody get agent logs body
 swagger:model GetAgentLogsBody
 */
 type GetAgentLogsBody struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -163,6 +164,7 @@ GetAgentLogsDefaultBody get agent logs default body
 swagger:model GetAgentLogsDefaultBody
 */
 type GetAgentLogsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *GetAgentLogsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetAgentLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *GetAgentLogsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
 swagger:model GetAgentLogsDefaultBodyDetailsItems0
 */
 type GetAgentLogsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ GetAgentLogsOKBody get agent logs OK body
 swagger:model GetAgentLogsOKBody
 */
 type GetAgentLogsOKBody struct {
+
 	// logs
 	Logs []string `json:"logs"`
 

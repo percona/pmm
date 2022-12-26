@@ -30,8 +30,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-	storagev1 "k8s.io/api/storage/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -44,7 +42,8 @@ import (
 
 func TestKubernetesServer(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
-		olms *olm.MockOperatorServiceManager, teardown func(t *testing.T)) {
+		kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
+	) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -63,7 +62,7 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, olms)
+		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
 		return
 	}
 
@@ -80,7 +79,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, olms, teardown := setup(t)
+		ctx, ks, dc, _, olms, teardown := setup(t)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 

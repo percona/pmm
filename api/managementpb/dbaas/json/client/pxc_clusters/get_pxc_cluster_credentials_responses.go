@@ -60,12 +60,12 @@ type GetPXCClusterCredentialsOK struct {
 func (o *GetPXCClusterCredentialsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] getPxcClusterCredentialsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPXCClusterCredentialsOK) GetPayload() *GetPXCClusterCredentialsOKBody {
 	return o.Payload
 }
 
 func (o *GetPXCClusterCredentialsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCClusterCredentialsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetPXCClusterCredentialsDefault) Code() int {
 func (o *GetPXCClusterCredentialsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] GetPXCClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPXCClusterCredentialsDefault) GetPayload() *GetPXCClusterCredentialsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPXCClusterCredentialsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCClusterCredentialsDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ GetPXCClusterCredentialsBody get PXC cluster credentials body
 swagger:model GetPXCClusterCredentialsBody
 */
 type GetPXCClusterCredentialsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -163,6 +164,7 @@ GetPXCClusterCredentialsDefaultBody get PXC cluster credentials default body
 swagger:model GetPXCClusterCredentialsDefaultBody
 */
 type GetPXCClusterCredentialsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *GetPXCClusterCredentialsDefaultBody) ContextValidate(ctx context.Contex
 }
 
 func (o *GetPXCClusterCredentialsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *GetPXCClusterCredentialsDefaultBody) contextValidateDetails(ctx context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials def
 swagger:model GetPXCClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPXCClusterCredentialsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ GetPXCClusterCredentialsOKBody get PXC cluster credentials OK body
 swagger:model GetPXCClusterCredentialsOKBody
 */
 type GetPXCClusterCredentialsOKBody struct {
+
 	// connection credentials
 	ConnectionCredentials *GetPXCClusterCredentialsOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 }
@@ -356,6 +363,7 @@ func (o *GetPXCClusterCredentialsOKBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetPXCClusterCredentialsOKBody) contextValidateConnectionCredentials(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ConnectionCredentials != nil {
 		if err := o.ConnectionCredentials.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -393,6 +401,7 @@ GetPXCClusterCredentialsOKBodyConnectionCredentials PXCClusterConnectionCredenti
 swagger:model GetPXCClusterCredentialsOKBodyConnectionCredentials
 */
 type GetPXCClusterCredentialsOKBodyConnectionCredentials struct {
+
 	// PXC username.
 	Username string `json:"username,omitempty"`
 

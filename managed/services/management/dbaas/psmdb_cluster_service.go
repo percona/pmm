@@ -184,6 +184,9 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		Expose: req.Expose,
 	}
 
+	s.l.Warn("====================================================================================================")
+	s.l.Warn("s.controllerClient.CreatePSMDBCluster")
+	s.l.Warn("====================================================================================================")
 	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)
 	if err != nil {
 		if apiKeyID != 0 {

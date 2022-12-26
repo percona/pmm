@@ -62,12 +62,12 @@ type AddQANPostgreSQLPgStatementsAgentOK struct {
 func (o *AddQANPostgreSQLPgStatementsAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] addQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddQANPostgreSQLPgStatementsAgentOK) GetPayload() *AddQANPostgreSQLPgStatementsAgentOKBody {
 	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddQANPostgreSQLPgStatementsAgentOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefault) Code() int {
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] AddQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) GetPayload() *AddQANPostgreSQLPgStatementsAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddQANPostgreSQLPgStatementsAgentDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddQANPostgreSQLPgStatementsAgentBody add QAN postgre SQL pg statements agent bo
 swagger:model AddQANPostgreSQLPgStatementsAgentBody
 */
 type AddQANPostgreSQLPgStatementsAgentBody struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -262,6 +263,7 @@ AddQANPostgreSQLPgStatementsAgentDefaultBody add QAN postgre SQL pg statements a
 swagger:model AddQANPostgreSQLPgStatementsAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatementsAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -327,7 +329,9 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) ContextValidate(ctx conte
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -338,6 +342,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) contextValidateDetails(ct
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -366,6 +371,7 @@ AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg
 swagger:model AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0
 */
 type AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -403,6 +409,7 @@ AddQANPostgreSQLPgStatementsAgentOKBody add QAN postgre SQL pg statements agent 
 swagger:model AddQANPostgreSQLPgStatementsAgentOKBody
 */
 type AddQANPostgreSQLPgStatementsAgentOKBody struct {
+
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent *AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
 }
@@ -455,6 +462,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBody) ContextValidate(ctx context.Co
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -492,6 +500,7 @@ AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgre
 swagger:model AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

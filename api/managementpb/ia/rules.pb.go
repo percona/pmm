@@ -7,18 +7,16 @@
 package iav1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
+	managementpb "github.com/percona/pmm/api/managementpb"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	managementpb "github.com/percona/pmm/api/managementpb"
-	alerting "github.com/percona/pmm/api/managementpb/alerting"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1373,41 +1371,38 @@ func file_managementpb_ia_rules_proto_rawDescGZIP() []byte {
 	return file_managementpb_ia_rules_proto_rawDescData
 }
 
-var (
-	file_managementpb_ia_rules_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_ia_rules_proto_msgTypes  = make([]protoimpl.MessageInfo, 18)
-	file_managementpb_ia_rules_proto_goTypes   = []interface{}{
-		(FilterType)(0),                  // 0: ia.v1beta1.FilterType
-		(*Filter)(nil),                   // 1: ia.v1beta1.Filter
-		(*ParamValue)(nil),               // 2: ia.v1beta1.ParamValue
-		(*Rule)(nil),                     // 3: ia.v1beta1.Rule
-		(*ListAlertRulesRequest)(nil),    // 4: ia.v1beta1.ListAlertRulesRequest
-		(*ListAlertRulesResponse)(nil),   // 5: ia.v1beta1.ListAlertRulesResponse
-		(*CreateAlertRuleRequest)(nil),   // 6: ia.v1beta1.CreateAlertRuleRequest
-		(*CreateAlertRuleResponse)(nil),  // 7: ia.v1beta1.CreateAlertRuleResponse
-		(*UpdateAlertRuleRequest)(nil),   // 8: ia.v1beta1.UpdateAlertRuleRequest
-		(*UpdateAlertRuleResponse)(nil),  // 9: ia.v1beta1.UpdateAlertRuleResponse
-		(*ToggleAlertRuleRequest)(nil),   // 10: ia.v1beta1.ToggleAlertRuleRequest
-		(*ToggleAlertRuleResponse)(nil),  // 11: ia.v1beta1.ToggleAlertRuleResponse
-		(*DeleteAlertRuleRequest)(nil),   // 12: ia.v1beta1.DeleteAlertRuleRequest
-		(*DeleteAlertRuleResponse)(nil),  // 13: ia.v1beta1.DeleteAlertRuleResponse
-		nil,                              // 14: ia.v1beta1.Rule.CustomLabelsEntry
-		nil,                              // 15: ia.v1beta1.Rule.LabelsEntry
-		nil,                              // 16: ia.v1beta1.Rule.AnnotationsEntry
-		nil,                              // 17: ia.v1beta1.CreateAlertRuleRequest.CustomLabelsEntry
-		nil,                              // 18: ia.v1beta1.UpdateAlertRuleRequest.CustomLabelsEntry
-		(alerting.ParamType)(0),          // 19: alerting.v1.ParamType
-		(*alerting.ParamDefinition)(nil), // 20: alerting.v1.ParamDefinition
-		(*durationpb.Duration)(nil),      // 21: google.protobuf.Duration
-		(managementpb.Severity)(0),       // 22: management.Severity
-		(*Channel)(nil),                  // 23: ia.v1beta1.Channel
-		(*timestamppb.Timestamp)(nil),    // 24: google.protobuf.Timestamp
-		(*managementpb.PageParams)(nil),  // 25: management.PageParams
-		(*managementpb.PageTotals)(nil),  // 26: management.PageTotals
-		(managementpb.BooleanFlag)(0),    // 27: managementpb.BooleanFlag
-	}
-)
-
+var file_managementpb_ia_rules_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_ia_rules_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_managementpb_ia_rules_proto_goTypes = []interface{}{
+	(FilterType)(0),                  // 0: ia.v1beta1.FilterType
+	(*Filter)(nil),                   // 1: ia.v1beta1.Filter
+	(*ParamValue)(nil),               // 2: ia.v1beta1.ParamValue
+	(*Rule)(nil),                     // 3: ia.v1beta1.Rule
+	(*ListAlertRulesRequest)(nil),    // 4: ia.v1beta1.ListAlertRulesRequest
+	(*ListAlertRulesResponse)(nil),   // 5: ia.v1beta1.ListAlertRulesResponse
+	(*CreateAlertRuleRequest)(nil),   // 6: ia.v1beta1.CreateAlertRuleRequest
+	(*CreateAlertRuleResponse)(nil),  // 7: ia.v1beta1.CreateAlertRuleResponse
+	(*UpdateAlertRuleRequest)(nil),   // 8: ia.v1beta1.UpdateAlertRuleRequest
+	(*UpdateAlertRuleResponse)(nil),  // 9: ia.v1beta1.UpdateAlertRuleResponse
+	(*ToggleAlertRuleRequest)(nil),   // 10: ia.v1beta1.ToggleAlertRuleRequest
+	(*ToggleAlertRuleResponse)(nil),  // 11: ia.v1beta1.ToggleAlertRuleResponse
+	(*DeleteAlertRuleRequest)(nil),   // 12: ia.v1beta1.DeleteAlertRuleRequest
+	(*DeleteAlertRuleResponse)(nil),  // 13: ia.v1beta1.DeleteAlertRuleResponse
+	nil,                              // 14: ia.v1beta1.Rule.CustomLabelsEntry
+	nil,                              // 15: ia.v1beta1.Rule.LabelsEntry
+	nil,                              // 16: ia.v1beta1.Rule.AnnotationsEntry
+	nil,                              // 17: ia.v1beta1.CreateAlertRuleRequest.CustomLabelsEntry
+	nil,                              // 18: ia.v1beta1.UpdateAlertRuleRequest.CustomLabelsEntry
+	(alerting.ParamType)(0),          // 19: alerting.v1.ParamType
+	(*alerting.ParamDefinition)(nil), // 20: alerting.v1.ParamDefinition
+	(*durationpb.Duration)(nil),      // 21: google.protobuf.Duration
+	(managementpb.Severity)(0),       // 22: management.Severity
+	(*Channel)(nil),                  // 23: ia.v1beta1.Channel
+	(*timestamppb.Timestamp)(nil),    // 24: google.protobuf.Timestamp
+	(*managementpb.PageParams)(nil),  // 25: management.PageParams
+	(*managementpb.PageTotals)(nil),  // 26: management.PageTotals
+	(managementpb.BooleanFlag)(0),    // 27: managementpb.BooleanFlag
+}
 var file_managementpb_ia_rules_proto_depIdxs = []int32{
 	0,  // 0: ia.v1beta1.Filter.type:type_name -> ia.v1beta1.FilterType
 	19, // 1: ia.v1beta1.ParamValue.type:type_name -> alerting.v1.ParamType

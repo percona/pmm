@@ -60,6 +60,7 @@ RegisterKubernetesClusterParams contains all the parameters to send to the API e
 	Typically these are written to a http.Request.
 */
 type RegisterKubernetesClusterParams struct {
+
 	// Body.
 	Body RegisterKubernetesClusterBody
 
@@ -129,6 +130,7 @@ func (o *RegisterKubernetesClusterParams) SetBody(body RegisterKubernetesCluster
 
 // WriteToRequest writes these params to a swagger request
 func (o *RegisterKubernetesClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

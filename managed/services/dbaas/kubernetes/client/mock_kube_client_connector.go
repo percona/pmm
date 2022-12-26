@@ -44,13 +44,13 @@ func (_m *MockKubeClientConnector) ApplyFile(ctx context.Context, fileBytes []by
 	return r0
 }
 
-// ApplyObject provides a mock function with given fields: ctx, obj
-func (_m *MockKubeClientConnector) ApplyObject(ctx context.Context, obj runtime.Object) error {
-	ret := _m.Called(ctx, obj)
+// ApplyObject provides a mock function with given fields: obj
+func (_m *MockKubeClientConnector) ApplyObject(obj runtime.Object) error {
+	ret := _m.Called(obj)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, runtime.Object) error); ok {
-		r0 = rf(ctx, obj)
+	if rf, ok := ret.Get(0).(func(runtime.Object) error); ok {
+		r0 = rf(obj)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -104,27 +104,13 @@ func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Cont
 	return r0, r1
 }
 
-// DeleteFile provides a mock function with given fields: ctx, fileBytes
-func (_m *MockKubeClientConnector) DeleteFile(ctx context.Context, fileBytes []byte) error {
-	ret := _m.Called(ctx, fileBytes)
+// DeleteObject provides a mock function with given fields: obj
+func (_m *MockKubeClientConnector) DeleteObject(obj runtime.Object) error {
+	ret := _m.Called(obj)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []byte) error); ok {
-		r0 = rf(ctx, fileBytes)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// DeleteObject provides a mock function with given fields: ctx, obj
-func (_m *MockKubeClientConnector) DeleteObject(ctx context.Context, obj runtime.Object) error {
-	ret := _m.Called(ctx, obj)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, runtime.Object) error); ok {
-		r0 = rf(ctx, obj)
+	if rf, ok := ret.Get(0).(func(runtime.Object) error); ok {
+		r0 = rf(obj)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -229,6 +215,27 @@ func (_m *MockKubeClientConnector) GetDeployment(ctx context.Context, name strin
 	return r0, r1
 }
 
+// GetEvents provides a mock function with given fields: ctx, name
+func (_m *MockKubeClientConnector) GetEvents(ctx context.Context, name string) (string, error) {
+	ret := _m.Called(ctx, name)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetInstallPlan provides a mock function with given fields: ctx, namespace, name
 func (_m *MockKubeClientConnector) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
 	ret := _m.Called(ctx, namespace, name)
@@ -252,6 +259,50 @@ func (_m *MockKubeClientConnector) GetInstallPlan(ctx context.Context, namespace
 	return r0, r1
 }
 
+// GetLogs provides a mock function with given fields: ctx, pod, container
+func (_m *MockKubeClientConnector) GetLogs(ctx context.Context, pod string, container string) (string, error) {
+	ret := _m.Called(ctx, pod, container)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
+		r0 = rf(ctx, pod, container)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, pod, container)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetNodes provides a mock function with given fields: ctx
+func (_m *MockKubeClientConnector) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	ret := _m.Called(ctx)
+
+	var r0 *corev1.NodeList
+	if rf, ok := ret.Get(0).(func(context.Context) *corev1.NodeList); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.NodeList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetOperatorGroup provides a mock function with given fields: ctx, namespace, name
 func (_m *MockKubeClientConnector) GetOperatorGroup(ctx context.Context, namespace string, name string) (*v1.OperatorGroup, error) {
 	ret := _m.Called(ctx, namespace, name)
@@ -268,6 +319,52 @@ func (_m *MockKubeClientConnector) GetOperatorGroup(ctx context.Context, namespa
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
 		r1 = rf(ctx, namespace, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPersistentVolumes provides a mock function with given fields: ctx
+func (_m *MockKubeClientConnector) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	ret := _m.Called(ctx)
+
+	var r0 *corev1.PersistentVolumeList
+	if rf, ok := ret.Get(0).(func(context.Context) *corev1.PersistentVolumeList); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.PersistentVolumeList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPods provides a mock function with given fields: ctx, namespace, labelSelector
+func (_m *MockKubeClientConnector) GetPods(ctx context.Context, namespace string, labelSelector string) (*corev1.PodList, error) {
+	ret := _m.Called(ctx, namespace, labelSelector)
+
+	var r0 *corev1.PodList
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *corev1.PodList); ok {
+		r0 = rf(ctx, namespace, labelSelector)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.PodList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, namespace, labelSelector)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -321,13 +418,13 @@ func (_m *MockKubeClientConnector) GetSecretsForServiceAccount(ctx context.Conte
 	return r0, r1
 }
 
-// GetServerVersion provides a mock function with given fields: ctx
-func (_m *MockKubeClientConnector) GetServerVersion(ctx context.Context) (*version.Info, error) {
-	ret := _m.Called(ctx)
+// GetServerVersion provides a mock function with given fields:
+func (_m *MockKubeClientConnector) GetServerVersion() (*version.Info, error) {
+	ret := _m.Called()
 
 	var r0 *version.Info
-	if rf, ok := ret.Get(0).(func(context.Context) *version.Info); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func() *version.Info); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*version.Info)
@@ -335,8 +432,8 @@ func (_m *MockKubeClientConnector) GetServerVersion(ctx context.Context) (*versi
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

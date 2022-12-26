@@ -60,12 +60,12 @@ type ReloadOK struct {
 func (o *ReloadOK) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
 }
-
 func (o *ReloadOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ReloadOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *ReloadDefault) Code() int {
 func (o *ReloadDefault) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ReloadDefault) GetPayload() *ReloadDefaultBody {
 	return o.Payload
 }
 
 func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ReloadDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ ReloadDefaultBody reload default body
 swagger:model ReloadDefaultBody
 */
 type ReloadDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -186,7 +187,9 @@ func (o *ReloadDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -197,6 +200,7 @@ func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -225,6 +229,7 @@ ReloadDefaultBodyDetailsItems0 reload default body details items0
 swagger:model ReloadDefaultBodyDetailsItems0
 */
 type ReloadDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
