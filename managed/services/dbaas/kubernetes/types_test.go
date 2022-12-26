@@ -158,6 +158,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Image:         "something",
 						Size:          1,
 						Configuration: "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						TrafficPolicy: "Cluster",
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
 								corev1.ResourceMemory: resource.MustParse("100"),
@@ -221,6 +222,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
 					Backup: dbaasv1.BackupSpec{},
@@ -285,6 +287,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
 					Backup: dbaasv1.BackupSpec{},
@@ -343,6 +346,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 						Annotations: map[string]string{
 							"service.beta.kubernetes.io/aws-load-balancer-nlb-target-type":         "ip",
@@ -407,6 +411,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
