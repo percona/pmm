@@ -230,17 +230,8 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 		return err
 	}
 
-	subs, err := o.k8sclient.CreateSubscriptionForCatalog(
-		ctx,
-		req.Namespace,
-		req.Name,
-		"olm",
-		req.CatalogSource,
-		req.Name,
-		req.Channel,
-		req.StartingCSV,
-		v1alpha1.ApprovalManual,
-	)
+	subs, err := o.k8sclient.CreateSubscriptionForCatalog(ctx, req.Namespace, req.Name, "olm", req.CatalogSource,
+		req.Name, req.Channel, req.StartingCSV, v1alpha1.ApprovalManual)
 	if err != nil {
 		return errors.Wrap(err, "cannot create a susbcription to install the operator")
 	}
