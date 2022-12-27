@@ -19,6 +19,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -47,7 +48,7 @@ type supervisor interface {
 	SetState(*agentpb.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
-	PushAgentStatus()
+	AgentsList() []*agentlocalpb.AgentInfo
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 }

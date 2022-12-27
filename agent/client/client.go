@@ -187,8 +187,7 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
-	// Push status of any running agent to server
-	c.supervisor.PushAgentStatus()
+	c.GetAgentsStatus()
 
 	oneDone := make(chan struct{}, 4)
 	go func() {
@@ -221,6 +220,27 @@ func (c *Client) Run(ctx context.Context) error {
 		close(c.done)
 	}()
 	return nil
+}
+
+// GetAgentsStatus sends status of running agents to server
+func (c *Client) GetAgentsStatus() {
+	for _, agent := range c.supervisor.AgentsList() {
+		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
+		resp, err := c.channel.SendAndWaitResponse(
+			&agentpb.StateChangedRequest{
+				AgentId:         agent.AgentId,
+				Status:          agent.Status,
+				ListenPort:      agent.ListenPort,
+				ProcessExecPath: agent.GetProcessExecPath(),
+			})
+		if err != nil {
+			c.l.Error(err)
+			continue
+		}
+		if resp == nil {
+			c.l.Warn("Failed to send StateChanged request.")
+		}
+	}
 }
 
 // Done is closed when all supervisors's requests are sent (if possible) and connection is closed.

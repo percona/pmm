@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -157,7 +158,7 @@ func TestClient(t *testing.T) {
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
-			s.On("PushAgentStatus").Return()
+			s.On("AgentsList").Return(make([]*agentlocalpb.AgentInfo, 0))
 
 			r := runner.New(cfg.RunnerCapacity)
 			client := New(cfg, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
@@ -274,7 +275,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
-	s.On("PushAgentStatus").Return()
+	s.On("AgentsList").Return(make([]*agentlocalpb.AgentInfo, 0))
 
 	r := runner.New(cfg.RunnerCapacity)
 	client := New(cfg, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)

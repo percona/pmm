@@ -116,19 +116,6 @@ func (s *Supervisor) Run(ctx context.Context) {
 	s.stopAll()
 }
 
-// PushAgentStatus provides current agent status in notification channel
-func (s *Supervisor) PushAgentStatus() {
-	for _, agent := range s.AgentsList() {
-		s.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
-		s.changes <- &agentpb.StateChangedRequest{
-			AgentId:         agent.AgentId,
-			Status:          agent.Status,
-			ListenPort:      agent.ListenPort,
-			ProcessExecPath: agent.GetProcessExecPath(),
-		}
-	}
-}
-
 // AgentsList returns info for all Agents managed by this supervisor.
 func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 	s.rw.RLock()
