@@ -63,6 +63,11 @@ func (_m *mockSupervisor) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
 }
 
+// PushAgentStatus provides a mock function with given fields:
+func (_m *mockSupervisor) PushAgentStatus() {
+	_m.Called()
+}
+
 // QANRequests provides a mock function with given fields:
 func (_m *mockSupervisor) QANRequests() <-chan *agentpb.QANCollectRequest {
 	ret := _m.Called()
