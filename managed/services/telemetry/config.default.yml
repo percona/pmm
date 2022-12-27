@@ -227,7 +227,7 @@ telemetry:
 
   - id: MongoDBIsEncryptionAtRestEnabled
     source: VM
-    query: (group(mongodb_up) by (service_name)) * on(service_name) group_left(service_name) mongodb_ss_encryptionAtRest_encryptionEnabled OR (group(mongodb_up) by (service_name)) - 1
+    query: (group(mongodb_up) by (service_name)) * on(service_name) group_left(service_name) mongodb_security_encryption_enabled OR (group(mongodb_up) by (service_name)) - 1
     summary: "Returns 1 if encryption at rest is enabled on the mongo instance, otherwise returns 0"
     data:
       - metric_name: "mongodb_encryption_at_rest_enabled"
