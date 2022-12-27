@@ -14,7 +14,7 @@ fetch:
 		|| wget --progress=dot:giga https://app.vagrantup.com/centos/boxes/7/versions/${CENTOS_ISO}/providers/virtualbox.box \
 		-O ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova
 	test -f ${PACKER_CACHE_DIR}/${CENTOS_ISO}/box.ovf \
-		|| tar -C ${PACKER_CACHE_DIR}/${CENTOS_ISO} -xf ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova
+		|| tar -C ${PACKER_CACHE_DIR}/${CENTOS_ISO} -xvf ${PACKER_CACHE_DIR}/${CENTOS_ISO}/CentOS7.ova
 
 fetch-el9:
 	mkdir -p ${PACKER_CACHE_DIR}/box || :
@@ -23,12 +23,15 @@ fetch-el9:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| wget --progress=dot:giga https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box \
+		|| wget --progress=dot:giga https://app.vagrantup.com/bento/boxes/oracle-9/versions/202212.11.0/providers/virtualbox.box \
 		-O ${PACKER_CACHE_DIR}/box/oracle9.ova
 	# https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box
+	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
+	# https://yum.oracle.com/boxes/oraclelinux/ol8/OL8U7_x86_64-vagrant-virtualbox-b377.box
+
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| tar -C ${PACKER_CACHE_DIR}/box -xf ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
