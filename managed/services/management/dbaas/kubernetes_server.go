@@ -316,7 +316,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, err
 	}
 
-	operatorsToInstall := map[string]bool{}
+	operatorsToInstall := make(map[string]bool)
 	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
 		operatorsToInstall["olm"] = true
 		operatorsToInstall["vm"] = true

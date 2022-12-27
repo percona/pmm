@@ -230,7 +230,8 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 		return err
 	}
 
-	subs, err := o.k8sclient.CreateSubscriptionForCatalog(ctx,
+	subs, err := o.k8sclient.CreateSubscriptionForCatalog(
+		ctx,
 		req.Namespace,
 		req.Name,
 		"olm",
