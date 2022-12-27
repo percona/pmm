@@ -50,7 +50,7 @@ type KubeClientConnector interface {
 	GetEvents(ctx context.Context, name string) (string, error)
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
 	// and applies them against the cluster
-	ApplyFile(ctx context.Context, fileBytes []byte) error
+	ApplyFile(fileBytes []byte) error
 	DoCSVWait(ctx context.Context, key types.NamespacedName) error
 	GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error)
 	DoRolloutWait(ctx context.Context, key types.NamespacedName) error

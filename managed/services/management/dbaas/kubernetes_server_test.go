@@ -22,7 +22,6 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -75,7 +74,7 @@ func TestKubernetesServer(t *testing.T) {
 	//     }
 	//
 	if pmmversion.PMMVersion == "" {
-		pmmversion.PMMVersion = "2.30.0"
+		pmmversion.PMMVersion = version230
 	}
 
 	t.Run("Basic", func(t *testing.T) {
@@ -164,54 +163,6 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Empty(t, clusters.KubernetesClusters)
 	})
-}
-
-func TestInstallDefaultOperators(t *testing.T) {
-	// setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, teardown func(t *testing.T)) {
-	// 	t.Helper()
-
-	// 	ctx = logger.Set(context.Background(), t.Name())
-	// 	uuid.SetRand(&tests.IDReader{})
-
-	// 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	// 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	// 	dbaasClient = &mockDbaasClient{}
-	// 	grafanaClient := &mockGrafanaClient{}
-
-	// 	teardown = func(t *testing.T) {
-	// 		uuid.SetRand(nil)
-	// 		dbaasClient.AssertExpectations(t)
-	// 		require.NoError(t, sqlDB.Close())
-	// 	}
-	// 	versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-	// 	ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	// 	return
-	// }
-
-	// if pmmversion.PMMVersion == "" {
-	// 	pmmversion.PMMVersion = "2.30.0"
-	// }
-
-	// _, ks, _, teardown := setup(t)
-	// defer teardown(t)
-
-	olms := &olm.MockOperatorServiceManager{}
-	olms.On("InstallOLMOperator", mock.Anything).Return(nil)
-	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
-
-	ks := kubernetesServer{
-		l:                  logrus.WithField("component", "kubernetes_server"),
-		olmOperatorService: olms,
-	}
-
-	operatorsToInstall := map[string]bool{
-		"olm":   true,
-		"pxc":   true,
-		"psmdb": true,
-		"vm":    true,
-	}
-
-	ks.installDefaultOperators(operatorsToInstall)
 }
 
 func TestGetFlagValue(t *testing.T) {

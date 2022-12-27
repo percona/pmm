@@ -22,13 +22,13 @@ type MockKubeClientConnector struct {
 	mock.Mock
 }
 
-// ApplyFile provides a mock function with given fields: ctx, fileBytes
-func (_m *MockKubeClientConnector) ApplyFile(ctx context.Context, fileBytes []byte) error {
-	ret := _m.Called(ctx, fileBytes)
+// ApplyFile provides a mock function with given fields: fileBytes
+func (_m *MockKubeClientConnector) ApplyFile(fileBytes []byte) error {
+	ret := _m.Called(fileBytes)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []byte) error); ok {
-		r0 = rf(ctx, fileBytes)
+	if rf, ok := ret.Get(0).(func([]byte) error); ok {
+		r0 = rf(fileBytes)
 	} else {
 		r0 = ret.Error(0)
 	}

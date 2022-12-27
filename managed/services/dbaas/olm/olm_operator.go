@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -74,7 +73,7 @@ func NewEmpty() *OperatorService {
 	}
 }
 
-// New returns new OperatorService instance and intializes the config.
+// NewFromConnector returns new OperatorService instance and intializes the config.
 func NewFromConnector(k8sclient client.KubeClientConnector) *OperatorService {
 	return &OperatorService{
 		lock:      &sync.Mutex{},
@@ -82,7 +81,7 @@ func NewFromConnector(k8sclient client.KubeClientConnector) *OperatorService {
 	}
 }
 
-// New returns new OperatorService instance from a kubeconfig string.
+// NewFromKubeConfig returns new OperatorService instance from a kubeconfig string.
 func NewFromKubeConfig(kubeConfig string) (*OperatorService, error) {
 	k8sclient, err := client.NewFromKubeConfigString(kubeConfig)
 	if err != nil {
@@ -95,6 +94,7 @@ func NewFromKubeConfig(kubeConfig string) (*OperatorService, error) {
 	}, nil
 }
 
+// SetKubeConfig receives a new config and establish a new connection to the K8 cluster.
 func (o *OperatorService) SetKubeConfig(kubeConfig string) error {
 	o.lock.Lock()
 	defer o.lock.Unlock()
@@ -123,19 +123,17 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrapf(err, "failed to read OLM CRDs file")
 	}
 
-	if err := o.k8sclient.ApplyFile(ctx, crdFile); err != nil {
+	if err := o.k8sclient.ApplyFile(crdFile); err != nil {
 		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
-
-	// client.WaitForCondition(ctx, "Established", crdFile)
 
 	olmFile, err = fs.ReadFile(data.OLMCRDs, "crds/olm/olm.yaml")
 	if err != nil {
 		return errors.Wrapf(err, "failed to read OLM file")
 	}
 
-	if err := o.k8sclient.ApplyFile(ctx, olmFile); err != nil {
+	if err := o.k8sclient.ApplyFile(olmFile); err != nil {
 		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
@@ -161,9 +159,9 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 
 	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
 		return r.GroupVersionKind() == schema.GroupVersionKind{
-			Group:   operatorsv1alpha1.GroupName,
-			Version: operatorsv1alpha1.GroupVersion,
-			Kind:    operatorsv1alpha1.SubscriptionKind,
+			Group:   v1alpha1.GroupName,
+			Version: v1alpha1.GroupVersion,
+			Kind:    v1alpha1.SubscriptionKind,
 		}
 	})
 
@@ -240,7 +238,7 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 		req.Name,
 		req.Channel,
 		req.StartingCSV,
-		operatorsv1alpha1.ApprovalManual,
+		v1alpha1.ApprovalManual,
 	)
 	if err != nil {
 		return errors.Wrap(err, "cannot create a susbcription to install the operator")

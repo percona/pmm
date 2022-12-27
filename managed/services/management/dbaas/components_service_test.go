@@ -512,7 +512,7 @@ const (
 
 func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port, defaultPXC,
 	defaultPSMDB string,
-) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *olm.MockOperatorServiceManager) { //nolint:unparam
+) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *olm.MockOperatorServiceManager) {
 	t.Helper()
 
 	uuid.SetRand(&tests.IDReader{})

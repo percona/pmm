@@ -31,7 +31,6 @@ import (
 
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -56,14 +55,12 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
-	_ "k8s.io/client-go/plugin/pkg/client/auth" // load all auth plugins
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/reference"
 	deploymentutil "k8s.io/kubectl/pkg/util/deployment"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	kubeClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
@@ -658,7 +655,7 @@ func translateTimestampSince(timestamp metav1.Time) string {
 
 // ApplyFile accepts manifest file contents, parses into []runtime.Object
 // and applies them against the cluster
-func (c *Client) ApplyFile(ctx context.Context, fileBytes []byte) error {
+func (c *Client) ApplyFile(fileBytes []byte) error {
 	objs, err := c.getObjects(fileBytes)
 	if err != nil {
 		return err
@@ -700,8 +697,8 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 
 func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	var (
-		curPhase operatorsv1alpha1.ClusterServiceVersionPhase
-		newPhase operatorsv1alpha1.ClusterServiceVersionPhase
+		curPhase v1alpha1.ClusterServiceVersionPhase
+		newPhase v1alpha1.ClusterServiceVersionPhase
 	)
 
 	kubeclient, err := c.getKubeclient()
@@ -709,7 +706,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		return err
 	}
 
-	csv := operatorsv1alpha1.ClusterServiceVersion{}
+	csv := v1alpha1.ClusterServiceVersion{}
 	csvPhaseSucceeded := func() (bool, error) {
 		err := kubeclient.Get(ctx, key, &csv)
 		if err != nil {
@@ -724,9 +721,9 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		}
 
 		switch curPhase {
-		case operatorsv1alpha1.CSVPhaseFailed:
+		case v1alpha1.CSVPhaseFailed:
 			return false, fmt.Errorf("csv failed: reason: %q, message: %q", csv.Status.Reason, csv.Status.Message)
-		case operatorsv1alpha1.CSVPhaseSucceeded:
+		case v1alpha1.CSVPhaseSucceeded:
 			return true, nil
 		default:
 			return false, nil
@@ -752,7 +749,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	}
 
 	subscriptionInstalledCSV := func() (bool, error) {
-		sub := operatorsv1alpha1.Subscription{}
+		sub := v1alpha1.Subscription{}
 		err := kubeclient.Get(ctx, subKey, &sub)
 		if err != nil {
 			return false, err
@@ -771,13 +768,13 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
-func (c *Client) getKubeclient() (kubeClient.Client, error) {
+func (c *Client) getKubeclient() (client.Client, error) {
 	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")
 	}
 
-	cl, err := kubeClient.New(c.restConfig, client.Options{
+	cl, err := client.New(c.restConfig, client.Options{
 		Scheme: scheme.Scheme,
 		Mapper: rm,
 	})
@@ -789,7 +786,7 @@ func (c *Client) getKubeclient() (kubeClient.Client, error) {
 
 // checkDeploymentErrors function loops through deployment specs of a given CSV, and prints reason
 // in case of failures, based on deployment condition.
-func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv operatorsv1alpha1.ClusterServiceVersion) error {
+func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv v1alpha1.ClusterServiceVersion) error {
 	depErrs := deploymentErrors{}
 	if key.Namespace == "" {
 		return fmt.Errorf("no namespace provided to get deployment failures")
@@ -840,7 +837,7 @@ func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedN
 }
 
 // checkPodErrors loops through pods, and returns pod errors if any.
-func (c Client) checkPodErrors(ctx context.Context, kubeclient kubeClient.Client, depSelectors *metav1.LabelSelector, key types.NamespacedName) error {
+func (c Client) checkPodErrors(ctx context.Context, kubeclient client.Client, depSelectors *metav1.LabelSelector, key types.NamespacedName) error {
 	// loop through pods and return specific error message.
 	podErr := podErrors{}
 	podList := &corev1.PodList{}
@@ -955,23 +952,23 @@ func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string
 }
 
 func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
-	packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval,
+	packageName, channel, startingCSV string, approval v1alpha1.Approval,
 ) (*v1alpha1.Subscription, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
 	}
 
-	subscription := &operatorsv1alpha1.Subscription{
+	subscription := &v1alpha1.Subscription{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       operatorsv1alpha1.SubscriptionKind,
-			APIVersion: operatorsv1alpha1.SubscriptionCRDAPIVersion,
+			Kind:       v1alpha1.SubscriptionKind,
+			APIVersion: v1alpha1.SubscriptionCRDAPIVersion,
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      name,
 		},
-		Spec: &operatorsv1alpha1.SubscriptionSpec{
+		Spec: &v1alpha1.SubscriptionSpec{
 			CatalogSource:          catalog,
 			CatalogSourceNamespace: catalogNamespace,
 			Package:                packageName,
@@ -993,7 +990,7 @@ func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*
 	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*operatorsv1alpha1.InstallPlan, error) {
+func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
@@ -1002,7 +999,7 @@ func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name stri
 	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *operatorsv1alpha1.InstallPlan) (*operatorsv1alpha1.InstallPlan, error) {
+func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")

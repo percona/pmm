@@ -23,7 +23,6 @@ import (
 
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	appsv1 "k8s.io/api/apps/v1"
@@ -42,7 +41,7 @@ func TestInstallOlmOperator(t *testing.T) {
 			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(&v1alpha1.Subscription{}, nil)
 		k8sclient.On("GetDeployment", ctx, mock.Anything).Return(&appsv1.Deployment{}, nil)
-		k8sclient.On("ApplyFile", ctx, mock.Anything).Return(nil)
+		k8sclient.On("ApplyFile", mock.Anything).Return(nil)
 		k8sclient.On("DoRolloutWait", ctx, mock.Anything).Return(nil)
 		k8sclient.On("GetSubscriptionCSV", ctx, mock.Anything).Return(types.NamespacedName{}, nil)
 		k8sclient.On("DoRolloutWait", ctx, mock.Anything).Return(nil)
@@ -75,7 +74,7 @@ func TestInstallOlmOperator(t *testing.T) {
 			},
 		}
 		k8sclient.On("GetSubscription", ctx, subscriptionNamespace, operatorName).Return(mockSubscription, nil)
-		mockInstallPlan := &operatorsv1alpha1.InstallPlan{}
+		mockInstallPlan := &v1alpha1.InstallPlan{}
 		k8sclient.On("GetInstallPlan", ctx, subscriptionNamespace, mockSubscription.Status.Install.Name).Return(mockInstallPlan, nil)
 		k8sclient.On("UpdateInstallPlan", ctx, subscriptionNamespace, mockInstallPlan).Return(mockInstallPlan, nil)
 		err := olms.InstallOperator(ctx, params)

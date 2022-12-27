@@ -272,21 +272,8 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
-func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error { //nolint:unparam
-	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Name:      name,
-		Namespace: namespace,
-	}
-	_, err := client.ApproveInstallPlan(ctx, req)
-
-	return err
-}
-
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
-func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll,cyclop
+func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {

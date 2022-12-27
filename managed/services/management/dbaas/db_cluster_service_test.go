@@ -37,7 +37,8 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
-const dbKubeconfigTest = `
+const (
+	dbKubeconfigTest = `
 {
 	"apiVersion": "v1",
 	"kind": "Config",
@@ -70,11 +71,14 @@ const dbKubeconfigTest = `
 	"current-context": "svcs-acct-context"
 }
 `
-const dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
+	dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
+
+	version230 = "2.30.0"
+)
 
 func TestDBClusterService(t *testing.T) {
 	if pmmversion.PMMVersion == "" {
-		pmmversion.PMMVersion = "2.30.0"
+		pmmversion.PMMVersion = version230
 	}
 
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
