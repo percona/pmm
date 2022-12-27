@@ -167,7 +167,6 @@ format:               ## Format source code.
 	bin/gofumpt -l -w $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
 	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
-	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
 	nginx -p . -c api/nginx/nginx.conf
