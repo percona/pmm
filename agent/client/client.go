@@ -187,6 +187,9 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
+	// Push status of any running agent to server
+	c.supervisor.PushAgentStatus()
+
 	oneDone := make(chan struct{}, 4)
 	go func() {
 		c.processActionResults(ctx)

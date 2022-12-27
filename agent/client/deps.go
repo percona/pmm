@@ -47,6 +47,7 @@ type supervisor interface {
 	SetState(*agentpb.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
+	PushAgentStatus()
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 }
