@@ -3,25 +3,17 @@
 package client
 
 import (
-	apiv1 "github.com/percona/dbaas-operator/api/v1"
-	appsv1 "k8s.io/api/apps/v1"
-
 	context "context"
 
-	corev1 "k8s.io/api/core/v1"
-
-	mock "github.com/stretchr/testify/mock"
-
-	runtime "k8s.io/apimachinery/pkg/runtime"
-
-	storagev1 "k8s.io/api/storage/v1"
-
-	types "k8s.io/apimachinery/pkg/types"
-
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
-
 	v1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-
+	apiv1 "github.com/percona/dbaas-operator/api/v1"
+	mock "github.com/stretchr/testify/mock"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	types "k8s.io/apimachinery/pkg/types"
 	version "k8s.io/apimachinery/pkg/version"
 )
 
