@@ -44,8 +44,3 @@ func (_m *mockSupervisor) AgentsLogs() map[string][]string {
 
 	return r0
 }
-
-// PushAgentStatus provides a mock function with given fields:
-func (_m *mockSupervisor) PushAgentStatus() {
-	_m.Called()
-}

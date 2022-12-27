@@ -39,7 +39,6 @@ type client interface {
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
-	PushAgentStatus()
 	AgentsList() []*agentlocalpb.AgentInfo
 	AgentsLogs() map[string][]string
 }

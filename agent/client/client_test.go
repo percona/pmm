@@ -157,6 +157,7 @@ func TestClient(t *testing.T) {
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+			s.On("PushAgentStatus").Return()
 
 			r := runner.New(cfg.RunnerCapacity)
 			client := New(cfg, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
@@ -273,6 +274,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+	s.On("PushAgentStatus").Return()
 
 	r := runner.New(cfg.RunnerCapacity)
 	client := New(cfg, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
