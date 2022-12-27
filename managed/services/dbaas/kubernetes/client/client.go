@@ -695,6 +695,7 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 	return objs, nil
 }
 
+// DoCSVWait waits until for a CSV to be applied.
 func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	var (
 		curPhase v1alpha1.ClusterServiceVersionPhase
@@ -740,6 +741,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	return err
 }
 
+// GetSubscriptionCSV retrieves a subscription CSV.
 func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error) {
 	var csvKey types.NamespacedName
 
@@ -869,6 +871,7 @@ func (c Client) checkPodErrors(ctx context.Context, kubeclient client.Client, de
 	return podErr
 }
 
+// DoRolloutWait waits until a deployment has been rolled out susccessfully or there is an error.
 func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) error {
 	kubeclient, err := c.getKubeclient()
 	if err != nil {
@@ -911,6 +914,7 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
 }
 
+// GetOperatorGroup retrieves an operator group details by namespace and name.
 func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -924,6 +928,7 @@ func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (
 	return operatorClient.OperatorsV1().OperatorGroups(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// CreateOperatorGroup creates an operator group to be used as part of a subscription.
 func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -951,6 +956,7 @@ func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string
 	return operatorClient.OperatorsV1().OperatorGroups(namespace).Create(ctx, og, metav1.CreateOptions{})
 }
 
+// CreateSubscriptionForCatalog creates an OLM subscription.
 func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
 	packageName, channel, startingCSV string, approval v1alpha1.Approval,
 ) (*v1alpha1.Subscription, error) {
@@ -981,6 +987,7 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
 }
 
+// GetSubscription retrieves an OLM subscription by namespace and name.
 func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -990,6 +997,7 @@ func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*
 	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// GetInstallPlan retrieves an OLM install plan by namespace and name.
 func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -999,6 +1007,7 @@ func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name stri
 	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// UpdateInstallPlan updates the existing install plan in the specified namespace.
 func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {

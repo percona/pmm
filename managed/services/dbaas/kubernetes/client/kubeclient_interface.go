@@ -7,7 +7,6 @@ import (
 
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -51,13 +50,22 @@ type KubeClientConnector interface {
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
 	// and applies them against the cluster
 	ApplyFile(fileBytes []byte) error
+	// DoCSVWait waits until for a CSV to be applied.
 	DoCSVWait(ctx context.Context, key types.NamespacedName) error
+	// GetSubscriptionCSV retrieves a subscription CSV.
 	GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error)
+	// DoRolloutWait waits until a deployment has been rolled out susccessfully or there is an error.
 	DoRolloutWait(ctx context.Context, key types.NamespacedName) error
+	// GetOperatorGroup retrieves an operator group details by namespace and name.
 	GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error)
+	// CreateOperatorGroup creates an operator group to be used as part of a subscription.
 	CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error)
-	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval) (*v1alpha1.Subscription, error)
+	// CreateSubscriptionForCatalog creates an OLM subscription.
+	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error)
+	// GetSubscription retrieves an OLM subscription by namespace and name.
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
-	GetInstallPlan(ctx context.Context, namespace string, name string) (*operatorsv1alpha1.InstallPlan, error)
-	UpdateInstallPlan(ctx context.Context, namespace string, installPlan *operatorsv1alpha1.InstallPlan) (*operatorsv1alpha1.InstallPlan, error)
+	// GetInstallPlan retrieves an OLM install plan by namespace and name.
+	GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error)
+	// UpdateInstallPlan updates the existing install plan in the specified namespace.
+	UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error)
 }

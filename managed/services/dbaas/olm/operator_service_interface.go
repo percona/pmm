@@ -8,6 +8,7 @@ import (
 
 // OperatorServiceManager ...
 type OperatorServiceManager interface {
+	// SetKubeConfig receives a new config and establish a new connection to the K8 cluster.
 	SetKubeConfig(kubeConfig string) error
 	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
 	InstallOLMOperator(ctx context.Context) error
