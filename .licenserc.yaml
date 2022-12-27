@@ -12,6 +12,7 @@ header:
       - "**/amclient/**"
       - "**/ammodels/**"
       - "qan-api2/migrations/"
+      - "**/*_interface.go"
     license:
       spdx-id: AGPL-3.0
       content: |
