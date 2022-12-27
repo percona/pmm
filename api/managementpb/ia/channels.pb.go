@@ -7,13 +7,15 @@
 package iav1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/mwitkow/go-proto-validators"
-	managementpb "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+
+	managementpb "github.com/percona/pmm/api/managementpb"
 )
 
 const (
@@ -1376,27 +1378,30 @@ func file_managementpb_ia_channels_proto_rawDescGZIP() []byte {
 	return file_managementpb_ia_channels_proto_rawDescData
 }
 
-var file_managementpb_ia_channels_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_managementpb_ia_channels_proto_goTypes = []interface{}{
-	(*BasicAuth)(nil),               // 0: ia.v1beta1.BasicAuth
-	(*TLSConfig)(nil),               // 1: ia.v1beta1.TLSConfig
-	(*HTTPConfig)(nil),              // 2: ia.v1beta1.HTTPConfig
-	(*EmailConfig)(nil),             // 3: ia.v1beta1.EmailConfig
-	(*PagerDutyConfig)(nil),         // 4: ia.v1beta1.PagerDutyConfig
-	(*SlackConfig)(nil),             // 5: ia.v1beta1.SlackConfig
-	(*WebhookConfig)(nil),           // 6: ia.v1beta1.WebhookConfig
-	(*Channel)(nil),                 // 7: ia.v1beta1.Channel
-	(*ListChannelsRequest)(nil),     // 8: ia.v1beta1.ListChannelsRequest
-	(*ListChannelsResponse)(nil),    // 9: ia.v1beta1.ListChannelsResponse
-	(*AddChannelRequest)(nil),       // 10: ia.v1beta1.AddChannelRequest
-	(*AddChannelResponse)(nil),      // 11: ia.v1beta1.AddChannelResponse
-	(*ChangeChannelRequest)(nil),    // 12: ia.v1beta1.ChangeChannelRequest
-	(*ChangeChannelResponse)(nil),   // 13: ia.v1beta1.ChangeChannelResponse
-	(*RemoveChannelRequest)(nil),    // 14: ia.v1beta1.RemoveChannelRequest
-	(*RemoveChannelResponse)(nil),   // 15: ia.v1beta1.RemoveChannelResponse
-	(*managementpb.PageParams)(nil), // 16: management.PageParams
-	(*managementpb.PageTotals)(nil), // 17: management.PageTotals
-}
+var (
+	file_managementpb_ia_channels_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+	file_managementpb_ia_channels_proto_goTypes  = []interface{}{
+		(*BasicAuth)(nil),               // 0: ia.v1beta1.BasicAuth
+		(*TLSConfig)(nil),               // 1: ia.v1beta1.TLSConfig
+		(*HTTPConfig)(nil),              // 2: ia.v1beta1.HTTPConfig
+		(*EmailConfig)(nil),             // 3: ia.v1beta1.EmailConfig
+		(*PagerDutyConfig)(nil),         // 4: ia.v1beta1.PagerDutyConfig
+		(*SlackConfig)(nil),             // 5: ia.v1beta1.SlackConfig
+		(*WebhookConfig)(nil),           // 6: ia.v1beta1.WebhookConfig
+		(*Channel)(nil),                 // 7: ia.v1beta1.Channel
+		(*ListChannelsRequest)(nil),     // 8: ia.v1beta1.ListChannelsRequest
+		(*ListChannelsResponse)(nil),    // 9: ia.v1beta1.ListChannelsResponse
+		(*AddChannelRequest)(nil),       // 10: ia.v1beta1.AddChannelRequest
+		(*AddChannelResponse)(nil),      // 11: ia.v1beta1.AddChannelResponse
+		(*ChangeChannelRequest)(nil),    // 12: ia.v1beta1.ChangeChannelRequest
+		(*ChangeChannelResponse)(nil),   // 13: ia.v1beta1.ChangeChannelResponse
+		(*RemoveChannelRequest)(nil),    // 14: ia.v1beta1.RemoveChannelRequest
+		(*RemoveChannelResponse)(nil),   // 15: ia.v1beta1.RemoveChannelResponse
+		(*managementpb.PageParams)(nil), // 16: management.PageParams
+		(*managementpb.PageTotals)(nil), // 17: management.PageTotals
+	}
+)
+
 var file_managementpb_ia_channels_proto_depIdxs = []int32{
 	0,  // 0: ia.v1beta1.HTTPConfig.basic_auth:type_name -> ia.v1beta1.BasicAuth
 	1,  // 1: ia.v1beta1.HTTPConfig.tls_config:type_name -> ia.v1beta1.TLSConfig

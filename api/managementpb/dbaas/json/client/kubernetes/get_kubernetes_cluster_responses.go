@@ -60,12 +60,12 @@ type GetKubernetesClusterOK struct {
 func (o *GetKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] getKubernetesClusterOk  %+v", 200, o.Payload)
 }
+
 func (o *GetKubernetesClusterOK) GetPayload() *GetKubernetesClusterOKBody {
 	return o.Payload
 }
 
 func (o *GetKubernetesClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetKubernetesClusterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetKubernetesClusterDefault) Code() int {
 func (o *GetKubernetesClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Get][%d] GetKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetKubernetesClusterDefault) GetPayload() *GetKubernetesClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *GetKubernetesClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetKubernetesClusterDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ GetKubernetesClusterBody get kubernetes cluster body
 swagger:model GetKubernetesClusterBody
 */
 type GetKubernetesClusterBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 }
@@ -161,7 +160,6 @@ GetKubernetesClusterDefaultBody get kubernetes cluster default body
 swagger:model GetKubernetesClusterDefaultBody
 */
 type GetKubernetesClusterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +225,7 @@ func (o *GetKubernetesClusterDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *GetKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +236,6 @@ func (o *GetKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -269,7 +264,6 @@ GetKubernetesClusterDefaultBodyDetailsItems0 get kubernetes cluster default body
 swagger:model GetKubernetesClusterDefaultBodyDetailsItems0
 */
 type GetKubernetesClusterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -307,7 +301,6 @@ GetKubernetesClusterOKBody get kubernetes cluster OK body
 swagger:model GetKubernetesClusterOKBody
 */
 type GetKubernetesClusterOKBody struct {
-
 	// kube auth
 	KubeAuth *GetKubernetesClusterOKBodyKubeAuth `json:"kube_auth,omitempty"`
 }
@@ -360,7 +353,6 @@ func (o *GetKubernetesClusterOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetKubernetesClusterOKBody) contextValidateKubeAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.KubeAuth != nil {
 		if err := o.KubeAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -398,7 +390,6 @@ GetKubernetesClusterOKBodyKubeAuth KubeAuth represents Kubernetes / kubectl auth
 swagger:model GetKubernetesClusterOKBodyKubeAuth
 */
 type GetKubernetesClusterOKBodyKubeAuth struct {
-
 	// Kubeconfig file content.
 	Kubeconfig string `json:"kubeconfig,omitempty"`
 }

@@ -6,29 +6,36 @@ package alertingv1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
+
 	_ "github.com/percona/pmm/api/managementpb"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *BoolParamDefinition) Validate() error {
 	return nil
 }
+
 func (this *FloatParamDefinition) Validate() error {
 	return nil
 }
+
 func (this *StringParamDefinition) Validate() error {
 	return nil
 }
+
 func (this *ParamDefinition) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
@@ -59,6 +66,7 @@ func (this *ParamDefinition) Validate() error {
 	}
 	return nil
 }
+
 func (this *Template) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
@@ -81,6 +89,7 @@ func (this *Template) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListTemplatesRequest) Validate() error {
 	if this.PageParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
@@ -89,6 +98,7 @@ func (this *ListTemplatesRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListTemplatesResponse) Validate() error {
 	for _, item := range this.Templates {
 		if item != nil {
@@ -104,15 +114,18 @@ func (this *ListTemplatesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreateTemplateRequest) Validate() error {
 	if this.Yaml == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Yaml", fmt.Errorf(`value '%v' must not be an empty string`, this.Yaml))
 	}
 	return nil
 }
+
 func (this *CreateTemplateResponse) Validate() error {
 	return nil
 }
+
 func (this *UpdateTemplateRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
@@ -122,27 +135,33 @@ func (this *UpdateTemplateRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *UpdateTemplateResponse) Validate() error {
 	return nil
 }
+
 func (this *DeleteTemplateRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
+
 func (this *DeleteTemplateResponse) Validate() error {
 	return nil
 }
+
 func (this *Filter) Validate() error {
 	return nil
 }
+
 func (this *ParamValue) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
+
 func (this *CreateRuleRequest) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
@@ -166,6 +185,7 @@ func (this *CreateRuleRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreateRuleResponse) Validate() error {
 	return nil
 }

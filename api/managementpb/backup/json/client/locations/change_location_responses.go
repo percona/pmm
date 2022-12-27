@@ -60,12 +60,12 @@ type ChangeLocationOK struct {
 func (o *ChangeLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeLocationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangeLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *ChangeLocationDefault) Code() int {
 func (o *ChangeLocationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeLocationDefault) GetPayload() *ChangeLocationDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeLocationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeLocationDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ ChangeLocationBody change location body
 swagger:model ChangeLocationBody
 */
 type ChangeLocationBody struct {
-
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 
@@ -213,7 +212,6 @@ func (o *ChangeLocationBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ChangeLocationBody) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.FilesystemConfig != nil {
 		if err := o.FilesystemConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -229,7 +227,6 @@ func (o *ChangeLocationBody) contextValidateFilesystemConfig(ctx context.Context
 }
 
 func (o *ChangeLocationBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -267,7 +264,6 @@ ChangeLocationDefaultBody change location default body
 swagger:model ChangeLocationDefaultBody
 */
 type ChangeLocationDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -333,9 +329,7 @@ func (o *ChangeLocationDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -346,7 +340,6 @@ func (o *ChangeLocationDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -375,7 +368,6 @@ ChangeLocationDefaultBodyDetailsItems0 change location default body details item
 swagger:model ChangeLocationDefaultBodyDetailsItems0
 */
 type ChangeLocationDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -413,7 +405,6 @@ ChangeLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents fil
 swagger:model ChangeLocationParamsBodyFilesystemConfig
 */
 type ChangeLocationParamsBodyFilesystemConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -451,7 +442,6 @@ ChangeLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configura
 swagger:model ChangeLocationParamsBodyS3Config
 */
 type ChangeLocationParamsBodyS3Config struct {
-
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

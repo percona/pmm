@@ -94,6 +94,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
+		olms.On("SetKubeConfig", mock.Anything).Return(nil)
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)

@@ -7,14 +7,16 @@
 package managementpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 const (
@@ -351,15 +353,18 @@ func file_managementpb_service_proto_rawDescGZIP() []byte {
 	return file_managementpb_service_proto_rawDescData
 }
 
-var file_managementpb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_managementpb_service_proto_goTypes = []interface{}{
-	(*AddNodeParams)(nil),         // 0: management.AddNodeParams
-	(*RemoveServiceRequest)(nil),  // 1: management.RemoveServiceRequest
-	(*RemoveServiceResponse)(nil), // 2: management.RemoveServiceResponse
-	nil,                           // 3: management.AddNodeParams.CustomLabelsEntry
-	(inventorypb.NodeType)(0),     // 4: inventory.NodeType
-	(inventorypb.ServiceType)(0),  // 5: inventory.ServiceType
-}
+var (
+	file_managementpb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_managementpb_service_proto_goTypes  = []interface{}{
+		(*AddNodeParams)(nil),         // 0: management.AddNodeParams
+		(*RemoveServiceRequest)(nil),  // 1: management.RemoveServiceRequest
+		(*RemoveServiceResponse)(nil), // 2: management.RemoveServiceResponse
+		nil,                           // 3: management.AddNodeParams.CustomLabelsEntry
+		(inventorypb.NodeType)(0),     // 4: inventory.NodeType
+		(inventorypb.ServiceType)(0),  // 5: inventory.ServiceType
+	}
+)
+
 var file_managementpb_service_proto_depIdxs = []int32{
 	4, // 0: management.AddNodeParams.node_type:type_name -> inventory.NodeType
 	3, // 1: management.AddNodeParams.custom_labels:type_name -> management.AddNodeParams.CustomLabelsEntry

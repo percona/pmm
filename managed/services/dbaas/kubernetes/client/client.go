@@ -914,16 +914,6 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
 }
 
-// GetDeployment returns deployment by name
-func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
-	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
-}
-
-// GetSecret returns secret by name
-func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
-	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
-}
-
 func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {

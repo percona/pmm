@@ -6,16 +6,19 @@ package backupv1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *FilesystemLocationConfig) Validate() error {
 	if this.Path == "" {
@@ -23,6 +26,7 @@ func (this *FilesystemLocationConfig) Validate() error {
 	}
 	return nil
 }
+
 func (this *S3LocationConfig) Validate() error {
 	if this.Endpoint == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Endpoint", fmt.Errorf(`value '%v' must not be an empty string`, this.Endpoint))
@@ -38,6 +42,7 @@ func (this *S3LocationConfig) Validate() error {
 	}
 	return nil
 }
+
 func (this *Location) Validate() error {
 	if oneOfNester, ok := this.GetConfig().(*Location_FilesystemConfig); ok {
 		if oneOfNester.FilesystemConfig != nil {
@@ -55,9 +60,11 @@ func (this *Location) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListLocationsRequest) Validate() error {
 	return nil
 }
+
 func (this *ListLocationsResponse) Validate() error {
 	for _, item := range this.Locations {
 		if item != nil {
@@ -68,6 +75,7 @@ func (this *ListLocationsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddLocationRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
@@ -84,9 +92,11 @@ func (this *AddLocationRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddLocationResponse) Validate() error {
 	return nil
 }
+
 func (this *ChangeLocationRequest) Validate() error {
 	if this.LocationId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("LocationId", fmt.Errorf(`value '%v' must not be an empty string`, this.LocationId))
@@ -103,15 +113,19 @@ func (this *ChangeLocationRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeLocationResponse) Validate() error {
 	return nil
 }
+
 func (this *RemoveLocationRequest) Validate() error {
 	return nil
 }
+
 func (this *RemoveLocationResponse) Validate() error {
 	return nil
 }
+
 func (this *TestLocationConfigRequest) Validate() error {
 	if this.FilesystemConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FilesystemConfig); err != nil {
@@ -125,6 +139,7 @@ func (this *TestLocationConfigRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *TestLocationConfigResponse) Validate() error {
 	return nil
 }

@@ -60,12 +60,12 @@ type UnregisterKubernetesClusterOK struct {
 func (o *UnregisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
 }
+
 func (o *UnregisterKubernetesClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UnregisterKubernetesClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *UnregisterKubernetesClusterDefault) Code() int {
 func (o *UnregisterKubernetesClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *UnregisterKubernetesClusterDefault) GetPayload() *UnregisterKubernetesClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *UnregisterKubernetesClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UnregisterKubernetesClusterDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ UnregisterKubernetesClusterBody unregister kubernetes cluster body
 swagger:model UnregisterKubernetesClusterBody
 */
 type UnregisterKubernetesClusterBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -163,7 +162,6 @@ UnregisterKubernetesClusterDefaultBody unregister kubernetes cluster default bod
 swagger:model UnregisterKubernetesClusterDefaultBody
 */
 type UnregisterKubernetesClusterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,9 +227,7 @@ func (o *UnregisterKubernetesClusterDefaultBody) ContextValidate(ctx context.Con
 }
 
 func (o *UnregisterKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,7 +238,6 @@ func (o *UnregisterKubernetesClusterDefaultBody) contextValidateDetails(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -271,7 +266,6 @@ UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluste
 swagger:model UnregisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type UnregisterKubernetesClusterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

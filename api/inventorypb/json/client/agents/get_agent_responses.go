@@ -62,12 +62,12 @@ type GetAgentOK struct {
 func (o *GetAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *GetAgentOK) GetPayload() *GetAgentOKBody {
 	return o.Payload
 }
 
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetAgentOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *GetAgentDefault) Code() int {
 func (o *GetAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetAgentDefault) GetPayload() *GetAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetAgentDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ GetAgentBody get agent body
 swagger:model GetAgentBody
 */
 type GetAgentBody struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 }
@@ -163,7 +162,6 @@ GetAgentDefaultBody get agent default body
 swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,9 +227,7 @@ func (o *GetAgentDefaultBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,7 +238,6 @@ func (o *GetAgentDefaultBody) contextValidateDetails(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -271,7 +266,6 @@ GetAgentDefaultBodyDetailsItems0 get agent default body details items0
 swagger:model GetAgentDefaultBodyDetailsItems0
 */
 type GetAgentDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -309,7 +303,6 @@ GetAgentOKBody get agent OK body
 swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
-
 	// azure database exporter
 	AzureDatabaseExporter *GetAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
@@ -782,7 +775,6 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -798,7 +790,6 @@ func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Contex
 }
 
 func (o *GetAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -814,7 +805,6 @@ func (o *GetAgentOKBody) contextValidateExternalExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -830,7 +820,6 @@ func (o *GetAgentOKBody) contextValidateMongodbExporter(ctx context.Context, for
 }
 
 func (o *GetAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -846,7 +835,6 @@ func (o *GetAgentOKBody) contextValidateMysqldExporter(ctx context.Context, form
 }
 
 func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -862,7 +850,6 @@ func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 }
 
 func (o *GetAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -878,7 +865,6 @@ func (o *GetAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats st
 }
 
 func (o *GetAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -894,7 +880,6 @@ func (o *GetAgentOKBody) contextValidatePostgresExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -910,7 +895,6 @@ func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -926,7 +910,6 @@ func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Cont
 }
 
 func (o *GetAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -942,7 +925,6 @@ func (o *GetAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Cont
 }
 
 func (o *GetAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -958,7 +940,6 @@ func (o *GetAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context
 }
 
 func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -974,7 +955,6 @@ func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx conte
 }
 
 func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -990,7 +970,6 @@ func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx cont
 }
 
 func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1006,7 +985,6 @@ func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats
 }
 
 func (o *GetAgentOKBody) contextValidateVmagent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Vmagent != nil {
 		if err := o.Vmagent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1044,7 +1022,6 @@ GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Con
 swagger:model GetAgentOKBodyAzureDatabaseExporter
 */
 type GetAgentOKBodyAzureDatabaseExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1250,7 +1227,6 @@ GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including
 swagger:model GetAgentOKBodyExternalExporter
 */
 type GetAgentOKBodyExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1318,7 +1294,6 @@ GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node 
 swagger:model GetAgentOKBodyMongodbExporter
 */
 type GetAgentOKBodyMongodbExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1540,7 +1515,6 @@ GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node an
 swagger:model GetAgentOKBodyMysqldExporter
 */
 type GetAgentOKBodyMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1769,7 +1743,6 @@ GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and ex
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1969,7 +1942,6 @@ GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2021,7 +1993,6 @@ GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Nod
 swagger:model GetAgentOKBodyPostgresExporter
 */
 type GetAgentOKBodyPostgresExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2231,7 +2202,6 @@ GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Nod
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2443,7 +2413,6 @@ GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-ag
 swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
 type GetAgentOKBodyQANMongodbProfilerAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2652,7 +2621,6 @@ GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-ag
 swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
 */
 type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2870,7 +2838,6 @@ GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent an
 swagger:model GetAgentOKBodyQANMysqlSlowlogAgent
 */
 type GetAgentOKBodyQANMysqlSlowlogAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3091,7 +3058,6 @@ GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs
 swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3297,7 +3263,6 @@ GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent ru
 swagger:model GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3506,7 +3471,6 @@ GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and expo
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3719,7 +3683,6 @@ GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-ag
 swagger:model GetAgentOKBodyVmagent
 */
 type GetAgentOKBodyVmagent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

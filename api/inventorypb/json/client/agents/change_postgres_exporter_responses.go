@@ -62,12 +62,12 @@ type ChangePostgresExporterOK struct {
 func (o *ChangePostgresExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePostgresExporter][%d] changePostgresExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangePostgresExporterOK) GetPayload() *ChangePostgresExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangePostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangePostgresExporterOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ChangePostgresExporterDefault) Code() int {
 func (o *ChangePostgresExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePostgresExporter][%d] ChangePostgresExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangePostgresExporterDefault) GetPayload() *ChangePostgresExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangePostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangePostgresExporterDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ChangePostgresExporterBody change postgres exporter body
 swagger:model ChangePostgresExporterBody
 */
 type ChangePostgresExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -181,7 +180,6 @@ func (o *ChangePostgresExporterBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ChangePostgresExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -219,7 +217,6 @@ ChangePostgresExporterDefaultBody change postgres exporter default body
 swagger:model ChangePostgresExporterDefaultBody
 */
 type ChangePostgresExporterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -285,9 +282,7 @@ func (o *ChangePostgresExporterDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangePostgresExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -298,7 +293,6 @@ func (o *ChangePostgresExporterDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -327,7 +321,6 @@ ChangePostgresExporterDefaultBodyDetailsItems0 change postgres exporter default 
 swagger:model ChangePostgresExporterDefaultBodyDetailsItems0
 */
 type ChangePostgresExporterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -365,7 +358,6 @@ ChangePostgresExporterOKBody change postgres exporter OK body
 swagger:model ChangePostgresExporterOKBody
 */
 type ChangePostgresExporterOKBody struct {
-
 	// postgres exporter
 	PostgresExporter *ChangePostgresExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 }
@@ -418,7 +410,6 @@ func (o *ChangePostgresExporterOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangePostgresExporterOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +447,6 @@ ChangePostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or
 swagger:model ChangePostgresExporterOKBodyPostgresExporter
 */
 type ChangePostgresExporterOKBodyPostgresExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -666,7 +656,6 @@ ChangePostgresExporterParamsBodyCommon ChangeCommonAgentParams contains paramete
 swagger:model ChangePostgresExporterParamsBodyCommon
 */
 type ChangePostgresExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

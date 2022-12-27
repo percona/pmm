@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Components_GetPSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetPSMDBComponentsRequest
@@ -45,7 +47,6 @@ func request_Components_GetPSMDBComponents_0(ctx context.Context, marshaler runt
 
 	msg, err := client.GetPSMDBComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_GetPSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_Components_GetPSMDBComponents_0(ctx context.Context, marshale
 
 	msg, err := server.GetPSMDBComponents(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Components_GetPXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +79,6 @@ func request_Components_GetPXCComponents_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.GetPXCComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_GetPXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +95,6 @@ func local_request_Components_GetPXCComponents_0(ctx context.Context, marshaler 
 
 	msg, err := server.GetPXCComponents(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Components_ChangePSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +111,6 @@ func request_Components_ChangePSMDBComponents_0(ctx context.Context, marshaler r
 
 	msg, err := client.ChangePSMDBComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_ChangePSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +127,6 @@ func local_request_Components_ChangePSMDBComponents_0(ctx context.Context, marsh
 
 	msg, err := server.ChangePSMDBComponents(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Components_ChangePXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +143,6 @@ func request_Components_ChangePXCComponents_0(ctx context.Context, marshaler run
 
 	msg, err := client.ChangePXCComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_ChangePXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +159,6 @@ func local_request_Components_ChangePXCComponents_0(ctx context.Context, marshal
 
 	msg, err := server.ChangePXCComponents(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Components_InstallOperator_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -181,7 +175,6 @@ func request_Components_InstallOperator_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.InstallOperator(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_InstallOperator_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -198,7 +191,6 @@ func local_request_Components_InstallOperator_0(ctx context.Context, marshaler r
 
 	msg, err := server.InstallOperator(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Components_CheckForOperatorUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -215,7 +207,6 @@ func request_Components_CheckForOperatorUpdate_0(ctx context.Context, marshaler 
 
 	msg, err := client.CheckForOperatorUpdate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -232,7 +223,6 @@ func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, mars
 
 	msg, err := server.CheckForOperatorUpdate(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterComponentsHandlerServer registers the http handlers for service Components to "mux".
@@ -240,7 +230,6 @@ func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, mars
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterComponentsHandlerFromEndpoint instead.
 func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ComponentsServer) error {
-
 	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -263,7 +252,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_GetPSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -288,7 +276,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_GetPXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -313,7 +300,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_ChangePSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -338,7 +324,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_ChangePXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -363,7 +348,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_InstallOperator_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -388,7 +372,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_CheckForOperatorUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -431,7 +414,6 @@ func RegisterComponentsHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ComponentsClient" to call the correct interceptors.
 func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ComponentsClient) error {
-
 	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -451,7 +433,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_GetPSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -473,7 +454,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_GetPXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -495,7 +475,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_ChangePSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -517,7 +496,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_ChangePXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -539,7 +517,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_InstallOperator_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -561,7 +538,6 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Components_CheckForOperatorUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

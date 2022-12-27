@@ -7,13 +7,14 @@
 package inventorypb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -2220,42 +2221,45 @@ func file_inventorypb_nodes_proto_rawDescGZIP() []byte {
 	return file_inventorypb_nodes_proto_rawDescData
 }
 
-var file_inventorypb_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_inventorypb_nodes_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
-var file_inventorypb_nodes_proto_goTypes = []interface{}{
-	(NodeType)(0),                              // 0: inventory.NodeType
-	(*GenericNode)(nil),                        // 1: inventory.GenericNode
-	(*ContainerNode)(nil),                      // 2: inventory.ContainerNode
-	(*RemoteNode)(nil),                         // 3: inventory.RemoteNode
-	(*RemoteRDSNode)(nil),                      // 4: inventory.RemoteRDSNode
-	(*RemoteAzureDatabaseNode)(nil),            // 5: inventory.RemoteAzureDatabaseNode
-	(*ListNodesRequest)(nil),                   // 6: inventory.ListNodesRequest
-	(*ListNodesResponse)(nil),                  // 7: inventory.ListNodesResponse
-	(*GetNodeRequest)(nil),                     // 8: inventory.GetNodeRequest
-	(*GetNodeResponse)(nil),                    // 9: inventory.GetNodeResponse
-	(*AddGenericNodeRequest)(nil),              // 10: inventory.AddGenericNodeRequest
-	(*AddGenericNodeResponse)(nil),             // 11: inventory.AddGenericNodeResponse
-	(*AddContainerNodeRequest)(nil),            // 12: inventory.AddContainerNodeRequest
-	(*AddContainerNodeResponse)(nil),           // 13: inventory.AddContainerNodeResponse
-	(*AddRemoteNodeRequest)(nil),               // 14: inventory.AddRemoteNodeRequest
-	(*AddRemoteNodeResponse)(nil),              // 15: inventory.AddRemoteNodeResponse
-	(*AddRemoteRDSNodeRequest)(nil),            // 16: inventory.AddRemoteRDSNodeRequest
-	(*AddRemoteRDSNodeResponse)(nil),           // 17: inventory.AddRemoteRDSNodeResponse
-	(*AddRemoteAzureDatabaseNodeRequest)(nil),  // 18: inventory.AddRemoteAzureDatabaseNodeRequest
-	(*AddRemoteAzureDatabaseNodeResponse)(nil), // 19: inventory.AddRemoteAzureDatabaseNodeResponse
-	(*RemoveNodeRequest)(nil),                  // 20: inventory.RemoveNodeRequest
-	(*RemoveNodeResponse)(nil),                 // 21: inventory.RemoveNodeResponse
-	nil,                                        // 22: inventory.GenericNode.CustomLabelsEntry
-	nil,                                        // 23: inventory.ContainerNode.CustomLabelsEntry
-	nil,                                        // 24: inventory.RemoteNode.CustomLabelsEntry
-	nil,                                        // 25: inventory.RemoteRDSNode.CustomLabelsEntry
-	nil,                                        // 26: inventory.RemoteAzureDatabaseNode.CustomLabelsEntry
-	nil,                                        // 27: inventory.AddGenericNodeRequest.CustomLabelsEntry
-	nil,                                        // 28: inventory.AddContainerNodeRequest.CustomLabelsEntry
-	nil,                                        // 29: inventory.AddRemoteNodeRequest.CustomLabelsEntry
-	nil,                                        // 30: inventory.AddRemoteRDSNodeRequest.CustomLabelsEntry
-	nil,                                        // 31: inventory.AddRemoteAzureDatabaseNodeRequest.CustomLabelsEntry
-}
+var (
+	file_inventorypb_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_inventorypb_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 31)
+	file_inventorypb_nodes_proto_goTypes   = []interface{}{
+		(NodeType)(0),                              // 0: inventory.NodeType
+		(*GenericNode)(nil),                        // 1: inventory.GenericNode
+		(*ContainerNode)(nil),                      // 2: inventory.ContainerNode
+		(*RemoteNode)(nil),                         // 3: inventory.RemoteNode
+		(*RemoteRDSNode)(nil),                      // 4: inventory.RemoteRDSNode
+		(*RemoteAzureDatabaseNode)(nil),            // 5: inventory.RemoteAzureDatabaseNode
+		(*ListNodesRequest)(nil),                   // 6: inventory.ListNodesRequest
+		(*ListNodesResponse)(nil),                  // 7: inventory.ListNodesResponse
+		(*GetNodeRequest)(nil),                     // 8: inventory.GetNodeRequest
+		(*GetNodeResponse)(nil),                    // 9: inventory.GetNodeResponse
+		(*AddGenericNodeRequest)(nil),              // 10: inventory.AddGenericNodeRequest
+		(*AddGenericNodeResponse)(nil),             // 11: inventory.AddGenericNodeResponse
+		(*AddContainerNodeRequest)(nil),            // 12: inventory.AddContainerNodeRequest
+		(*AddContainerNodeResponse)(nil),           // 13: inventory.AddContainerNodeResponse
+		(*AddRemoteNodeRequest)(nil),               // 14: inventory.AddRemoteNodeRequest
+		(*AddRemoteNodeResponse)(nil),              // 15: inventory.AddRemoteNodeResponse
+		(*AddRemoteRDSNodeRequest)(nil),            // 16: inventory.AddRemoteRDSNodeRequest
+		(*AddRemoteRDSNodeResponse)(nil),           // 17: inventory.AddRemoteRDSNodeResponse
+		(*AddRemoteAzureDatabaseNodeRequest)(nil),  // 18: inventory.AddRemoteAzureDatabaseNodeRequest
+		(*AddRemoteAzureDatabaseNodeResponse)(nil), // 19: inventory.AddRemoteAzureDatabaseNodeResponse
+		(*RemoveNodeRequest)(nil),                  // 20: inventory.RemoveNodeRequest
+		(*RemoveNodeResponse)(nil),                 // 21: inventory.RemoveNodeResponse
+		nil,                                        // 22: inventory.GenericNode.CustomLabelsEntry
+		nil,                                        // 23: inventory.ContainerNode.CustomLabelsEntry
+		nil,                                        // 24: inventory.RemoteNode.CustomLabelsEntry
+		nil,                                        // 25: inventory.RemoteRDSNode.CustomLabelsEntry
+		nil,                                        // 26: inventory.RemoteAzureDatabaseNode.CustomLabelsEntry
+		nil,                                        // 27: inventory.AddGenericNodeRequest.CustomLabelsEntry
+		nil,                                        // 28: inventory.AddContainerNodeRequest.CustomLabelsEntry
+		nil,                                        // 29: inventory.AddRemoteNodeRequest.CustomLabelsEntry
+		nil,                                        // 30: inventory.AddRemoteRDSNodeRequest.CustomLabelsEntry
+		nil,                                        // 31: inventory.AddRemoteAzureDatabaseNodeRequest.CustomLabelsEntry
+	}
+)
+
 var file_inventorypb_nodes_proto_depIdxs = []int32{
 	22, // 0: inventory.GenericNode.custom_labels:type_name -> inventory.GenericNode.CustomLabelsEntry
 	23, // 1: inventory.ContainerNode.custom_labels:type_name -> inventory.ContainerNode.CustomLabelsEntry

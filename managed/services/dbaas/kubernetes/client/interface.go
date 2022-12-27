@@ -32,7 +32,11 @@ type KubeClientConnector interface {
 	GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error)
 	// GetStorageClasses returns all storage classes available in the cluster
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
-	// Delete deletes object from the k8s cluster
+	// GetDeployment returns deployment by name
+	GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error)
+	// GetSecret returns secret by name
+	GetSecret(ctx context.Context, name string) (*corev1.Secret, error)
+	// DeleteObject deletes object from the k8s cluster
 	DeleteObject(obj runtime.Object) error
 	ApplyObject(obj runtime.Object) error
 	// GetPersistentVolumes returns Persistent Volumes available in the cluster
@@ -50,10 +54,6 @@ type KubeClientConnector interface {
 	DoCSVWait(ctx context.Context, key types.NamespacedName) error
 	GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error)
 	DoRolloutWait(ctx context.Context, key types.NamespacedName) error
-	// GetDeployment returns deployment by name
-	GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error)
-	// GetSecret returns secret by name
-	GetSecret(ctx context.Context, name string) (*corev1.Secret, error)
 	GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error)
 	CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error)
 	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, approval operatorsv1alpha1.Approval) (*v1alpha1.Subscription, error)

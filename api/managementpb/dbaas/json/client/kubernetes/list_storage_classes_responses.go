@@ -60,12 +60,12 @@ type ListStorageClassesOK struct {
 func (o *ListStorageClassesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/StorageClasses/List][%d] listStorageClassesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListStorageClassesOK) GetPayload() *ListStorageClassesOKBody {
 	return o.Payload
 }
 
 func (o *ListStorageClassesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListStorageClassesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListStorageClassesDefault) Code() int {
 func (o *ListStorageClassesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/StorageClasses/List][%d] ListStorageClasses default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListStorageClassesDefault) GetPayload() *ListStorageClassesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListStorageClassesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListStorageClassesDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ ListStorageClassesBody list storage classes body
 swagger:model ListStorageClassesBody
 */
 type ListStorageClassesBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 }
@@ -161,7 +160,6 @@ ListStorageClassesDefaultBody list storage classes default body
 swagger:model ListStorageClassesDefaultBody
 */
 type ListStorageClassesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +225,7 @@ func (o *ListStorageClassesDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListStorageClassesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +236,6 @@ func (o *ListStorageClassesDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -269,7 +264,6 @@ ListStorageClassesDefaultBodyDetailsItems0 list storage classes default body det
 swagger:model ListStorageClassesDefaultBodyDetailsItems0
 */
 type ListStorageClassesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -307,7 +301,6 @@ ListStorageClassesOKBody list storage classes OK body
 swagger:model ListStorageClassesOKBody
 */
 type ListStorageClassesOKBody struct {
-
 	// Kubernetes storage classes names.
 	StorageClasses []string `json:"storage_classes"`
 }

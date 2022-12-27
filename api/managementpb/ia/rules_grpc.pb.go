@@ -8,6 +8,7 @@ package iav1beta1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -105,21 +106,24 @@ type RulesServer interface {
 }
 
 // UnimplementedRulesServer must be embedded to have forward compatible implementations.
-type UnimplementedRulesServer struct {
-}
+type UnimplementedRulesServer struct{}
 
 func (UnimplementedRulesServer) ListAlertRules(context.Context, *ListAlertRulesRequest) (*ListAlertRulesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAlertRules not implemented")
 }
+
 func (UnimplementedRulesServer) CreateAlertRule(context.Context, *CreateAlertRuleRequest) (*CreateAlertRuleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAlertRule not implemented")
 }
+
 func (UnimplementedRulesServer) UpdateAlertRule(context.Context, *UpdateAlertRuleRequest) (*UpdateAlertRuleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAlertRule not implemented")
 }
+
 func (UnimplementedRulesServer) ToggleAlertRule(context.Context, *ToggleAlertRuleRequest) (*ToggleAlertRuleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ToggleAlertRule not implemented")
 }
+
 func (UnimplementedRulesServer) DeleteAlertRule(context.Context, *DeleteAlertRuleRequest) (*DeleteAlertRuleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAlertRule not implemented")
 }

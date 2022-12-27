@@ -7,6 +7,9 @@
 package serverpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -14,8 +17,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -2276,37 +2277,40 @@ func file_serverpb_server_proto_rawDescGZIP() []byte {
 	return file_serverpb_server_proto_rawDescData
 }
 
-var file_serverpb_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_serverpb_server_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
-var file_serverpb_server_proto_goTypes = []interface{}{
-	(DistributionMethod)(0),                   // 0: server.DistributionMethod
-	(*VersionInfo)(nil),                       // 1: server.VersionInfo
-	(*VersionRequest)(nil),                    // 2: server.VersionRequest
-	(*VersionResponse)(nil),                   // 3: server.VersionResponse
-	(*ReadinessRequest)(nil),                  // 4: server.ReadinessRequest
-	(*ReadinessResponse)(nil),                 // 5: server.ReadinessResponse
-	(*CheckUpdatesRequest)(nil),               // 6: server.CheckUpdatesRequest
-	(*CheckUpdatesResponse)(nil),              // 7: server.CheckUpdatesResponse
-	(*StartUpdateRequest)(nil),                // 8: server.StartUpdateRequest
-	(*StartUpdateResponse)(nil),               // 9: server.StartUpdateResponse
-	(*UpdateStatusRequest)(nil),               // 10: server.UpdateStatusRequest
-	(*UpdateStatusResponse)(nil),              // 11: server.UpdateStatusResponse
-	(*MetricsResolutions)(nil),                // 12: server.MetricsResolutions
-	(*EmailAlertingSettings)(nil),             // 13: server.EmailAlertingSettings
-	(*SlackAlertingSettings)(nil),             // 14: server.SlackAlertingSettings
-	(*STTCheckIntervals)(nil),                 // 15: server.STTCheckIntervals
-	(*Settings)(nil),                          // 16: server.Settings
-	(*GetSettingsRequest)(nil),                // 17: server.GetSettingsRequest
-	(*GetSettingsResponse)(nil),               // 18: server.GetSettingsResponse
-	(*ChangeSettingsRequest)(nil),             // 19: server.ChangeSettingsRequest
-	(*ChangeSettingsResponse)(nil),            // 20: server.ChangeSettingsResponse
-	(*TestEmailAlertingSettingsRequest)(nil),  // 21: server.TestEmailAlertingSettingsRequest
-	(*TestEmailAlertingSettingsResponse)(nil), // 22: server.TestEmailAlertingSettingsResponse
-	(*AWSInstanceCheckRequest)(nil),           // 23: server.AWSInstanceCheckRequest
-	(*AWSInstanceCheckResponse)(nil),          // 24: server.AWSInstanceCheckResponse
-	(*timestamppb.Timestamp)(nil),             // 25: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),               // 26: google.protobuf.Duration
-}
+var (
+	file_serverpb_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_serverpb_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 24)
+	file_serverpb_server_proto_goTypes   = []interface{}{
+		(DistributionMethod)(0),                   // 0: server.DistributionMethod
+		(*VersionInfo)(nil),                       // 1: server.VersionInfo
+		(*VersionRequest)(nil),                    // 2: server.VersionRequest
+		(*VersionResponse)(nil),                   // 3: server.VersionResponse
+		(*ReadinessRequest)(nil),                  // 4: server.ReadinessRequest
+		(*ReadinessResponse)(nil),                 // 5: server.ReadinessResponse
+		(*CheckUpdatesRequest)(nil),               // 6: server.CheckUpdatesRequest
+		(*CheckUpdatesResponse)(nil),              // 7: server.CheckUpdatesResponse
+		(*StartUpdateRequest)(nil),                // 8: server.StartUpdateRequest
+		(*StartUpdateResponse)(nil),               // 9: server.StartUpdateResponse
+		(*UpdateStatusRequest)(nil),               // 10: server.UpdateStatusRequest
+		(*UpdateStatusResponse)(nil),              // 11: server.UpdateStatusResponse
+		(*MetricsResolutions)(nil),                // 12: server.MetricsResolutions
+		(*EmailAlertingSettings)(nil),             // 13: server.EmailAlertingSettings
+		(*SlackAlertingSettings)(nil),             // 14: server.SlackAlertingSettings
+		(*STTCheckIntervals)(nil),                 // 15: server.STTCheckIntervals
+		(*Settings)(nil),                          // 16: server.Settings
+		(*GetSettingsRequest)(nil),                // 17: server.GetSettingsRequest
+		(*GetSettingsResponse)(nil),               // 18: server.GetSettingsResponse
+		(*ChangeSettingsRequest)(nil),             // 19: server.ChangeSettingsRequest
+		(*ChangeSettingsResponse)(nil),            // 20: server.ChangeSettingsResponse
+		(*TestEmailAlertingSettingsRequest)(nil),  // 21: server.TestEmailAlertingSettingsRequest
+		(*TestEmailAlertingSettingsResponse)(nil), // 22: server.TestEmailAlertingSettingsResponse
+		(*AWSInstanceCheckRequest)(nil),           // 23: server.AWSInstanceCheckRequest
+		(*AWSInstanceCheckResponse)(nil),          // 24: server.AWSInstanceCheckResponse
+		(*timestamppb.Timestamp)(nil),             // 25: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),               // 26: google.protobuf.Duration
+	}
+)
+
 var file_serverpb_server_proto_depIdxs = []int32{
 	25, // 0: server.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.VersionResponse.server:type_name -> server.VersionInfo

@@ -7,12 +7,13 @@
 package qanv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -334,16 +335,19 @@ func file_qanpb_filters_proto_rawDescGZIP() []byte {
 	return file_qanpb_filters_proto_rawDescData
 }
 
-var file_qanpb_filters_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_qanpb_filters_proto_goTypes = []interface{}{
-	(*FiltersRequest)(nil),        // 0: qan.v1beta1.FiltersRequest
-	(*FiltersReply)(nil),          // 1: qan.v1beta1.FiltersReply
-	(*ListLabels)(nil),            // 2: qan.v1beta1.ListLabels
-	(*Values)(nil),                // 3: qan.v1beta1.Values
-	nil,                           // 4: qan.v1beta1.FiltersReply.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*MapFieldEntry)(nil),         // 6: qan.v1beta1.MapFieldEntry
-}
+var (
+	file_qanpb_filters_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+	file_qanpb_filters_proto_goTypes  = []interface{}{
+		(*FiltersRequest)(nil),        // 0: qan.v1beta1.FiltersRequest
+		(*FiltersReply)(nil),          // 1: qan.v1beta1.FiltersReply
+		(*ListLabels)(nil),            // 2: qan.v1beta1.ListLabels
+		(*Values)(nil),                // 3: qan.v1beta1.Values
+		nil,                           // 4: qan.v1beta1.FiltersReply.LabelsEntry
+		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+		(*MapFieldEntry)(nil),         // 6: qan.v1beta1.MapFieldEntry
+	}
+)
+
 var file_qanpb_filters_proto_depIdxs = []int32{
 	5, // 0: qan.v1beta1.FiltersRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	5, // 1: qan.v1beta1.FiltersRequest.period_start_to:type_name -> google.protobuf.Timestamp

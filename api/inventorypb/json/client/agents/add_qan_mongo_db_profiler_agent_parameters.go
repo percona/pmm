@@ -60,7 +60,6 @@ AddQANMongoDBProfilerAgentParams contains all the parameters to send to the API 
 	Typically these are written to a http.Request.
 */
 type AddQANMongoDBProfilerAgentParams struct {
-
 	// Body.
 	Body AddQANMongoDBProfilerAgentBody
 
@@ -130,7 +129,6 @@ func (o *AddQANMongoDBProfilerAgentParams) SetBody(body AddQANMongoDBProfilerAge
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddQANMongoDBProfilerAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

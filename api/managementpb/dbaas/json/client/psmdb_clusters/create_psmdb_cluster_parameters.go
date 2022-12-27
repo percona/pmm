@@ -60,7 +60,6 @@ CreatePSMDBClusterParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CreatePSMDBClusterParams struct {
-
 	// Body.
 	Body CreatePSMDBClusterBody
 
@@ -130,7 +129,6 @@ func (o *CreatePSMDBClusterParams) SetBody(body CreatePSMDBClusterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *CreatePSMDBClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

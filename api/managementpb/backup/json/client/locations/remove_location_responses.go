@@ -60,12 +60,12 @@ type RemoveLocationOK struct {
 func (o *RemoveLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Remove][%d] removeLocationOk  %+v", 200, o.Payload)
 }
+
 func (o *RemoveLocationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *RemoveLocationDefault) Code() int {
 func (o *RemoveLocationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Remove][%d] RemoveLocation default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RemoveLocationDefault) GetPayload() *RemoveLocationDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveLocationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RemoveLocationDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ RemoveLocationBody remove location body
 swagger:model RemoveLocationBody
 */
 type RemoveLocationBody struct {
-
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 
@@ -162,7 +161,6 @@ RemoveLocationDefaultBody remove location default body
 swagger:model RemoveLocationDefaultBody
 */
 type RemoveLocationDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,9 +226,7 @@ func (o *RemoveLocationDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *RemoveLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,7 +237,6 @@ func (o *RemoveLocationDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,7 +265,6 @@ RemoveLocationDefaultBodyDetailsItems0 remove location default body details item
 swagger:model RemoveLocationDefaultBodyDetailsItems0
 */
 type RemoveLocationDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

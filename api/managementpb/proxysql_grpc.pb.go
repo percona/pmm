@@ -8,6 +8,7 @@ package managementpb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -57,8 +58,7 @@ type ProxySQLServer interface {
 }
 
 // UnimplementedProxySQLServer must be embedded to have forward compatible implementations.
-type UnimplementedProxySQLServer struct {
-}
+type UnimplementedProxySQLServer struct{}
 
 func (UnimplementedProxySQLServer) AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")

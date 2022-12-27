@@ -60,7 +60,6 @@ AddRemoteNodeParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AddRemoteNodeParams struct {
-
 	// Body.
 	Body AddRemoteNodeBody
 
@@ -130,7 +129,6 @@ func (o *AddRemoteNodeParams) SetBody(body AddRemoteNodeBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddRemoteNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

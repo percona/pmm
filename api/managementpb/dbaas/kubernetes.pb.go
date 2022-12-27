@@ -7,12 +7,13 @@
 package dbaasv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1113,29 +1114,32 @@ func file_managementpb_dbaas_kubernetes_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_kubernetes_proto_rawDescData
 }
 
-var file_managementpb_dbaas_kubernetes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_dbaas_kubernetes_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_managementpb_dbaas_kubernetes_proto_goTypes = []interface{}{
-	(KubernetesClusterStatus)(0),                   // 0: dbaas.v1beta1.KubernetesClusterStatus
-	(*KubeAuth)(nil),                               // 1: dbaas.v1beta1.KubeAuth
-	(*Operator)(nil),                               // 2: dbaas.v1beta1.Operator
-	(*Operators)(nil),                              // 3: dbaas.v1beta1.Operators
-	(*ListKubernetesClustersRequest)(nil),          // 4: dbaas.v1beta1.ListKubernetesClustersRequest
-	(*ListKubernetesClustersResponse)(nil),         // 5: dbaas.v1beta1.ListKubernetesClustersResponse
-	(*RegisterKubernetesClusterRequest)(nil),       // 6: dbaas.v1beta1.RegisterKubernetesClusterRequest
-	(*RegisterKubernetesClusterResponse)(nil),      // 7: dbaas.v1beta1.RegisterKubernetesClusterResponse
-	(*UnregisterKubernetesClusterRequest)(nil),     // 8: dbaas.v1beta1.UnregisterKubernetesClusterRequest
-	(*UnregisterKubernetesClusterResponse)(nil),    // 9: dbaas.v1beta1.UnregisterKubernetesClusterResponse
-	(*GetKubernetesClusterRequest)(nil),            // 10: dbaas.v1beta1.GetKubernetesClusterRequest
-	(*GetKubernetesClusterResponse)(nil),           // 11: dbaas.v1beta1.GetKubernetesClusterResponse
-	(*GetResourcesRequest)(nil),                    // 12: dbaas.v1beta1.GetResourcesRequest
-	(*GetResourcesResponse)(nil),                   // 13: dbaas.v1beta1.GetResourcesResponse
-	(*ListStorageClassesRequest)(nil),              // 14: dbaas.v1beta1.ListStorageClassesRequest
-	(*ListStorageClassesResponse)(nil),             // 15: dbaas.v1beta1.ListStorageClassesResponse
-	(*ListKubernetesClustersResponse_Cluster)(nil), // 16: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster
-	(OperatorsStatus)(0),                           // 17: dbaas.v1beta1.OperatorsStatus
-	(*Resources)(nil),                              // 18: dbaas.v1beta1.Resources
-}
+var (
+	file_managementpb_dbaas_kubernetes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_dbaas_kubernetes_proto_msgTypes  = make([]protoimpl.MessageInfo, 16)
+	file_managementpb_dbaas_kubernetes_proto_goTypes   = []interface{}{
+		(KubernetesClusterStatus)(0),                   // 0: dbaas.v1beta1.KubernetesClusterStatus
+		(*KubeAuth)(nil),                               // 1: dbaas.v1beta1.KubeAuth
+		(*Operator)(nil),                               // 2: dbaas.v1beta1.Operator
+		(*Operators)(nil),                              // 3: dbaas.v1beta1.Operators
+		(*ListKubernetesClustersRequest)(nil),          // 4: dbaas.v1beta1.ListKubernetesClustersRequest
+		(*ListKubernetesClustersResponse)(nil),         // 5: dbaas.v1beta1.ListKubernetesClustersResponse
+		(*RegisterKubernetesClusterRequest)(nil),       // 6: dbaas.v1beta1.RegisterKubernetesClusterRequest
+		(*RegisterKubernetesClusterResponse)(nil),      // 7: dbaas.v1beta1.RegisterKubernetesClusterResponse
+		(*UnregisterKubernetesClusterRequest)(nil),     // 8: dbaas.v1beta1.UnregisterKubernetesClusterRequest
+		(*UnregisterKubernetesClusterResponse)(nil),    // 9: dbaas.v1beta1.UnregisterKubernetesClusterResponse
+		(*GetKubernetesClusterRequest)(nil),            // 10: dbaas.v1beta1.GetKubernetesClusterRequest
+		(*GetKubernetesClusterResponse)(nil),           // 11: dbaas.v1beta1.GetKubernetesClusterResponse
+		(*GetResourcesRequest)(nil),                    // 12: dbaas.v1beta1.GetResourcesRequest
+		(*GetResourcesResponse)(nil),                   // 13: dbaas.v1beta1.GetResourcesResponse
+		(*ListStorageClassesRequest)(nil),              // 14: dbaas.v1beta1.ListStorageClassesRequest
+		(*ListStorageClassesResponse)(nil),             // 15: dbaas.v1beta1.ListStorageClassesResponse
+		(*ListKubernetesClustersResponse_Cluster)(nil), // 16: dbaas.v1beta1.ListKubernetesClustersResponse.Cluster
+		(OperatorsStatus)(0),                           // 17: dbaas.v1beta1.OperatorsStatus
+		(*Resources)(nil),                              // 18: dbaas.v1beta1.Resources
+	}
+)
+
 var file_managementpb_dbaas_kubernetes_proto_depIdxs = []int32{
 	17, // 0: dbaas.v1beta1.Operator.status:type_name -> dbaas.v1beta1.OperatorsStatus
 	2,  // 1: dbaas.v1beta1.Operators.pxc:type_name -> dbaas.v1beta1.Operator

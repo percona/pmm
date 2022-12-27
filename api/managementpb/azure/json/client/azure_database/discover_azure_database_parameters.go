@@ -60,7 +60,6 @@ DiscoverAzureDatabaseParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type DiscoverAzureDatabaseParams struct {
-
 	// Body.
 	Body DiscoverAzureDatabaseBody
 
@@ -130,7 +129,6 @@ func (o *DiscoverAzureDatabaseParams) SetBody(body DiscoverAzureDatabaseBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DiscoverAzureDatabaseParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -60,7 +60,6 @@ AddRemoteAzureDatabaseNodeParams contains all the parameters to send to the API 
 	Typically these are written to a http.Request.
 */
 type AddRemoteAzureDatabaseNodeParams struct {
-
 	// Body.
 	Body AddRemoteAzureDatabaseNodeBody
 
@@ -130,7 +129,6 @@ func (o *AddRemoteAzureDatabaseNodeParams) SetBody(body AddRemoteAzureDatabaseNo
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddRemoteAzureDatabaseNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

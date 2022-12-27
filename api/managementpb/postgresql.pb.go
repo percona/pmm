@@ -7,14 +7,16 @@
 package managementpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 const (
@@ -578,19 +580,22 @@ func file_managementpb_postgresql_proto_rawDescGZIP() []byte {
 	return file_managementpb_postgresql_proto_rawDescData
 }
 
-var file_managementpb_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_postgresql_proto_goTypes = []interface{}{
-	(*AddPostgreSQLRequest)(nil),                        // 0: management.AddPostgreSQLRequest
-	(*AddPostgreSQLResponse)(nil),                       // 1: management.AddPostgreSQLResponse
-	nil,                                                 // 2: management.AddPostgreSQLRequest.CustomLabelsEntry
-	(*AddNodeParams)(nil),                               // 3: management.AddNodeParams
-	(MetricsMode)(0),                                    // 4: management.MetricsMode
-	(inventorypb.LogLevel)(0),                           // 5: inventory.LogLevel
-	(*inventorypb.PostgreSQLService)(nil),               // 6: inventory.PostgreSQLService
-	(*inventorypb.PostgresExporter)(nil),                // 7: inventory.PostgresExporter
-	(*inventorypb.QANPostgreSQLPgStatementsAgent)(nil),  // 8: inventory.QANPostgreSQLPgStatementsAgent
-	(*inventorypb.QANPostgreSQLPgStatMonitorAgent)(nil), // 9: inventory.QANPostgreSQLPgStatMonitorAgent
-}
+var (
+	file_managementpb_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_postgresql_proto_goTypes  = []interface{}{
+		(*AddPostgreSQLRequest)(nil),                        // 0: management.AddPostgreSQLRequest
+		(*AddPostgreSQLResponse)(nil),                       // 1: management.AddPostgreSQLResponse
+		nil,                                                 // 2: management.AddPostgreSQLRequest.CustomLabelsEntry
+		(*AddNodeParams)(nil),                               // 3: management.AddNodeParams
+		(MetricsMode)(0),                                    // 4: management.MetricsMode
+		(inventorypb.LogLevel)(0),                           // 5: inventory.LogLevel
+		(*inventorypb.PostgreSQLService)(nil),               // 6: inventory.PostgreSQLService
+		(*inventorypb.PostgresExporter)(nil),                // 7: inventory.PostgresExporter
+		(*inventorypb.QANPostgreSQLPgStatementsAgent)(nil),  // 8: inventory.QANPostgreSQLPgStatementsAgent
+		(*inventorypb.QANPostgreSQLPgStatMonitorAgent)(nil), // 9: inventory.QANPostgreSQLPgStatMonitorAgent
+	}
+)
+
 var file_managementpb_postgresql_proto_depIdxs = []int32{
 	3, // 0: management.AddPostgreSQLRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddPostgreSQLRequest.custom_labels:type_name -> management.AddPostgreSQLRequest.CustomLabelsEntry

@@ -6,21 +6,25 @@ package backupv1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
+
 	_ "github.com/percona/pmm/api/inventorypb"
-	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *StartBackupRequest) Validate() error {
 	if this.ServiceId == "" {
@@ -36,15 +40,18 @@ func (this *StartBackupRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *StartBackupResponse) Validate() error {
 	return nil
 }
+
 func (this *ListArtifactCompatibleServicesRequest) Validate() error {
 	if this.ArtifactId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
 	}
 	return nil
 }
+
 func (this *ListArtifactCompatibleServicesResponse) Validate() error {
 	for _, item := range this.Mysql {
 		if item != nil {
@@ -62,6 +69,7 @@ func (this *ListArtifactCompatibleServicesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *RestoreBackupRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
@@ -76,9 +84,11 @@ func (this *RestoreBackupRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *RestoreBackupResponse) Validate() error {
 	return nil
 }
+
 func (this *ScheduledBackup) Validate() error {
 	if this.StartTime != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTime); err != nil {
@@ -102,6 +112,7 @@ func (this *ScheduledBackup) Validate() error {
 	}
 	return nil
 }
+
 func (this *ScheduleBackupRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
@@ -124,12 +135,15 @@ func (this *ScheduleBackupRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ScheduleBackupResponse) Validate() error {
 	return nil
 }
+
 func (this *ListScheduledBackupsRequest) Validate() error {
 	return nil
 }
+
 func (this *ListScheduledBackupsResponse) Validate() error {
 	for _, item := range this.ScheduledBackups {
 		if item != nil {
@@ -140,6 +154,7 @@ func (this *ListScheduledBackupsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeScheduledBackupRequest) Validate() error {
 	if this.ScheduledBackupId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ScheduledBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduledBackupId))
@@ -186,24 +201,29 @@ func (this *ChangeScheduledBackupRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeScheduledBackupResponse) Validate() error {
 	return nil
 }
+
 func (this *RemoveScheduledBackupRequest) Validate() error {
 	if this.ScheduledBackupId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ScheduledBackupId", fmt.Errorf(`value '%v' must not be an empty string`, this.ScheduledBackupId))
 	}
 	return nil
 }
+
 func (this *RemoveScheduledBackupResponse) Validate() error {
 	return nil
 }
+
 func (this *GetLogsRequest) Validate() error {
 	if this.ArtifactId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
 	}
 	return nil
 }
+
 func (this *GetLogsResponse) Validate() error {
 	for _, item := range this.Logs {
 		if item != nil {
@@ -214,6 +234,7 @@ func (this *GetLogsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *LogChunk) Validate() error {
 	return nil
 }

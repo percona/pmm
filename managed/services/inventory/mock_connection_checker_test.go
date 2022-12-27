@@ -5,8 +5,9 @@ package inventory
 import (
 	context "context"
 
-	models "github.com/percona/pmm/managed/models"
 	mock "github.com/stretchr/testify/mock"
+
+	models "github.com/percona/pmm/managed/models"
 
 	reform "gopkg.in/reform.v1"
 )
