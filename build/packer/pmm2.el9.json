@@ -91,7 +91,7 @@
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
-        ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrde-port", "5050", "--vram", "10"],
+        ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrdeport", "5050", "--vram", "10"],
         ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
         ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "AHCI", "--portcount", "2", "--hostiocache", "on", "--bootable", "on"],
         ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
