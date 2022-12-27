@@ -116,6 +116,7 @@ func TestStartBackup(t *testing.T) {
 					LocationId:    "locationID",
 					Name:          "name",
 					Description:   "description",
+					DataModel:     backuppb.DataModel_PHYSICAL,
 					RetryInterval: nil,
 					Retries:       0,
 				})
@@ -264,6 +265,7 @@ func TestScheduledBackups(t *testing.T) {
 				Description:    t.Name(),
 				Enabled:        true,
 				Mode:           backuppb.BackupMode_SNAPSHOT,
+				DataModel:      backuppb.DataModel_PHYSICAL,
 				Retries:        maxRetriesAttempts - 1,
 				RetryInterval:  durationpb.New(maxRetryInterval),
 			}

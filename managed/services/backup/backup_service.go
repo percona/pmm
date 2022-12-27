@@ -18,6 +18,7 @@ package backup
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/pkg/errors"
@@ -27,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/agents"
 )
 
@@ -82,8 +84,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		name = name + "_" + time.Now().Format(time.RFC3339)
 	}
 
-	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
+
 		svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
 		if err != nil {
 			return err
@@ -119,6 +122,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 			if params.Mode != models.Snapshot && params.Mode != models.PITR {
 				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
+			}
+
+			if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, ""); err != nil {
+				return err
 			}
 
 			// For PITR backups reuse existing artifact if it's present.

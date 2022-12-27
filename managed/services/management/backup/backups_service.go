@@ -81,34 +81,20 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	var dataModel models.DataModel
-	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		svc, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
+	dataModel, err := convertModelToBackupModel(req.DataModel)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+	}
+
+	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	if svc.ServiceType == models.MongoDBServiceType {
+		if svc.Cluster == "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "Service %s should be a member of a cluster", svc.ServiceName)
 		}
-		switch svc.ServiceType { //nolint:exhaustive
-		case models.MySQLServiceType:
-			dataModel = models.PhysicalDataModel
-		case models.MongoDBServiceType:
-			if svc.Cluster == "" {
-				return status.Errorf(codes.FailedPrecondition, "Service %s should be a member of a cluster", svc.ServiceName)
-			}
-
-			if err = checkMongoDBBackupPreconditions(tx.Querier, models.Snapshot, svc.Cluster, svc.ServiceID, ""); err != nil {
-				return err
-			}
-
-			dataModel, err = convertModelToBackupModel(req.DataModel)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
-			}
-		}
-
-		return nil
-	})
-	if errTx != nil {
-		return nil, errTx
 	}
 
 	artifactID, err := s.backupService.PerformBackup(ctx, backup.PerformBackupParams{
@@ -187,12 +173,18 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			return err
 		}
 
+		dataModel, err := convertModelToBackupModel(req.DataModel)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+		}
+
 		backupParams := &scheduler.BackupTaskParams{
 			ServiceID:     svc.ServiceID,
 			ClusterName:   svc.Cluster,
 			LocationID:    req.LocationId,
 			Name:          req.Name,
 			Description:   req.Description,
+			DataModel:     dataModel,
 			Mode:          mode,
 			Retention:     req.Retention,
 			Retries:       req.Retries,
@@ -202,26 +194,15 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			backupParams.DataModel = models.PhysicalDataModel
 			task, err = scheduler.NewMySQLBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			if backupParams.ClusterName == "" {
-				return status.Errorf(codes.FailedPrecondition, "service should be a member of a cluster or replica set")
+			if svc.Cluster == "" {
+				return status.Errorf(codes.FailedPrecondition, "Service should be a member of a cluster or replica set.")
 			}
 
-			if req.Enabled {
-				if err = checkMongoDBBackupPreconditions(tx.Querier, mode, svc.Cluster, svc.ServiceID, ""); err != nil {
-					return err
-				}
-			}
-
-			backupParams.DataModel, err = convertModelToBackupModel(req.DataModel)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
-			}
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)
@@ -330,10 +311,6 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			data = &scheduledTask.Data.MySQLBackupTask.CommonBackupTaskData
 		case models.ScheduledMongoDBBackupTask:
 			data = &scheduledTask.Data.MongoDBBackupTask.CommonBackupTaskData
-
-			if err = checkMongoDBBackupPreconditions(tx.Querier, data.Mode, data.ClusterName, data.ServiceID, scheduledTask.ID); err != nil {
-				return err
-			}
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unknown type: %s", scheduledTask.Type)
 		}
@@ -529,51 +506,6 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 	}
 
 	return res, nil
-}
-
-func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, clusterName, serviceID, scheduleID string) error {
-	filter := models.ScheduledTasksFilter{
-		Disabled:    pointer.ToBool(false),
-		ClusterName: clusterName,
-	}
-
-	if clusterName == "" {
-		// For backward compatibility. There may be existing scheduled backups for mongoDB services without specified cluster name.
-		filter.ServiceID = serviceID
-	}
-
-	switch mode {
-	case models.PITR:
-		// PITR backup can be enabled only if there is no other scheduled backups.
-		tasks, err := models.FindScheduledTasks(q, filter)
-		if err != nil {
-			return err
-		}
-
-		for _, task := range tasks {
-			if task.ID != scheduleID {
-				return status.Errorf(codes.FailedPrecondition, "A PITR backup for cluster '%s' can be enabled only if there no other scheduled backups for this cluster.", clusterName)
-			}
-		}
-	case models.Snapshot:
-		// Snapshot backup can be enabled it there is no enabled PITR backup.
-		tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-			Disabled:    pointer.ToBool(false),
-			ClusterName: clusterName,
-			Mode:        models.PITR,
-		})
-		if err != nil {
-			return err
-		}
-
-		if len(tasks) != 0 {
-			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if there is no enabled PITR backup for this cluster.", clusterName)
-		}
-	case models.Incremental:
-		return status.Error(codes.InvalidArgument, "Incremental backups unsupported for MongoDB")
-	}
-
-	return nil
 }
 
 func convertTaskToScheduledBackup(task *models.ScheduledTask,

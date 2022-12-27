@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // Service is responsible for executing tasks and storing them to DB.
@@ -85,6 +86,9 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
 	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
+		if err = checkPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
+			return err
+		}
 		scheduledTask, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
 			CronExpression: params.CronExpression,
 			StartAt:        params.StartAt,
@@ -153,6 +157,10 @@ func (s *Service) Remove(id string) error {
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
 	return s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		if err := checkPreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
+			return err
+		}
+
 		scheduledTask, err := models.ChangeScheduledTask(tx.Querier, id, params)
 		if err != nil {
 			return err
@@ -305,7 +313,6 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 			},
 			BackupTaskParams: &BackupTaskParams{
 				ServiceID:     data.ServiceID,
-				ClusterName:   data.ClusterName,
 				LocationID:    data.LocationID,
 				Name:          data.Name,
 				Description:   data.Description,
@@ -324,7 +331,6 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 			},
 			BackupTaskParams: &BackupTaskParams{
 				ServiceID:     data.ServiceID,
-				ClusterName:   data.ClusterName,
 				LocationID:    data.LocationID,
 				Name:          data.Name,
 				Description:   data.Description,
@@ -341,4 +347,20 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 	}
 
 	return task, nil
+}
+
+func checkPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
+	switch {
+	case data.MySQLBackupTask != nil:
+	case data.MongoDBBackupTask != nil:
+		if enabled {
+			return services.CheckMongoDBBackupPreconditions(
+				q,
+				data.MongoDBBackupTask.Mode,
+				data.MongoDBBackupTask.ClusterName,
+				data.MongoDBBackupTask.ServiceID,
+				scheduledTaskID)
+		}
+	}
+	return nil
 }
