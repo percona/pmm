@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
+      - "cli-tests/**"
       - "docs/**"
       - "managed/**"
       - "update/**"
