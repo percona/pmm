@@ -25,7 +25,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-update", "-h") //nolint:gosec
+	cmd := exec.Command("pmm-update", "-h")
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		// This branch is required for tests with pmm-server:2.0.0

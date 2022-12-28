@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -42,7 +43,7 @@ type Config struct {
 func RunProxy(cfg Config) error {
 	logrus.Infof("Starting to proxy at http://%s to %s", cfg.ListenAddress, cfg.TargetURL.String())
 
-	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg))
+	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg)) //nolint:gosec
 	return err
 }
 
@@ -52,6 +53,8 @@ func getHandler(cfg Config) http.HandlerFunc {
 	}
 
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		logrus.Infof("%s: %s", req.Method, req.URL)
+
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
 			return
 		}
@@ -75,7 +78,8 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 
 func director(target *url.URL, headerName string) func(*http.Request) {
 	return func(req *http.Request) {
-		logrus.Infof("%s: %s", req.Method, req.URL)
+		now := time.Now()
+
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
 
@@ -84,13 +88,22 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 			q := req.URL.Query()
 			q.Del("extra_filters[]")
 
-			if parsed, _ := parseFilters(filters); parsed != nil {
+			parsed, err := parseFilters(filters)
+			if err != nil {
+				logrus.Error(err)
+			}
+
+			if parsed != nil {
 				for _, f := range parsed {
 					q.Add("extra_filters[]", f)
 				}
 			}
 
 			req.URL.RawQuery = q.Encode()
+
+			logrus.Debugf(
+				"Received filters: %s, Parsed filters: %#v, Query: %s, Target URL: %s, Time spent: %s",
+				filters, parsed, req.URL.RawQuery, req.URL, time.Since(now))
 		}
 
 		// Do not trust the client
