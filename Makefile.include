@@ -19,7 +19,7 @@ init:                 ## Install tools.
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.49.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.50.1 # Version should match specified in CI
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -145,7 +145,7 @@ clean: clean_swagger  ## Remove generated files.
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
 
 api-test:             ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.yaml make api-test` to run tests for DBaaS.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
@@ -167,7 +167,6 @@ format:               ## Format source code.
 	bin/gofumpt -l -w $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
 	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
-	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
 	nginx -p . -c api/nginx/nginx.conf

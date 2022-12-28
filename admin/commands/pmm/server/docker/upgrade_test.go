@@ -17,13 +17,13 @@ package docker
 import (
 	"bytes"
 	"context"
-	"errors"
 	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
@@ -111,10 +111,10 @@ func TestUpgradeCmd(t *testing.T) {
 		m.Mock.On("PullImage", mock.Anything, volumeCopyImage, mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, mock.MatchedBy(func(v string) bool {
 			return strings.HasPrefix(v, "vol1-")
-		})).Return(&types.Volume{}, nil)
+		}), mock.Anything).Return(&types.Volume{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, mock.MatchedBy(func(v string) bool {
 			return strings.HasPrefix(v, "vol2-")
-		})).Return(&types.Volume{}, nil)
+		}), mock.Anything).Return(&types.Volume{}, nil)
 		m.Mock.On("ContainerStop", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		setWaitForContainerMock(m)
 		setWaitForContainerMock(m)

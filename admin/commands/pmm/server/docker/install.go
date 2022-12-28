@@ -76,7 +76,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 	c.dockerFn = d
 
-	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
+	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result
 		p.Send(tea.Quit())
 	}()
 
-	model, err := p.StartReturningModel()
+	model, err := p.Run()
 	if err != nil {
 		return nil, err
 	}
