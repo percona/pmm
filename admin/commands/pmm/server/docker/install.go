@@ -155,7 +155,7 @@ func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result
 		p.Send(tea.Quit())
 	}()
 
-	model, err := p.StartReturningModel()
+	model, err := p.Run()
 	if err != nil {
 		return nil, err
 	}
