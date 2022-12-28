@@ -103,6 +103,7 @@ nav:
           - setting-up/server/virtual-appliance.md
           - setting-up/server/aws.md
           - setting-up/server/easy-install.md
+          - setting-up/server/dbaas.md
       - Client:
           - setting-up/client/index.md
           - setting-up/client/mysql.md
