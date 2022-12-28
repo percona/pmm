@@ -47,7 +47,6 @@ var (
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
 	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
 	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
-	// errNoInstallPlanToApprove          = errors.New("there are no install plans to approve") TODO: @Carlos do we still need it?
 
 	flagClusterName              = "--cluster-name"
 	flagRegion                   = "--region"
@@ -334,51 +333,66 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot get PMM settings to start Victoria Metrics")
 	}
 
-	if settings.PMMPublicAddress != "" {
-		var apiKeyID int64
-		var apiKey string
-		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63()) //nolint:gosec
-		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-		if err != nil {
-			k.l.Errorf("cannot create Grafana admin API key: %s", err)
-			return nil, errors.Wrap(err, "cannot create Grafana admin API key")
-		}
-
-		pmmParams := &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
-			Login:         "api_key",
-			Password:      apiKey,
-		}
-
-		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Pmm: pmmParams,
-		})
-		if err != nil {
-			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-			if e != nil {
-				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
-			}
-			k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
-			return nil, errors.Wrap(err, "couldn't start monitoring of the kubernetes cluster")
-		}
-	}
-
 	// Install the operators in the background.
-	go k.installDefaultOperators(operatorsToInstall)
+	go k.setupMonitoring(ctx, operatorsToInstall, req.KubernetesClusterName, settings.PMMPublicAddress, req.KubeAuth.Kubeconfig)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool) {
+func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, clusterName, pmmPublicAddress, kubeConfig string) {
+	errs := k.installDefaultOperators(operatorsToInstall)
+	if errs["vm"] != nil {
+		return
+	}
+
+	err := k.startMonitoring(ctx, clusterName, pmmPublicAddress, kubeConfig)
+	if err != nil {
+		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
+	}
+}
+
+func (k kubernetesServer) startMonitoring(ctx context.Context, clusterName, pmmPublicAddress, kubeConfig string) error {
+	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", clusterName, rand.Int63()) //nolint:gosec
+	apiKeyID, apiKey, err := k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+	if err != nil {
+		k.l.Errorf("cannot create Grafana admin API key: %s", err)
+		return errors.Wrap(err, "cannot create Grafana admin API key")
+	}
+
+	pmmParams := &dbaascontrollerv1beta1.PMMParams{
+		PublicAddress: fmt.Sprintf("https://%s", pmmPublicAddress),
+		Login:         "api_key",
+		Password:      apiKey,
+	}
+
+	_, err = k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Pmm: pmmParams,
+	})
+	if err != nil {
+		e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+		if e != nil {
+			k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+		}
+		k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
+		return errors.Wrap(err, "couldn't start monitoring of the kubernetes cluster")
+	}
+
+	return nil
+}
+
+func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool) map[string]error {
 	ctx := context.TODO()
+
+	retval := make(map[string]error)
 
 	if _, ok := operatorsToInstall["olm"]; ok {
 		err := k.olmOperatorService.InstallOLMOperator(ctx)
 		k.l.Info(">> Installing OLM operator")
 		if err != nil {
+			retval["olm"] = err
 			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 		}
 	}
@@ -401,6 +415,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		k.l.Info(">> Installing pxc operator")
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
+			retval["pxc"] = err
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
@@ -419,6 +434,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		}
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
+			retval["pmdb"] = err
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
@@ -436,9 +452,12 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		}
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
+			retval["vm"] = err
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
+
+	return retval
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
