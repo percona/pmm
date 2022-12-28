@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"net/url"
 	"os"
 	"os/signal"
@@ -75,6 +75,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -180,6 +181,7 @@ type gRPCServerDeps struct {
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
+	kubernetesClient     *kubernetes.Kubernetes
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
@@ -274,13 +276,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
+	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
@@ -426,7 +428,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     http1Addr,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
@@ -488,7 +490,7 @@ func runDebugServer(ctx context.Context) {
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     debugAddr,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
@@ -816,6 +818,7 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
+	kubernetesClient := kubernetes.NewEmpty()
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
@@ -991,6 +994,7 @@ func main() {
 				grafanaClient:        grafanaClient,
 				checksService:        checksService,
 				dbaasClient:          dbaasClient,
+				kubernetesClient:     kubernetesClient,
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
