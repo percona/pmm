@@ -657,20 +657,26 @@ func main() {
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
-		Default(models.DefaultPostgresAddr).
-		Envar(models.EnvPostgresAddr).
+		Default("127.0.0.1:5432").
+		Envar("POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
-		Default(models.DefaultPostgresDBName).
-		Envar(models.EnvPostgresDBName).
+		Default("pmm-managed").
+		Envar("POSTGRES_DBNAME").
 		String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
-		Default(models.DefaultPostgresDBUsername).
-		Envar(models.EnvPostgresDBUsername).
+		Default("pmm-managed").
+		Envar("POSTGRES_USERNAME").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default(models.DefaultPostgresDBPassword).
-		Envar(models.EnvPostgresDBPassword).
+		Default("pmm-managed").
+		Envar("POSTGRES_DBPASSWORD").
+		String()
+	postgresSSLKeyPathF := kingpin.Flag("postgres-sslkeypath", "PostgreSQL ssl key path").
+		Envar("POSTGRES_SSLKEY_PATH").
+		String()
+	postgresSSLCertPathF := kingpin.Flag("postgres-sslcertpath", "PostgreSQL ssl cert path").
+		Envar("POSTGRES_SSLCERT_PATH").
 		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
@@ -724,7 +730,7 @@ func main() {
 
 	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
+	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, *postgresSSLKeyPathF, *postgresSSLCertPathF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}

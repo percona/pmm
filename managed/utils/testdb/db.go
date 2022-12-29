@@ -33,7 +33,7 @@ const (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
 
-	db, err := models.OpenDB("127.0.0.1:5432", "", username, password)
+	db, err := models.OpenDB("127.0.0.1:5432", "", username, password, "", "")
 	require.NoError(tb, err)
 
 	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
@@ -44,7 +44,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password)
+	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password, "", "")
 	require.NoError(tb, err)
 	SetupDB(tb, db, setupFixtures, migrationVersion)
 

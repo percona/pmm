@@ -31,19 +31,6 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
-// PostgreSQL configuration defaults.
-const (
-	EnvPostgresAddr       = "POSTGRES_ADDR"
-	EnvPostgresDBName     = "POSTGRES_DBNAME"
-	EnvPostgresDBUsername = "POSTGRES_USERNAME"
-	EnvPostgresDBPassword = "POSTGRES_PASSWORD"
-
-	DefaultPostgresAddr       = "127.0.0.1:5432"
-	DefaultPostgresDBName     = "pmm-managed"
-	DefaultPostgresDBUsername = "postgres"
-	DefaultPostgresDBPassword = ""
-)
-
 // PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 const PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 
@@ -819,9 +806,16 @@ var databaseSchema = [][]string{
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-func OpenDB(address, name, username, password string) (*sql.DB, error) {
+func OpenDB(address, name, username, password, sslKeyPath, sslCertPath string) (*sql.DB, error) {
 	q := make(url.Values)
-	q.Set("sslmode", "disable")
+	switch {
+	case sslKeyPath != "" && sslCertPath != "":
+		q.Set("sslmode", "require")
+		q.Set("sslcert", sslCertPath)
+		q.Set("sslkey", sslKeyPath)
+	default:
+		q.Set("sslmode", "disable")
+	}
 
 	uri := url.URL{
 		Scheme:   "postgres",
@@ -892,7 +886,7 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 			params.Logf("Creating database %s and role %s", databaseName, roleName)
 		}
 		// we use empty password/db and postgres user for creating database
-		db, err := OpenDB(params.Address, "", "postgres", "")
+		db, err := OpenDB(params.Address, "", "postgres", "", "", "")
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

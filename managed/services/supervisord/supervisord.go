@@ -495,15 +495,10 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func addPostgresParams(templateParams map[string]interface{}) {
-	templateParams["PostgresAddr"] = getValueFromENV(models.EnvPostgresAddr, models.DefaultPostgresAddr)
-	templateParams["PostgresDBName"] = getValueFromENV(models.EnvPostgresDBName, models.DefaultPostgresDBName)
-	templateParams["PostgresDBUsername"] = getValueFromENV(models.EnvPostgresDBUsername, models.DefaultPostgresDBUsername)
-	templateParams["PostgresDBPassword"] = getValueFromENV(models.EnvPostgresDBPassword, models.DefaultPostgresDBPassword)
-
-	templateParams["EnvPostgresAddr"] = models.EnvPostgresAddr
-	templateParams["EnvPostgresDBName"] = models.EnvPostgresDBName
-	templateParams["EnvPostgresDBUsername"] = models.EnvPostgresDBUsername
-	templateParams["EnvPostgresDBPassword"] = models.EnvPostgresDBPassword
+	templateParams["PostgresAddr"] = getValueFromENV("POSTGRES_ADDR", "127.0.0.1:5432")
+	templateParams["PostgresDBName"] = getValueFromENV("POSTGRES_DBNAME", "pmm-managed")
+	templateParams["PostgresDBUsername"] = getValueFromENV("POSTGRES_USERNAME", "pmm-managed")
+	templateParams["PostgresDBPassword"] = getValueFromENV("POSTGRES_DBPASSWORD", "pmm-managed")
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -771,10 +766,10 @@ command =
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
         {{- end}}
 environment =
-    {{ .EnvPostgresAddr }}="{{ .PostgresAddr }}",
-    {{ .EnvPostgresDBName }}="{{ .PostgresDBName }}",
-    {{ .EnvPostgresDBUsername }}="{{ .PostgresDBUsername }}",
-    {{ .EnvPostgresDBPassword }}="{{ .PostgresDBPassword }}",
+    POSTGRES_ADDR="{{ .PostgresAddr }}",
+    POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
 	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana
