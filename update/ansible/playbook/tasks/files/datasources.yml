@@ -23,7 +23,7 @@ datasources:
     postgresVersion: "1100"
     sslmode: disable
   secureJsonData:
-    password: ${POSTGRES_PASSWORD}
+    password: ${POSTGRES_DBPASSWORD}
 - name: ClickHouse
   version: 2
   orgId: 1
