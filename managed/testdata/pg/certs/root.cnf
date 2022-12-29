@@ -1,0 +1,10 @@
+[req]
+distinguished_name = req_distinguished_name
+prompt             = no
+
+[req_distinguished_name]
+C   = US
+ST  = North Carolina
+L   = Durham
+O   = github.com/percona/pmm
+CN  = pmm CA
