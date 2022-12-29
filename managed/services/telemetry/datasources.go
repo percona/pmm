@@ -52,12 +52,15 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 		return nil, err
 	}
 
+	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
+
 	return &dataSourceRegistry{
 		l: l,
 		dataSources: map[DataSourceName]DataSource{
-			"VM":           vmDB,
-			"PMMDB_SELECT": pmmDB,
-			"QANDB_SELECT": qanDB,
+			"VM":               vmDB,
+			"PMMDB_SELECT":     pmmDB,
+			"QANDB_SELECT":     qanDB,
+			"GRAFANADB_SELECT": grafanaDB,
 		},
 	}, nil
 }
@@ -81,7 +84,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	// to minimize risk of modifying DB
 	defer tx.Rollback() //nolint:errcheck
 
-	rows, err := tx.Query("SELECT " + config.Query)
+	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}

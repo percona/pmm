@@ -65,7 +65,7 @@ func cleanup() {
 	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
 	for _, database := range cleanupDatabases {
 		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --query='DROP DATABASE IF EXISTS %s;'`, database)
-		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
+		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil { //nolint:gosec
 			log.Fatalf("Docker drop db: %v, %v", out, err)
 		}
 	}
