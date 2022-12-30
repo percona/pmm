@@ -32,6 +32,12 @@ services:
     #      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
     #      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
     #      - PMM_DEBUG=1
+    #      - POSTGRES_ADDR=pg
+    #      - POSTGRES_DBNAME=pmm-managed
+    #      - POSTGRES_USERNAME=pmm-managed
+    #      - POSTGRES_DBPASSWORD=pmm-managed
+    #      - POSTGRES_SSLKEY_PATH=/certs/pmm-managed.key
+    #      - POSTGRES_SSLCERT_PATH=/certs/pmm-managed.crt
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -65,6 +71,7 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      # - ./managed/testdata/pg/certs:/certs
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
@@ -171,75 +178,6 @@ services:
       -c hba_file=/conf/pg_hba.conf
     networks:
       - ${NETWORK:-default}
-  pmm-managed-server-pg:
-    profiles:
-      - pmm-pg
-    depends_on:
-      - pg
-    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-managed-server
-    hostname: pmm-managed-server
-    networks:
-      - ${NETWORK:-default}
-    environment:
-      - PMM_RELEASE_PATH=/root/go/bin
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - ENABLE_BACKUP_MANAGEMENT=1
-      - POSTGRES_ADDR=pg
-      - POSTGRES_SSLKEY_PATH=/certs/pmm-managed.key
-      - POSTGRES_SSLCERT_PATH=/certs/pmm-managed.crt
-#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-#      - PERCONA_TEST_PLATFORM_INSECURE=1
-#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
-#      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
-#      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
-#      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
-#      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
-#      - PMM_DEBUG=1
-
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
-
-    # for delve
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - seccomp:unconfined
-
-    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
-    ulimits:
-      memlock: 67108864
-
-    ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
-      # For headless delve
-      - ${PMM_PORT_DELVE:-2345}:2345
-      # PG
-      - ${PMM_PORT_PG:-15432}:5432
-      # VM
-      - ${PMM_PORT_VM:-9090}:9090
-      # CH
-      - ${PMM_PORT_CH_TCP:-11000}:9000
-      - ${PMM_PORT_CH_HTTP:-11123}:8123
-    volumes:
-      - ./:/root/go/src/github.com/percona/pmm
-#      - "../grafana/public:/usr/share/grafana/public"
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
-      - ./managed/testdata/pg/certs:/certs
-      # caching
-      - go-modules:/root/go/pkg/mod
-      - root-cache:/root/.cache
 
 volumes:
   go-modules:
