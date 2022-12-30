@@ -141,7 +141,7 @@ func newFakeVersionService(response *VersionServiceResponse, port string, compon
 	}
 	fakeHostAndPort := "localhost:" + port
 	go func() {
-		httpServer = &http.Server{Addr: fakeHostAndPort, Handler: server}
+		httpServer = &http.Server{Addr: fakeHostAndPort, Handler: server} //nolint:gosec
 		listener, err := net.Listen("tcp", fakeHostAndPort)
 		if err != nil {
 			log.Fatal(err)
