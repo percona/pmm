@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package client TODO
 package client
 
 import (
@@ -69,6 +70,8 @@ const (
 )
 
 // Each level has 2 spaces for PrefixWriter
+//
+//nolint:stylecheck
 const (
 	LEVEL_0 = iota
 	LEVEL_1
@@ -263,7 +266,7 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-// Delete deletes object from the k8s cluster
+// DeleteObject deletes object from the k8s cluster
 func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
@@ -382,6 +385,11 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	return yaml.Marshal(jsonObj)
 }
 
+// GetPersistentVolumes returns Persistent Volumes available in the cluster
+func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
+	return c.clientset.CoreV1().PersistentVolumes().List(ctx, metav1.ListOptions{})
+}
+
 // GetPods returns list of pods
 func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
 	options := metav1.ListOptions{}
@@ -401,6 +409,11 @@ func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (
 	}
 
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
+}
+
+// GetNodes returns list of nodes
+func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
+	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 }
 
 // GetLogs returns logs for pod
