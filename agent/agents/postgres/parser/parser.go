@@ -58,11 +58,12 @@ func ExtractTables(query string) (tables []string, err error) {
 	}
 
 	tableNames := make(map[string]bool)
-	for _, v := range stmts {
-		for _, v := range extract(string(v), `"relname":"`, `"`) {
+	for _, stmt := range stmts {
+		json := string(stmt)
+		for _, v := range extract(json, `"relname":"`, `"`) {
 			tableNames[v] = true
 		}
-		for _, v := range extract(string(v), `"ctename":"`, `"`) {
+		for _, v := range extract(json, `"ctename":"`, `"`) {
 			delete(tableNames, v)
 		}
 	}
