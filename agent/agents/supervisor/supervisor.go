@@ -693,9 +693,15 @@ func (s *Supervisor) version(agentType inventorypb.AgentType, path string) (stri
 	case inventorypb.AgentType_PROXYSQL_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, proxysqlExporterRegexp, "--version")
 	case inventorypb.AgentType_RDS_EXPORTER:
-		// @TODO in other ticket
+		// @TODO PMM-11154
+		// @TODO PMM-11312
+		// now returns error but will be fixed in https://jira.percona.com/browse/PMM-11312
+		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
 	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
-		// @TODO in other ticket
+		// @TODO PMM-11154
+		// @TODO PMM-11312
+		// now returns error but will be fixed in https://jira.percona.com/browse/PMM-11312
+		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
 	}
 
 	return "", nil

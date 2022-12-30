@@ -17,11 +17,13 @@ package supervisor
 import "regexp"
 
 var (
-	nodeExporterRegexp     = regexp.MustCompile("node_exporter, version ([!-~]*).*")
-	mysqldExporterRegexp   = regexp.MustCompile("mysqld_exporter, version ([!-~]*).*")
-	postgresExporterRegexp = regexp.MustCompile("postgres_exporter, version ([!-~]*).*")
-	proxysqlExporterRegexp = regexp.MustCompile("proxysql_exporter, version ([!-~]*).*")
-	mongodbExporterRegexp  = regexp.MustCompile("Version: ([!-~]*).*")
+	nodeExporterRegexp         = regexp.MustCompile("node_exporter, version ([!-~]*).*")
+	mysqldExporterRegexp       = regexp.MustCompile("mysqld_exporter, version ([!-~]*).*")
+	postgresExporterRegexp     = regexp.MustCompile("postgres_exporter, version ([!-~]*).*")
+	proxysqlExporterRegexp     = regexp.MustCompile("proxysql_exporter, version ([!-~]*).*")
+	rdsExporterRegexp          = regexp.MustCompile("rds_exporter, version ([!-~]*).*")
+	azureMetricsExporterRegexp = regexp.MustCompile("azure_metrics_exporter, version ([!-~]*).*")
+	mongodbExporterRegexp      = regexp.MustCompile("Version: ([!-~]*).*")
 )
 
 // agentVersioner is a subset of methods of version.Versioner used by this package.
