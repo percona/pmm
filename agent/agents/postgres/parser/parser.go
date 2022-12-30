@@ -16,7 +16,6 @@
 package parser
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -45,27 +44,12 @@ func ExtractTables(query string) (tables []string, err error) {
 		return
 	}
 
-	var treeMap map[string]json.RawMessage
-	if err = json.Unmarshal([]byte(jsonTree), &treeMap); err != nil {
-		err = errors.Wrap(err, "failed to unmarshal JSON")
-		return
-	}
-
-	var stmts []json.RawMessage
-	if err = json.Unmarshal([]byte(treeMap["stmts"]), &stmts); err != nil {
-		err = errors.Wrap(err, "failed to unmarshal JSON")
-		return
-	}
-
 	tableNames := make(map[string]bool)
-	for _, stmt := range stmts {
-		json := string(stmt)
-		for _, v := range extract(json, `"relname":"`, `"`) {
-			tableNames[v] = true
-		}
-		for _, v := range extract(json, `"ctename":"`, `"`) {
-			delete(tableNames, v)
-		}
+	for _, v := range extract(jsonTree, `"relname":"`, `"`) {
+		tableNames[v] = true
+	}
+	for _, v := range extract(jsonTree, `"ctename":"`, `"`) {
+		delete(tableNames, v)
 	}
 
 	tables = []string{}
