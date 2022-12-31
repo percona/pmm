@@ -123,15 +123,20 @@ func NewRegistry(db *reform.DB) *Registry {
 			Help:       "Clock drift.",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
-		mAgents: prom.NewGaugeFunc(prom.GaugeOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "connected",
-			Help:      "The current number of connected pmm-agents.",
-		}, func() float64 {
-			return float64(len(agents))
-		}),
 	}
+
+	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{
+		Namespace: prometheusNamespace,
+		Subsystem: prometheusSubsystem,
+		Name:      "connected",
+		Help:      "The current number of connected pmm-agents.",
+	}, func() float64 {
+		r.rw.Lock()
+		defer r.rw.Unlock()
+
+		return float64(len(agents))
+	})
+
 	// initialize metrics with labels
 	r.mDisconnects.WithLabelValues("unknown")
 
