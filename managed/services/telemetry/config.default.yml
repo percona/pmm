@@ -631,6 +631,38 @@ telemetry:
       - metric_name: 2
         value: 1
 
+  - id: GrafanaUsersCount
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user
+    summary: "Grafana Users Count"
+    data:
+      - metric_name: "grafana_users_count"
+        column: "count"
+
+  - id: GrafanaDarkThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    summary: "Grafana Dark Theme Users Count"
+    data:
+      - metric_name: "grafana_dark_theme_users_count"
+        column: "count"
+
+  - id: GrafanaLightThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    summary: "Grafana Light Theme Users Count"
+    data:
+      - metric_name: "grafana_light_theme_users_count"
+        column: "count"
+
+  - id: GrafanaDefaultThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    summary: "Grafana Default Theme Users Count"
+    data:
+      - metric_name: "grafana_default_theme_users_count"
+        column: "count"
+
   - id: GrafanaCustomDashboardsCount
     source: GRAFANADB_SELECT
     query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
@@ -650,4 +682,3 @@ telemetry:
       - metric_name: "pillar"
         column: "pillar"
       - metric_name: "count"
-        column: "count"
