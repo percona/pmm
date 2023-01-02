@@ -70,6 +70,11 @@ func (_m *mockSupervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return r0
 }
 
+// ClearChanges provides a mock function with given fields:
+func (_m *mockSupervisor) ClearChanges() {
+	_m.Called()
+}
+
 // Collect provides a mock function with given fields: _a0
 func (_m *mockSupervisor) Collect(_a0 chan<- prometheus.Metric) {
 	_m.Called(_a0)

@@ -186,6 +186,11 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
+// ClearChanges returns channel with Agent's state changes.
+func (s *Supervisor) ClearChanges() {
+	s.changes = make(chan *agentpb.StateChangedRequest, 100)
+}
+
 // Changes returns channel with Agent's state changes.
 func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return s.changes

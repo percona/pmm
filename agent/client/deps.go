@@ -44,6 +44,7 @@ type softwareVersioner interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
 	Changes() <-chan *agentpb.StateChangedRequest
+	ClearChanges()
 	QANRequests() <-chan *agentpb.QANCollectRequest
 	SetState(*agentpb.SetStateRequest)
 	RestartAgents()

@@ -224,6 +224,7 @@ func (c *Client) Run(ctx context.Context) error {
 
 // GetAgentsStatus sends status of running agents to server
 func (c *Client) GetAgentsStatus() {
+	c.supervisor.ClearChanges()
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
 		resp, err := c.channel.SendAndWaitResponse(
