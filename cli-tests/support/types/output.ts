@@ -15,7 +15,7 @@ class Output {
 
   async assertSuccess() {
     await test.step(`Verify "${this.command}" command executed successfully`, async () => {
-      expect(this.code, `"${this.command}" expected to exit with 0! Error: "${this.stderr}"`).toEqual(0);
+      expect(this.code, `"${this.command}" expected to exit with 0!\nStdout: ${this.stdout}\nStderr: "${this.stderr}"`).toEqual(0);
     });
   }
 
