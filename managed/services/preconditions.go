@@ -46,11 +46,12 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 		for _, task := range tasks {
 			if task.ID != scheduleID {
-				return status.Errorf(codes.FailedPrecondition, "A PITR backup for cluster '%s' can be enabled only if there no other scheduled backups for this cluster.", clusterName)
+				return status.Errorf(codes.FailedPrecondition, "A PITR backup for cluster '%s' can be enabled only if " +
+					"there no other scheduled backups for this cluster.", clusterName)
 			}
 		}
 	case models.Snapshot:
-		// Snapshot backup can be enabled it there is no enabled PITR backup.
+		// Snapshot backup can be enabled if there is no enabled PITR backup.
 		filter.Mode = models.PITR
 		tasks, err := models.FindScheduledTasks(q, filter)
 		if err != nil {
@@ -58,7 +59,8 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 		}
 
 		if len(tasks) != 0 {
-			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if there is no enabled PITR backup for this cluster.", clusterName)
+			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if " +
+				"there is no enabled PITR backup for this cluster.", clusterName)
 		}
 	case models.Incremental:
 		return status.Error(codes.InvalidArgument, "Incremental backups unsupported for MongoDB")
