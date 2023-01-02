@@ -57,6 +57,8 @@ type Supervisor struct {
 	qanRequests   chan *agentpb.QANCollectRequest
 	l             *logrus.Entry
 
+	m sync.Mutex
+
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
 	builtinAgents  map[string]*builtinAgentInfo
@@ -188,11 +190,17 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 
 // ClearChanges returns channel with Agent's state changes.
 func (s *Supervisor) ClearChanges() {
+	s.m.Lock()
+	defer s.m.Unlock()
+
 	s.changes = make(chan *agentpb.StateChangedRequest, 100)
 }
 
 // Changes returns channel with Agent's state changes.
 func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
+	s.m.Lock()
+	defer s.m.Unlock()
+
 	return s.changes
 }
 
