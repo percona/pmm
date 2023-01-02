@@ -267,13 +267,21 @@ telemetry:
         value: 1
 
   # PMM - Usage
-  - id: GrafanaStatActiveMonthlyUsers
+  - id: GrafanaStatMonthlyActiveUsers
     source: VM
     query: grafana_stat_active_users
-    summary: "Active monthly users"
+    summary: "Monthly active users"
     data:
       - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
+
+  - id: GrafanaStatDailyActiveUsers
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user WHERE last_seen_at > datetime('now', '-1 day')
+    summary: "Daily active users"
+    data:
+      - metric_name: "pmm_server_grafana_stat_daily_active_users"
+        column: "count"
 
   - id: GrafanaStatTotalOrgs
     source: VM
