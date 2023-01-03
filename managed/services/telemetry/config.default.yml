@@ -283,13 +283,21 @@ telemetry:
         value: 1
 
   # PMM - Usage
-  - id: GrafanaStatActiveMonthlyUsers
+  - id: GrafanaStatMonthlyActiveUsers
     source: VM
     query: grafana_stat_active_users
-    summary: "Active monthly users"
+    summary: "Monthly active users"
     data:
       - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
+
+  - id: GrafanaStatDailyActiveUsers
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user WHERE last_seen_at > datetime('now', '-1 day')
+    summary: "Daily active users"
+    data:
+      - metric_name: "pmm_server_grafana_stat_daily_active_users"
+        column: "count"
 
   - id: GrafanaStatTotalOrgs
     source: VM
@@ -638,3 +646,55 @@ telemetry:
         label: "check_name"
       - metric_name: 2
         value: 1
+
+  - id: GrafanaUsersCount
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user
+    summary: "Grafana Users Count"
+    data:
+      - metric_name: "grafana_users_count"
+        column: "count"
+
+  - id: GrafanaDarkThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    summary: "Grafana Dark Theme Users Count"
+    data:
+      - metric_name: "grafana_dark_theme_users_count"
+        column: "count"
+
+  - id: GrafanaLightThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    summary: "Grafana Light Theme Users Count"
+    data:
+      - metric_name: "grafana_light_theme_users_count"
+        column: "count"
+
+  - id: GrafanaDefaultThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    summary: "Grafana Default Theme Users Count"
+    data:
+      - metric_name: "grafana_default_theme_users_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsCount
+    source: GRAFANADB_SELECT
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    summary: "Grafana Custom Dashboards Count"
+    data:
+      - metric_name: "grafana_custom_dashboards_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsPerPillar
+    source: GRAFANADB_SELECT
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    summary: "Grafana Custom Dashboards Count By Pillar"
+    transform:
+      type: JSON
+      metric: grafana_custom_dashboards_pillar_combined
+    data:
+      - metric_name: "pillar"
+        column: "pillar"
+      - metric_name: "count"
