@@ -5,6 +5,7 @@ package olm
 import (
 	context "context"
 
+	v1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,6 +40,29 @@ func (_m *MockOperatorServiceManager) InstallOperator(ctx context.Context, req I
 	}
 
 	return r0
+}
+
+// ListSubscriptions provides a mock function with given fields: ctx, namespace
+func (_m *MockOperatorServiceManager) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	ret := _m.Called(ctx, namespace)
+
+	var r0 *v1alpha1.SubscriptionList
+	if rf, ok := ret.Get(0).(func(context.Context, string) *v1alpha1.SubscriptionList); ok {
+		r0 = rf(ctx, namespace)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.SubscriptionList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // SetKubeConfig provides a mock function with given fields: kubeConfig

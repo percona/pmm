@@ -64,6 +64,8 @@ type KubeClientConnector interface {
 	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error)
 	// GetSubscription retrieves an OLM subscription by namespace and name.
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
+	// ListSubscriptions all the subscriptions in the namespace.
+	ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error)
 	// GetInstallPlan retrieves an OLM install plan by namespace and name.
 	GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error)
 	// UpdateInstallPlan updates the existing install plan in the specified namespace.

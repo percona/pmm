@@ -4,6 +4,8 @@ package olm
 
 import (
 	"context"
+
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 )
 
 // OperatorServiceManager ...
@@ -14,6 +16,8 @@ type OperatorServiceManager interface {
 	InstallOLMOperator(ctx context.Context) error
 	// InstallOperator installs an operator via OLM.
 	InstallOperator(ctx context.Context, req InstallOperatorRequest) error
+	// ListSubscriptions all the subscriptions in the namespace.
+	ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
 }

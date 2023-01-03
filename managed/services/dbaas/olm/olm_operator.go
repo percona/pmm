@@ -274,6 +274,11 @@ func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientCo
 	return err
 }
 
+// ListSubscriptions all the subscriptions in the namespace.
+func (o *OperatorService) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	return o.k8sclient.ListSubscriptions(ctx, namespace)
+}
+
 // UpgradeOperator upgrades an operator to the next available version.
 func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name string) error {
 	var subs *v1alpha1.Subscription

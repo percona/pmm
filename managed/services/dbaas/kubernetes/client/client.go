@@ -997,6 +997,16 @@ func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*
 	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// ListSubscriptions all the subscriptions in the namespace.
+func (c *Client) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).List(ctx, metav1.ListOptions{})
+}
+
 // GetInstallPlan retrieves an OLM install plan by namespace and name.
 func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
