@@ -41,7 +41,7 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName, clusterName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName, clusterName string) *models.Agent { //nolint:unparam
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
