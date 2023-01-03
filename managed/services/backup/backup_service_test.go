@@ -320,7 +320,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NotNil(t, updatedArtifact)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
-			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
+			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
 		})
 	})
@@ -340,7 +340,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
-			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
+			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
 		})
 
@@ -357,7 +357,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
-			require.Errorf(t, err, "artifact %q in status: \"pending\"", artifact.ID)
+			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
 		})
 	})
