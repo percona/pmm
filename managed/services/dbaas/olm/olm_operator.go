@@ -276,17 +276,12 @@ func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientCo
 
 // UpgradeOperator upgrades an operator to the next available version.
 func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name string) error {
-	k8sclient, err := client.NewFromKubeConfigString(o.kubeConfig)
-	if err != nil {
-		return errors.Wrap(err, "cannot initialize the kubernetes client to read a subscription")
-	}
-
 	var subs *v1alpha1.Subscription
 
 	// If the subscription was recently created, the install plan might not be ready yet.
-	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+	err := wait.Poll(pollInterval, pollDuration, func() (bool, error) {
 		var err error
-		subs, err = k8sclient.GetSubscription(ctx, namespace, name)
+		subs, err = o.k8sclient.GetSubscription(ctx, namespace, name)
 		if err != nil {
 			return false, err
 		}
@@ -296,7 +291,6 @@ func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name s
 
 		return true, nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -304,7 +298,7 @@ func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name s
 		return fmt.Errorf("cannot get subscription for %q operator", name)
 	}
 
-	ip, err := k8sclient.GetInstallPlan(ctx, namespace, subs.Status.Install.Name)
+	ip, err := o.k8sclient.GetInstallPlan(ctx, namespace, subs.Status.Install.Name)
 	if err != nil {
 		return errors.Wrapf(err, "cannot get install plan to upgrade %q", name)
 	}
@@ -315,7 +309,7 @@ func (o *OperatorService) UpgradeOperator(ctx context.Context, namespace, name s
 
 	ip.Spec.Approved = true
 
-	_, err = k8sclient.UpdateInstallPlan(ctx, namespace, ip)
+	_, err = o.k8sclient.UpdateInstallPlan(ctx, namespace, ip)
 
 	return err
 }

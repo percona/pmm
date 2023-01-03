@@ -108,7 +108,8 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
 	}
 
-	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
+	// return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
+	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.

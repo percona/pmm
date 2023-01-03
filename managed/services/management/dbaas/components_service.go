@@ -414,18 +414,20 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	var component *models.Component
 	var installFunc func() error
 
-	if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
-	}
-
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
+			if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
+				return errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+			}
 			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
+			if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
+				return errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+			}
 			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
