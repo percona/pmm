@@ -200,7 +200,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			}
 		case models.MongoDBServiceType:
 			if svc.Cluster == "" {
-				return status.Errorf(codes.FailedPrecondition, "Service should be a member of a cluster or replica set.")
+				return status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 			}
 
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
