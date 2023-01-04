@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package kubernetes provides functionality for kubernetes.
 package kubernetes
 
 import (
@@ -219,7 +220,7 @@ func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) erro
 	return k.client.ApplyObject(cluster)
 }
 
-// CreateDatabase cluster creates database cluster
+// CreateDatabaseCluster creates database cluster
 func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()

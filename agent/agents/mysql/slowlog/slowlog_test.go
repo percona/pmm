@@ -40,7 +40,7 @@ import (
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 	t.Helper()
 
-	jsonData, err := os.ReadFile(filePath)
+	jsonData, err := os.ReadFile(filePath) //nolint:gosec
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)
