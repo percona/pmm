@@ -3,11 +3,17 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: olm
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: operators
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
 ---
 kind: ServiceAccount
 apiVersion: v1
@@ -63,9 +69,17 @@ spec:
       labels:
         app: olm-operator
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: olm-operator-serviceaccount
       containers:
         - name: olm-operator
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ "ALL" ]
           command:
           - /bin/olm
           args:
@@ -73,7 +87,7 @@ spec:
           - $(OPERATOR_NAMESPACE)
           - --writeStatusName
           - ""
-          image: quay.io/operator-framework/olm@sha256:32db73274863b08cef237d02314a9d8c827ed2f33f0b00166dd3b055af63bb31
+          image: quay.io/operator-framework/olm@sha256:2b4fee73c05069d9d2c537c7d3072241097914748abfb938b5b08c969b2f544b
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -122,9 +136,17 @@ spec:
       labels:
         app: catalog-operator
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: olm-operator-serviceaccount
       containers:
         - name: catalog-operator
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ "ALL" ]
           command:
           - /bin/catalog
           args:
@@ -132,8 +154,9 @@ spec:
           - olm
           - --configmapServerImage=quay.io/operator-framework/configmap-operator-registry:latest
           - --util-image
-          -  quay.io/operator-framework/olm@sha256:32db73274863b08cef237d02314a9d8c827ed2f33f0b00166dd3b055af63bb31
-          image: quay.io/operator-framework/olm@sha256:32db73274863b08cef237d02314a9d8c827ed2f33f0b00166dd3b055af63bb31
+          -  quay.io/operator-framework/olm@sha256:2b4fee73c05069d9d2c537c7d3072241097914748abfb938b5b08c969b2f544b
+          - --set-workload-user-id=true
+          image: quay.io/operator-framework/olm@sha256:2b4fee73c05069d9d2c537c7d3072241097914748abfb938b5b08c969b2f544b
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -208,7 +231,7 @@ metadata:
   name: packageserver
   namespace: olm
   labels:
-    olm.version: v0.21.2
+    olm.version: v0.22.0
 spec:
   displayName: Package Server
   description: Represents an Operator package that is available from a given CatalogSource which will resolve to a ClusterServiceVersion.
@@ -284,11 +307,19 @@ spec:
               labels:
                 app: packageserver
             spec:
+              securityContext:
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
               serviceAccountName: olm-operator-serviceaccount
               nodeSelector:
                 kubernetes.io/os: linux
               containers:
               - name: packageserver
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop: [ "ALL" ]
                 command:
                 - /bin/package-server
                 - -v=4
@@ -296,7 +327,7 @@ spec:
                 - "5443"
                 - --global-namespace
                 - olm
-                image: quay.io/operator-framework/olm@sha256:32db73274863b08cef237d02314a9d8c827ed2f33f0b00166dd3b055af63bb31
+                image: quay.io/operator-framework/olm@sha256:2b4fee73c05069d9d2c537c7d3072241097914748abfb938b5b08c969b2f544b
                 imagePullPolicy: Always
                 ports:
                 - containerPort: 5443
@@ -315,8 +346,6 @@ spec:
                   requests:
                     cpu: 10m
                     memory: 50Mi
-                securityContext:
-                  runAsUser: 1000
                 volumeMounts:
                 - name: tmpfs
                   mountPath: /tmp
@@ -324,7 +353,7 @@ spec:
               - name: tmpfs
                 emptyDir: {}
   maturity: alpha
-  version: v0.21.2
+  version: v0.22.0
   apiservicedefinitions:
     owned:
     - group: packages.operators.coreos.com
