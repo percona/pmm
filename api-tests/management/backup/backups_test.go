@@ -327,7 +327,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			_, err = client.StartBackup(&backups.StartBackupParams{
 				Body: backups.StartBackupBody{
-					ServiceID:   mongo1ID,
+					ServiceID:   mongo2ID,
 					LocationID:  locationID,
 					Name:        "test-snapshot",
 					Description: "Test snapshot.",
