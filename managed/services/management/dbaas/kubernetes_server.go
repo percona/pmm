@@ -180,8 +180,9 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if err != nil {
 				return
 			}
-			clusters[i].Operators.Dbaas.Version = version
-			clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
+			// FIXME: Uncomment it when FE will be ready
+			// clusters[i].Operators.Dbaas.Version = version
+			// clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)
 	}
 	wg.Wait()
