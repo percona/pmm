@@ -215,6 +215,7 @@
           - percona-qan-app # https://jira.percona.com/browse/PMM-6766
           - mariadb-libs # https://jira.percona.com/browse/PMM-5215
           - logrotate # https://jira.percona.com/browse/PMM-7627
+          - pmm-server # https://jira.percona.com/browse/PMM-11239
           - screen
           - yum-cron
 
