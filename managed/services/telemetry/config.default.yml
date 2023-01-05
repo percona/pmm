@@ -704,3 +704,16 @@ telemetry:
         label: "job"
       - metric_name: "6"
         value: 1
+
+  - id: PxcClustersPerNodeCount
+    source: VM
+    query: label_keep(label_replace(count_values("value", (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))), "node_count", "$1", "value", "(.*)"), "node_count")
+    transform:
+      type: JSON
+      metric: "pxc_clusters_per_node_count"
+    summary: "Number of PXC clusters per node count"
+    data:
+      - metric_name: 1
+        label: "node_count"
+      - metric_name: 2
+        value: 1
