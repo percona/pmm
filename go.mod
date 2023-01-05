@@ -2,7 +2,7 @@ module github.com/percona/pmm
 
 go 1.18
 
-replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105191637-9002177a4cd2
+replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 

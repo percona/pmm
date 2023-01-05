@@ -344,10 +344,10 @@ telemetry:
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
     query: version, agent_type, runs_on_node_id FROM agents
-    summary: "Agents versions"
+    summary: "Agents version"
     transform:
       type: JSON
-      metric: pmm_server_api_usage_combined
+      metric: pmm_server_agents_version
     data:
       - metric_name: "1"
         column: "agent_type"
