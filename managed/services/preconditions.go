@@ -46,15 +46,19 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 		}
 
 		for _, task := range tasks {
-			if task.ID != scheduleID {
-				if clusterName == "" {
-					// For backward compatibility
-					return status.Errorf(codes.FailedPrecondition, "A PITR backup for the service with ID '%s' can be enabled only if "+
-						"there are no other scheduled backups for this service.", serviceID)
-				}
-				return status.Errorf(codes.FailedPrecondition, "A PITR backup for the cluster '%s' can be enabled only if "+
-					"there are no other scheduled backups for this cluster.", clusterName)
+			if task.ID == scheduleID {
+				// Needed for scheduled PITR backup update.
+				continue
 			}
+
+			if clusterName == "" {
+				// For backward compatibility
+				return status.Errorf(codes.FailedPrecondition, "A PITR backup for the service with ID '%s' can be enabled only if "+
+					"there are no other scheduled backups for this service.", serviceID)
+			}
+
+			return status.Errorf(codes.FailedPrecondition, "A PITR backup for the cluster '%s' can be enabled only if "+
+				"there are no other scheduled backups for this cluster.", clusterName)
 		}
 	case models.Snapshot:
 		// Snapshot backup can be enabled if there is no enabled PITR backup.
@@ -64,10 +68,19 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 			return err
 		}
 
-		if len(tasks) != 0 {
-			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if "+
-				"there is no enabled PITR backup for this cluster.", clusterName)
+		if len(tasks) == 0 {
+			return nil
 		}
+
+		if clusterName == "" {
+			// For backward compatibility
+			return status.Errorf(codes.FailedPrecondition, "A PITR backup for the service with ID '%s' can be enabled only if "+
+				"there are no other scheduled backups for this service.", serviceID)
+		}
+
+		return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if "+
+			"there is no enabled PITR backup for this cluster.", clusterName)
+
 	case models.Incremental:
 		return status.Error(codes.InvalidArgument, "Incremental backups unsupported for MongoDB")
 	}
