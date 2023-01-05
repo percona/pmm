@@ -124,7 +124,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 			}
 
-			if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, ""); err != nil {
+			if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
 				return err
 			}
 
