@@ -371,13 +371,11 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 
 func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
 	return map[dbaasv1.AppState]dbaasv1beta1.DBClusterState{
-		// TODO: Implement better statuses
 		dbaasv1.AppStateUnknown:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,
 		dbaasv1.AppStateInit:     dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_CHANGING,
 		dbaasv1.AppStateReady:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_READY,
 		dbaasv1.AppStateError:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_FAILED,
-		dbaasv1.AppStateStopping: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING,
+		dbaasv1.AppStateStopping: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_CHANGING,
 		dbaasv1.AppStatePaused:   dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED,
-		// dbaasv1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
 	}
 }
