@@ -225,15 +225,15 @@ func (c *Client) Run(ctx context.Context) error {
 // GetAgentsStatus sends status of running agents to server
 func (c *Client) GetAgentsStatus() {
 	// Drain all existing messages
-L:
+loop:
 	for {
 		select {
 		case _, ok := <-c.supervisor.Changes():
 			if !ok {
-				break L
+				break loop
 			}
 		default:
-			break L
+			break loop
 		}
 	}
 
