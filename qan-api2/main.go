@@ -102,15 +102,15 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	qanpb.RegisterFiltersServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
-	grpc_prometheus.Configure()
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(grpcServer)
 		channelz.RegisterChannelzServiceToServer(grpcServer)
 
 		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.DefaultServerMetrics().EnableHandlingTimeHistogram()
+		grpc_prometheus.EnableHandlingTimeHistogram()
 	}
+	grpc_prometheus.Register(grpcServer)
 
 	// run server until it is stopped gracefully or not
 	go func() {
