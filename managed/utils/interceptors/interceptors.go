@@ -80,7 +80,6 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 // Unary adds context logger and Prometheus metrics to unary server RPC.
 func Unary(interceptor grpc.UnaryServerInterceptor) func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-
 		// add pprof labels for more useful profiles
 		defer pprof.SetGoroutineLabels(ctx)
 		ctx = pprof.WithLabels(ctx, pprof.Labels("method", info.FullMethod))
