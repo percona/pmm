@@ -25,6 +25,7 @@ import (
 )
 
 // CheckMongoDBBackupPreconditions checks compatibility of different types of scheduled backups and on-demand backups for MongoDB.
+// WARNING: This function valid only when executed as part of transaction with serializable isolation level.
 func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, clusterName, serviceID, scheduleID string) error {
 	filter := models.ScheduledTasksFilter{
 		Disabled:    pointer.ToBool(false),
@@ -49,10 +50,10 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 				if clusterName == "" {
 					// For backward compatibility
 					return status.Errorf(codes.FailedPrecondition, "A PITR backup for the service with ID '%s' can be enabled only if "+
-						"there no other scheduled backups for this service.", serviceID)
+						"there are no other scheduled backups for this service.", serviceID)
 				}
 				return status.Errorf(codes.FailedPrecondition, "A PITR backup for the cluster '%s' can be enabled only if "+
-					"there no other scheduled backups for this cluster.", clusterName)
+					"there are no other scheduled backups for this cluster.", clusterName)
 			}
 		}
 	case models.Snapshot:
