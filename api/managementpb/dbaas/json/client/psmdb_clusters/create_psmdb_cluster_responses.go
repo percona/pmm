@@ -375,6 +375,9 @@ type CreatePSMDBClusterParamsBodyParams struct {
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
 
+	// backup
+	Backup *CreatePSMDBClusterParamsBodyParamsBackup `json:"backup,omitempty"`
+
 	// replicaset
 	Replicaset *CreatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }
@@ -383,6 +386,10 @@ type CreatePSMDBClusterParamsBodyParams struct {
 func (o *CreatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateBackup(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateReplicaset(formats); err != nil {
 		res = append(res, err)
 	}
@@ -390,6 +397,25 @@ func (o *CreatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) e
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParams) validateBackup(formats strfmt.Registry) error {
+	if swag.IsZero(o.Backup) { // not required
+		return nil
+	}
+
+	if o.Backup != nil {
+		if err := o.Backup.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -416,6 +442,10 @@ func (o *CreatePSMDBClusterParamsBodyParams) validateReplicaset(formats strfmt.R
 func (o *CreatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateBackup(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -423,6 +453,21 @@ func (o *CreatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParams) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+	if o.Backup != nil {
+		if err := o.Backup.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -452,6 +497,147 @@ func (o *CreatePSMDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	var res CreatePSMDBClusterParamsBodyParams
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePSMDBClusterParamsBodyParamsBackup Backup configuration for a database cluster
+swagger:model CreatePSMDBClusterParamsBodyParamsBackup
+*/
+type CreatePSMDBClusterParamsBodyParamsBackup struct {
+	// Backup Location id of stored backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Keep copies represents how many copyies should retain.
+	KeepCopies int32 `json:"keep_copies,omitempty"`
+
+	// schedule
+	Schedule *CreatePSMDBClusterParamsBodyParamsBackupSchedule `json:"schedule,omitempty"`
+}
+
+// Validate validates this create PSMDB cluster params body params backup
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSchedule(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) validateSchedule(formats strfmt.Registry) error {
+	if swag.IsZero(o.Schedule) { // not required
+		return nil
+	}
+
+	if o.Schedule != nil {
+		if err := o.Schedule.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this create PSMDB cluster params body params backup based on the context it is used
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateSchedule(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) contextValidateSchedule(ctx context.Context, formats strfmt.Registry) error {
+	if o.Schedule != nil {
+		if err := o.Schedule.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
+	var res CreatePSMDBClusterParamsBodyParamsBackup
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePSMDBClusterParamsBodyParamsBackupSchedule Schedule represents schedule configration.
+swagger:model CreatePSMDBClusterParamsBodyParamsBackupSchedule
+*/
+type CreatePSMDBClusterParamsBodyParamsBackupSchedule struct {
+	// Weekly runs.
+	Week int32 `json:"week,omitempty"`
+
+	// Weekday configuration.
+	Weekday int32 `json:"weekday,omitempty"`
+
+	// Hour configuration.
+	Hour int32 `json:"hour,omitempty"`
+
+	// Minutes configuration.
+	Minute int32 `json:"minute,omitempty"`
+}
+
+// Validate validates this create PSMDB cluster params body params backup schedule
+func (o *CreatePSMDBClusterParamsBodyParamsBackupSchedule) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create PSMDB cluster params body params backup schedule based on context it is used
+func (o *CreatePSMDBClusterParamsBodyParamsBackupSchedule) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackupSchedule) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackupSchedule) UnmarshalBinary(b []byte) error {
+	var res CreatePSMDBClusterParamsBodyParamsBackupSchedule
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

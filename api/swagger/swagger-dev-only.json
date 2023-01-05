@@ -4190,6 +4190,56 @@
                             }
                           },
                           "x-order": 3
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copyies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "schedule": {
+                              "description": "Schedule represents schedule configration.",
+                              "type": "object",
+                              "properties": {
+                                "week": {
+                                  "description": "Weekly runs.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "weekday": {
+                                  "description": "Weekday configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 1
+                                },
+                                "hour": {
+                                  "description": "Hour configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 2
+                                },
+                                "minute": {
+                                  "description": "Minutes configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 3
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 4
                         }
                       },
                       "x-order": 3
@@ -4213,6 +4263,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -4321,6 +4421,56 @@
                           "description": "Docker image used for PSMDB.",
                           "type": "string",
                           "x-order": 2
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copyies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "schedule": {
+                              "description": "Schedule represents schedule configration.",
+                              "type": "object",
+                              "properties": {
+                                "week": {
+                                  "description": "Weekly runs.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "weekday": {
+                                  "description": "Weekday configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 1
+                                },
+                                "hour": {
+                                  "description": "Hour configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 2
+                                },
+                                "minute": {
+                                  "description": "Minutes configuration.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 3
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 3
                         }
                       },
                       "x-order": 3
@@ -4344,6 +4494,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 8
                     }
                   },
                   "x-order": 1
@@ -4590,6 +4790,56 @@
                               }
                             },
                             "x-order": 3
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copyies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "schedule": {
+                                "description": "Schedule represents schedule configration.",
+                                "type": "object",
+                                "properties": {
+                                  "week": {
+                                    "description": "Weekly runs.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "weekday": {
+                                    "description": "Weekday configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 1
+                                  },
+                                  "hour": {
+                                    "description": "Hour configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 2
+                                  },
+                                  "minute": {
+                                    "description": "Minutes configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 3
+                                  }
+                                },
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 4
                           }
                         },
                         "x-order": 3
@@ -4613,6 +4863,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copyies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "schedule": {
+                            "description": "Schedule represents schedule configration.",
+                            "type": "object",
+                            "properties": {
+                              "week": {
+                                "description": "Weekly runs.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 0
+                              },
+                              "weekday": {
+                                "description": "Weekday configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "hour": {
+                                "description": "Hour configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 2
+                              },
+                              "minute": {
+                                "description": "Minutes configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 8
                       }
                     }
                   },
@@ -4725,6 +5025,56 @@
                             "description": "Docker image used for PSMDB.",
                             "type": "string",
                             "x-order": 2
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copyies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "schedule": {
+                                "description": "Schedule represents schedule configration.",
+                                "type": "object",
+                                "properties": {
+                                  "week": {
+                                    "description": "Weekly runs.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 0
+                                  },
+                                  "weekday": {
+                                    "description": "Weekday configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 1
+                                  },
+                                  "hour": {
+                                    "description": "Hour configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 2
+                                  },
+                                  "minute": {
+                                    "description": "Minutes configuration.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 3
+                                  }
+                                },
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 3
                           }
                         },
                         "x-order": 3
@@ -4748,6 +5098,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copyies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "schedule": {
+                            "description": "Schedule represents schedule configration.",
+                            "type": "object",
+                            "properties": {
+                              "week": {
+                                "description": "Weekly runs.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 0
+                              },
+                              "weekday": {
+                                "description": "Weekday configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "hour": {
+                                "description": "Hour configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 2
+                              },
+                              "minute": {
+                                "description": "Minutes configuration.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 8
                       }
                     }
                   },
@@ -5645,6 +6045,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 2
@@ -5783,6 +6233,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 0
@@ -6247,6 +6747,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -6453,6 +7003,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copyies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "schedule": {
+                          "description": "Schedule represents schedule configration.",
+                          "type": "object",
+                          "properties": {
+                            "week": {
+                              "description": "Weekly runs.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "weekday": {
+                              "description": "Weekday configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "hour": {
+                              "description": "Hour configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "minute": {
+                              "description": "Minutes configuration.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 0

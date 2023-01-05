@@ -8,6 +8,7 @@ import (
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,6 +23,19 @@ func (this *RunningOperation) Validate() error {
 }
 
 func (this *ComputeResources) Validate() error {
+	return nil
+}
+
+func (this *Schedule) Validate() error {
+	return nil
+}
+
+func (this *Backup) Validate() error {
+	if this.Schedule != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Schedule); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Schedule", err)
+		}
+	}
 	return nil
 }
 

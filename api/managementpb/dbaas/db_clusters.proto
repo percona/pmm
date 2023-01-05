@@ -48,6 +48,8 @@ message PSMDBCluster {
   string available_image = 7;
   // Is DB cluster accessible via public internet.
   bool internet_facing = 8;
+  // Backup configuration parameters.
+  Backup backup = 9;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -69,6 +71,8 @@ message PXCCluster {
   string available_image = 7;
   // Is DB cluster accessible via public internet.
   bool internet_facing = 8;
+  // Backup configuration parameters.
+  Backup backup = 9;
 }
 
 message ListDBClustersRequest {

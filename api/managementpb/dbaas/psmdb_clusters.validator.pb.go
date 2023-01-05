@@ -26,6 +26,11 @@ func (this *PSMDBClusterParams) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Replicaset", err)
 		}
 	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
 	return nil
 }
 
