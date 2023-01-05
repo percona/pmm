@@ -44,15 +44,23 @@ func ExtractTables(query string) (tables []string, err error) {
 		return
 	}
 
+	var res []string
 	tableNames := make(map[string]bool)
-	for _, v := range extract(jsonTree, `"relname":"`, `"`) {
+	res, err = extract(jsonTree, `"relname":"`, `"`)
+	if err != nil {
+		return
+	}
+	for _, v := range res {
 		tableNames[v] = true
 	}
-	for _, v := range extract(jsonTree, `"ctename":"`, `"`) {
+	res, err = extract(jsonTree, `"ctename":"`, `"`)
+	if err != nil {
+		return
+	}
+	for _, v := range res {
 		delete(tableNames, v)
 	}
 
-	tables = []string{}
 	for k := range tableNames {
 		tables = append(tables, k)
 	}
@@ -61,19 +69,22 @@ func ExtractTables(query string) (tables []string, err error) {
 	return
 }
 
-func extract(query, pre, post string) []string {
-	re := regexp.MustCompile(fmt.Sprintf("(%s)(.*?)(%s)", pre, post))
-	match := re.FindAll([]byte(query), -1)
+func extract(query, pre, post string) ([]string, error) {
+	re, err := regexp.Compile(fmt.Sprintf("(%s)(.*?)(%s)", pre, post))
+	if err != nil {
+		return nil, err
+	}
 
-	tables := []string{}
+	var tables []string
+	match := re.FindAll([]byte(query), -1)
 	for _, v := range match {
 		tables = append(tables, parseValue(string(v), pre, post))
 	}
 
-	return tables
+	return tables, nil
 }
 
 func parseValue(v, pre, post string) string {
-	v = strings.Replace(v, pre, "", -1)
-	return strings.Replace(v, post, "", -1)
+	v = strings.ReplaceAll(v, pre, "")
+	return strings.ReplaceAll(v, post, "")
 }
