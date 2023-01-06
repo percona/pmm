@@ -58,9 +58,8 @@ var ErrEmptyVersionTag error = errors.New("got an empty version tag from Github"
 
 // OperatorService holds methods to handle the OLM operator.
 type OperatorService struct {
-	lock       *sync.Mutex
-	kubeConfig string
-	k8sclient  client.KubeClientConnector
+	lock      *sync.Mutex
+	k8sclient client.KubeClientConnector
 }
 
 // NewEmpty returns a new empty OperatorService instance.
