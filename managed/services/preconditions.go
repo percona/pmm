@@ -74,11 +74,11 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 		if clusterName == "" {
 			// For backward compatibility
-			return status.Errorf(codes.FailedPrecondition, "A PITR backup for the service with ID '%s' can be enabled only if "+
+			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for service '%s' can be enabled/done only if "+
 				"there are no other scheduled backups for this service.", serviceID)
 		}
 
-		return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be done only if "+
+		return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be enabled/done only if "+
 			"there is no enabled PITR backup for this cluster.", clusterName)
 
 	case models.Incremental:
