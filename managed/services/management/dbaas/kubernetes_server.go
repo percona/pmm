@@ -99,17 +99,17 @@ func (k *kubernetesServer) Enabled() bool {
 
 // getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
 // dbaas-controller does not have a clue what's supported, so we have to do it here.
-func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) (dbaasv1beta1.OperatorsStatus, error) {
+func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) dbaasv1beta1.OperatorsStatus {
 	if operatorVersion == "" {
-		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED, nil
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED
 	}
 	for _, version := range versionsList {
 		if version == operatorVersion {
-			return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK, nil
+			return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}
 	}
 
-	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
+	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -157,16 +157,8 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				return
 			}
 
-			clusters[i].Operators.Pxc.Status, err = k.convertToOperatorStatus(operatorsVersions[pxcOperator], resp.Operators.PxcOperatorVersion)
-
-			if err != nil {
-				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
-			}
-			clusters[i].Operators.Psmdb.Status, err = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], resp.Operators.PsmdbOperatorVersion)
-
-			if err != nil {
-				k.l.Errorf("failed to convert dbaas-controller operator status to PMM status: %v", err)
-			}
+			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], resp.Operators.PxcOperatorVersion)
+			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], resp.Operators.PsmdbOperatorVersion)
 
 			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion

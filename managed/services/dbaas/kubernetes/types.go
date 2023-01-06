@@ -16,9 +16,10 @@
 package kubernetes
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	corev1 "k8s.io/api/core/v1"

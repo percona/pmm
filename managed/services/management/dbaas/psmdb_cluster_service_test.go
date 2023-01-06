@@ -91,7 +91,6 @@ func TestPSMDBClusterService(t *testing.T) {
 		grafanaClient = &mockGrafanaClient{}
 		kubernetesClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
-		kubernetesClient = &mockKubernetesClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)

@@ -495,7 +495,6 @@ func TestFilteringOutOfUnsupportedVersions(t *testing.T) {
 }
 
 const (
-	onePointEleven      = "1.11.0"
 	onePointTen         = "1.10.0"
 	onePointNine        = "1.9.0"
 	onePointEight       = "1.8.0"
