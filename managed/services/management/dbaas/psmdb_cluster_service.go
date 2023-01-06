@@ -165,6 +165,24 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	}
 	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
+	secrets := map[string][]byte{
+		"MONGODB_BACKUP_USER":          []byte("backup"),
+		"MONGODB_CLUSTER_ADMIN_USER":   []byte("clusterAdmin"),
+		"MONGODB_CLUSTER_MONITOR_USER": []byte("clusterMonitor"),
+		"MONGODB_USER_ADMIN_USER":      []byte("userAdmin"),
+	}
+	passwords, err := generatePasswords(map[string][]byte{
+		"MONGODB_BACKUP_PASSWORD":          {},
+		"MONGODB_CLUSTER_ADMIN_PASSWORD":   {},
+		"MONGODB_CLUSTER_MONITOR_PASSWORD": {},
+		"MONGODB_USER_ADMIN_PASSWORD":      {},
+	})
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range passwords {
+		secrets[k] = v
+	}
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
@@ -176,30 +194,12 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
 		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
-		secrets := map[string][]byte{
-			"MONGODB_BACKUP_USER":          []byte("backup"),
-			"MONGODB_CLUSTER_ADMIN_USER":   []byte("clusterAdmin"),
-			"MONGODB_CLUSTER_MONITOR_USER": []byte("clusterMonitor"),
-			"MONGODB_USER_ADMIN_USER":      []byte("userAdmin"),
-			"PMM_SERVER_USER":              []byte("api_key"),
-			"PMM_SERVER_PASSWORD":          []byte(apiKey),
-		}
-		passwords, err := generatePasswords(map[string][]byte{
-			"MONGODB_BACKUP_PASSWORD":          {},
-			"MONGODB_CLUSTER_ADMIN_PASSWORD":   {},
-			"MONGODB_CLUSTER_MONITOR_PASSWORD": {},
-			"MONGODB_USER_ADMIN_PASSWORD":      {},
-		})
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range passwords {
-			secrets[k] = v
-		}
-		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-		if err != nil {
-			return nil, err
-		}
+		secrets["PMM_SERVER_USER"] = []byte("api_key")
+		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
+	}
+	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+	if err != nil {
+		return nil, err
 	}
 	// TODO: Setup backups
 

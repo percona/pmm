@@ -172,6 +172,18 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	}
 	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
 
+	secrets, err := generatePasswords(map[string][]byte{
+		"root":         {},
+		"xtrabackup":   {},
+		"monitor":      {},
+		"clustercheck": {},
+		"proxyadmin":   {},
+		"operator":     {},
+		"replication":  {},
+	})
+	if err != nil {
+		return nil, err
+	}
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
@@ -184,28 +196,11 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
 		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
 
-		secrets := map[string][]byte{
-			"pmmserver": []byte(apiKey),
-		}
-		passwords, err := generatePasswords(map[string][]byte{
-			"root":         {},
-			"xtrabackup":   {},
-			"monitor":      {},
-			"clustercheck": {},
-			"proxyadmin":   {},
-			"operator":     {},
-			"replication":  {},
-		})
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range passwords {
-			secrets[k] = v
-		}
-		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-		if err != nil {
-			return nil, err
-		}
+		secrets["pmmserver"] = []byte(apiKey)
+	}
+	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+	if err != nil {
+		return nil, err
 	}
 	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {

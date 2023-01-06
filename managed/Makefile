@@ -11,7 +11,8 @@ help:                           ## Display this help message.
 
 # `cut` is used to remove first `v` from `git describe` output
 PMM_RELEASE_PATH ?= ../bin
-PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
+#PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
+PMM_RELEASE_VERSION ?= 2.33.0
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
