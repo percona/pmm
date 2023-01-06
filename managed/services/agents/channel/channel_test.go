@@ -17,12 +17,12 @@ package channel
 
 import (
 	"context"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"io"
 	"net"
 	"testing"
 	"time"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
