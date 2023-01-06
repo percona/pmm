@@ -45,13 +45,13 @@ func ExtractTables(query string) (tables []string, err error) {
 	}
 
 	var res []string
-	tableNames := make(map[string]bool)
+	tableNames := make(map[string]struct{})
 	res, err = extract(jsonTree, `"relname":"`, `"`)
 	if err != nil {
 		return
 	}
 	for _, v := range res {
-		tableNames[v] = true
+		tableNames[v] = struct{}{}
 	}
 	res, err = extract(jsonTree, `"ctename":"`, `"`)
 	if err != nil {
