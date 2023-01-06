@@ -334,39 +334,44 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot get PMM settings to start Victoria Metrics")
 	}
 
+	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63()) //nolint:gosec
+	apiKeyID, apiKey, err := k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
+	}
+
 	// Install the operators in the background.
-	go k.setupMonitoring(ctx, operatorsToInstall, req.KubernetesClusterName, settings.PMMPublicAddress, req.KubeAuth.Kubeconfig)
+	go k.setupMonitoring(context.Background(), operatorsToInstall, settings.PMMPublicAddress,
+		apiKey, apiKeyID, req.KubeAuth.Kubeconfig)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, clusterName, pmmPublicAddress, kubeConfig string) {
+func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, pmmPublicAddress string,
+	apiKey string, apiKeyID int64, kubeConfig string,
+) {
 	errs := k.installDefaultOperators(operatorsToInstall)
 	if errs["vm"] != nil {
+		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
 		return
 	}
 
-	err := k.startMonitoring(ctx, clusterName, pmmPublicAddress, kubeConfig)
+	err := k.startMonitoring(ctx, pmmPublicAddress, apiKey, apiKeyID, kubeConfig)
 	if err != nil {
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
 }
 
-func (k kubernetesServer) startMonitoring(ctx context.Context, clusterName, pmmPublicAddress, kubeConfig string) error {
-	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", clusterName, rand.Int63()) //nolint:gosec
-	apiKeyID, apiKey, err := k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-	if err != nil {
-		k.l.Errorf("cannot create Grafana admin API key: %s", err)
-		return errors.Wrap(err, "cannot create Grafana admin API key")
-	}
-
+func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress string, apiKey string,
+	apiKeyID int64, kubeConfig string,
+) error {
 	pmmParams := &dbaascontrollerv1beta1.PMMParams{
 		PublicAddress: fmt.Sprintf("https://%s", pmmPublicAddress),
 		Login:         "api_key",
 		Password:      apiKey,
 	}
 
-	_, err = k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+	_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubeConfig,
 		},
@@ -391,7 +396,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	if _, ok := operatorsToInstall["olm"]; ok {
 		err := k.olmOperatorService.InstallOLMOperator(ctx)
-		k.l.Info(">> Installing OLM operator")
 		if err != nil {
 			retval["olm"] = err
 			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
