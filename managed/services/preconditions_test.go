@@ -78,7 +78,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "cluster1", "", "")
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for cluster 'cluster1' can be enabled/done only if there is no enabled PITR backup for this cluster."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for cluster 'cluster1' can be performed only if there is no enabled PITR backup for this cluster."), err)
 	})
 
 	t.Run("unable to create second PITR backup for cluster", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		err := db.InTransactionContext(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			return CheckMongoDBBackupPreconditions(db.Querier, models.Snapshot, "", "service1", "")
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for service 'service1' can be enabled/done only if there are no other scheduled backups for this service."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "A snapshot backup for service 'service1' can be performed only if there are no other scheduled backups for this service."), err)
 	})
 
 	t.Run("able to update existing PITR backup for service", func(t *testing.T) {

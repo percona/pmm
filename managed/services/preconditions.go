@@ -61,7 +61,7 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 				"there are no other scheduled backups for this cluster.", clusterName)
 		}
 	case models.Snapshot:
-		// Snapshot backup can be enabled if there is no enabled PITR backup.
+		// Snapshot backup can be enabled or performed if there is no enabled PITR backup.
 		filter.Mode = models.PITR
 		tasks, err := models.FindScheduledTasks(q, filter)
 		if err != nil {
@@ -74,11 +74,11 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 		if clusterName == "" {
 			// For backward compatibility
-			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for service '%s' can be enabled/done only if "+
+			return status.Errorf(codes.FailedPrecondition, "A snapshot backup for service '%s' can be performed only if "+
 				"there are no other scheduled backups for this service.", serviceID)
 		}
 
-		return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be enabled/done only if "+
+		return status.Errorf(codes.FailedPrecondition, "A snapshot backup for cluster '%s' can be performed only if "+
 			"there is no enabled PITR backup for this cluster.", clusterName)
 
 	case models.Incremental:
