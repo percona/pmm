@@ -234,8 +234,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpcStreamInterceptor),
-		grpc.UnaryInterceptor(grpcUnaryInterceptor),
-	)
+		grpc.UnaryInterceptor(grpcUnaryInterceptor))
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
