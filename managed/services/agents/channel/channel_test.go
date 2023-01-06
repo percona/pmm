@@ -17,6 +17,7 @@ package channel
 
 import (
 	"context"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"io"
 	"net"
 	"testing"
@@ -58,9 +59,13 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
+	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	grpcStreamInterceptor := grpcMetrics.StreamServerInterceptor()
+	grpcUnaryInterceptor := grpcMetrics.UnaryServerInterceptor()
+
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.Unary),
-		grpc.StreamInterceptor(interceptors.Stream))
+		grpc.UnaryInterceptor(interceptors.Unary(grpcUnaryInterceptor)),
+		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
 
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
