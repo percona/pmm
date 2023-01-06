@@ -418,7 +418,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
-		k.l.Info(">> Installing pxc operator")
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			retval["pxc"] = err
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)

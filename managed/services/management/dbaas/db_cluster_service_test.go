@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -90,7 +91,11 @@ func TestDBClusterService(t *testing.T) {
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		// To enable verbose queries output use:
+		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
 		kubernetesClient = &mockKubernetesClient{}
@@ -118,9 +123,13 @@ func TestDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
+	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+
 	olms.On("SetKubeConfig", mock.Anything).Return(nil)
 	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+
+	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: dbKubernetesClusterNameTest,
@@ -130,6 +139,13 @@ func TestDBClusterService(t *testing.T) {
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
 	t.Run("BasicListPXCClusters", func(t *testing.T) {
+		dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+			Operators: &controllerv1beta1.Operators{
+				PxcOperatorVersion:   "",
+				PsmdbOperatorVersion: "",
+			},
+			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
+		}, nil)
 		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
 		mockPXCResp := controllerv1beta1.ListPXCClustersResponse{
 			Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
@@ -181,7 +197,7 @@ func TestDBClusterService(t *testing.T) {
 				},
 			},
 		}
-		dbaasClient.On("ListPSMDBClusters", ctx, mock.Anything).Return(&mockPSMDBResp, nil)
+		dbaasClient.On("ListPSMDBClusters", mock.Anything, mock.Anything).Return(&mockPSMDBResp, nil)
 
 		resp, err := s.ListDBClusters(ctx, &dbaasv1beta1.ListDBClustersRequest{KubernetesClusterName: dbKubernetesClusterNameTest})
 		assert.NoError(t, err)
@@ -216,6 +232,7 @@ func TestDBClusterService(t *testing.T) {
 		}
 
 		dbaasClient.On("RestartPXCCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPXCClusterResponse{}, nil)
+		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		in := dbaasv1beta1.RestartDBClusterRequest{
 			KubernetesClusterName: dbKubernetesClusterNameTest,
@@ -237,6 +254,7 @@ func TestDBClusterService(t *testing.T) {
 		}
 
 		dbaasClient.On("RestartPSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPSMDBClusterResponse{}, nil)
+		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		in := dbaasv1beta1.RestartDBClusterRequest{
 			KubernetesClusterName: dbKubernetesClusterNameTest,

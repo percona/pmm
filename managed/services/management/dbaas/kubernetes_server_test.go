@@ -41,7 +41,8 @@ import (
 
 func TestKubernetesServer(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
-		kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
+		kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, grafanaClient *mockGrafanaClient,
+		teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -49,10 +50,12 @@ func TestKubernetesServer(t *testing.T) {
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		// To enable verbose queries output use:
+		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 		dbaasClient = &mockDbaasClient{}
 		kubernetesClient = &mockKubernetesClient{}
-		grafanaClient := &mockGrafanaClient{}
+		grafanaClient = &mockGrafanaClient{}
 		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
@@ -78,7 +81,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, _, olms, teardown := setup(t)
+		ctx, ks, dc, _, olms, grafanaClient, teardown := setup(t)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -89,6 +92,8 @@ func TestKubernetesServer(t *testing.T) {
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
+		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+
 		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
@@ -96,6 +101,7 @@ func TestKubernetesServer(t *testing.T) {
 		olms.On("SetKubeConfig", mock.Anything).Return(nil)
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
