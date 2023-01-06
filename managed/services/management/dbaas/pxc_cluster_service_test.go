@@ -134,6 +134,7 @@ func TestPXCClusterService(t *testing.T) {
 	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	kubernetesClient.On("CreatePMMSecret", string, map[string][]byte).Return(nil, nil)
 
 	//nolint:dupl
 	t.Run("BasicCreatePXCClusters", func(t *testing.T) {

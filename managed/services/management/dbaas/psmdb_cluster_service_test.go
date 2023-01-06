@@ -121,6 +121,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
 	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	kubernetesClient.On("CreatePMMSecret", string, map[string][]byte).Return(nil, nil)
 	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
 		Subscription: &controllerv1beta1.Subscription{
 			InstallPlanName: "mocked-install-plan",
