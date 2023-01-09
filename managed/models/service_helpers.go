@@ -400,18 +400,18 @@ func ValidateServiceType(serviceType ServiceType) error {
 	}
 }
 
-func initSoftwareVersions(q *reform.Querier, serviceId string, serviceType ServiceType) error {
+func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {
 	switch serviceType {
 	case MySQLServiceType:
 		fallthrough
 	case MongoDBServiceType:
 		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
-			ServiceID:        serviceId,
+			ServiceID:        serviceID,
 			ServiceType:      serviceType,
 			SoftwareVersions: []SoftwareVersion{},
 			NextCheckAt:      time.Now(),
 		}); err != nil {
-			return errors.Wrapf(err, "Couldn't initialize software versions for service %s", serviceId)
+			return errors.Wrapf(err, "Couldn't initialize software versions for service %s", serviceID)
 		}
 	default:
 		return nil
