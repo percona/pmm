@@ -375,9 +375,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get PMM settings to start Victoria Metrics")
 	}
-	if settings.PMMPublicAddress == "" {
-		return nil, errors.New("can not setup monitoring because public address is empty")
-	}
 	var apiKeyID int64
 	var apiKey string
 	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63()) //nolint:gosec
