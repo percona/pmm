@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS ia
+    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_ia_enabled"
@@ -344,10 +344,10 @@ telemetry:
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
     query: version, agent_type, runs_on_node_id FROM agents
-    summary: "Agents versions"
+    summary: "Agents version"
     transform:
       type: JSON
-      metric: pmm_server_api_usage_combined
+      metric: pmm_server_agents_version
     data:
       - metric_name: "1"
         column: "agent_type"
@@ -629,4 +629,78 @@ telemetry:
       - metric_name: 1
         label: "check_name"
       - metric_name: 2
+        value: 1
+
+  - id: GrafanaUsersCount
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user
+    summary: "Grafana Users Count"
+    data:
+      - metric_name: "grafana_users_count"
+        column: "count"
+
+  - id: GrafanaDarkThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    summary: "Grafana Dark Theme Users Count"
+    data:
+      - metric_name: "grafana_dark_theme_users_count"
+        column: "count"
+
+  - id: GrafanaLightThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    summary: "Grafana Light Theme Users Count"
+    data:
+      - metric_name: "grafana_light_theme_users_count"
+        column: "count"
+
+  - id: GrafanaDefaultThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    summary: "Grafana Default Theme Users Count"
+    data:
+      - metric_name: "grafana_default_theme_users_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsCount
+    source: GRAFANADB_SELECT
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    summary: "Grafana Custom Dashboards Count"
+    data:
+      - metric_name: "grafana_custom_dashboards_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsPerPillar
+    source: GRAFANADB_SELECT
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    summary: "Grafana Custom Dashboards Count By Pillar"
+    transform:
+      type: JSON
+      metric: grafana_custom_dashboards_pillar_combined
+    data:
+      - metric_name: "pillar"
+        column: "pillar"
+      - metric_name: "count"
+
+  # API usage
+  - id: APIUsageMetrics
+    source: VM
+    query: grpc_server_msg_received_total
+    transform:
+      type: JSON
+      metric: pmm_server_api_usage
+    summary: "PMM Server API usage"
+    data:
+      - metric_name: "1"
+        label: "caller_origin" # internal / external
+      - metric_name: "2"
+        label: "grpc_method"
+      - metric_name: "3"
+        label: "grpc_service"
+      - metric_name: "4"
+        label: "grpc_type"
+      - metric_name: "5" # pmm-managed / qan-api2
+        label: "job"
+      - metric_name: "6"
         value: 1
