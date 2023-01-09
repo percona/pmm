@@ -429,7 +429,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
 	if err != nil {
-		l.Errorf("Cannot parse version for type %s", agentType)
+		l.Warnf("Cannot parse version for type %s", agentType)
 	}
 
 	done := make(chan struct{})
