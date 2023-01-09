@@ -214,7 +214,7 @@ func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]str
 	pbmVersion = pbmVersion.Core()
 
 	if pbmVersion.LessThan(pbmMinSupportedVersion) {
-		return errors.Wrapf(ErrIncompatiblePBMVersion, "installed pbm version %q, min required pbm version %q", pbmVersion, pbmMinSupportedVersion)
+		return errors.Wrapf(ErrIncompatiblePBM, "installed pbm version %q, min required pbm version %q", pbmVersion, pbmMinSupportedVersion)
 	}
 
 	return nil

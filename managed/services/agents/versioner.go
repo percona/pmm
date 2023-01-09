@@ -127,7 +127,7 @@ func getMongodbSoftwareList() []Software {
 	return []Software{&MongoDB{}, &PBM{}}
 }
 
-// GetSoftwareList maps service type into list of required software. Returns empty list if no software specified for the type.
+// GetSoftwareList maps service type into list of software required for backups. Returns empty list if no software specified for the type.
 func GetSoftwareList(serviceType models.ServiceType) []Software {
 	switch serviceType {
 	case models.MySQLServiceType:
@@ -140,7 +140,7 @@ func GetSoftwareList(serviceType models.ServiceType) []Software {
 }
 
 // GetVersions retrieves software versions.
-func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) ([]Version, error) {
+func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Software) ([]Version, error) {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"versions retrieving", pmmAgentMinVersionForSoftwareVersions); err != nil {
 		return nil, err
@@ -151,8 +151,8 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) 
 		return nil, errors.WithStack(err)
 	}
 
-	softwareRequest := make([]*agentpb.GetVersionsRequest_Software, 0, len(softwares))
-	for _, software := range softwares {
+	softwareRequest := make([]*agentpb.GetVersionsRequest_Software, 0, len(softwareList))
+	for _, software := range softwareList {
 		softwareRequest = append(softwareRequest, software.GetVersionRequest())
 	}
 

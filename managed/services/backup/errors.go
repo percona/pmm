@@ -26,8 +26,8 @@ var (
 	ErrInvalidXtrabackup = errors.New("invalid installation of the xtrabackup")
 	// ErrIncompatibleXtrabackup is returned if xtrabackup is not compatible with the MySQL.
 	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
-	// ErrIncompatiblePBMVersion is returned if installed PBM version not fits to perform requested operation.
-	ErrIncompatiblePBMVersion = errors.New("incompatible pbm version")
+	// ErrIncompatiblePBM is returned if installed PBM version not fits to perform requested operation.
+	ErrIncompatiblePBM = errors.New("incompatible pbm")
 	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
 	// ErrIncompatibleTargetMongoDB is returned if target version of MongoDB is not compatible for restoring selected artifact.

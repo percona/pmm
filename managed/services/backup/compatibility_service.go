@@ -54,7 +54,8 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 		return "", err
 	}
 	if len(svs) != len(softwareList) {
-		return "", errors.Wrapf(ErrComparisonImpossible, "response slice len %d != request len %d", len(svs), len(softwareList))
+		s.l.Errorf("response slice len %d != request len %d", len(svs), len(softwareList))
+		return "", ErrComparisonImpossible
 	}
 
 	svm := make(map[models.SoftwareName]string, len(softwareList))

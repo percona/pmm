@@ -35,12 +35,6 @@ func TestCheckCompatibility(t *testing.T) {
 	mockVersioner := mockVersioner{}
 	cSvc := NewCompatibilityService(nil, &mockVersioner)
 
-	//t.Run("returns empty if non-mysql service", func(t *testing.T) {
-	//	dbVersion, err := cSvc.checkCompatibility(&models.Service{ServiceType: models.MongoDBServiceType}, &models.Agent{})
-	//	assert.NoError(t, err)
-	//	assert.Equal(t, "", dbVersion)
-	//})
-
 	agentModel := models.Agent{AgentID: "test_agent_id"}
 
 	mysqlSoftware := agents.GetSoftwareList(models.MySQLServiceType)
@@ -168,7 +162,7 @@ func TestCheckCompatibility(t *testing.T) {
 				{Version: "6.0.2-1"},
 				{Version: "2.0.0"},
 			},
-			expectedError: ErrIncompatiblePBMVersion,
+			expectedError: ErrIncompatiblePBM,
 		},
 		{
 			name:        "mongo not installed",

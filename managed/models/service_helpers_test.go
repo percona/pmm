@@ -440,7 +440,7 @@ func TestServiceHelpers(t *testing.T) {
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 
-	// TODO constraints in main_test.go don't allow to have such test.
+	// TODO cross-importing constraints in main_test.go don't allow to have such test.
 	//t.Run("Software versions empty record created on adding service", func(t *testing.T) {
 	//	q, teardown := setup(t)
 	//	defer teardown(t)

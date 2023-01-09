@@ -318,7 +318,7 @@ func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("mongodb"): "6.0.2",
 				models.SoftwareName("pbm"):     "1.8.0",
 			},
-			err: ErrIncompatiblePBMVersion,
+			err: ErrIncompatiblePBM,
 		},
 		{
 			name: "pbm not installed",
