@@ -430,7 +430,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	if _, ok := operatorsToInstall["pxc"]; ok {
 		operator := "percona-xtradb-cluster-operator"
 
-		if err := k.installOperator(ctx, operator, namespace, "", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
+		if err := k.installOperator(ctx, operator, "", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
 			retval["pxc"] = err
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 			return retval
@@ -452,7 +452,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	if _, ok := operatorsToInstall["psmdb"]; ok {
 		operator := "percona-server-mongodb-operator"
 
-		if err := k.installOperator(ctx, operator, namespace, "percona-server-mongodb-operator.v1.11.0", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
+		if err := k.installOperator(ctx, operator, "percona-server-mongodb-operator.v1.11.0", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
 			retval["psmdb"] = err
 			k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
 		}
@@ -472,7 +472,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	if _, ok := operatorsToInstall["dbaas"]; ok {
 		operator := "dbaas-operator"
 
-		if err := k.installOperator(ctx, operator, namespace, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
+		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
 			retval["dbaas"] = err
 			k.l.Errorf("cannot install dbaas operator: %s", err)
 			return retval
@@ -493,7 +493,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	if _, ok := operatorsToInstall["vm"]; ok {
 		operator := "victoriametrics-operator"
 
-		if err := k.installOperator(ctx, operator, namespace, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
+		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
 			retval["vm"] = err
 			k.l.Errorf("cannot install victoria metrics operator: %s", err)
 			return retval
@@ -541,7 +541,8 @@ func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress 
 	return nil
 }
 
-func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, startingCSV, channel, kubeConfig string) error {
+func (k kubernetesServer) installOperator(ctx context.Context, name, startingCSV, channel, kubeConfig string) error {
+	namespace := "default"
 	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubeConfig,
