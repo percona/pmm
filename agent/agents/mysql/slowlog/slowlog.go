@@ -388,7 +388,17 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) []*agentpb.MetricsBucket {
+//
+//nolint:cyclop
+func makeBuckets(
+	agentID string,
+	res event.Result,
+	periodStart time.Time,
+	periodLengthSecs uint32,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {

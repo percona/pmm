@@ -185,7 +185,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id

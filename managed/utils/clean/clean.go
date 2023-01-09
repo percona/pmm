@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// CleanResults has unexported fields for the results cleanup function.
+// Results has unexported fields for the results cleanup function.
 type Results struct {
 	db *reform.DB
 }
