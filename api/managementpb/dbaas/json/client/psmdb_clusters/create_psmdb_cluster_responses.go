@@ -133,6 +133,12 @@ type CreatePSMDBClusterBody struct {
 	// Make DB cluster accessible outside of K8s cluster.
 	Expose bool `json:"expose,omitempty"`
 
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *CreatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
 }
@@ -461,6 +467,12 @@ swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 type CreatePSMDBClusterParamsBodyParamsReplicaset struct {
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
+
+	// Configuration for PSMDB cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PSMDB cluster.
+	StorageClass string `json:"storage_class,omitempty"`
 
 	// compute resources
 	ComputeResources *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`

@@ -19391,6 +19391,408 @@
         }
       }
     },
+    "/v1/management/DBaaS/DBClusters/Get": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "GetDBCluster returns parameters used to create a database cluster",
+        "operationId": "GetDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "DB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pxc_cluster": {
+                  "description": "PXCCluster represents PXC cluster information.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "state": {
+                      "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                      "type": "string",
+                      "default": "DB_CLUSTER_STATE_INVALID",
+                      "enum": [
+                        "DB_CLUSTER_STATE_INVALID",
+                        "DB_CLUSTER_STATE_CHANGING",
+                        "DB_CLUSTER_STATE_READY",
+                        "DB_CLUSTER_STATE_FAILED",
+                        "DB_CLUSTER_STATE_DELETING",
+                        "DB_CLUSTER_STATE_PAUSED",
+                        "DB_CLUSTER_STATE_UPGRADING"
+                      ],
+                      "x-order": 1
+                    },
+                    "operation": {
+                      "description": "RunningOperation respresents a long-running operation.",
+                      "type": "object",
+                      "properties": {
+                        "finished_steps": {
+                          "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "message": {
+                          "description": "Text describing the current operation progress step.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "total_steps": {
+                          "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "params": {
+                      "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
+                      "type": "object",
+                      "properties": {
+                        "cluster_size": {
+                          "description": "Cluster size.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "pxc": {
+                          "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for PXC.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 2
+                            },
+                            "configuration": {
+                              "type": "string",
+                              "title": "Configuration for PXC cluster",
+                              "x-order": 3
+                            },
+                            "storage_class": {
+                              "description": "Storage Class for PXC cluster.",
+                              "type": "string",
+                              "x-order": 4
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "proxysql": {
+                          "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for ProxySQL.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 2
+                        },
+                        "haproxy": {
+                          "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for HAProxy.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "exposed": {
+                      "description": "DB cluster accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "installed_image": {
+                      "description": "Installed XtraDB image.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "available_image": {
+                      "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "internet_facing": {
+                      "description": "Is DB cluster accessible via public internet.",
+                      "type": "boolean",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                },
+                "psmdb_cluster": {
+                  "description": "PSMDBCluster represents PSMDB cluster information.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "state": {
+                      "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                      "type": "string",
+                      "default": "DB_CLUSTER_STATE_INVALID",
+                      "enum": [
+                        "DB_CLUSTER_STATE_INVALID",
+                        "DB_CLUSTER_STATE_CHANGING",
+                        "DB_CLUSTER_STATE_READY",
+                        "DB_CLUSTER_STATE_FAILED",
+                        "DB_CLUSTER_STATE_DELETING",
+                        "DB_CLUSTER_STATE_PAUSED",
+                        "DB_CLUSTER_STATE_UPGRADING"
+                      ],
+                      "x-order": 1
+                    },
+                    "operation": {
+                      "description": "RunningOperation respresents a long-running operation.",
+                      "type": "object",
+                      "properties": {
+                        "finished_steps": {
+                          "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "message": {
+                          "description": "Text describing the current operation progress step.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "total_steps": {
+                          "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "params": {
+                      "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                      "type": "object",
+                      "properties": {
+                        "cluster_size": {
+                          "description": "Cluster size.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "replicaset": {
+                          "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            },
+                            "configuration": {
+                              "type": "string",
+                              "title": "Configuration for PSMDB cluster",
+                              "x-order": 2
+                            },
+                            "storage_class": {
+                              "description": "Storage Class for PSMDB cluster.",
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "image": {
+                          "description": "Docker image used for PSMDB.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "exposed": {
+                      "description": "DB cluster accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "installed_image": {
+                      "description": "Installed PSMDB image.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "available_image": {
+                      "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "internet_facing": {
+                      "description": "Is DB cluster accessible via public internet.",
+                      "type": "boolean",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/DBClusters/List": {
       "post": {
         "tags": [
@@ -19515,6 +19917,16 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 2
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "Configuration for PXC cluster",
+                                "x-order": 3
+                              },
+                              "storage_class": {
+                                "description": "Storage Class for PXC cluster.",
+                                "type": "string",
+                                "x-order": 4
                               }
                             },
                             "x-order": 1
@@ -19604,6 +20016,11 @@
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
                       }
                     }
                   },
@@ -19698,6 +20115,16 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 1
+                              },
+                              "configuration": {
+                                "type": "string",
+                                "title": "Configuration for PSMDB cluster",
+                                "x-order": 2
+                              },
+                              "storage_class": {
+                                "description": "Storage Class for PSMDB cluster.",
+                                "type": "string",
+                                "x-order": 3
                               }
                             },
                             "x-order": 1
@@ -19724,6 +20151,11 @@
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "internet_facing": {
+                        "description": "Is DB cluster accessible via public internet.",
+                        "type": "boolean",
+                        "x-order": 7
                       }
                     }
                   },
@@ -20111,18 +20543,42 @@
                               }
                             },
                             "x-order": 1
+                          },
+                          "dbaas": {
+                            "description": "Operator contains all information about operator installed in Kubernetes cluster.",
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                                "type": "string",
+                                "default": "OPERATORS_STATUS_INVALID",
+                                "enum": [
+                                  "OPERATORS_STATUS_INVALID",
+                                  "OPERATORS_STATUS_OK",
+                                  "OPERATORS_STATUS_UNSUPPORTED",
+                                  "OPERATORS_STATUS_NOT_INSTALLED"
+                                ],
+                                "x-order": 0
+                              },
+                              "version": {
+                                "type": "string",
+                                "x-order": 1
+                              }
+                            },
+                            "x-order": 2
                           }
                         },
                         "x-order": 1
                       },
                       "status": {
-                        "description": "KubernetesClusterStatus defines status of Kubernetes cluster.\n\n - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.\n - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.\n - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.",
+                        "description": "KubernetesClusterStatus defines status of Kubernetes cluster.\n\n - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.\n - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.\n - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.\n - KUBERNETES_CLUSTER_STATUS_PROVISIONING: KUBERNETES_CLUSTER_STATUS_PROVISIONING represents that Kubernetes cluster is privisioning.",
                         "type": "string",
                         "default": "KUBERNETES_CLUSTER_STATUS_INVALID",
                         "enum": [
                           "KUBERNETES_CLUSTER_STATUS_INVALID",
                           "KUBERNETES_CLUSTER_STATUS_OK",
-                          "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+                          "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE",
+                          "KUBERNETES_CLUSTER_STATUS_PROVISIONING"
                         ],
                         "x-order": 2
                       }
@@ -20579,6 +21035,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -20595,6 +21061,19 @@
                   "description": "Make DB cluster accessible outside of K8s cluster.",
                   "type": "boolean",
                   "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -20694,6 +21173,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -20835,6 +21324,16 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PSMDB cluster",
+                          "x-order": 1
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PSMDB cluster.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 1
@@ -21075,6 +21574,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 3
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 4
                         }
                       },
                       "x-order": 1
@@ -21154,6 +21663,19 @@
                   "description": "Make DB cluster accessible outside of K8s cluster.",
                   "type": "boolean",
                   "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -21258,6 +21780,16 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 2
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 3
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 4
                         }
                       },
                       "x-order": 1
@@ -21467,6 +21999,16 @@
                           "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
                           "type": "string",
                           "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for PXC cluster",
+                          "x-order": 2
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for PXC cluster.",
+                          "type": "string",
+                          "x-order": 3
                         }
                       },
                       "x-order": 1
@@ -21535,6 +22077,24 @@
                     }
                   },
                   "x-order": 2
+                },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
