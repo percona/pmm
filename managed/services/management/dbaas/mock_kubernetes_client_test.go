@@ -5,8 +5,9 @@ package dbaas
 import (
 	context "context"
 
+	v1 "github.com/percona/dbaas-operator/api/v1"
 	mock "github.com/stretchr/testify/mock"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 
 	kubernetes "github.com/percona/pmm/managed/services/dbaas/kubernetes"
@@ -17,33 +18,75 @@ type mockKubernetesClient struct {
 	mock.Mock
 }
 
+// CreateDatabaseCluster provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) CreateDatabaseCluster(_a0 *v1.DatabaseCluster) error {
+	ret := _m.Called(_a0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*v1.DatabaseCluster) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CreatePMMSecret provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) CreatePMMSecret(_a0 string, _a1 map[string][]byte) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, map[string][]byte) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteDatabaseCluster provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) DeleteDatabaseCluster(_a0 context.Context, _a1 string) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetAllClusterResources provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockKubernetesClient) GetAllClusterResources(_a0 context.Context, _a1 kubernetes.ClusterType, _a2 *v1.PersistentVolumeList) (uint64, uint64, uint64, error) {
+func (_m *mockKubernetesClient) GetAllClusterResources(_a0 context.Context, _a1 kubernetes.ClusterType, _a2 *corev1.PersistentVolumeList) (uint64, uint64, uint64, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 uint64
-	if rf, ok := ret.Get(0).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) uint64); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) uint64); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Get(0).(uint64)
 	}
 
 	var r1 uint64
-	if rf, ok := ret.Get(1).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) uint64); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) uint64); ok {
 		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Get(1).(uint64)
 	}
 
 	var r2 uint64
-	if rf, ok := ret.Get(2).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) uint64); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) uint64); ok {
 		r2 = rf(_a0, _a1, _a2)
 	} else {
 		r2 = ret.Get(2).(uint64)
 	}
 
 	var r3 error
-	if rf, ok := ret.Get(3).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) error); ok {
+	if rf, ok := ret.Get(3).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) error); ok {
 		r3 = rf(_a0, _a1, _a2)
 	} else {
 		r3 = ret.Error(3)
@@ -102,18 +145,18 @@ func (_m *mockKubernetesClient) GetConsumedCPUAndMemory(_a0 context.Context, _a1
 }
 
 // GetConsumedDiskBytes provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockKubernetesClient) GetConsumedDiskBytes(_a0 context.Context, _a1 kubernetes.ClusterType, _a2 *v1.PersistentVolumeList) (uint64, error) {
+func (_m *mockKubernetesClient) GetConsumedDiskBytes(_a0 context.Context, _a1 kubernetes.ClusterType, _a2 *corev1.PersistentVolumeList) (uint64, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 uint64
-	if rf, ok := ret.Get(0).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) uint64); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) uint64); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Get(0).(uint64)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, kubernetes.ClusterType, *v1.PersistentVolumeList) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) error); ok {
 		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)
@@ -122,22 +165,131 @@ func (_m *mockKubernetesClient) GetConsumedDiskBytes(_a0 context.Context, _a1 ku
 	return r0, r1
 }
 
+// GetDatabaseCluster provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) GetDatabaseCluster(_a0 context.Context, _a1 string) (*v1.DatabaseCluster, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *v1.DatabaseCluster
+	if rf, ok := ret.Get(0).(func(context.Context, string) *v1.DatabaseCluster); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.DatabaseCluster)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetDefaultStorageClassName provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) GetDefaultStorageClassName(_a0 context.Context) (string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPSMDBOperatorVersion provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) GetPSMDBOperatorVersion(_a0 context.Context) (string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPXCOperatorVersion provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) GetPXCOperatorVersion(_a0 context.Context) (string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPersistentVolumes provides a mock function with given fields: ctx
-func (_m *mockKubernetesClient) GetPersistentVolumes(ctx context.Context) (*v1.PersistentVolumeList, error) {
+func (_m *mockKubernetesClient) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
 	ret := _m.Called(ctx)
 
-	var r0 *v1.PersistentVolumeList
-	if rf, ok := ret.Get(0).(func(context.Context) *v1.PersistentVolumeList); ok {
+	var r0 *corev1.PersistentVolumeList
+	if rf, ok := ret.Get(0).(func(context.Context) *corev1.PersistentVolumeList); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*v1.PersistentVolumeList)
+			r0 = ret.Get(0).(*corev1.PersistentVolumeList)
 		}
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
 		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetSecret provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) GetSecret(_a0 context.Context, _a1 string) (*corev1.Secret, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *corev1.Secret
+	if rf, ok := ret.Get(0).(func(context.Context, string) *corev1.Secret); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.Secret)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -166,6 +318,57 @@ func (_m *mockKubernetesClient) GetStorageClasses(ctx context.Context) (*storage
 	}
 
 	return r0, r1
+}
+
+// ListDatabaseClusters provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) ListDatabaseClusters(_a0 context.Context) (*v1.DatabaseClusterList, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *v1.DatabaseClusterList
+	if rf, ok := ret.Get(0).(func(context.Context) *v1.DatabaseClusterList); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.DatabaseClusterList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PatchDatabaseCluster provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 *v1.DatabaseCluster) error {
+	ret := _m.Called(_a0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*v1.DatabaseCluster) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// RestartDatabaseCluster provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) RestartDatabaseCluster(_a0 context.Context, _a1 string) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // SetKubeconfig provides a mock function with given fields: _a0
