@@ -43,6 +43,7 @@ type KubernetesCluster struct {
 	ID                    string     `reform:"id,pk"`
 	KubernetesClusterName string     `reform:"kubernetes_cluster_name"`
 	KubeConfig            string     `reform:"kube_config"`
+	IsReady               bool       `reform:"ready"`
 	PXC                   *Component `reform:"pxc"`
 	ProxySQL              *Component `reform:"proxysql"`
 	HAProxy               *Component `reform:"haproxy"`

@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +30,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -42,7 +45,7 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -52,7 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		kubernetesClient = &mockKubernetesClient{}
-		grafanaClient := &mockGrafanaClient{}
+		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -77,10 +80,15 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, _, teardown := setup(t)
+		ctx, ks, dc, kubernetesClient, grafanaClient, teardown := setup(t)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
+		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
+		require.NoError(t, err)
+		require.Empty(t, clusters.KubernetesClusters)
 		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PxcOperatorVersion:   "",
@@ -88,12 +96,10 @@ func TestKubernetesServer(t *testing.T) {
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
-		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
-		require.NoError(t, err)
-		require.Empty(t, clusters.KubernetesClusters)
 
 		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+		dc.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 		mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
 			Subscription: &controllerv1beta1.Subscription{
 				InstallPlanName: "mocked-install-plan",
@@ -102,6 +108,7 @@ func TestKubernetesServer(t *testing.T) {
 		dc.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
 		dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
+		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 
 		kubernetesClusterName := "test-cluster"
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
@@ -128,36 +135,91 @@ func TestKubernetesServer(t *testing.T) {
 				Operators: &dbaasv1beta1.Operators{
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+					Dbaas: &dbaasv1beta1.Operator{Version: "", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
 		}
-		assert.Equal(t, expected, clusters.KubernetesClusters)
-
-		listPXCClustersMock := dc.On("ListPXCClusters", ctx, mock.Anything)
-		listPSMDBClustersMock := dc.On("ListPSMDBClusters", ctx, mock.Anything)
-		listPXCClustersMock.Return(&controllerv1beta1.ListPXCClustersResponse{
-			Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
-				{Name: "first-xtradb-cluster"},
+		assert.Equal(t, expected[0].Operators, clusters.KubernetesClusters[0].Operators)
+		assert.Equal(t, expected[0].KubernetesClusterName, clusters.KubernetesClusters[0].KubernetesClusterName)
+		assert.True(
+			t,
+			clusters.KubernetesClusters[0].Status == dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK ||
+				clusters.KubernetesClusters[0].Status == dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING,
+		)
+		mockK8sResp := []dbaasv1.DatabaseCluster{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "first-pxc-test",
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:      "pxc",
+					DatabaseImage: "percona/percona-xtradb-cluster:8.0.27-18.1",
+					ClusterSize:   5,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type: "proxysql",
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("2m"),
+								corev1.ResourceMemory: resource.MustParse("124"),
+							},
+						},
+					},
+				},
+				Status: dbaasv1.DatabaseClusterStatus{
+					Ready: 15,
+					Size:  15,
+				},
 			},
-		}, nil)
+		}
+		listDatabaseMock := kubernetesClient.On("ListDatabaseClusters", ctx)
+		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
+
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", kubernetesClusterName), err)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", kubernetesClusterName), err)
 
-		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{
-			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
-				{Name: "first-xtradb-cluster"},
+		mockK8sResp = []dbaasv1.DatabaseCluster{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "first-psmdb-test",
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:      "psmdb",
+					DatabaseImage: "percona/percona-server-mongodb:4.4.5-7",
+					ClusterSize:   5,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type: "mongos",
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("2m"),
+								corev1.ResourceMemory: resource.MustParse("124"),
+							},
+						},
+					},
+				},
+				Status: dbaasv1.DatabaseClusterStatus{
+					Ready: 10,
+					Size:  10,
+				},
 			},
-		}, nil)
-		listPXCClustersMock.Return(&controllerv1beta1.ListPXCClustersResponse{}, nil)
-		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
-			KubernetesClusterName: kubernetesClusterName,
-		})
-		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", kubernetesClusterName), err)
+		}
+		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", kubernetesClusterName), err)
+		mockK8sResp = []dbaasv1.DatabaseCluster{}
 
-		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{}, nil)
+		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 		unregisterKubernetesClusterResponse, err := ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})
