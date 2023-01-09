@@ -159,6 +159,7 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+			s.On("ClearChangesChannel").Return()
 
 			r := runner.New(cfg.RunnerCapacity)
 			client := New(cfg, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
@@ -276,6 +277,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
 
 	r := runner.New(cfg.RunnerCapacity)
 	client := New(cfg, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)

@@ -43,6 +43,7 @@ type softwareVersioner interface {
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
+	ClearChangesChannel()
 	Changes() <-chan *agentpb.StateChangedRequest
 	QANRequests() <-chan *agentpb.QANCollectRequest
 	SetState(*agentpb.SetStateRequest)

@@ -187,7 +187,8 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
-	c.GetAgentsStatus()
+	c.supervisor.ClearChangesChannel()
+	c.SendActualStatuses()
 
 	oneDone := make(chan struct{}, 4)
 	go func() {
@@ -222,21 +223,8 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-// GetAgentsStatus sends status of running agents to server
-func (c *Client) GetAgentsStatus() {
-	// Drain all existing messages
-loop:
-	for {
-		select {
-		case _, ok := <-c.supervisor.Changes():
-			if !ok {
-				break loop
-			}
-		default:
-			break loop
-		}
-	}
-
+// SendActualStatuses sends status of running agents to server
+func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
 		resp, err := c.channel.SendAndWaitResponse(
