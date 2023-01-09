@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// DBClusterService holds unexported field and public methods to handle DB Clusters.
 type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry

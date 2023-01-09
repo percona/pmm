@@ -57,6 +57,7 @@ func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	}
 }
 
+// RegisterKubernetesServer sets the Kubernetes server instance.
 func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer) {
 	in.kubernetesServer = k
 }

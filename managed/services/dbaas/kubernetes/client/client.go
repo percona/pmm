@@ -22,24 +22,33 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
 
+	v1 "github.com/operator-framework/api/pkg/operators/v1"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
+	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	yamlSerializer "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/duration"
+	"k8s.io/apimachinery/pkg/util/wait"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/client-go/kubernetes"
@@ -50,6 +59,9 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/reference"
+	deploymentutil "k8s.io/kubectl/pkg/util/deployment"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client/database"
 )
@@ -108,6 +120,41 @@ func (list SortableEvents) Swap(i, j int) {
 
 func (list SortableEvents) Less(i, j int) bool {
 	return list[i].LastTimestamp.Time.Before(list[j].LastTimestamp.Time)
+}
+
+type resourceError struct {
+	name  string
+	issue string
+}
+
+type podError struct {
+	resourceError
+}
+
+type deploymentError struct {
+	resourceError
+	podErrs podErrors
+}
+
+type (
+	deploymentErrors []deploymentError
+	podErrors        []podError
+)
+
+func (e deploymentErrors) Error() string {
+	var sb strings.Builder
+	for _, i := range e {
+		sb.WriteString(fmt.Sprintf("deployment %s has error: %s\n%s", i.name, i.issue, i.podErrs.Error()))
+	}
+	return sb.String()
+}
+
+func (e podErrors) Error() string {
+	var sb strings.Builder
+	for _, i := range e {
+		sb.WriteString(fmt.Sprintf("\tpod %s has error: %s\n", i.name, i.issue))
+	}
+	return sb.String()
 }
 
 // NewFromInCluster returns a client object which uses the service account
@@ -604,4 +651,378 @@ func translateTimestampSince(timestamp metav1.Time) string {
 	}
 
 	return duration.HumanDuration(time.Since(timestamp.Time))
+}
+
+// ApplyFile accepts manifest file contents, parses into []runtime.Object
+// and applies them against the cluster
+func (c *Client) ApplyFile(fileBytes []byte) error {
+	objs, err := c.getObjects(fileBytes)
+	if err != nil {
+		return err
+	}
+	for i := range objs {
+		err := c.ApplyObject(objs[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
+	objs := []runtime.Object{}
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(f), 100)
+	var err error
+	for {
+		var rawObj runtime.RawExtension
+		if err = decoder.Decode(&rawObj); err != nil {
+			break
+		}
+
+		obj, _, err := yamlSerializer.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawObj.Raw, nil, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
+		if err != nil {
+			return nil, err
+		}
+
+		objs = append(objs, &unstructured.Unstructured{Object: unstructuredMap})
+	}
+
+	return objs, nil
+}
+
+// DoCSVWait waits until for a CSV to be applied.
+func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
+	var (
+		curPhase v1alpha1.ClusterServiceVersionPhase
+		newPhase v1alpha1.ClusterServiceVersionPhase
+	)
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	csv := v1alpha1.ClusterServiceVersion{}
+	csvPhaseSucceeded := func() (bool, error) {
+		err := kubeclient.Get(ctx, key, &csv)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return false, nil
+			}
+			return false, err
+		}
+		newPhase = csv.Status.Phase
+		if newPhase != curPhase {
+			curPhase = newPhase
+		}
+
+		switch curPhase {
+		case v1alpha1.CSVPhaseFailed:
+			return false, fmt.Errorf("csv failed: reason: %q, message: %q", csv.Status.Reason, csv.Status.Message)
+		case v1alpha1.CSVPhaseSucceeded:
+			return true, nil
+		default:
+			return false, nil
+		}
+	}
+
+	err = wait.PollImmediateUntil(time.Second, csvPhaseSucceeded, ctx.Done())
+	if err != nil && errors.Is(err, context.DeadlineExceeded) {
+		depCheckErr := c.checkDeploymentErrors(ctx, key, csv)
+		if depCheckErr != nil {
+			return depCheckErr
+		}
+	}
+	return err
+}
+
+// GetSubscriptionCSV retrieves a subscription CSV.
+func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedName) (types.NamespacedName, error) {
+	var csvKey types.NamespacedName
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return csvKey, err
+	}
+
+	subscriptionInstalledCSV := func() (bool, error) {
+		sub := v1alpha1.Subscription{}
+		err := kubeclient.Get(ctx, subKey, &sub)
+		if err != nil {
+			return false, err
+		}
+		installedCSV := sub.Status.InstalledCSV
+		if installedCSV == "" {
+			return false, nil
+		}
+		csvKey = types.NamespacedName{
+			Namespace: subKey.Namespace,
+			Name:      installedCSV,
+		}
+		log.Printf("  Found installed CSV %q", installedCSV)
+		return true, nil
+	}
+	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
+}
+
+func (c *Client) getKubeclient() (client.Client, error) {
+	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")
+	}
+
+	cl, err := client.New(c.restConfig, client.Options{
+		Scheme: scheme.Scheme,
+		Mapper: rm,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create client")
+	}
+	return cl, nil
+}
+
+// checkDeploymentErrors function loops through deployment specs of a given CSV, and prints reason
+// in case of failures, based on deployment condition.
+func (c Client) checkDeploymentErrors(ctx context.Context, key types.NamespacedName, csv v1alpha1.ClusterServiceVersion) error {
+	depErrs := deploymentErrors{}
+	if key.Namespace == "" {
+		return fmt.Errorf("no namespace provided to get deployment failures")
+	}
+
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	dep := &appsv1.Deployment{}
+	for _, ds := range csv.Spec.InstallStrategy.StrategySpec.DeploymentSpecs {
+		depKey := types.NamespacedName{
+			Namespace: key.Namespace,
+			Name:      ds.Name,
+		}
+		depSelectors := ds.Spec.Selector
+		if err := kubeclient.Get(ctx, depKey, dep); err != nil {
+			depErrs = append(depErrs, deploymentError{
+				resourceError: resourceError{
+					name:  ds.Name,
+					issue: err.Error(),
+				},
+			})
+			continue
+		}
+		for _, s := range dep.Status.Conditions {
+			if s.Type == appsv1.DeploymentAvailable && s.Status != corev1.ConditionTrue {
+				depErr := deploymentError{
+					resourceError: resourceError{
+						name:  ds.Name,
+						issue: s.Reason,
+					},
+				}
+				podErr := c.checkPodErrors(ctx, kubeclient, depSelectors, key)
+				podErrs := podErrors{}
+				if errors.As(podErr, &podErrs) {
+					depErr.podErrs = append(depErr.podErrs, podErrs...)
+				} else {
+					return podErr
+				}
+				depErrs = append(depErrs, depErr)
+			}
+		}
+	}
+
+	return depErrs
+}
+
+// checkPodErrors loops through pods, and returns pod errors if any.
+func (c Client) checkPodErrors(ctx context.Context, kubeclient client.Client, depSelectors *metav1.LabelSelector, key types.NamespacedName) error {
+	// loop through pods and return specific error message.
+	podErr := podErrors{}
+	podList := &corev1.PodList{}
+	podLabelSelectors, err := metav1.LabelSelectorAsSelector(depSelectors)
+	if err != nil {
+		return err
+	}
+
+	options := client.ListOptions{
+		LabelSelector: podLabelSelectors,
+		Namespace:     key.Namespace,
+	}
+
+	if err := kubeclient.List(ctx, podList, &options); err != nil {
+		return errors.Wrap(err, "error getting Pods")
+	}
+
+	for _, p := range podList.Items {
+		for _, cs := range p.Status.ContainerStatuses {
+			if !cs.Ready {
+				if cs.State.Waiting != nil {
+					containerName := p.Name + ":" + cs.Name
+					podErr = append(podErr, podError{resourceError{name: containerName, issue: cs.State.Waiting.Message}})
+				}
+			}
+		}
+	}
+
+	return podErr
+}
+
+// DoRolloutWait waits until a deployment has been rolled out susccessfully or there is an error.
+func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) error {
+	kubeclient, err := c.getKubeclient()
+	if err != nil {
+		return err
+	}
+
+	rolloutComplete := func() (bool, error) {
+		deployment := appsv1.Deployment{}
+		err := kubeclient.Get(ctx, key, &deployment)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				// Waiting for Deployment to appear
+				return false, nil
+			}
+			return false, err
+		}
+		if deployment.Generation <= deployment.Status.ObservedGeneration {
+			cond := deploymentutil.GetDeploymentCondition(deployment.Status, appsv1.DeploymentProgressing)
+			if cond != nil && cond.Reason == deploymentutil.TimedOutReason {
+				return false, errors.New("progress deadline exceeded")
+			}
+			if deployment.Spec.Replicas != nil && deployment.Status.UpdatedReplicas < *deployment.Spec.Replicas {
+				// Waiting for Deployment to rollout. Not all replicas have been updated
+				return false, nil
+			}
+			if deployment.Status.Replicas > deployment.Status.UpdatedReplicas {
+				// Waiting for Deployment to rollout. Old replicas are pending termination
+				return false, nil
+			}
+			if deployment.Status.AvailableReplicas < deployment.Status.UpdatedReplicas {
+				// Waiting for Deployment to rollout. Not all updated replicas are available
+				return false, nil
+			}
+			// Deployment successfully rolled out
+			return true, nil
+		}
+		// Waiting for Deployment to rollout: waiting for deployment spec update to be observed
+		return false, nil
+	}
+	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
+}
+
+// GetOperatorGroup retrieves an operator group details by namespace and name.
+func (c *Client) GetOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	if namespace == "" {
+		namespace = c.namespace
+	}
+
+	return operatorClient.OperatorsV1().OperatorGroups(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+// CreateOperatorGroup creates an operator group to be used as part of a subscription.
+func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	if namespace == "" {
+		namespace = c.namespace
+	}
+	og := &v1.OperatorGroup{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Spec: v1.OperatorGroupSpec{
+			TargetNamespaces: []string{namespace},
+		},
+		Status: v1.OperatorGroupStatus{
+			LastUpdated: &metav1.Time{
+				Time: time.Now(),
+			},
+		},
+	}
+
+	return operatorClient.OperatorsV1().OperatorGroups(namespace).Create(ctx, og, metav1.CreateOptions{})
+}
+
+// CreateSubscriptionForCatalog creates an OLM subscription.
+func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
+	packageName, channel, startingCSV string, approval v1alpha1.Approval,
+) (*v1alpha1.Subscription, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	subscription := &v1alpha1.Subscription{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       v1alpha1.SubscriptionKind,
+			APIVersion: v1alpha1.SubscriptionCRDAPIVersion,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      name,
+		},
+		Spec: &v1alpha1.SubscriptionSpec{
+			CatalogSource:          catalog,
+			CatalogSourceNamespace: catalogNamespace,
+			Package:                packageName,
+			Channel:                channel,
+			StartingCSV:            startingCSV,
+			InstallPlanApproval:    approval,
+		},
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
+}
+
+// GetSubscription retrieves an OLM subscription by namespace and name.
+func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+// ListSubscriptions all the subscriptions in the namespace.
+func (c *Client) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).List(ctx, metav1.ListOptions{})
+}
+
+// GetInstallPlan retrieves an OLM install plan by namespace and name.
+func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Get(ctx, name, metav1.GetOptions{})
+}
+
+// UpdateInstallPlan updates the existing install plan in the specified namespace.
+func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Update(ctx, installPlan, metav1.UpdateOptions{})
 }

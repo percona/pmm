@@ -22,7 +22,6 @@ import (
 	"sync"
 
 	goversion "github.com/hashicorp/go-version"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -31,6 +30,7 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/stringset"
 	pmmversion "github.com/percona/pmm/version"
 )
@@ -41,11 +41,13 @@ const (
 	defaultNamespace  = "default"
 )
 
+// ComponentsService holds unexported fields and public methods to handle Components Service.
 type ComponentsService struct {
 	l                    *logrus.Entry
 	db                   *reform.DB
 	dbaasClient          dbaasClient
 	versionServiceClient versionService
+	olmOperatorService   olm.OperatorServiceManager
 
 	dbaasv1beta1.UnimplementedComponentsServer
 }
@@ -57,13 +59,14 @@ type installedComponentsVersion struct {
 }
 
 // NewComponentsService creates Components Service.
-func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
+func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService, olmOperatorService olm.OperatorServiceManager) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
 	return &ComponentsService{
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
 		versionServiceClient: versionServiceClient,
+		olmOperatorService:   olmOperatorService,
 	}
 }
 
@@ -77,6 +80,7 @@ func (c *ComponentsService) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
+// GetPSMDBComponents retrieves all PSMDB components for a specific cluster.
 func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
@@ -251,12 +255,13 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 	}
 
 	for _, cluster := range clusters {
-		subscriptions, err := c.dbaasClient.ListSubscriptions(ctx, &dbaascontrollerv1beta1.ListSubscriptionsRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: cluster.KubeConfig,
-			},
-		})
+		if err := c.olmOperatorService.SetKubeConfig(cluster.KubeConfig); err != nil {
+			return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+		}
+
+		subscriptions, err := c.olmOperatorService.ListSubscriptions(ctx, "default")
 		if err != nil {
+			c.l.Errorf("Cannot list the subscriptions for the cluster %q: %s", cluster.KubernetesClusterName, err)
 			continue
 		}
 		resp.ClusterToComponents[cluster.KubernetesClusterName] = &dbaasv1beta1.ComponentsUpdateInformation{
@@ -267,11 +272,11 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 		}
 
 		for _, item := range subscriptions.Items {
-			if item.CurrentCsv != item.InstalledCsv {
+			if item.Status.CurrentCSV != item.Status.InstalledCSV {
 				re := regexp.MustCompile(`v(\d+\.\d+\.\d+)$`)
-				matches := re.FindStringSubmatch(item.CurrentCsv)
+				matches := re.FindStringSubmatch(item.Status.CurrentCSV)
 				if len(matches) == 2 {
-					switch item.Package {
+					switch item.Spec.Package {
 					case psmdbOperatorName:
 						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[psmdbOperator] = &dbaasv1beta1.ComponentUpdateInformation{
 							AvailableVersion: matches[1],
@@ -408,25 +413,20 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	}
 	var component *models.Component
 	var installFunc func() error
+
+	if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+	}
+
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, pxcOperatorName)
-			if err != nil {
-				return errors.Wrapf(err, "cannot get install plan for subscription %q", pxcOperatorName)
-			}
-
-			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
+			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			installPlanName, err := getInstallPlanForSubscription(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, defaultNamespace, psmdbOperatorName)
-			if err != nil {
-				return errors.Wrapf(err, "cannot get install plan for subscription %q", psmdbOperatorName)
-			}
-
-			return approveInstallPlan(ctx, c.dbaasClient, kubernetesCluster.KubeConfig, "default", installPlanName)
+			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
 	default:
