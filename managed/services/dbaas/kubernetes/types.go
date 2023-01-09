@@ -19,9 +19,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/pkg/errors"
-
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
