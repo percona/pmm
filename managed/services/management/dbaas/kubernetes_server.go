@@ -386,6 +386,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	go k.setupMonitoring(context.Background(), operatorsToInstall, settings.PMMPublicAddress, apiKey, apiKeyID, req)
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
+
 func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, pmmPublicAddress string,
 	apiKey string, apiKeyID int64, req *dbaasv1beta1.RegisterKubernetesClusterRequest,
 ) {
@@ -404,6 +405,7 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 	}
 }
+
 func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, req *dbaasv1beta1.RegisterKubernetesClusterRequest) map[string]error {
 	ctx := context.TODO()
 
@@ -511,6 +513,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	return retval
 }
+
 func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress string, apiKey string,
 	apiKeyID int64, kubeConfig string,
 ) error {

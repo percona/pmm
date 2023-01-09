@@ -45,7 +45,7 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -55,7 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		kubernetesClient = &mockKubernetesClient{}
-		grafanaClient := &mockGrafanaClient{}
+		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -80,7 +80,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, kubernetesClient, teardown := setup(t)
+		ctx, ks, dc, kubernetesClient, grafanaClient, teardown := setup(t)
 		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
@@ -99,6 +99,7 @@ func TestKubernetesServer(t *testing.T) {
 
 		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+		dc.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 		mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
 			Subscription: &controllerv1beta1.Subscription{
 				InstallPlanName: "mocked-install-plan",
@@ -107,6 +108,7 @@ func TestKubernetesServer(t *testing.T) {
 		dc.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
 		dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
+		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 
 		kubernetesClusterName := "test-cluster"
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
