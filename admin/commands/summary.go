@@ -184,7 +184,7 @@ func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 			continue
 		}
 
-		addData(zipW, path.Join("server", rf.Name), rf.Modified, rc)
+		addData(zipW, path.Join("server", rf.Name), rf.Modified, rc) //nolint:gosec
 
 		rc.Close() //nolint:errcheck
 	}
@@ -271,7 +271,7 @@ func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) e
 			logrus.Errorf("%s", err)
 			continue
 		}
-		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc)
+		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc) //nolint:gosec
 
 		rc.Close() //nolint:errcheck
 	}

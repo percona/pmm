@@ -1730,153 +1730,6 @@ func (x *PBMSwitchPITRResponse) GetError() string {
 	return ""
 }
 
-// ParseDefaultsFileRequest is an ServerMessage asking pmm-agent to parse defaults file.
-type ParseDefaultsFileRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Service type.
-	ServiceType inventorypb.ServiceType `protobuf:"varint,1,opt,name=service_type,json=serviceType,proto3,enum=inventory.ServiceType" json:"service_type,omitempty"`
-	// Defaults config path
-	ConfigPath string `protobuf:"bytes,2,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
-}
-
-func (x *ParseDefaultsFileRequest) Reset() {
-	*x = ParseDefaultsFileRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[22]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ParseDefaultsFileRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ParseDefaultsFileRequest) ProtoMessage() {}
-
-func (x *ParseDefaultsFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[22]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ParseDefaultsFileRequest.ProtoReflect.Descriptor instead.
-func (*ParseDefaultsFileRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{22}
-}
-
-func (x *ParseDefaultsFileRequest) GetServiceType() inventorypb.ServiceType {
-	if x != nil {
-		return x.ServiceType
-	}
-	return inventorypb.ServiceType(0)
-}
-
-func (x *ParseDefaultsFileRequest) GetConfigPath() string {
-	if x != nil {
-		return x.ConfigPath
-	}
-	return ""
-}
-
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
-type ParseDefaultsFileResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Error message if parse failed.
-	Error    string `protobuf:"bytes,1,opt,name=error,proto3" json:"error,omitempty"`
-	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
-	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	Host     string `protobuf:"bytes,4,opt,name=host,proto3" json:"host,omitempty"`
-	Port     uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	Socket   string `protobuf:"bytes,6,opt,name=socket,proto3" json:"socket,omitempty"`
-}
-
-func (x *ParseDefaultsFileResponse) Reset() {
-	*x = ParseDefaultsFileResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[23]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ParseDefaultsFileResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ParseDefaultsFileResponse) ProtoMessage() {}
-
-func (x *ParseDefaultsFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[23]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ParseDefaultsFileResponse.ProtoReflect.Descriptor instead.
-func (*ParseDefaultsFileResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{23}
-}
-
-func (x *ParseDefaultsFileResponse) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
-func (x *ParseDefaultsFileResponse) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *ParseDefaultsFileResponse) GetPassword() string {
-	if x != nil {
-		return x.Password
-	}
-	return ""
-}
-
-func (x *ParseDefaultsFileResponse) GetHost() string {
-	if x != nil {
-		return x.Host
-	}
-	return ""
-}
-
-func (x *ParseDefaultsFileResponse) GetPort() uint32 {
-	if x != nil {
-		return x.Port
-	}
-	return 0
-}
-
-func (x *ParseDefaultsFileResponse) GetSocket() string {
-	if x != nil {
-		return x.Socket
-	}
-	return ""
-}
-
 // AgentLogsRequest is an ServerMessage asking logs by Agent ID.
 type AgentLogsRequest struct {
 	state         protoimpl.MessageState
@@ -1890,7 +1743,7 @@ type AgentLogsRequest struct {
 func (x *AgentLogsRequest) Reset() {
 	*x = AgentLogsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[24]
+		mi := &file_agentpb_agent_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1903,7 +1756,7 @@ func (x *AgentLogsRequest) String() string {
 func (*AgentLogsRequest) ProtoMessage() {}
 
 func (x *AgentLogsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[24]
+	mi := &file_agentpb_agent_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1916,7 +1769,7 @@ func (x *AgentLogsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentLogsRequest.ProtoReflect.Descriptor instead.
 func (*AgentLogsRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{24}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AgentLogsRequest) GetAgentId() string {
@@ -1946,7 +1799,7 @@ type AgentLogsResponse struct {
 func (x *AgentLogsResponse) Reset() {
 	*x = AgentLogsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[25]
+		mi := &file_agentpb_agent_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1959,7 +1812,7 @@ func (x *AgentLogsResponse) String() string {
 func (*AgentLogsResponse) ProtoMessage() {}
 
 func (x *AgentLogsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[25]
+	mi := &file_agentpb_agent_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1972,7 +1825,7 @@ func (x *AgentLogsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentLogsResponse.ProtoReflect.Descriptor instead.
 func (*AgentLogsResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{25}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *AgentLogsResponse) GetLogs() []string {
@@ -2010,7 +1863,7 @@ type CheckConnectionRequest struct {
 func (x *CheckConnectionRequest) Reset() {
 	*x = CheckConnectionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[26]
+		mi := &file_agentpb_agent_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2023,7 +1876,7 @@ func (x *CheckConnectionRequest) String() string {
 func (*CheckConnectionRequest) ProtoMessage() {}
 
 func (x *CheckConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[26]
+	mi := &file_agentpb_agent_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2036,7 +1889,7 @@ func (x *CheckConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CheckConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{26}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CheckConnectionRequest) GetType() inventorypb.ServiceType {
@@ -2088,7 +1941,7 @@ type CheckConnectionResponse struct {
 func (x *CheckConnectionResponse) Reset() {
 	*x = CheckConnectionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[27]
+		mi := &file_agentpb_agent_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2101,7 +1954,7 @@ func (x *CheckConnectionResponse) String() string {
 func (*CheckConnectionResponse) ProtoMessage() {}
 
 func (x *CheckConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[27]
+	mi := &file_agentpb_agent_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2114,7 +1967,7 @@ func (x *CheckConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckConnectionResponse.ProtoReflect.Descriptor instead.
 func (*CheckConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{27}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CheckConnectionResponse) GetError() string {
@@ -2143,7 +1996,7 @@ type JobStatusRequest struct {
 func (x *JobStatusRequest) Reset() {
 	*x = JobStatusRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[28]
+		mi := &file_agentpb_agent_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2156,7 +2009,7 @@ func (x *JobStatusRequest) String() string {
 func (*JobStatusRequest) ProtoMessage() {}
 
 func (x *JobStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[28]
+	mi := &file_agentpb_agent_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2169,7 +2022,7 @@ func (x *JobStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobStatusRequest.ProtoReflect.Descriptor instead.
 func (*JobStatusRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{28}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *JobStatusRequest) GetJobId() string {
@@ -2191,7 +2044,7 @@ type JobStatusResponse struct {
 func (x *JobStatusResponse) Reset() {
 	*x = JobStatusResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[29]
+		mi := &file_agentpb_agent_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2204,7 +2057,7 @@ func (x *JobStatusResponse) String() string {
 func (*JobStatusResponse) ProtoMessage() {}
 
 func (x *JobStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[29]
+	mi := &file_agentpb_agent_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2217,7 +2070,7 @@ func (x *JobStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobStatusResponse.ProtoReflect.Descriptor instead.
 func (*JobStatusResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{29}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *JobStatusResponse) GetAlive() bool {
@@ -2243,7 +2096,7 @@ type S3LocationConfig struct {
 func (x *S3LocationConfig) Reset() {
 	*x = S3LocationConfig{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[30]
+		mi := &file_agentpb_agent_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2256,7 +2109,7 @@ func (x *S3LocationConfig) String() string {
 func (*S3LocationConfig) ProtoMessage() {}
 
 func (x *S3LocationConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[30]
+	mi := &file_agentpb_agent_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2269,7 +2122,7 @@ func (x *S3LocationConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use S3LocationConfig.ProtoReflect.Descriptor instead.
 func (*S3LocationConfig) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{30}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *S3LocationConfig) GetEndpoint() string {
@@ -2319,7 +2172,7 @@ type FilesystemLocationConfig struct {
 func (x *FilesystemLocationConfig) Reset() {
 	*x = FilesystemLocationConfig{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[31]
+		mi := &file_agentpb_agent_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2332,7 +2185,7 @@ func (x *FilesystemLocationConfig) String() string {
 func (*FilesystemLocationConfig) ProtoMessage() {}
 
 func (x *FilesystemLocationConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[31]
+	mi := &file_agentpb_agent_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2345,7 +2198,7 @@ func (x *FilesystemLocationConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilesystemLocationConfig.ProtoReflect.Descriptor instead.
 func (*FilesystemLocationConfig) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{31}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *FilesystemLocationConfig) GetPath() string {
@@ -2376,7 +2229,7 @@ type StartJobRequest struct {
 func (x *StartJobRequest) Reset() {
 	*x = StartJobRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[32]
+		mi := &file_agentpb_agent_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2389,7 +2242,7 @@ func (x *StartJobRequest) String() string {
 func (*StartJobRequest) ProtoMessage() {}
 
 func (x *StartJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[32]
+	mi := &file_agentpb_agent_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2402,7 +2255,7 @@ func (x *StartJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobRequest.ProtoReflect.Descriptor instead.
 func (*StartJobRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{32}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *StartJobRequest) GetJobId() string {
@@ -2494,7 +2347,7 @@ type StartJobResponse struct {
 func (x *StartJobResponse) Reset() {
 	*x = StartJobResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[33]
+		mi := &file_agentpb_agent_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2507,7 +2360,7 @@ func (x *StartJobResponse) String() string {
 func (*StartJobResponse) ProtoMessage() {}
 
 func (x *StartJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[33]
+	mi := &file_agentpb_agent_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2520,7 +2373,7 @@ func (x *StartJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobResponse.ProtoReflect.Descriptor instead.
 func (*StartJobResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{33}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *StartJobResponse) GetError() string {
@@ -2542,7 +2395,7 @@ type StopJobRequest struct {
 func (x *StopJobRequest) Reset() {
 	*x = StopJobRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[34]
+		mi := &file_agentpb_agent_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2555,7 +2408,7 @@ func (x *StopJobRequest) String() string {
 func (*StopJobRequest) ProtoMessage() {}
 
 func (x *StopJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[34]
+	mi := &file_agentpb_agent_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2568,7 +2421,7 @@ func (x *StopJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopJobRequest.ProtoReflect.Descriptor instead.
 func (*StopJobRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{34}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *StopJobRequest) GetJobId() string {
@@ -2588,7 +2441,7 @@ type StopJobResponse struct {
 func (x *StopJobResponse) Reset() {
 	*x = StopJobResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[35]
+		mi := &file_agentpb_agent_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2601,7 +2454,7 @@ func (x *StopJobResponse) String() string {
 func (*StopJobResponse) ProtoMessage() {}
 
 func (x *StopJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[35]
+	mi := &file_agentpb_agent_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2614,7 +2467,7 @@ func (x *StopJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopJobResponse.ProtoReflect.Descriptor instead.
 func (*StopJobResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{35}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{33}
 }
 
 // JobResult represents job result.
@@ -2638,7 +2491,7 @@ type JobResult struct {
 func (x *JobResult) Reset() {
 	*x = JobResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[36]
+		mi := &file_agentpb_agent_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2651,7 +2504,7 @@ func (x *JobResult) String() string {
 func (*JobResult) ProtoMessage() {}
 
 func (x *JobResult) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[36]
+	mi := &file_agentpb_agent_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2664,7 +2517,7 @@ func (x *JobResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult.ProtoReflect.Descriptor instead.
 func (*JobResult) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *JobResult) GetJobId() string {
@@ -2776,7 +2629,7 @@ type JobProgress struct {
 func (x *JobProgress) Reset() {
 	*x = JobProgress{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[37]
+		mi := &file_agentpb_agent_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2789,7 +2642,7 @@ func (x *JobProgress) String() string {
 func (*JobProgress) ProtoMessage() {}
 
 func (x *JobProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[37]
+	mi := &file_agentpb_agent_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2802,7 +2655,7 @@ func (x *JobProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress.ProtoReflect.Descriptor instead.
 func (*JobProgress) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{37}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *JobProgress) GetJobId() string {
@@ -2881,7 +2734,7 @@ type GetVersionsRequest struct {
 func (x *GetVersionsRequest) Reset() {
 	*x = GetVersionsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[38]
+		mi := &file_agentpb_agent_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2894,7 +2747,7 @@ func (x *GetVersionsRequest) String() string {
 func (*GetVersionsRequest) ProtoMessage() {}
 
 func (x *GetVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[38]
+	mi := &file_agentpb_agent_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2907,7 +2760,7 @@ func (x *GetVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetVersionsRequest) GetSoftwares() []*GetVersionsRequest_Software {
@@ -2929,7 +2782,7 @@ type GetVersionsResponse struct {
 func (x *GetVersionsResponse) Reset() {
 	*x = GetVersionsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[39]
+		mi := &file_agentpb_agent_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2942,7 +2795,7 @@ func (x *GetVersionsResponse) String() string {
 func (*GetVersionsResponse) ProtoMessage() {}
 
 func (x *GetVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[39]
+	mi := &file_agentpb_agent_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2955,7 +2808,7 @@ func (x *GetVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsResponse.ProtoReflect.Descriptor instead.
 func (*GetVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{39}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetVersionsResponse) GetVersions() []*GetVersionsResponse_Version {
@@ -2995,7 +2848,6 @@ type AgentMessage struct {
 	//	*AgentMessage_JobStatus
 	//	*AgentMessage_GetVersions
 	//	*AgentMessage_PbmSwitchPitr
-	//	*AgentMessage_ParseDefaultsFile
 	//	*AgentMessage_AgentLogs
 	Payload isAgentMessage_Payload `protobuf_oneof:"payload"`
 }
@@ -3003,7 +2855,7 @@ type AgentMessage struct {
 func (x *AgentMessage) Reset() {
 	*x = AgentMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[40]
+		mi := &file_agentpb_agent_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3016,7 +2868,7 @@ func (x *AgentMessage) String() string {
 func (*AgentMessage) ProtoMessage() {}
 
 func (x *AgentMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[40]
+	mi := &file_agentpb_agent_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3029,7 +2881,7 @@ func (x *AgentMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgentMessage.ProtoReflect.Descriptor instead.
 func (*AgentMessage) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{40}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *AgentMessage) GetId() uint32 {
@@ -3165,13 +3017,6 @@ func (x *AgentMessage) GetPbmSwitchPitr() *PBMSwitchPITRResponse {
 	return nil
 }
 
-func (x *AgentMessage) GetParseDefaultsFile() *ParseDefaultsFileResponse {
-	if x, ok := x.GetPayload().(*AgentMessage_ParseDefaultsFile); ok {
-		return x.ParseDefaultsFile
-	}
-	return nil
-}
-
 func (x *AgentMessage) GetAgentLogs() *AgentLogsResponse {
 	if x, ok := x.GetPayload().(*AgentMessage_AgentLogs); ok {
 		return x.AgentLogs
@@ -3249,10 +3094,6 @@ type AgentMessage_PbmSwitchPitr struct {
 	PbmSwitchPitr *PBMSwitchPITRResponse `protobuf:"bytes,19,opt,name=pbm_switch_pitr,json=pbmSwitchPitr,proto3,oneof"`
 }
 
-type AgentMessage_ParseDefaultsFile struct {
-	ParseDefaultsFile *ParseDefaultsFileResponse `protobuf:"bytes,20,opt,name=parse_defaults_file,json=parseDefaultsFile,proto3,oneof"`
-}
-
 type AgentMessage_AgentLogs struct {
 	AgentLogs *AgentLogsResponse `protobuf:"bytes,21,opt,name=agent_logs,json=agentLogs,proto3,oneof"`
 }
@@ -3289,8 +3130,6 @@ func (*AgentMessage_GetVersions) isAgentMessage_Payload() {}
 
 func (*AgentMessage_PbmSwitchPitr) isAgentMessage_Payload() {}
 
-func (*AgentMessage_ParseDefaultsFile) isAgentMessage_Payload() {}
-
 func (*AgentMessage_AgentLogs) isAgentMessage_Payload() {}
 
 type ServerMessage struct {
@@ -3321,7 +3160,6 @@ type ServerMessage struct {
 	//	*ServerMessage_JobStatus
 	//	*ServerMessage_GetVersions
 	//	*ServerMessage_PbmSwitchPitr
-	//	*ServerMessage_ParseDefaultsFile
 	//	*ServerMessage_AgentLogs
 	Payload isServerMessage_Payload `protobuf_oneof:"payload"`
 }
@@ -3329,7 +3167,7 @@ type ServerMessage struct {
 func (x *ServerMessage) Reset() {
 	*x = ServerMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[41]
+		mi := &file_agentpb_agent_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3342,7 +3180,7 @@ func (x *ServerMessage) String() string {
 func (*ServerMessage) ProtoMessage() {}
 
 func (x *ServerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[41]
+	mi := &file_agentpb_agent_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3355,7 +3193,7 @@ func (x *ServerMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerMessage.ProtoReflect.Descriptor instead.
 func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{41}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ServerMessage) GetId() uint32 {
@@ -3477,13 +3315,6 @@ func (x *ServerMessage) GetPbmSwitchPitr() *PBMSwitchPITRRequest {
 	return nil
 }
 
-func (x *ServerMessage) GetParseDefaultsFile() *ParseDefaultsFileRequest {
-	if x, ok := x.GetPayload().(*ServerMessage_ParseDefaultsFile); ok {
-		return x.ParseDefaultsFile
-	}
-	return nil
-}
-
 func (x *ServerMessage) GetAgentLogs() *AgentLogsRequest {
 	if x, ok := x.GetPayload().(*ServerMessage_AgentLogs); ok {
 		return x.AgentLogs
@@ -3553,10 +3384,6 @@ type ServerMessage_PbmSwitchPitr struct {
 	PbmSwitchPitr *PBMSwitchPITRRequest `protobuf:"bytes,17,opt,name=pbm_switch_pitr,json=pbmSwitchPitr,proto3,oneof"`
 }
 
-type ServerMessage_ParseDefaultsFile struct {
-	ParseDefaultsFile *ParseDefaultsFileRequest `protobuf:"bytes,18,opt,name=parse_defaults_file,json=parseDefaultsFile,proto3,oneof"`
-}
-
 type ServerMessage_AgentLogs struct {
 	AgentLogs *AgentLogsRequest `protobuf:"bytes,19,opt,name=agent_logs,json=agentLogs,proto3,oneof"`
 }
@@ -3589,8 +3416,6 @@ func (*ServerMessage_GetVersions) isServerMessage_Payload() {}
 
 func (*ServerMessage_PbmSwitchPitr) isServerMessage_Payload() {}
 
-func (*ServerMessage_ParseDefaultsFile) isServerMessage_Payload() {}
-
 func (*ServerMessage_AgentLogs) isServerMessage_Payload() {}
 
 // AgentProcess describes desired configuration of a single agent process started by pmm-agent.
@@ -3611,7 +3436,7 @@ type SetStateRequest_AgentProcess struct {
 func (x *SetStateRequest_AgentProcess) Reset() {
 	*x = SetStateRequest_AgentProcess{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[43]
+		mi := &file_agentpb_agent_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3624,7 +3449,7 @@ func (x *SetStateRequest_AgentProcess) String() string {
 func (*SetStateRequest_AgentProcess) ProtoMessage() {}
 
 func (x *SetStateRequest_AgentProcess) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[43]
+	mi := &file_agentpb_agent_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3714,7 +3539,7 @@ type SetStateRequest_BuiltinAgent struct {
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[45]
+		mi := &file_agentpb_agent_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3727,7 +3552,7 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[45]
+	mi := &file_agentpb_agent_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3819,7 +3644,7 @@ type StartActionRequest_MySQLExplainParams struct {
 func (x *StartActionRequest_MySQLExplainParams) Reset() {
 	*x = StartActionRequest_MySQLExplainParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[49]
+		mi := &file_agentpb_agent_proto_msgTypes[47]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3832,7 +3657,7 @@ func (x *StartActionRequest_MySQLExplainParams) String() string {
 func (*StartActionRequest_MySQLExplainParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLExplainParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[49]
+	mi := &file_agentpb_agent_proto_msgTypes[47]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3908,7 +3733,7 @@ type StartActionRequest_MySQLShowCreateTableParams struct {
 func (x *StartActionRequest_MySQLShowCreateTableParams) Reset() {
 	*x = StartActionRequest_MySQLShowCreateTableParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[50]
+		mi := &file_agentpb_agent_proto_msgTypes[48]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3921,7 +3746,7 @@ func (x *StartActionRequest_MySQLShowCreateTableParams) String() string {
 func (*StartActionRequest_MySQLShowCreateTableParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowCreateTableParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[50]
+	mi := &file_agentpb_agent_proto_msgTypes[48]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3983,7 +3808,7 @@ type StartActionRequest_MySQLShowTableStatusParams struct {
 func (x *StartActionRequest_MySQLShowTableStatusParams) Reset() {
 	*x = StartActionRequest_MySQLShowTableStatusParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[51]
+		mi := &file_agentpb_agent_proto_msgTypes[49]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3996,7 +3821,7 @@ func (x *StartActionRequest_MySQLShowTableStatusParams) String() string {
 func (*StartActionRequest_MySQLShowTableStatusParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowTableStatusParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[51]
+	mi := &file_agentpb_agent_proto_msgTypes[49]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4058,7 +3883,7 @@ type StartActionRequest_MySQLShowIndexParams struct {
 func (x *StartActionRequest_MySQLShowIndexParams) Reset() {
 	*x = StartActionRequest_MySQLShowIndexParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[52]
+		mi := &file_agentpb_agent_proto_msgTypes[50]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4071,7 +3896,7 @@ func (x *StartActionRequest_MySQLShowIndexParams) String() string {
 func (*StartActionRequest_MySQLShowIndexParams) ProtoMessage() {}
 
 func (x *StartActionRequest_MySQLShowIndexParams) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[52]
+	mi := &file_agentpb_agent_proto_msgTypes[50]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5355,7 +5180,7 @@ func (x *CheckConnectionResponse_Stats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckConnectionResponse_Stats.ProtoReflect.Descriptor instead.
 func (*CheckConnectionResponse_Stats) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{27, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{25, 0}
 }
 
 func (x *CheckConnectionResponse_Stats) GetTableCount() int32 {
@@ -5420,7 +5245,7 @@ func (x *StartJobRequest_MySQLBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobRequest_MySQLBackup.ProtoReflect.Descriptor instead.
 func (*StartJobRequest_MySQLBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{32, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30, 0}
 }
 
 func (x *StartJobRequest_MySQLBackup) GetUser() string {
@@ -5536,7 +5361,7 @@ func (x *StartJobRequest_MySQLRestoreBackup) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use StartJobRequest_MySQLRestoreBackup.ProtoReflect.Descriptor instead.
 func (*StartJobRequest_MySQLRestoreBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{32, 1}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30, 1}
 }
 
 func (x *StartJobRequest_MySQLRestoreBackup) GetServiceId() string {
@@ -5638,7 +5463,7 @@ func (x *StartJobRequest_MongoDBBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartJobRequest_MongoDBBackup.ProtoReflect.Descriptor instead.
 func (*StartJobRequest_MongoDBBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{32, 2}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30, 2}
 }
 
 func (x *StartJobRequest_MongoDBBackup) GetUser() string {
@@ -5793,7 +5618,7 @@ func (x *StartJobRequest_MongoDBRestoreBackup) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use StartJobRequest_MongoDBRestoreBackup.ProtoReflect.Descriptor instead.
 func (*StartJobRequest_MongoDBRestoreBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{32, 3}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{30, 3}
 }
 
 func (x *StartJobRequest_MongoDBRestoreBackup) GetUser() string {
@@ -5922,7 +5747,7 @@ func (x *JobResult_Error) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_Error.ProtoReflect.Descriptor instead.
 func (*JobResult_Error) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34, 0}
 }
 
 func (x *JobResult_Error) GetMessage() string {
@@ -5968,7 +5793,7 @@ func (x *JobResult_MongoDBBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_MongoDBBackup.ProtoReflect.Descriptor instead.
 func (*JobResult_MongoDBBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 1}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34, 1}
 }
 
 // MySQLBackup contains result for MySQL backup job.
@@ -6007,7 +5832,7 @@ func (x *JobResult_MySQLBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_MySQLBackup.ProtoReflect.Descriptor instead.
 func (*JobResult_MySQLBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 2}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34, 2}
 }
 
 // MySQLRestoreBackup contains result for MySQL restore backup job.
@@ -6046,7 +5871,7 @@ func (x *JobResult_MySQLRestoreBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_MySQLRestoreBackup.ProtoReflect.Descriptor instead.
 func (*JobResult_MySQLRestoreBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 3}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34, 3}
 }
 
 // MongoDBRestoreBackup contains result for MongoDB restore backup job.
@@ -6085,7 +5910,7 @@ func (x *JobResult_MongoDBRestoreBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobResult_MongoDBRestoreBackup.ProtoReflect.Descriptor instead.
 func (*JobResult_MongoDBRestoreBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 4}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{34, 4}
 }
 
 // MySQLBackup contains backup job status update.
@@ -6124,7 +5949,7 @@ func (x *JobProgress_MySQLBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress_MySQLBackup.ProtoReflect.Descriptor instead.
 func (*JobProgress_MySQLBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{37, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{35, 0}
 }
 
 // MySQLRestoreBackup contains restore backup job status update.
@@ -6163,7 +5988,7 @@ func (x *JobProgress_MySQLRestoreBackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress_MySQLRestoreBackup.ProtoReflect.Descriptor instead.
 func (*JobProgress_MySQLRestoreBackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{37, 1}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{35, 1}
 }
 
 // Logs contains generic logs from job.
@@ -6206,7 +6031,7 @@ func (x *JobProgress_Logs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobProgress_Logs.ProtoReflect.Descriptor instead.
 func (*JobProgress_Logs) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{37, 2}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{35, 2}
 }
 
 func (x *JobProgress_Logs) GetChunkId() uint32 {
@@ -6266,7 +6091,7 @@ func (x *GetVersionsRequest_MySQLd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest_MySQLd.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest_MySQLd) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 0}
 }
 
 // Xtrabackup is used for xtrabackup binary version retrieving.
@@ -6305,7 +6130,7 @@ func (x *GetVersionsRequest_Xtrabackup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest_Xtrabackup.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest_Xtrabackup) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38, 1}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 1}
 }
 
 // Xbcloud is used for xbcloud binary version retrieving.
@@ -6344,7 +6169,7 @@ func (x *GetVersionsRequest_Xbcloud) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest_Xbcloud.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest_Xbcloud) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38, 2}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 2}
 }
 
 // Qpress is used for qpress binary version retrieving.
@@ -6383,7 +6208,7 @@ func (x *GetVersionsRequest_Qpress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest_Qpress.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest_Qpress) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38, 3}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 3}
 }
 
 // Software is used to select software for which retrieve version.
@@ -6430,7 +6255,7 @@ func (x *GetVersionsRequest_Software) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsRequest_Software.ProtoReflect.Descriptor instead.
 func (*GetVersionsRequest_Software) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{38, 4}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{36, 4}
 }
 
 func (m *GetVersionsRequest_Software) GetSoftware() isGetVersionsRequest_Software_Software {
@@ -6536,7 +6361,7 @@ func (x *GetVersionsResponse_Version) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVersionsResponse_Version.ProtoReflect.Descriptor instead.
 func (*GetVersionsResponse_Version) Descriptor() ([]byte, []int) {
-	return file_agentpb_agent_proto_rawDescGZIP(), []int{39, 0}
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{37, 0}
 }
 
 func (x *GetVersionsResponse_Version) GetVersion() string {
@@ -7691,7 +7516,7 @@ var file_agentpb_agent_proto_depIdxs = []int32{
 	13,  // 8: agent.QueryActionValue.map:type_name -> agent.QueryActionMap
 	14,  // 9: agent.QueryActionValue.binary:type_name -> agent.QueryActionBinary
 	11,  // 10: agent.QueryActionSlice.slice:type_name -> agent.QueryActionValue
-	50,  // 11: agent.QueryActionMap.map:type_name -> agent.QueryActionMap.MapEntry
+	48,  // 11: agent.QueryActionMap.map:type_name -> agent.QueryActionMap.MapEntry
 	12,  // 12: agent.QueryActionResult.rows:type_name -> agent.QueryActionSlice
 	13,  // 13: agent.QueryActionResult.docs:type_name -> agent.QueryActionMap
 	51,  // 14: agent.StartActionRequest.mysql_explain_params:type_name -> agent.StartActionRequest.MySQLExplainParams
@@ -8095,30 +7920,6 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ParseDefaultsFileRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agentpb_agent_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ParseDefaultsFileResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_agentpb_agent_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AgentLogsRequest); i {
 			case 0:
 				return &v.state
@@ -8130,7 +7931,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AgentLogsResponse); i {
 			case 0:
 				return &v.state
@@ -8142,7 +7943,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CheckConnectionRequest); i {
 			case 0:
 				return &v.state
@@ -8154,7 +7955,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CheckConnectionResponse); i {
 			case 0:
 				return &v.state
@@ -8166,7 +7967,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*JobStatusRequest); i {
 			case 0:
 				return &v.state
@@ -8178,7 +7979,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*JobStatusResponse); i {
 			case 0:
 				return &v.state
@@ -8190,7 +7991,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*S3LocationConfig); i {
 			case 0:
 				return &v.state
@@ -8202,7 +8003,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*FilesystemLocationConfig); i {
 			case 0:
 				return &v.state
@@ -8214,7 +8015,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartJobRequest); i {
 			case 0:
 				return &v.state
@@ -8226,7 +8027,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartJobResponse); i {
 			case 0:
 				return &v.state
@@ -8238,7 +8039,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StopJobRequest); i {
 			case 0:
 				return &v.state
@@ -8250,7 +8051,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StopJobResponse); i {
 			case 0:
 				return &v.state
@@ -8262,7 +8063,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*JobResult); i {
 			case 0:
 				return &v.state
@@ -8274,7 +8075,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*JobProgress); i {
 			case 0:
 				return &v.state
@@ -8286,7 +8087,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetVersionsRequest); i {
 			case 0:
 				return &v.state
@@ -8298,7 +8099,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetVersionsResponse); i {
 			case 0:
 				return &v.state
@@ -8310,7 +8111,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AgentMessage); i {
 			case 0:
 				return &v.state
@@ -8322,7 +8123,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ServerMessage); i {
 			case 0:
 				return &v.state
@@ -8334,7 +8135,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SetStateRequest_AgentProcess); i {
 			case 0:
 				return &v.state
@@ -8346,7 +8147,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SetStateRequest_BuiltinAgent); i {
 			case 0:
 				return &v.state
@@ -8358,7 +8159,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLExplainParams); i {
 			case 0:
 				return &v.state
@@ -8370,7 +8171,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowCreateTableParams); i {
 			case 0:
 				return &v.state
@@ -8382,7 +8183,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowTableStatusParams); i {
 			case 0:
 				return &v.state
@@ -8394,7 +8195,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StartActionRequest_MySQLShowIndexParams); i {
 			case 0:
 				return &v.state
@@ -8887,25 +8688,25 @@ func file_agentpb_agent_proto_init() {
 		(*StartActionRequest_MongodbQueryGetdiagnosticdataParams)(nil),
 		(*StartActionRequest_RestartSysServiceParams)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[32].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[30].OneofWrappers = []interface{}{
 		(*StartJobRequest_MysqlBackup)(nil),
 		(*StartJobRequest_MysqlRestoreBackup)(nil),
 		(*StartJobRequest_MongodbBackup)(nil),
 		(*StartJobRequest_MongodbRestoreBackup)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[36].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[34].OneofWrappers = []interface{}{
 		(*JobResult_Error_)(nil),
 		(*JobResult_MysqlBackup)(nil),
 		(*JobResult_MysqlRestoreBackup)(nil),
 		(*JobResult_MongodbBackup)(nil),
 		(*JobResult_MongodbRestoreBackup)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[37].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[35].OneofWrappers = []interface{}{
 		(*JobProgress_MysqlBackup)(nil),
 		(*JobProgress_MysqlRestoreBackup)(nil),
 		(*JobProgress_Logs_)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[40].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[38].OneofWrappers = []interface{}{
 		(*AgentMessage_Ping)(nil),
 		(*AgentMessage_StateChanged)(nil),
 		(*AgentMessage_QanCollect)(nil),
@@ -8922,10 +8723,9 @@ func file_agentpb_agent_proto_init() {
 		(*AgentMessage_JobStatus)(nil),
 		(*AgentMessage_GetVersions)(nil),
 		(*AgentMessage_PbmSwitchPitr)(nil),
-		(*AgentMessage_ParseDefaultsFile)(nil),
 		(*AgentMessage_AgentLogs)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[41].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[39].OneofWrappers = []interface{}{
 		(*ServerMessage_Pong)(nil),
 		(*ServerMessage_StateChanged)(nil),
 		(*ServerMessage_QanCollect)(nil),
@@ -8940,7 +8740,6 @@ func file_agentpb_agent_proto_init() {
 		(*ServerMessage_JobStatus)(nil),
 		(*ServerMessage_GetVersions)(nil),
 		(*ServerMessage_PbmSwitchPitr)(nil),
-		(*ServerMessage_ParseDefaultsFile)(nil),
 		(*ServerMessage_AgentLogs)(nil),
 	}
 	file_agentpb_agent_proto_msgTypes[72].OneofWrappers = []interface{}{

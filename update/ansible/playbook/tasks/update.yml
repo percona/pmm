@@ -215,12 +215,13 @@
           - percona-qan-app # https://jira.percona.com/browse/PMM-6766
           - mariadb-libs # https://jira.percona.com/browse/PMM-5215
           - logrotate # https://jira.percona.com/browse/PMM-7627
+          - pmm-server # https://jira.percona.com/browse/PMM-11239
           - screen
           - yum-cron
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
-      file:
+      copy:
         src: resize-xfs-lvm
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755

@@ -607,7 +607,7 @@ func (s *ActionsService) StartPTMySQLSummaryAction(_ context.Context, id, pmmAge
 	return err
 }
 
-// StopAction stops action with given given id.
+// StopAction stops action with given id.
 func (s *ActionsService) StopAction(_ context.Context, actionID string) error {
 	// TODO Seems that we have a bug here, we passing actionID to the method that expects pmmAgentID
 	agent, err := s.r.get(actionID)

@@ -57,11 +57,10 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                *config.Config
-	supervisor         supervisor
-	connectionChecker  connectionChecker
-	softwareVersioner  softwareVersioner
-	defaultsFileParser defaultsFileParser
+	cfg               *config.Config
+	supervisor        supervisor
+	connectionChecker connectionChecker
+	softwareVersioner softwareVersioner
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -83,19 +82,18 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:                cfg,
-		supervisor:         supervisor,
-		connectionChecker:  connectionChecker,
-		softwareVersioner:  sv,
-		l:                  logrus.WithField("component", "client"),
-		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		dialTimeout:        dialTimeout,
-		runner:             r,
-		defaultsFileParser: dfp,
-		cus:                cus,
-		logStore:           logStore,
+		cfg:               cfg,
+		supervisor:        supervisor,
+		connectionChecker: connectionChecker,
+		softwareVersioner: sv,
+		l:                 logrus.WithField("component", "client"),
+		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
+		dialTimeout:       dialTimeout,
+		runner:            r,
+		cus:               cus,
+		logStore:          logStore,
 	}
 }
 
@@ -368,8 +366,6 @@ loop:
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
-			case *agentpb.ParseDefaultsFileRequest:
-				responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 			case *agentpb.AgentLogsRequest:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentpb.AgentLogsResponse{
