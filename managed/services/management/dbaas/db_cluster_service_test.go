@@ -23,11 +23,15 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -118,8 +122,8 @@ func TestDBClusterService(t *testing.T) {
 	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "",
-			PsmdbOperatorVersion: "",
+			PxcOperatorVersion:   "1.11.0",
+			PsmdbOperatorVersion: "1.11.0",
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
@@ -130,6 +134,10 @@ func TestDBClusterService(t *testing.T) {
 	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+
+	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: dbKubernetesClusterNameTest,
@@ -146,58 +154,67 @@ func TestDBClusterService(t *testing.T) {
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		mockPXCResp := controllerv1beta1.ListPXCClustersResponse{
-			Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
-				{
+		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
+		mockK8sResp := []dbaasv1.DatabaseCluster{
+			{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-pxc-test",
-					Params: &controllerv1beta1.PXCClusterParams{
-						ClusterSize: 5,
-						Pxc: &controllerv1beta1.PXCClusterParams_PXC{
-							ComputeResources: &controllerv1beta1.ComputeResources{
-								CpuM:        3,
-								MemoryBytes: 256,
-							},
-							DiskSize: 1024 * 1024 * 1024,
-						},
-						Proxysql: &controllerv1beta1.PXCClusterParams_ProxySQL{
-							ComputeResources: &controllerv1beta1.ComputeResources{
-								CpuM:        2,
-								MemoryBytes: 124,
-							},
-							DiskSize: 1024 * 1024 * 1024,
-						},
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:      "pxc",
+					DatabaseImage: "percona/percona-xtradb-cluster:8.0.27-18.1",
+					ClusterSize:   5,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
 					},
-					Operation: &controllerv1beta1.RunningOperation{
-						TotalSteps:    int32(15),
-						FinishedSteps: int32(15),
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type: "proxysql",
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("2m"),
+								corev1.ResourceMemory: resource.MustParse("124"),
+							},
+						},
 					},
 				},
+				Status: dbaasv1.DatabaseClusterStatus{
+					Ready: 15,
+					Size:  15,
+				},
 			},
-		}
-		dbaasClient.On("ListPXCClusters", ctx, mock.Anything).Return(&mockPXCResp, nil)
-
-		mockPSMDBResp := controllerv1beta1.ListPSMDBClustersResponse{
-			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
-				{
+			{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "first-psmdb-test",
-					Params: &controllerv1beta1.PSMDBClusterParams{
-						ClusterSize: 5,
-						Replicaset: &controllerv1beta1.PSMDBClusterParams_ReplicaSet{
-							ComputeResources: &controllerv1beta1.ComputeResources{
-								CpuM:        3,
-								MemoryBytes: 256,
+				},
+				Spec: dbaasv1.DatabaseSpec{
+					Database:      "psmdb",
+					DatabaseImage: "percona/percona-server-mongodb:4.4.5-7",
+					ClusterSize:   5,
+					DBInstance: dbaasv1.DBInstanceSpec{
+						CPU:      resource.MustParse("3m"),
+						Memory:   resource.MustParse("256"),
+						DiskSize: resource.MustParse("1073741824"),
+					},
+					LoadBalancer: dbaasv1.LoadBalancerSpec{
+						Type: "mongos",
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("2m"),
+								corev1.ResourceMemory: resource.MustParse("124"),
 							},
 						},
 					},
-					Operation: &controllerv1beta1.RunningOperation{
-						TotalSteps:    int32(10),
-						FinishedSteps: int32(10),
-					},
+				},
+				Status: dbaasv1.DatabaseClusterStatus{
+					Ready: 10,
+					Size:  10,
 				},
 			},
 		}
-		dbaasClient.On("ListPSMDBClusters", mock.Anything, mock.Anything).Return(&mockPSMDBResp, nil)
+
+		kubernetesClient.On("ListDatabaseClusters", ctx, mock.Anything).Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 
 		resp, err := s.ListDBClusters(ctx, &dbaasv1beta1.ListDBClustersRequest{KubernetesClusterName: dbKubernetesClusterNameTest})
 		assert.NoError(t, err)
@@ -223,16 +240,9 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartPXCCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		mockReq := controllerv1beta1.RestartPXCClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: dbKubeconfigTest,
-			},
-			Name: "third-pxc-test",
-		}
+		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
 
-		dbaasClient.On("RestartPXCCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPXCClusterResponse{}, nil)
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		kubernetesClient.On("RestartDatabaseCluster", ctx, "third-pxc-test").Return(nil)
 
 		in := dbaasv1beta1.RestartDBClusterRequest{
 			KubernetesClusterName: dbKubernetesClusterNameTest,
@@ -245,16 +255,9 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
-		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: dbKubeconfigTest,
-			},
-			Name: "third-psmdb-test",
-		}
+		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
 
-		dbaasClient.On("RestartPSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPSMDBClusterResponse{}, nil)
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		kubernetesClient.On("RestartDatabaseCluster", ctx, "third-psmdb-test").Return(nil)
 
 		in := dbaasv1beta1.RestartDBClusterRequest{
 			KubernetesClusterName: dbKubernetesClusterNameTest,
@@ -267,16 +270,10 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePXCCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
 		dbClusterName := "delete-pxc-test"
-		mockReq := controllerv1beta1.DeletePXCClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: dbKubeconfigTest,
-			},
-			Name: dbClusterName,
-		}
 
-		dbaasClient.On("DeletePXCCluster", ctx, &mockReq).Return(&controllerv1beta1.DeletePXCClusterResponse{}, nil)
+		kubernetesClient.On("DeleteDatabaseCluster", ctx, dbClusterName).Return(nil)
 		grafanaClient.On("DeleteAPIKeysWithPrefix", ctx, fmt.Sprintf("pxc-%s-%s", dbKubernetesClusterNameTest, dbClusterName)).Return(nil)
 
 		in := dbaasv1beta1.DeleteDBClusterRequest{
@@ -290,16 +287,10 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
 		dbClusterName := "delete-psmdb-test"
-		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: dbKubeconfigTest,
-			},
-			Name: dbClusterName,
-		}
+		kubernetesClient.On("DeleteDatabaseCluster", ctx, dbClusterName).Return(nil)
 
-		dbaasClient.On("DeletePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.DeletePSMDBClusterResponse{}, nil)
 		grafanaClient.On("DeleteAPIKeysWithPrefix", ctx, fmt.Sprintf("psmdb-%s-%s", dbKubernetesClusterNameTest, dbClusterName)).Return(nil)
 
 		in := dbaasv1beta1.DeleteDBClusterRequest{
@@ -310,5 +301,18 @@ func TestDBClusterService(t *testing.T) {
 
 		_, err := s.DeleteDBCluster(ctx, &in)
 		assert.NoError(t, err)
+	})
+	t.Run("GetComputeResource", func(t *testing.T) {
+		cs := NewDBClusterService(db, grafanaClient, kubernetesClient, versionService)
+		s := cs.(*DBClusterService)
+		compute, err := s.getComputeResources(corev1.ResourceList{
+			corev1.ResourceCPU:    resource.MustParse("1000m"),
+			corev1.ResourceMemory: resource.MustParse("1G"),
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, &dbaasv1beta1.ComputeResources{
+			CpuM:        1000,
+			MemoryBytes: 1000000000,
+		}, compute)
 	})
 }

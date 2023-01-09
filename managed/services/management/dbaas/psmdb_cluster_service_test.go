@@ -18,19 +18,25 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -129,6 +135,12 @@ func TestPSMDBClusterService(t *testing.T) {
 	olms.On("SetKubeConfig", mock.Anything).Return(nil)
 	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
+	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	kubernetesClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -184,29 +196,10 @@ func TestPSMDBClusterService(t *testing.T) {
 				},
 			},
 		}
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
-
-		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: psmdbKubeconfTest,
-			},
-			Name: "third-psmdb-test",
-			Params: &controllerv1beta1.PSMDBClusterParams{
-				ClusterSize: 5,
-				Replicaset: &controllerv1beta1.PSMDBClusterParams_ReplicaSet{
-					ComputeResources: &controllerv1beta1.ComputeResources{
-						CpuM:        3,
-						MemoryBytes: 256,
-					},
-					DiskSize: 1024 * 1024 * 1024,
-				},
-				VersionServiceUrl: versionService.GetVersionServiceURL(),
-				Image:             "path",
-			},
-		}
+		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
 
 		componentsService.On("GetPSMDBComponents", mock.Anything, mock.Anything).Return(mockGetPSMDBComponentsResponse, nil)
-		dbaasClient.On("CreatePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.CreatePSMDBClusterResponse{}, nil)
+		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -230,8 +223,6 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	// Pass the minimum parameters to use the defaults set by the fillDefaults function
 	t.Run("CreatePSMDBClustersMinimumParams", func(t *testing.T) {
-		dbaasClient.On("CreatePSMDBCluster", ctx, mock.Anything).Return(&controllerv1beta1.CreatePSMDBClusterResponse{}, nil)
-
 		psmdbComponents := &dbaasv1beta1.GetPSMDBComponentsResponse{
 			Versions: []*dbaasv1beta1.OperatorVersion{
 				{
@@ -270,7 +261,8 @@ func TestPSMDBClusterService(t *testing.T) {
 		}
 		componentsService.On("GetPSMDBComponents", ctx, mock.Anything).Return(psmdbComponents, nil)
 
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
+		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -282,24 +274,38 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
-		mockReq := controllerv1beta1.UpdatePSMDBClusterRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: psmdbKubeconfTest,
+		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
+		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "third-psmdb-test",
 			},
-			Name: "third-psmdb-test",
-			Params: &controllerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
-				ClusterSize: 8,
-				Replicaset: &controllerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
-					ComputeResources: &controllerv1beta1.ComputeResources{
-						CpuM:        1,
-						MemoryBytes: 256,
+			Spec: dbaasv1.DatabaseSpec{
+				Database:      "psmdb",
+				DatabaseImage: "percona/percona-server-mongodb:4.4.5-7",
+				ClusterSize:   5,
+				DBInstance: dbaasv1.DBInstanceSpec{
+					CPU:      resource.MustParse("3m"),
+					Memory:   resource.MustParse("256"),
+					DiskSize: resource.MustParse("1073741824"),
+				},
+				LoadBalancer: dbaasv1.LoadBalancerSpec{
+					Type: "mongos",
+					Resources: corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceCPU:    resource.MustParse("2m"),
+							corev1.ResourceMemory: resource.MustParse("124"),
+						},
 					},
 				},
 			},
+			Status: dbaasv1.DatabaseClusterStatus{
+				Ready: 10,
+				Size:  10,
+			},
 		}
 
-		dbaasClient.On("UpdatePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.UpdatePSMDBClusterResponse{}, nil)
+		kubernetesClient.On("GetDatabaseCluster", ctx, "third-psmdb-test").Return(dbMock, nil)
+		kubernetesClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.UpdatePSMDBClusterRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
@@ -320,28 +326,29 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentials", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
-
-		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: psmdbKubeconfTest,
+		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
+		mockReq := &corev1.Secret{
+			Data: map[string][]byte{
+				"MONGODB_USER_ADMIN_USER":     []byte("userAdmin"),
+				"MONGODB_USER_ADMIN_PASSWORD": []byte("userAdmin123"),
 			},
-			Name: "third-psmdb-test",
+		}
+		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "another-third-psmdb-test",
+			},
+			Status: dbaasv1.DatabaseClusterStatus{
+				Host: "hostname",
+			},
 		}
 
-		dbaasClient.On("GetPSMDBClusterCredentials", ctx, &mockReq).Return(&controllerv1beta1.GetPSMDBClusterCredentialsResponse{
-			Credentials: &controllerv1beta1.PSMDBCredentials{
-				Username:   "userAdmin",
-				Password:   "userAdmin123",
-				Host:       "hostname",
-				Port:       27017,
-				Replicaset: "rs0",
-			},
-		}, nil)
+		kubernetesClient.On("GetDatabaseCluster", ctx, "another-third-psmdb-test").Return(dbMock, nil)
+
+		kubernetesClient.On("GetSecret", ctx, fmt.Sprintf(psmdbSecretNameTmpl, "another-third-psmdb-test")).Return(mockReq, nil)
 
 		in := dbaasv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubernetesClusterName: psmdbKubernetesClusterNameTest,
-			Name:                  "third-psmdb-test",
+			Name:                  "another-third-psmdb-test",
 		}
 
 		cluster, err := s.GetPSMDBClusterCredentials(ctx, &in)
@@ -350,37 +357,8 @@ func TestPSMDBClusterService(t *testing.T) {
 		assert.Equal(t, "hostname", cluster.ConnectionCredentials.Host)
 	})
 
-	t.Run("BasicGetPSMDBClusterCredentialsWithHost", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
-		name := "another-third-psmdb-test"
-
-		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
-			KubeAuth: &controllerv1beta1.KubeAuth{
-				Kubeconfig: psmdbKubeconfTest,
-			},
-			Name: name,
-		}
-
-		resp := controllerv1beta1.GetPSMDBClusterCredentialsResponse{
-			Credentials: &controllerv1beta1.PSMDBCredentials{
-				Host: "host",
-			},
-		}
-		dbaasClient.On("GetPSMDBClusterCredentials", ctx, &mockReq).Return(&resp, nil)
-
-		in := dbaasv1beta1.GetPSMDBClusterCredentialsRequest{
-			KubernetesClusterName: psmdbKubernetesClusterNameTest,
-			Name:                  name,
-		}
-
-		cluster, err := s.GetPSMDBClusterCredentials(ctx, &in)
-
-		assert.NoError(t, err)
-		assert.Equal(t, resp.Credentials.Host, cluster.ConnectionCredentials.Host)
-	})
-
 	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+		s := NewPSMDBClusterService(db, grafanaClient, kubernetesClient, componentsService, versionService.GetVersionServiceURL())
 
 		in := dbaasv1beta1.GetPSMDBClusterResourcesRequest{
 			Params: &dbaasv1beta1.PSMDBClusterParams{

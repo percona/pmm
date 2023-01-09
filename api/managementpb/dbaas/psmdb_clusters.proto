@@ -17,6 +17,10 @@ message PSMDBClusterParams {
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
     int64 disk_size = 2;
+    // Configuration for PSMDB cluster
+    string configuration = 4;
+    // Storage Class for PSMDB cluster.
+    string storage_class = 5;
   }
   // Cluster size.
   int32 cluster_size = 1;
@@ -75,6 +79,10 @@ message CreatePSMDBClusterRequest {
   PSMDBClusterParams params = 3;
   // Make DB cluster accessible outside of K8s cluster.
   bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
 }
 
 message CreatePSMDBClusterResponse {}
@@ -98,6 +106,10 @@ message UpdatePSMDBClusterRequest {
     message ReplicaSet {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
+      // Configuration for PSMDB cluster
+      string configuration = 4;
+      // Storage Class for PSMDB cluster.
+      string storage_class = 5;
     }
     // Cluster size.
     int32 cluster_size = 1;
