@@ -31,6 +31,10 @@ message PXCClusterParams {
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
     int64 disk_size = 2;
+    // Configuration for PXC cluster
+    string configuration = 4;
+    // Storage Class for PXC cluster.
+    string storage_class = 5;
   }
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
@@ -109,6 +113,10 @@ message CreatePXCClusterRequest {
   PXCClusterParams params = 3;
   // Make DB cluster accessible outside of K8s cluster.
   bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
 }
 
 message CreatePXCClusterResponse {}
@@ -135,6 +143,10 @@ message UpdatePXCClusterRequest {
       // Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
       // in given tag is triggered. If entirely different image is given, error is returned.
       string image = 2;
+      // Configuration for PXC cluster
+      string configuration = 4;
+      // Storage Class for PXC cluster.
+      string storage_class = 5;
     }
     // ProxySQL container parameters.
     message ProxySQL {
@@ -161,6 +173,12 @@ message UpdatePXCClusterRequest {
   }
   // Cluster parameters.
   UpdatePXCClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
 }
 
 message UpdatePXCClusterResponse {}
