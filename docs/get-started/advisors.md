@@ -14,7 +14,7 @@ As soon as you connect your PMM instance to Percona Platform, has access to addi
 
 If you are a Percona customer with a Percona Customer Portal account, you also get access to Paid Advisor checks, which offer more advanced database health information.
 
-​To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/checks.html) topic in the Percona Platform documentation.
+To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/checks.html) topic in the Percona Platform documentation.
 
 ## Enable/Disable
 To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under <i class="uil uil-cog"></i> **Configuration <i class="uil uil-setting"></i> > Settings > Advanced Settings**.
@@ -35,9 +35,11 @@ To change the frequency of an automatic advisor:
 
 1. Click **{{icon.checks}} Advisors**.
 2. Select the **All** tab.
-3. Scroll through the list to find a specific check. In PMM 2.29 and later, you can also use the **Filter** section to search by Name, Description, Status, or Interval. 
-   !!! hint alert alert-success "Tip"
-    If you need to share filtered advisors results with your team members, send them the PMM URL. This saves your search criteria and results. 
+3. Scroll through the list to find a specific check. In PMM 2.29 and later, you can also use the **Filter** section to search by Name, Description, Status, or Interval.
+
+    !!! hint alert alert-success "Tip"
+        If you need to share filtered advisors results with your team members, send them the PMM URL. This saves your search criteria and results. 
+
 4. Select the check and click the ![Edit](..//_images/edit.png) **Interval** icon in the **Actions** column. 
 5. Chose an interval and click **Save**.
 
