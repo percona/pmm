@@ -17,6 +17,7 @@ package dbaas
 
 import (
 	"context"
+	"runtime"
 	"testing"
 	"time"
 
@@ -56,7 +57,7 @@ func TestKubernetesServer(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		// To enable verbose queries output use:
 		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		kubernetesClient = &mockKubernetesClient{}
 		grafanaClient = &mockGrafanaClient{}
@@ -86,6 +87,8 @@ func TestKubernetesServer(t *testing.T) {
 
 	t.Run("Basic", func(t *testing.T) {
 		ctx, ks, dbaasClient, kubernetesClient, olms, grafanaClient, teardown := setup(t)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -101,21 +104,14 @@ func TestKubernetesServer(t *testing.T) {
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
 
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(3*time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(3*time.Second)).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
-
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
-
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		//		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 
 		olms.On("SetKubeConfig", mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
-
-		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 
 		kubernetesClusterName := "test-cluster"
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
@@ -125,6 +121,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, registerKubernetesClusterResponse)
 
+		runtime.Gosched()
 		getClusterResponse, err := ks.GetKubernetesCluster(ctx, &dbaasv1beta1.GetKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})

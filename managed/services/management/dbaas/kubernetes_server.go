@@ -357,7 +357,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	go k.setupMonitoring(context.Background(), operatorsToInstall, req.KubernetesClusterName, req.KubeAuth.Kubeconfig, settings.PMMPublicAddress, apiKey, apiKeyID)
+	go k.setupMonitoring(context.TODO(), operatorsToInstall, req.KubernetesClusterName, req.KubeAuth.Kubeconfig, settings.PMMPublicAddress, apiKey, apiKeyID)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
