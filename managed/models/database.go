@@ -655,11 +655,11 @@ var databaseSchema = [][]string{
 			ADD COLUMN database_name VARCHAR NOT NULL DEFAULT ''`,
 	},
 	52: {
-		`UPDATE services SET database_name = 'postgresql' 
+		`UPDATE services SET database_name = 'postgresql'
 			WHERE service_type = 'postgresql' and database_name = ''`,
 	},
 	53: {
-		`UPDATE services SET database_name = 'postgres' 
+		`UPDATE services SET database_name = 'postgres'
 			WHERE service_type = 'postgresql' and database_name = 'postgresql'`,
 	},
 	54: {
@@ -780,7 +780,7 @@ var databaseSchema = [][]string{
 			role_id INTEGER NOT NULL,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
-			
+
 			PRIMARY KEY (user_id, role_id)
 		);
 
@@ -795,9 +795,9 @@ var databaseSchema = [][]string{
 		), settings_id AS (
 			UPDATE settings SET settings['default_role_id'] = (SELECT to_jsonb(id) FROM rows)
 		)
-		
+
 		INSERT INTO user_roles
-		(user_id, role_id, created_at, updated_at)		
+		(user_id, role_id, created_at, updated_at)
 		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
 	},
 	74: {
@@ -807,6 +807,14 @@ var databaseSchema = [][]string{
 		CREATE UNIQUE INDEX scheduled_tasks_data_name_idx ON scheduled_tasks(("data"->"type"->>'name'))`,
 	},
 	75: {
+		`ALTER TABLE kubernetes_clusters
+            ADD COLUMN ready BOOLEAN NOT NULL DEFAULT false`,
+	},
+	76: {
+		`ALTER TABLE roles
+		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
+	},
+	77: {
 		`UPDATE scheduled_tasks
 			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
 			WHERE type = 'mongodb_backup'`,

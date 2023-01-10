@@ -17,21 +17,21 @@ package dbaas
 
 import (
 	"context"
+	cryptoRand "crypto/rand"
 	"fmt"
+	"math/big"
 	"math/rand"
 	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 const (
@@ -45,8 +45,8 @@ const (
 type PSMDBClusterService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
-	controllerClient  dbaasClient
 	grafanaClient     grafanaClient
+	kubernetesClient  kubernetesClient
 	componentsService componentsService
 	versionServiceURL string
 
@@ -54,15 +54,15 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
 	return &PSMDBClusterService{
 		db:                db,
 		l:                 l,
-		controllerClient:  dbaasClient,
 		grafanaClient:     grafanaClient,
+		kubernetesClient:  kubernetesClient,
 		componentsService: componentsService,
 		versionServiceURL: versionServiceURL,
 	}
@@ -84,26 +84,25 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
-
-	in := &dbaascontrollerv1beta1.GetPSMDBClusterCredentialsRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-
-	cluster, err := s.controllerClient.GetPSMDBClusterCredentials(ctx, in)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed getting database cluster")
+	}
+	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(psmdbSecretNameTmpl, req.Name))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting secret")
 	}
 
 	resp := dbaasv1beta1.GetPSMDBClusterCredentialsResponse{
 		ConnectionCredentials: &dbaasv1beta1.GetPSMDBClusterCredentialsResponse_PSMDBCredentials{
-			Username:   cluster.Credentials.Username,
-			Password:   cluster.Credentials.Password,
-			Host:       cluster.Credentials.Host,
-			Port:       cluster.Credentials.Port,
-			Replicaset: cluster.Credentials.Replicaset,
+			Username:   string(secret.Data["MONGODB_USER_ADMIN_USER"]),
+			Password:   string(secret.Data["MONGODB_USER_ADMIN_PASSWORD"]),
+			Host:       dbCluster.Status.Host,
+			Port:       27017,
+			Replicaset: "rs0",
 		},
 	}
 
@@ -123,6 +122,9 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
 
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
@@ -141,12 +143,46 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	} else {
 		backupImage = backupComponent.ImagePath
 	}
+	_ = backupImage
 
 	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
 	}
+	if req.Params.Replicaset.StorageClass == "" {
+		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get storage classes")
+		}
+		req.Params.Replicaset.StorageClass = className
+	}
+	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	dbCluster, err := kubernetes.DatabaseClusterForPSMDB(req, clusterType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
+	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
-	var pmmParams *dbaascontrollerv1beta1.PMMParams
+	secrets := map[string][]byte{
+		"MONGODB_BACKUP_USER":          []byte("backup"),
+		"MONGODB_CLUSTER_ADMIN_USER":   []byte("clusterAdmin"),
+		"MONGODB_CLUSTER_MONITOR_USER": []byte("clusterMonitor"),
+		"MONGODB_USER_ADMIN_USER":      []byte("userAdmin"),
+	}
+	passwords, err := generatePasswords(map[string][]byte{
+		"MONGODB_BACKUP_PASSWORD":          {},
+		"MONGODB_CLUSTER_ADMIN_PASSWORD":   {},
+		"MONGODB_CLUSTER_MONITOR_PASSWORD": {},
+		"MONGODB_USER_ADMIN_PASSWORD":      {},
+	})
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range passwords {
+		secrets[k] = v
+	}
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
@@ -155,36 +191,19 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		if err != nil {
 			return nil, err
 		}
-		pmmParams = &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: settings.PMMPublicAddress,
-			Login:         "api_key",
-			Password:      apiKey,
-		}
+		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
+		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		secrets["PMM_SERVER_USER"] = []byte("api_key")
+		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
-
-	in := dbaascontrollerv1beta1.CreatePSMDBClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-		Params: &dbaascontrollerv1beta1.PSMDBClusterParams{
-			Image:       req.Params.Image,
-			BackupImage: backupImage,
-			ClusterSize: req.Params.ClusterSize,
-			Replicaset: &dbaascontrollerv1beta1.PSMDBClusterParams_ReplicaSet{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
-				},
-				DiskSize: req.Params.Replicaset.DiskSize,
-			},
-			VersionServiceUrl: s.versionServiceURL,
-		},
-		Pmm:    pmmParams,
-		Expose: req.Expose,
+	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+	if err != nil {
+		return nil, err
 	}
+	// TODO: Setup backups
 
-	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)
+	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -270,36 +289,19 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-
-	in := dbaascontrollerv1beta1.UpdatePSMDBClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req)
+	if err != nil {
+		return nil, err
 	}
 
-	if req.Params != nil {
-		if req.Params.Suspend && req.Params.Resume {
-			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
-		}
-
-		in.Params = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Suspend:     req.Params.Suspend,
-			Resume:      req.Params.Resume,
-		}
-
-		if req.Params.Replicaset != nil && req.Params.Replicaset.ComputeResources != nil {
-			in.Params.Replicaset = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
-				},
-			}
-		}
-		in.Params.Image = req.Params.Image
-	}
-	_, err = s.controllerClient.UpdatePSMDBCluster(ctx, &in)
+	err = s.kubernetesClient.PatchDatabaseCluster(dbCluster)
 	if err != nil {
 		return nil, err
 	}
@@ -331,4 +333,34 @@ func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *
 			DiskSize:    disk,
 		},
 	}, nil
+}
+
+const (
+	passwordLength = 24
+)
+
+func generatePasswords(secrets map[string][]byte) (map[string][]byte, error) {
+	for key := range secrets {
+		password, err := generatePassword(passwordLength)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to generate password for  %s", key)
+		}
+		secrets[key] = []byte(password)
+	}
+	return secrets, nil
+}
+
+func generatePassword(n int) (string, error) {
+	// PSMDB do not support all special characters in password https://jira.percona.com/browse/K8SPSMDB-364
+	symbols := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	symbolsLen := len(symbols)
+	b := make([]rune, n)
+	for i := range b {
+		randomIndex, err := cryptoRand.Int(cryptoRand.Reader, big.NewInt(int64(symbolsLen)))
+		if err != nil {
+			return "", err
+		}
+		b[i] = symbols[randomIndex.Uint64()]
+	}
+	return string(b), nil
 }
