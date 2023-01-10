@@ -19,10 +19,12 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
@@ -109,7 +111,7 @@ func TestPXCClusterService(t *testing.T) {
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
-			dbaasClient.AssertExpectations(t)
+			 dbaasClient.AssertExpectations(t)
 		}
 
 		return
@@ -117,7 +119,11 @@ func TestPXCClusterService(t *testing.T) {
 
 	ctx, db, dbaasClient, grafanaClient, componentsClient, kubernetesClient, olms, teardown := setup(t)
 	defer teardown(t)
-	versionService := NewVersionServiceClient(versionServiceURL)
+
+	versionService := &mockVersionService{}
+	v1120, _ := goversion.NewVersion("1.12.0")
+	versionService.On("LatestOperatorVersion", mock.Anything, mock.Anything).Return(v1120, v1120, nil)
+	versionService.On("GetVersionServiceURL", mock.Anything).Return("", nil)
 
 	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
 	dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
@@ -128,13 +134,20 @@ func TestPXCClusterService(t *testing.T) {
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
 
-	// dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(3*time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-
+	olms.On("SetKubeConfig", mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
-	olms.On("SetKubeConfig", mock.Anything).Return(nil)
-	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
-	olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(15*time.Second)).
+		Return(&controllerv1beta1.StartMonitoringResponse{}, nil).Run(func(a mock.Arguments) {
+		// StartMonitoring if being called in a go-routine. Since we cannot forsee when the runtime scheduler
+		// is going to assing some time to this go-routine, the waitgroup is being used to signal than the test
+		// can continue.
+		wg.Done()
+	})
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -142,6 +155,8 @@ func TestPXCClusterService(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
+
+	wg.Wait()
 
 	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
