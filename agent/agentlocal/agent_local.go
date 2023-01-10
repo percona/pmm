@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package agentlocal provides local pmm-agent API server functionality.
 package agentlocal
 
 import (
@@ -25,7 +26,7 @@ import (
 	"math"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
 	"strconv"
 	"sync"

@@ -563,7 +563,7 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return os.WriteFile(path, res, 0o640)
+	return os.WriteFile(path, res, 0o640) //nolint:gosec
 }
 
 // IsWritable checks if specified path is writable.
