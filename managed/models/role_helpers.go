@@ -27,8 +27,6 @@ import (
 var (
 	// ErrRoleNotFound is returned when a role is not found.
 	ErrRoleNotFound = fmt.Errorf("RoleNotFound")
-	// ErrRoleIsAssigned is returned when a role is assigned to a user and cannot be removed.
-	ErrRoleIsAssigned = fmt.Errorf("RoleIsAssigned")
 	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
 	ErrRoleIsDefaultRole = fmt.Errorf("RoleIsDefaultRole")
 )
@@ -81,7 +79,7 @@ func AssignDefaultRole(tx *reform.TX, userID int) error {
 }
 
 // DeleteRole deletes a role, if possible.
-func DeleteRole(tx *reform.TX, roleID int) error {
+func DeleteRole(tx *reform.TX, roleID, replacementRoleID int, replaceAlways bool) error {
 	q := tx.Querier
 
 	var role Role
@@ -89,6 +87,7 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 		return err
 	}
 
+	// Check if it's the default role.
 	settings, err := GetSettings(tx)
 	if err != nil {
 		return err
@@ -98,13 +97,8 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 		return ErrRoleIsDefaultRole
 	}
 
-	s, err := q.FindOneFrom(UserRolesView, "role_id", roleID)
-	if err != nil && !errors.As(err, &reform.ErrNoRows) {
+	if err := replaceRole(tx, roleID, replacementRoleID, replaceAlways); err != nil {
 		return err
-	}
-
-	if s != nil {
-		return ErrRoleIsAssigned
 	}
 
 	if err := q.Delete(&role); err != nil {
@@ -113,6 +107,94 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 		}
 
 		return err
+	}
+
+	return nil
+}
+
+func replaceRole(tx *reform.TX, roleID, newRoleID int, replaceAlways bool) error {
+	q := tx.Querier
+
+	// If no new role is assigned, we remove all role assignements.
+	if newRoleID == 0 {
+		_, err := q.DeleteFrom(UserRolesView, "WHERE role_id = $1", roleID)
+		return err
+	}
+
+	if err := FindAndLockRole(tx, newRoleID, &Role{}); err != nil {
+		return err
+	}
+
+	// For "replace always" mode, we replace the role with the new provided role ID. No extra logic.
+	if replaceAlways {
+		_, err := q.Exec(`
+			UPDATE user_roles
+			SET
+				role_id = $1
+			WHERE
+				role_id = $2 AND
+				NOT EXISTS(
+					SELECT 1
+					FROM user_roles ur
+					WHERE
+						ur.user_id = user_roles.user_id AND
+						ur.role_id = $3
+				)`,
+			newRoleID,
+			roleID,
+			newRoleID)
+
+		return err
+	}
+
+	// Check if the role is the last role for a user and apply special logic if it is.
+	structs, err := q.FindAllFrom(UserRolesView, "role_id", roleID)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range structs {
+		ur, ok := s.(*UserRoles)
+		if !ok {
+			return fmt.Errorf("invalid data structure in user roles for role ID %d. Found %+v", roleID, s)
+		}
+
+		roleStructs, err := q.SelectAllFrom(UserRolesView, "WHERE user_id = $1 FOR UPDATE", ur.UserID)
+		if err != nil {
+			return err
+		}
+
+		// If there are more than 1 roles, we remove the role without a replacement.
+		if len(roleStructs) > 1 {
+			_, err := q.DeleteFrom(UserRolesView, "WHERE user_id = $1 AND role_id = $2", ur.UserID, roleID)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		// The removed role is the last one. We replace it with a new role.
+		_, err = q.Exec(`
+			UPDATE user_roles
+			SET
+				role_id = $1
+			WHERE
+				user_id = $2 AND
+				role_id = $3 AND
+				NOT EXISTS(
+					SELECT 1
+					FROM user_roles ur
+					WHERE
+						ur.user_id = $2 AND
+						ur.role_id = $1
+				)`,
+			newRoleID,
+			ur.UserID,
+			roleID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
