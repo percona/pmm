@@ -111,7 +111,7 @@ func TestPXCClusterService(t *testing.T) {
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
-			 dbaasClient.AssertExpectations(t)
+			dbaasClient.AssertExpectations(t)
 		}
 
 		return
