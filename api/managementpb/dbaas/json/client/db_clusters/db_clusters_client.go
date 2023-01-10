@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error)
 
+	GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) (*GetDBClusterOK, error)
+
 	ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error)
 
 	RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error)
@@ -71,6 +73,43 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOp
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DeleteDBClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetDBCluster gets DB cluster returns parameters used to create a database cluster
+*/
+func (a *Client) GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) (*GetDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetDBClusterParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/DBClusters/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
