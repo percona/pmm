@@ -25,7 +25,7 @@ LD_FLAGS = -ldflags " \
 			"
 
 release:                        ## Build vmproxy release binary.
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vm_proxy .
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
 
 install:                        ## Install vmproxy binary.
 	go build -v $(LD_FLAGS) -o $(GOBIN)/vmproxy .

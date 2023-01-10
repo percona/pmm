@@ -810,6 +810,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE kubernetes_clusters
             ADD COLUMN ready BOOLEAN NOT NULL DEFAULT false`,
 	},
+	76: {
+		`ALTER TABLE roles
+		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
