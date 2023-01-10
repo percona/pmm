@@ -64,6 +64,7 @@ type Server struct {
 	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
 	emailer              emailer
+	enableAccessControl  bool
 
 	l *logrus.Entry
 
@@ -104,6 +105,7 @@ type Params struct {
 	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
+	EnableAccessControl  bool
 }
 
 // NewServer returns new server for Server service.
@@ -133,6 +135,7 @@ func NewServer(params *Params) (*Server, error) {
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
+		enableAccessControl:  params.EnableAccessControl,
 	}
 	return s, nil
 }
@@ -454,6 +457,9 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
+
+		EnableAccessControl: s.enableAccessControl,
+		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
 	if settings.Alerting.EmailAlertingSettings != nil {

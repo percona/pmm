@@ -25,13 +25,17 @@ import (
 
 var isJSON = false
 
+// SocketPath is the default path to a socket file of pmm-agent.
+const SocketPath = "/usr/local/percona/pmm2/pmm-agent.sock"
+
 // GlobalFlags stores flags global to all commands.
 type GlobalFlags struct {
 	ServerURL               *url.URL    `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
 	SkipTLSCertificateCheck bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
 	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`
 	EnableTrace             bool        `name:"trace" help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort      uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
+	PMMAgentListenPort      uint32      `placeholder:"PORT" help:"Port of local pmm-agent to connect to"`
+	PMMAgentSocket          string      `placeholder:"PATH" help:"pmm-agent socket to connect to. Default: ${socketPath}"`
 	JSON                    jsonFlag    `help:"Enable JSON output"`
 	Version                 versionFlag `short:"v" help:"Show application version"`
 }

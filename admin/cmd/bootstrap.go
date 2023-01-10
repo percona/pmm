@@ -20,9 +20,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/kong"
 	kongcompletion "github.com/jotaen/kong-completion"
@@ -154,7 +157,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 			NoExpandSubcommands: true,
 		}),
 		kong.Vars{
-			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"socketPath":                   flags.SocketPath,
 			"nodeIp":                       nodeinfo.PublicAddress,
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
@@ -185,7 +188,15 @@ func finishBootstrap(globalFlags *flags.GlobalFlags) {
 		cancel()
 	}()
 
-	agentlocal.SetTransport(ctx, globalFlags.EnableDebug || globalFlags.EnableTrace, globalFlags.PMMAgentListenPort)
+	if globalFlags.PMMAgentListenPort == 0 && globalFlags.PMMAgentSocket == "" {
+		globalFlags.PMMAgentSocket, globalFlags.PMMAgentListenPort = findSocketOrPort("", 0)
+	}
+
+	agentlocal.SetTransport(
+		ctx,
+		globalFlags.EnableDebug || globalFlags.EnableTrace,
+		globalFlags.PMMAgentListenPort,
+		globalFlags.PMMAgentSocket)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
@@ -210,4 +221,82 @@ func processFinalError(err error, isJSON bool) {
 
 		os.Exit(1)
 	}
+}
+
+const lookupTimeout = 1 * time.Second
+
+// findSocketOrPort detects if pmm-agent is listening on socket or port.
+// The arguments are used for testing purposes and can be left empty.
+func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
+	logrus.Debug("Detecting socket or port of local pmm-agent")
+
+	if socketPath == "" {
+		socketPath = flags.SocketPath
+	}
+
+	if localPort == 0 {
+		localPort = agentlocal.DefaultPMMAgentListenPort
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), lookupTimeout)
+	defer cancel()
+
+	// We make the channels buffered with size 1 to avoid goroutine leaks
+	socketChan := make(chan string, 1)
+	portChan := make(chan uint32, 1)
+
+	// Check socket connection
+	go func() {
+		defer close(socketChan)
+
+		var socket string
+
+		err := checkConnection(ctx, "unix", socketPath)
+		if err == nil {
+			socket = socketPath
+		}
+
+		socketChan <- socket
+	}()
+
+	// Check TCP connection
+	go func() {
+		defer close(portChan)
+
+		var port uint32
+
+		err := checkConnection(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(localPort))))
+		if err == nil {
+			port = localPort
+		}
+
+		portChan <- port
+	}()
+
+	if sock := <-socketChan; sock != "" {
+		logrus.Debugf("Found socket %s", sock)
+		return sock, 0
+	}
+
+	if port := <-portChan; port != 0 {
+		logrus.Debugf("Found port %d", port)
+		return "", port
+	}
+
+	logrus.Debug("Could not detect socket or port. Using default.")
+	return socketPath, 0
+}
+
+func checkConnection(ctx context.Context, network, address string) error {
+	dialer := net.Dialer{} //nolint:exhaustruct
+	conn, err := dialer.DialContext(ctx, network, address)
+	if err != nil {
+		return err
+	}
+
+	if err := conn.Close(); err != nil {
+		logrus.Debugf("%q connection close error: %#v", network, err)
+	}
+
+	return nil
 }

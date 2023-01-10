@@ -813,6 +813,12 @@ type ChangeSettingsOKBodySettings struct {
 	// Includes list of collected telemetry
 	TelemetrySummaries []string `json:"telemetry_summaries"`
 
+	// True if Access Control is enabled.
+	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+
+	// Default Access Control role ID for new users.
+	DefaultRoleID int64 `json:"default_role_id,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
