@@ -27,6 +27,12 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const (
+	roleATitle = "Role A"
+	roleBTitle = "Role B"
+	roleCTitle = "Role C"
+)
+
 //nolint:paralleltest
 func TestRoleHelpers(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -101,7 +107,7 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var role models.Role
-			role.Title = "Role A"
+			role.Title = roleATitle
 			require.NoError(t, models.CreateRole(tx.Querier, &role))
 			require.NoError(t, models.DeleteRole(tx, int(role.ID), 0, false))
 		})
@@ -112,8 +118,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), int(roleB.ID), false))
@@ -125,8 +131,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), int(roleB.ID), true))
@@ -141,7 +147,7 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var role models.Role
-			role.Title = "Role A"
+			role.Title = roleATitle
 			require.NoError(t, models.CreateRole(tx.Querier, &role))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(role.ID)}))
 			require.NoError(t, models.DeleteRole(tx, int(role.ID), 0, false))
@@ -157,8 +163,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID)}))
@@ -176,8 +182,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID)}))
@@ -198,8 +204,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
@@ -217,8 +223,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
@@ -236,9 +242,9 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB, roleC models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
-			roleC.Title = "Role C"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
+			roleC.Title = roleCTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleC))
@@ -258,8 +264,8 @@ func TestRoleHelpers(t *testing.T) {
 			defer teardown(t)
 
 			var roleA, roleB models.Role
-			roleA.Title = "Role A"
-			roleB.Title = "Role B"
+			roleA.Title = roleATitle
+			roleB.Title = roleBTitle
 			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
@@ -292,8 +298,8 @@ func TestRoleHelpers(t *testing.T) {
 		defer teardown(t)
 
 		var roleA, roleB models.Role
-		roleA.Title = "Role A"
-		roleB.Title = "Role B"
+		roleA.Title = roleATitle
+		roleB.Title = roleBTitle
 
 		require.NoError(t, models.CreateRole(tx.Querier, &roleA))
 		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
