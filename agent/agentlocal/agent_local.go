@@ -29,7 +29,6 @@ import (
 	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -99,13 +98,17 @@ func (s *Server) Run(ctx context.Context) {
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
 
-	// Get random free port for gRPC server.
-	// If we can't get one, panic since everything is seriously broken.
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	// Unix socket for gRPC server.
+	l, err := net.Listen("unix", s.cfg.ListenSocketGRPC)
 	if err != nil {
 		s.l.Panic(err)
 	}
 	// l is closed by runGRPCServer
+
+	err = os.Chmod(s.cfg.ListenSocketGRPC, 0o770) //nolint:gosec
+	if err != nil {
+		s.l.Panic(err)
+	}
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -115,7 +118,7 @@ func (s *Server) Run(ctx context.Context) {
 	}()
 	go func() {
 		defer wg.Done()
-		s.runJSONServer(serverCtx, l.Addr().String())
+		s.runJSONServer(serverCtx, "unix:"+l.Addr().String())
 	}()
 
 	select {
@@ -193,7 +196,7 @@ func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	l := s.l.WithField("component", "local-server/gRPC")
-	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
+	l.Debugf("Starting gRPC server on unix:%s ...", listener.Addr().String())
 
 	gRPCServer := grpc.NewServer()
 	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
@@ -237,9 +240,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 
 // runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
 func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
-	address := net.JoinHostPort(s.cfg.ListenAddress, strconv.Itoa(int(s.cfg.ListenPort)))
 	l := s.l.WithField("component", "local-server/JSON")
-	l.Infof("Starting local API server on http://%s/ ...", address)
 
 	handlers := []string{
 		"/debug/metrics",  // by metricsHandler below
@@ -248,10 +249,6 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 		"/debug/events",   // by golang.org/x/net/trace imported by google.golang.org/grpc
 		"/debug/pprof",    // by net/http/pprof
 	}
-	for i, h := range handlers {
-		handlers[i] = "http://" + address + h
-	}
-	l.Debugf("Debug handlers:\n\t%s", strings.Join(handlers, "\n\t"))
 
 	var debugPage bytes.Buffer
 	err := template.Must(template.New("").Parse(`
@@ -312,14 +309,19 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
 
-	server := &http.Server{ //nolint:gosec
-		Addr:     address,
-		Handler:  mux,
-		ErrorLog: log.New(os.Stderr, "local-server/JSON: ", 0),
+	server := &http.Server{
+		Handler:           mux,
+		ErrorLog:          log.New(os.Stderr, "local-server/JSON: ", 0),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {
+		listener, err := s.getListener(l)
+		if err != nil {
+			l.Panic(err)
+		}
 		l.Info("Started.")
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+
+		if err := server.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Stopped.")
@@ -341,7 +343,35 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
-// addData add data to zip file
+var errSocketOrPortRequired = errors.New("socketOrPortRequired")
+
+// getListener returns a net.Listener on socket or tcp based on configuration.
+func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
+	if s.cfg.ListenSocket != "" {
+		l.Infof("Starting local API server on unix:%s", s.cfg.ListenSocket)
+		listener, err := net.Listen("unix", s.cfg.ListenSocket)
+		if err != nil {
+			return listener, err
+		}
+
+		err = os.Chmod(s.cfg.ListenSocket, 0o770) //nolint:gosec
+		if err != nil {
+			s.l.Panic(err)
+		}
+
+		return listener, nil
+	}
+
+	if s.cfg.ListenAddress != "" && s.cfg.ListenPort != 0 {
+		address := net.JoinHostPort(s.cfg.ListenAddress, strconv.Itoa(int(s.cfg.ListenPort)))
+		l.Infof("Starting local API server on http://%s", address)
+		return net.Listen("tcp", address)
+	}
+
+	return nil, fmt.Errorf("%w: listen socket or listen address/port need to be configured", errSocketOrPortRequired)
+}
+
+// addData add data to zip file.
 func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {
