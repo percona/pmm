@@ -85,8 +85,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, _, kubernetesClient, grafanaClient, olms, teardown := setup(t)
-		kubernetesClient.On("SetKubeConfig", mock.Anything).Return(nil)
+		ctx, ks, dbaasClient, kubernetesClient, olms, grafanaClient, teardown := setup(t)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -94,20 +93,28 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
-		kubernetesClient.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+		dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PxcOperatorVersion:   "",
 				PsmdbOperatorVersion: onePointEight,
 			},
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
+
+		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(3*time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(3*time.Second)).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
+
+		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
+
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
-		olms.On("SetKubeConfig", mock.Anything).Return(nil)
+		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+
+		olms.On("SetKubeConfig", mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 
-		// dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -134,12 +141,13 @@ func TestKubernetesServer(t *testing.T) {
 				KubernetesClusterName: kubernetesClusterName,
 				Operators: &dbaasv1beta1.Operators{
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
-					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
 					Dbaas: &dbaasv1beta1.Operator{Version: "", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
 		}
+
 		assert.Equal(t, expected[0].Operators, clusters.KubernetesClusters[0].Operators)
 		assert.Equal(t, expected[0].KubernetesClusterName, clusters.KubernetesClusters[0].KubernetesClusterName)
 		assert.True(
