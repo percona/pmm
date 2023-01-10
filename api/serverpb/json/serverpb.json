@@ -431,6 +431,12 @@
                       "type": "boolean",
                       "x-order": 10
                     },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
+                    },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
@@ -477,6 +483,11 @@
                         }
                       },
                       "x-order": 12
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -687,6 +698,12 @@
                       "type": "boolean",
                       "x-order": 10
                     },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
+                    },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
                       "type": "object",
@@ -733,6 +750,11 @@
                         }
                       },
                       "x-order": 12
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",

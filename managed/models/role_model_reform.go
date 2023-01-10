@@ -30,6 +30,7 @@ func (v *roleTableType) Columns() []string {
 	return []string{
 		"id",
 		"title",
+		"description",
 		"filter",
 		"created_at",
 		"updated_at",
@@ -59,6 +60,7 @@ var RoleTable = &roleTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "uint32", Column: "id"},
 			{Name: "Title", Type: "string", Column: "title"},
+			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Filter", Type: "string", Column: "filter"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
@@ -70,12 +72,13 @@ var RoleTable = &roleTableType{
 
 // String returns a string representation of this struct or record.
 func (s Role) String() string {
-	res := make([]string, 5)
+	res := make([]string, 6)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Title: " + reform.Inspect(s.Title, true)
-	res[2] = "Filter: " + reform.Inspect(s.Filter, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[2] = "Description: " + reform.Inspect(s.Description, true)
+	res[3] = "Filter: " + reform.Inspect(s.Filter, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -85,6 +88,7 @@ func (s *Role) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Title,
+		s.Description,
 		s.Filter,
 		s.CreatedAt,
 		s.UpdatedAt,
@@ -97,6 +101,7 @@ func (s *Role) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Title,
+		&s.Description,
 		&s.Filter,
 		&s.CreatedAt,
 		&s.UpdatedAt,

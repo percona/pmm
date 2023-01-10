@@ -690,6 +690,28 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
+{{define "vmproxy"}}
+[program:vmproxy]
+priority = 9
+command =
+    /usr/sbin/vmproxy
+      --target-url=http://127.0.0.1:9090/
+      --listen-port=8430
+      --listen-address=127.0.0.1
+      --header-name=X-Proxy-Filter
+user = pmm
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/vmproxy.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
 {{define "alertmanager"}}
 [program:alertmanager]
 priority = 8
