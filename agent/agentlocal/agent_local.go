@@ -310,8 +310,9 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
 
 	server := &http.Server{
-		Handler:  mux,
-		ErrorLog: log.New(os.Stderr, "local-server/JSON: ", 0),
+		Handler:           mux,
+		ErrorLog:          log.New(os.Stderr, "local-server/JSON: ", 0),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {
 		listener, err := s.getListener(l)
