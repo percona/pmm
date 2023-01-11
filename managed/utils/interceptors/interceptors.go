@@ -18,6 +18,8 @@ package interceptors
 
 import (
 	"context"
+	"io"
+	"os"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -90,6 +92,11 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
 		ctx = logger.SetEntry(ctx, l)
+
+		if info.FullMethod == "/server.Server/Readiness" && os.Getenv("LESS_LOG_NOISE") != "" {
+			l = logrus.NewEntry(logrus.New())
+			l.Logger.SetOutput(io.Discard)
+		}
 
 		ctx = SetCallerOrigin(ctx, info.FullMethod)
 
