@@ -64,7 +64,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 			if err == agentlocal.ErrNotConnected { //nolint:errorlint
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n", err)
 			}
-			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent:\n%s.\n\n"+
+			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
 		globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
