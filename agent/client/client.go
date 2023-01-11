@@ -220,7 +220,7 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-// Done is closed when all supervisors's requests are sent (if possible) and connection is closed.
+// Done is closed when all supervisor's requests are sent (if possible) and connection is closed.
 func (c *Client) Done() <-chan struct{} {
 	return c.done
 }

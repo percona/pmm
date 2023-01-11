@@ -342,6 +342,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 type http1ServerDeps struct {
 	logs       *supervisord.Logs
 	authServer *grafana.AuthServer
+	vmServer   http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -432,6 +433,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/scrape_configs", deps.vmServer)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -754,6 +756,7 @@ func main() {
 		l.Panicf("VictoriaMetrics VMAlert service problem: %+v", err)
 	}
 	prom.MustRegister(vmalert)
+	vmServer := victoriametrics.NewServer(vmdb)
 
 	minioClient := minio.New()
 
@@ -1037,6 +1040,7 @@ func main() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
+			vmServer:   vmServer,
 		})
 	}()
 

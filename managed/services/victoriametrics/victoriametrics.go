@@ -152,13 +152,17 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 		}
 	}()
 
-	base := svc.loadBaseConfig()
-	cfg, err := svc.marshalConfig(base)
+	cfg, err := svc.generateConfig()
 	if err != nil {
 		return err
 	}
 
 	return svc.configAndReload(ctx, cfg)
+}
+
+func (svc *Service) generateConfig() ([]byte, error) {
+	base := svc.loadBaseConfig()
+	return svc.marshalConfig(base)
 }
 
 // reload asks VictoriaMetrics to reload configuration.
