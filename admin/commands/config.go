@@ -79,9 +79,7 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 		}
 	}
 
-	if globals.PMMAgentSocket != "" {
-		res = append(res, fmt.Sprintf("--listen-socket=%s", globals.PMMAgentSocket))
-	} else if globals.PMMAgentListenPort != 0 {
+	if globals.PMMAgentListenPort != 0 {
 		res = append(res, fmt.Sprintf("--listen-port=%d", globals.PMMAgentListenPort))
 	}
 
