@@ -13,7 +13,6 @@ on:
       - "admin/**"
       - "api-tests/**"
       - "cli-tests/**"
-      - "cli-tests/**"
       - "docs/**"
       - "managed/**"
       - "qan-api2/**"
