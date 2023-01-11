@@ -45,19 +45,40 @@ var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 // setLocalTransport configures transport for accessing local pmm-agent API.
 //
 // This method is not thread-safe.
-func setLocalTransport(host string, port uint16, l *logrus.Entry) {
+func setLocalTransport(host string, port uint16, socket string, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
-	address := net.JoinHostPort(host, strconv.Itoa(int(port)))
-	transport := httptransport.New(address, "/", []string{"http"})
+	transport := httptransport.New(getHostname(host, port, socket), "/", []string{"http"})
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 	transport.Context = context.Background()
 
-	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	httpTransport, ok := transport.Transport.(*http.Transport)
+	if !ok {
+		panic("Cannot assert transport to *http.Transport")
+	}
+	t := httpTransport.Clone()
 
+	// disable HTTP/2
+	t.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+
+	if socket != "" {
+		t.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+			dialer := net.Dialer{}
+			return dialer.DialContext(ctx, "unix", socket)
+		}
+	}
+
+	transport.Transport = t
 	agentlocalpb.Default.SetTransport(transport)
+}
+
+// getHostname returns hostname for HTTP request depending on socket or host/port arguments.
+func getHostname(host string, port uint16, socket string) string {
+	if socket != "" {
+		return "unix-socket"
+	}
+
+	return net.JoinHostPort(host, strconv.Itoa(int(port)))
 }
 
 type statusResult struct {

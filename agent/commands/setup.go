@@ -53,7 +53,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
+	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, cfg.ListenSocket, l)
 
 	configFilepath, running := checkStatus(configFilepath, l)
 
