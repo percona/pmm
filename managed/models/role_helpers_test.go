@@ -30,7 +30,6 @@ import (
 const (
 	roleATitle = "Role A"
 	roleBTitle = "Role B"
-	roleCTitle = "Role C"
 )
 
 //nolint:paralleltest
