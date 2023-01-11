@@ -462,6 +462,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				m.l.Debugf("Normal query: %s.", currentPSM)
 			}
 
+			//test of main
 			mb := &agentpb.MetricsBucket{
 				Common: &agentpb.MetricsBucket_Common{
 					IsTruncated:         currentPSM.IsQueryTruncated,
