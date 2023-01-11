@@ -47,7 +47,7 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 		for _, task := range tasks {
 			if task.ID == scheduleID {
-				// Needed for scheduled PITR backup update.
+				// When we are updating existing scheduled PITR backup we should pass this check.
 				continue
 			}
 
