@@ -38,21 +38,14 @@ message UpdateRoleRequest {
 }
 message UpdateRoleResponse {}
 
-enum ReplacementRoleMode {
-  // LAST_ROLE replaces a role only in case it's the last role to be removed and no other roles would be left for the user.
-  LAST_ROLE = 0;
-  // ALWAYS replaces a role for all users.
-  ALWAYS = 1;
-}
-
 message DeleteRoleRequest {
   uint32 role_id = 1 [
     (validator.field) = {
       int_gt: 0
     }
   ];
+  // Role ID to be used as a replacement for the role. Additional logic applies.
   uint32 replacement_role_id = 2;
-  ReplacementRoleMode replacement_role_mode = 3;
 }
 
 message DeleteRoleResponse {}

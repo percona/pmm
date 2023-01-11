@@ -79,7 +79,7 @@ func AssignDefaultRole(tx *reform.TX, userID int) error {
 }
 
 // DeleteRole deletes a role, if possible.
-func DeleteRole(tx *reform.TX, roleID, replacementRoleID int, replaceAlways bool) error {
+func DeleteRole(tx *reform.TX, roleID, replacementRoleID int) error {
 	q := tx.Querier
 
 	var role Role
@@ -97,7 +97,7 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int, replaceAlways bool
 		return ErrRoleIsDefaultRole
 	}
 
-	if err := replaceRole(tx, roleID, replacementRoleID, replaceAlways); err != nil {
+	if err := replaceRole(tx, roleID, replacementRoleID); err != nil {
 		return err
 	}
 
@@ -112,7 +112,7 @@ func DeleteRole(tx *reform.TX, roleID, replacementRoleID int, replaceAlways bool
 	return nil
 }
 
-func replaceRole(tx *reform.TX, roleID, newRoleID int, replaceAlways bool) error {
+func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 	q := tx.Querier
 
 	// If no new role is assigned, we remove all role assignements.
@@ -122,28 +122,6 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int, replaceAlways bool) error
 	}
 
 	if err := FindAndLockRole(tx, newRoleID, &Role{}); err != nil {
-		return err
-	}
-
-	// For "replace always" mode, we replace the role with the new provided role ID. No extra logic.
-	if replaceAlways {
-		_, err := q.Exec(`
-			UPDATE user_roles
-			SET
-				role_id = $1
-			WHERE
-				role_id = $2 AND
-				NOT EXISTS(
-					SELECT 1
-					FROM user_roles ur
-					WHERE
-						ur.user_id = user_roles.user_id AND
-						ur.role_id = $3
-				)`,
-			newRoleID,
-			roleID,
-			newRoleID)
-
 		return err
 	}
 
