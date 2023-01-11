@@ -513,9 +513,9 @@ const (
 	clusterName         = "installoperator"
 )
 
-func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port, defaultPXC,
-	defaultPSMDB string,
-) (*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *olm.MockOperatorServiceManager) {
+func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port string) (
+	*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *olm.MockOperatorServiceManager,
+) {
 	t.Helper()
 
 	uuid.SetRand(&tests.IDReader{})
@@ -530,10 +530,10 @@ func setup(t *testing.T, clusterName string, response *VersionServiceResponse, p
 	})
 	require.NoError(t, err)
 	kubernetesCluster.Mongod = &models.Component{
-		DefaultVersion: defaultPSMDB,
+		DefaultVersion: defaultPSMDBVersion,
 	}
 	kubernetesCluster.PXC = &models.Component{
-		DefaultVersion: defaultPXC,
+		DefaultVersion: defaultPXCVersion,
 	}
 	require.NoError(t, db.Save(kubernetesCluster))
 
@@ -610,7 +610,7 @@ func TestInstallOperator(t *testing.T) {
 	}
 
 	t.Run("Defaults not supported", func(t *testing.T) {
-		_, c, _, olms := setup(t, clusterName, response, "5497", defaultPXCVersion, defaultPSMDBVersion)
+		_, c, _, olms := setup(t, clusterName, response, "5497")
 		olms.On("SetKubeConfig", mock.Anything).Return(nil)
 		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
@@ -635,7 +635,7 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
-		db, c, _, olms := setup(t, clusterName, response, "5498", defaultPXCVersion, defaultPSMDBVersion)
+		db, c, _, olms := setup(t, clusterName, response, "5498")
 		olms.On("SetKubeConfig", mock.Anything).Return(nil)
 		olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		olms.On("UpgradeOperator", mock.Anything, mock.Anything, mock.Anything).Return(nil)
@@ -720,7 +720,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
 		clusterName := "update-available"
-		_, cs, dbaasClient, olmClient := setup(t, clusterName, response, "9873", defaultPXCVersion, defaultPSMDBVersion)
+		_, cs, dbaasClient, olmClient := setup(t, clusterName, response, "9873")
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PsmdbOperatorVersion: onePointSeven,
@@ -776,7 +776,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
 		clusterName := "update-not-available"
-		_, cs, dbaasClient, olmClient := setup(t, clusterName, response, "7895", defaultPXCVersion, defaultPSMDBVersion)
+		_, cs, dbaasClient, olmClient := setup(t, clusterName, response, "7895")
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PsmdbOperatorVersion: onePointEight,

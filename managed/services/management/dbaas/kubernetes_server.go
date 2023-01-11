@@ -42,11 +42,6 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
-const (
-	catalogSourceNamespace = "olm"
-	catalogSource          = "percona-dbaas-catalog"
-)
-
 var (
 	operatorIsForbiddenRegexp          = regexp.MustCompile(`.*\.percona\.com is forbidden`)
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
