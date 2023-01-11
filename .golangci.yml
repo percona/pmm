@@ -72,6 +72,8 @@ linters:
   enable-all: true
   disable:
     # keep sorted
+    - varcheck          # deprecated, replaced by unused.
+    - structcheck       # deprecated, replaced by unused.
     - exhaustivestruct  # too annoying
     - funlen            # useless
     - gochecknoglobals  # mostly useless
