@@ -29,7 +29,7 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(context.TODO(), true, 0, "/var/run/pmm-agent.sock")
+	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
 
 	f, err := os.CreateTemp("", "pmm-admin-test-summary")
 	require.NoError(t, err)
