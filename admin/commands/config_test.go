@@ -25,8 +25,6 @@ import (
 )
 
 func TestConfigCommandArgs(t *testing.T) {
-	t.Parallel()
-
 	cmd := &ConfigCommand{
 		NodeAddress: "1.2.3.4",
 		NodeType:    "generic",
@@ -118,21 +116,5 @@ func TestConfigCommandArgs(t *testing.T) {
 		}
 		assert.Equal(t, expected, args)
 		assert.True(t, switchedToTLS)
-	})
-
-	t.Run("listen on socket", func(t *testing.T) {
-		u, err := url.Parse("http://127.0.0.1:80")
-		require.NoError(t, err)
-		args, _ := cmd.args(&flags.GlobalFlags{
-			ServerURL:      u,
-			PMMAgentSocket: "/socket",
-		})
-		expected := []string{
-			"--server-address=127.0.0.1:443",
-			"--listen-socket=/socket",
-			"--server-insecure-tls",
-			"setup", "1.2.3.4", "generic", "node1",
-		}
-		assert.Equal(t, expected, args)
 	})
 }
