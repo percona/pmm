@@ -133,6 +133,12 @@ type CreatePXCClusterBody struct {
 	// Make DB cluster accessible outside of K8s cluster.
 	Expose bool `json:"expose,omitempty"`
 
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *CreatePXCClusterParamsBodyParams `json:"params,omitempty"`
 }
@@ -684,6 +690,12 @@ type CreatePXCClusterParamsBodyParamsPXC struct {
 
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
+
+	// Configuration for PXC cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PXC cluster.
+	StorageClass string `json:"storage_class,omitempty"`
 
 	// compute resources
 	ComputeResources *CreatePXCClusterParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
