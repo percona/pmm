@@ -19,10 +19,8 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -33,36 +31,19 @@ import (
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 )
 
-// DefaultTransport is a transport configured either for socket or tcp connection to local pmm-agent.
-// It shall be used to talk to the local pmm-agent.
-var DefaultTransport = http.DefaultTransport
-
 // SetTransport configures transport for accessing local pmm-agent API.
-func SetTransport(ctx context.Context, debug bool, port uint32, socket string) {
+func SetTransport(ctx context.Context, debug bool, port uint32) {
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(GetHostname(Localhost, port, socket), "/", []string{"http"})
+	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 	transport.Context = ctx
 
-	httpTransport, ok := transport.Transport.(*http.Transport)
-	if !ok {
-		panic("Cannot assert transport to *http.Transport")
-	}
-	t := httpTransport.Clone()
-
 	// disable HTTP/2
-	t.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if socket != "" {
-		t.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
-			dialer := net.Dialer{}
-			return dialer.DialContext(ctx, "unix", socket)
-		}
-	}
+	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
-	transport.Transport = t
 	client.Default.SetTransport(transport)
-	DefaultTransport = t
 }
 
 type NetworkInfo bool
@@ -197,13 +178,4 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 
 		ConnectionUptime: p.ConnectionUptime,
 	}, err
-}
-
-// GetHostname returns hostname for HTTP request depending on socket or host/port arguments.
-func GetHostname(host string, port uint32, socket string) string {
-	if socket != "" {
-		return "unix-socket"
-	}
-
-	return net.JoinHostPort(host, strconv.Itoa(int(port)))
 }
