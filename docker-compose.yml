@@ -175,6 +175,7 @@ services:
       -c pg_stat_statements.max=10000 
       -c pg_stat_statements.track=all 
       -c pg_stat_statements.save=off 
+      -c fsync=off 
       -c ssl=on 
       -c ssl_ca_file=/certs/root.crt 
       -c ssl_cert_file=/certs/server.crt 
