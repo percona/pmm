@@ -440,49 +440,54 @@ func TestServiceHelpers(t *testing.T) {
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 
-	// TODO cross-importing constraints in main_test.go don't allow to have such test.
-	//t.Run("Software versions empty record created on adding service", func(t *testing.T) {
-	//	q, teardown := setup(t)
-	//	defer teardown(t)
-	//	s1, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
-	//		ServiceName: "mysql",
-	//		NodeID:      "N1",
-	//		Address:     pointer.ToString("127.0.0.1"),
-	//		Port:        pointer.ToUint16OrNil(3306),
-	//	})
-	//	require.NoError(t, err)
-	//
-	//	s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-	//		ServiceName: "mongo",
-	//		NodeID:      "N1",
-	//		Address:     pointer.ToString("127.0.0.1"),
-	//		Port:        pointer.ToUint16OrNil(27017),
-	//	})
-	//	require.NoError(t, err)
-	//
-	//	s3, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
-	//		ServiceName: "postgres",
-	//		NodeID:      "N1",
-	//		Cluster:     "cluster1",
-	//		Address:     pointer.ToString("127.0.0.1"),
-	//		Port:        pointer.ToUint16OrNil(5432),
-	//	})
-	//	require.NoError(t, err)
-	//
-	//	for _, service := range []*models.Service{s1, s2, s3} {
-	//		swList := agents.GetSoftwareList(service.ServiceType)
-	//		swVersions, err := models.FindServiceSoftwareVersionsByServiceID(q, service.ServiceID)
-	//
-	//		if len(swList) != 0 {
-	//			require.NoError(t, err)
-	//			assert.NotNil(t, swVersions)
-	//			return
-	//		}
-	//
-	//		assert.ErrorIs(t, err, models.ErrNotFound)
-	//		assert.Nil(t, swVersions)
-	//	}
-	//})
+	t.Run("Software versions empty record created on adding service", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		emptyVersionsCreatedByServiceType := map[models.ServiceType]bool{
+			models.MySQLServiceType:      true,
+			models.MongoDBServiceType:    true,
+			models.PostgreSQLServiceType: false,
+		}
+
+		s1, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(3306),
+		})
+		require.NoError(t, err)
+
+		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongo",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		s3, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "postgres",
+			NodeID:      "N1",
+			Cluster:     "cluster1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(5432),
+		})
+		require.NoError(t, err)
+
+		for _, service := range []*models.Service{s1, s2, s3} {
+			swVersions, err := models.FindServiceSoftwareVersionsByServiceID(q, service.ServiceID)
+
+			if emptyVersionsCreatedByServiceType[service.ServiceType] {
+				require.NoError(t, err)
+				assert.NotNil(t, swVersions)
+				return
+			}
+
+			assert.ErrorIs(t, err, models.ErrNotFound)
+			assert.Nil(t, swVersions)
+		}
+	})
 }
 
 func pointerToServiceType(serviceType models.ServiceType) *models.ServiceType {

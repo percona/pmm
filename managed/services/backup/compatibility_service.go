@@ -44,7 +44,7 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 
 // checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
-	softwareList := agents.GetSoftwareList(serviceModel.ServiceType)
+	softwareList := agents.GetRequiredBackupSoftwareList(serviceModel.ServiceType)
 	if len(softwareList) == 0 {
 		return "", nil
 	}
@@ -54,7 +54,7 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 		return "", err
 	}
 	if len(svs) != len(softwareList) {
-		s.l.Errorf("response slice len %d != request len %d", len(svs), len(softwareList))
+		s.l.Errorf("Response slice len %d != request len %d.", len(svs), len(softwareList))
 		return "", ErrComparisonImpossible
 	}
 

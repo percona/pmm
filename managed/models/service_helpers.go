@@ -411,7 +411,7 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 			SoftwareVersions: []SoftwareVersion{},
 			NextCheckAt:      time.Now(),
 		}); err != nil {
-			return errors.Wrapf(err, "Couldn't initialize software versions for service %s", serviceID)
+			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
 		}
 	default:
 		return nil

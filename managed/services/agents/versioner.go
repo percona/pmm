@@ -127,8 +127,8 @@ func getMongodbSoftwareList() []Software {
 	return []Software{&MongoDB{}, &PBM{}}
 }
 
-// GetSoftwareList maps service type into list of software required for backups. Returns empty list if no software specified for the type.
-func GetSoftwareList(serviceType models.ServiceType) []Software {
+// GetRequiredBackupSoftwareList maps service type into list of software required for backups. Returns empty list if no software specified for the type.
+func GetRequiredBackupSoftwareList(serviceType models.ServiceType) []Software {
 	switch serviceType {
 	case models.MySQLServiceType:
 		return getMysqlSoftwareList()

@@ -87,7 +87,7 @@ func TestVersionCache(t *testing.T) {
 			assert.NoError(t, db.Delete(&models.Node{NodeID: nodeID1}))
 		})
 
-		softwares := agents.GetSoftwareList(models.MySQLServiceType)
+		softwares := agents.GetRequiredBackupSoftwareList(models.MySQLServiceType)
 		versions1 := []agents.Version{
 			{Version: "8.0.23"},
 			{Version: "8.0.23"},

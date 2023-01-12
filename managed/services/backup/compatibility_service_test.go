@@ -37,7 +37,7 @@ func TestCheckCompatibility(t *testing.T) {
 
 	agentModel := models.Agent{AgentID: "test_agent_id"}
 
-	mysqlSoftware := agents.GetSoftwareList(models.MySQLServiceType)
+	mysqlSoftware := agents.GetRequiredBackupSoftwareList(models.MySQLServiceType)
 	expectedMysqlSoftware := []agents.Software{
 		&agents.Mysqld{},
 		&agents.Xtrabackup{},
@@ -46,7 +46,7 @@ func TestCheckCompatibility(t *testing.T) {
 	}
 	require.Equal(t, expectedMysqlSoftware, mysqlSoftware)
 
-	mongoSoftware := agents.GetSoftwareList(models.MongoDBServiceType)
+	mongoSoftware := agents.GetRequiredBackupSoftwareList(models.MongoDBServiceType)
 	expectedMongoSoftware := []agents.Software{
 		&agents.MongoDB{},
 		&agents.PBM{},

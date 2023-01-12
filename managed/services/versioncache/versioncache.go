@@ -106,7 +106,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 		}
 
 		results.ServiceType = service.ServiceType
-		swList := agents.GetSoftwareList(service.ServiceType)
+		swList := agents.GetRequiredBackupSoftwareList(service.ServiceType)
 		// Stop if no software specified for the service type.
 		if len(swList) == 0 {
 			return nil
