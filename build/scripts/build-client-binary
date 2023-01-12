@@ -33,7 +33,7 @@ gobuild_component() {
         build_command="cd /tmp/go/src/${extract_path} && make build"
     elif [ ${component} = 'node_exporter' ] || [ ${component} = 'mysqld_exporter' ] || \
          [ ${component} = 'proxysql_exporter' ] || [ ${component} = 'rds_exporter' ] || \
-         [ ${component} = 'postgres_exporter' ]; then
+         [ ${component} = 'postgres_exporter' ] || [ ${component} = 'azure_metrics_exporter' ]; then
         build_command="cd /tmp/go/src/${extract_path} && make feature-build"
     elif [ ${component} = 'percona-toolkit' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
