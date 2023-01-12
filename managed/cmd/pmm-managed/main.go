@@ -683,7 +683,7 @@ func main() {
 		Envar("POSTGRES_SSLKEY_PATH").
 		String()
 	postgresSSLCertPathF := kingpin.Flag("postgres-sslcertpath", "PostgreSQL ssl cert path").
-		Envar("POSTGRES_SSLCERT_PATH").
+		Envar("POSTGRES_SSL_CERT_PATH").
 		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
