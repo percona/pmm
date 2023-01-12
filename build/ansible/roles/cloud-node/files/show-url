@@ -10,7 +10,7 @@ if [ -f /var/lib/cloud/data/status.json ]; then
     )
 fi
 
-IP=$(ip route get 1 2>/dev/null | awk '{print $NF;exit}')
+IP=$(ip route get 1 2>/dev/null | awk '{print $7;exit}')
 if [ "x$SOURCE" = "xDataSourceEc2" ]; then
     IP=$(curl --connect-timeout 5 -s http://169.254.169.254/latest/meta-data/public-ipv4)
 fi

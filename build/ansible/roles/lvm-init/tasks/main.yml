@@ -5,6 +5,9 @@
     state: installed
 
 - block:
+    - name: Data partition             | https://bugzilla.redhat.com/show_bug.cgi?id=1965941
+      shell: sed -i 's/devices {/devices { \nuse_devicesfile=0/g' /etc/lvm/lvm.conf
+      ignore_errors: True
     - name: Data partition             | list
       shell: ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb | grep -v ^$(pvdisplay -c | grep ':VolGroup00:' | cut -d ':' -f 1 | tr -d '[:space:]' | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE / | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE /mnt/resource | sed 's/[0-9]$//')$
       register: available_drives
