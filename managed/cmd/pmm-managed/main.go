@@ -682,7 +682,7 @@ func main() {
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
 		Envar("POSTGRES_SSL_KEY_PATH").
 		String()
-	postgresSSLCertPathF := kingpin.Flag("postgres-sslcertpath", "PostgreSQL ssl cert path").
+	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
 		Envar("POSTGRES_SSL_CERT_PATH").
 		String()
 
