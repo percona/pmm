@@ -11,9 +11,6 @@ release-dev-agent:                ## Build pmm-agent
 release-vmproxy:                  ## Build vmproxy
 	make -C vmproxy release
 
-release-dev-update:               ## Build pmm-agent
-	make -C update release
-
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -35,10 +32,6 @@ run-vmproxy: release-vmproxy
 	supervisorctl stop vmproxy
 	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
 	supervisorctl start vmproxy
-
-run-update: release-dev-update      ## Replace pmm-update from build
-	cp $(PMM_RELEASE_PATH)/pmm-update /usr/sbin/pmm-update
-	pmm-update -run-playbook -playbook /root/go/src/github.com/percona/pmm/update/ansible/playbook/tasks/update.yml
 
 run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 
