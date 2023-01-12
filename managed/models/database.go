@@ -19,6 +19,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"net"
 	"net/url"
 	"strings"
 
@@ -893,6 +894,10 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 
 	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "28000" {
 		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+		if host, _, _ := net.SplitHostPort(params.Address); host != "127.0.0.1" {
+			return nil, errors.WithStack(pErr)
+		}
+
 		databaseName := params.Name
 		roleName := params.Username
 
