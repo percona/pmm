@@ -101,12 +101,12 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	}
 	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
 	gCacheSize := "600M"
-	diskSize := resource.NewQuantity(cluster.Params.Pxc.DiskSize, resource.DecimalSI)
+	diskSize := resource.NewQuantity(cluster.Params.Pxc.DiskSize, resource.BinarySI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM))
 	if err != nil {
 		return nil, err
 	}
-	clusterMemory := resource.NewQuantity(cluster.Params.Pxc.ComputeResources.MemoryBytes, resource.DecimalSI)
+	clusterMemory := resource.NewQuantity(cluster.Params.Pxc.ComputeResources.MemoryBytes, resource.BinarySI)
 	if cluster.Params.Pxc.Configuration == "" {
 		if memory > memorySmallSize && memory <= memoryMediumSize {
 			gCacheSize = "2.4G"
@@ -202,12 +202,12 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
 	}
-	diskSize := resource.NewQuantity(cluster.Params.Replicaset.DiskSize, resource.DecimalSI)
+	diskSize := resource.NewQuantity(cluster.Params.Replicaset.DiskSize, resource.BinarySI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM))
 	if err != nil {
 		return nil, err
 	}
-	clusterMemory := resource.NewQuantity(cluster.Params.Replicaset.ComputeResources.MemoryBytes, resource.DecimalSI)
+	clusterMemory := resource.NewQuantity(cluster.Params.Replicaset.ComputeResources.MemoryBytes, resource.BinarySI)
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: cluster.Name,
@@ -290,7 +290,7 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 				dbCluster.Spec.DBInstance.CPU = cpu
 			}
 			if updateRequest.Params.Replicaset.ComputeResources.MemoryBytes > 0 {
-				clusterMemory := resource.NewQuantity(updateRequest.Params.Replicaset.ComputeResources.MemoryBytes, resource.DecimalSI)
+				clusterMemory := resource.NewQuantity(updateRequest.Params.Replicaset.ComputeResources.MemoryBytes, resource.BinarySI)
 				dbCluster.Spec.DBInstance.Memory = *clusterMemory
 			}
 		}
@@ -344,7 +344,7 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 			dbCluster.Spec.DBInstance.CPU = cpu
 		}
 		if updateRequest.Params.Pxc.ComputeResources.MemoryBytes > 0 {
-			clusterMemory := resource.NewQuantity(updateRequest.Params.Pxc.ComputeResources.MemoryBytes, resource.DecimalSI)
+			clusterMemory := resource.NewQuantity(updateRequest.Params.Pxc.ComputeResources.MemoryBytes, resource.BinarySI)
 			dbCluster.Spec.DBInstance.Memory = *clusterMemory
 		}
 	}
