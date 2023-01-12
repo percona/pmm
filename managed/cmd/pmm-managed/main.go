@@ -679,7 +679,7 @@ func main() {
 		Default("pmm-managed").
 		Envar("POSTGRES_DBPASSWORD").
 		String()
-	postgresSSLKeyPathF := kingpin.Flag("postgres-sslkeypath", "PostgreSQL ssl key path").
+	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
 		Envar("POSTGRES_SSLKEY_PATH").
 		String()
 	postgresSSLCertPathF := kingpin.Flag("postgres-sslcertpath", "PostgreSQL ssl cert path").
