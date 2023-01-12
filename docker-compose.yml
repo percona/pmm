@@ -40,8 +40,8 @@ services:
     #      - POSTGRES_DBNAME=pmm-managed
     #      - POSTGRES_USERNAME=pmm-managed
     #      - POSTGRES_DBPASSWORD=pmm-managed
-    #      - POSTGRES_SSLKEY_PATH=/certs/pmm-managed.key
-    #      - POSTGRES_SSLCERT_PATH=/certs/pmm-managed.crt
+    #      - POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+    #      - POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
 
     extra_hosts:
       - host.docker.internal:host-gateway
