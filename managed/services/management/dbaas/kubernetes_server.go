@@ -164,16 +164,16 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
 
 			// FIXME: Uncomment it when FE will be ready
-			// kubeClient, err := kubernetes.New(cluster.KubeConfig)
-			// if err != nil {
-			// 	return
-			// }
-			//version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
-			//if err != nil {
-			//	return
-			//}
-			// clusters[i].Operators.Dbaas.Version = version
-			// clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
+			kubeClient, err := kubernetes.New(cluster.KubeConfig)
+			if err != nil {
+				return
+			}
+			version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			if err != nil {
+				return
+			}
+			clusters[i].Operators.Dbaas.Version = version
+			clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)
 	}
 	wg.Wait()
