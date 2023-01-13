@@ -1,0 +1,117 @@
+---
+- name: Create Grafana backup dir
+  file:
+    path: "{{ grafana_backup_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0700'
+
+- name: Stop grafana before upgrade
+  supervisorctl:
+    name: 'grafana'
+    state: stopped
+
+- name: Disable provisioning before change database
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: paths
+    option: provisioning
+    value: conf/provisioning_disable
+
+ - name: Switch to postgres
+   ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: type
+    value: localhost
+
+- name: Set database host
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: host
+    value: localhost
+
+- name: Set database user
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: user
+    value: grafana
+
+- name: Set database password
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: password
+    value: grafana
+
+- name: Start grafana again
+  supervisorctl:
+    name: grafana
+    state: restarted
+  ignore_errors: yes
+
+- name: Check if initial data were created
+  postgresql_query:
+    db: grafana
+    query: SELECT 1 FROM org WHERE id=1
+  retries: 3
+  delay: 3
+  register: psql_result
+  until: psql_result.rowcount == 1
+  when: not ansible_check_mode
+
+- name: wait for grafana database initiazation
+  pause:
+    seconds: 10
+
+- name: Stop grafana before upgrade
+  supervisorctl:
+    name: grafana
+    state: stopped
+
+- name: Run grafana migrator
+  command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  register: migrator_output
+  changed_when: "'All done' in migrator_output.stdout"
+
+- name: Enable provisioning after change database
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: paths
+    option: provisioning
+    value: conf/provisioning
+
+- name: Start grafana again
+  supervisorctl:
+    name: grafana
+    state: restarted
+  ignore_errors: yes
+
+- name: Display grafana.log content
+  command: cat /srv/logs/grafana.log
+  register: command_output
+
+- name: wait for grafana initiazation
+  pause:
+    seconds: 5
+
+- name: Fix database/folder relationship
+  command: grafana-db-migrator --fix-folders-id /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  register: migrator_output
+  changed_when: "'All done' in migrator_output.stdout"
+
+- name: Create backup for SQLite Grafana database
+  copy:
+    src: /srv/grafana/grafana.db
+    dest: "{{ grafana_backup_dir }}/grafana.db"
+    owner: grafana
+    group: grafana
+    mode: '0700'
+
+- name: Remove SQLite Grafana database
+  file:
+    path: /srv/grafana/grafana.db
+    state: absent
