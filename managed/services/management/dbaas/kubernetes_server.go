@@ -426,6 +426,26 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	}
 
 	namespace := "default"
+	if _, ok := operatorsToInstall["vm"]; ok {
+		operator := "victoriametrics-operator"
+
+		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot install victoria metrics operator: %s", err)
+			return retval
+		}
+
+		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
+		if err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
+		}
+
+		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
+		}
+	}
 
 	if _, ok := operatorsToInstall["pxc"]; ok {
 		operator := "percona-xtradb-cluster-operator"
@@ -487,27 +507,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
 			retval["dbaas"] = err
 			k.l.Errorf("cannot approve the dbaas install plan: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["vm"]; ok {
-		operator := "victoriametrics-operator"
-
-		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot install victoria metrics operator: %s", err)
-			return retval
-		}
-
-		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-		if err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-		}
-
-		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 		}
 	}
 
