@@ -46,7 +46,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
 	github.com/hashicorp/go-version v1.6.0
-	github.com/jmoiron/sqlx v1.3.4
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.4
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.45
@@ -73,7 +73,7 @@ require (
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.3.0
+	golang.org/x/sys v0.4.0
 	golang.org/x/text v0.5.0
 	golang.org/x/tools v0.4.0
 	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37

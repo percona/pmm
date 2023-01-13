@@ -110,6 +110,7 @@
           - dbaas-controller
           - dbaas-tools
           - pmm-dump
+          - vmproxy
         state: installed
         # line below is sed'ed by build-server-docker script
         enablerepo: "pmm2-server"

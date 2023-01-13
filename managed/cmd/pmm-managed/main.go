@@ -851,6 +851,7 @@ func main() {
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
+		EnableAccessControl:  *enableAccessControl,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -926,6 +927,10 @@ func main() {
 	}
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
+
+	if *enableAccessControl == true {
+		l.Info("Access control is enabled")
+	}
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
