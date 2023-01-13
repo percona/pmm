@@ -55,6 +55,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	ver "github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
@@ -742,6 +743,10 @@ func main() {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
+
+	if postgresVersion, err := ver.GetPostgreSQLVersion(ctx, sqlDB); err != nil || postgresVersion.Float() < 14 {
+		l.Panicf("Unsupported PMM-Server PostgreSQL server version: %s. Consider using version 14 or newer", postgresVersion)
+	}
 
 	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
 
