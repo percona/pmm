@@ -20,8 +20,10 @@ datasources:
   user: ${POSTGRES_USERNAME}
   database: ${POSTGRES_DBNAME}
   jsonData:
+    sslKeyFile: ${POSTGRES_SSL_KEY_PATH}
+    sslCertFile: ${POSTGRES_SSL_CERT_PATH}
     postgresVersion: "1100"
-    sslmode: disable
+    sslmode: ${POSTGRES_SSL_MODE}
   secureJsonData:
     password: ${POSTGRES_DBPASSWORD}
 - name: ClickHouse

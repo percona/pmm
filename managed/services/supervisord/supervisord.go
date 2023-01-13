@@ -499,6 +499,8 @@ func addPostgresParams(templateParams map[string]interface{}) {
 	templateParams["PostgresDBName"] = getValueFromENV("POSTGRES_DBNAME", "pmm-managed")
 	templateParams["PostgresDBUsername"] = getValueFromENV("POSTGRES_USERNAME", "pmm-managed")
 	templateParams["PostgresDBPassword"] = getValueFromENV("POSTGRES_DBPASSWORD", "pmm-managed")
+	templateParams["PostgresSSLKeyPath"] = getValueFromENV("POSTGRES_SSL_KEY_PATH", "")
+	templateParams["PostgresSSLCertPath"] = getValueFromENV("POSTGRES_SSL_CERT_PATH", "")
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -792,6 +794,9 @@ environment =
     POSTGRES_DBNAME="{{ .PostgresDBName }}",
     POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
     POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+	POSTGRES_SSL_MODE="{{ if and .PostgresSSLKeyPath .PostgresSSLCertPath}}require{{ else }}disable{{ end }}",
+	POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+	POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
 	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana

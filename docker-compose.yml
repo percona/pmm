@@ -40,8 +40,8 @@ services:
     #      - POSTGRES_DBNAME=pmm-managed
     #      - POSTGRES_USERNAME=pmm-managed
     #      - POSTGRES_DBPASSWORD=pmm-managed
-    #      - POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
-    #      - POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+    #      - POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
+    #      - POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -75,10 +75,18 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
-      # - ./managed/testdata/pg/certs:/certs
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+    # command: >
+    #   bash -c "
+    #     rm -rf /tmp/certs
+    #     mkdir /tmp/certs
+    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
+    #     chown grafana:grafana /tmp/certs/*
+    #     chmod 600 /tmp/certs/*
+    #     /opt/entrypoint.sh
+    #   "
 
   # PMM with external ClickHouse DB
   ch:
