@@ -109,13 +109,13 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	clusterMemory := resource.NewQuantity(cluster.Params.Pxc.ComputeResources.MemoryBytes, resource.DecimalSI)
 	if cluster.Params.Pxc.Configuration == "" {
 		if memory > memorySmallSize && memory <= memoryMediumSize {
-			gCacheSize = "2.4G"
+			gCacheSize = "2457M"
 		}
 		if memory > memoryMediumSize && memory <= memoryLargeSize {
-			gCacheSize = "9.6G"
+			gCacheSize = "9830M"
 		}
 		if memory > memoryLargeSize {
-			gCacheSize = "9.6G"
+			gCacheSize = "9830M"
 		}
 		cluster.Params.Pxc.Configuration = fmt.Sprintf(pxcDefaultConfigurationTemplate, gCacheSize)
 	}
