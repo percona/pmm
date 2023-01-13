@@ -16,10 +16,10 @@ package version
 
 import (
 	"context"
-	"errors"
 	"regexp"
 	"strconv"
 
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
