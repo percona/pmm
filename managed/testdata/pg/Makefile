@@ -5,11 +5,8 @@ help:                                                ## Display this help messag
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-all: root-ssl server-ssl pmm-managed-ssl permissions ## Generates all required dev certs.
+all: root-ssl server-ssl pmm-managed-ssl             ## Generates all required dev certs.
 	rm -f ./certs/*.srl
-
-permissions:                                         ## Sets default 640 permissions to 600 for certs.
-	chmod 600 ./certs/*
 
 root-ssl:                                            ## Generates root-ssl cert.
 	openssl req -new -sha256 -nodes -newkey rsa:2048 \
