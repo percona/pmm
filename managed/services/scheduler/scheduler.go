@@ -378,7 +378,7 @@ func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 		for _, task := range tasks {
 			if task.ID != scheduleID {
-				return status.Error(codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there  no other scheduled backups.")
+				return status.Error(codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there no other scheduled backups.")
 			}
 		}
 	case models.Snapshot:

@@ -29807,6 +29807,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 6
+                },
+                "testing_mode": {
+                  "description": "Used for testing purposes to work around missing some environment components.",
+                  "type": "boolean",
+                  "x-order": 7
                 }
               }
             }
