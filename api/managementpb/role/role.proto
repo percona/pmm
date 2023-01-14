@@ -44,6 +44,8 @@ message DeleteRoleRequest {
       int_gt: 0
     }
   ];
+  // Role ID to be used as a replacement for the role. Additional logic applies.
+  uint32 replacement_role_id = 2;
 }
 
 message DeleteRoleResponse {}
