@@ -62,7 +62,7 @@ func GetPostgreSQLVersion(ctx context.Context, q reform.DBTXContext) (PostgreSQL
 
 	number, err := strconv.ParseFloat(text[1], 64)
 	if err != nil {
-		return PostgreSQLVersion{}, err
+		return PostgreSQLVersion{text: text[1]}, err
 	}
 
 	return PostgreSQLVersion{text: text[1], number: number}, nil
