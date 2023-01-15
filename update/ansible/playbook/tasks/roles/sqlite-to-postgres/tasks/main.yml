@@ -1,7 +1,7 @@
 ---
 - name: Create Grafana backup dir
   file:
-    path: "{{ grafana_backup_dir }}"
+    path: "/srv/backup/grafana"
     state: directory
     owner: grafana
     group: grafana
@@ -106,7 +106,7 @@
 - name: Create backup for SQLite Grafana database
   copy:
     src: /srv/grafana/grafana.db
-    dest: "{{ grafana_backup_dir }}/grafana.db"
+    dest: "/srv/backup/grafana/grafana.db"
     owner: grafana
     group: grafana
     mode: '0700'
