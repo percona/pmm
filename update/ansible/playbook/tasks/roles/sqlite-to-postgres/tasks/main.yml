@@ -19,8 +19,8 @@
     option: provisioning
     value: conf/provisioning_disable
 
- - name: Switch to postgres
-   ini_file:
+- name: Switch to postgres
+  ini_file:
     dest: /etc/grafana/grafana.ini
     section: database
     option: type
