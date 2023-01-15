@@ -88,11 +88,6 @@
   supervisorctl:
     name: grafana
     state: restarted
-  ignore_errors: yes
-
-- name: Display grafana.log content
-  command: cat /srv/logs/grafana.log
-  register: command_output
 
 - name: wait for grafana initiazation
   pause:
