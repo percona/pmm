@@ -31,7 +31,6 @@ import (
 	"path"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -40,6 +39,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/codes"
@@ -107,7 +107,7 @@ func (s *Server) Run(ctx context.Context) {
 	}
 	// l is closed by runGRPCServer
 
-	if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocketGRPC); err != nil {
+	if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocketGRPC, s.l); err != nil {
 		s.l.Panic(err)
 	}
 
@@ -355,8 +355,8 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 			return listener, err
 		}
 
-		if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocket); err != nil {
-			s.l.Panic(err)
+		if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocket, l); err != nil {
+			l.Panic(err)
 		}
 
 		return listener, nil
@@ -371,7 +371,7 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	return nil, fmt.Errorf("%w: listen socket or listen address/port need to be configured", errSocketOrPortRequired)
 }
 
-func (s *Server) setSocketPermissionsAndOwner(socketPath string) error {
+func (s *Server) setSocketPermissionsAndOwner(socketPath string, l *logrus.Entry) error {
 	err := os.Chmod(socketPath, 0o770) //nolint:gosec
 	if err != nil {
 		return errors.WithStack(err)
@@ -379,26 +379,14 @@ func (s *Server) setSocketPermissionsAndOwner(socketPath string) error {
 
 	parentDir := path.Dir(socketPath)
 
-	info, err := os.Stat(parentDir)
-	if err != nil {
-		s.l.Errorf("Could not get information on directory %s for changing socket group ownership for %s. Error: %v", parentDir, socketPath, err)
-		return nil
-	}
-
-	sys := info.Sys()
-	if sys == nil {
-		s.l.Errorf("Could not retrieve system information on directory %s for changing socket group ownership for %s", parentDir, socketPath)
-		return nil
-	}
-
-	stat, ok := sys.(*syscall.Stat_t)
-	if !ok {
-		s.l.Errorf("Could not retrieve group ownership of directory %s for changing socket group ownership for %s. Error: %v", parentDir, socketPath, err)
+	var stat *unix.Stat_t
+	if err = unix.Stat(parentDir, stat); err != nil {
+		l.Errorf("Could not get information on directory %s for changing socket group ownership for %s. Error: %v", parentDir, socketPath, err)
 		return nil
 	}
 
 	if err = os.Chown(socketPath, -1, int(stat.Gid)); err != nil {
-		s.l.Errorf("Could change group ownership of socket file %s. Error: %v", socketPath, err)
+		l.Errorf("Could change group ownership of socket file %s. Error: %v", socketPath, err)
 		return nil
 	}
 
