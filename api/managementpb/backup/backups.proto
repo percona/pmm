@@ -36,8 +36,6 @@ message StartBackupRequest {
   uint32 retries = 6;
   // DataModel represents the data model used for the backup.
   DataModel data_model = 7;
-  // Used for testing purposes to work around missing some environment components.
-  bool testing_mode = 8;
 }
 
 message StartBackupResponse {

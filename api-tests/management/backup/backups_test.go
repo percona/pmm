@@ -283,7 +283,7 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there no other scheduled backups.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there  no other scheduled backups.")
 		})
 
 		t.Run("prevent snapshot backups when PITR enabled", func(t *testing.T) {
@@ -312,7 +312,6 @@ func TestScheduleBackup(t *testing.T) {
 					Name:        "test-snapshot",
 					Description: "Test snapshot.",
 					DataModel:   pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-					TestingMode: true,
 				},
 				Context: pmmapitests.Context,
 			})

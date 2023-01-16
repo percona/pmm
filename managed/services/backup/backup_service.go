@@ -63,19 +63,13 @@ type PerformBackupParams struct {
 	Mode          models.BackupMode
 	Retries       uint32
 	RetryInterval time.Duration
-	TestingMode   bool
 }
 
 // PerformBackup starts on-demand backup.
 func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
-	var dbVersion string
-	var err error
-
-	if !params.TestingMode {
-		dbVersion, err = s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
-		if err != nil {
-			return "", err
-		}
+	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
+	if err != nil {
+		return "", err
 	}
 
 	var artifact *models.Artifact
