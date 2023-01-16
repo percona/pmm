@@ -686,7 +686,7 @@ telemetry:
   # API usage
   - id: APIUsageMetrics
     source: VM
-    query: grpc_server_msg_received_total
+    query: pmm_grpc_server_msg_received_total
     transform:
       type: JSON
       metric: pmm_server_api_usage

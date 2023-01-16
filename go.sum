@@ -62,8 +62,8 @@ github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3
 github.com/HdrHistogram/hdrhistogram-go v0.9.0 h1:dpujRju0R4M/QZzcnR1LH1qm+TVG3UzkWdp5tH1WMcg=
 github.com/Microsoft/go-winio v0.5.2 h1:a9IhgEQBCUEk6QCdml9CiJGhAws+YwffDHEMp1VMrpA=
 github.com/Microsoft/go-winio v0.5.2/go.mod h1:WpS1mjBmmwHBEWmogvA2mj8546UReBk4v8QkMxJ6pZY=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253 h1:tMNqI5D54wWWL8x7yvAIZvVO96+NjIsEFnVb2F113DA=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253/go.mod h1:xCJfGpj56ERA85Mj1VfBzoeWW4lZ00xXXkvG0LJQjZU=
+github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592 h1:i7HDf+zPQvaPdrbLGS+wz/Ta32SszwYyHfJks1oVFzg=
+github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592/go.mod h1:xCJfGpj56ERA85Mj1VfBzoeWW4lZ00xXXkvG0LJQjZU=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible h1:N5oM40aAatvf8bCYjv69YsVdxJLIUhY/MerUG1jRL9Y=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible/go.mod h1:UC6j/e2eqpHBB/vn+5214ExsoDLiEo6BfUGBhbtf+x0=
 github.com/Percona-Lab/pg_query_go v1.0.3-percona h1:z0co9LzCdA9YuZBgOWTSr3+bGj14T/ngFIsHJA8A46E=
