@@ -379,8 +379,17 @@ func (s *Server) setSocketPermissionsAndOwner(socketPath string) error {
 
 	parentDir := path.Dir(socketPath)
 
-	info, _ := os.Stat(parentDir)
-	stat, ok := info.Sys().(*syscall.Stat_t)
+	info, err := os.Stat(parentDir)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	sys := info.Sys()
+	if sys == nil {
+		return fmt.Errorf("could not retrieve system information on directory %s", parentDir)
+	}
+
+	stat, ok := sys.(*syscall.Stat_t)
 	if !ok {
 		return fmt.Errorf("could not retrieve group ownership of directory %s for changing group ownership of the socket file %s", parentDir, socketPath)
 	}
