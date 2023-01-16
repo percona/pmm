@@ -28,8 +28,10 @@ import (
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
+	"path"
 	"strconv"
 	"sync"
+	"syscall"
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -105,8 +107,7 @@ func (s *Server) Run(ctx context.Context) {
 	}
 	// l is closed by runGRPCServer
 
-	err = os.Chmod(s.cfg.ListenSocketGRPC, 0o770) //nolint:gosec
-	if err != nil {
+	if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocketGRPC); err != nil {
 		s.l.Panic(err)
 	}
 
@@ -354,8 +355,7 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 			return listener, err
 		}
 
-		err = os.Chmod(s.cfg.ListenSocket, 0o770) //nolint:gosec
-		if err != nil {
+		if err = s.setSocketPermissionsAndOwner(s.cfg.ListenSocket); err != nil {
 			s.l.Panic(err)
 		}
 
@@ -369,6 +369,27 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	}
 
 	return nil, fmt.Errorf("%w: listen socket or listen address/port need to be configured", errSocketOrPortRequired)
+}
+
+func (s *Server) setSocketPermissionsAndOwner(socketPath string) error {
+	err := os.Chmod(socketPath, 0o770) //nolint:gosec
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	parentDir := path.Dir(socketPath)
+
+	info, _ := os.Stat(parentDir)
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		return fmt.Errorf("could not retrieve group ownership of directory %s for changing group ownership of the socket file %s", parentDir, socketPath)
+	}
+
+	if err = os.Chown(socketPath, -1, int(stat.Gid)); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
 }
 
 // addData add data to zip file.
