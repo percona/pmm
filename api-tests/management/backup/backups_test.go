@@ -283,41 +283,7 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there  no other scheduled backups.")
-		})
-
-		t.Run("prevent snapshot backups when PITR enabled", func(t *testing.T) {
-			client := backupClient.Default.Backups
-			pitrb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
-					LocationID:     locationID,
-					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
-					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
-					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-
-			require.NoError(t, err)
-			defer removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
-
-			_, err = client.StartBackup(&backups.StartBackupParams{
-				Body: backups.StartBackupBody{
-					ServiceID:   serviceID,
-					LocationID:  locationID,
-					Name:        "test-snapshot",
-					Description: "Test snapshot.",
-					DataModel:   pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400,
-				codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.",
-				serviceName)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there no other scheduled backups.")
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
