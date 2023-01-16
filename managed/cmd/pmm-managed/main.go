@@ -676,8 +676,6 @@ func main() {
 
 	logger.SetupGlobalLogger()
 
-	time.Sleep(time.Second * 8)
-
 	level := parseLoggerConfig(*logLevelF, *debugF, *traceF)
 
 	logrus.SetLevel(level)
