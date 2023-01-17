@@ -379,7 +379,7 @@ func (s *Server) setSocketPermissionsAndOwner(socketPath string, l *logrus.Entry
 
 	parentDir := path.Dir(socketPath)
 
-	var stat *unix.Stat_t
+	stat := &unix.Stat_t{}
 	if err = unix.Stat(parentDir, stat); err != nil {
 		l.Errorf("Could not get information on directory %s for changing socket group ownership for %s. Error: %v", parentDir, socketPath, err)
 		return nil
