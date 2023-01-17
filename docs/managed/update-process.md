@@ -34,7 +34,7 @@ When making changes to `pmm-update`, you can test if they work in the following 
     ```
     
     The rpm file is usually in `/root/rpmbuild/RPMS/pmm-update/noarch/`
-4. You can now trigger an update in the UI and it shall properly install the latest `pmm-update` package
+4. You can now trigger an update in the UI and it will install the latest `pmm-update` package
 
 ## Building RPM package
 
