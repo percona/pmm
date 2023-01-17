@@ -9,8 +9,29 @@ def get_clusters(cluster_type):
 
 
 def create_cluster(cluster):
+    cluster_name = cluster["metadata"]["name"]
     p = subprocess.Popen(["kubectl", "apply", "-f", "-"], stdin=subprocess.PIPE)
-    out = p.communicate(json.dumps(cluster).encode('utf-8'))
+    p.communicate(json.dumps(cluster).encode('utf-8'))
+    output = subprocess.check_output(["kubectl", "get", "db", cluster_name, "-o", "json"])
+    uid = json.loads(output).get("metadata", {}).get("uid")
+    meta_patch = {
+        "metadata": {
+            "ownerReferences": [
+                {
+                    "apiVersion": "dbaas.percona.com/v1",
+                    "blockOwnerDeletion": True,
+                    "controller": True,
+                    "kind": "DatabaseCluster",
+                    "name": cluster_name,
+                    "uid": uid,
+                },
+            ],
+        }
+    }
+    cluster_type = cluster["spec"]["databaseType"]
+
+    print(subprocess.check_output(["kubectl", "patch", f"{cluster_type}/{cluster_name}","--type", "merge", "-p", json.dumps(meta_patch)]))
+
 
 
 def strip_none(data):
@@ -31,9 +52,7 @@ def convert_pxc(cluster):
         "apiVersion": "dbaas.percona.com/v1",
         "kind": "DatabaseCluster",
         "metadata": {
-            "namespace": cluster.get("metadata", {}).get("namespace", ""),
             "name": cluster.get("metadata", {}).get("name", ""),
-            "finalizers": cluster.get("metadata", {}).get("finalizers", []),
         },
         "spec": {
             "databaseType": "pxc",
@@ -105,9 +124,7 @@ def convert_psmdb(cluster):
         "apiVersion": "dbaas.percona.com/v1",
         "kind": "DatabaseCluster",
         "metadata": {
-            "namespace": cluster.get("metadata", {}).get("namespace", ""),
             "name": cluster.get("metadata", {}).get("name", ""),
-            "finalizers": cluster.get("metadata", {}).get("finalizers", []),
         },
         "spec": {
             "databaseType": "psmdb",
