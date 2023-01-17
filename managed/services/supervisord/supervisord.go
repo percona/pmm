@@ -497,14 +497,12 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
-	if s.gfParams != nil {
-		templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
-		templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
-		templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
-		templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
-		templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
-		templateParams["PostgresSSLCertPath"] = s.gfParams.PostgresSSLCertPath
-	}
+	templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
+	templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
+	templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
+	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
+	templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
+	templateParams["PostgresSSLCertPath"] = s.gfParams.PostgresSSLCertPath
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
