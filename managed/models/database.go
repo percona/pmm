@@ -30,8 +30,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/agent/utils/version"
 )
 
 const (
@@ -913,7 +911,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params *SetupDBParams) (*reform
 
 // checkVersion checks minimal required PostgreSQL server version.
 func checkVersion(ctx context.Context, db reform.DBTXContext) error {
-	PGVersion, err := version.GetPostgreSQLVersion(ctx, db)
+	PGVersion, err := GetPostgreSQLVersion(ctx, db)
 	if err != nil {
 		return err
 	}
