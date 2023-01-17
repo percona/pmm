@@ -54,7 +54,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+			expectedErr: `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		},
 		{
 			name: "MySQL timeout",
@@ -176,7 +176,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+			expectedErr: `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		},
 		{
 			name: "ProxySQL/MySQL timeout",
