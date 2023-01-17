@@ -91,7 +91,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 //nolint:unparam
 func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
 	errTx := r.db.InTransaction(func(tx *reform.TX) error {
-		if err := models.DeleteRole(tx, int(req.RoleId)); err != nil {
+		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
