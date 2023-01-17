@@ -67,6 +67,7 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
+	gfParams *models.GrafanaParams
 }
 
 type sub struct {
@@ -81,7 +82,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gfParams *models.GrafanaParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -92,6 +93,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
 		vmParams:           vmParams,
+		gfParams:           gfParams,
 	}
 }
 
@@ -436,7 +438,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseBlockSize":      clickhouseBlockSize,
 	}
 
-	addPostgresParams(templateParams)
+	s.addPostgresParams(templateParams)
 
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
@@ -494,13 +496,15 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 }
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
-func addPostgresParams(templateParams map[string]interface{}) {
-	templateParams["PostgresAddr"] = getValueFromENV("POSTGRES_ADDR", "127.0.0.1:5432")
-	templateParams["PostgresDBName"] = getValueFromENV("POSTGRES_DBNAME", "pmm-managed")
-	templateParams["PostgresDBUsername"] = getValueFromENV("POSTGRES_USERNAME", "pmm-managed")
-	templateParams["PostgresDBPassword"] = getValueFromENV("POSTGRES_DBPASSWORD", "pmm-managed")
-	templateParams["PostgresSSLKeyPath"] = getValueFromENV("POSTGRES_SSL_KEY_PATH", "")
-	templateParams["PostgresSSLCertPath"] = getValueFromENV("POSTGRES_SSL_CERT_PATH", "")
+func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+	if s.gfParams != nil {
+		templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
+		templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
+		templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
+		templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
+		templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
+		templateParams["PostgresSSLCertPath"] = s.gfParams.PostgresSSLCertPath
+	}
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.

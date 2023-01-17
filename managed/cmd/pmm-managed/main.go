@@ -793,7 +793,17 @@ func main() {
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+
+	gfParams := &models.GrafanaParams{
+		PostgresAddr:        *postgresAddrF,
+		PostgresDBName:      *postgresDBNameF,
+		PostgresDBUsername:  *postgresDBUsernameF,
+		PostgresDBPassword:  *postgresDBPasswordF,
+		PostgresSSLKeyPath:  *postgresSSLKeyPathF,
+		PostgresSSLCertPath: *postgresSSLCertPathF,
+	}
+
+	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gfParams, gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
