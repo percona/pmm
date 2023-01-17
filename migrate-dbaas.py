@@ -13,6 +13,19 @@ def create_cluster(cluster):
     out = p.communicate(json.dumps(cluster).encode('utf-8'))
 
 
+def strip_none(data):
+    if isinstance(data, dict):
+        return {k:strip_none(v) for k, v in data.items() if k is not None and v is not None}
+    elif isinstance(data, list):
+        return [strip_none(item) for item in data if item is not None]
+    elif isinstance(data, tuple):
+        return tuple(strip_none(item) for item in data if item is not None)
+    elif isinstance(data, set):
+        return {strip_none(item) for item in data if item is not None}
+    else:
+        return data
+
+
 def convert_pxc(cluster):
     database_cluster = {
         "apiVersion": "dbaas.percona.com/v1",
@@ -24,10 +37,10 @@ def convert_pxc(cluster):
         },
         "spec": {
             "databaseType": "pxc",
-            "databaseConfig": cluster.get("spec", {}).get("pxc", {}).get("configuration"),
-            "databaseImage": cluster.get("spec", {}).get("pxc", {}).get("image"),
-            "secretsName": cluster.get("spec", {}).get("secretsName"),
-            "pause": cluster.get("spec", {}).get("pxc", {}).get("pause", False),
+            "databaseConfig": cluster.get("spec", {}).get("pxc", {}).get("configuration", ""),
+            "databaseImage": cluster.get("spec", {}).get("pxc", {}).get("image", ""),
+            "secretsName": cluster.get("spec", {}).get("secretsName", ""),
+            "pause": cluster.get("spec", {}).get("pxc", {}).get("pause", None),
             "clusterSize": cluster.get("spec", {}).get("pxc", {}).get("size"),
             "loadBalancer": {
             },
@@ -35,28 +48,29 @@ def convert_pxc(cluster):
             "dbInstance": {}
         }
     }
-    if cluster.get("spec", {}).get("haproxy", {}).get("enabled", False):
+    if cluster.get("spec", {}).get("haproxy", None):
         lb = cluster.get("spec", {}).get("haproxy", {})
         database_cluster["spec"]["loadBalancer"] = {
             "type": "haproxy",
-            "exposeType": lb.get("serviceType"),
+            "exposeType": lb.get("serviceType", None),
             "image": lb.get("image"),
             "size": lb.get("size"),
-            "configuration": lb.get("configuration"),
-            "annotations": lb.get("annotations") if lb.get("annotations") else None,
-            "trafficPolicy": lb.get("externalTrafficPolicy"),
+            "configuration": lb.get("configuration", None),
+            "annotations": lb.get("annotations", None),
+            "trafficPolicy": lb.get("externalTrafficPolicy", None),
             "resources": lb.get("resources"),
         }
-    if cluster.get("spec", {}).get("proxysql", {}).get("enabled", False):
+
+    if cluster.get("spec", {}).get("proxysql", None):
         lb = cluster.get("spec", {}).get("proxysql", {})
         database_cluster["spec"]["loadBalancer"] = {
             "type": "proxysql",
-            "exposeType": lb.get("serviceType"),
+            "exposeType": lb.get("serviceType", None),
             "image": lb.get("image"),
             "size": lb.get("size"),
-            "configuration": lb.get("configuration"),
-            "annotations": lb.get("annotations") if lb.get("annotations") else None,
-            "trafficPolicy": lb.get("externalTrafficPolicy"),
+            "configuration": lb.get("configuration", None),
+            "annotations": lb.get("annotations", None),
+            "trafficPolicy": lb.get("externalTrafficPolicy", None),
             "resources": lb.get("resources"),
         }
     if cluster.get("spec", {}).get("pmm", {}).get("enabled", False):
@@ -64,11 +78,11 @@ def convert_pxc(cluster):
         database_cluster["spec"]["monitoring"] = {
             "pmm" : {
                 "image": mon.get("image"),
-                "serverHost": mon.get("serverHost"),
-                "serverUser": mon.get("serverUser"),
-                "publicAddress": mon.get("publicAddress"),
-                "login": mon.get("login"),
-                "password": mon.get("password"),
+                "serverHost": mon.get("serverHost", None),
+                "serverUser": mon.get("serverUser", None),
+                "publicAddress": mon.get("publicAddress", None),
+                "login": mon.get("login", None),
+                "password": mon.get("password", None),
             },
             "resources": mon.get("resources"),
 
@@ -79,6 +93,7 @@ def convert_pxc(cluster):
         "cpu": limits.get("cpu"),
         "memory": limits.get("memory"),
         "diskSize": volume_spec.get("resources", {}).get("requests", {}).get("storage"),
+        "storageClassName": volume_spec.get("storageClassName", None)
     }
 
 
@@ -98,7 +113,7 @@ def convert_psmdb(cluster):
             "databaseType": "psmdb",
             "databaseImage": cluster.get("spec", {}).get("image"),
             "secretsName": cluster.get("spec", {}).get("secrets", {}).get("users"),
-            "pause": cluster.get("spec", {}).get("pause", False),
+            "pause": cluster.get("spec", {}).get("pause", None),
             "loadBalancer": {
             },
             "monitoring": {},
@@ -118,13 +133,13 @@ def convert_psmdb(cluster):
     if mongos:
         database_cluster["spec"]["loadBalancer"] = {
             "type": "mongos",
-            "exposeType": mongos.get("expose", {}).get("exposeType"),
+            "exposeType": mongos.get("expose", {}).get("exposeType", None),
             "image": mongos.get("image"),
             "size": mongos.get("size"),
-            "configuration": mongos.get("configuration"),
-            "annotations": mongos.get("expose", {}).get("serviceAnnotations"),
-            "loadBalancerSourceRanges": mongos.get("expose", {}).get("loadBalancerSourceRanges"),
-            "trafficPolicy": mongos.get("externalTrafficPolicy"),
+            "configuration": mongos.get("configuration", None),
+            "annotations": mongos.get("expose", {}).get("serviceAnnotations", None),
+            "loadBalancerSourceRanges": mongos.get("expose", {}).get("loadBalancerSourceRanges", None),
+            "trafficPolicy": mongos.get("externalTrafficPolicy", None),
             "resources": mongos.get("resources"),
         }
     if cluster.get("spec", {}).get("pmm", {}).get("enabled", False):
@@ -132,11 +147,11 @@ def convert_psmdb(cluster):
         database_cluster["spec"]["monitoring"] = {
             "pmm" : {
                 "image": mon.get("image"),
-                "serverHost": mon.get("serverHost"),
-                "serverUser": mon.get("serverUser"),
-                "publicAddress": mon.get("publicAddress"),
-                "login": mon.get("login"),
-                "password": mon.get("password"),
+                "serverHost": mon.get("serverHost", None),
+                "serverUser": mon.get("serverUser", None),
+                "publicAddress": mon.get("publicAddress", None),
+                "login": mon.get("login", None),
+                "password": mon.get("password", None),
             },
             "resources": mon.get("resources"),
 
@@ -147,6 +162,7 @@ def convert_psmdb(cluster):
         "cpu": limits.get("cpu"),
         "memory": limits.get("memory"),
         "diskSize": volume_spec.get("resources", {}).get("requests", {}).get("storage"),
+        "storageClassName": volume_spec.get("storageClassName", None)
     }
 
 
@@ -164,4 +180,4 @@ if __name__ == '__main__':
         clusters.append(convert_psmdb(cluster))
 
     for cluster in clusters:
-        create_cluster(cluster)
+        create_cluster(strip_none(cluster))
