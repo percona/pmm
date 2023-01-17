@@ -40,6 +40,19 @@ const (
 type pbmSeverity int
 
 type describeInfo struct {
+	Status   string    `json:"status"`
+	Error    string    `json:"error"`
+	ReplSets []replSet `json:"replsets"`
+}
+
+type replSet struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Nodes  []node `json:"nodes"`
+}
+
+type node struct {
+	Name   string `json:"name"`
 	Status string `json:"status"`
 	Error  string `json:"error"`
 }
@@ -355,10 +368,11 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 				return nil
 			case "canceled":
 				return errors.New("restore was canceled")
-			case "error",
-				// We consider partlyDone as an error because we cannot automatically recover cluster from this status to fully working.
-				"partlyDone":
+			case "error":
 				return errors.New(info.Error)
+			// We consider partlyDone as an error because we cannot automatically recover cluster from this status to fully working.
+			case "partlyDone":
+				return groupPartlyDoneErrors(info)
 			}
 
 		case <-ctx.Done():
@@ -479,4 +493,20 @@ func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr b
 		return nil, errors.New("unknown location config")
 	}
 	return conf, nil
+}
+
+func groupPartlyDoneErrors(info describeInfo) error {
+	var errMsgs []string
+
+	for _, rs := range info.ReplSets {
+		if rs.Status == "partlyDone" {
+			for _, node := range rs.Nodes {
+				if node.Status == "error" {
+					errMsgs = append(errMsgs, fmt.Sprintf("replset: %s, node: %s, error: %s", rs.Name, node.Name, node.Error))
+				}
+			}
+		}
+
+	}
+	return errors.New(strings.Join(errMsgs, "; "))
 }
