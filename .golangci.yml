@@ -100,7 +100,6 @@ linters:
     - revive #temporary, needs to be processed
     - nosnakecase #temporary, needs to be processed
     - paralleltest #temporary, needs to be processed
-    - stylecheck #temporary, needs to be processed
     - ireturn #temporary, needs to be processed
     - gocognit #temporary, needs to be processed
     - maintidx #temporary, needs to be processed
@@ -110,7 +109,6 @@ linters:
     - forcetypeassert #temporary, needs to be processed
     - golint #temporary, needs to be processed
     - deadcode #temporary, needs to be processed
-    - gosec #temporary, needs to be processed
     - nonamedreturns #temporary, needs to be processed
     - noctx #temporary, needs to be processed
     - usestdlibvars #temporary, needs to be processed
@@ -128,7 +126,6 @@ linters:
     - forbidigo #temporary, needs to be processed
     - errcheck #temporary, needs to be processed
     - dupl #temporary, needs to be processed
-    - depguard #temporary, needs to be processed
     - containedctx #temporary, needs to be processed
 
 

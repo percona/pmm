@@ -306,8 +306,8 @@ func (c *Client) convertRole(role string) role {
 }
 
 type apiKey struct {
-	Id         int64      `json:"id"`
-	OrgId      int64      `json:"orgId,omitempty"`
+	ID         int64      `json:"id"`
+	OrgID      int64      `json:"orgId,omitempty"`
 	Name       string     `json:"name"`
 	Role       string     `json:"role"`
 	Expiration *time.Time `json:"expiration,omitempty"`
@@ -389,7 +389,7 @@ func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) err
 
 	for _, k := range keys {
 		if strings.HasPrefix(k.Name, prefix) {
-			err := c.deleteAPIKey(ctx, k.Id, authHeaders)
+			err := c.deleteAPIKey(ctx, k.ID, authHeaders)
 			if err != nil {
 				return err
 			}
@@ -568,7 +568,7 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 	if err := c.do(ctx, "GET", "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
 		return 0, "", err
 	}
-	apiKeyID := k.Id
+	apiKeyID := k.ID
 
 	return apiKeyID, key, nil
 }

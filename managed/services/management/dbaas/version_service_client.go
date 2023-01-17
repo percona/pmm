@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	goversion "github.com/hashicorp/go-version"
@@ -79,12 +80,20 @@ type componentsParams struct {
 	dbVersion      string
 }
 
+// cache isn't supposed to be big, so we don't clear it.
+type versionResponseCache struct {
+	updateTime time.Time
+	response   VersionServiceResponse
+}
+
 // VersionServiceClient represents a client for Version Service API.
 type VersionServiceClient struct {
-	url  string
-	http *http.Client
-	irtm prom.Collector
-	l    *logrus.Entry
+	url       string
+	http      *http.Client
+	irtm      prom.Collector
+	cacheLock sync.Mutex
+	cache     map[string]versionResponseCache
+	l         *logrus.Entry
 }
 
 // NewVersionServiceClient creates a new client for given version service URL.
@@ -109,8 +118,9 @@ func NewVersionServiceClient(url string) *VersionServiceClient {
 		http: &http.Client{
 			Transport: t,
 		},
-		irtm: irtm,
-		l:    logrus.WithField("component", "VersionServiceClient"),
+		irtm:  irtm,
+		cache: make(map[string]versionResponseCache),
+		l:     logrus.WithField("component", "VersionServiceClient"),
 	}
 }
 
@@ -133,8 +143,14 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 			paths = append(paths, params.dbVersion)
 		}
 	}
-	url := strings.Join(paths, "/")
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	fullURL := strings.Join(paths, "/")
+	c.cacheLock.Lock()
+	defer c.cacheLock.Unlock()
+	if val, ok := c.cache[fullURL]; ok && val.updateTime.After(time.Now().Add(-30*time.Minute)) {
+		c.l.Debugf("cache for %s is used", fullURL)
+		return &val.response, nil
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET", fullURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +168,10 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	err = json.Unmarshal(body, &vsResponse)
 	if err != nil {
 		return nil, err
+	}
+	c.cache[fullURL] = versionResponseCache{
+		updateTime: time.Now(),
+		response:   vsResponse,
 	}
 
 	return &vsResponse, nil
@@ -171,40 +191,35 @@ func (c *VersionServiceClient) IsDatabaseVersionSupportedByOperator(ctx context.
 	return len(m.Versions) != 0, nil
 }
 
-// IsOperatorVersionSupported returns true and nil if given operator version is supported in given PMM version.
-// It returns false and error when fetching or parsing fails. False and nil when no error is encountered but
-// version service does not have any matching versions.
-func (c *VersionServiceClient) IsOperatorVersionSupported(ctx context.Context, operatorType string, pmmVersion string, operatorVersion string) (bool, error) {
+// SupportedOperatorVersionsList returns list of operators versions supported by certain PMM version.
+func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context, pmmVersion string) (map[string][]string, error) {
 	pmm, err := goversion.NewVersion(pmmVersion)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	resp, err := c.Matrix(ctx, componentsParams{product: "pmm-server", productVersion: pmm.Core().String()})
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	if len(resp.Versions) == 0 {
-		return false, nil
+		return make(map[string][]string), nil
 	}
 
-	var operatorVersions map[string]componentVersion
-	switch operatorType {
-	case pxcOperator:
-		operatorVersions = resp.Versions[0].Matrix.PXCOperator
-	case psmdbOperator:
-		operatorVersions = resp.Versions[0].Matrix.PSMDBOperator
-	default:
-		return false, errors.Errorf("%q is an unknown operator type", operatorType)
+	operatorVersions := map[string][]string{
+		pxcOperator:   {},
+		psmdbOperator: {},
 	}
 
-	for version := range operatorVersions {
-		if version == operatorVersion {
-			return true, nil
-		}
+	for v := range resp.Versions[0].Matrix.PXCOperator {
+		operatorVersions[pxcOperator] = append(operatorVersions[pxcOperator], v)
 	}
-	return false, nil
+
+	for v := range resp.Versions[0].Matrix.PSMDBOperator {
+		operatorVersions[psmdbOperator] = append(operatorVersions[psmdbOperator], v)
+	}
+	return operatorVersions, nil
 }
 
 func latestRecommended(m map[string]componentVersion) (*goversion.Version, error) {

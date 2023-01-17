@@ -23,15 +23,13 @@ import (
 	"regexp"
 	"strings"
 
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
 const (
@@ -41,6 +39,8 @@ const (
 	pxcDefaultDiskSize      = 25000000000
 	proxyDefaultCPUM        = 500
 	proxyDefaultMemoryBytes = 500000000
+	haProxyTemplate         = "percona/percona-xtradb-cluster-operator:%s-haproxy"
+	proxySQLTemplate        = "percona/percona-xtradb-cluster-operator:%s-proxysql"
 )
 
 var errInvalidClusterName = errors.New("invalid cluster name. It must start with a letter and have only letters, numbers and -")
@@ -49,8 +49,8 @@ var errInvalidClusterName = errors.New("invalid cluster name. It must start with
 type PXCClustersService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
-	controllerClient  dbaasClient
 	grafanaClient     grafanaClient
+	kubernetesClient  kubernetesClient
 	componentsService componentsService
 	versionServiceURL string
 
@@ -58,15 +58,15 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
 	return &PXCClustersService{
 		db:                db,
 		l:                 l,
-		controllerClient:  controllerClient,
 		grafanaClient:     grafanaClient,
+		kubernetesClient:  kubernetesClient,
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
 	}
@@ -78,26 +78,24 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, err
 	}
-
-	in := &dbaascontrollerv1beta1.GetPXCClusterCredentialsRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
 	}
-
-	cluster, err := s.controllerClient.GetPXCClusterCredentials(ctx, in)
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed getting database cluster")
+	}
+	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting secret")
 	}
 
-	_ = kubernetesCluster
 	resp := dbaasv1beta1.GetPXCClusterCredentialsResponse{
 		ConnectionCredentials: &dbaasv1beta1.PXCClusterConnectionCredentials{
-			Username: cluster.Credentials.Username,
-			Password: cluster.Credentials.Password,
-			Host:     cluster.Credentials.Host,
-			Port:     cluster.Credentials.Port,
+			Username: "root",
+			Password: string(secret.Data["root"]),
+			Host:     dbCluster.Status.Host,
+			Port:     3306,
 		},
 	}
 
@@ -130,73 +128,81 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
-	var pmmParams *dbaascontrollerv1beta1.PMMParams
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	if req.Params.Pxc.StorageClass == "" {
+		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get storage classes")
+		}
+		req.Params.Pxc.StorageClass = className
+	}
+	if req.Params.Haproxy != nil {
+		if req.Params.Haproxy.Image == "" {
+			// PXC operator requires to specify HAproxy image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-haproxy
+			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return nil, err
+			}
+			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
+		}
+	}
+	if req.Params.Proxysql != nil {
+		if req.Params.Proxysql.Image == "" {
+			// PXC operator requires to specify ProxySQL image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-proxysql
+			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return nil, err
+			}
+			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
+		}
+	}
+	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	dbCluster, err := kubernetes.DatabaseClusterForPXC(req, clusterType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
+	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
+
+	secrets, err := generatePasswords(map[string][]byte{
+		"root":         {},
+		"xtrabackup":   {},
+		"monitor":      {},
+		"clustercheck": {},
+		"proxyadmin":   {},
+		"operator":     {},
+		"replication":  {},
+	})
+	if err != nil {
+		return nil, err
+	}
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
-		apiKeyName := fmt.Sprintf("pxc-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63())
+		apiKeyName := fmt.Sprintf("pxc-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63()) //nolint:gosec
 		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 		if err != nil {
 			return nil, err
 		}
-		pmmParams = &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: settings.PMMPublicAddress,
-			Login:         "api_key",
-			Password:      apiKey,
-		}
-	}
+		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
+		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
 
-	in := dbaascontrollerv1beta1.CreatePXCClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
-		Pmm:  pmmParams,
-		Params: &dbaascontrollerv1beta1.PXCClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Pxc: &dbaascontrollerv1beta1.PXCClusterParams_PXC{
-				Image:            req.Params.Pxc.Image,
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-				DiskSize:         req.Params.Pxc.DiskSize,
-			},
-			VersionServiceUrl: s.versionServiceURL,
-		},
-		Expose: req.Expose,
+		secrets["pmmserver"] = []byte(apiKey)
 	}
-
-	if req.Params.Proxysql != nil {
-		in.Params.Proxysql = &dbaascontrollerv1beta1.PXCClusterParams_ProxySQL{
-			Image:            req.Params.Proxysql.Image,
-			ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-			DiskSize:         req.Params.Proxysql.DiskSize,
-		}
-		if req.Params.Proxysql.ComputeResources != nil {
-			in.Params.Proxysql.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-				CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
-				MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
-			}
-		}
-	} else {
-		in.Params.Haproxy = &dbaascontrollerv1beta1.PXCClusterParams_HAProxy{
-			Image:            req.Params.Haproxy.Image,
-			ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
-		}
-		if req.Params.Haproxy.ComputeResources != nil {
-			in.Params.Haproxy.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-				CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
-				MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
-			}
-		}
+	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+	if err != nil {
+		return nil, err
 	}
-
-	if req.Params.Pxc.ComputeResources != nil {
-		in.Params.Pxc.ComputeResources = &dbaascontrollerv1beta1.ComputeResources{
-			CpuM:        req.Params.Pxc.ComputeResources.CpuM,
-			MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
-		}
-	}
-
-	_, err = s.controllerClient.CreatePXCCluster(ctx, &in)
+	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -204,9 +210,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 				s.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
 			}
 		}
-		return nil, err
 	}
-
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
 }
 
@@ -310,8 +314,8 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 			// Image is a string like this: percona/percona-server-mongodb:4.2.12-13
 			// We need only the version part to build the cluster name.
 			parts := strings.Split(req.Params.Pxc.Image, ":")
-			req.Name = fmt.Sprintf("pxc-%s-%04d", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), rand.Int63n(9999))
-			if len(req.Name) > 22 { // Kubernetes limitation
+			req.Name = fmt.Sprintf("pxc-%s-%04d", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), rand.Int63n(9999)) //nolint:gosec
+			if len(req.Name) > 22 {                                                                                     // Kubernetes limitation
 				req.Name = req.Name[:21]
 			}
 		}
@@ -329,60 +333,23 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-
-	in := dbaascontrollerv1beta1.UpdatePXCClusterRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
-		},
-		Name: req.Name,
+	if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
+		return nil, errors.New("can't update both proxies, only one is in use")
+	}
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
 
-	if req.Params != nil {
-		if req.Params.Suspend && req.Params.Resume {
-			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
-		}
+	err = s.kubernetesClient.PatchDatabaseCluster(dbCluster)
 
-		// Check if only one or none of proxies is set.
-		if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
-			return nil, errors.New("can't update both proxies, only one is in use")
-		}
-
-		in.Params = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Suspend:     req.Params.Suspend,
-			Resume:      req.Params.Resume,
-		}
-
-		if req.Params.Pxc != nil && req.Params.Pxc.ComputeResources != nil {
-			in.Params.Pxc = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Pxc.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
-				},
-			}
-			in.Params.Pxc.Image = req.Params.Pxc.Image
-		}
-
-		if req.Params.Proxysql != nil && req.Params.Proxysql.ComputeResources != nil {
-			in.Params.Proxysql = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
-				},
-			}
-		}
-
-		if req.Params.Haproxy != nil && req.Params.Haproxy.ComputeResources != nil {
-			in.Params.Haproxy = &dbaascontrollerv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy{
-				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
-					CpuM:        req.Params.Haproxy.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Haproxy.ComputeResources.MemoryBytes,
-				},
-			}
-		}
-	}
-
-	_, err = s.controllerClient.UpdatePXCCluster(ctx, &in)
 	if err != nil {
 		return nil, err
 	}

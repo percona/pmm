@@ -275,7 +275,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec = periodStartFromSec / 60 * 60
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
-	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
+	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
 	// reduce amount of point if period less then 2h.

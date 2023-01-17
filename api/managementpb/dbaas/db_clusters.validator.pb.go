@@ -87,6 +87,30 @@ func (this *RestartDBClusterResponse) Validate() error {
 	return nil
 }
 
+func (this *GetDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *GetDBClusterResponse) Validate() error {
+	if this.PxcCluster != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PxcCluster); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PxcCluster", err)
+		}
+	}
+	if this.PsmdbCluster != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PsmdbCluster); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PsmdbCluster", err)
+		}
+	}
+	return nil
+}
+
 func (this *DeleteDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
