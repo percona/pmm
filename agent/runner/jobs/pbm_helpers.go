@@ -506,7 +506,6 @@ func groupPartlyDoneErrors(info describeInfo) error {
 				}
 			}
 		}
-
 	}
 	return errors.New(strings.Join(errMsgs, "; "))
 }
