@@ -355,7 +355,9 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 				return nil
 			case "canceled":
 				return errors.New("restore was canceled")
-			case "error":
+			case "error",
+				// We consider partlyDone as an error because we cannot automatically recover cluster from this status to fully working.
+				"partlyDone":
 				return errors.New(info.Error)
 			}
 
