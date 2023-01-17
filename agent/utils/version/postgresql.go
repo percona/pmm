@@ -15,17 +15,13 @@
 package version
 
 import (
-	"context"
 	"regexp"
-	"strconv"
-
-	"github.com/pkg/errors"
-	"gopkg.in/reform.v1"
+	"strings"
 )
 
 // regexps to extract version numbers from the `SELECT version()` output
 var (
-	postgresDBRegexp = regexp.MustCompile(`PostgreSQL (\d+\.?\d+)`)
+	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
 
 func ParsePostgreSQLVersion(v string) string {
@@ -34,45 +30,15 @@ func ParsePostgreSQLVersion(v string) string {
 		return ""
 	}
 
-	return m[1]
-}
-
-const (
-	postgresVersionQuery = `SELECT version()`
-)
-
-// PostgreSQLVersion represent major, minor numbers of PostgreSQL version separated by comma.
-type PostgreSQLVersion struct {
-	text   string
-	number float64
-}
-
-// GetPostgreSQLVersion returns MAJOR.MINOR PostgreSQL version (e.g. "5.6", "8.0", etc.).
-func GetPostgreSQLVersion(ctx context.Context, q reform.DBTXContext) (PostgreSQLVersion, error) {
-	var version string
-	err := q.QueryRowContext(ctx, postgresVersionQuery).Scan(&version)
-	if err != nil {
-		return PostgreSQLVersion{}, err
+	parts := strings.Split(m[1], ".")
+	switch len(parts) {
+	case 1: // major only
+		return parts[0]
+	case 2: // major and patch
+		return parts[0]
+	case 3: // major, minor, and patch
+		return parts[0] + "." + parts[1]
+	default:
+		return ""
 	}
-
-	text := postgresDBRegexp.FindStringSubmatch(version)
-	if len(text) < 2 {
-		return PostgreSQLVersion{}, errors.New("postgresql version not found")
-	}
-
-	number, err := strconv.ParseFloat(text[1], 64)
-	if err != nil {
-		return PostgreSQLVersion{text: text[1]}, err
-	}
-
-	return PostgreSQLVersion{text: text[1], number: number}, nil
-}
-
-// Float represent PostgreSQL version in float format.
-func (v PostgreSQLVersion) Float() float64 {
-	return v.number
-}
-
-func (v PostgreSQLVersion) String() string {
-	return v.text
 }
