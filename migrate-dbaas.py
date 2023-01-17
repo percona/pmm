@@ -2,6 +2,7 @@
 import json
 import subprocess
 
+
 def get_clusters(cluster_type):
     output = subprocess.check_output(["kubectl", "get", cluster_type, "-o", "json"])
     return json.loads(output)
@@ -19,7 +20,6 @@ def convert_pxc(cluster):
         "metadata": {
             "namespace": cluster.get("metadata", {}).get("namespace", ""),
             "name": cluster.get("metadata", {}).get("name", ""),
-            #"annotations": cluster.get("metadata", {}).get("annotations", {}),
             "finalizers": cluster.get("metadata", {}).get("finalizers", []),
         },
         "spec": {
@@ -92,7 +92,6 @@ def convert_psmdb(cluster):
         "metadata": {
             "namespace": cluster.get("metadata", {}).get("namespace", ""),
             "name": cluster.get("metadata", {}).get("name", ""),
-            #"annotations": cluster.get("metadata", {}).get("annotations", {}),
             "finalizers": cluster.get("metadata", {}).get("finalizers", []),
         },
         "spec": {
