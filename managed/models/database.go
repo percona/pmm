@@ -896,7 +896,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params *SetupDBParams) (*reform
 	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" {
 		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 		if err := initWithRoot(params); err != nil {
-			return nil, errors.Wrap(err, errCV.Error())
+			return nil, errors.Wrapf(err, "couldn't connect do database with provided credentials: %s; tried to create user and database", errCV)
 		}
 		errCV = checkVersion(ctx, db)
 	}
