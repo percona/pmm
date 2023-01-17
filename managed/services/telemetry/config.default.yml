@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS ia
+    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_ia_enabled"
@@ -360,10 +360,10 @@ telemetry:
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
     query: version, agent_type, runs_on_node_id FROM agents
-    summary: "Agents versions"
+    summary: "Agents version"
     transform:
       type: JSON
-      metric: pmm_server_api_usage_combined
+      metric: pmm_server_agents_version
     data:
       - metric_name: "1"
         column: "agent_type"
@@ -698,3 +698,25 @@ telemetry:
       - metric_name: "pillar"
         column: "pillar"
       - metric_name: "count"
+
+  # API usage
+  - id: APIUsageMetrics
+    source: VM
+    query: grpc_server_msg_received_total
+    transform:
+      type: JSON
+      metric: pmm_server_api_usage
+    summary: "PMM Server API usage"
+    data:
+      - metric_name: "1"
+        label: "caller_origin" # internal / external
+      - metric_name: "2"
+        label: "grpc_method"
+      - metric_name: "3"
+        label: "grpc_service"
+      - metric_name: "4"
+        label: "grpc_type"
+      - metric_name: "5" # pmm-managed / qan-api2
+        label: "job"
+      - metric_name: "6"
+        value: 1

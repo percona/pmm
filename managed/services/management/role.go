@@ -48,9 +48,11 @@ func NewRoleService(db *reform.DB) *RoleService {
 
 // CreateRole creates a new Role.
 func (r *RoleService) CreateRole(_ context.Context, req *rolev1beta1.CreateRoleRequest) (*rolev1beta1.CreateRoleResponse, error) {
-	var role models.Role
-	role.Title = req.Title
-	role.Filter = req.Filter
+	role := models.Role{
+		Title:       req.Title,
+		Description: req.Description,
+		Filter:      req.Filter,
+	}
 
 	if err := models.CreateRole(r.db.Querier, &role); err != nil {
 		return nil, err
@@ -74,6 +76,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 	}
 
 	role.Title = req.Title
+	role.Description = req.Description
 	role.Filter = req.Filter
 
 	if err := r.db.Update(&role); err != nil {
@@ -88,7 +91,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 //nolint:unparam
 func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
 	errTx := r.db.InTransaction(func(tx *reform.TX) error {
-		if err := models.DeleteRole(tx, int(req.RoleId)); err != nil {
+		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
@@ -117,9 +120,10 @@ func (r *RoleService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest
 	}
 
 	return &rolev1beta1.GetRoleResponse{
-		RoleId: role.ID,
-		Title:  role.Title,
-		Filter: role.Filter,
+		RoleId:      role.ID,
+		Title:       role.Title,
+		Description: role.Description,
+		Filter:      role.Filter,
 	}, nil
 }
 
@@ -142,9 +146,10 @@ func (r *RoleService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesReque
 
 		//nolint:nosnakecase
 		res.Roles = append(res.Roles, &rolev1beta1.ListRolesResponse_RoleData{
-			RoleId: role.ID,
-			Title:  role.Title,
-			Filter: role.Filter,
+			RoleId:      role.ID,
+			Title:       role.Title,
+			Description: role.Description,
+			Filter:      role.Filter,
 		})
 	}
 

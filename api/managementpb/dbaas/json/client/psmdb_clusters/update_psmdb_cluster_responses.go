@@ -459,6 +459,12 @@ UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
+	// Configuration for PSMDB cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PSMDB cluster.
+	StorageClass string `json:"storage_class,omitempty"`
+
 	// compute resources
 	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }
