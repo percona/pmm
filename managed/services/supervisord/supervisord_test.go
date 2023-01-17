@@ -37,7 +37,8 @@ func TestConfig(t *testing.T) {
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams, nil, gRPCMessageMaxSize)
+	gfParams := &models.GrafanaParams{}
+	s := New(configDir, pmmUpdateCheck, vmParams, gfParams, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
@@ -68,7 +69,8 @@ func TestDBaaSController(t *testing.T) {
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams, nil, gRPCMessageMaxSize)
+	gfParams := &models.GrafanaParams{}
+	s := New(configDir, pmmUpdateCheck, vmParams, gfParams, gRPCMessageMaxSize)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
