@@ -47,13 +47,6 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 
 // checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
-	if serviceModel.ServiceType == models.MongoDBServiceType {
-		if err := agents.PMMAgentSupported(s.db.Querier, *agentModel.PMMAgentID,
-			"mongodb backup and restore", pmmAgentMinVersionForMongoBackupAndRestore); err != nil {
-			return "", err
-		}
-	}
-
 	softwareList := agents.GetRequiredBackupSoftwareList(serviceModel.ServiceType)
 	if len(softwareList) == 0 {
 		return "", nil
@@ -144,6 +137,13 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 	})
 	if errTx != nil {
 		return "", errTx
+	}
+
+	if serviceModel.ServiceType == models.MongoDBServiceType {
+		if err := agents.PMMAgentSupported(s.db.Querier, agentModel.AgentID,
+			"mongodb backup and restore", pmmAgentMinVersionForMongoBackupAndRestore); err != nil {
+			return "", err
+		}
 	}
 
 	return s.checkCompatibility(serviceModel, agentModel)
