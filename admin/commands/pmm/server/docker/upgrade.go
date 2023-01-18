@@ -110,9 +110,17 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 
 	c.l.Infof("Stopping PMM Server in container %q", currentContainer.Name)
 
-	// We wait a bit so the logs can be requested by pmm-managed before
-	// the container is stopped.
-	<-time.After(c.waitBeforeContainerStop)
+	// We wait a bit so the logs can be requested by pmm-managed before the container is stopped.
+	select {
+	case <-time.After(c.waitBeforeContainerStop):
+	case <-ctx.Done():
+		msg := "upgrade has been cancelled"
+		if err = ctx.Err(); err != nil {
+			msg = fmt.Sprintf(msg+". Error: %s", err)
+		}
+
+		return nil, fmt.Errorf(msg)
+	}
 
 	noTimeout := -1 * time.Second
 	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
