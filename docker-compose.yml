@@ -40,6 +40,8 @@ services:
     #      - POSTGRES_DBNAME=pmm-managed
     #      - POSTGRES_USERNAME=pmm-managed
     #      - POSTGRES_DBPASSWORD=pmm-managed
+    #      - POSTGRES_SSL_MODE=verify-full
+    #      - POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
     #      - POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
     #      - POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
 
