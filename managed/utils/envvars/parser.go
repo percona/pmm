@@ -57,6 +57,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
+//   - DISABLE_LEGACY_UPDATES is a boolean flag to disable pmm-update way of updating PMM Server;
 //   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
 //   - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
@@ -96,6 +97,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			continue
 		case "DISABLE_UPDATES":
 			envSettings.DisableUpdates, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+		case "DISABLE_LEGACY_UPDATES":
+			envSettings.DisableLegacyUpdates, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}

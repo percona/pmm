@@ -1082,10 +1082,15 @@
                   "format": "date-time",
                   "x-order": 4
                 },
+                "pmm_update_ready": {
+                  "description": "True if pmm-update can be used for an update.",
+                  "type": "boolean",
+                  "x-order": 5
+                },
                 "updater_ready": {
                   "description": "True if pmm-server-upgrade is ready for an update.",
                   "type": "boolean",
-                  "x-order": 5
+                  "x-order": 6
                 }
               }
             }
@@ -1140,7 +1145,19 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "method": {
+                  "description": "UpdateMethod defines the method for updating PMM Server.",
+                  "type": "string",
+                  "default": "PMM_UPDATE",
+                  "enum": [
+                    "PMM_UPDATE",
+                    "PMM_SERVER_UPGRADE"
+                  ],
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -1226,6 +1243,16 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
+                },
+                "method": {
+                  "description": "UpdateMethod defines the method for updating PMM Server.",
+                  "type": "string",
+                  "default": "PMM_UPDATE",
+                  "enum": [
+                    "PMM_UPDATE",
+                    "PMM_SERVER_UPGRADE"
+                  ],
+                  "x-order": 2
                 }
               }
             }

@@ -7,6 +7,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateStatusReader is a Reader for the UpdateStatus structure.
@@ -128,10 +130,65 @@ type UpdateStatusBody struct {
 
 	// Progress log offset.
 	LogOffset int64 `json:"log_offset,omitempty"`
+
+	// UpdateMethod defines the method for updating PMM Server.
+	// Enum: [PMM_UPDATE PMM_SERVER_UPGRADE]
+	Method *string `json:"method,omitempty"`
 }
 
 // Validate validates this update status body
 func (o *UpdateStatusBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMethod(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var updateStatusBodyTypeMethodPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateStatusBodyTypeMethodPropEnum = append(updateStatusBodyTypeMethodPropEnum, v)
+	}
+}
+
+const (
+
+	// UpdateStatusBodyMethodPMMUPDATE captures enum value "PMM_UPDATE"
+	UpdateStatusBodyMethodPMMUPDATE string = "PMM_UPDATE"
+
+	// UpdateStatusBodyMethodPMMSERVERUPGRADE captures enum value "PMM_SERVER_UPGRADE"
+	UpdateStatusBodyMethodPMMSERVERUPGRADE string = "PMM_SERVER_UPGRADE"
+)
+
+// prop value enum
+func (o *UpdateStatusBody) validateMethodEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateStatusBodyTypeMethodPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *UpdateStatusBody) validateMethod(formats strfmt.Registry) error {
+	if swag.IsZero(o.Method) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMethodEnum("body"+"."+"method", "body", *o.Method); err != nil {
+		return err
+	}
+
 	return nil
 }
 

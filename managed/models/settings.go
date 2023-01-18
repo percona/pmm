@@ -52,7 +52,8 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Disabled bool `json:"disabled"`
+		Disabled       bool `json:"disabled"`
+		LegacyDisabled bool `json:"legacy_disabled"`
 	} `json:"updates"`
 
 	Telemetry struct {

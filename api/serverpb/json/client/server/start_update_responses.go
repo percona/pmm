@@ -7,6 +7,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // StartUpdateReader is a Reader for the StartUpdate structure.
@@ -115,6 +117,95 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 		return err
 	}
 
+	return nil
+}
+
+/*
+StartUpdateBody start update body
+swagger:model StartUpdateBody
+*/
+type StartUpdateBody struct {
+	// UpdateMethod defines the method for updating PMM Server.
+	// Enum: [PMM_UPDATE PMM_SERVER_UPGRADE]
+	Method *string `json:"method,omitempty"`
+}
+
+// Validate validates this start update body
+func (o *StartUpdateBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMethod(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var startUpdateBodyTypeMethodPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		startUpdateBodyTypeMethodPropEnum = append(startUpdateBodyTypeMethodPropEnum, v)
+	}
+}
+
+const (
+
+	// StartUpdateBodyMethodPMMUPDATE captures enum value "PMM_UPDATE"
+	StartUpdateBodyMethodPMMUPDATE string = "PMM_UPDATE"
+
+	// StartUpdateBodyMethodPMMSERVERUPGRADE captures enum value "PMM_SERVER_UPGRADE"
+	StartUpdateBodyMethodPMMSERVERUPGRADE string = "PMM_SERVER_UPGRADE"
+)
+
+// prop value enum
+func (o *StartUpdateBody) validateMethodEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startUpdateBodyTypeMethodPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *StartUpdateBody) validateMethod(formats strfmt.Registry) error {
+	if swag.IsZero(o.Method) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMethodEnum("body"+"."+"method", "body", *o.Method); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this start update body based on context it is used
+func (o *StartUpdateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartUpdateBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartUpdateBody) UnmarshalBinary(b []byte) error {
+	var res StartUpdateBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 

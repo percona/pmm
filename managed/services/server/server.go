@@ -18,16 +18,20 @@ package server
 
 import (
 	"context"
+	"crypto/subtle"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
@@ -69,6 +73,9 @@ type Server struct {
 
 	l *logrus.Entry
 
+	pmmUpdateAuthFileM sync.Mutex
+	pmmUpdateAuthFile  string
+
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
@@ -80,6 +87,10 @@ type Server struct {
 type dbaasInitializer interface {
 	Enable(ctx context.Context) error
 	Disable(ctx context.Context) error
+}
+
+type pmmUpdateAuth struct {
+	AuthToken string `json:"auth_token"`
 }
 
 // Params holds the parameters needed to create a new service.
@@ -103,6 +114,12 @@ type Params struct {
 
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
+	path := os.TempDir()
+	if _, err := os.Stat(path); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	path = filepath.Join(path, "pmm-update.json")
+
 	s := &Server{
 		db:                   params.DB,
 		vmdb:                 params.VMDB,
@@ -120,6 +137,7 @@ func NewServer(params *Params) (*Server, error) {
 		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
+		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
 	}
 	return s, nil
@@ -251,6 +269,7 @@ func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.Che
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
+	legacyUpdatesDisabled := s.envSettings.DisableLegacyUpdates
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
@@ -279,6 +298,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		},
 		UpdateAvailable: v.UpdateAvailable,
 		LatestNewsUrl:   v.LatestNewsURL,
+		PmmUpdateReady:  !legacyUpdatesDisabled,
 	}
 
 	if updatesDisabled {
@@ -335,7 +355,7 @@ func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
-// StartUpdate starts PMM Server update through pmm-server-upgrade.
+// StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
@@ -345,6 +365,42 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 	}
 
+	switch req.Method {
+	case serverpb.UpdateMethod_PMM_UPDATE:
+		return s.startUpdateViaPMMUpdate(ctx, req)
+	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
+		return s.startUpdateViaServerUpgrade(ctx, req)
+	default:
+		return nil, status.Error(codes.FailedPrecondition, "Invalid update method provided.")
+	}
+}
+
+func (s *Server) startUpdateViaPMMUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+	s.envRW.RLock()
+	legacyUpdatesDisabled := s.envSettings.DisableLegacyUpdates
+	s.envRW.RUnlock()
+
+	if legacyUpdatesDisabled {
+		return nil, status.Error(codes.FailedPrecondition, "Legacy updates are disabled via DISABLE_LEGACY_UPDATES environment variable.")
+	}
+
+	offset, err := s.supervisord.StartUpdate()
+	if err != nil {
+		return nil, err
+	}
+
+	authToken := uuid.New().String()
+	if err = s.writeUpdateAuthToken(authToken); err != nil {
+		return nil, err
+	}
+
+	return &serverpb.StartUpdateResponse{
+		AuthToken: authToken,
+		LogOffset: offset,
+	}, nil
+}
+
+func (s *Server) startUpdateViaServerUpgrade(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
@@ -374,6 +430,59 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status from pmm-server-upgrade.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+	switch req.Method {
+	case serverpb.UpdateMethod_PMM_UPDATE:
+		return s.updateStatusViaPMMUpdate(ctx, req)
+	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
+		return s.updateStatusViaServerUpgrade(ctx, req)
+	default:
+		return nil, status.Error(codes.FailedPrecondition, "Invalid update method provided.")
+	}
+}
+
+// UpdateStatus returns PMM Server update status.
+func (s *Server) updateStatusViaPMMUpdate(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+	token, err := s.readUpdateAuthToken()
+	if err != nil {
+		return nil, err
+	}
+	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(token)) == 0 {
+		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
+	}
+
+	// wait up to 30 seconds for new log lines
+	var lines []string
+	var newOffset uint32
+	var done bool
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	for ctx.Err() == nil {
+		done = !s.supervisord.UpdateRunning()
+		if done {
+			// give supervisord a second to flush logs to file
+			time.Sleep(time.Second)
+		}
+
+		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
+		if err != nil {
+			s.l.Warn(err)
+		}
+
+		if len(lines) != 0 || done {
+			break
+		}
+
+		time.Sleep(200 * time.Millisecond)
+	}
+
+	return &serverpb.UpdateStatusResponse{
+		LogLines:  lines,
+		LogOffset: newOffset,
+		Done:      done,
+	}, nil
+}
+
+func (s *Server) updateStatusViaServerUpgrade(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
 	conn, err := s.getGRPCConnection(ctx)
 	if err != nil {
 		return nil, err
@@ -420,6 +529,50 @@ func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error
 	}
 
 	return conn, nil
+}
+
+// writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
+//
+// We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
+// is being changed during update.
+func (s *Server) writeUpdateAuthToken(token string) error {
+	s.pmmUpdateAuthFileM.Lock()
+	defer s.pmmUpdateAuthFileM.Unlock()
+
+	a := &pmmUpdateAuth{
+		AuthToken: token,
+	}
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			s.l.Error(err)
+		}
+	}()
+
+	return errors.WithStack(json.NewEncoder(f).Encode(a))
+}
+
+// readUpdateAuthToken reads authentication token for getting update status and logs from the file.
+func (s *Server) readUpdateAuthToken() (string, error) {
+	s.pmmUpdateAuthFileM.Lock()
+	defer s.pmmUpdateAuthFileM.Unlock()
+
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			s.l.Error(err)
+		}
+	}()
+
+	var a pmmUpdateAuth
+	err = json.NewDecoder(f).Decode(&a)
+	return a.AuthToken, errors.WithStack(err)
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.

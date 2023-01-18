@@ -55,6 +55,9 @@ type ChangeSettingsParams struct {
 	DisableUpdates bool
 	EnableUpdates  bool
 
+	DisableLegacyUpdates bool
+	EnableLegacyUpdates  bool
+
 	DisableTelemetry bool
 	EnableTelemetry  bool
 
@@ -165,6 +168,12 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.EnableUpdates {
 		settings.Updates.Disabled = false
+	}
+	if params.DisableLegacyUpdates {
+		settings.Updates.LegacyDisabled = true
+	}
+	if params.EnableLegacyUpdates {
+		settings.Updates.LegacyDisabled = false
 	}
 	if params.DisableTelemetry {
 		settings.Telemetry.Disabled = true

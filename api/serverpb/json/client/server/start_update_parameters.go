@@ -61,7 +61,7 @@ StartUpdateParams contains all the parameters to send to the API endpoint
 */
 type StartUpdateParams struct {
 	// Body.
-	Body interface{}
+	Body StartUpdateBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *StartUpdateParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the start update params
-func (o *StartUpdateParams) WithBody(body interface{}) *StartUpdateParams {
+func (o *StartUpdateParams) WithBody(body StartUpdateBody) *StartUpdateParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the start update params
-func (o *StartUpdateParams) SetBody(body interface{}) {
+func (o *StartUpdateParams) SetBody(body StartUpdateBody) {
 	o.Body = body
 }
 
@@ -133,10 +133,8 @@ func (o *StartUpdateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

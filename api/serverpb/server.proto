@@ -20,6 +20,12 @@ enum DistributionMethod {
   DO = 5;
 }
 
+// UpdateMethod defines the method for updating PMM Server.
+enum UpdateMethod {
+  PMM_UPDATE = 0;
+  PMM_SERVER_UPGRADE = 1;
+}
+
 // VersionInfo describes component version, or PMM Server as a whole.
 message VersionInfo {
   // User-visible version.
@@ -73,11 +79,15 @@ message CheckUpdatesResponse {
   string latest_news_url = 4;
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
+  // True if pmm-update can be used for an update.
+  bool pmm_update_ready = 6;
   // True if pmm-server-upgrade is ready for an update.
-  bool updater_ready = 6;
+  bool updater_ready = 7;
 }
 
-message StartUpdateRequest {}
+message StartUpdateRequest {
+  UpdateMethod method = 1;
+}
 
 message StartUpdateResponse {
   // Authentication token for getting update statuses.
@@ -91,6 +101,8 @@ message UpdateStatusRequest {
   string auth_token = 1;
   // Progress log offset.
   uint32 log_offset = 2;
+  // Shall be the same value as used to call StartUpdate.
+  UpdateMethod method = 3;
 }
 
 message UpdateStatusResponse {
