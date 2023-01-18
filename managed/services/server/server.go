@@ -348,10 +348,10 @@ func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
 
 	c := updatepb.NewStatusClient(conn)
 
-	ctxApi, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	if _, err := c.Ready(ctxApi, &updatepb.ReadyRequest{}); err != nil {
+	if _, err := c.Ready(ctxAPI, &updatepb.ReadyRequest{}); err != nil {
 		return false, err
 	}
 
@@ -370,15 +370,15 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 	switch req.Method {
 	case serverpb.UpdateMethod_PMM_UPDATE:
-		return s.startUpdateViaPMMUpdate(ctx, req)
+		return s.startUpdateViaPMMUpdate()
 	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
-		return s.startUpdateViaServerUpgrade(ctx, req)
+		return s.startUpdateViaServerUpgrade(ctx)
 	default:
 		return nil, status.Error(codes.FailedPrecondition, "Invalid update method provided.")
 	}
 }
 
-func (s *Server) startUpdateViaPMMUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+func (s *Server) startUpdateViaPMMUpdate() (*serverpb.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	legacyUpdatesDisabled := s.envSettings.DisableLegacyUpdates
 	s.envRW.RUnlock()
@@ -403,7 +403,7 @@ func (s *Server) startUpdateViaPMMUpdate(ctx context.Context, req *serverpb.Star
 	}, nil
 }
 
-func (s *Server) startUpdateViaServerUpgrade(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+func (s *Server) startUpdateViaServerUpgrade(ctx context.Context) (*serverpb.StartUpdateResponse, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
@@ -417,10 +417,10 @@ func (s *Server) startUpdateViaServerUpgrade(ctx context.Context, req *serverpb.
 
 	c := updatepb.NewUpdateClient(conn)
 
-	ctxApi, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	res, err := c.StartUpdate(ctxApi, &updatepb.StartUpdateRequest{Hostname: hostname})
+	res, err := c.StartUpdate(ctxAPI, &updatepb.StartUpdateRequest{Hostname: hostname})
 	if err != nil {
 		return nil, err
 	}
@@ -495,10 +495,10 @@ func (s *Server) updateStatusViaServerUpgrade(ctx context.Context, req *serverpb
 	c := updatepb.NewUpdateClient(conn)
 
 	// The request can wait for up to 30 seconds before returning
-	ctxApi, cancel := context.WithTimeout(ctx, 35*time.Second)
+	ctxAPI, cancel := context.WithTimeout(ctx, 35*time.Second)
 	defer cancel()
 
-	res, err := c.UpdateStatus(ctxApi, &updatepb.UpdateStatusRequest{
+	res, err := c.UpdateStatus(ctxAPI, &updatepb.UpdateStatusRequest{
 		LogsToken: req.AuthToken,
 		Offset:    req.LogOffset,
 	})

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package update implements update API.
+// Package status implements status API.
 package status
 
 import (

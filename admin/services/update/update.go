@@ -183,11 +183,11 @@ func (s *Server) getLogs(filePath string, offset uint32) ([]string, uint32, erro
 		return nil, 0, errors.WithStack(err)
 	}
 
-	f, err := os.Open(filePath)
+	f, err := os.Open(filePath) //nolint:gosec
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck
+	defer f.Close() //nolint:gosec
 
 	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
 		return nil, 0, errors.WithStack(err)
