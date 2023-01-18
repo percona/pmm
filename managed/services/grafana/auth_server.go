@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package grafana contains Grafana related functionality.
 package grafana
 
 import (
@@ -99,7 +100,7 @@ var vmProxyPrefixes = []string{
 	"/prometheus/api/v1/",
 }
 
-const vmProxyHeaderName = "X-Percona-Proxy-Filters"
+const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
@@ -352,9 +353,10 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 
 	filters := make([]string, 0, len(roles))
 	for _, r := range roles {
-		filters = append(filters, r.Filter)
+		if r.Filter != "" {
+			filters = append(filters, r.Filter)
+		}
 	}
-
 	return filters, nil
 }
 

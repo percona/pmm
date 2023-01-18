@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package kubernetes provides functionality for kubernetes.
 package kubernetes
 
 import (
@@ -28,6 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -38,16 +40,20 @@ import (
 type ClusterType string
 
 const (
-	ClusterTypeUnknown        ClusterType = "unknown"
-	ClusterTypeMinikube       ClusterType = "minikube"
-	ClusterTypeEKS            ClusterType = "eks"
-	ClusterTypeGeneric        ClusterType = "generic"
-	pxcDeploymentName                     = "percona-xtradb-cluster-operator"
-	psmdbDeploymentName                   = "percona-server-mongodb-operator"
-	databaseClusterKind                   = "DatabaseCluster"
-	databaseClusterAPIVersion             = "dbaas.percona.com/v1"
-	restartAnnotationKey                  = "dbaas.percona.com/restart"
-	managedByKey                          = "dbaas.percona.com/managed-by"
+	ClusterTypeUnknown         ClusterType = "unknown"
+	ClusterTypeMinikube        ClusterType = "minikube"
+	ClusterTypeEKS             ClusterType = "eks"
+	ClusterTypeGeneric         ClusterType = "generic"
+	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
+	psmdbDeploymentName                    = "percona-server-mongodb-operator"
+	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
+	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
+	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
+	dbaasOperatorContainerName             = "manager"
+	databaseClusterKind                    = "DatabaseCluster"
+	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
+	restartAnnotationKey                   = "dbaas.percona.com/restart"
+	managedByKey                           = "dbaas.percona.com/managed-by"
 
 	// ContainerStateWaiting represents a state when container requires some
 	// operations being done in order to complete start up.
@@ -62,7 +68,7 @@ const (
 
 // Kubernetes is a client for Kubernetes.
 type Kubernetes struct {
-	lock       sync.RWMutex
+	lock       *sync.RWMutex
 	client     *client.Client
 	l          *logrus.Entry
 	httpClient *http.Client
@@ -101,6 +107,7 @@ func NewIncluster() (*Kubernetes, error) {
 	return &Kubernetes{
 		client: client,
 		l:      l,
+		lock:   &sync.RWMutex{},
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
 			Transport: &http.Transport{
@@ -123,6 +130,7 @@ func New(kubeconfig string) (*Kubernetes, error) {
 	return &Kubernetes{
 		client: client,
 		l:      l,
+		lock:   &sync.RWMutex{},
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
 			Transport: &http.Transport{
@@ -138,6 +146,7 @@ func New(kubeconfig string) (*Kubernetes, error) {
 func NewEmpty() *Kubernetes {
 	return &Kubernetes{
 		client: &client.Client{},
+		lock:   &sync.RWMutex{},
 		l:      logrus.WithField("component", "kubernetes"),
 		httpClient: &http.Client{
 			Timeout: time.Second * 5,
@@ -219,7 +228,7 @@ func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) erro
 	return k.client.ApplyObject(cluster)
 }
 
-// CreateDatabase cluster creates database cluster
+// CreateDatabaseCluster creates database cluster
 func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -276,29 +285,39 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 	return ClusterTypeGeneric, nil
 }
 
-// GetOperatorVersion parses operator version from operator deployment
-func (k *Kubernetes) GetOperatorVersion(ctx context.Context, name string) (string, error) {
-	k.lock.RLock()
-	defer k.lock.RUnlock()
-	deployment, err := k.client.GetDeployment(ctx, name)
+// getOperatorVersion parses operator version from operator deployment
+func (k *Kubernetes) getOperatorVersion(ctx context.Context, deploymentName, containerName string) (string, error) {
+	deployment, err := k.client.GetDeployment(ctx, deploymentName)
 	if err != nil {
 		return "", err
 	}
-	return strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1], nil
+	for _, container := range deployment.Spec.Template.Spec.Containers {
+		if container.Name == containerName {
+			return strings.Split(container.Image, ":")[1], nil
+		}
+	}
+	return "", errors.New("unknown version of operator")
 }
 
 // GetPSMDBOperatorVersion parses PSMDB operator version from operator deployment
 func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.GetOperatorVersion(ctx, psmdbDeploymentName)
+	return k.getOperatorVersion(ctx, psmdbDeploymentName, psmdbOperatorContainerName)
 }
 
 // GetPXCOperatorVersion parses PXC operator version from operator deployment
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.GetOperatorVersion(ctx, pxcDeploymentName)
+	return k.getOperatorVersion(ctx, pxcDeploymentName, pxcOperatorContainerName)
+}
+
+// GetDBaaSOperatorVersion parses DBaaS operator version from operator deployment
+func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
 }
 
 // GetSecret returns secret by name
@@ -306,6 +325,24 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.GetSecret(ctx, name)
+}
+
+// CreatePMMSecret creates pmm secret in kubernetes.
+func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byte) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	secret := &corev1.Secret{ //nolint: exhaustruct
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Secret",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: secretName,
+		},
+		Type: corev1.SecretTypeOpaque,
+		Data: secrets,
+	}
+	return k.client.ApplyObject(secret)
 }
 
 // GetPods returns list of pods based on given filters. Filters are args to
@@ -431,7 +468,7 @@ func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType Clu
 			return 0, 0, 0, errors.Errorf("unknown cluster type")
 		case ClusterTypeGeneric:
 			// TODO support other cluster types
-			return 0, 0, 0, nil
+			continue
 		case ClusterTypeMinikube:
 			storage, ok := node.Status.Allocatable[corev1.ResourceEphemeralStorage]
 			if !ok {

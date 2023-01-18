@@ -93,7 +93,7 @@ func expandArgs(args []string) []string {
 		if strings.HasPrefix(arg, "@") {
 			flagsFile := arg[1:]
 			logrus.Debugf("Expanding with flags file [%s]", flagsFile)
-			readFile, err := os.Open(flagsFile)
+			readFile, err := os.Open(flagsFile) //nolint:gosec
 			if err != nil {
 				logrus.Panicf("Failed to parse flags file [%s]: %s", flagsFile, err)
 			}
