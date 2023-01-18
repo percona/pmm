@@ -720,3 +720,23 @@ telemetry:
         label: "job"
       - metric_name: "6"
         value: 1
+
+  - id: MySQLPlugins
+    source: VM
+    query: mysql_plugin
+    transform:
+      type: JSON
+      metric: pmm_mysql_plugins
+    summary: "Plugins on the MySQL instance"
+    data:
+      - metric_name: "library"
+        label: "library"
+      - metric_name: "license"
+        label: "license"
+      - metric_name: "name"
+        label: "name"
+      - metric_name: "status"
+        label: "status"
+      - metric_name: "type"
+        label: "type"
+
