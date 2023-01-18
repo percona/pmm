@@ -10,7 +10,7 @@ replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-
 
 replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_query_go v1.0.3-percona
 
-replace golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa => github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08
+replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08
 
 replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickhouse-go v1.5.1 // clickhouse-go/v2 cannot work with 1.5.1 which we need for QAN-API
 
@@ -33,11 +33,11 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/go-co-op/gocron v1.18.0
 	github.com/go-openapi/errors v0.20.3
-	github.com/go-openapi/runtime v0.24.2
+	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
-	github.com/go-sql-driver/mysql v1.6.0
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
@@ -48,7 +48,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.4
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.7
 	github.com/minio/minio-go/v7 v7.0.45
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20221214134301-b6a331250826
@@ -71,7 +71,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 	go.mongodb.org/mongo-driver v1.11.1
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	golang.org/x/crypto v0.1.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/sys v0.4.0
 	golang.org/x/text v0.5.0
@@ -96,6 +96,7 @@ require (
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
