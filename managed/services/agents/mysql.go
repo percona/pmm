@@ -65,6 +65,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/low-resolution",
 		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/medium-resolution",
 		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/high-resolution",
+		"--collect.plugins",
 
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",

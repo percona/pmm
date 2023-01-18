@@ -336,6 +336,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"perf_schema.eventsstatements",
 		"perf_schema.file_instances",
 		"custom_query.lr",
+		"plugins",
 	}
 	if params.agent.IsMySQLTablestatsGroupEnabled() {
 		lrOptions = append(lrOptions,
