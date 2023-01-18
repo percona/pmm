@@ -526,7 +526,6 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
 ) error {
-
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
 		Name:          name,
 		User:          dbConfig.User,
