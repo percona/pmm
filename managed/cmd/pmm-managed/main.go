@@ -607,8 +607,10 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername, dbPassword string) {
+func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) {
 	l := logrus.WithField("component", "migration")
+	params.Logf = l.Debugf
+	params.SetupFixtures = models.SetupFixtures
 
 	const timeout = 5 * time.Minute
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -620,14 +622,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 		default:
 		}
 		l.Infof("Migrating database...")
-		_, err := models.SetupDB(timeoutCtx, sqlDB, &models.SetupDBParams{
-			Logf:          l.Debugf,
-			Name:          dbName,
-			Address:       dbAddress,
-			Username:      dbUsername,
-			Password:      dbPassword,
-			SetupFixtures: models.SetupFixtures,
-		})
+		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}
@@ -674,6 +669,13 @@ func main() {
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
 		Default("pmm-managed").
 		Envar("POSTGRES_USERNAME").
+		String()
+	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
+		Default("disable").
+		Envar("POSTGRES_SSL_MODE").
+		Enum("disable", "require", "verify-ca", "verify-full")
+	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
+		Envar("POSTGRES_SSL_CA_PATH").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
 		Default("pmm-managed").
@@ -737,13 +739,24 @@ func main() {
 
 	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, *postgresSSLKeyPathF, *postgresSSLCertPathF)
+	setupParams := models.SetupDBParams{
+		Address:     *postgresAddrF,
+		Name:        *postgresDBNameF,
+		Username:    *postgresDBUsernameF,
+		Password:    *postgresDBPasswordF,
+		SSLMode:     *postgresSSLModeF,
+		SSLCAPath:   *postgresSSLCAPathF,
+		SSLKeyPath:  *postgresSSLKeyPathF,
+		SSLCertPath: *postgresSSLCertPathF,
+	}
+
+	sqlDB, err := models.OpenDB(setupParams)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
@@ -794,16 +807,22 @@ func main() {
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 
-	gfParams := &models.GrafanaParams{
-		PostgresAddr:        *postgresAddrF,
-		PostgresDBName:      *postgresDBNameF,
-		PostgresDBUsername:  *postgresDBUsernameF,
-		PostgresDBPassword:  *postgresDBPasswordF,
-		PostgresSSLKeyPath:  *postgresSSLKeyPathF,
-		PostgresSSLCertPath: *postgresSSLCertPathF,
-	}
-
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gfParams, gRPCMessageMaxSize)
+	supervisord := supervisord.New(
+		*supervisordConfigDirF,
+		pmmUpdateCheck,
+		vmParams,
+		models.GrafanaParams{
+			PostgresAddr:        *postgresAddrF,
+			PostgresDBName:      *postgresDBNameF,
+			PostgresDBUsername:  *postgresDBUsernameF,
+			PostgresDBPassword:  *postgresDBPasswordF,
+			PostgresSSLMode:     *postgresSSLModeF,
+			PostgresSSLCAPath:   *postgresSSLCAPathF,
+			PostgresSSLKeyPath:  *postgresSSLKeyPathF,
+			PostgresSSLCertPath: *postgresSSLCertPathF,
+		},
+		gRPCMessageMaxSize,
+	)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {

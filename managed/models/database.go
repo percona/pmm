@@ -826,22 +826,32 @@ var databaseSchema = [][]string{
 
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validate its arguments without creating a connection to the database.
-func OpenDB(address, name, username, password, sslKeyPath, sslCertPath string) (*sql.DB, error) {
+func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
-	switch {
-	case sslKeyPath != "" && sslCertPath != "":
+	addSSL := true
+	switch params.SSLMode {
+	case "require":
 		q.Set("sslmode", "require")
-		q.Set("sslcert", sslCertPath)
-		q.Set("sslkey", sslKeyPath)
+	case "verify-ca":
+		q.Set("sslmode", "verify-ca")
+	case "verify-full":
+		q.Set("sslmode", "verify-full")
 	default:
 		q.Set("sslmode", "disable")
+		addSSL = false
+	}
+
+	if addSSL {
+		q.Set("sslrootcert", params.SSLCAPath)
+		q.Set("sslcert", params.SSLCertPath)
+		q.Set("sslkey", params.SSLKeyPath)
 	}
 
 	uri := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword(username, password),
-		Host:     address,
-		Path:     name,
+		User:     url.UserPassword(params.Username, params.Password),
+		Host:     params.Address,
+		Path:     params.Name,
 		RawQuery: q.Encode(),
 	}
 	if uri.Path == "" {
@@ -878,12 +888,16 @@ type SetupDBParams struct {
 	Name             string
 	Username         string
 	Password         string
+	SSLMode          string
+	SSLCAPath        string
+	SSLKeyPath       string
+	SSLCertPath      string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
-func SetupDB(ctx context.Context, sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -923,46 +937,43 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create given user and database under default postgres role.
-func initWithRoot(params *SetupDBParams) error {
-	databaseName := params.Name
-	roleName := params.Username
-
+func initWithRoot(params SetupDBParams) error {
 	if params.Logf != nil {
-		params.Logf("Creating database %s and role %s", databaseName, roleName)
+		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
 	// we use empty password/db and postgres user for creating database
-	db, err := OpenDB(params.Address, "", "postgres", "", "", "")
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres"})
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, databaseName).Scan(&countDatabases)
+	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, databaseName))
+		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
 			return errors.WithStack(err)
 		}
 	}
 
 	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, roleName).Scan(&countRoles)
+	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, roleName, params.Password))
+		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return errors.WithStack(err)
 		}
 
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, databaseName, roleName)
+		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -971,7 +982,7 @@ func initWithRoot(params *SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params *SetupDBParams) error {
+func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)

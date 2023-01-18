@@ -35,7 +35,13 @@ const (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
 
-	db, err := models.OpenDB("127.0.0.1:5432", "", username, password, "", "")
+	setupParams := models.SetupDBParams{
+		Address:  "127.0.0.1:5432",
+		Username: username,
+		Password: password,
+	}
+
+	db, err := models.OpenDB(setupParams)
 	require.NoError(tb, err)
 
 	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
@@ -46,7 +52,8 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password, "", "")
+	setupParams.Name = testDatabase
+	db, err = models.OpenDB(setupParams)
 	require.NoError(tb, err)
 	SetupDB(tb, db, setupFixtures, migrationVersion)
 
@@ -60,7 +67,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
 func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
-	_, err := models.SetupDB(context.TODO(), db, &models.SetupDBParams{
+	_, err := models.SetupDB(context.TODO(), db, models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 
