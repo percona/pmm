@@ -62,18 +62,18 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 	return details, nil
 }
 
-func (sso *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *reform.Querier) (*PerconaSSOAccessToken, error) {
+func (s *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *reform.Querier) (*PerconaSSOAccessToken, error) {
 	values := url.Values{
 		"grant_type": []string{"client_credentials"},
-		"scope":      []string{sso.Scope},
+		"scope":      []string{s.Scope},
 	}
-	requestURL := fmt.Sprintf("%s/token?%s", sso.IssuerURL, values.Encode())
+	requestURL := fmt.Sprintf("%s/token?%s", s.IssuerURL, values.Encode())
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	authHeader := base64.StdEncoding.EncodeToString([]byte(sso.PMMManagedClientID + ":" + sso.PMMManagedClientSecret))
+	authHeader := base64.StdEncoding.EncodeToString([]byte(s.PMMManagedClientID + ":" + s.PMMManagedClientSecret))
 	h := req.Header
 	h.Add("Authorization", "Basic "+authHeader)
 	h.Add("Accept", "application/json")
@@ -101,21 +101,21 @@ func (sso *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *r
 		return nil, err
 	}
 	accessToken.ExpiresAt = timeBeforeRequest.Add(time.Duration(accessToken.ExpiresIn) * time.Second)
-	sso.AccessToken = accessToken
+	s.AccessToken = accessToken
 
-	if err := q.UpdateColumns(sso, "access_token"); err != nil {
+	if err := q.UpdateColumns(s, "access_token"); err != nil {
 		return nil, err
 	}
 
 	return accessToken, nil
 }
 
-func (sso *PerconaSSODetails) isAccessTokenExpired() bool {
-	if sso == nil || sso.AccessToken == nil {
+func (s *PerconaSSODetails) isAccessTokenExpired() bool {
+	if s == nil || s.AccessToken == nil {
 		return true
 	}
 
-	return time.Now().After(sso.AccessToken.ExpiresAt.Add(-time.Minute * 5))
+	return time.Now().After(s.AccessToken.ExpiresAt.Add(-time.Minute * 5))
 }
 
 // DeletePerconaSSODetails removes all stored DeletePerconaSSODetails.

@@ -15,10 +15,12 @@
 package docker
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -39,6 +41,7 @@ type UpgradeCommand struct {
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
 
+	AssumeYes               bool `name:"yes" short:"y" help:"Assume yes for all prompts"`
 	dockerFn                functions
 	l                       *logrus.Entry
 	waitBeforeContainerStop time.Duration
@@ -100,7 +103,9 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	if !c.isInstalledViaCli(currentContainer) {
-		return nil, fmt.Errorf("%w: the existing PMM Server was not installed via pmm cli", ErrNotInstalledFromCli)
+		if !c.confirmToContinue(c.ContainerID) {
+			return nil, fmt.Errorf("%w: the existing PMM Server was not installed via pmm cli", ErrNotInstalledFromCli)
+		}
 	}
 
 	c.l.Infof("Downloading PMM Server %s", c.DockerImage)
@@ -161,6 +166,33 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 	}
 
 	return false
+}
+
+func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
+	fmt.Printf(`
+PMM Server in the container %[1]q was not installed via pmm cli.
+We will attempt to upgrade the container and perform the following actions:
+
+- Stop the container %[1]q
+- Back up all volumes in %[1]q
+- Mount all volumes from %[1]q in the new container
+- Share the same network ports as in %[1]q
+
+The container %[1]q will NOT be removed. You can remove it manually later, if needed.
+
+`, containerID)
+
+	if c.AssumeYes {
+		return true
+	}
+
+	fmt.Print("Are you sure you want to continue? [y/N] ")
+
+	s := bufio.NewScanner(os.Stdin)
+	s.Scan()
+	input := s.Text()
+
+	return strings.ToLower(input) == "y"
 }
 
 func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.ContainerJSON) error {

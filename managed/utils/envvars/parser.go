@@ -14,7 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package envvars contains environment variables parser.
-
 package envvars
 
 import (
@@ -59,7 +58,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
 //   - DISABLE_LEGACY_UPDATES is a boolean flag to disable pmm-update way of updating PMM Server;
 //   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
+//   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;

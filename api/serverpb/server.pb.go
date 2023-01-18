@@ -1130,6 +1130,10 @@ type Settings struct {
 	ConnectedToPlatform bool `protobuf:"varint,19,opt,name=connected_to_platform,json=connectedToPlatform,proto3" json:"connected_to_platform,omitempty"`
 	// Includes list of collected telemetry
 	TelemetrySummaries []string `protobuf:"bytes,20,rep,name=telemetry_summaries,json=telemetrySummaries,proto3" json:"telemetry_summaries,omitempty"`
+	// True if Access Control is enabled.
+	EnableAccessControl bool `protobuf:"varint,21,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
+	// Default Access Control role ID for new users.
+	DefaultRoleId uint32 `protobuf:"varint,22,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 }
 
 func (x *Settings) Reset() {
@@ -1302,6 +1306,20 @@ func (x *Settings) GetTelemetrySummaries() []string {
 		return x.TelemetrySummaries
 	}
 	return nil
+}
+
+func (x *Settings) GetEnableAccessControl() bool {
+	if x != nil {
+		return x.EnableAccessControl
+	}
+	return false
+}
+
+func (x *Settings) GetDefaultRoleId() uint32 {
+	if x != nil {
+		return x.DefaultRoleId
+	}
+	return 0
 }
 
 type GetSettingsRequest struct {
