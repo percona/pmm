@@ -67,7 +67,7 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
-	gfParams *models.GrafanaParams
+	gfParams models.GrafanaParams
 }
 
 type sub struct {
@@ -82,7 +82,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gfParams *models.GrafanaParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gfParams models.GrafanaParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -500,7 +500,9 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 	templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
 	templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
 	templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
-	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
+	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBName
+	templateParams["PostgresSSLMode"] = s.gfParams.PostgresSSLMode
+	templateParams["PostgresSSLCAPath"] = s.gfParams.PostgresSSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.gfParams.PostgresSSLCertPath
 }
@@ -796,7 +798,8 @@ environment =
     POSTGRES_DBNAME="{{ .PostgresDBName }}",
     POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
     POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    POSTGRES_SSL_MODE="{{ if and .PostgresSSLKeyPath .PostgresSSLCertPath }}require{{ else }}disable{{ end }}",
+    POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+	POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",

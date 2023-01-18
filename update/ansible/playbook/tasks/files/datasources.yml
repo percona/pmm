@@ -20,6 +20,7 @@ datasources:
   user: ${POSTGRES_USERNAME}
   database: ${POSTGRES_DBNAME}
   jsonData:
+    sslRootCertFile: ${POSTGRES_SSL_CA_PATH}
     sslKeyFile: ${POSTGRES_SSL_KEY_PATH}
     sslCertFile: ${POSTGRES_SSL_CERT_PATH}
     postgresVersion: "1100"

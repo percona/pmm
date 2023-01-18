@@ -25,6 +25,10 @@ type GrafanaParams struct {
 	PostgresDBUsername string
 	// PostgresDBPassword represent postgresql database user password.
 	PostgresDBPassword string
+	// PostgresSSLMode represent postgresql database ssl mode.
+	PostgresSSLMode string
+	// PostgresSSLCAPath represent postgresql database root ssl CA cert path.
+	PostgresSSLCAPath string
 	// PostgresSSLKeyPath represent postgresql database user ssl key path.
 	PostgresSSLKeyPath string
 	// PostgresSSLCertPath represent postgresql database user ssl cert path.
