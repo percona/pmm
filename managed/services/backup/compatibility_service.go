@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"github.com/hashicorp/go-version"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 )
+
+var pmmAgentMinVersionForMongoBackupAndRestore = version.Must(version.NewVersion("2.35.0-0"))
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {
@@ -44,6 +47,13 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 
 // checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
+	if serviceModel.ServiceType == models.MongoDBServiceType {
+		if err := agents.PMMAgentSupported(s.db.Querier, *agentModel.PMMAgentID,
+			"mongodb backup and restore", pmmAgentMinVersionForMongoBackupAndRestore); err != nil {
+			return "", err
+		}
+	}
+
 	softwareList := agents.GetRequiredBackupSoftwareList(serviceModel.ServiceType)
 	if len(softwareList) == 0 {
 		return "", nil
