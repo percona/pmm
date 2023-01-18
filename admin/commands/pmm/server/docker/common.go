@@ -31,6 +31,7 @@ func startPMMServer(
 	dockerFn functions,
 	portBindings nat.PortMap,
 	containerName string,
+	env []string,
 ) (string, error) {
 	if volume == nil && volumesFromContainerID == "" {
 		logrus.Panic("Both volume and volumesFromContainer are empty")
@@ -56,5 +57,6 @@ func startPMMServer(
 		Labels: map[string]string{
 			"percona.pmm.source": "cli",
 		},
+		Env: env,
 	}, hostConfig, containerName)
 }

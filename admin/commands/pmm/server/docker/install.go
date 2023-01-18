@@ -119,7 +119,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
 	}
 
-	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)
+	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName, nil)
 	if err != nil {
 		return "", err
 	}
