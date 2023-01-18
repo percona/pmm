@@ -36,13 +36,13 @@ const (
 
 type pbmJobLogger struct {
 	dbURL      *url.URL
-	jobI       string
+	jobID      string
 	logChunkID uint32
 }
 
-func newPbmJobLogger(parentJobId string, mongoUrl *url.URL) *pbmJobLogger {
+func newPbmJobLogger(jobId string, mongoUrl *url.URL) *pbmJobLogger {
 	return &pbmJobLogger{
-		jobI:       parentJobId,
+		jobID:      jobId,
 		logChunkID: 0,
 		dbURL:      mongoUrl,
 	}
@@ -50,7 +50,7 @@ func newPbmJobLogger(parentJobId string, mongoUrl *url.URL) *pbmJobLogger {
 
 func (l *pbmJobLogger) sendLog(send Send, data string, done bool) {
 	send(&agentpb.JobProgress{
-		JobId:     l.jobI,
+		JobId:     l.jobID,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobProgress_Logs_{
 			Logs: &agentpb.JobProgress_Logs{

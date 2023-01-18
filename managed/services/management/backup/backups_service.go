@@ -422,14 +422,12 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 			models.MongoDBRestoreBackupJob,
 		},
 	}
-	if req.GetRestoreId() != "" && req.GetBackupArtifactId() != "" {
-		return nil, status.Error(codes.InvalidArgument, "only one of artifact ID or restore ID should be set")
-	}
-	switch {
-	case req.GetBackupArtifactId() != "":
-		jobsFilter.ArtifactID = req.GetBackupArtifactId()
-	case req.GetRestoreId() != "":
-		jobsFilter.RestoreID = req.GetRestoreId()
+
+	switch id := req.JobId.(type) {
+	case *backuppb.GetLogsRequest_BackupArtifactId:
+		jobsFilter.ArtifactID = id.BackupArtifactId
+	case *backuppb.GetLogsRequest_RestoreId:
+		jobsFilter.RestoreID = id.RestoreId
 	default:
 		return nil, status.Error(codes.InvalidArgument, "one of artifact ID or restore ID is required")
 	}
