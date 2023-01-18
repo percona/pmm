@@ -27,11 +27,16 @@ import (
 
 // Regular expressions to match important lines in slow log.
 var (
+	isNewTime = func(s string) bool {
+		return strings.Contains(s, "-")
+	}
 	timeRe    = regexp.MustCompile(`Time: (\S+\s{1,2}\S+)`)
 	timeNewRe = regexp.MustCompile(`Time:\s+(\d{4}-\d{2}-\d{2}\S+)`)
 	userRe    = regexp.MustCompile(`User@Host: ([^\[]+|\[[^[]+\]).*?@ (\S*) \[(.*)\]`)
 	schema    = regexp.MustCompile(`Schema: +(.*?) +Last_errno:`)
-	headerRe  = regexp.MustCompile(`^#\s+[A-Z]`)
+	isHeader  = func(s string) bool {
+		return len(s) > 1 && s[0:2] == "# "
+	}
 	metricsRe = regexp.MustCompile(`(\w+): (\S+|\z)`)
 	adminRe   = regexp.MustCompile(`command: (.+)`)
 	setRe     = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
@@ -154,7 +159,7 @@ func (p *SlowLogParser) Run() {
 			p.parseHeader(line)
 		case p.inQuery:
 			p.parseQuery(line)
-		case headerRe.MatchString(line):
+		case isHeader(line):
 			p.inHeader = true
 			p.inQuery = false
 			p.parseHeader(line)
@@ -167,12 +172,13 @@ func (p *SlowLogParser) Run() {
 func (p *SlowLogParser) parseHeader(line string) {
 	p.logf("header")
 
-	if !headerRe.MatchString(line) {
+	if !isHeader(line) {
 		p.inHeader = false
 		p.inQuery = true
 		p.parseQuery(line)
 		return
 	}
+	line = line[2:] // without header prefix and space
 
 	if p.headerLines == 0 {
 		p.event.Offset = p.lineOffset
@@ -180,7 +186,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 	p.headerLines++
 
 	switch {
-	case strings.HasPrefix(line, "# Time"):
+	case strings.HasPrefix(line, "Time: "):
 		p.logf("time")
 		m := timeRe.FindStringSubmatch(line)
 		if len(m) == 2 {
@@ -200,7 +206,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 			p.event.Host = m[2]
 		}
 
-	case strings.HasPrefix(line, "# User"):
+	case strings.HasPrefix(line, "User"):
 		p.logf("user")
 		m := userRe.FindStringSubmatch(line)
 		if len(m) < 3 {
@@ -209,7 +215,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 		p.event.User = m[1]
 		p.event.Host = m[2]
 
-	case strings.HasPrefix(line, "# admin"):
+	case strings.HasPrefix(line, "admin"):
 		p.parseAdmin(line)
 
 	default:
@@ -219,37 +225,50 @@ func (p *SlowLogParser) parseHeader(line string) {
 			p.event.Db = submatch[1]
 		}
 
-		m := metricsRe.FindAllStringSubmatch(line, -1)
-		for _, smv := range m {
+		if !strings.Contains(line, ":") {
+			return
+		}
+
+		line = strings.Replace(line, ": ", ":", -1)
+		for _, kv := range strings.Split(line, " ") {
+			if len(kv) == 0 {
+				continue
+			}
+			kv2 := strings.Split(kv, ":")
+			k := strings.TrimSpace(kv2[0])
+			v := ""
+			if len(kv2) > 1 {
+				v = strings.TrimSpace(kv2[1])
+			}
 			switch {
 			// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
-			case strings.HasSuffix(smv[1], "_time") || strings.HasSuffix(smv[1], "_wait"):
+			case strings.HasSuffix(k, "_time") || strings.HasSuffix(k, "_wait"):
 				// microsecond value
-				val, _ := strconv.ParseFloat(smv[2], 64)
-				p.event.TimeMetrics[smv[1]] = val
+				val, _ := strconv.ParseFloat(v, 64)
+				p.event.TimeMetrics[k] = val
 
-			case smv[2] == "Yes" || smv[2] == "No":
+			case v == "Yes" || v == "No":
 				// boolean value
-				if smv[2] == "Yes" {
-					p.event.BoolMetrics[smv[1]] = true
+				if v == "Yes" {
+					p.event.BoolMetrics[k] = true
 				} else {
-					p.event.BoolMetrics[smv[1]] = false
+					p.event.BoolMetrics[k] = false
 				}
 
-			case smv[1] == "Schema":
-				p.event.Db = smv[2]
+			case k == "Schema":
+				p.event.Db = v
 
-			case smv[1] == "Log_slow_rate_type":
-				p.event.RateType = smv[2]
+			case k == "Log_slow_rate_type":
+				p.event.RateType = v
 
-			case smv[1] == "Log_slow_rate_limit":
-				val, _ := strconv.ParseUint(smv[2], 10, 64)
+			case k == "Log_slow_rate_limit":
+				val, _ := strconv.ParseUint(v, 10, 64)
 				p.event.RateLimit = uint(val)
 
 			default:
 				// integer value
-				val, _ := strconv.ParseUint(smv[2], 10, 64)
-				p.event.NumberMetrics[smv[1]] = val
+				val, _ := strconv.ParseUint(v, 10, 64)
+				p.event.NumberMetrics[k] = val
 			}
 		}
 	}
@@ -263,7 +282,7 @@ func (p *SlowLogParser) parseQuery(line string) {
 		return
 	}
 
-	if headerRe.MatchString(line) {
+	if isHeader(line) {
 		p.logf("next event")
 		p.inHeader = true
 		p.inQuery = false
