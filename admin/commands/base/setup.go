@@ -84,7 +84,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		}
 	}
 
-	transport := GetGRPCTransport(
+	transport := getGRPCTransport(
 		ctx,
 		globalFlags.ServerURL,
 		globalFlags.EnableDebug || globalFlags.EnableTrace,
@@ -96,8 +96,8 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	serverpb.Default.SetTransport(transport)
 }
 
-// GetGRPCTransport returns a configured transport for gRPC.
-func GetGRPCTransport(ctx context.Context, url *url.URL, enableDebug, skipTLSCertificateCheck bool, logFields logrus.Fields) *httptransport.Runtime {
+// getGRPCTransport returns a configured transport for gRPC.
+func getGRPCTransport(ctx context.Context, url *url.URL, enableDebug, skipTLSCertificateCheck bool, logFields logrus.Fields) *httptransport.Runtime {
 	l := logrus.WithFields(logFields)
 
 	// use JSON APIs over HTTP/1.1
