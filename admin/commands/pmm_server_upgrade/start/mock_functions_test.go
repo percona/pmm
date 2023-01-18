@@ -111,17 +111,3 @@ func (_m *mockFunctions) HaveDockerAccess(ctx context.Context) bool {
 
 	return r0
 }
-
-// IsErrNotFound provides a mock function with given fields: err
-func (_m *mockFunctions) IsErrNotFound(err error) bool {
-	ret := _m.Called(err)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(error) bool); ok {
-		r0 = rf(err)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}

@@ -156,6 +156,10 @@ func (s *Server) UpdateStatus(ctx context.Context, req *updatepb.UpdateStatusReq
 		time.Sleep(200 * time.Millisecond)
 	}
 
+	if err = ctx.Err(); !errors.Is(err, context.DeadlineExceeded) {
+		logrus.Warnf("context error during UpdateStatus: %s", err)
+	}
+
 	return &updatepb.UpdateStatusResponse{
 		Lines:  lines,
 		Offset: newOffset,

@@ -104,7 +104,7 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 
 	u, err := update.New(ctx, c.DockerImage, gRPCMessageMaxSize)
 	if err != nil {
-		logrus.Fatal(err)
+		l.Fatal(err)
 	}
 
 	updatepb.RegisterStatusServer(gRPCServer, status.New())
@@ -121,14 +121,15 @@ func (c *StartCommand) runAPIServer(ctx context.Context) {
 		var err error
 		for {
 			l.Infof("Starting gRPC server on unix://%s", socketPath)
-			err := os.Remove(socketPath)
+			err = os.Remove(socketPath)
 			if err != nil && !errors.Is(err, os.ErrNotExist) {
-				logrus.Panic(err)
+				l.Panic(err)
 			}
 
-			listener, err := net.Listen("unix", socketPath)
+			var listener net.Listener
+			listener, err = net.Listen("unix", socketPath)
 			if err != nil {
-				logrus.Panic(err)
+				l.Panic(err)
 			}
 
 			err = gRPCServer.Serve(listener) // listener will be closed when this method returns

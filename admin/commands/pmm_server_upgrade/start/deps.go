@@ -29,6 +29,5 @@ type functions interface {
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	GetDockerClient() *client.Client
 	HaveDockerAccess(ctx context.Context) bool
-	IsErrNotFound(err error) bool
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 }
