@@ -100,6 +100,11 @@ func (s *Server) Run(ctx context.Context) {
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
 
+	err := os.Remove(s.cfg.ListenSocketGRPC)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		s.l.Panicf("Could not remove unix socket %s. Error: %s", s.cfg.ListenSocketGRPC, err)
+	}
+
 	// Unix socket for gRPC server.
 	l, err := net.Listen("unix", s.cfg.ListenSocketGRPC)
 	if err != nil {
@@ -350,6 +355,12 @@ var errSocketOrPortRequired = errors.New("socketOrPortRequired")
 func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	if s.cfg.ListenSocket != "" {
 		l.Infof("Starting local API server on unix:%s", s.cfg.ListenSocket)
+
+		err := os.Remove(s.cfg.ListenSocket)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			s.l.Panicf("Could not remove unix socket %s. Error: %s", s.cfg.ListenSocket, err)
+		}
+
 		listener, err := net.Listen("unix", s.cfg.ListenSocket)
 		if err != nil {
 			return listener, err
