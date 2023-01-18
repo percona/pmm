@@ -104,10 +104,10 @@ github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 h1:tXKVfhE7FcSkhkv0UwkLvPDeZ4k
 github.com/bradleyfalzon/ghinstallation/v2 v2.0.4/go.mod h1:B40qPqJxWE0jDZgOR1JmaMy+4AY1eBP+IByOvqyAKp0=
 github.com/brianvoe/gofakeit v3.18.0+incompatible h1:wDOmHc9DLG4nRjUVVaxA+CEglKOW72Y5+4WNxUIkjM8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible/go.mod h1:kfwdRA90vvNhPutZWfH7WPaDzUjz+CZFqG+rPkOjGOc=
-github.com/bufbuild/buf v1.11.0 h1:jq/ckkxg87GaEgyHMqGGvZkVh8FeZuYLBF9DyOQK1RU=
-github.com/bufbuild/buf v1.11.0/go.mod h1:IoaGkUhois4gv4EqTGT7H+4bbhZUvlYutECLgfoE2cA=
-github.com/bufbuild/connect-go v1.4.0 h1:N94D0tGxuM2cSI7hM/aL8mtxL6+8rtHuFcIj9oGRp5s=
-github.com/bufbuild/connect-go v1.4.0/go.mod h1:9iNvh/NOsfhNBUH5CtvXeVUskQO1xsrEviH7ZArwZ3I=
+github.com/bufbuild/buf v1.12.0 h1:F5yU2VNaJv3PzfQu+qnUWyzn9KerhbIfV/dM961jJ70=
+github.com/bufbuild/buf v1.12.0/go.mod h1:tgUhc+/7jgJPn6EbcS8oIFOiSRewkyO/9j+Acbby9SQ=
+github.com/bufbuild/connect-go v1.4.1 h1:6usL3JGjKhxQpvDlizP7u8VfjAr1JkckcAUbrdcbgNY=
+github.com/bufbuild/connect-go v1.4.1/go.mod h1:9iNvh/NOsfhNBUH5CtvXeVUskQO1xsrEviH7ZArwZ3I=
 github.com/bufbuild/protocompile v0.1.0 h1:HjgJBI85hY/qmW5tw/66sNDZ7z0UDdVSi/5r40WHw4s=
 github.com/bufbuild/protocompile v0.1.0/go.mod h1:ix/MMMdsT3fzxfw91dvbfzKW3fRRnuPCP47kpAm5m/4=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
