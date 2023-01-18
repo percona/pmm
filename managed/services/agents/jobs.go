@@ -32,10 +32,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-var (
-	// ErrRetriesExhausted is returned when remaining retries are 0.
-	ErrRetriesExhausted = errors.New("retries exhausted")
-)
+// ErrRetriesExhausted is returned when remaining retries are 0.
+var ErrRetriesExhausted = errors.New("retries exhausted")
 
 const (
 	maxRestartInterval = 8 * time.Hour
