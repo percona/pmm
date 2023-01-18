@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -36,8 +35,6 @@ import (
 var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
-
-	pmmAgentMinVersionForMySQLBackupAndRestore = version.Must(version.NewVersion("2.23"))
 )
 
 const (
@@ -359,11 +356,6 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
 func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
-		return err
-	}
-
 	mySQLReq := &agentpb.StartJobRequest_MySQLBackup{
 		Name:     name,
 		User:     dbConfig.User,
@@ -476,11 +468,6 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	name string,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
-		return err
-	}
-
 	if locationConfig.S3Config == nil {
 		return errors.Errorf("location config is not set")
 	}

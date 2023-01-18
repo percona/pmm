@@ -27,7 +27,10 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 )
 
-var pmmAgentMinVersionForMongoBackupAndRestore = version.Must(version.NewVersion("2.35.0-0"))
+var (
+	pmmAgentMinVersionForMySQLBackupAndRestore = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoBackupAndRestore = version.Must(version.NewVersion("2.35.0-0"))
+)
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {
@@ -118,6 +121,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	var serviceModel *models.Service
 	var agentModel *models.Agent
+
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		serviceModel, err = models.FindServiceByID(tx.Querier, serviceID)
@@ -139,11 +143,8 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 		return "", errTx
 	}
 
-	if serviceModel.ServiceType == models.MongoDBServiceType {
-		if err := agents.PMMAgentSupported(s.db.Querier, agentModel.AgentID,
-			"mongodb backup and restore", pmmAgentMinVersionForMongoBackupAndRestore); err != nil {
-			return "", err
-		}
+	if err := supportedByAgent(s.db.Querier, serviceModel, agentModel); err != nil {
+		return "", err
 	}
 
 	return s.checkCompatibility(serviceModel, agentModel)
@@ -238,4 +239,22 @@ func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artif
 	}
 
 	return nil
+}
+
+func supportedByAgent(q *reform.Querier, service *models.Service, agent *models.Agent) error {
+	var functionality string
+	var minVersion *version.Version
+
+	switch service.ServiceType {
+	case models.MySQLServiceType:
+		functionality = "mysql backup and restore"
+		minVersion = pmmAgentMinVersionForMySQLBackupAndRestore
+	case models.MongoDBServiceType:
+		functionality = "mongodb backup and restore"
+		minVersion = pmmAgentMinVersionForMongoBackupAndRestore
+	default:
+		return errors.Wrapf(ErrIncompatibleService, "service type %s", service.ServiceType)
+	}
+
+	return agents.PMMAgentSupported(q, agent.AgentID, functionality, minVersion)
 }
