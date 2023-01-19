@@ -13988,6 +13988,87 @@
         }
       }
     },
+    "/v1/inventory/Services/Update": {
+      "post": {
+        "description": "Updates configuration for a service.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Update service",
+        "operationId": "UpdateService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "environment": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "replication_set": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "external_group": {
+                  "type": "string",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Actions/Cancel": {
       "post": {
         "description": "Stops an Action.",

@@ -52,6 +52,8 @@ type ClientService interface {
 
 	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
+	UpdateService(params *UpdateServiceParams, opts ...ClientOption) (*UpdateServiceOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -520,6 +522,45 @@ func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RemoveServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateService updates service
+
+Updates configuration for a service.
+*/
+func (a *Client) UpdateService(params *UpdateServiceParams, opts ...ClientOption) (*UpdateServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateServiceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/Update",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdateServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

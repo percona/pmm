@@ -47,6 +47,8 @@ type ServicesClient interface {
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
+	// UpdateService allows updating configuration of a service.
+	UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error)
 }
 
 type servicesClient struct {
@@ -165,6 +167,15 @@ func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCusto
 	return out, nil
 }
 
+func (c *servicesClient) UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error) {
+	out := new(UpdateServiceResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/UpdateService", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServicesServer is the server API for Services service.
 // All implementations must embed UnimplementedServicesServer
 // for forward compatibility
@@ -193,6 +204,8 @@ type ServicesServer interface {
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
+	// UpdateService allows updating configuration of a service.
+	UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error)
 	mustEmbedUnimplementedServicesServer()
 }
 
@@ -245,6 +258,10 @@ func (UnimplementedServicesServer) AddCustomLabels(context.Context, *AddCustomLa
 
 func (UnimplementedServicesServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
+}
+
+func (UnimplementedServicesServer) UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateService not implemented")
 }
 func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
 
@@ -475,6 +492,24 @@ func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Services_UpdateService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).UpdateService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Services/UpdateService",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).UpdateService(ctx, req.(*UpdateServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Services_ServiceDesc is the grpc.ServiceDesc for Services service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -529,6 +564,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveCustomLabels",
 			Handler:    _Services_RemoveCustomLabels_Handler,
+		},
+		{
+			MethodName: "UpdateService",
+			Handler:    _Services_UpdateService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

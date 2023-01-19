@@ -468,6 +468,20 @@ message RemoveCustomLabelsRequest {
 
 message RemoveCustomLabelsResponse {}
 
+message UpdateServiceRequest {
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  optional string environment = 2;
+  optional string cluster = 3;
+  optional string replication_set = 4;
+  optional string external_group = 5;
+}
+
+message UpdateServiceResponse {}
+
 // Services service provides public methods for managing Services.
 service Services {
   // ListServices returns a list of Services filtered by type.
@@ -600,6 +614,17 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove custom labels"
       description: "Removes custom labels from a Service by key."
+    };
+  }
+  // UpdateService allows updating configuration of a service.
+  rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/Update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update service"
+      description: "Updates configuration for a service."
     };
   }
 }

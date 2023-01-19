@@ -383,16 +383,8 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb
 		return nil, errTx
 	}
 
-	// Update scrape configuration
-	ss.vmdb.RequestConfigurationUpdate()
-
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
-	if err != nil {
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
 		return nil, err
-	}
-
-	for _, a := range agents {
-		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
 	return &inventorypb.AddCustomLabelsResponse{}, nil
@@ -434,17 +426,72 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, errTx
 	}
 
-	// Update scrape configuration
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+		return nil, err
+	}
+
+	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+}
+
+// UpdateService updates configuration of a service.
+func (ss *ServicesService) UpdateService(ctx context.Context, req *inventorypb.UpdateServiceRequest) (*inventorypb.UpdateServiceResponse, error) {
+	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		columns := []string{}
+
+		if req.Cluster != nil {
+			columns = append(columns, "cluster")
+			service.Cluster = *req.Cluster
+		}
+
+		if req.Environment != nil {
+			columns = append(columns, "environment")
+			service.Environment = *req.Environment
+		}
+
+		if req.ReplicationSet != nil {
+			columns = append(columns, "replication_set")
+			service.ReplicationSet = *req.ReplicationSet
+		}
+
+		if req.ExternalGroup != nil {
+			columns = append(columns, "external_group")
+			service.ExternalGroup = *req.ExternalGroup
+		}
+
+		err = tx.UpdateColumns(service, columns...)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if errTx != nil {
+		return nil, errTx
+	}
+
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+		return nil, err
+	}
+
+	return &inventorypb.UpdateServiceResponse{}, nil
+}
+
+func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {
 	ss.vmdb.RequestConfigurationUpdate()
 
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
+	agents, err := models.FindPMMAgentsForService(ss.db.Querier, serviceID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, a := range agents {
 		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
-	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+	return nil
 }
