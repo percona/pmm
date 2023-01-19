@@ -29,8 +29,8 @@ import (
 
 //go:generate ../../../../../bin/mockery -name=functions -case=snake -inpkg -testonly
 
-// functions contain methods required to interact with Docker.
-type functions interface {
+// containerManager contain methods required to interact with Docker containers.
+type containerManager interface {
 	imager
 	installer
 

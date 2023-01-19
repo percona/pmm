@@ -48,7 +48,7 @@ const (
 type StartCommand struct {
 	DockerImage string `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
 
-	dockerFn functions
+	dockerFn containerManager
 	globals  *flags.GlobalFlags
 }
 

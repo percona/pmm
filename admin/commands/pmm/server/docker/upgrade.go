@@ -42,7 +42,7 @@ type UpgradeCommand struct {
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
 
 	AssumeYes               bool `name:"yes" short:"y" help:"Assume yes for all prompts"`
-	dockerFn                functions
+	dockerFn                containerManager
 	l                       *logrus.Entry
 	waitBeforeContainerStop time.Duration
 }

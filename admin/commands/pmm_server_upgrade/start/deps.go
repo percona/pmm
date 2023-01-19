@@ -23,8 +23,8 @@ import (
 
 //go:generate ../../../../bin/mockery -name=functions -case=snake -inpkg -testonly
 
-// functions contain methods required to interact with Docker.
-type functions interface {
+// containerManager contain methods required to interact with Docker containers.
+type containerManager interface {
 	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	GetDockerClient() *client.Client

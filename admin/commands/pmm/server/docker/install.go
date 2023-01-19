@@ -43,7 +43,7 @@ type InstallCommand struct {
 	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
-	dockerFn functions
+	dockerFn containerManager
 }
 
 type installResult struct {

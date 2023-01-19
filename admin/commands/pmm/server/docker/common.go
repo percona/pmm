@@ -28,7 +28,7 @@ func startPMMServer(
 	volume *types.Volume,
 	volumesFromContainerID string,
 	dockerImage string,
-	dockerFn functions,
+	dockerFn containerManager,
 	portBindings nat.PortMap,
 	containerName string,
 	env []string,
