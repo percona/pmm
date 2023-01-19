@@ -372,6 +372,7 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.file_instances",
 					"perf_schema.indexiowaits",
 					"perf_schema.tableiowaits",
+					"plugins",
 				}},
 			}}
 
@@ -520,6 +521,7 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.file_instances",
 					"perf_schema.indexiowaits",
 					"perf_schema.tableiowaits",
+					"plugins",
 				}},
 			}}
 
@@ -655,6 +657,7 @@ func TestScrapeConfig(t *testing.T) {
 					"info_schema.userstats",
 					"perf_schema.eventsstatements",
 					"perf_schema.file_instances",
+					"plugins",
 				}},
 			}}
 
