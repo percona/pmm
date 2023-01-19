@@ -38,7 +38,7 @@ gen: clean            ## Generate files.
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/platformpb api/userpb ; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -58,7 +58,7 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/azure, managementpb/role and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
@@ -83,6 +83,7 @@ gen: clean            ## Generate files.
 		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
+		api/managementpb/role/json/role.json \
 		api/qanpb/json/qanpb.json \
 		api/platformpb/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev.json
@@ -97,6 +98,7 @@ gen: clean            ## Generate files.
 		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
+		api/managementpb/role/json/role.json \
 		api/qanpb/json/qanpb.json \
 		api/platformpb/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev-only.json
