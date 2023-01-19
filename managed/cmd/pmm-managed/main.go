@@ -821,8 +821,7 @@ func main() {
 			PostgresSSLKeyPath:  *postgresSSLKeyPathF,
 			PostgresSSLCertPath: *postgresSSLCertPathF,
 		},
-		gRPCMessageMaxSize,
-	)
+		gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
