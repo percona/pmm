@@ -35,7 +35,7 @@ import (
 )
 
 func TestServerStatus(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, func() *config.Config) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -52,15 +52,17 @@ func TestServerStatus(t *testing.T) {
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
-		cfg := &config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
-			Server: config.Server{
-				Address:  "127.0.0.1:8443",
-				Username: "username",
-				Password: "password",
-			},
+		cfgGetter := func() *config.Config {
+			return &config.Config{
+				ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+				Server: config.Server{
+					Address:  "127.0.0.1:8443",
+					Username: "username",
+					Password: "password",
+				},
+			}
 		}
-		return agentInfo, &supervisor, &client, cfg
+		return agentInfo, &supervisor, &client, cfgGetter
 	}
 
 	t.Run("without network info", func(t *testing.T) {
@@ -120,7 +122,7 @@ func TestServerStatus(t *testing.T) {
 }
 
 func TestGetZipFile(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, func() *config.Config) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -143,15 +145,18 @@ func TestGetZipFile(t *testing.T) {
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
-		cfg := &config.Config{
-			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
-			Server: config.Server{
-				Address:  "127.0.0.1:8443",
-				Username: "username",
-				Password: "password",
-			},
+
+		cfgGetter := func() *config.Config {
+			return &config.Config{
+				ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+				Server: config.Server{
+					Address:  "127.0.0.1:8443",
+					Username: "username",
+					Password: "password",
+				},
+			}
 		}
-		return agentInfo, &supervisor, &client, cfg
+		return agentInfo, &supervisor, &client, cfgGetter
 	}
 
 	t.Run("test zip file", func(t *testing.T) {

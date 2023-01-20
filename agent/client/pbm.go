@@ -35,7 +35,7 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentpb.PBMSwi
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	dsn, err := templates.RenderDSN(req.Dsn, req.TextFiles, filepath.Join(c.cfg.Paths.TempDir, "pbm-switch-pitr", strconv.Itoa(int(id))))
+	dsn, err := templates.RenderDSN(req.Dsn, req.TextFiles, filepath.Join(c.cfg().Paths.TempDir, "pbm-switch-pitr", strconv.Itoa(int(id))))
 	if err != nil {
 		return errors.WithStack(err)
 	}

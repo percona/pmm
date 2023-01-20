@@ -58,21 +58,22 @@ func Run() {
 		cancel()
 	}()
 
-	var cfg config.Config
-	configFilepath, err := config.Get(&cfg, l)
+	configFilepath, err := config.Reload(l)
 	if err != nil {
 		l.Fatalf("Failed to load configuration: %s.", err)
 	}
 
+	cfg := config.Get()
+
 	cleanupTmp(cfg.Paths.TempDir, l)
 	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)
 	connectionUptimeService.RunCleanupGoroutine(ctx)
-	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, &cfg.LogLinesCount)
-	connectionChecker := connectionchecker.New(&cfg.Paths)
+	supervisor := supervisor.NewSupervisor(ctx, config.Get)
+	connectionChecker := connectionchecker.New(config.Get)
 	v := versioner.New(&versioner.RealExecFunctions{})
 	r := runner.New(cfg.RunnerCapacity)
-	client := client.New(&cfg, supervisor, r, connectionChecker, v, connectionUptimeService, logStore)
-	localServer := agentlocal.NewServer(&cfg, supervisor, client, configFilepath, logStore)
+	client := client.New(config.Get, supervisor, r, connectionChecker, v, connectionUptimeService, logStore)
+	localServer := agentlocal.NewServer(config.Get, supervisor, client, configFilepath, logStore)
 
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -93,11 +94,14 @@ func Run() {
 	}()
 
 	for {
-		_, err = config.Get(&cfg, l)
+		_, err = config.Reload(l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
-		config.ConfigureLogger(&cfg)
+
+		cfg := config.Get()
+
+		config.ConfigureLogger(cfg)
 		logStore.Resize(cfg.LogLinesCount)
 		l.Debugf("Loaded configuration: %+v", cfg)
 

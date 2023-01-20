@@ -44,8 +44,8 @@ func Setup() {
 	*/
 
 	l := logrus.WithField("component", "setup")
-	var cfg config.Config
-	configFilepath, err := config.Get(&cfg, l)
+
+	configFilepath, err := config.Reload(l)
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
@@ -53,6 +53,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
+	cfg := config.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
 
 	configFilepath, running := checkStatus(configFilepath, l)
@@ -68,10 +69,10 @@ func Setup() {
 	}
 
 	if !cfg.Setup.SkipRegistration {
-		register(&cfg, l)
+		register(cfg, l)
 	}
 
-	if err = config.SaveToFile(configFilepath, &cfg, "Updated by `pmm-agent setup`."); err != nil {
+	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}

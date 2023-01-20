@@ -57,7 +57,7 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg               *config.Config
+	cfg               func() *config.Config
 	supervisor        supervisor
 	connectionChecker connectionChecker
 	softwareVersioner softwareVersioner
@@ -82,9 +82,9 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(getCfg func() *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:               cfg,
+		cfg:               getCfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
 		softwareVersioner: sv,
@@ -111,12 +111,14 @@ func (c *Client) Run(ctx context.Context) error {
 	c.done = make(chan struct{})
 	c.rw.Unlock()
 
+	cfg := c.cfg()
+
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
-	if c.cfg.ID == "" {
+	if cfg.ID == "" {
 		missing = "Agent ID"
 	}
-	if c.cfg.Server.Address == "" {
+	if cfg.Server.Address == "" {
 		missing = "PMM Server address"
 	}
 	if missing != "" {
@@ -131,7 +133,7 @@ func (c *Client) Run(ctx context.Context) error {
 	var dialErr error
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
-		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
+		dialResult, dialErr = dial(dialCtx, cfg, c.l)
 
 		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
@@ -402,6 +404,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		timeout = 0
 	}
 
+	cfg := c.cfg()
 	var action actions.Action
 	switch params := p.Params.(type) {
 	case *agentpb.StartActionRequest_MysqlExplainParams:
@@ -417,13 +420,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLShowIndexAction(p.ActionId, timeout, params.MysqlShowIndexParams)
 
 	case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbExplainParams:
-		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, c.cfg.Paths.TempDir)
+		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MysqlQueryShowParams:
 		action = actions.NewMySQLQueryShowAction(p.ActionId, timeout, params.MysqlQueryShowParams)
@@ -432,10 +435,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
 
 	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -445,7 +448,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetparameterParams.TextFiles,
 			"getParameter",
 			"*",
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -455,7 +458,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryBuildinfoParams.TextFiles,
 			"buildInfo",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -465,7 +468,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetcmdlineoptsParams.TextFiles,
 			"getCmdLineOpts",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -475,7 +478,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryReplsetgetstatusParams.TextFiles,
 			"replSetGetStatus",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -485,19 +488,19 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetdiagnosticdataParams.TextFiles,
 			"getDiagnosticData",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PtSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTSummary, []string{})
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTSummary, []string{})
 
 	case *agentpb.StartActionRequest_PtPgSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 	case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
+		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
 	case *agentpb.StartActionRequest_RestartSysServiceParams:
 		var service string
 		switch params.RestartSysServiceParams.SystemService {
@@ -645,7 +648,7 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 		capacity uint
 	)
 
-	if c.cfg.ID == agentID {
+	if c.cfg().ID == agentID {
 		logs, capacity = c.logStore.GetLogs()
 	} else {
 		logs, capacity = c.supervisor.AgentLogByID(agentID)
