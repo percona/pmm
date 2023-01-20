@@ -739,6 +739,10 @@ func main() {
 
 	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
+	// in order to reproduce postgres behaviour.
+	if *postgresSSLModeF == "require" && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = "verify-ca"
+	}
 	setupParams := models.SetupDBParams{
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
