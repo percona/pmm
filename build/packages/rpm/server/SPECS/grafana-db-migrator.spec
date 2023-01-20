@@ -1,9 +1,9 @@
 %undefine _missing_build_ids_terminate_build
 
-%global release_hash 65e6fde3868a50584efb43e9b771fc7341e6739c
+%global release_hash 638e8172463b76f6b69aa2f94cca1b991f7e749d
 
 Name:           grafana-db-migrator
-Version:        1.0.4
+Version:        1.0.5
 Release:        1%{?dist}
 Summary:        A tool for Grafana database migration
 License:        MIT
@@ -30,6 +30,9 @@ install -m 755 dist/grafana-db-migrator %{buildroot}%{_sbindir}/
 %{_sbindir}/grafana-db-migrator
 
 %changelog
+* Tue Jan 17 2022 Nikita Beletskii <2nikita.b@gmail.com> - 1.0.5-1
+- Upgrade grafana-db-migrator for Grafana 8 and Grafana 9
+
 * Tue Mar 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 1.0.4-1
 - Add README.md and LICENSE files
 

@@ -9,6 +9,10 @@ updates:
     directory: "/tools"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -16,14 +20,10 @@ updates:
 
 
   - package-ecosystem: "gomod"
-    directory: "/managed/tools"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod"
     directory: "/api-tests/tools"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/managed"
+  - package-ecosystem: "npm"
+    directory: "/cli-tests"
     schedule:
       interval: "weekly"
