@@ -27,3 +27,15 @@ updates:
     directory: "/cli-tests"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/build/docker/client"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/build/docker/rpmbuild"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/build/docker/server"
+    schedule:
+      interval: "weekly"
