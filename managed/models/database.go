@@ -828,20 +828,14 @@ var databaseSchema = [][]string{
 // OpenDB just validate its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
-	addSSL := true
-	switch params.SSLMode {
-	case "require":
-		q.Set("sslmode", "require")
-	case "verify-ca":
-		q.Set("sslmode", "verify-ca")
-	case "verify-full":
-		q.Set("sslmode", "verify-full")
-	default:
-		q.Set("sslmode", "disable")
-		addSSL = false
-	}
+	```suggestion
+        sslMode = params.SSLMode
+        if sslMode == "" {
+            sslMode = "disable"
+        }
+        q.Set("sslmode", sslMode)
 
-	if addSSL {
+	if sslMode != "disable" {
 		q.Set("sslrootcert", params.SSLCAPath)
 		q.Set("sslcert", params.SSLCertPath)
 		q.Set("sslkey", params.SSLKeyPath)
