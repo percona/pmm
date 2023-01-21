@@ -500,7 +500,7 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 	templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
 	templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
 	templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
-	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBName
+	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
 	templateParams["PostgresSSLMode"] = s.gfParams.PostgresSSLMode
 	templateParams["PostgresSSLCAPath"] = s.gfParams.PostgresSSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
