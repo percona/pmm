@@ -50,6 +50,8 @@ message PSMDBCluster {
   bool internet_facing = 8;
   // Backup configuration parameters.
   Backup backup = 9;
+  // Restore configuration parameters.
+  Restore restore = 10;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -73,6 +75,8 @@ message PXCCluster {
   bool internet_facing = 8;
   // Backup configuration parameters.
   Backup backup = 9;
+  // Restore configuration parameters.
+  Restore restore = 10;
 }
 
 message ListDBClustersRequest {
