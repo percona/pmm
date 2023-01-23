@@ -14,6 +14,8 @@ replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-202208110435
 
 replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickhouse-go v1.5.1 // clickhouse-go/v2 cannot work with 1.5.1 which we need for QAN-API
 
+// Prevent dependabot from automatic rebase
+
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
