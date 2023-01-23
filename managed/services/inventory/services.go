@@ -441,30 +441,14 @@ func (ss *ServicesService) UpdateService(ctx context.Context, req *inventorypb.U
 			return err
 		}
 
-		columns := []string{}
+		columns := service.ChangeStandardLabels(models.ServiceStandardLabelsParams{
+			Cluster:        req.Cluster,
+			Environment:    req.Environment,
+			ReplicationSet: req.ReplicationSet,
+			ExternalGroup:  req.ExternalGroup,
+		})
 
-		if req.Cluster != nil {
-			columns = append(columns, "cluster")
-			service.Cluster = *req.Cluster
-		}
-
-		if req.Environment != nil {
-			columns = append(columns, "environment")
-			service.Environment = *req.Environment
-		}
-
-		if req.ReplicationSet != nil {
-			columns = append(columns, "replication_set")
-			service.ReplicationSet = *req.ReplicationSet
-		}
-
-		if req.ExternalGroup != nil {
-			columns = append(columns, "external_group")
-			service.ExternalGroup = *req.ExternalGroup
-		}
-
-		err = tx.UpdateColumns(service, columns...)
-		if err != nil {
+		if err = tx.UpdateColumns(service, columns...); err != nil {
 			return err
 		}
 

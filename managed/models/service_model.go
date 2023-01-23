@@ -27,6 +27,13 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type ServiceType string
 
+type ServiceStandardLabelsParams struct {
+	Cluster        *string
+	Environment    *string
+	ReplicationSet *string
+	ExternalGroup  *string
+}
+
 // Service types (in the same order as in services.proto).
 const (
 	MySQLServiceType      ServiceType = "mysql"
@@ -97,6 +104,33 @@ func (s *Service) GetCustomLabels() (map[string]string, error) {
 // SetCustomLabels encodes custom labels.
 func (s *Service) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
+}
+
+// ChangeStandardLabels changes standard labels and returns a list of columns which were updated.
+func (s *Service) ChangeStandardLabels(labels ServiceStandardLabelsParams) []string {
+	columns := []string{}
+
+	if labels.Cluster != nil {
+		columns = append(columns, "cluster")
+		s.Cluster = *labels.Cluster
+	}
+
+	if labels.Environment != nil {
+		columns = append(columns, "environment")
+		s.Environment = *labels.Environment
+	}
+
+	if labels.ReplicationSet != nil {
+		columns = append(columns, "replication_set")
+		s.ReplicationSet = *labels.ReplicationSet
+	}
+
+	if labels.ExternalGroup != nil {
+		columns = append(columns, "external_group")
+		s.ExternalGroup = *labels.ExternalGroup
+	}
+
+	return columns
 }
 
 // UnifiedLabels returns combined standard and custom labels with empty labels removed.
