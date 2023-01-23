@@ -214,13 +214,10 @@ func TestConnectionChecker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			cfgGetter := func() *config.Config {
-				return &config.Config{
-					Paths: config.Paths{TempDir: t.TempDir()},
-				}
-			}
-
-			c := New(cfgGetter)
+			cfgStorage := config.NewStorage(&config.Config{
+				Paths: config.Paths{TempDir: t.TempDir()},
+			})
+			c := New(cfgStorage)
 
 			if tt.panic {
 				require.PanicsWithValue(t, tt.expectedErr, func() {
@@ -241,13 +238,10 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
-		cfgGetter := func() *config.Config {
-			return &config.Config{
-				Paths: config.Paths{TempDir: t.TempDir()},
-			}
-		}
-
-		c := New(cfgGetter)
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
+		})
+		c := New(cfgStorage)
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
@@ -259,13 +253,11 @@ func TestConnectionChecker(t *testing.T) {
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
 
-		cfgGetter := func() *config.Config {
-			return &config.Config{
-				Paths: config.Paths{TempDir: t.TempDir()},
-			}
-		}
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
+		})
 
-		c := New(cfgGetter)
+		c := New(cfgStorage)
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:       mongoDBDSNWithSSL,
 			Type:      inventorypb.ServiceType_MONGODB_SERVICE,

@@ -79,10 +79,8 @@ func TestClient(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfgGetter := func() *config.Config {
-			return &config.Config{}
-		}
-		client := New(cfgGetter, nil, nil, nil, nil, nil, nil)
+		cfgStorage := config.NewStorage(&config.Config{})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -92,15 +90,12 @@ func TestClient(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfgGetter := func() *config.Config {
-			return &config.Config{
-				Server: config.Server{
-					Address: "127.0.0.1:1",
-				},
-			}
-		}
-
-		client := New(cfgGetter, nil, nil, nil, nil, nil, nil)
+		cfgStorage := config.NewStorage(&config.Config{
+			Server: config.Server{
+				Address: "127.0.0.1:1",
+			},
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -111,16 +106,13 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
-		cfgGetter := func() *config.Config {
-			return &config.Config{
-				ID: "agent_id",
-				Server: config.Server{
-					Address: "127.0.0.1:1",
-				},
-			}
-		}
-
-		client := New(cfgGetter, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		cfgStorage := config.NewStorage(&config.Config{
+			ID: "agent_id",
+			Server: config.Server{
+				Address: "127.0.0.1:1",
+			},
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -154,22 +146,20 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfgGetter := func() *config.Config {
-				return &config.Config{
-					ID: "agent_id",
-					Server: config.Server{
-						Address:    fmt.Sprintf("127.0.0.1:%d", port),
-						WithoutTLS: true,
-					},
-				}
-			}
+			cfgStorage := config.NewStorage(&config.Config{
+				ID: "agent_id",
+				Server: config.Server{
+					Address:    fmt.Sprintf("127.0.0.1:%d", port),
+					WithoutTLS: true,
+				},
+			})
 
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			r := runner.New(cfgGetter().RunnerCapacity)
-			client := New(cfgGetter, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			r := runner.New(cfgStorage.Get().RunnerCapacity)
+			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -189,17 +179,15 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfgGetter := func() *config.Config {
-				return &config.Config{
-					ID: "agent_id",
-					Server: config.Server{
-						Address:    fmt.Sprintf("127.0.0.1:%d", port),
-						WithoutTLS: true,
-					},
-				}
-			}
+			cfgStorage := config.NewStorage(&config.Config{
+				ID: "agent_id",
+				Server: config.Server{
+					Address:    fmt.Sprintf("127.0.0.1:%d", port),
+					WithoutTLS: true,
+				},
+			})
 
-			client := New(cfgGetter, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
@@ -274,22 +262,20 @@ func TestUnexpectedActionType(t *testing.T) {
 	port, teardown := setup(t, connect)
 	defer teardown()
 
-	cfgGetter := func() *config.Config {
-		return &config.Config{
-			ID: "agent_id",
-			Server: config.Server{
-				Address:    fmt.Sprintf("127.0.0.1:%d", port),
-				WithoutTLS: true,
-			},
-		}
-	}
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
 
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	r := runner.New(cfgGetter().RunnerCapacity)
-	client := New(cfgGetter, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	r := runner.New(cfgStorage.Get().RunnerCapacity)
+	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())

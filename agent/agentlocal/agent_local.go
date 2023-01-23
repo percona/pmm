@@ -63,7 +63,7 @@ const (
 
 // Server represents local pmm-agent API server.
 type Server struct {
-	cfg            func() *config.Config
+	cfg            config.GetReloader
 	supervisor     supervisor
 	client         client
 	configFilepath string
@@ -79,9 +79,9 @@ type Server struct {
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(getCfg func() *config.Config, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
+func NewServer(cfg config.GetReloader, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
 	return &Server{
-		cfg:            getCfg,
+		cfg:            cfg,
 		supervisor:     supervisor,
 		client:         client,
 		configFilepath: configFilepath,
@@ -137,7 +137,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	}
 	upTime := s.client.GetConnectionUpTime()
 	var serverInfo *agentlocalpb.ServerInfo
-	cfg := s.cfg()
+	cfg := s.cfg.Get()
 	if u := cfg.Server.URL(); u != nil {
 		serverInfo = &agentlocalpb.ServerInfo{
 			Url:         u.String(),
@@ -179,7 +179,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	if _, err := config.Reload(s.l); err != nil {
+	if _, err := s.cfg.Reload(s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -199,7 +199,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	gRPCServer := grpc.NewServer()
 	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
 
-	if s.cfg().Debug {
+	if s.cfg.Get().Debug {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
@@ -238,7 +238,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 
 // runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
 func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
-	cfg := s.cfg()
+	cfg := s.cfg.Get()
 	address := net.JoinHostPort(cfg.ListenAddress, strconv.Itoa(int(cfg.ListenPort)))
 	l := s.l.WithField("component", "local-server/JSON")
 	l.Infof("Starting local API server on http://%s/ ...", address)

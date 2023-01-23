@@ -57,7 +57,7 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg               func() *config.Config
+	cfg               config.Getter
 	supervisor        supervisor
 	connectionChecker connectionChecker
 	softwareVersioner softwareVersioner
@@ -82,9 +82,9 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(getCfg func() *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg config.Getter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:               getCfg,
+		cfg:               cfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
 		softwareVersioner: sv,
@@ -111,7 +111,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.done = make(chan struct{})
 	c.rw.Unlock()
 
-	cfg := c.cfg()
+	cfg := c.cfg.Get()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -404,7 +404,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		timeout = 0
 	}
 
-	cfg := c.cfg()
+	cfg := c.cfg.Get()
 	var action actions.Action
 	switch params := p.Params.(type) {
 	case *agentpb.StartActionRequest_MysqlExplainParams:
@@ -648,7 +648,7 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 		capacity uint
 	)
 
-	if c.cfg().ID == agentID {
+	if c.cfg.Get().ID == agentID {
 		logs, capacity = c.logStore.GetLogs()
 	} else {
 		logs, capacity = c.supervisor.AgentLogByID(agentID)

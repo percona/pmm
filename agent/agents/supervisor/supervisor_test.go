@@ -49,15 +49,13 @@ func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	tempDir := t.TempDir()
-	cfgGetter := func() *config.Config {
-		return &config.Config{
-			Paths:         config.Paths{TempDir: tempDir},
-			Ports:         config.Ports{Min: 65000, Max: 65099},
-			Server:        config.Server{Address: "localhost:443"},
-			LogLinesCount: 1,
-		}
-	}
-	s := NewSupervisor(ctx, cfgGetter)
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: tempDir},
+		Ports:         config.Ports{Min: 65000, Max: 65099},
+		Server:        config.Server{Address: "localhost:443"},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(ctx, cfgStorage)
 	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
@@ -294,16 +292,13 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		cfgGetter := func() *config.Config {
-			return &config.Config{
-				Paths:         paths,
-				Ports:         config.Ports{},
-				Server:        config.Server{},
-				LogLinesCount: 1,
-			}
-		}
-
-		s := NewSupervisor(ctx, cfgGetter) //nolint:varnamelen
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         paths,
+			Ports:         config.Ports{},
+			Server:        config.Server{},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(ctx, cfgStorage) //nolint:varnamelen
 		go s.Run(ctx)
 
 		teardown := func() {
@@ -347,12 +342,12 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
-				"-web.ssl-cert-file=" + filepath.Join(s.cfg().Paths.TempDir, "mysqld_exporter", "ID", "Cert"),
+				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "Cert"),
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
-					"sslCaFile=" + filepath.Join(s.cfg().Paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
-					"&sslCertificateKeyFile=" + filepath.Join(s.cfg().Paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
+					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
+					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:12345",
 			},

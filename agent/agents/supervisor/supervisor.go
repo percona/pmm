@@ -50,7 +50,7 @@ import (
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
 	ctx           context.Context
-	cfg           func() *config.Config
+	cfg           config.Getter
 	portsRegistry *portsRegistry
 	changes       chan *agentpb.StateChangedRequest
 	qanRequests   chan *agentpb.QANCollectRequest
@@ -89,12 +89,11 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, getCfg func() *config.Config) *Supervisor {
-	cfg := getCfg()
+func NewSupervisor(ctx context.Context, cfg config.Getter) *Supervisor {
 	return &Supervisor{
 		ctx:           ctx,
-		cfg:           getCfg,
-		portsRegistry: newPortsRegistry(cfg.Ports.Min, cfg.Ports.Max, nil),
+		cfg:           cfg,
+		portsRegistry: newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
 		changes:       make(chan *agentpb.StateChangedRequest, 100),
 		qanRequests:   make(chan *agentpb.QANCollectRequest, 100),
 		l:             logrus.WithField("component", "supervisor"),
@@ -276,7 +275,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 
 		delete(s.agentProcesses, agentID)
 
-		agentTmp := filepath.Join(s.cfg().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -409,7 +408,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	logStore := tailog.NewStore(s.cfg().LogLinesCount)
+	logStore := tailog.NewStore(s.cfg.Get().LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
@@ -449,9 +448,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 // startBuiltin starts built-in Agent.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
+	cfg := s.cfg.Get()
+
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	logStore := tailog.NewStore(s.cfg().LogLinesCount)
+	logStore := tailog.NewStore(cfg.LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
@@ -462,7 +463,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	var agent agents.BuiltinAgent
 	var err error
 
-	cfg := s.cfg()
 	var dsn string
 	if builtinAgent.TextFiles != nil {
 		tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
@@ -590,7 +590,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	var processParams process.Params
 	processParams.Type = agentProcess.Type
 
-	cfg := s.cfg()
+	cfg := s.cfg.Get()
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}

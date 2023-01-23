@@ -45,7 +45,8 @@ func Setup() {
 
 	l := logrus.WithField("component", "setup")
 
-	configFilepath, err := config.Reload(l)
+	configStorage := config.NewStorage(nil)
+	configFilepath, err := configStorage.Reload(l)
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
@@ -53,7 +54,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	cfg := config.Get()
+	cfg := configStorage.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
 
 	configFilepath, running := checkStatus(configFilepath, l)

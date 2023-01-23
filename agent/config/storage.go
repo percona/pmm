@@ -20,30 +20,53 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type storage struct {
+// Getter allows for getting a config.
+type Getter interface {
+	Get() *Config
+}
+
+// GetReloader allows for getting and reloading a config.
+type GetReloader interface {
+	Get() *Config
+	Reload(l *logrus.Entry) (string, error)
+}
+
+// Check interfaces.
+var (
+	_ Getter      = &Storage{}
+	_ GetReloader = &Storage{}
+)
+
+// NewStorage creates a new instance of Storage with optional initial config.
+func NewStorage(cfg *Config) *Storage {
+	return &Storage{
+		cfg: cfg,
+	}
+}
+
+// Storage holds config.
+type Storage struct {
 	cfg *Config
 	mu  sync.RWMutex
 }
 
-var cfgStorage = storage{}
-
 // Get returns a global config object.
-func Get() *Config {
-	cfgStorage.mu.RLock()
-	defer cfgStorage.mu.RUnlock()
+func (s *Storage) Get() *Config {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
-	return cfgStorage.cfg
+	return s.cfg
 }
 
 // Reload reloads config into the global object.
-func Reload(l *logrus.Entry) (string, error) {
-	cfgStorage.mu.Lock()
-	defer cfgStorage.mu.Unlock()
+func (s *Storage) Reload(l *logrus.Entry) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	newCfg := &Config{}
 	cfgPath, err := getFromCmdLine(newCfg, l)
 	if err != nil {
-		cfgStorage.cfg = newCfg
+		s.cfg = newCfg
 	}
 
 	return cfgPath, err
