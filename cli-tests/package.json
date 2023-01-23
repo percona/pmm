@@ -12,7 +12,7 @@
     "pmm": "pmm"
   },
   "dependencies": {
-    "@playwright/test": "^1.27.1",
+    "@playwright/test": "^1.29.2",
     "dotenv": "^16.0.3",
     "playwright": "^1.27.1",
     "promise-retry": "^2.0.1",
