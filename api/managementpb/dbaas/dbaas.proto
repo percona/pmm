@@ -41,6 +41,13 @@ message Backup {
   // Schedule is a schedule for backups.
   Schedule schedule = 3;
 }
+// Restore represents restoration payload to restore a database cluster from backup
+message Restore {
+  // Backup location in PMM.
+  int64 location_id = 1;
+  // Destination filename
+  string destination = 2;
+}
 
 // Resources contains Kubernetes cluster resources.
 message Resources {

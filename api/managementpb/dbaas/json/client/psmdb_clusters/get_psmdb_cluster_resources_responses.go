@@ -497,6 +497,9 @@ type GetPSMDBClusterResourcesParamsBodyParams struct {
 
 	// replicaset
 	Replicaset *GetPSMDBClusterResourcesParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
+
+	// restore
+	Restore *GetPSMDBClusterResourcesParamsBodyParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources params body params
@@ -508,6 +511,10 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) Validate(formats strfmt.Regis
 	}
 
 	if err := o.validateReplicaset(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRestore(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -555,6 +562,25 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) validateReplicaset(formats st
 	return nil
 }
 
+func (o *GetPSMDBClusterResourcesParamsBodyParams) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get PSMDB cluster resources params body params based on the context it is used
 func (o *GetPSMDBClusterResourcesParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -564,6 +590,10 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) ContextValidate(ctx context.C
 	}
 
 	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -595,6 +625,21 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) contextValidateReplicaset(ctx
 				return ve.ValidateName("body" + "." + "params" + "." + "replicaset")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params" + "." + "replicaset")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetPSMDBClusterResourcesParamsBodyParams) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
 			}
 			return err
 		}
@@ -894,6 +939,46 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources) Mar
 // UnmarshalBinary interface implementation
 func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
 	var res GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetPSMDBClusterResourcesParamsBodyParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model GetPSMDBClusterResourcesParamsBodyParamsRestore
+*/
+type GetPSMDBClusterResourcesParamsBodyParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename
+	Destination string `json:"destination,omitempty"`
+}
+
+// Validate validates this get PSMDB cluster resources params body params restore
+func (o *GetPSMDBClusterResourcesParamsBodyParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PSMDB cluster resources params body params restore based on context it is used
+func (o *GetPSMDBClusterResourcesParamsBodyParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPSMDBClusterResourcesParamsBodyParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPSMDBClusterResourcesParamsBodyParamsRestore) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBClusterResourcesParamsBodyParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -919,6 +919,9 @@ type ListDBClustersOKBodyPSMDBClustersItems0Params struct {
 
 	// replicaset
 	Replicaset *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset `json:"replicaset,omitempty"`
+
+	// restore
+	Restore *ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0 params
@@ -930,6 +933,10 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) Validate(formats strfmt.
 	}
 
 	if err := o.validateReplicaset(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRestore(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -977,6 +984,25 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) validateReplicaset(forma
 	return nil
 }
 
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list DB clusters OK body PSMDB clusters items0 params based on the context it is used
 func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -986,6 +1012,10 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) ContextValidate(ctx cont
 	}
 
 	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1017,6 +1047,21 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) contextValidateReplicase
 				return ve.ValidateName("params" + "." + "replicaset")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("params" + "." + "replicaset")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("params" + "." + "restore")
 			}
 			return err
 		}
@@ -1316,6 +1361,46 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
 // UnmarshalBinary interface implementation
 func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
 	var res ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore
+*/
+type ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename
+	Destination string `json:"destination,omitempty"`
+}
+
+// Validate validates this list DB clusters OK body PSMDB clusters items0 params restore
+func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list DB clusters OK body PSMDB clusters items0 params restore based on context it is used
+func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore) UnmarshalBinary(b []byte) error {
+	var res ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1795,6 +1880,9 @@ type ListDBClustersOKBodyPXCClustersItems0Params struct {
 
 	// pxc
 	PXC *ListDBClustersOKBodyPXCClustersItems0ParamsPXC `json:"pxc,omitempty"`
+
+	// restore
+	Restore *ListDBClustersOKBodyPXCClustersItems0ParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0 params
@@ -1814,6 +1902,10 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) Validate(formats strfmt.Re
 	}
 
 	if err := o.validatePXC(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRestore(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1899,6 +1991,25 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) validatePXC(formats strfmt
 	return nil
 }
 
+func (o *ListDBClustersOKBodyPXCClustersItems0Params) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list DB clusters OK body PXC clusters items0 params based on the context it is used
 func (o *ListDBClustersOKBodyPXCClustersItems0Params) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1916,6 +2027,10 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) ContextValidate(ctx contex
 	}
 
 	if err := o.contextValidatePXC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1977,6 +2092,21 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidatePXC(ctx con
 				return ve.ValidateName("params" + "." + "pxc")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("params" + "." + "pxc")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("params" + "." + "restore")
 			}
 			return err
 		}
@@ -2548,6 +2678,46 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) Ma
 // UnmarshalBinary interface implementation
 func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListDBClustersOKBodyPXCClustersItems0ParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsRestore
+*/
+type ListDBClustersOKBodyPXCClustersItems0ParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename
+	Destination string `json:"destination,omitempty"`
+}
+
+// Validate validates this list DB clusters OK body PXC clusters items0 params restore
+func (o *ListDBClustersOKBodyPXCClustersItems0ParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list DB clusters OK body PXC clusters items0 params restore based on context it is used
+func (o *ListDBClustersOKBodyPXCClustersItems0ParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPXCClustersItems0ParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPXCClustersItems0ParamsRestore) UnmarshalBinary(b []byte) error {
+	var res ListDBClustersOKBodyPXCClustersItems0ParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

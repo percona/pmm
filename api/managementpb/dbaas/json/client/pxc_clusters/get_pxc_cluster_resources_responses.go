@@ -500,6 +500,9 @@ type GetPXCClusterResourcesParamsBodyParams struct {
 
 	// pxc
 	PXC *GetPXCClusterResourcesParamsBodyParamsPXC `json:"pxc,omitempty"`
+
+	// restore
+	Restore *GetPXCClusterResourcesParamsBodyParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params
@@ -519,6 +522,10 @@ func (o *GetPXCClusterResourcesParamsBodyParams) Validate(formats strfmt.Registr
 	}
 
 	if err := o.validatePXC(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRestore(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -604,6 +611,25 @@ func (o *GetPXCClusterResourcesParamsBodyParams) validatePXC(formats strfmt.Regi
 	return nil
 }
 
+func (o *GetPXCClusterResourcesParamsBodyParams) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get PXC cluster resources params body params based on the context it is used
 func (o *GetPXCClusterResourcesParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -621,6 +647,10 @@ func (o *GetPXCClusterResourcesParamsBodyParams) ContextValidate(ctx context.Con
 	}
 
 	if err := o.contextValidatePXC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -682,6 +712,21 @@ func (o *GetPXCClusterResourcesParamsBodyParams) contextValidatePXC(ctx context.
 				return ve.ValidateName("body" + "." + "params" + "." + "pxc")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params" + "." + "pxc")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
 			}
 			return err
 		}
@@ -1253,6 +1298,46 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources) Marshal
 // UnmarshalBinary interface implementation
 func (o *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetPXCClusterResourcesParamsBodyParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model GetPXCClusterResourcesParamsBodyParamsRestore
+*/
+type GetPXCClusterResourcesParamsBodyParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename
+	Destination string `json:"destination,omitempty"`
+}
+
+// Validate validates this get PXC cluster resources params body params restore
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster resources params body params restore based on context it is used
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) UnmarshalBinary(b []byte) error {
+	var res GetPXCClusterResourcesParamsBodyParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

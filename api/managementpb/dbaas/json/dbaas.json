@@ -1515,6 +1515,24 @@
                             }
                           },
                           "x-order": 1
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "destination": {
+                              "type": "string",
+                              "title": "Destination filename",
+                              "x-order": 1
+                            },
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 4
                         }
                       },
                       "x-order": 3
@@ -1814,6 +1832,24 @@
                             }
                           },
                           "x-order": 1
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "destination": {
+                              "type": "string",
+                              "title": "Destination filename",
+                              "x-order": 1
+                            },
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 0
+                            }
+                          },
+                          "x-order": 5
                         }
                       },
                       "x-order": 3
@@ -2115,6 +2151,24 @@
                               }
                             },
                             "x-order": 1
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "destination": {
+                                "type": "string",
+                                "title": "Destination filename",
+                                "x-order": 1
+                              },
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 0
+                              }
+                            },
+                            "x-order": 4
                           }
                         },
                         "x-order": 3
@@ -2418,6 +2472,24 @@
                               }
                             },
                             "x-order": 1
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "destination": {
+                                "type": "string",
+                                "title": "Destination filename",
+                                "x-order": 1
+                              },
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 0
+                              }
+                            },
+                            "x-order": 5
                           }
                         },
                         "x-order": 3
@@ -3393,6 +3465,24 @@
                         }
                       },
                       "x-order": 1
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "destination": {
+                          "type": "string",
+                          "title": "Destination filename",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -3571,6 +3661,24 @@
                         }
                       },
                       "x-order": 1
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "destination": {
+                          "type": "string",
+                          "title": "Destination filename",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -4095,6 +4203,24 @@
                         }
                       },
                       "x-order": 1
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "destination": {
+                          "type": "string",
+                          "title": "Destination filename",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 2
@@ -4341,6 +4467,24 @@
                         }
                       },
                       "x-order": 1
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "destination": {
+                          "type": "string",
+                          "title": "Destination filename",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
