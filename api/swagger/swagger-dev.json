@@ -893,21 +893,21 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+    "/v0/qan/ObjectDetails/FingerprintAndPlaceholdersCountByQueryID": {
       "post": {
         "tags": [
           "ObjectDetails"
         ],
-        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
-        "operationId": "ExplainFingerprintByQueryID",
+        "summary": "FingerprintAndPlaceholdersCountByQueryID get fingerprint and placeholders count for given query ID.",
+        "operationId": "FingerprintAndPlaceholdersCountByQueryID",
         "parameters": [
           {
-            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
                 "serviceid": {
@@ -926,16 +926,16 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDReply is fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
-                "explain_fingerprint": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "placeholders_count": {
                   "type": "integer",
                   "format": "int64",
+                  "x-order": 0
+                },
+                "fingerprint": {
+                  "type": "string",
                   "x-order": 1
                 }
               }
@@ -16974,7 +16974,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -16983,7 +16983,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {
@@ -17080,7 +17080,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17089,7 +17089,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {
@@ -17186,7 +17186,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17195,7 +17195,7 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "placeholders": {
+                "values": {
                   "type": "array",
                   "title": "Array of placeholder values",
                   "items": {
@@ -17824,6 +17824,107 @@
                   "description": "Node ID for this Action.",
                   "type": "string",
                   "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Actions/StartPostgreSQLExplain": {
+      "post": {
+        "description": "Starts 'PostgreSQL EXPLAIN' Action with traditional output.",
+        "tags": [
+          "Actions"
+        ],
+        "summary": "Start 'PostgreSQL EXPLAIN' Action",
+        "operationId": "StartPostgreSQLExplainAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "query_id": {
+                  "description": "Query ID of query. Required.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
+                },
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }

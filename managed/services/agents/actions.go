@@ -17,8 +17,6 @@ package agents
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -50,20 +48,9 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(
-	ctx context.Context,
-	id string,
-	pmmAgentID string,
-	serviceID string,
-	dsn string,
-	query string,
-	queryID string,
-	placeholders []string,
-	format agentpb.MysqlExplainOutputFormat,
-	files map[string]string,
-	tdp *models.DelimiterPair,
-	tlsSkipVerify bool,
-) error {
+//
+//nolint:lll
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, values []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
 	if query == "" && queryID == "" {
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
@@ -71,21 +58,16 @@ func (s *ActionsService) StartMySQLExplainAction(
 	var q string
 	switch {
 	case queryID != "":
-		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
+		res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
 
-		if res.PlaceholdersCount != uint32(len(placeholders)) {
+		if res.PlaceholdersCount != uint32(len(values)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
-		parsed := res.ExplainFingerprint
-		for k, v := range placeholders {
-			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
-		}
-
-		q = parsed
+		q = res.Fingerprint
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -105,6 +87,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        q,
+				Values:       values,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
@@ -198,6 +181,46 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 	if err != nil {
 		return err
 	}
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
+	return err
+}
+
+// StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action on pmm-agent.
+//
+//nolint:lll
+func (s *ActionsService) StartPostgreSQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, values []string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	res, err := s.qanClient.FingerprintAndPlaceholdersCountByQueryID(ctx, serviceID, queryID)
+	if err != nil {
+		return err
+	}
+
+	if res.PlaceholdersCount != uint32(len(values)) {
+		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PostgresqlExplainParams{
+			PostgresqlExplainParams: &agentpb.StartActionRequest_PostgreSQLExplainParams{
+				Dsn:    dsn,
+				Query:  res.Fingerprint,
+				Values: values,
+				TlsFiles: &agentpb.TextFiles{
+					Files:              files,
+					TemplateLeftDelim:  tdp.Left,
+					TemplateRightDelim: tdp.Right,
+				},
+				TlsSkipVerify: tlsSkipVerify,
+			},
+		},
+		Timeout: defaultActionTimeout,
+	}
+
 	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }

@@ -466,6 +466,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				Common: &agentpb.MetricsBucket_Common{
 					IsTruncated:         currentPSM.IsQueryTruncated,
 					Fingerprint:         currentPSM.Fingerprint,
+					PlaceholdersCount:   currentPSM.PlaceholdersCount,
 					Database:            currentPSM.Database,
 					Tables:              currentPSM.Relations,
 					Username:            currentPSM.Username,

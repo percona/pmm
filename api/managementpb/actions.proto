@@ -55,13 +55,12 @@ message StartMySQLExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
-  // Query ID of query. 
+  // Query ID of query.
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }
@@ -82,13 +81,12 @@ message StartMySQLExplainJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
-  // Query ID of query. 
+  // Query ID of query.
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }
@@ -109,13 +107,12 @@ message StartMySQLExplainTraditionalJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
-  // Query ID of query. 
+  // Query ID of query.
   string query_id = 6;
   // Array of placeholder values
-  repeated string placeholders = 5; 
+  repeated string values = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
 }
@@ -199,6 +196,34 @@ message StartMySQLShowIndexActionRequest {
 }
 
 message StartMySQLShowIndexActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPostgreSQLExplainActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Query ID of query. Required. 
+  string query_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Array of placeholder values
+  repeated string placeholders = 4; 
+  // Database name. Required if it can't be deduced from the query ID.
+  string database = 3;
+}
+
+message StartPostgreSQLExplainActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -431,6 +456,17 @@ service Actions {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'MySQL SHOW INDEX' Action"
       description: "Starts 'MySQL SHOW INDEX' Action."
+    };
+  }
+  // StartPostgreSQLExplainAction starts PostgreSQL EXPLAIN Action with traditional output.
+  rpc StartPostgreSQLExplainAction(StartPostgreSQLExplainActionRequest) returns (StartPostgreSQLExplainActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/StartPostgreSQLExplain"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PostgreSQL EXPLAIN' Action"
+      description: "Starts 'PostgreSQL EXPLAIN' Action with traditional output."
     };
   }
   // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.

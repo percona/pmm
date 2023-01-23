@@ -38,7 +38,7 @@ type prometheusService interface {
 type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
-	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
+	FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.FingerprintAndPlaceholdersCountByQueryIDReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.

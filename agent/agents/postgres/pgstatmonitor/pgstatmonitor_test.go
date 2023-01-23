@@ -234,6 +234,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
 				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -289,6 +290,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
+				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -359,6 +362,9 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				PlaceholdersCount:   500,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -417,6 +423,9 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				PlaceholdersCount:   500,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -513,6 +522,9 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         expectedFingerprint,
+				PlaceholdersCount:   4,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,

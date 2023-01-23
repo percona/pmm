@@ -125,15 +125,15 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	return nil
 }
 
-// ExplainFingerprintByQueryID get query for given query ID.
+// FingerprintAndPlaceholdersCountByQueryID get query for given query ID.
 // This avoid receiving custom queries.
-func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
-	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
+func (c *Client) FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.FingerprintAndPlaceholdersCountByQueryIDReply, error) {
+	qanReq := &qanpb.FingerprintAndPlaceholdersCountByQueryIDRequest{
 		Serviceid: serviceID,
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
+	res, err := c.odc.FingerprintAndPlaceholdersCountByQueryID(ctx, qanReq)
 	if err != nil {
 		return res, err
 	}

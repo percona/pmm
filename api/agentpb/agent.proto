@@ -154,6 +154,7 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+    repeated string values = 6;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
@@ -185,6 +186,17 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles tls_files = 3;
+    // TLS certificate wont be verified.
+    bool tls_skip_verify = 4;
+  }
+  // PostgreSQLExplainParams describes PostgreSQL EXPLAIN action parameters.
+  message PostgreSQLExplainParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+    string query = 2;
+    repeated string values = 6;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
@@ -343,6 +355,7 @@ message StartActionRequest {
     MySQLShowCreateTableParams mysql_show_create_table_params = 3;
     MySQLShowTableStatusParams mysql_show_table_status_params = 4;
     MySQLShowIndexParams mysql_show_index_params = 5;
+    PostgreSQLExplainParams postgresql_explain_params = 60;
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;

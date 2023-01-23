@@ -35,6 +35,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -254,9 +255,17 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 			newSharedN++
 
 			c.Tables = p.Tables
+			c.PlaceholdersCount = p.PlaceholdersCount
 			c.Query, c.IsQueryTruncated = p.Query, p.IsQueryTruncated
 		} else {
 			newN++
+
+			_, placeholdersCount, err := queryparser.PostgreSQL(c.Query)
+			if err != nil {
+				m.l.Debugf("cannot parse query: %s", c.Query)
+			} else {
+				c.PlaceholdersCount = placeholdersCount
+			}
 
 			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength)
 		}
@@ -338,14 +347,15 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Database:    currentPSS.Database,
-				Tables:      currentPSS.Tables,
-				Username:    currentPSS.Username,
-				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
-				Fingerprint: currentPSS.Query,
-				NumQueries:  count,
-				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-				IsTruncated: currentPSS.IsQueryTruncated,
+				Database:          currentPSS.Database,
+				Tables:            currentPSS.Tables,
+				Username:          currentPSS.Username,
+				Queryid:           strconv.FormatInt(currentPSS.QueryID, 10),
+				Fingerprint:       currentPSS.Query,
+				PlaceholdersCount: currentPSS.PlaceholdersCount,
+				NumQueries:        count,
+				AgentType:         inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				IsTruncated:       currentPSS.IsQueryTruncated,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
 		}

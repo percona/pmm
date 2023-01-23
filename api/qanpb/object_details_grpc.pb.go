@@ -36,8 +36,8 @@ type ObjectDetailsClient interface {
 	GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
-	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
-	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
+	// FingerprintAndPlaceholdersCountByQueryID get fingerprint and placeholders count for given query ID.
+	FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, in *FingerprintAndPlaceholdersCountByQueryIDRequest, opts ...grpc.CallOption) (*FingerprintAndPlaceholdersCountByQueryIDReply, error)
 }
 
 type objectDetailsClient struct {
@@ -102,9 +102,9 @@ func (c *objectDetailsClient) QueryExists(ctx context.Context, in *QueryExistsRe
 	return out, nil
 }
 
-func (c *objectDetailsClient) ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error) {
-	out := new(ExplainFingerprintByQueryIDReply)
-	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID", in, out, opts...)
+func (c *objectDetailsClient) FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, in *FingerprintAndPlaceholdersCountByQueryIDRequest, opts ...grpc.CallOption) (*FingerprintAndPlaceholdersCountByQueryIDReply, error) {
+	out := new(FingerprintAndPlaceholdersCountByQueryIDReply)
+	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/FingerprintAndPlaceholdersCountByQueryID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +127,8 @@ type ObjectDetailsServer interface {
 	GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error)
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
-	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
-	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
+	// FingerprintAndPlaceholdersCountByQueryID get fingerprint and placeholders count for given query ID.
+	FingerprintAndPlaceholdersCountByQueryID(context.Context, *FingerprintAndPlaceholdersCountByQueryIDRequest) (*FingerprintAndPlaceholdersCountByQueryIDReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -159,8 +159,8 @@ func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExist
 	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
+func (UnimplementedObjectDetailsServer) FingerprintAndPlaceholdersCountByQueryID(context.Context, *FingerprintAndPlaceholdersCountByQueryIDRequest) (*FingerprintAndPlaceholdersCountByQueryIDReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FingerprintAndPlaceholdersCountByQueryID not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -283,20 +283,20 @@ func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExplainFingerprintByQueryIDRequest)
+func _ObjectDetails_FingerprintAndPlaceholdersCountByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FingerprintAndPlaceholdersCountByQueryIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).ExplainFingerprintByQueryID(ctx, in)
+		return srv.(ObjectDetailsServer).FingerprintAndPlaceholdersCountByQueryID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID",
+		FullMethod: "/qan.v1beta1.ObjectDetails/FingerprintAndPlaceholdersCountByQueryID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).ExplainFingerprintByQueryID(ctx, req.(*ExplainFingerprintByQueryIDRequest))
+		return srv.(ObjectDetailsServer).FingerprintAndPlaceholdersCountByQueryID(ctx, req.(*FingerprintAndPlaceholdersCountByQueryIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -333,8 +333,8 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ObjectDetails_QueryExists_Handler,
 		},
 		{
-			MethodName: "ExplainFingerprintByQueryID",
-			Handler:    _ObjectDetails_ExplainFingerprintByQueryID_Handler,
+			MethodName: "FingerprintAndPlaceholdersCountByQueryID",
+			Handler:    _ObjectDetails_FingerprintAndPlaceholdersCountByQueryID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

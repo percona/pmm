@@ -845,21 +845,21 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
+    "/v0/qan/ObjectDetails/FingerprintAndPlaceholdersCountByQueryID": {
       "post": {
         "tags": [
           "ObjectDetails"
         ],
-        "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
-        "operationId": "ExplainFingerprintByQueryID",
+        "summary": "FingerprintAndPlaceholdersCountByQueryID get fingerprint and placeholders count for given query ID.",
+        "operationId": "FingerprintAndPlaceholdersCountByQueryID",
         "parameters": [
           {
-            "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+            "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDRequest gets fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
                 "serviceid": {
@@ -878,16 +878,16 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "description": "FingerprintAndPlaceholdersCountByQueryIDReply is fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
-                "explain_fingerprint": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "placeholders_count": {
                   "type": "integer",
                   "format": "int64",
+                  "x-order": 0
+                },
+                "fingerprint": {
+                  "type": "string",
                   "x-order": 1
                 }
               }

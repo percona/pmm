@@ -287,6 +287,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
+				PlaceholdersCount:   n,
 				Database:            "pmm-agent",
 				Tables:              []string{},
 				Username:            "pmm-agent",
@@ -330,6 +331,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
+				PlaceholdersCount:   n,
 				Database:            "pmm-agent",
 				Tables:              []string{},
 				Username:            "pmm-agent",
@@ -401,12 +403,14 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		default:
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
+
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
+				PlaceholdersCount:   4,
 				Database:            "pmm-agent",
 				Tables:              []string{tableName},
 				Username:            "pmm-agent",

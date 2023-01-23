@@ -68,10 +68,11 @@ type pgStatStatements struct {
 type pgStatStatementsExtended struct {
 	pgStatStatements
 
-	Database         string
-	Username         string
-	Tables           []string
-	IsQueryTruncated bool
+	PlaceholdersCount uint32
+	Database          string
+	Username          string
+	Tables            []string
+	IsQueryTruncated  bool
 }
 
 func (e *pgStatStatementsExtended) String() string {

@@ -601,6 +601,16 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
 
+		if row.ServiceType == "postgresql" {
+			fingerprint, err := m.GetFingerprintByQueryID(ctx, row.QueryId)
+			if err != nil {
+				return nil, errors.Wrap(err, "cannot get fingerprint")
+			}
+
+			// for PG we dont save explain fingerprint since in this case its same like fingerprint
+			row.ExplainFingerprint = fingerprint
+		}
+
 		res.QueryExamples = append(res.QueryExamples, &row)
 	}
 
@@ -978,12 +988,12 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
+const queryByQueryIDTmpl = `SELECT fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
-// ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
-func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+// FingerprintAndPlaceholdersCountByQueryID get explain fingerprint and placeholders count for given queryid.
+func (m *Metrics) FingerprintAndPlaceholdersCountByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.FingerprintAndPlaceholdersCountByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"service_id": serviceID,
 		"query_id":   queryID,
@@ -992,7 +1002,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	var queryBuffer bytes.Buffer
 	queryBuffer.WriteString(queryByQueryIDTmpl)
 
-	res := &qanpb.ExplainFingerprintByQueryIDReply{}
+	res := &qanpb.FingerprintAndPlaceholdersCountByQueryIDReply{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
@@ -1014,7 +1024,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 
 	for rows.Next() {
 		err = rows.Scan(
-			&res.ExplainFingerprint,
+			&res.Fingerprint,
 			&res.PlaceholdersCount)
 
 		if err != nil {

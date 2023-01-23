@@ -28,7 +28,7 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error)
+	FingerprintAndPlaceholdersCountByQueryID(params *FingerprintAndPlaceholdersCountByQueryIDParams, opts ...ClientOption) (*FingerprintAndPlaceholdersCountByQueryIDOK, error)
 
 	GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error)
 
@@ -46,22 +46,22 @@ type ClientService interface {
 }
 
 /*
-ExplainFingerprintByQueryID explains fingerprint by query ID get explain fingerprint for given query ID
+FingerprintAndPlaceholdersCountByQueryID fingerprints and placeholders count by query ID get fingerprint and placeholders count for given query ID
 */
-func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error) {
+func (a *Client) FingerprintAndPlaceholdersCountByQueryID(params *FingerprintAndPlaceholdersCountByQueryIDParams, opts ...ClientOption) (*FingerprintAndPlaceholdersCountByQueryIDOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewExplainFingerprintByQueryIDParams()
+		params = NewFingerprintAndPlaceholdersCountByQueryIDParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ExplainFingerprintByQueryID",
+		ID:                 "FingerprintAndPlaceholdersCountByQueryID",
 		Method:             "POST",
-		PathPattern:        "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID",
+		PathPattern:        "/v0/qan/ObjectDetails/FingerprintAndPlaceholdersCountByQueryID",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ExplainFingerprintByQueryIDReader{formats: a.formats},
+		Reader:             &FingerprintAndPlaceholdersCountByQueryIDReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -73,12 +73,12 @@ func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryID
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ExplainFingerprintByQueryIDOK)
+	success, ok := result.(*FingerprintAndPlaceholdersCountByQueryIDOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ExplainFingerprintByQueryIDDefault)
+	unexpectedSuccess := result.(*FingerprintAndPlaceholdersCountByQueryIDDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
