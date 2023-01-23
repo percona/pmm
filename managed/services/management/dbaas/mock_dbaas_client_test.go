@@ -15,6 +15,36 @@ type mockDbaasClient struct {
 	mock.Mock
 }
 
+// ApproveInstallPlan provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.ApproveInstallPlanResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ApproveInstallPlanRequest, ...grpc.CallOption) *controllerv1beta1.ApproveInstallPlanResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.ApproveInstallPlanResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ApproveInstallPlanRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CheckKubernetesClusterConnection provides a mock function with given fields: ctx, kubeConfig
 func (_m *mockDbaasClient) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
 	ret := _m.Called(ctx, kubeConfig)
@@ -50,126 +80,6 @@ func (_m *mockDbaasClient) Connect(ctx context.Context) error {
 	}
 
 	return r0
-}
-
-// CreatePSMDBCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.CreatePSMDBClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.CreatePSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.CreatePSMDBClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.CreatePSMDBClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.CreatePSMDBClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// CreatePXCCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.CreatePXCClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.CreatePXCClusterRequest, ...grpc.CallOption) *controllerv1beta1.CreatePXCClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.CreatePXCClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.CreatePXCClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeletePSMDBCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.DeletePSMDBClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.DeletePSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.DeletePSMDBClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.DeletePSMDBClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.DeletePSMDBClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeletePXCCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.DeletePXCClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.DeletePXCClusterRequest, ...grpc.CallOption) *controllerv1beta1.DeletePXCClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.DeletePXCClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.DeletePXCClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
 }
 
 // Disconnect provides a mock function with given fields:
@@ -246,66 +156,6 @@ func (_m *mockDbaasClient) GetLogs(ctx context.Context, in *controllerv1beta1.Ge
 	return r0, r1
 }
 
-// GetPSMDBClusterCredentials provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.GetPSMDBClusterCredentialsResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetPSMDBClusterCredentialsRequest, ...grpc.CallOption) *controllerv1beta1.GetPSMDBClusterCredentialsResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.GetPSMDBClusterCredentialsResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetPSMDBClusterCredentialsRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetPXCClusterCredentials provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.GetPXCClusterCredentialsResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetPXCClusterCredentialsRequest, ...grpc.CallOption) *controllerv1beta1.GetPXCClusterCredentialsResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.GetPXCClusterCredentialsResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetPXCClusterCredentialsRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetResources provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -328,6 +178,96 @@ func (_m *mockDbaasClient) GetResources(ctx context.Context, in *controllerv1bet
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetResourcesRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetSubscription provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.GetSubscriptionResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.GetSubscriptionRequest, ...grpc.CallOption) *controllerv1beta1.GetSubscriptionResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.GetSubscriptionResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetSubscriptionRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// InstallOLMOperator provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.InstallOLMOperatorResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.InstallOLMOperatorRequest, ...grpc.CallOption) *controllerv1beta1.InstallOLMOperatorResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.InstallOLMOperatorResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.InstallOLMOperatorRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// InstallOperator provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.InstallOperatorResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.InstallOperatorRequest, ...grpc.CallOption) *controllerv1beta1.InstallOperatorResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.InstallOperatorResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.InstallOperatorRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -396,8 +336,8 @@ func (_m *mockDbaasClient) InstallPXCOperator(ctx context.Context, in *controlle
 	return r0, r1
 }
 
-// ListPSMDBClusters provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
+// ListInstallPlans provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -407,17 +347,17 @@ func (_m *mockDbaasClient) ListPSMDBClusters(ctx context.Context, in *controller
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *controllerv1beta1.ListPSMDBClustersResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListPSMDBClustersRequest, ...grpc.CallOption) *controllerv1beta1.ListPSMDBClustersResponse); ok {
+	var r0 *controllerv1beta1.ListInstallPlansResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListInstallPlansRequest, ...grpc.CallOption) *controllerv1beta1.ListInstallPlansResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.ListPSMDBClustersResponse)
+			r0 = ret.Get(0).(*controllerv1beta1.ListInstallPlansResponse)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListPSMDBClustersRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListInstallPlansRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -426,8 +366,8 @@ func (_m *mockDbaasClient) ListPSMDBClusters(ctx context.Context, in *controller
 	return r0, r1
 }
 
-// ListPXCClusters provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) ListPXCClusters(ctx context.Context, in *controllerv1beta1.ListPXCClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPXCClustersResponse, error) {
+// ListSubscriptions provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -437,77 +377,17 @@ func (_m *mockDbaasClient) ListPXCClusters(ctx context.Context, in *controllerv1
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *controllerv1beta1.ListPXCClustersResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListPXCClustersRequest, ...grpc.CallOption) *controllerv1beta1.ListPXCClustersResponse); ok {
+	var r0 *controllerv1beta1.ListSubscriptionsResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.ListSubscriptionsRequest, ...grpc.CallOption) *controllerv1beta1.ListSubscriptionsResponse); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.ListPXCClustersResponse)
+			r0 = ret.Get(0).(*controllerv1beta1.ListSubscriptionsResponse)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListPXCClustersRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// RestartPSMDBCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.RestartPSMDBClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.RestartPSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.RestartPSMDBClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.RestartPSMDBClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.RestartPSMDBClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// RestartPXCCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.RestartPXCClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.RestartPXCClusterRequest, ...grpc.CallOption) *controllerv1beta1.RestartPXCClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.RestartPXCClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.RestartPXCClusterRequest, ...grpc.CallOption) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.ListSubscriptionsRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)
@@ -568,66 +448,6 @@ func (_m *mockDbaasClient) StopMonitoring(ctx context.Context, in *controllerv1b
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.StopMonitoringRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdatePSMDBCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.UpdatePSMDBClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.UpdatePSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.UpdatePSMDBClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.UpdatePSMDBClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.UpdatePSMDBClusterRequest, ...grpc.CallOption) error); ok {
-		r1 = rf(ctx, in, opts...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdatePXCCluster provides a mock function with given fields: ctx, in, opts
-func (_m *mockDbaasClient) UpdatePXCCluster(ctx context.Context, in *controllerv1beta1.UpdatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePXCClusterResponse, error) {
-	_va := make([]interface{}, len(opts))
-	for _i := range opts {
-		_va[_i] = opts[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, ctx, in)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *controllerv1beta1.UpdatePXCClusterResponse
-	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.UpdatePXCClusterRequest, ...grpc.CallOption) *controllerv1beta1.UpdatePXCClusterResponse); ok {
-		r0 = rf(ctx, in, opts...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.UpdatePXCClusterResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.UpdatePXCClusterRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)

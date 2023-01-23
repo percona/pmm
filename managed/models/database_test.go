@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//nolint:dupword
 package models_test
 
 import (
@@ -44,7 +45,7 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
-func assertCheckViolation(t *testing.T, err error, table, constraint string) {
+func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
 	t.Helper()
 
 	require.IsType(t, &pq.Error{}, err)
@@ -64,7 +65,6 @@ func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 	return tx, rollback
 }
 
-//nolint:lll
 func TestDatabaseChecks(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
 		db := testdb.Open(t, models.SkipFixtures, nil)

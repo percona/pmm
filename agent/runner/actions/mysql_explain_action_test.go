@@ -24,8 +24,11 @@ import (
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -33,9 +36,12 @@ func TestMySQLExplain(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
 	const query = "SELECT * FROM city ORDER BY Population"
 
@@ -89,7 +95,7 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 		var table map[string]interface{}
-		if mySQLVendor == tests.MariaDBMySQL {
+		if mySQLVendor == version.MariaDBVendor {
 			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
 		} else {
 			table = m.Get("query_block.ordering_operation.table").MSI()
@@ -97,11 +103,11 @@ func TestMySQLExplain(t *testing.T) {
 
 		require.NotNil(t, table)
 		assert.Equal(t, "city", table["table_name"])
-		if mySQLVersion != "5.6" && mySQLVendor != tests.MariaDBMySQL {
+		if mySQLVersion.String() != "5.6" && mySQLVendor != version.MariaDBVendor {
 			assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
 		}
 
-		if mySQLVendor != tests.MariaDBMySQL {
+		if mySQLVendor != version.MariaDBVendor {
 			require.Len(t, m.Get("warnings").InterSlice(), 1)
 			assert.Equal(t, 1003, m.Get("warnings[0].Code").Int())
 			assert.Equal(t, "Note", m.Get("warnings[0].Level").String())
@@ -161,7 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		require.Error(t, err)
-		assert.Regexp(t, `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
+		assert.Regexp(t, `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
@@ -188,7 +194,7 @@ func TestMySQLExplain(t *testing.T) {
 			t.Helper()
 
 			var count int
-			err := db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+			err := q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)
 			assert.Equal(t, 4079, count)
 		}
@@ -204,7 +210,7 @@ func TestMySQLExplain(t *testing.T) {
 			defer cancel()
 
 			_, err := a.Run(ctx)
-			expected := "Error 1064: You have an error in your SQL syntax; check the manual that corresponds " +
+			expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 				"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 			require.Error(t, err)
 			assert.Regexp(t, expected, err.Error())
@@ -232,7 +238,7 @@ func TestMySQLExplain(t *testing.T) {
 			check := func(t *testing.T) {
 				t.Helper()
 				var count int
-				err := db.QueryRow("SELECT COUNT(*) FROM test_explain_table").Scan(&count)
+				err := q.QueryRow("SELECT COUNT(*) FROM test_explain_table").Scan(&count)
 				require.NoError(t, err)
 				assert.Equal(t, 1, count)
 			}
@@ -242,7 +248,7 @@ func TestMySQLExplain(t *testing.T) {
 				t.Helper()
 				ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 				defer cancel()
-				conn, err := db.Conn(ctx)
+				conn, err := sqlDB.Conn(ctx)
 				require.NoError(t, err)
 				defer conn.Close() //nolint:errcheck
 

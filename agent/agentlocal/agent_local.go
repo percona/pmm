@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package agentlocal provides local pmm-agent API server functionality.
 package agentlocal
 
 import (
@@ -25,7 +26,7 @@ import (
 	"math"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
 	"strconv"
 	"strings"
@@ -177,7 +178,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	if _, _, err := config.Get(s.l); err != nil {
+	if _, err := config.Get(&config.Config{}, s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -311,7 +312,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     address,
 		Handler:  mux,
 		ErrorLog: log.New(os.Stderr, "local-server/JSON: ", 0),

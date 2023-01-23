@@ -33,7 +33,6 @@ import (
 //go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=defaultsFileParser -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
@@ -79,7 +78,7 @@ type grafanaClient interface {
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type jobsService interface {
+type jobsService interface { //nolint:unused
 	StopJob(jobID string) error
 }
 
@@ -93,10 +92,4 @@ type connectionChecker interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type versionCache interface {
 	RequestSoftwareVersionsUpdate()
-}
-
-// defaultsFileParser is a subset of methods of agents.ParseDefaultsFile.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type defaultsFileParser interface {
-	ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error)
 }

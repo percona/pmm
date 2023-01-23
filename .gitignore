@@ -18,6 +18,9 @@ agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
 agent/agents/mysql/slowlog/parser/parser-fuzz.zip
 
+update/*.runcover.out
+update/*.test
+
 fuzzing/
 *-fuzz.zip
 *.bench
@@ -25,7 +28,12 @@ fuzzing/
 backoff.png
 pmm-agent-dev.yaml
 
+/qan-api2/logs/
+
 # ViM temporary files
 *.sw[o,p]
 
 .env
+
+cli-tests/node_modules/
+cli-tests/playwright-report/

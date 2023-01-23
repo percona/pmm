@@ -64,6 +64,7 @@ type Server struct {
 	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
 	emailer              emailer
+	enableAccessControl  bool
 
 	l *logrus.Entry
 
@@ -104,6 +105,7 @@ type Params struct {
 	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
+	EnableAccessControl  bool
 }
 
 // NewServer returns new server for Server service.
@@ -133,6 +135,7 @@ func NewServer(params *Params) (*Server, error) {
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
+		enableAccessControl:  params.EnableAccessControl,
 	}
 	return s, nil
 }
@@ -454,6 +457,9 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
+
+		EnableAccessControl: s.enableAccessControl,
+		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
 	if settings.Alerting.EmailAlertingSettings != nil {
@@ -568,7 +574,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -644,7 +650,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		newSettings, err = models.UpdateSettings(tx, settingsParams)
 		switch {
 		case err == nil:
@@ -781,7 +787,7 @@ func (s *Server) TestEmailAlertingSettings(
 
 	err := s.emailer.Send(ctx, settings, req.EmailTo)
 	if err != nil {
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		if errors.As(err, &errInvalidArgument) {
 			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
 		}
@@ -812,7 +818,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+func (s *Server) validateSSHKey(_ context.Context, sshKey string) error {
 	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey)) //nolint:dogsled
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")

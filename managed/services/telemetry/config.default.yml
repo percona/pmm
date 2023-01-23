@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS ia
+    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS alerting
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_ia_enabled"
@@ -190,6 +190,57 @@ telemetry:
       - metric_name: "mongodb_vendor"
         label: "vendor"
 
+  - id: MongoDBMembersCountByReplicaSet
+    source: VM
+    # use group operator to remove duplicated labels, because several mongo instances
+    # could be connected to PMM and send own metric `mongodb_members_id` which will be duplicated
+    query: count(group(mongodb_members_id) by (member_idx, rs_nm)) by (rs_nm)
+    summary: "Returns number of members in MongoDB replica set"
+    data:
+      - metric_name: "mongodb_replicaset_members_count"
+        value: 1
+
+  - id: MongoDBArbitersCountByReplicaSet
+    source: VM
+    query: count(group(mongodb_members_id{member_state="ARBITER"}) by (member_idx, rs_nm)) by (rs_nm)
+    summary: "Returns number of arbiters in MongoDB replica set"
+    data:
+      - metric_name: "mongodb_replicaset_arbiters_count"
+        value: 1
+
+  - id: MongoDBShardsCount
+    source: VM
+    # group by mongo instances by cluster label, return mongodb_mongos_sharding_shards_total value if it's sharded and 0 if it's not
+    query: (group(mongodb_up{cluster!=""}) by (cluster)) * on(cluster) group_left(cluster) mongodb_mongos_sharding_shards_total OR on (cluster) (group(mongodb_up{cluster!=""}) by (cluster)) - 1
+    summary: "Returns number of shards in MongoDB cluster. If cluster is not sharded it returns 0"
+    data:
+      - metric_name: "mongodb_shards_count_in_cluster"
+        value: 1
+
+  - id: MongoDBEngineType # check for inmemory engine type
+    source: VM
+    query: mongodb_mongod_storage_engine
+    summary: "Returns used engine type for MongoDB"
+    data:
+      - metric_name: "mongodb_storage_engine_type"
+        label: engine
+
+  - id: MongoDBIsEncryptionAtRestEnabled
+    source: VM
+    query: (group(mongodb_up) by (service_name)) * on(service_name) group_left(service_name) mongodb_security_encryption_enabled OR (group(mongodb_up) by (service_name)) - 1
+    summary: "Returns 1 if encryption at rest is enabled on the mongo instance, otherwise returns 0"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_enabled"
+        value: 1
+
+  - id: MongoDBEncryptionType
+    source: VM
+    query: mongodb_security_encryption_enabled
+    summary: "Returns the type of how encryption at rest was enabled (using local file, kmip or vault)"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_type"
+        label: type
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
@@ -232,13 +283,21 @@ telemetry:
         value: 1
 
   # PMM - Usage
-  - id: GrafanaStatActiveMonthlyUsers
+  - id: GrafanaStatMonthlyActiveUsers
     source: VM
     query: grafana_stat_active_users
-    summary: "Active monthly users"
+    summary: "Monthly active users"
     data:
       - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
+
+  - id: GrafanaStatDailyActiveUsers
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user WHERE last_seen_at > datetime('now', '-1 day')
+    summary: "Daily active users"
+    data:
+      - metric_name: "pmm_server_grafana_stat_daily_active_users"
+        column: "count"
 
   - id: GrafanaStatTotalOrgs
     source: VM
@@ -296,6 +355,22 @@ telemetry:
     data:
       - metric_name: "pmm_server_usage_clusters_count"
         column: "clusters_count"
+
+  # Nodes information - v2
+  - id: NodesInfoPMMAgentV2
+    source: PMMDB_SELECT
+    query: version, agent_type, runs_on_node_id FROM agents
+    summary: "Agents version"
+    transform:
+      type: JSON
+      metric: pmm_server_agents_version
+    data:
+      - metric_name: "1"
+        column: "agent_type"
+      - metric_name: "2"
+        column: "runs_on_node_id"
+      - metric_name: "3"
+        column: "version"
 
   # Nodes information
   - id: NodesInfoPMMAgentEmbedded
@@ -531,3 +606,117 @@ telemetry:
     data:
       - metric_name: "k8s_clusters_count"
         column: "count"
+
+  # Advisor
+  - id: AdvisorChecksDownloadedCount
+    source: VM
+    query: pmm_managed_checks_checks_downloaded_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_downloaded"
+    summary: "Advisor - number of downloaded checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
+
+  - id: AdvisorChecksExecutedCount
+    source: VM
+    query: pmm_managed_checks_scripts_executed_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_executed"
+    summary: "Advisor - number of executed checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
+
+  - id: AdvisorChecksFailedCount
+    source: VM
+    query: pmm_managed_checks_alerts_generated_total
+    transform:
+      type: JSON
+      metric: "advisor_checks_generated_fails"
+    summary: "Advisor - number of failed checks per name"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
+
+  - id: GrafanaUsersCount
+    source: GRAFANADB_SELECT
+    query: count(*) AS count FROM user
+    summary: "Grafana Users Count"
+    data:
+      - metric_name: "grafana_users_count"
+        column: "count"
+
+  - id: GrafanaDarkThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    summary: "Grafana Dark Theme Users Count"
+    data:
+      - metric_name: "grafana_dark_theme_users_count"
+        column: "count"
+
+  - id: GrafanaLightThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    summary: "Grafana Light Theme Users Count"
+    data:
+      - metric_name: "grafana_light_theme_users_count"
+        column: "count"
+
+  - id: GrafanaDefaultThemeUsersCount
+    source: GRAFANADB_SELECT
+    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    summary: "Grafana Default Theme Users Count"
+    data:
+      - metric_name: "grafana_default_theme_users_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsCount
+    source: GRAFANADB_SELECT
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    summary: "Grafana Custom Dashboards Count"
+    data:
+      - metric_name: "grafana_custom_dashboards_count"
+        column: "count"
+
+  - id: GrafanaCustomDashboardsPerPillar
+    source: GRAFANADB_SELECT
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    summary: "Grafana Custom Dashboards Count By Pillar"
+    transform:
+      type: JSON
+      metric: grafana_custom_dashboards_pillar_combined
+    data:
+      - metric_name: "pillar"
+        column: "pillar"
+      - metric_name: "count"
+
+  # API usage
+  - id: APIUsageMetrics
+    source: VM
+    query: grpc_server_msg_received_total
+    transform:
+      type: JSON
+      metric: pmm_server_api_usage
+    summary: "PMM Server API usage"
+    data:
+      - metric_name: "1"
+        label: "caller_origin" # internal / external
+      - metric_name: "2"
+        label: "grpc_method"
+      - metric_name: "3"
+        label: "grpc_service"
+      - metric_name: "4"
+        label: "grpc_type"
+      - metric_name: "5" # pmm-managed / qan-api2
+        label: "job"
+      - metric_name: "6"
+        value: 1

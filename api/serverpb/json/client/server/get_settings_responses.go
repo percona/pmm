@@ -476,6 +476,9 @@ type GetSettingsOKBodySettings struct {
 	AWSPartitions []string `json:"aws_partitions"`
 
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	//
+	// alert_manager_rules field name is incorrect
+	//  (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
 	// Custom alerting or recording rules.
@@ -507,6 +510,12 @@ type GetSettingsOKBodySettings struct {
 
 	// Includes list of collected telemetry
 	TelemetrySummaries []string `json:"telemetry_summaries"`
+
+	// True if Access Control is enabled.
+	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+
+	// Default Access Control role ID for new users.
+	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`

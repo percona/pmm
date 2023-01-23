@@ -5,6 +5,7 @@ package docker
 import (
 	context "context"
 	io "io"
+	time "time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	types "github.com/docker/docker/api/types"
@@ -34,13 +35,94 @@ func (_m *MockFunctions) ChangeServerPassword(ctx context.Context, containerID s
 	return r0
 }
 
-// CreateVolume provides a mock function with given fields: ctx, volumeName
-func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
-	ret := _m.Called(ctx, volumeName)
+// ContainerInspect provides a mock function with given fields: ctx, containerID
+func (_m *MockFunctions) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+	ret := _m.Called(ctx, containerID)
+
+	var r0 types.ContainerJSON
+	if rf, ok := ret.Get(0).(func(context.Context, string) types.ContainerJSON); ok {
+		r0 = rf(ctx, containerID)
+	} else {
+		r0 = ret.Get(0).(types.ContainerJSON)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, containerID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ContainerStop provides a mock function with given fields: ctx, containerID, timeout
+func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+	ret := _m.Called(ctx, containerID, timeout)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, *time.Duration) error); ok {
+		r0 = rf(ctx, containerID, timeout)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ContainerUpdate provides a mock function with given fields: ctx, containerID, updateConfig
+func (_m *MockFunctions) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+	ret := _m.Called(ctx, containerID, updateConfig)
+
+	var r0 container.ContainerUpdateOKBody
+	if rf, ok := ret.Get(0).(func(context.Context, string, container.UpdateConfig) container.ContainerUpdateOKBody); ok {
+		r0 = rf(ctx, containerID, updateConfig)
+	} else {
+		r0 = ret.Get(0).(container.ContainerUpdateOKBody)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, container.UpdateConfig) error); ok {
+		r1 = rf(ctx, containerID, updateConfig)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ContainerWait provides a mock function with given fields: ctx, containerID, condition
+func (_m *MockFunctions) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
+	ret := _m.Called(ctx, containerID, condition)
+
+	var r0 <-chan container.ContainerWaitOKBody
+	if rf, ok := ret.Get(0).(func(context.Context, string, container.WaitCondition) <-chan container.ContainerWaitOKBody); ok {
+		r0 = rf(ctx, containerID, condition)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan container.ContainerWaitOKBody)
+		}
+	}
+
+	var r1 <-chan error
+	if rf, ok := ret.Get(1).(func(context.Context, string, container.WaitCondition) <-chan error); ok {
+		r1 = rf(ctx, containerID, condition)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
+	}
+
+	return r0, r1
+}
+
+// CreateVolume provides a mock function with given fields: ctx, volumeName, labels
+func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
+	ret := _m.Called(ctx, volumeName, labels)
 
 	var r0 *types.Volume
-	if rf, ok := ret.Get(0).(func(context.Context, string) *types.Volume); ok {
-		r0 = rf(ctx, volumeName)
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) *types.Volume); ok {
+		r0 = rf(ctx, volumeName, labels)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*types.Volume)
@@ -48,8 +130,8 @@ func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string) (*
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, volumeName)
+	if rf, ok := ret.Get(1).(func(context.Context, string, map[string]string) error); ok {
+		r1 = rf(ctx, volumeName, labels)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -58,9 +59,13 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
+	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	grpcStreamInterceptor := grpcMetrics.StreamServerInterceptor()
+	grpcUnaryInterceptor := grpcMetrics.UnaryServerInterceptor()
+
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.Unary),
-		grpc.StreamInterceptor(interceptors.Stream))
+		grpc.UnaryInterceptor(interceptors.Unary(grpcUnaryInterceptor)),
+		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
 
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
@@ -354,51 +359,4 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	assert.NoError(t, err)
 	close(stopServer)
 	<-stop
-}
-
-func TestChannelForDefaultsFileParser(t *testing.T) {
-	const count = 50
-	require.True(t, count > agentRequestsCap)
-
-	connect := func(ch *Channel) error {
-		testValue := "test"
-		testPort := uint32(123123)
-		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(&agentpb.ParseDefaultsFileRequest{})
-			assert.NotNil(t, resp)
-			parserResponse := resp.(*agentpb.ParseDefaultsFileResponse)
-			assert.Equal(t, parserResponse.Username, testValue)
-			assert.Equal(t, parserResponse.Password, testValue)
-			assert.Equal(t, parserResponse.Socket, testValue)
-			assert.Equal(t, parserResponse.Port, testPort)
-			assert.NoError(t, err)
-		}
-
-		assert.Nil(t, <-ch.Requests())
-		return nil
-	}
-
-	stream, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown(t)
-
-	for i := uint32(1); i <= count; i++ {
-		msg, err := stream.Recv()
-		assert.NoError(t, err)
-		assert.Equal(t, i, msg.Id)
-		assert.NotNil(t, msg.GetParseDefaultsFile())
-
-		err = stream.Send(&agentpb.AgentMessage{
-			Id: i,
-			Payload: (&agentpb.ParseDefaultsFileResponse{
-				Username: "test",
-				Password: "test",
-				Port:     123123,
-				Socket:   "test",
-			}).AgentMessageResponsePayload(),
-		})
-		assert.NoError(t, err)
-	}
-
-	err := stream.CloseSend()
-	assert.NoError(t, err)
 }

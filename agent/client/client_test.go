@@ -31,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
+	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -157,7 +158,8 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, &s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			r := runner.New(cfg.RunnerCapacity)
+			client := New(cfg, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -215,19 +217,46 @@ func TestUnexpectedActionType(t *testing.T) {
 		require.NoError(t, err)
 
 		// actual test
-		err = stream.Send(&agentpb.ServerMessage{
-			Id: 4242,
-			Payload: &agentpb.ServerMessage_StartAction{
-				// try to send unknown payload for action type
-				StartAction: &agentpb.StartActionRequest{},
+		cases := []struct {
+			name         string
+			id           uint32
+			payload      *agentpb.ServerMessage_StartAction
+			expectedCode codes.Code
+		}{
+			{
+				name: "invlalid action type",
+				id:   4242,
+				payload: &agentpb.ServerMessage_StartAction{
+					StartAction: &agentpb.StartActionRequest{},
+				},
+				expectedCode: codes.InvalidArgument,
 			},
-		})
-		assert.NoError(t, err)
+			{
+				name: "mongodb restart invalid system service",
+				id:   4243,
+				payload: &agentpb.ServerMessage_StartAction{
+					StartAction: &agentpb.StartActionRequest{
+						Params: &agentpb.StartActionRequest_RestartSysServiceParams{
+							RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
+								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_INVALID,
+							},
+						},
+					},
+				},
+				expectedCode: codes.InvalidArgument,
+			},
+		}
 
-		msg, err = stream.Recv()
-		assert.NoError(t, err)
-		assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
-		assert.NoError(t, err)
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				err = stream.Send(&agentpb.ServerMessage{Id: tc.id, Payload: tc.payload})
+				require.NoError(t, err)
+
+				msg, err = stream.Recv()
+				require.NoError(t, err)
+				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode())
+			})
+		}
 		return nil
 	}
 	port, teardown := setup(t, connect)
@@ -245,7 +274,8 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	client := New(cfg, s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	r := runner.New(cfg.RunnerCapacity)
+	client := New(cfg, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -256,7 +286,6 @@ func TestArgListFromPgParams(t *testing.T) {
 		req      *agentpb.StartActionRequest_PTPgSummaryParams
 		expected []string
 	}
-
 	testCases := []*testParams{
 		{
 			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
@@ -300,7 +329,6 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 		req      *agentpb.StartActionRequest_PTMongoDBSummaryParams
 		expected []string
 	}
-
 	testCases := []*testParams{
 		{
 			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},

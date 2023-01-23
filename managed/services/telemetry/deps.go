@@ -47,6 +47,8 @@ type DataSourceLocator interface {
 
 // DataSource telemetry data source.
 type DataSource interface {
-	FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error)
+	Init(ctx context.Context) error
+	FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error)
+	Dispose(ctx context.Context) error
 	Enabled() bool
 }

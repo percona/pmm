@@ -27,9 +27,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -37,7 +40,7 @@ import (
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 	t.Helper()
 
-	jsonData, err := os.ReadFile(filePath)
+	jsonData, err := os.ReadFile(filePath) //nolint:gosec
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)
@@ -50,7 +53,8 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	parsingResult := event.Result{
 		Class: map[string]*event.Class{
 			"example": {
-				Metrics: &event.Metrics{},
+				Metrics:     &event.Metrics{},
+				Fingerprint: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				Example: &event.Example{
 					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				},
@@ -58,10 +62,13 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
+				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
+				ExplainFingerprint:  "select * from contacts as t0 where t0.person_id = :1",
+				PlaceholdersCount:   1,
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
@@ -87,7 +94,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 
 	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
@@ -106,9 +113,12 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 }
 
 func TestSlowLog(t *testing.T) {
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	_, vendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	_, vendor, _ := version.GetMySQLVersion(ctx, q)
 
 	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata"))
 	require.NoError(t, err)
@@ -126,7 +136,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -176,7 +186,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 
@@ -226,7 +236,7 @@ func TestSlowLog(t *testing.T) {
 		expectedInfo := &slowLogInfo{
 			path: "/mysql/slowlogs/slow.log",
 		}
-		if vendor == tests.PerconaMySQL {
+		if vendor == version.PerconaVendor {
 			expectedInfo.outlierTime = 10
 		}
 

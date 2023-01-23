@@ -21,6 +21,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -31,7 +32,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/connectionuptime"
-	"github.com/percona/pmm/agent/defaultsfile"
+	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
@@ -57,32 +58,64 @@ func Run() {
 		cancel()
 	}()
 
-	var connectionUptimeService *connectionuptime.Service
+	var cfg config.Config
+	configFilepath, err := config.Get(&cfg, l)
+	if err != nil {
+		l.Fatalf("Failed to load configuration: %s.", err)
+	}
+
+	cleanupTmp(cfg.Paths.TempDir, l)
+	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)
+	connectionUptimeService.RunCleanupGoroutine(ctx)
+	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, &cfg.LogLinesCount)
+	connectionChecker := connectionchecker.New(&cfg.Paths)
+	v := versioner.New(&versioner.RealExecFunctions{})
+	r := runner.New(cfg.RunnerCapacity)
+	client := client.New(&cfg, supervisor, r, connectionChecker, v, connectionUptimeService, logStore)
+	localServer := agentlocal.NewServer(&cfg, supervisor, client, configFilepath, logStore)
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		supervisor.Run(ctx)
+		cancel()
+	}()
+	go func() {
+		defer wg.Done()
+		r.Run(ctx)
+		cancel()
+	}()
+	go func() {
+		defer wg.Done()
+		localServer.Run(ctx)
+		cancel()
+	}()
+
 	for {
-		cfg, configFilepath, err := config.Get(l)
+		_, err = config.Get(&cfg, l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
-		config.ConfigureLogger(cfg)
+		config.ConfigureLogger(&cfg)
 		logStore.Resize(cfg.LogLinesCount)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
-		cleanupTmp(cfg.Paths.TempDir, l)
-
 		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
-		if connectionUptimeService == nil {
-			connectionUptimeService = connectionuptime.NewService(cfg.WindowConnectedTime)
-			connectionUptimeService.RunCleanupGoroutine(ctx)
-		} else {
-			connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
-		}
+		connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
 
-		run(ctx, cfg, configFilepath, connectionUptimeService, logStore)
+		clientCtx, cancelClientCtx := context.WithCancel(ctx)
+
+		_ = client.Run(clientCtx)
+		cancelClientCtx()
+
+		<-client.Done()
 
 		if ctx.Err() != nil {
-			return
+			break
 		}
 	}
+	wg.Wait()
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {
@@ -98,32 +131,4 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
-}
-
-// run runs all pmm-agent components with given configuration until ctx is cancellled.
-// See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *connectionuptime.Service, logStore *tailog.Store) {
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithCancel(ctx)
-
-	// Actions runner is currently created inside client.New.
-	// It should be created separately.
-	// TODO https://jira.percona.com/browse/PMM-7206
-
-	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, cfg.LogLinesCount)
-	connectionChecker := connectionchecker.New(&cfg.Paths)
-	defaultsFileParser := defaultsfile.New()
-	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser, cs, logStore)
-	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, logStore)
-
-	go func() {
-		_ = client.Run(ctx)
-		cancel()
-	}()
-
-	localServer.Run(ctx)
-	cancel()
-
-	<-client.Done()
 }

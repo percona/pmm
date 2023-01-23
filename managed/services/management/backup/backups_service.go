@@ -220,7 +220,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			StartAt:        t,
 		})
 		if err != nil {
-			return err
+			return convertModelError(err)
 		}
 
 		id = scheduledTask.ID
@@ -295,7 +295,7 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		scheduledTask, err := models.FindScheduledTaskByID(tx.Querier, req.ScheduledBackupId)
 		if err != nil {
-			return err
+			return convertModelError(err)
 		}
 
 		var data *models.CommonBackupTaskData
@@ -327,27 +327,10 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retry interval %s", maxRetryInterval)
 			}
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
-		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
-				return errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
-			}
-			data.Retries = req.Retries.Value
-		}
-		if req.RetryInterval != nil {
-			if req.RetryInterval.AsDuration() > maxRetryInterval {
-				return errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
-			}
 			data.RetryInterval = req.RetryInterval.AsDuration()
 		}
-		serviceID = data.ServiceID
 
+		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
 			Data: scheduledTask.Data,
 		}
@@ -363,7 +346,9 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			params.CronExpression = pointer.ToString(req.CronExpression.Value)
 		}
 
-		return s.scheduleService.Update(req.ScheduledBackupId, params)
+		err = s.scheduleService.Update(req.ScheduledBackupId, params)
+
+		return convertModelError(err)
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -614,34 +599,38 @@ func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, 
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
+func convertBackupError(backupErr error) error {
+	if backupErr == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.AgentNotSupportedError
+	if errors.As(backupErr, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 	}
 
 	var code backuppb.ErrorCode
 	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+	case errors.Is(backupErr, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
+	case errors.Is(backupErr, backup.ErrXtrabackupNotInstalled):
 		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+	case errors.Is(backupErr, backup.ErrInvalidXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+	case errors.Is(backupErr, backup.ErrIncompatibleXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(backupErr, backup.ErrIncompatibleLocationType):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 
 	default:
-		return restoreError
+		return backupErr
 	}
 
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
+	st, err := status.New(codes.FailedPrecondition, backupErr.Error()).WithDetails(&backuppb.Error{
 		Code: code,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, backupErr)
 	}
 
 	return st.Err()
@@ -650,6 +639,11 @@ func convertBackupError(restoreError error) error {
 func convertRestoreBackupError(restoreError error) error {
 	if restoreError == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.AgentNotSupportedError
+	if errors.As(restoreError, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	}
 
 	var code backuppb.ErrorCode
@@ -667,8 +661,6 @@ func convertRestoreBackupError(restoreError error) error {
 	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, models.ErrNotFound):
 		return status.Error(codes.NotFound, restoreError.Error())
@@ -689,6 +681,22 @@ func convertRestoreBackupError(restoreError error) error {
 	}
 
 	return st.Err()
+}
+
+func convertModelError(modelError error) error {
+	if modelError == nil {
+		return nil
+	}
+
+	switch {
+	case errors.Is(modelError, models.ErrNotFound):
+		return status.Error(codes.NotFound, modelError.Error())
+	case errors.Is(modelError, models.ErrAlreadyExists):
+		return status.Error(codes.AlreadyExists, modelError.Error())
+
+	default:
+		return modelError
+	}
 }
 
 // Check interfaces.

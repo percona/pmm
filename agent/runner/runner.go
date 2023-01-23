@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package runner implements concurrent jobs.Job and actions.Action runner.
 package runner
 
 import (
@@ -27,6 +28,7 @@ import (
 
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -96,7 +98,7 @@ func (r *Runner) StartAction(action actions.Action) error {
 	case r.actions <- action:
 		return nil
 	default:
-		return errors.New("actions queue overflowed")
+		return agenterrors.ErrActionQueueOverflow
 	}
 }
 
@@ -221,7 +223,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	r.addCancel(actionID, cancel)
 
 	r.wg.Add(1)
-	run := func(ctx context.Context) {
+	run := func(_ context.Context) {
 		l.Infof("Action started.")
 
 		defer func(start time.Time) {
@@ -238,6 +240,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		if err != nil {
 			errMsg = err.Error()
 			l.Warnf("Action terminated with error: %+v", err)
+			l.Debugf("Action produced output: %s", string(output))
 		}
 		r.sendActionsMessage(&agentpb.ActionResultRequest{
 			ActionId: actionID,

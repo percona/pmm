@@ -57,13 +57,15 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
 //   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
+//   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
+//   - the environment variables relating to proxies
+//   - the environment variable set by podman
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {
@@ -88,7 +90,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PERCONA_TEST_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
-		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE":
+		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
 			// skip env variables for external clickhouse
 			continue
 		case "DISABLE_UPDATES":
@@ -150,6 +152,12 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
+
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
 
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
@@ -223,7 +231,10 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf("Environment variable %q is not set, using %q as a default timeout for platform API.", envPlatformAPITimeout, defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf(
+			"Environment variable %q is not set, using %q as a default timeout for platform API.",
+			envPlatformAPITimeout,
+			defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:stylecheck
 package mongo_fix
 
 import (
@@ -21,7 +22,7 @@ import (
 )
 
 // ClientOptionsForDSN applies URI to Client.
-func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
+func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
 	clientOptions := options.Client().ApplyURI(dsn)
 
 	// Workaround for PMM-9320

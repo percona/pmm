@@ -64,6 +64,7 @@ var commonExpectedFiles = []string{
 	"victoriametrics_targets.json",
 	"vmalert.ini",
 	"vmalert.log",
+	"vmproxy.log",
 }
 
 func TestReadLog(t *testing.T) {
@@ -140,6 +141,10 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
+		if f.Name == "dbaas-controller.log" {
+			continue
+		}
+
 		assert.NoError(t, f.Err, "name = %q", f.Name)
 
 		actual = append(actual, f.Name)
@@ -170,7 +175,9 @@ func TestZip(t *testing.T) {
 		"systemctl_status.log",
 		"prometheus.base.yml",
 	}
-
+	if os.Getenv("ENABLE_DBAAS") == "1" {
+		additionalFiles = append(additionalFiles, "dbaas-controller.log")
+	}
 	// zip file includes client files
 	expected := append(commonExpectedFiles, additionalFiles...)
 

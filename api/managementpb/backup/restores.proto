@@ -42,6 +42,8 @@ message RestoreHistoryItem {
   google.protobuf.Timestamp started_at = 11;
   // Restore finish time.
   google.protobuf.Timestamp finished_at = 12;
+  // PITR timestamp is filled for PITR restores, empty otherwise.
+  google.protobuf.Timestamp pitr_timestamp = 13;
 }
 
 message ListRestoreHistoryRequest {}

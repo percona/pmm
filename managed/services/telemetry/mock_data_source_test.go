@@ -14,6 +14,20 @@ type MockDataSource struct {
 	mock.Mock
 }
 
+// Dispose provides a mock function with given fields: ctx
+func (_m *MockDataSource) Dispose(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Enabled provides a mock function with given fields:
 func (_m *MockDataSource) Enabled() bool {
 	ret := _m.Called()
@@ -29,15 +43,15 @@ func (_m *MockDataSource) Enabled() bool {
 }
 
 // FetchMetrics provides a mock function with given fields: ctx, config
-func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	ret := _m.Called(ctx, config)
 
-	var r0 [][]*pmmv1.ServerMetric_Metric
-	if rf, ok := ret.Get(0).(func(context.Context, Config) [][]*pmmv1.ServerMetric_Metric); ok {
+	var r0 []*pmmv1.ServerMetric_Metric
+	if rf, ok := ret.Get(0).(func(context.Context, Config) []*pmmv1.ServerMetric_Metric); ok {
 		r0 = rf(ctx, config)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([][]*pmmv1.ServerMetric_Metric)
+			r0 = ret.Get(0).([]*pmmv1.ServerMetric_Metric)
 		}
 	}
 
@@ -49,4 +63,18 @@ func (_m *MockDataSource) FetchMetrics(ctx context.Context, config Config) ([][]
 	}
 
 	return r0, r1
+}
+
+// Init provides a mock function with given fields: ctx
+func (_m *MockDataSource) Init(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

@@ -239,7 +239,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id
@@ -356,7 +356,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 				if a == *row.PMMAgentID {
 					break
 				}
-				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID)
+				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID) //nolint:makezero
 			}
 		}
 	}
@@ -367,7 +367,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 
 	// Last, find all pmm-agents.
 	ph := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
-	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s' ORDER BY agent_id", ph, PMMAgentType) //nolint:gosec
+	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s' ORDER BY agent_id", ph, PMMAgentType)
 	pmmAgentRecords, err := q.SelectAllFrom(AgentTable, atail, pmmAgentIDs...)
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
@@ -798,7 +798,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 }
 
 // CreateAgent creates Agent with given type.
-func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) {
+func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := "/agent_id/" + uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
@@ -927,7 +927,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 }
 
 // RemoveAgent removes Agent by ID.
-func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) {
+func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) { //nolint:unparam
 	a, err := FindAgentByID(q, id)
 	if err != nil {
 		return nil, err

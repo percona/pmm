@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/types"
 )
 
+//nolint:lll
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 

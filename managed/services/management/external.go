@@ -29,8 +29,6 @@ import (
 )
 
 // ExternalService External Management Service.
-//
-//nolint:unused
 type ExternalService struct {
 	db    *reform.DB
 	vmdb  prometheusService
@@ -65,9 +63,9 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 			return err
 		}
 
-		runsOnNodeId := req.RunsOnNodeId
-		if req.AddNode != nil && runsOnNodeId == "" {
-			runsOnNodeId = nodeID
+		runsOnNodeID := req.RunsOnNodeId
+		if req.AddNode != nil && runsOnNodeID == "" {
+			runsOnNodeID = nodeID
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
@@ -103,7 +101,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: runsOnNodeId,
+			RunsOnNodeID: runsOnNodeID,
 			ServiceID:    service.ServiceID,
 			Username:     req.Username,
 			Password:     req.Password,

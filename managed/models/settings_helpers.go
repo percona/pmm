@@ -17,6 +17,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -28,6 +29,9 @@ import (
 
 	"github.com/percona/pmm/managed/utils/validators"
 )
+
+// ErrTxRequired is returned when a transaction is required.
+var ErrTxRequired = errors.New("TxRequired")
 
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
@@ -115,6 +119,9 @@ type ChangeSettingsParams struct {
 	EnableBackupManagement bool
 	// Disable Backup Management features.
 	DisableBackupManagement bool
+
+	// DefaultRoleID sets a default role to be assigned to new users.
+	DefaultRoleID int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -131,10 +138,21 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) {
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
+	}
+
+	if params.DefaultRoleID != 0 {
+		tx, ok := q.(*reform.TX)
+		if !ok {
+			return nil, fmt.Errorf("%w: changing Role ID requires a *reform.TX", ErrTxRequired)
+		}
+
+		if err := lockRoleForChange(tx, params.DefaultRoleID); err != nil {
+			return nil, err
+		}
 	}
 
 	settings, err := GetSettings(q)
@@ -279,11 +297,24 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.BackupManagement.Enabled = true
 	}
 
+	if params.DefaultRoleID != 0 {
+		settings.DefaultRoleID = params.DefaultRoleID
+	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
 	}
 	return settings, nil
+}
+
+func lockRoleForChange(tx *reform.TX, roleID int) error {
+	var r Role
+	if err := FindAndLockRole(tx, roleID, &r); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
@@ -315,7 +346,7 @@ func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
 }
 
 // ValidateSettings validates settings changes.
-func ValidateSettings(params *ChangeSettingsParams) error {
+func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 	if params.EnableUpdates && params.DisableUpdates {
 		return errors.New("both enable_updates and disable_updates are present")
 	}

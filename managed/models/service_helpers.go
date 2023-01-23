@@ -89,6 +89,8 @@ type ServiceFilters struct {
 	ServiceType *ServiceType
 	// Return only Services with given external group.
 	ExternalGroup string
+	// Return only Services in the given cluster
+	Cluster string
 }
 
 // FindServices returns Services by filters.
@@ -109,6 +111,11 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	if filters.ServiceType != nil {
 		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
 		args = append(args, filters.ServiceType)
+		idx++
+	}
+	if filters.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
@@ -178,7 +185,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id

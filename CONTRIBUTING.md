@@ -27,8 +27,8 @@ This project is built from several repositories:
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
-* [percona/qan-api2](https://github.com/percona/qan-api2) query analytics API
-* [percona/pmm-update](https://github.com/percona/pmm-update) is a tool for updating packages and OS configuration for PMM
+* [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
+* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
@@ -120,7 +120,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 * Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.
-* To run pmm-managed with a new changes just run `make env TARGET="release-dev-managed run-managed"` to update `pmm-managed` running in container.
+* To run pmm-managed with a new changes just run `make env TARGET="run-managed"` to update `pmm-managed` running in container.
 
 ### PMM Client
 

@@ -326,6 +326,17 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+
+  // RestartSystemServiceParams describes an action request to restart a systemctl service on a node.
+  message RestartSystemServiceParams {
+    // SystemService is a systemctl service that can be restarted from PMM server
+    enum SystemService {
+      SYSTEM_SERVICE_INVALID = 0;
+      MONGOD = 1;
+      PBM_AGENT = 2;
+    }
+    SystemService system_service = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -348,6 +359,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
+    RestartSystemServiceParams restart_sys_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
@@ -394,27 +406,6 @@ message PBMSwitchPITRRequest {
 message PBMSwitchPITRResponse {
   // Error message.
   string error = 1;
-}
-// ParseDefaultsFileRequest is an ServerMessage asking pmm-agent to parse defaults file.
-message ParseDefaultsFileRequest {
-  // Service type.
-  inventory.ServiceType service_type = 1;
-
-  // Defaults config path
-  string config_path = 2;
-}
-
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
-message ParseDefaultsFileResponse {
-
-  // Error message if parse failed.
-  string error = 1;
-
-  string username = 2;
-  string password = 3;
-  string host = 4;
-  uint32 port = 5;
-  string socket = 6;
 }
 
 // AgentLogsRequest is an ServerMessage asking logs by Agent ID.
@@ -557,6 +548,7 @@ message StartJobRequest {
       FilesystemLocationConfig filesystem_config = 11;
     }
   }
+
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -686,6 +678,8 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -695,11 +689,8 @@ message AgentMessage {
     StartJobResponse start_job = 13;
     StopJobResponse stop_job = 14;
     JobStatusResponse job_status = 15;
-    JobResult job_result = 16;
-    JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
-    ParseDefaultsFileResponse parse_defaults_file = 20;
     AgentLogsResponse agent_logs = 21;
   }
 }
@@ -731,7 +722,6 @@ message ServerMessage {
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
-    ParseDefaultsFileRequest parse_defaults_file = 18;
     AgentLogsRequest agent_logs = 19;
   }
 }

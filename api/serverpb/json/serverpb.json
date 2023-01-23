@@ -315,7 +315,7 @@
                   "x-order": 11
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.",
+                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -391,7 +391,7 @@
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -430,6 +430,12 @@
                       "description": "True if DBaaS is enabled.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -477,6 +483,11 @@
                         }
                       },
                       "x-order": 12
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -647,7 +658,7 @@
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -686,6 +697,12 @@
                       "description": "True if DBaaS is enabled.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -733,6 +750,11 @@
                         }
                       },
                       "x-order": 12
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -1302,6 +1324,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "This probe is available without authentication, so it should not contain any data.",
               "type": "object"
             }
           },

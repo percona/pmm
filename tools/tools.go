@@ -30,6 +30,7 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/jstemmer/go-junit-report"
+	_ "github.com/kevinburke/go-bindata/go-bindata"
 	_ "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators"
 	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
@@ -50,6 +51,7 @@ import (
 //go:generate go build -o ../bin/gci github.com/daixiang0/gci
 //go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
 //go:generate go build -o ../bin/go-junit-report github.com/jstemmer/go-junit-report
+//go:generate go build -o ../bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
 //go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
 //go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
 //go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports

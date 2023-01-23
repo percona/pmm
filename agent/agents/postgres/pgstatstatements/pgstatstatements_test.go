@@ -357,7 +357,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix()))
+		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -380,7 +380,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			waitGroup.Add(1)
 			go func() {
 				defer waitGroup.Done()
-				_, err := db.Exec(fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+				_, err := db.Exec(
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
 				require.NoError(t, err)
 			}()
 		}

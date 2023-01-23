@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package alerting contains PMM alerting functionality.
 package alerting
 
 import (
@@ -86,7 +87,7 @@ type Service struct {
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) {
+func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
 	l := logrus.WithField("component", "management/alerting")
 
 	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)

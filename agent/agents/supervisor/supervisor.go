@@ -64,7 +64,7 @@ type Supervisor struct {
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
 
-	logLinesCount uint
+	logLinesCount *uint
 }
 
 // agentProcessInfo describes Agent process.
@@ -92,14 +92,14 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount uint) *Supervisor {
-	supervisor := &Supervisor{
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount *uint) *Supervisor {
+	return &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
 		serverCfg:     server,
 		portsRegistry: newPortsRegistry(ports.Min, ports.Max, nil),
-		changes:       make(chan *agentpb.StateChangedRequest, 10),
-		qanRequests:   make(chan *agentpb.QANCollectRequest, 10),
+		changes:       make(chan *agentpb.StateChangedRequest, 100),
+		qanRequests:   make(chan *agentpb.QANCollectRequest, 100),
 		l:             logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -108,13 +108,12 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 
 		logLinesCount: logLinesCount,
 	}
+}
 
-	go func() {
-		<-ctx.Done()
-		supervisor.stopAll()
-	}()
-
-	return supervisor
+// Run waits for context and stop all agents when it's done
+func (s *Supervisor) Run(ctx context.Context) {
+	<-ctx.Done()
+	s.stopAll()
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
@@ -399,7 +398,7 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 	return
 }
 
-//nolint:golint
+//nolint:golint,stylecheck
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
@@ -415,7 +414,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	logStore := tailog.NewStore(s.logLinesCount)
+	logStore := tailog.NewStore(*s.logLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
@@ -457,7 +456,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	logStore := tailog.NewStore(s.logLinesCount)
+	logStore := tailog.NewStore(*s.logLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
@@ -510,6 +509,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			TLS:                  false,
 		}
 		agent, err = slowlog.New(params, l)
 

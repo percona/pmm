@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
@@ -13,6 +13,9 @@ on:
       - "agent/**"
       - "managed/**"
       - "docs/**"
+      - "qan-api2/**"
+      - "update/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:
@@ -59,7 +62,7 @@ jobs:
           echo "$GOBIN" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
@@ -88,5 +91,73 @@ jobs:
           env
           go version
           go env
+          pwd
+          git status
+
+  cli-test:
+    name: CLI Tests
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+
+    env:
+      GO_VERSION: ${{ matrix.go-version }}
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/cli-tests
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Go release
+        if: env.GO_VERSION != 'tip'
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Set up Go tip
+        if: env.GO_VERSION == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+          echo "$GOBIN" >> $GITHUB_PATH
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Build and install
+        run: make -C ../admin install
+
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install
+          npm install -D @playwright/test
+
+      - name: Run tests
+        run: npx playwright test --reporter=list tests/pmm-cli/
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          node --version
           pwd
           git status
