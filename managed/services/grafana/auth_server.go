@@ -87,7 +87,8 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         none,
 
-	"/logs.zip": admin,
+	"/logs.zip":          admin,
+	"/v1/scrape_configs": admin,
 	// "/auth_request" and "/setup" have auth_request disabled in nginx config
 
 	// "/" is a special case in this code

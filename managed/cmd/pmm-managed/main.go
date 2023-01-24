@@ -433,7 +433,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/scrape_configs", deps.vmServer)
+	mux.Handle("/v1/scrape_configs", deps.vmServer)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
