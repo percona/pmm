@@ -230,6 +230,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			example = actual.Common.Example
 		}
 
+		// test test
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
