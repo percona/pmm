@@ -62,6 +62,8 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 	return details, nil
 }
 
+// TODO move this to utils/platform package. Having two separate HTTP clients can lead to misconfigurations
+// all platform related requests should use a common client.
 func (s *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *reform.Querier) (*PerconaSSOAccessToken, error) {
 	values := url.Values{
 		"grant_type": []string{"client_credentials"},
