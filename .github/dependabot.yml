@@ -9,7 +9,6 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "gomod"
     directory: "/tools"
@@ -19,7 +18,6 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -29,7 +27,6 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -39,8 +36,6 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
-
 
   - package-ecosystem: "gomod"
     directory: "/api-tests/tools"
@@ -50,7 +45,6 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "npm"
     directory: "/cli-tests"
@@ -60,4 +54,3 @@ updates:
       - "artemgavrilov"
       - "BupycHuk"
       - "michal-kralik"
-      - "percona/pmm-review-be"
