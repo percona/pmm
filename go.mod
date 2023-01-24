@@ -22,7 +22,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.156
+	github.com/aws/aws-sdk-go v1.44.185
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.20.1
 	github.com/charmbracelet/bubbles v0.15.0
