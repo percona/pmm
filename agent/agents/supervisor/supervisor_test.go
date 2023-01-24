@@ -50,7 +50,7 @@ func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	tempDir := t.TempDir()
-	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, pointer.ToUint(1))
+	s := NewSupervisor(ctx, nil, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, pointer.ToUint(1))
 	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
@@ -287,7 +287,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, pointer.ToUint(1)) //nolint:varnamelen
+		s := NewSupervisor(ctx, nil, paths, &config.Ports{}, &config.Server{}, pointer.ToUint(1)) //nolint:varnamelen
 		go s.Run(ctx)
 
 		teardown := func() {
