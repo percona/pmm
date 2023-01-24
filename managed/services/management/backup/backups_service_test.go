@@ -413,6 +413,28 @@ func TestGetLogs(t *testing.T) {
 		limit  uint32
 		expect []uint32
 	}
+	testCases := []testCase{
+		{
+			expect: []uint32{0, 1, 2, 3, 4},
+		},
+		{
+			offset: 3,
+			expect: []uint32{3, 4},
+		},
+		{
+			limit:  2,
+			expect: []uint32{0, 1},
+		},
+		{
+			offset: 1,
+			limit:  3,
+			expect: []uint32{1, 2, 3},
+		},
+		{
+			offset: 5,
+			expect: []uint32{},
+		},
+	}
 
 	t.Run("get backup logs", func(t *testing.T) {
 		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
@@ -435,28 +457,6 @@ func TestGetLogs(t *testing.T) {
 			assert.NoError(t, err)
 		}
 
-		testCases := []testCase{
-			{
-				expect: []uint32{0, 1, 2, 3, 4},
-			},
-			{
-				offset: 3,
-				expect: []uint32{3, 4},
-			},
-			{
-				limit:  2,
-				expect: []uint32{0, 1},
-			},
-			{
-				offset: 1,
-				limit:  3,
-				expect: []uint32{1, 2, 3},
-			},
-			{
-				offset: 5,
-				expect: []uint32{},
-			},
-		}
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
 				JobId: &backuppb.GetLogsRequest_BackupArtifactId{
@@ -494,28 +494,6 @@ func TestGetLogs(t *testing.T) {
 				Data:    "not important",
 			})
 			assert.NoError(t, err)
-		}
-		testCases := []testCase{
-			{
-				expect: []uint32{0, 1, 2, 3, 4},
-			},
-			{
-				offset: 3,
-				expect: []uint32{3, 4},
-			},
-			{
-				limit:  2,
-				expect: []uint32{0, 1},
-			},
-			{
-				offset: 1,
-				limit:  3,
-				expect: []uint32{1, 2, 3},
-			},
-			{
-				offset: 5,
-				expect: []uint32{},
-			},
 		}
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
@@ -556,28 +534,6 @@ func TestGetLogs(t *testing.T) {
 			assert.NoError(t, err)
 		}
 
-		testCases := []testCase{
-			{
-				expect: []uint32{0, 1, 2, 3, 4},
-			},
-			{
-				offset: 3,
-				expect: []uint32{3, 4},
-			},
-			{
-				limit:  2,
-				expect: []uint32{0, 1},
-			},
-			{
-				offset: 1,
-				limit:  3,
-				expect: []uint32{1, 2, 3},
-			},
-			{
-				offset: 5,
-				expect: []uint32{},
-			},
-		}
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
 				JobId: &backuppb.GetLogsRequest_RestoreId{

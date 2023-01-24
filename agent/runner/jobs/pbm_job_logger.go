@@ -40,11 +40,11 @@ type pbmJobLogger struct {
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, mongoUrl *url.URL) *pbmJobLogger {
+func newPbmJobLogger(jobID string, mongoURL *url.URL) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
 		logChunkID: 0,
-		dbURL:      mongoUrl,
+		dbURL:      mongoURL,
 	}
 }
 
