@@ -696,9 +696,9 @@ func (s *Supervisor) version(agentType inventorypb.AgentType, path string) (stri
 		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
 	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
+	default:
+		return "", nil
 	}
-
-	return "", nil
 }
 
 // stopAll stops all agents.
