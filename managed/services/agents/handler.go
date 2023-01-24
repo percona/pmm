@@ -193,7 +193,16 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 		}
 
 		for _, agentID := range agentIDs {
-			if err := updateAgentStatus(ctx, tx.Querier, agentID, req.Status, req.ListenPort, pointer.ToStringOrNil(req.ProcessExecPath), pointer.ToStringOrNil(req.Version)); err != nil {
+			err := updateAgentStatus(
+				ctx,
+				tx.Querier,
+				agentID,
+				req.Status,
+				req.ListenPort,
+				pointer.ToStringOrNil(req.ProcessExecPath),
+				pointer.ToStringOrNil(req.Version),
+			)
+			if err != nil {
 				return err
 			}
 		}
@@ -232,7 +241,15 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	return nil
 }
 
-func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, status inventorypb.AgentStatus, listenPort uint32, processExecPath *string, version *string) error {
+func updateAgentStatus(
+	ctx context.Context,
+	q *reform.Querier,
+	agentID string,
+	status inventorypb.AgentStatus,
+	listenPort uint32,
+	processExecPath *string,
+	version *string,
+) error {
 	l := logger.Get(ctx)
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
