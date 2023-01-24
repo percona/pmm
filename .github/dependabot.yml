@@ -4,22 +4,17 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
-    reviewers:
-      - "artemgavrilov"
-      - "BupycHuk"
-      - "michal-kralik"
-      - "percona/pmm-review-be"
+      interval: "daily"
 
   - package-ecosystem: "gomod"
     directory: "/tools"
     schedule:
+      interval: "daily"
+
+  - package-ecosystem: "gomod"
+    directory: "/api-tests/tools"
+    schedule:
       interval: "weekly"
-    reviewers:
-      - "artemgavrilov"
-      - "BupycHuk"
-      - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -28,7 +23,6 @@ updates:
     reviewers:
       - "artemgavrilov"
       - "BupycHuk"
-      - "michal-kralik"
       - "percona/pmm-review-be"
 
   - package-ecosystem: "github-actions"
@@ -38,19 +32,8 @@ updates:
     reviewers:
       - "artemgavrilov"
       - "BupycHuk"
-      - "michal-kralik"
       - "percona/pmm-review-be"
 
-
-  - package-ecosystem: "gomod"
-    directory: "/api-tests/tools"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "artemgavrilov"
-      - "BupycHuk"
-      - "michal-kralik"
-      - "percona/pmm-review-be"
 
   - package-ecosystem: "npm"
     directory: "/cli-tests"
@@ -59,5 +42,5 @@ updates:
     reviewers:
       - "artemgavrilov"
       - "BupycHuk"
-      - "michal-kralik"
+      - "yurkovich"
       - "percona/pmm-review-be"
