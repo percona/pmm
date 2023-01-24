@@ -200,8 +200,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version),
-			)
+				pointer.ToStringOrNil(req.Version))
 			if err != nil {
 				return err
 			}
