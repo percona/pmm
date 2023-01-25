@@ -191,7 +191,7 @@ func finishBootstrap(globalFlags *flags.GlobalFlags) {
 	agentlocal.SetTransport(ctx, globalFlags.EnableDebug || globalFlags.EnableTrace, globalFlags.PMMAgentListenPort)
 
 	if !globalFlags.DisableVersionCheck {
-		checkVersionCompatibility(bool(globalFlags.JSON))
+		checkVersionCompatibility()
 	}
 
 	// pmm-admin status command don't connect to PMM Server.
@@ -219,7 +219,7 @@ func processFinalError(err error, isJSON bool) {
 	}
 }
 
-func checkVersionCompatibility(jsonOutput bool) {
+func checkVersionCompatibility() {
 	clientVersion := version.Version
 	serverStatus, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
@@ -227,17 +227,10 @@ func checkVersionCompatibility(jsonOutput bool) {
 	}
 
 	if err = compareVersions(clientVersion, serverStatus.ServerVersion); err != nil {
-		if jsonOutput {
-			b, jErr := json.Marshal(err.Error())
-			if jErr != nil {
-				logrus.Infof("Error: %#v.", err)
-				logrus.Panicf("Failed to marshal error to JSON.\n%s.\nPlease report this bug.", jErr)
-			}
-			fmt.Printf("%s\n", b) //nolint:forbidigo
-		} else if errors.Is(err, errMismatchedVersion) {
-			fmt.Println(err) //nolint:forbidigo
+		if errors.Is(err, errMismatchedVersion) {
+			logrus.Warn(err) //nolint:forbidigo
 		} else {
-			logrus.Infof("Failed to check version compatibility: %s.", err.Error())
+			logrus.Errorf("Failed to check version compatibility: %s.", err.Error())
 		}
 	}
 }

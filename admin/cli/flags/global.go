@@ -34,7 +34,7 @@ type GlobalFlags struct {
 	PMMAgentListenPort      uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
 	JSON                    jsonFlag    `help:"Enable JSON output"`
 	Version                 versionFlag `short:"v" help:"Show application version"`
-	DisableVersionCheck     bool        `name:"disable-version-check" help:"Disables pmm-server/client compatibility checks"`
+	DisableVersionCheck     bool        `help:"Disables pmm-server/client compatibility checks"`
 }
 
 type versionFlag bool
