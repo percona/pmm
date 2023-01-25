@@ -183,8 +183,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		}
 		dbCluster.Spec.Backup = &dbaasv1.BackupSpec{
 			Enabled: true,
-			// FIXME: Remove this hardcode
-			Image: "percona/percona-xtradb-cluster-operator:1.11.0-pxc8.0-backup",
 			Storages: map[string]*dbaasv1.BackupStorageSpec{
 				backupLocation.Name: &dbaasv1.BackupStorageSpec{
 					Type: dbaasv1.BackupStorageType(backupLocation.Type),
