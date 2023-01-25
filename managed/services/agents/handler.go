@@ -177,7 +177,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 			return errors.Wrap(err, "failed to get pmm-agent's child agents")
 		}
 		for _, agent := range agents {
-			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath); err != nil {
+			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath, nil); err != nil {
 				return errors.Wrap(err, "failed to update agent's status")
 			}
 		}
@@ -193,7 +193,15 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 		}
 
 		for _, agentID := range agentIDs {
-			if err := updateAgentStatus(ctx, tx.Querier, agentID, req.Status, req.ListenPort, pointer.ToStringOrNil(req.ProcessExecPath)); err != nil {
+			err := updateAgentStatus(
+				ctx,
+				tx.Querier,
+				agentID,
+				req.Status,
+				req.ListenPort,
+				pointer.ToStringOrNil(req.ProcessExecPath),
+				pointer.ToStringOrNil(req.Version))
+			if err != nil {
 				return err
 			}
 		}
@@ -232,7 +240,15 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	return nil
 }
 
-func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, status inventorypb.AgentStatus, listenPort uint32, processExecPath *string) error {
+func updateAgentStatus(
+	ctx context.Context,
+	q *reform.Querier,
+	agentID string,
+	status inventorypb.AgentStatus,
+	listenPort uint32,
+	processExecPath *string,
+	version *string,
+) error {
 	l := logger.Get(ctx)
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
@@ -254,6 +270,9 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = pointer.ToUint16(uint16(listenPort))
+	if version != nil {
+		agent.Version = version
+	}
 	if err = q.Update(agent); err != nil {
 		return errors.Wrap(err, "failed to update Agent")
 	}
