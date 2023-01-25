@@ -30,8 +30,9 @@ import (
 )
 
 const (
-	dbaasAPI  = "dbaas.percona.com/v1"
-	dbaasKind = "DatabaseCluster"
+	dbaasAPI          = "dbaas.percona.com/v1"
+	dbaasKind         = "DatabaseCluster"
+	pxcSecretNameTmpl = "dbaas-%s-pxc-secrets" //nolint:gosec
 	// DatabaseTypePXC is a pxc database
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
@@ -96,16 +97,19 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 // DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
+func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) {
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
-		return nil, errors.New("pxc cluster must have one and only one proxy type defined")
+		return nil, nil, errors.New("pxc cluster must have one and only one proxy type defined")
+	}
+	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
+		return nil, nil, errors.New("only s3 compatible storages are supported for backup/restore")
 	}
 	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
 	gCacheSize := "600M"
 	diskSize := resource.NewQuantity(cluster.Params.Pxc.DiskSize, resource.DecimalSI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	clusterMemory := resource.NewQuantity(cluster.Params.Pxc.ComputeResources.MemoryBytes, resource.DecimalSI)
 	if cluster.Params.Pxc.Configuration == "" {
@@ -133,6 +137,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 			DatabaseImage:  cluster.Params.Pxc.Image,
 			DatabaseConfig: cluster.Params.Pxc.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
+			SecretsName:    fmt.Sprintf(pxcSecretNameTmpl, cluster.Name),
 			DBInstance: dbaasv1.DBInstanceSpec{
 				DiskSize: *diskSize,
 				CPU:      cpu,
@@ -152,7 +157,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if cluster.Params.Haproxy != nil {
 		resources, err := convertComputeResource(cluster.Params.Haproxy.ComputeResources)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		dbCluster.Spec.LoadBalancer.Image = cluster.Params.Haproxy.Image
 		dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
@@ -164,22 +169,69 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if cluster.Params.Proxysql != nil {
 		resources, err := convertComputeResource(cluster.Params.Proxysql.ComputeResources)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
 		dbCluster.Spec.LoadBalancer.Image = cluster.Params.Proxysql.Image
 		dbCluster.Spec.LoadBalancer.Resources = resources
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
+	var dbRestore *dbaasv1.DatabaseClusterRestore
+	if cluster.Params.Restore != nil {
+		if cluster.Params.Restore.SecretsName != "" {
+			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
+		}
+		dbCluster.Spec.Backup = &dbaasv1.BackupSpec{
+			Enabled: true,
+			// FIXME: Remove this hardcode
+			Image: "percona/percona-xtradb-cluster-operator:1.11.0-pxc8.0-backup",
+			Storages: map[string]*dbaasv1.BackupStorageSpec{
+				backupLocation.Name: &dbaasv1.BackupStorageSpec{
+					Type: dbaasv1.BackupStorageType(backupLocation.Type),
+					StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+						Bucket:            backupLocation.S3Config.BucketName,
+						Region:            backupLocation.S3Config.BucketRegion,
+						EndpointURL:       backupLocation.S3Config.Endpoint,
+						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+					},
+				},
+			},
+		}
+
+		dbRestore = &dbaasv1.DatabaseClusterRestore{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "DatabaseClusterRestore",
+				APIVersion: "dbaas.percona.com/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
+			},
+			Spec: dbaasv1.DatabaseClusterRestoreSpec{
+				DatabaseCluster: dbCluster.Name,
+				DatabaseType:    "pxc",
+				BackupSource: &dbaasv1.BackupSource{
+					Destination: cluster.Params.Restore.Destination,
+					StorageType: dbaasv1.BackupStorageS3,
+					S3: &dbaasv1.BackupStorageProviderSpec{
+						Bucket:            backupLocation.S3Config.BucketName,
+						Region:            backupLocation.S3Config.BucketRegion,
+						EndpointURL:       backupLocation.S3Config.Endpoint,
+						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+					},
+					StorageName: backupLocation.Name,
+				},
+			},
+		}
+	}
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
 		if !ok {
-			return dbCluster, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+			return dbCluster, dbRestore, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
 		annotations, ok := exposeAnnotationsMap[clusterType]
 		if !ok {
-			return dbCluster, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+			return dbCluster, dbRestore, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
@@ -196,7 +248,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	return dbCluster, nil
+	return dbCluster, dbRestore, nil
 }
 
 // DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
@@ -377,15 +429,6 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 
 func BackupStorage(secretsName string, backupLocation *models.BackupLocation) (map[string]*dbaasv1.BackupStorageSpec, error) {
 	storages := make(map[string]*dbaasv1.BackupStorageSpec)
-	storages[backupLocation.Name] = &dbaasv1.BackupStorageSpec{
-		Type: dbaasv1.BackupStorageType(backupLocation.Type),
-		StorageProvider: &dbaasv1.BackupStorageProviderSpec{
-			Bucket:            backupLocation.S3Config.BucketName,
-			Region:            backupLocation.S3Config.BucketRegion,
-			EndpointURL:       backupLocation.S3Config.Endpoint,
-			CredentialsSecret: secretsName,
-		},
-	}
 	return storages, nil
 }
 
@@ -394,17 +437,4 @@ func SecretForBackup(secretsName string, backupLocation *models.BackupLocation) 
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),
 		"AWS_SECRET_ACCESS_KEY": []byte(backupLocation.S3Config.SecretKey),
 	}, nil
-}
-
-func RestoreForPXC(clusterName string) *dbaasv1.DatabaseClusterRestore {
-	return &dbaasv1.DatabaseClusterRestore{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "DatabaseClusterRestore",
-			APIVersion: "dbaas.percona.com/v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("%s-restore", clusterName),
-		},
-		Spec: dbaasv1.DatabaseClusterRestoreSpec{},
-	}
 }

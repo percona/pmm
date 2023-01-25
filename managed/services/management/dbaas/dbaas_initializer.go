@@ -45,7 +45,6 @@ type Initializer struct {
 
 const (
 	defaultClusterName  = "default-pmm-cluster"
-	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
 	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
 )
 

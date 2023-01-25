@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"strings"
 
-	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -86,7 +85,7 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	secret, err := s.kubernetesClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -167,55 +166,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting backup location")
 	}
-	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
-		return nil, errors.New("only s3 compatible storages are supported for backup/restore")
-	}
 
 	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting cluster type")
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPXC(req, clusterType)
+	dbCluster, dbRestore, err := kubernetes.DatabaseClusterForPXC(req, clusterType, backupLocation)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
-	}
-	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
-
-	if req.Params.Restore != nil && req.Params.Restore.SecretsName != "" {
-		dbCluster.Spec.SecretsName = req.Params.Restore.SecretsName
-	}
-	var restore *dbaasv1.DatabaseClusterRestore
-	if req.Params.Restore != nil {
-		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
-		secrets, err := kubernetes.SecretForBackup(secretsName, backupLocation)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed generating secret for backup location")
-		}
-		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
-			return nil, errors.Wrap(err, "failed to create a secret")
-		}
-		storages, err := kubernetes.BackupStorage(secretsName, backupLocation)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed generating storages")
-		}
-		dbCluster.Spec.Backup = &dbaasv1.BackupSpec{
-			Enabled: true,
-			// FIXME: Remove this hardcode
-			Image:    "percona/percona-xtradb-cluster-operator:1.11.0-pxc8.0-backup",
-			Storages: storages,
-		}
-
-		restore = kubernetes.RestoreForPXC(dbCluster.Name)
-		restore.Spec.DatabaseCluster = dbCluster.Name
-		restore.Spec.DatabaseType = "pxc"
-		s3, _ := storages[backupLocation.Name]
-		restore.Spec.BackupSource = &dbaasv1.BackupSource{
-			Destination: req.Params.Restore.Destination,
-			StorageType: dbaasv1.BackupStorageS3,
-			S3:          s3.StorageProvider,
-			StorageName: backupLocation.Name,
-		}
-
 	}
 
 	secrets, err := generatePasswords(map[string][]byte{
@@ -244,7 +202,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}
-	if req.Params.Restore == nil {
+	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
 		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
 		if err != nil {
 			return nil, err
@@ -260,8 +218,16 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			}
 		}
 	}
-	if restore != nil {
-		if err := s.kubernetesClient.CreateRestore(restore); err != nil {
+	if dbRestore != nil {
+		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
+		secrets, err := kubernetes.SecretForBackup(secretsName, backupLocation)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed generating secret for backup location")
+		}
+		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
+			return nil, errors.Wrap(err, "failed to create a secret")
+		}
+		if err := s.kubernetesClient.CreateRestore(dbRestore); err != nil {
 			return nil, err
 		}
 	}
