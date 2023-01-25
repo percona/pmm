@@ -229,7 +229,14 @@ docker cp <containerId>:/srv /target/host/directory
     docker pull percona/pmm-server:2
     ```
 
-4. Run it.
+4. Rename the original container
+
+    ```sh
+    docker rename pmm-server pmm-server-old
+    ```
+
+
+5. Run it.
 
     ```sh
     docker run \
