@@ -440,7 +440,7 @@ func TestServiceHelpers(t *testing.T) {
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
 
-	t.Run("Software versions empty record created on adding service", func(t *testing.T) {
+	t.Run("Software versions record created when adding a service", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 

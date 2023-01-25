@@ -235,7 +235,7 @@ func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artif
 		default:
 			return nil
 		}
-		return errors.Wrapf(err, "artifact db version %q != db version %q", artifactModel.DBVersion, targetDBVersion)
+		return errors.Wrapf(err, "backup artifact db version %q does not match the target db version %q", artifactModel.DBVersion, targetDBVersion)
 	}
 
 	return nil
