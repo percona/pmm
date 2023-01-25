@@ -21,25 +21,14 @@ message ComputeResources {
   // Memory in bytes.
   int64 memory_bytes = 2;
 }
-// Schedule represents schedule configration.
-message Schedule {
-  // Weekly runs.
-  int32 week = 1;
-  // Weekday configuration.
-  int32 weekday = 2;
-  // Hour configuration.
-  int32 hour = 3;
-  // Minutes configuration.
-  int32 minute = 4;
-}
 // Backup configuration for a database cluster
 message Backup {
   // Backup Location id of stored backup location in PMM.
   string location_id = 1;
   // Keep copies represents how many copyies should retain.
   int32 keep_copies = 2;
-  // Schedule is a schedule for backups.
-  Schedule schedule = 3;
+  // Cron expression represents well, cron expression
+  string cron_expression = 3;
 }
 // Restore represents restoration payload to restore a database cluster from backup
 message Restore {

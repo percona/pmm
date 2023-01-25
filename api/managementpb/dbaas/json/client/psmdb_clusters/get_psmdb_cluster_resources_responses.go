@@ -677,69 +677,17 @@ type GetPSMDBClusterResourcesParamsBodyParamsBackup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// schedule
-	Schedule *GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule `json:"schedule,omitempty"`
+	// Cron expression represents well, cron expression
+	CronExpression string `json:"cron_expression,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources params body params backup
 func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSchedule(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) validateSchedule(formats strfmt.Registry) error {
-	if swag.IsZero(o.Schedule) { // not required
-		return nil
-	}
-
-	if o.Schedule != nil {
-		if err := o.Schedule.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get PSMDB cluster resources params body params backup based on the context it is used
+// ContextValidate validates this get PSMDB cluster resources params body params backup based on context it is used
 func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateSchedule(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) contextValidateSchedule(ctx context.Context, formats strfmt.Registry) error {
-	if o.Schedule != nil {
-		if err := o.Schedule.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -754,52 +702,6 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *GetPSMDBClusterResourcesParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
 	var res GetPSMDBClusterResourcesParamsBodyParamsBackup
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule Schedule represents schedule configration.
-swagger:model GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule
-*/
-type GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule struct {
-	// Weekly runs.
-	Week int32 `json:"week,omitempty"`
-
-	// Weekday configuration.
-	Weekday int32 `json:"weekday,omitempty"`
-
-	// Hour configuration.
-	Hour int32 `json:"hour,omitempty"`
-
-	// Minutes configuration.
-	Minute int32 `json:"minute,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster resources params body params backup schedule
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get PSMDB cluster resources params body params backup schedule based on context it is used
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterResourcesParamsBodyParamsBackupSchedule
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -764,69 +764,17 @@ type GetPXCClusterResourcesParamsBodyParamsBackup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// schedule
-	Schedule *GetPXCClusterResourcesParamsBodyParamsBackupSchedule `json:"schedule,omitempty"`
+	// Cron expression represents well, cron expression
+	CronExpression string `json:"cron_expression,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params backup
 func (o *GetPXCClusterResourcesParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSchedule(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 
-func (o *GetPXCClusterResourcesParamsBodyParamsBackup) validateSchedule(formats strfmt.Registry) error {
-	if swag.IsZero(o.Schedule) { // not required
-		return nil
-	}
-
-	if o.Schedule != nil {
-		if err := o.Schedule.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get PXC cluster resources params body params backup based on the context it is used
+// ContextValidate validates this get PXC cluster resources params body params backup based on context it is used
 func (o *GetPXCClusterResourcesParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateSchedule(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPXCClusterResourcesParamsBodyParamsBackup) contextValidateSchedule(ctx context.Context, formats strfmt.Registry) error {
-	if o.Schedule != nil {
-		if err := o.Schedule.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "params" + "." + "backup" + "." + "schedule")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -841,52 +789,6 @@ func (o *GetPXCClusterResourcesParamsBodyParamsBackup) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *GetPXCClusterResourcesParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
 	var res GetPXCClusterResourcesParamsBodyParamsBackup
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetPXCClusterResourcesParamsBodyParamsBackupSchedule Schedule represents schedule configration.
-swagger:model GetPXCClusterResourcesParamsBodyParamsBackupSchedule
-*/
-type GetPXCClusterResourcesParamsBodyParamsBackupSchedule struct {
-	// Weekly runs.
-	Week int32 `json:"week,omitempty"`
-
-	// Weekday configuration.
-	Weekday int32 `json:"weekday,omitempty"`
-
-	// Hour configuration.
-	Hour int32 `json:"hour,omitempty"`
-
-	// Minutes configuration.
-	Minute int32 `json:"minute,omitempty"`
-}
-
-// Validate validates this get PXC cluster resources params body params backup schedule
-func (o *GetPXCClusterResourcesParamsBodyParamsBackupSchedule) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get PXC cluster resources params body params backup schedule based on context it is used
-func (o *GetPXCClusterResourcesParamsBodyParamsBackupSchedule) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPXCClusterResourcesParamsBodyParamsBackupSchedule) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPXCClusterResourcesParamsBodyParamsBackupSchedule) UnmarshalBinary(b []byte) error {
-	var res GetPXCClusterResourcesParamsBodyParamsBackupSchedule
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

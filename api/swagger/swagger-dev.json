@@ -19636,35 +19636,9 @@
                               "format": "int32",
                               "x-order": 1
                             },
-                            "schedule": {
-                              "description": "Schedule represents schedule configration.",
-                              "type": "object",
-                              "properties": {
-                                "week": {
-                                  "description": "Weekly runs.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 0
-                                },
-                                "weekday": {
-                                  "description": "Weekday configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 1
-                                },
-                                "hour": {
-                                  "description": "Hour configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 2
-                                },
-                                "minute": {
-                                  "description": "Minutes configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 3
-                                }
-                              },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents well, cron expression",
                               "x-order": 2
                             }
                           },
@@ -19730,35 +19704,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },
@@ -19909,35 +19857,9 @@
                               "format": "int32",
                               "x-order": 1
                             },
-                            "schedule": {
-                              "description": "Schedule represents schedule configration.",
-                              "type": "object",
-                              "properties": {
-                                "week": {
-                                  "description": "Weekly runs.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 0
-                                },
-                                "weekday": {
-                                  "description": "Weekday configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 1
-                                },
-                                "hour": {
-                                  "description": "Hour configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 2
-                                },
-                                "minute": {
-                                  "description": "Minutes configuration.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 3
-                                }
-                              },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents well, cron expression",
                               "x-order": 2
                             }
                           },
@@ -20003,35 +19925,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },
@@ -20320,35 +20216,9 @@
                                 "format": "int32",
                                 "x-order": 1
                               },
-                              "schedule": {
-                                "description": "Schedule represents schedule configration.",
-                                "type": "object",
-                                "properties": {
-                                  "week": {
-                                    "description": "Weekly runs.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "weekday": {
-                                    "description": "Weekday configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 1
-                                  },
-                                  "hour": {
-                                    "description": "Hour configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 2
-                                  },
-                                  "minute": {
-                                    "description": "Minutes configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 3
-                                  }
-                                },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents well, cron expression",
                                 "x-order": 2
                               }
                             },
@@ -20414,35 +20284,9 @@
                             "format": "int32",
                             "x-order": 1
                           },
-                          "schedule": {
-                            "description": "Schedule represents schedule configration.",
-                            "type": "object",
-                            "properties": {
-                              "week": {
-                                "description": "Weekly runs.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 0
-                              },
-                              "weekday": {
-                                "description": "Weekday configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 1
-                              },
-                              "hour": {
-                                "description": "Hour configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 2
-                              },
-                              "minute": {
-                                "description": "Minutes configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 3
-                              }
-                            },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents well, cron expression",
                             "x-order": 2
                           }
                         },
@@ -20597,35 +20441,9 @@
                                 "format": "int32",
                                 "x-order": 1
                               },
-                              "schedule": {
-                                "description": "Schedule represents schedule configration.",
-                                "type": "object",
-                                "properties": {
-                                  "week": {
-                                    "description": "Weekly runs.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "weekday": {
-                                    "description": "Weekday configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 1
-                                  },
-                                  "hour": {
-                                    "description": "Hour configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 2
-                                  },
-                                  "minute": {
-                                    "description": "Minutes configuration.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 3
-                                  }
-                                },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents well, cron expression",
                                 "x-order": 2
                               }
                             },
@@ -20691,35 +20509,9 @@
                             "format": "int32",
                             "x-order": 1
                           },
-                          "schedule": {
-                            "description": "Schedule represents schedule configration.",
-                            "type": "object",
-                            "properties": {
-                              "week": {
-                                "description": "Weekly runs.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 0
-                              },
-                              "weekday": {
-                                "description": "Weekday configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 1
-                              },
-                              "hour": {
-                                "description": "Hour configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 2
-                              },
-                              "minute": {
-                                "description": "Minutes configuration.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 3
-                              }
-                            },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents well, cron expression",
                             "x-order": 2
                           }
                         },
@@ -21659,35 +21451,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },
@@ -21868,35 +21634,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },
@@ -22403,35 +22143,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },
@@ -22680,35 +22394,9 @@
                           "format": "int32",
                           "x-order": 1
                         },
-                        "schedule": {
-                          "description": "Schedule represents schedule configration.",
-                          "type": "object",
-                          "properties": {
-                            "week": {
-                              "description": "Weekly runs.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "weekday": {
-                              "description": "Weekday configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "hour": {
-                              "description": "Hour configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 2
-                            },
-                            "minute": {
-                              "description": "Minutes configuration.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 3
-                            }
-                          },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents well, cron expression",
                           "x-order": 2
                         }
                       },

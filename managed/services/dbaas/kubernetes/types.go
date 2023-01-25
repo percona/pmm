@@ -184,7 +184,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.Backup = &dbaasv1.BackupSpec{
 			Enabled: true,
 			Storages: map[string]*dbaasv1.BackupStorageSpec{
-				backupLocation.Name: &dbaasv1.BackupStorageSpec{
+				backupLocation.Name: {
 					Type: dbaasv1.BackupStorageType(backupLocation.Type),
 					StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 						Bucket:            backupLocation.S3Config.BucketName,
