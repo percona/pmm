@@ -425,7 +425,7 @@ func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "list-units", "--type=service")
+	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))
