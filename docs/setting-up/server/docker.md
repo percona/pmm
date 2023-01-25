@@ -348,7 +348,7 @@ docker cp <containerId>:/srv /target/host/directory
 
 Use the following Docker container environment variables (with `-e var=value`) to set PMM Server parameters.
 
-| Variable  &nbsp; &nbsp;                                                        | Description
+| Variable  &nbsp; &nbsp;  &nbsp;                                 | Description
 | --------------------------------------------------------------- | -----------------------------------------------------------------------
 | `DISABLE_UPDATES`                                               | Disables a periodic check for new PMM versions as well as ability to apply upgrades using the UI
 | `DISABLE_TELEMETRY`                                             | Disable built-in telemetry and disable STT if telemetry is disabled.
