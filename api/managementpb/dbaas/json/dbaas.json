@@ -1328,7 +1328,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -1426,7 +1425,6 @@
                             "location_id": {
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "schedule": {
@@ -1528,7 +1526,6 @@
                             "location_id": {
                               "description": "Backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "secrets_name": {
@@ -1554,7 +1551,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {
@@ -1605,7 +1601,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -1703,7 +1698,6 @@
                             "location_id": {
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "schedule": {
@@ -1873,7 +1867,6 @@
                             "location_id": {
                               "description": "Backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "secrets_name": {
@@ -1899,7 +1892,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {
@@ -2020,7 +2012,6 @@
                           "location_id": {
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "schedule": {
@@ -2118,7 +2109,6 @@
                               "location_id": {
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "schedule": {
@@ -2220,7 +2210,6 @@
                               "location_id": {
                                 "description": "Backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "secrets_name": {
@@ -2246,7 +2235,6 @@
                           "location_id": {
                             "description": "Backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "secrets_name": {
@@ -2301,7 +2289,6 @@
                           "location_id": {
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "schedule": {
@@ -2399,7 +2386,6 @@
                               "location_id": {
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "schedule": {
@@ -2569,7 +2555,6 @@
                               "location_id": {
                                 "description": "Backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "secrets_name": {
@@ -2595,7 +2580,6 @@
                           "location_id": {
                             "description": "Backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "secrets_name": {
@@ -3488,7 +3472,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -3590,7 +3573,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {
@@ -3689,7 +3671,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -3791,7 +3772,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {
@@ -4168,7 +4148,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -4338,7 +4317,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {
@@ -4437,7 +4415,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "schedule": {
@@ -4607,7 +4584,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "secrets_name": {

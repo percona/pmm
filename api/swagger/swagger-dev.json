@@ -19628,7 +19628,6 @@
                             "location_id": {
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "keep_copies": {
@@ -19678,7 +19677,6 @@
                             "location_id": {
                               "description": "Backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "destination": {
@@ -19724,7 +19722,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -19774,7 +19771,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {
@@ -19905,7 +19901,6 @@
                             "location_id": {
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "keep_copies": {
@@ -19955,7 +19950,6 @@
                             "location_id": {
                               "description": "Backup location in PMM.",
                               "type": "string",
-                              "format": "int64",
                               "x-order": 0
                             },
                             "destination": {
@@ -20001,7 +19995,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -20051,7 +20044,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {
@@ -20320,7 +20312,6 @@
                               "location_id": {
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "keep_copies": {
@@ -20370,7 +20361,6 @@
                               "location_id": {
                                 "description": "Backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "destination": {
@@ -20416,7 +20406,6 @@
                           "location_id": {
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "keep_copies": {
@@ -20466,7 +20455,6 @@
                           "location_id": {
                             "description": "Backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "destination": {
@@ -20601,7 +20589,6 @@
                               "location_id": {
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "keep_copies": {
@@ -20651,7 +20638,6 @@
                               "location_id": {
                                 "description": "Backup location in PMM.",
                                 "type": "string",
-                                "format": "int64",
                                 "x-order": 0
                               },
                               "destination": {
@@ -20697,7 +20683,6 @@
                           "location_id": {
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "keep_copies": {
@@ -20747,7 +20732,6 @@
                           "location_id": {
                             "description": "Backup location in PMM.",
                             "type": "string",
-                            "format": "int64",
                             "x-order": 0
                           },
                           "destination": {
@@ -21667,7 +21651,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -21717,7 +21700,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {
@@ -21878,7 +21860,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -21928,7 +21909,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {
@@ -22415,7 +22395,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -22465,7 +22444,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {
@@ -22694,7 +22672,6 @@
                         "location_id": {
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "keep_copies": {
@@ -22744,7 +22721,6 @@
                         "location_id": {
                           "description": "Backup location in PMM.",
                           "type": "string",
-                          "format": "int64",
                           "x-order": 0
                         },
                         "destination": {

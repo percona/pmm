@@ -26,6 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 const (
@@ -141,7 +142,8 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
-			Backup:       dbaasv1.BackupSpec{},
+			// FIXME Remove it or make it better
+			// Backup:       dbaasv1.BackupSpec{},
 		},
 	}
 	if cluster.Params.Pxc.StorageClass != "" {
@@ -230,7 +232,8 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
-			Backup:       dbaasv1.BackupSpec{},
+			// FIXME: Remove it
+			// Backup:       dbaasv1.BackupSpec{},
 		},
 	}
 	if cluster.Params.Replicaset.StorageClass != "" {
@@ -370,4 +373,38 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		dbCluster.Spec.Pause = false
 	}
 	return nil
+}
+
+func BackupStorage(secretsName string, backupLocation *models.BackupLocation) (map[string]*dbaasv1.BackupStorageSpec, error) {
+	storages := make(map[string]*dbaasv1.BackupStorageSpec)
+	storages[backupLocation.Name] = &dbaasv1.BackupStorageSpec{
+		Type: dbaasv1.BackupStorageType(backupLocation.Type),
+		StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+			Bucket:            backupLocation.S3Config.BucketName,
+			Region:            backupLocation.S3Config.BucketRegion,
+			EndpointURL:       backupLocation.S3Config.Endpoint,
+			CredentialsSecret: secretsName,
+		},
+	}
+	return storages, nil
+}
+
+func SecretForBackup(secretsName string, backupLocation *models.BackupLocation) (map[string][]byte, error) {
+	return map[string][]byte{
+		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),
+		"AWS_SECRET_ACCESS_KEY": []byte(backupLocation.S3Config.SecretKey),
+	}, nil
+}
+
+func RestoreForPXC(clusterName string) *dbaasv1.DatabaseClusterRestore {
+	return &dbaasv1.DatabaseClusterRestore{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "DatabaseClusterRestore",
+			APIVersion: "dbaas.percona.com/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: fmt.Sprintf("%s-restore", clusterName),
+		},
+		Spec: dbaasv1.DatabaseClusterRestoreSpec{},
+	}
 }

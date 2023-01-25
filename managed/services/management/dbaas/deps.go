@@ -128,4 +128,5 @@ type kubernetesClient interface {
 	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
+	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
 }

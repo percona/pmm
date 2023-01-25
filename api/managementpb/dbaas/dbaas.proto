@@ -35,7 +35,7 @@ message Schedule {
 // Backup configuration for a database cluster
 message Backup {
   // Backup Location id of stored backup location in PMM.
-  int64 location_id = 1;
+  string location_id = 1;
   // Keep copies represents how many copyies should retain.
   int32 keep_copies = 2;
   // Schedule is a schedule for backups.
@@ -44,7 +44,7 @@ message Backup {
 // Restore represents restoration payload to restore a database cluster from backup
 message Restore {
   // Backup location in PMM.
-  int64 location_id = 1;
+  string location_id = 1;
   // Destination filename.
   string destination = 2;
   // K8s Secrets name.

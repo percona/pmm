@@ -345,6 +345,12 @@ func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byt
 	return k.client.ApplyObject(secret)
 }
 
+func (k *Kubernetes) CreateRestore(restore *dbaasv1.DatabaseClusterRestore) error {
+	k.lock.Lock()
+	defer k.lock.Unlock()
+	return k.client.ApplyObject(restore)
+}
+
 // GetPods returns list of pods based on given filters. Filters are args to
 // kubectl command. For example "-lyour-label=value,next-label=value", "-ntest-namespace".
 func (k *Kubernetes) GetPods(ctx context.Context, namespace string, filters ...string) (*corev1.PodList, error) {
