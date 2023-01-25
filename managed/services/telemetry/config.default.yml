@@ -359,7 +359,7 @@ telemetry:
   # Nodes information - v2
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
-    query: version, agent_type, runs_on_node_id FROM agents
+    query: a.version, a.agent_type, COALESCE(a.runs_on_node_id, aa.runs_on_node_id) AS runs_on_node_id FROM agents a LEFT JOIN agents aa ON a.pmm_agent_id = aa.agent_id
     summary: "Agents version"
     transform:
       type: JSON
