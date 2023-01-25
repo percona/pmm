@@ -149,3 +149,13 @@ func (v *Versioner) MongoDBVersion() (string, error) {
 func (v *Versioner) PBMVersion() (string, error) {
 	return v.binaryVersion(pbmBin, 0, pbmVersionRegexp, "version")
 }
+
+// BinaryVersion retrieves agent binary version.
+func (v *Versioner) BinaryVersion(
+	binaryName string,
+	expectedExitCode int,
+	versionRegexp *regexp.Regexp,
+	arg ...string,
+) (string, error) {
+	return v.binaryVersion(binaryName, expectedExitCode, versionRegexp, arg...)
+}
