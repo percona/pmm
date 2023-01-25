@@ -1313,8 +1313,11 @@ type GetPXCClusterResourcesParamsBodyParamsRestore struct {
 	// Backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Destination filename
+	// Destination filename.
 	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params restore

@@ -19682,9 +19682,14 @@
                               "x-order": 0
                             },
                             "destination": {
+                              "description": "Destination filename.",
                               "type": "string",
-                              "title": "Destination filename",
                               "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
                             }
                           },
                           "x-order": 5
@@ -19773,9 +19778,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 9
@@ -19949,9 +19959,14 @@
                               "x-order": 0
                             },
                             "destination": {
+                              "description": "Destination filename.",
                               "type": "string",
-                              "title": "Destination filename",
                               "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
                             }
                           },
                           "x-order": 4
@@ -20040,9 +20055,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 9
@@ -20354,9 +20374,14 @@
                                 "x-order": 0
                               },
                               "destination": {
+                                "description": "Destination filename.",
                                 "type": "string",
-                                "title": "Destination filename",
                                 "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
                               }
                             },
                             "x-order": 5
@@ -20445,9 +20470,14 @@
                             "x-order": 0
                           },
                           "destination": {
+                            "description": "Destination filename.",
                             "type": "string",
-                            "title": "Destination filename",
                             "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
                           }
                         },
                         "x-order": 9
@@ -20625,9 +20655,14 @@
                                 "x-order": 0
                               },
                               "destination": {
+                                "description": "Destination filename.",
                                 "type": "string",
-                                "title": "Destination filename",
                                 "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
                               }
                             },
                             "x-order": 4
@@ -20716,9 +20751,14 @@
                             "x-order": 0
                           },
                           "destination": {
+                            "description": "Destination filename.",
                             "type": "string",
-                            "title": "Destination filename",
                             "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
                           }
                         },
                         "x-order": 9
@@ -21681,9 +21721,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 4
@@ -21887,9 +21932,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 4
@@ -22419,9 +22469,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 5
@@ -22693,9 +22748,14 @@
                           "x-order": 0
                         },
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 5

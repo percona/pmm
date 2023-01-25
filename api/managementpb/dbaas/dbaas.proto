@@ -45,8 +45,10 @@ message Backup {
 message Restore {
   // Backup location in PMM.
   int64 location_id = 1;
-  // Destination filename
+  // Destination filename.
   string destination = 2;
+  // K8s Secrets name.
+  string secrets_name = 3;
 }
 
 // Resources contains Kubernetes cluster resources.

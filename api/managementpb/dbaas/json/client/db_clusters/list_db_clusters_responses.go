@@ -1421,8 +1421,11 @@ type ListDBClustersOKBodyPSMDBClustersItems0ParamsRestore struct {
 	// Backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Destination filename
+	// Destination filename.
 	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0 params restore
@@ -1461,8 +1464,11 @@ type ListDBClustersOKBodyPSMDBClustersItems0Restore struct {
 	// Backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Destination filename
+	// Destination filename.
 	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0 restore
@@ -2823,8 +2829,11 @@ type ListDBClustersOKBodyPXCClustersItems0ParamsRestore struct {
 	// Backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Destination filename
+	// Destination filename.
 	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0 params restore
@@ -2863,8 +2872,11 @@ type ListDBClustersOKBodyPXCClustersItems0Restore struct {
 	// Backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Destination filename
+	// Destination filename.
 	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0 restore

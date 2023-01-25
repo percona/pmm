@@ -1521,8 +1521,8 @@
                           "title": "Restore represents restoration payload to restore a database cluster from backup",
                           "properties": {
                             "destination": {
+                              "description": "Destination filename.",
                               "type": "string",
-                              "title": "Destination filename",
                               "x-order": 1
                             },
                             "location_id": {
@@ -1530,6 +1530,11 @@
                               "type": "string",
                               "format": "int64",
                               "x-order": 0
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
                             }
                           },
                           "x-order": 4
@@ -1542,8 +1547,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -1551,6 +1556,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 9
@@ -1856,8 +1866,8 @@
                           "title": "Restore represents restoration payload to restore a database cluster from backup",
                           "properties": {
                             "destination": {
+                              "description": "Destination filename.",
                               "type": "string",
-                              "title": "Destination filename",
                               "x-order": 1
                             },
                             "location_id": {
@@ -1865,6 +1875,11 @@
                               "type": "string",
                               "format": "int64",
                               "x-order": 0
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
                             }
                           },
                           "x-order": 5
@@ -1877,8 +1892,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -1886,6 +1901,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 9
@@ -2193,8 +2213,8 @@
                             "title": "Restore represents restoration payload to restore a database cluster from backup",
                             "properties": {
                               "destination": {
+                                "description": "Destination filename.",
                                 "type": "string",
-                                "title": "Destination filename",
                                 "x-order": 1
                               },
                               "location_id": {
@@ -2202,6 +2222,11 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 0
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
                               }
                             },
                             "x-order": 4
@@ -2214,8 +2239,8 @@
                         "title": "Restore represents restoration payload to restore a database cluster from backup",
                         "properties": {
                           "destination": {
+                            "description": "Destination filename.",
                             "type": "string",
-                            "title": "Destination filename",
                             "x-order": 1
                           },
                           "location_id": {
@@ -2223,6 +2248,11 @@
                             "type": "string",
                             "format": "int64",
                             "x-order": 0
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
                           }
                         },
                         "x-order": 9
@@ -2532,8 +2562,8 @@
                             "title": "Restore represents restoration payload to restore a database cluster from backup",
                             "properties": {
                               "destination": {
+                                "description": "Destination filename.",
                                 "type": "string",
-                                "title": "Destination filename",
                                 "x-order": 1
                               },
                               "location_id": {
@@ -2541,6 +2571,11 @@
                                 "type": "string",
                                 "format": "int64",
                                 "x-order": 0
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
                               }
                             },
                             "x-order": 5
@@ -2553,8 +2588,8 @@
                         "title": "Restore represents restoration payload to restore a database cluster from backup",
                         "properties": {
                           "destination": {
+                            "description": "Destination filename.",
                             "type": "string",
-                            "title": "Destination filename",
                             "x-order": 1
                           },
                           "location_id": {
@@ -2562,6 +2597,11 @@
                             "type": "string",
                             "format": "int64",
                             "x-order": 0
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
                           }
                         },
                         "x-order": 9
@@ -3543,8 +3583,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -3552,6 +3592,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 4
@@ -3739,8 +3784,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -3748,6 +3793,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 4
@@ -4281,8 +4331,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -4290,6 +4340,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 5
@@ -4545,8 +4600,8 @@
                       "title": "Restore represents restoration payload to restore a database cluster from backup",
                       "properties": {
                         "destination": {
+                          "description": "Destination filename.",
                           "type": "string",
-                          "title": "Destination filename",
                           "x-order": 1
                         },
                         "location_id": {
@@ -4554,6 +4609,11 @@
                           "type": "string",
                           "format": "int64",
                           "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
                         }
                       },
                       "x-order": 5
