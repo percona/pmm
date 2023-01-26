@@ -819,6 +819,11 @@ var databaseSchema = [][]string{
 		`ALTER TABLE roles
 		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
 	},
+	77: {
+		`UPDATE scheduled_tasks
+			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
+			WHERE type = 'mongodb_backup'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

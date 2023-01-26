@@ -135,3 +135,13 @@ func (v *Versioner) XbcloudVersion() (string, error) {
 func (v *Versioner) Qpress() (string, error) {
 	return v.binaryVersion(qpressBin, 255, qpressRegexp)
 }
+
+// BinaryVersion retrieves agent binary version.
+func (v *Versioner) BinaryVersion(
+	binaryName string,
+	expectedExitCode int,
+	versionRegexp *regexp.Regexp,
+	arg ...string,
+) (string, error) {
+	return v.binaryVersion(binaryName, expectedExitCode, versionRegexp, arg...)
+}
