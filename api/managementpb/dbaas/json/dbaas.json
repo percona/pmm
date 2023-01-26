@@ -1321,7 +1321,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -1334,6 +1334,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 8
@@ -1392,7 +1397,7 @@
                           "properties": {
                             "cron_expression": {
                               "type": "string",
-                              "title": "Cron expression represents well, cron expression",
+                              "title": "Cron expression represents cron expression",
                               "x-order": 2
                             },
                             "keep_copies": {
@@ -1405,6 +1410,11 @@
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
                             }
                           },
                           "x-order": 3
@@ -1542,7 +1552,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -1555,6 +1565,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 8
@@ -1613,7 +1628,7 @@
                           "properties": {
                             "cron_expression": {
                               "type": "string",
-                              "title": "Cron expression represents well, cron expression",
+                              "title": "Cron expression represents cron expression",
                               "x-order": 2
                             },
                             "keep_copies": {
@@ -1626,6 +1641,11 @@
                               "description": "Backup Location id of stored backup location in PMM.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
                             }
                           },
                           "x-order": 4
@@ -1901,7 +1921,7 @@
                         "properties": {
                           "cron_expression": {
                             "type": "string",
-                            "title": "Cron expression represents well, cron expression",
+                            "title": "Cron expression represents cron expression",
                             "x-order": 2
                           },
                           "keep_copies": {
@@ -1914,6 +1934,11 @@
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
                             "x-order": 0
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
                           }
                         },
                         "x-order": 8
@@ -1972,7 +1997,7 @@
                             "properties": {
                               "cron_expression": {
                                 "type": "string",
-                                "title": "Cron expression represents well, cron expression",
+                                "title": "Cron expression represents cron expression",
                                 "x-order": 2
                               },
                               "keep_copies": {
@@ -1985,6 +2010,11 @@
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
                                 "x-order": 0
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
                               }
                             },
                             "x-order": 3
@@ -2126,7 +2156,7 @@
                         "properties": {
                           "cron_expression": {
                             "type": "string",
-                            "title": "Cron expression represents well, cron expression",
+                            "title": "Cron expression represents cron expression",
                             "x-order": 2
                           },
                           "keep_copies": {
@@ -2139,6 +2169,11 @@
                             "description": "Backup Location id of stored backup location in PMM.",
                             "type": "string",
                             "x-order": 0
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
                           }
                         },
                         "x-order": 8
@@ -2197,7 +2232,7 @@
                             "properties": {
                               "cron_expression": {
                                 "type": "string",
-                                "title": "Cron expression represents well, cron expression",
+                                "title": "Cron expression represents cron expression",
                                 "x-order": 2
                               },
                               "keep_copies": {
@@ -2210,6 +2245,11 @@
                                 "description": "Backup Location id of stored backup location in PMM.",
                                 "type": "string",
                                 "x-order": 0
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
                               }
                             },
                             "x-order": 4
@@ -3257,7 +3297,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -3270,6 +3310,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 3
@@ -3430,7 +3475,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -3443,6 +3488,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 3
@@ -3881,7 +3931,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -3894,6 +3944,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 4
@@ -4122,7 +4177,7 @@
                       "properties": {
                         "cron_expression": {
                           "type": "string",
-                          "title": "Cron expression represents well, cron expression",
+                          "title": "Cron expression represents cron expression",
                           "x-order": 2
                         },
                         "keep_copies": {
@@ -4135,6 +4190,11 @@
                           "description": "Backup Location id of stored backup location in PMM.",
                           "type": "string",
                           "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
                         }
                       },
                       "x-order": 4

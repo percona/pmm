@@ -764,8 +764,11 @@ type GetPXCClusterResourcesParamsBodyParamsBackup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// Cron expression represents well, cron expression
+	// Cron expression represents cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params backup

@@ -147,8 +147,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
-			// FIXME Remove it or make it better
-			// Backup:       dbaasv1.BackupSpec{},
+			Backup:       &dbaasv1.BackupSpec{},
 		},
 	}
 	if cluster.Params.Pxc.StorageClass != "" {
@@ -181,17 +180,15 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
-		dbCluster.Spec.Backup = &dbaasv1.BackupSpec{
-			Enabled: true,
-			Storages: map[string]*dbaasv1.BackupStorageSpec{
-				backupLocation.Name: {
-					Type: dbaasv1.BackupStorageType(backupLocation.Type),
-					StorageProvider: &dbaasv1.BackupStorageProviderSpec{
-						Bucket:            backupLocation.S3Config.BucketName,
-						Region:            backupLocation.S3Config.BucketRegion,
-						EndpointURL:       backupLocation.S3Config.Endpoint,
-						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
-					},
+		dbCluster.Spec.Backup.Enabled = true
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
 				},
 			},
 		}
@@ -220,6 +217,32 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				},
 			},
 		}
+	}
+	if cluster.Params.Backup != nil {
+
+		dbCluster.Spec.Backup.Enabled = true
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+				},
+			},
+		}
+		dbCluster.Spec.Backup.ServiceAccountName = cluster.Params.Backup.ServiceAccount
+		dbCluster.Spec.Backup.Schedule = []dbaasv1.BackupSchedule{
+			{
+				Name:        "schedule",
+				Enabled:     true,
+				Schedule:    cluster.Params.Backup.CronExpression,
+				Keep:        int(cluster.Params.Backup.KeepCopies),
+				StorageName: backupLocation.Name,
+			},
+		}
+
 	}
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]

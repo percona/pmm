@@ -27,8 +27,10 @@ message Backup {
   string location_id = 1;
   // Keep copies represents how many copyies should retain.
   int32 keep_copies = 2;
-  // Cron expression represents well, cron expression
+  // Cron expression represents cron expression
   string cron_expression = 3;
+  // Service acccount used for backups
+  string service_account = 4;
 }
 // Restore represents restoration payload to restore a database cluster from backup
 message Restore {

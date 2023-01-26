@@ -775,8 +775,11 @@ type ListDBClustersOKBodyPSMDBClustersItems0Backup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// Cron expression represents well, cron expression
+	// Cron expression represents cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0 backup
@@ -1046,8 +1049,11 @@ type ListDBClustersOKBodyPSMDBClustersItems0ParamsBackup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// Cron expression represents well, cron expression
+	// Cron expression represents cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0 params backup
@@ -1628,8 +1634,11 @@ type ListDBClustersOKBodyPXCClustersItems0Backup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// Cron expression represents well, cron expression
+	// Cron expression represents cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0 backup
@@ -1986,8 +1995,11 @@ type ListDBClustersOKBodyPXCClustersItems0ParamsBackup struct {
 	// Keep copies represents how many copyies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
-	// Cron expression represents well, cron expression
+	// Cron expression represents cron expression
 	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0 params backup
