@@ -21,6 +21,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -369,6 +373,46 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil
 }
 
+// DeleteDBCluster deletes DB cluster by given name and type.
+func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
+	if req == nil && (req != nil && req.LocationId == "") {
+		return nil, errors.New("location_id cannot be empty")
+	}
+	backupLocation, err := models.FindBackupLocationByID(s.db.Querier, req.LocationId)
+	if err != nil {
+		return nil, err
+	}
+	if backupLocation.Type != models.S3BackupLocationType {
+		return nil, errors.New("only s3 compatible storages are supported")
+	}
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(backupLocation.S3Config.BucketRegion),
+		Credentials: credentials.NewStaticCredentials(
+			backupLocation.S3Config.AccessKey,
+			backupLocation.S3Config.SecretKey,
+			"",
+		),
+	})
+	if err != nil {
+		return nil, err
+	}
+	s3Client := s3.New(sess)
+	var items []*dbaasv1beta1.S3Item
+	obj, err := s3Client.ListObjects(&s3.ListObjectsInput{
+		Bucket:    aws.String(backupLocation.S3Config.BucketName),
+		Delimiter: aws.String("/"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range obj.Contents {
+		items = append(items, &dbaasv1beta1.S3Item{
+			Key: fmt.Sprintf("s3://%s/%s", backupLocation.S3Config.BucketName, strings.Replace(*item.Key, ".md5", "", -1)),
+		})
+	}
+	return &dbaasv1beta1.ListS3BackupsResponse{Backups: items}, nil
+
+}
 func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
 	return map[dbaasv1.AppState]dbaasv1beta1.DBClusterState{
 		dbaasv1.AppStateUnknown:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,
