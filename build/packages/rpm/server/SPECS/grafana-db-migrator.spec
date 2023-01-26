@@ -33,7 +33,7 @@ install -m 755 dist/grafana-db-migrator %{buildroot}%{_sbindir}/
 * Fri Jan 27 2023 Nikita Beletskii <2nikita.b@gmail.com> - 1.0.6-1
 - Fix build
 
-* Tue Jan 17 2022 Nikita Beletskii <2nikita.b@gmail.com> - 1.0.5-1
+* Tue Jan 17 2023 Nikita Beletskii <2nikita.b@gmail.com> - 1.0.5-1
 - Upgrade grafana-db-migrator for Grafana 8 and Grafana 9
 
 * Tue Mar 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 1.0.4-1
