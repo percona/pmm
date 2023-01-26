@@ -163,6 +163,16 @@ message DeleteDBClusterRequest {
 
 message DeleteDBClusterResponse {}
 
+message S3Item {
+  // Key of a filename on s3.
+  string key = 1;
+}
+message ListS3BackupsRequest {
+  // Backup Location ID to list backups from
+  string location_id = 1;
+}
+message ListS3BackupsResponse {}
+
 // DBClusters service provides public methods for managing db clusters.
 service DBClusters {
   // ListDBClusters returns a list of DB clusters.
@@ -190,6 +200,14 @@ service DBClusters {
   rpc DeleteDBCluster(DeleteDBClusterRequest) returns (DeleteDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/DBClusters/Delete"
+      body: "*"
+    };
+  }
+
+  // ListS3Backups lists backups stored on s3.
+  rpc ListS3Backups(ListS3BackupsRequest) returns (ListS3BackupsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Backups/List"
       body: "*"
     };
   }

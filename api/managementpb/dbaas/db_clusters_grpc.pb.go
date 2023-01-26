@@ -31,6 +31,8 @@ type DBClustersClient interface {
 	RestartDBCluster(ctx context.Context, in *RestartDBClusterRequest, opts ...grpc.CallOption) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
 	DeleteDBCluster(ctx context.Context, in *DeleteDBClusterRequest, opts ...grpc.CallOption) (*DeleteDBClusterResponse, error)
+	// ListS3Backups lists backups stored on s3.
+	ListS3Backups(ctx context.Context, in *ListS3BackupsRequest, opts ...grpc.CallOption) (*ListS3BackupsResponse, error)
 }
 
 type dBClustersClient struct {
@@ -77,6 +79,15 @@ func (c *dBClustersClient) DeleteDBCluster(ctx context.Context, in *DeleteDBClus
 	return out, nil
 }
 
+func (c *dBClustersClient) ListS3Backups(ctx context.Context, in *ListS3BackupsRequest, opts ...grpc.CallOption) (*ListS3BackupsResponse, error) {
+	out := new(ListS3BackupsResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/ListS3Backups", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DBClustersServer is the server API for DBClusters service.
 // All implementations must embed UnimplementedDBClustersServer
 // for forward compatibility
@@ -89,6 +100,8 @@ type DBClustersServer interface {
 	RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
 	DeleteDBCluster(context.Context, *DeleteDBClusterRequest) (*DeleteDBClusterResponse, error)
+	// ListS3Backups lists backups stored on s3.
+	ListS3Backups(context.Context, *ListS3BackupsRequest) (*ListS3BackupsResponse, error)
 	mustEmbedUnimplementedDBClustersServer()
 }
 
@@ -109,6 +122,10 @@ func (UnimplementedDBClustersServer) RestartDBCluster(context.Context, *RestartD
 
 func (UnimplementedDBClustersServer) DeleteDBCluster(context.Context, *DeleteDBClusterRequest) (*DeleteDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDBCluster not implemented")
+}
+
+func (UnimplementedDBClustersServer) ListS3Backups(context.Context, *ListS3BackupsRequest) (*ListS3BackupsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListS3Backups not implemented")
 }
 func (UnimplementedDBClustersServer) mustEmbedUnimplementedDBClustersServer() {}
 
@@ -195,6 +212,24 @@ func _DBClusters_DeleteDBCluster_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DBClusters_ListS3Backups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListS3BackupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DBClustersServer).ListS3Backups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.DBClusters/ListS3Backups",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DBClustersServer).ListS3Backups(ctx, req.(*ListS3BackupsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DBClusters_ServiceDesc is the grpc.ServiceDesc for DBClusters service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -217,6 +252,10 @@ var DBClusters_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteDBCluster",
 			Handler:    _DBClusters_DeleteDBCluster_Handler,
+		},
+		{
+			MethodName: "ListS3Backups",
+			Handler:    _DBClusters_ListS3Backups_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

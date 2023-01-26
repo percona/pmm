@@ -144,3 +144,15 @@ func (this *DeleteDBClusterRequest) Validate() error {
 func (this *DeleteDBClusterResponse) Validate() error {
 	return nil
 }
+
+func (this *S3Item) Validate() error {
+	return nil
+}
+
+func (this *ListS3BackupsRequest) Validate() error {
+	return nil
+}
+
+func (this *ListS3BackupsResponse) Validate() error {
+	return nil
+}
