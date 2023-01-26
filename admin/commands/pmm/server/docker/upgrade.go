@@ -15,10 +15,12 @@
 package docker
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -38,14 +40,19 @@ type UpgradeCommand struct {
 	ContainerID            string `default:"pmm-server" help:"Container ID of the PMM Server to upgrade"`
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
-
-	dockerFn Functions
+	AssumeYes              bool   `name:"yes" short:"y" help:"Assume yes for all prompts"`
+	dockerFn               Functions
 }
 
 const (
 	dateSuffixFormat = "2006-01-02-15-04-05"
 	volumeCopyImage  = "alpine:3"
 )
+
+var copyLabelsToVolumeBackup = []string{
+	"org.label-schema.version",
+	"org.opencontainers.image.version",
+}
 
 var (
 	// ErrContainerWait is returned on error response from container wait.
@@ -82,7 +89,9 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	if !c.isInstalledViaCli(currentContainer) {
-		return nil, fmt.Errorf("%w: the existing PMM Server was not installed via pmm cli", ErrNotInstalledFromCli)
+		if !c.confirmToContinue(c.ContainerID) {
+			return nil, fmt.Errorf("%w: the existing PMM Server was not installed via pmm cli", ErrNotInstalledFromCli)
+		}
 	}
 
 	logrus.Infof("Downloading PMM Server %s", c.DockerImage)
@@ -127,6 +136,33 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 	return false
 }
 
+func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
+	fmt.Printf(`
+PMM Server in the container %[1]q was not installed via pmm cli.
+We will attempt to upgrade the container and perform the following actions:
+
+- Stop the container %[1]q
+- Back up all volumes in %[1]q
+- Mount all volumes from %[1]q in the new container
+- Share the same network ports as in %[1]q
+
+The container %[1]q will NOT be removed. You can remove it manually later, if needed.
+
+`, containerID)
+
+	if c.AssumeYes {
+		return true
+	}
+
+	fmt.Print("Are you sure you want to continue? [y/N] ")
+
+	s := bufio.NewScanner(os.Stdin)
+	s.Scan()
+	input := s.Text()
+
+	return strings.ToLower(input) == "y"
+}
+
 func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.ContainerJSON) error {
 	logrus.Info("Starting backup of volumes")
 
@@ -141,8 +177,18 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 			continue
 		}
 
+		// Copy labels from original container to backup volume
+		labels := make(map[string]string, 1+len(copyLabelsToVolumeBackup))
+		for _, l := range copyLabelsToVolumeBackup {
+			if _, ok := container.Config.Labels[l]; ok {
+				labels[l] = container.Config.Labels[l]
+			}
+		}
+
+		labels["percona.pmm.created"] = now.Format(dateSuffixFormat)
+
 		backupName := fmt.Sprintf("%s-backup-%s", m.Name, now.Format(dateSuffixFormat))
-		_, err := c.dockerFn.CreateVolume(ctx, backupName)
+		_, err := c.dockerFn.CreateVolume(ctx, backupName, labels)
 		if err != nil {
 			return err
 		}

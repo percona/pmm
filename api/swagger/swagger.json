@@ -570,6 +570,17 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     }
                   },
                   "x-order": 0
@@ -826,6 +837,17 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 20
+                    },
+                    "default_role_id": {
+                      "description": "Default Access Control role ID for new users.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 21
                     }
                   },
                   "x-order": 0
@@ -23483,6 +23505,80 @@
                   "type": "boolean",
                   "title": "Alerting Tour",
                   "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/user/list": {
+      "post": {
+        "description": "Retrieve user details for all users from PMM server",
+        "tags": [
+          "User"
+        ],
+        "summary": "List all users with details",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "user_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "role_ids": {
+                        "description": "List of role IDs assigned to the user.",
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
                 }
               }
             }

@@ -26,6 +26,8 @@ enum KubernetesClusterStatus {
   KUBERNETES_CLUSTER_STATUS_OK = 1;
   // KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.
   KUBERNETES_CLUSTER_STATUS_UNAVAILABLE = 2;
+  // KUBERNETES_CLUSTER_STATUS_PROVISIONING represents that Kubernetes cluster is privisioning.
+  KUBERNETES_CLUSTER_STATUS_PROVISIONING = 4;
 }
 
 // Operator contains all information about operator installed in Kubernetes cluster.
@@ -40,6 +42,8 @@ message Operators {
   Operator pxc = 1;
   // Percona Server for MongoDB Operator.
   Operator psmdb = 2;
+  // DBaaS operator.
+  Operator dbaas = 3;
 }
 
 message ListKubernetesClustersRequest {}
@@ -124,6 +128,20 @@ message GetResourcesResponse {
   Resources available = 2;
 }
 
+message ListStorageClassesRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListStorageClassesResponse {
+  // Kubernetes storage classes names.
+  repeated string storage_classes = 1;
+}
+
 // Kubernetes service provides public methods for managing Kubernetes clusters.
 service Kubernetes {
   // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -161,6 +179,13 @@ service Kubernetes {
   rpc GetResources(GetResourcesRequest) returns (GetResourcesResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Kubernetes/Resources/Get"
+      body: "*"
+    };
+  }
+  // ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
+  rpc ListStorageClasses(ListStorageClassesRequest) returns (ListStorageClassesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Kubernetes/StorageClasses/List"
       body: "*"
     };
   }

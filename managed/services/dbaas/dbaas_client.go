@@ -43,6 +43,7 @@ type Client struct {
 	logsClient                controllerv1beta1.LogsAPIClient
 	pxcOperatorClient         controllerv1beta1.PXCOperatorAPIClient
 	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
+	olmOperatorClient         controllerv1beta1.OLMOperatorAPIClient
 	connM                     sync.RWMutex
 	conn                      *grpc.ClientConn
 	dbaasControllerAPIAddress string
@@ -87,6 +88,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	c.logsClient = controllerv1beta1.NewLogsAPIClient(conn)
 	c.psmdbOperatorClient = controllerv1beta1.NewPSMDBOperatorAPIClient(conn)
 	c.pxcOperatorClient = controllerv1beta1.NewPXCOperatorAPIClient(conn)
+	c.olmOperatorClient = controllerv1beta1.NewOLMOperatorAPIClient(conn)
 
 	c.l.Info("Connected to dbaas-controller API.")
 	return nil
@@ -121,89 +123,6 @@ func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfi
 		},
 	}
 	return c.kubernetesClient.CheckKubernetesClusterConnection(ctx, in)
-}
-
-func (c *Client) ListPXCClusters(ctx context.Context, in *controllerv1beta1.ListPXCClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPXCClustersResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.ListPXCClusters(ctx, in, opts...)
-}
-
-// CreatePXCCluster creates a new PXC cluster.
-func (c *Client) CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.CreatePXCCluster(ctx, in, opts...)
-}
-
-// UpdatePXCCluster updates existing PXC cluster.
-func (c *Client) UpdatePXCCluster(ctx context.Context, in *controllerv1beta1.UpdatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.UpdatePXCCluster(ctx, in, opts...)
-}
-
-// DeletePXCCluster deletes PXC cluster.
-func (c *Client) DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.DeletePXCCluster(ctx, in, opts...)
-}
-
-// RestartPXCCluster restarts PXC cluster.
-func (c *Client) RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.RestartPXCCluster(ctx, in, opts...)
-}
-
-// GetPXCClusterCredentials gets PXC cluster credentials.
-func (c *Client) GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.GetPXCClusterCredentials(ctx, in, opts...)
-}
-
-// ListPSMDBClusters returns a list of PSMDB clusters.
-func (c *Client) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.ListPSMDBClusters(ctx, in, opts...)
-}
-
-// CreatePSMDBCluster creates a new PSMDB cluster.
-func (c *Client) CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.CreatePSMDBCluster(ctx, in, opts...)
-}
-
-// UpdatePSMDBCluster updates existing PSMDB cluster.
-func (c *Client) UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.UpdatePSMDBCluster(ctx, in, opts...)
-}
-
-// DeletePSMDBCluster deletes PSMDB cluster.
-func (c *Client) DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.DeletePSMDBCluster(ctx, in, opts...)
-}
-
-// RestartPSMDBCluster restarts PSMDB cluster.
-func (c *Client) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.RestartPSMDBCluster(ctx, in, opts...)
-}
-
-// GetPSMDBClusterCredentials gets PSMDB cluster credentials.
-func (c *Client) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.GetPSMDBClusterCredentials(ctx, in, opts...)
 }
 
 // GetLogs gets logs out of cluster containers and events out of pods.
@@ -254,6 +173,7 @@ func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKube
 
 	kClient, err := kubernetes.NewIncluster()
 	if err != nil {
+		c.l.Errorf("failed creating kubernetes client: %v", err)
 		return nil, err
 	}
 
@@ -261,4 +181,41 @@ func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKube
 	return &controllerv1beta1.GetKubeconfigResponse{
 		Kubeconfig: kubeConfig,
 	}, err
+}
+
+// InstallOLMOperator installs the OLM operator.
+func (c *Client) InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.InstallOLMOperator(ctx, in, opts...)
+}
+
+func (c *Client) InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.InstallOperator(ctx, in, opts...)
+}
+
+func (c *Client) ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ListInstallPlans(ctx, in, opts...)
+}
+
+func (c *Client) ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ApproveInstallPlan(ctx, in, opts...)
+}
+
+func (c *Client) ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.ListSubscriptions(ctx, in, opts...)
+}
+
+func (c *Client) GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	return c.olmOperatorClient.GetSubscription(ctx, in, opts...)
 }
