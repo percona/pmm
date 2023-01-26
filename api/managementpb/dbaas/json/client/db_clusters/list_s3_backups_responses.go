@@ -54,20 +54,22 @@ ListS3BackupsOK describes a response with status code 200, with default header v
 A successful response.
 */
 type ListS3BackupsOK struct {
-	Payload interface{}
+	Payload *ListS3BackupsOKBody
 }
 
 func (o *ListS3BackupsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Backups/List][%d] listS3BackupsOk  %+v", 200, o.Payload)
 }
 
-func (o *ListS3BackupsOK) GetPayload() interface{} {
+func (o *ListS3BackupsOK) GetPayload() *ListS3BackupsOKBody {
 	return o.Payload
 }
 
 func (o *ListS3BackupsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ListS3BackupsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -287,6 +289,141 @@ func (o *ListS3BackupsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ListS3BackupsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res ListS3BackupsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListS3BackupsOKBody list s3 backups OK body
+swagger:model ListS3BackupsOKBody
+*/
+type ListS3BackupsOKBody struct {
+	// Backup list.
+	Backups []*ListS3BackupsOKBodyBackupsItems0 `json:"backups"`
+}
+
+// Validate validates this list s3 backups OK body
+func (o *ListS3BackupsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateBackups(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListS3BackupsOKBody) validateBackups(formats strfmt.Registry) error {
+	if swag.IsZero(o.Backups) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Backups); i++ {
+		if swag.IsZero(o.Backups[i]) { // not required
+			continue
+		}
+
+		if o.Backups[i] != nil {
+			if err := o.Backups[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listS3BackupsOk" + "." + "backups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listS3BackupsOk" + "." + "backups" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list s3 backups OK body based on the context it is used
+func (o *ListS3BackupsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBackups(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListS3BackupsOKBody) contextValidateBackups(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Backups); i++ {
+		if o.Backups[i] != nil {
+			if err := o.Backups[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listS3BackupsOk" + "." + "backups" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listS3BackupsOk" + "." + "backups" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListS3BackupsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListS3BackupsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListS3BackupsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListS3BackupsOKBodyBackupsItems0 list s3 backups OK body backups items0
+swagger:model ListS3BackupsOKBodyBackupsItems0
+*/
+type ListS3BackupsOKBodyBackupsItems0 struct {
+	// Key of a filename on s3.
+	Key string `json:"key,omitempty"`
+}
+
+// Validate validates this list s3 backups OK body backups items0
+func (o *ListS3BackupsOKBodyBackupsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list s3 backups OK body backups items0 based on context it is used
+func (o *ListS3BackupsOKBodyBackupsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListS3BackupsOKBodyBackupsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListS3BackupsOKBodyBackupsItems0) UnmarshalBinary(b []byte) error {
+	var res ListS3BackupsOKBodyBackupsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

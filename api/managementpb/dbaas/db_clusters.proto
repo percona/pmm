@@ -171,7 +171,10 @@ message ListS3BackupsRequest {
   // Backup Location ID to list backups from
   string location_id = 1;
 }
-message ListS3BackupsResponse {}
+message ListS3BackupsResponse {
+  // Backup list.
+  repeated S3Item backups = 1;
+}
 
 // DBClusters service provides public methods for managing db clusters.
 service DBClusters {
