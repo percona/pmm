@@ -42,7 +42,7 @@ type UpgradeCommand struct {
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
 
 	AssumeYes               bool `name:"yes" short:"y" help:"Assume yes for all prompts"`
-	dockerFn                containerManager
+	docker                  containerManager
 	l                       *logrus.Entry
 	waitBeforeContainerStop time.Duration
 }
@@ -91,13 +91,13 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 
 	c.l.Info("Starting PMM Server upgrade via Docker")
 
-	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})
+	d, err := prepareDocker(ctx, c.docker, prepareOpts{install: false})
 	if err != nil {
 		return nil, err
 	}
-	c.dockerFn = d
+	c.docker = d
 
-	currentContainer, err := c.dockerFn.ContainerInspect(ctx, c.ContainerID)
+	currentContainer, err := c.docker.ContainerInspect(ctx, c.ContainerID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	noTimeout := -1 * time.Second
-	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
+	if err = c.docker.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
 	}
 
@@ -141,7 +141,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	// Disable restart policy in the old container
-	_, err = c.dockerFn.ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
+	_, err = c.docker.ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
 		RestartPolicy: container.RestartPolicy{Name: "no"},
 	})
 	if err != nil {
@@ -220,7 +220,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 		labels["percona.pmm.created"] = now.Format(dateSuffixFormat)
 
 		backupName := fmt.Sprintf("%s-backup-%s", m.Name, now.Format(dateSuffixFormat))
-		_, err := c.dockerFn.CreateVolume(ctx, backupName, labels)
+		_, err := c.docker.CreateVolume(ctx, backupName, labels)
 		if err != nil {
 			return err
 		}
@@ -235,7 +235,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 }
 
 func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
-	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
+	reader, err := c.docker.PullImage(ctx, imageName, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error 
 
 func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume, dstVolume string) error {
 	c.l.Infof("Starting container to backup %q to %q", srcVolume, dstVolume)
-	containerID, err := c.dockerFn.RunContainer(ctx, &container.Config{
+	containerID, err := c.docker.RunContainer(ctx, &container.Config{
 		Image: volumeCopyImage,
 		Cmd:   strslice.StrSlice{"cp", "-prT", "/srv-original", "/srv-backup"},
 		Labels: map[string]string{
@@ -268,7 +268,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 	}
 
 	c.l.Info("Backing up volume data")
-	waitC, errC := c.dockerFn.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
+	waitC, errC := c.docker.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
 	select {
 	case res := <-waitC:
 		if res.Error != nil {
@@ -295,7 +295,7 @@ func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer type
 
 	containerID, err := startPMMServer(
 		ctx, nil, currentContainer.ID, c.DockerImage,
-		c.dockerFn, currentContainer.HostConfig.PortBindings, containerName,
+		c.docker, currentContainer.HostConfig.PortBindings, containerName,
 		currentContainer.Config.Env)
 	if err != nil {
 		return err

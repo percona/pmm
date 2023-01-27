@@ -38,7 +38,7 @@ func TestUpgradeCmd(t *testing.T) {
 		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
@@ -70,7 +70,7 @@ func TestUpgradeCmd(t *testing.T) {
 		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
 		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(types.ContainerJSON{
@@ -88,7 +88,7 @@ func TestUpgradeCmd(t *testing.T) {
 		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)

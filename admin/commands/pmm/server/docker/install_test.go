@@ -40,7 +40,7 @@ func TestRunContainer(t *testing.T) {
 		).Return("container-id", nil)
 
 		c := InstallCommand{
-			dockerFn:      m,
+			docker:        m,
 			ContainerName: "my-container",
 		}
 		containerID, err := c.runContainer(context.Background(), &types.Volume{}, "docker-image")
@@ -70,7 +70,7 @@ func TestRunCmd(t *testing.T) {
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
-			dockerFn:      m,
+			docker:        m,
 			AdminPassword: "admin123",
 			VolumeName:    "volume-name",
 			DockerImage:   "docker-image",
@@ -90,7 +90,7 @@ func TestRunCmd(t *testing.T) {
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(false)
 
-		c := InstallCommand{dockerFn: m}
+		c := InstallCommand{docker: m}
 
 		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
@@ -113,7 +113,7 @@ func TestRunCmd(t *testing.T) {
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
-			dockerFn:           m,
+			docker:             m,
 			AdminPassword:      "admin123",
 			VolumeName:         "volume-name",
 			DockerImage:        "docker-image",

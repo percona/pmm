@@ -48,8 +48,8 @@ const (
 type StartCommand struct {
 	DockerImage string `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
 
-	dockerFn containerManager
-	globals  *flags.GlobalFlags
+	docker  containerManager
+	globals *flags.GlobalFlags
 }
 
 type startResult struct{}
@@ -74,16 +74,16 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 
 	c.globals = globals
 
-	if c.dockerFn == nil {
+	if c.docker == nil {
 		d, err := docker.New(nil)
 		if err != nil {
 			return nil, err
 		}
 
-		c.dockerFn = d
+		c.docker = d
 	}
 
-	if !c.dockerFn.HaveDockerAccess(ctx) {
+	if !c.docker.HaveDockerAccess(ctx) {
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 

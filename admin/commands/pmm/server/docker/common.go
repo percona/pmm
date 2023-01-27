@@ -28,7 +28,7 @@ func startPMMServer(
 	volume *types.Volume,
 	volumesFromContainerID string,
 	dockerImage string,
-	dockerFn containerManager,
+	docker containerManager,
 	portBindings nat.PortMap,
 	containerName string,
 	env []string,
@@ -52,7 +52,7 @@ func startPMMServer(
 		hostConfig.VolumesFrom = []string{volumesFromContainerID + ":rw"}
 	}
 
-	return dockerFn.RunContainer(ctx, &container.Config{
+	return docker.RunContainer(ctx, &container.Config{
 		Image: dockerImage,
 		Labels: map[string]string{
 			"percona.pmm.source": "cli",

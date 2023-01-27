@@ -43,7 +43,7 @@ type InstallCommand struct {
 	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
-	dockerFn containerManager
+	docker containerManager
 }
 
 type installResult struct {
@@ -70,13 +70,13 @@ var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server installation in Docker")
 
-	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: !c.SkipDockerInstall})
+	d, err := prepareDocker(ctx, c.docker, prepareOpts{install: !c.SkipDockerInstall})
 	if err != nil {
 		return nil, err
 	}
-	c.dockerFn = d
+	c.docker = d
 
-	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName, nil)
+	volume, err := c.docker.CreateVolume(ctx, c.VolumeName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Info("Waiting until PMM boots")
-	healthy := <-c.dockerFn.WaitForHealthyContainer(ctx, containerID)
+	healthy := <-c.docker.WaitForHealthyContainer(ctx, containerID)
 	if healthy.Error != nil {
 		return nil, healthy.Error
 	}
 
 	if !c.SkipChangePassword {
-		err = c.dockerFn.ChangeServerPassword(ctx, containerID, c.AdminPassword)
+		err = c.docker.ChangeServerPassword(ctx, containerID, c.AdminPassword)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +119,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
 	}
 
-	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName, nil)
+	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.docker, ports, c.ContainerName, nil)
 	if err != nil {
 		return "", err
 	}
@@ -131,7 +131,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 
 // pullImage pulls a docker image and displays progress.
 func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
-	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
+	reader, err := c.docker.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFla
 
 func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result, error) {
 	p := tea.NewProgram(progress.NewSize())
-	doneC, errC := c.dockerFn.ParsePullImageProgress(reader, p)
+	doneC, errC := c.docker.ParsePullImageProgress(reader, p)
 	go func() {
 		<-doneC
 		p.Send(tea.Quit())

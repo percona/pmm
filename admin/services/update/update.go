@@ -41,7 +41,7 @@ const logsFileNamePattern = "upgrade.*.log"
 type Server struct {
 	// Context coming from cli commands. When cancelled, the command has been cancelled.
 	cliCtx             context.Context
-	dockerFn           dockerFunctions
+	docker             dockerFunctions
 	dockerImage        string
 	gRPCMessageMaxSize uint32
 	updateInProgress   map[string]struct{}
@@ -59,7 +59,7 @@ func New(ctx context.Context, dockerImage string, gRPCMessageMaxSize uint32) (*S
 
 	return &Server{
 		cliCtx:             ctx,
-		dockerFn:           d,
+		docker:             d,
 		dockerImage:        dockerImage,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 		updateInProgress:   make(map[string]struct{}, 1),
@@ -71,7 +71,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 	containerID := req.Hostname
 
 	logrus.Debugf("Inspecting container %s", containerID)
-	container, err := s.dockerFn.ContainerInspect(ctx, containerID)
+	container, err := s.docker.ContainerInspect(ctx, containerID)
 	if err != nil {
 		logrus.Errorf("Could not inspect container %s. Error: %v", containerID, err)
 		return nil, err
