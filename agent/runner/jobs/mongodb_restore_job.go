@@ -120,6 +120,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 	snapshot, err := j.findSnapshot(ctx)
 	if err != nil {
+		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.WithStack(err)
 	}
 
@@ -135,6 +136,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	go func() {
 		err := j.jobLogger.streamLogs(streamCtx, send, pbmRestoreJob, restoreOut.Name)
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
+			j.jobLogger.sendLog(send, err.Error(), false)
 			j.l.Errorf("stream logs: %v", err)
 		}
 	}()
