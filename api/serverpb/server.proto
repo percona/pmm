@@ -80,9 +80,9 @@ message CheckUpdatesResponse {
   // Last check time.
   google.protobuf.Timestamp last_check = 5;
   // True if pmm-update can be used for an update.
-  bool pmm_update_ready = 6;
-  // True if pmm-server-upgrade is ready for an update.
-  bool updater_ready = 7;
+  bool pmm_update_available = 6;
+  // True if pmm-server-upgrade can be used for an update.
+  bool server_upgrade_available = 7;
 }
 
 message StartUpdateRequest {

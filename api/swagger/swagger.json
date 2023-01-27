@@ -1104,13 +1104,13 @@
                   "format": "date-time",
                   "x-order": 4
                 },
-                "pmm_update_ready": {
+                "pmm_update_available": {
                   "description": "True if pmm-update can be used for an update.",
                   "type": "boolean",
                   "x-order": 5
                 },
-                "updater_ready": {
-                  "description": "True if pmm-server-upgrade is ready for an update.",
+                "server_upgrade_available": {
+                  "description": "True if pmm-server-upgrade can be used for an update.",
                   "type": "boolean",
                   "x-order": 6
                 }

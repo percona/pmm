@@ -299,9 +299,9 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
-		UpdateAvailable: v.UpdateAvailable,
-		LatestNewsUrl:   v.LatestNewsURL,
-		PmmUpdateReady:  !legacyUpdatesDisabled,
+		UpdateAvailable:    v.UpdateAvailable,
+		LatestNewsUrl:      v.LatestNewsURL,
+		PmmUpdateAvailable: !legacyUpdatesDisabled,
 	}
 
 	if updatesDisabled {
@@ -321,12 +321,12 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	}
 
 	if res.UpdateAvailable {
-		ready, err := s.isUpdaterAvailable(ctx)
+		available, err := s.isUpdaterAvailable(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		res.UpdaterReady = ready
+		res.ServerUpgradeAvailable = available
 	}
 
 	return res, nil

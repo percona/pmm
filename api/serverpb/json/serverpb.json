@@ -1099,20 +1099,20 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "pmm_update_ready": {
+                "pmm_update_available": {
                   "description": "True if pmm-update can be used for an update.",
                   "type": "boolean",
                   "x-order": 5
+                },
+                "server_upgrade_available": {
+                  "description": "True if pmm-server-upgrade can be used for an update.",
+                  "type": "boolean",
+                  "x-order": 6
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
                   "x-order": 2
-                },
-                "updater_ready": {
-                  "description": "True if pmm-server-upgrade is ready for an update.",
-                  "type": "boolean",
-                  "x-order": 6
                 }
               }
             }
