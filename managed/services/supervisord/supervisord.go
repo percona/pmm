@@ -791,7 +791,6 @@ command =
         cfg:default.auth.generic_oauth.role_attribute_path="contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') && 'Admin' || 'Viewer'"
         cfg:default.auth.generic_oauth.use_pkce="true"
         {{- end}}
-
 environment =
     POSTGRES_ADDR="{{ .PostgresAddr }}",
     POSTGRES_DBNAME="{{ .PostgresDBName }}",
