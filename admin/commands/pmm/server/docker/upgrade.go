@@ -160,12 +160,9 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 		return false
 	}
 
-	v, ok := container.Config.Labels["percona.pmm.source"]
-	if ok && v == "cli" {
-		return true
-	}
+	v := container.Config.Labels["percona.pmm.source"]
 
-	return false
+	return v == "cli"
 }
 
 func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
