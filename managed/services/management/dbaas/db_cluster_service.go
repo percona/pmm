@@ -411,8 +411,8 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 		})
 	}
 	return &dbaasv1beta1.ListS3BackupsResponse{Backups: items}, nil
-
 }
+
 func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
 	return map[dbaasv1.AppState]dbaasv1beta1.DBClusterState{
 		dbaasv1.AppStateUnknown:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,

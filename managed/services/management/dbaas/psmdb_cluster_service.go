@@ -325,6 +325,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 
 	return &dbaasv1beta1.UpdatePSMDBClusterResponse{}, nil
 }
+
 func (s PSMDBClusterService) getBackupLocation(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*models.BackupLocation, error) {
 	if req.Params != nil && req.Params.Backup != nil {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
