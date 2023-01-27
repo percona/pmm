@@ -60,7 +60,7 @@ type PMMAdminCommands struct {
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
-	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
+	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 // Run function is a top-level function which handles running all commands
@@ -79,7 +79,7 @@ type PMMCommands struct {
 
 	Server     server.BaseCommand         `cmd:"" help:"PMM server related commands"`
 	Client     client.BaseCommand         `cmd:"" help:"PMM client related commands"`
-	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
@@ -97,7 +97,7 @@ type PMMServerUpgradeCommands struct {
 	flags.GlobalFlagsBase
 
 	Start      start.StartCommand         `cmd:"" help:"Start daemon"`
-	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 func (c *PMMServerUpgradeCommands) GetGlobalFlags() *flags.GlobalFlags {
