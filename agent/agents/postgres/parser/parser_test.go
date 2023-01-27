@@ -49,8 +49,7 @@ func TestExtractTables(t *testing.T) {
 			require.NoError(t, err)
 
 			for name, f := range map[string]func(string) ([]string, error){
-				"ExtractTables":    ExtractTables,
-				"extractTablesOld": extractTablesOld,
+				"ExtractTables": ExtractTables,
 			} {
 				name, f := name, f
 				t.Run(name, func(t *testing.T) {
