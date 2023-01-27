@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StatusClient interface {
-	// Ready checks if updater is ready.
-	Ready(ctx context.Context, in *ReadyRequest, opts ...grpc.CallOption) (*ReadyResponse, error)
+	// Available checks if updater is available.
+	Available(ctx context.Context, in *AvailableRequest, opts ...grpc.CallOption) (*AvailableResponse, error)
 }
 
 type statusClient struct {
@@ -35,9 +35,9 @@ func NewStatusClient(cc grpc.ClientConnInterface) StatusClient {
 	return &statusClient{cc}
 }
 
-func (c *statusClient) Ready(ctx context.Context, in *ReadyRequest, opts ...grpc.CallOption) (*ReadyResponse, error) {
-	out := new(ReadyResponse)
-	err := c.cc.Invoke(ctx, "/update.Status/Ready", in, out, opts...)
+func (c *statusClient) Available(ctx context.Context, in *AvailableRequest, opts ...grpc.CallOption) (*AvailableResponse, error) {
+	out := new(AvailableResponse)
+	err := c.cc.Invoke(ctx, "/update.Status/Available", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,16 +48,16 @@ func (c *statusClient) Ready(ctx context.Context, in *ReadyRequest, opts ...grpc
 // All implementations must embed UnimplementedStatusServer
 // for forward compatibility
 type StatusServer interface {
-	// Ready checks if updater is ready.
-	Ready(context.Context, *ReadyRequest) (*ReadyResponse, error)
+	// Available checks if updater is available.
+	Available(context.Context, *AvailableRequest) (*AvailableResponse, error)
 	mustEmbedUnimplementedStatusServer()
 }
 
 // UnimplementedStatusServer must be embedded to have forward compatible implementations.
 type UnimplementedStatusServer struct{}
 
-func (UnimplementedStatusServer) Ready(context.Context, *ReadyRequest) (*ReadyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ready not implemented")
+func (UnimplementedStatusServer) Available(context.Context, *AvailableRequest) (*AvailableResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Available not implemented")
 }
 func (UnimplementedStatusServer) mustEmbedUnimplementedStatusServer() {}
 
@@ -72,20 +72,20 @@ func RegisterStatusServer(s grpc.ServiceRegistrar, srv StatusServer) {
 	s.RegisterService(&Status_ServiceDesc, srv)
 }
 
-func _Status_Ready_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadyRequest)
+func _Status_Available_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AvailableRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StatusServer).Ready(ctx, in)
+		return srv.(StatusServer).Available(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/update.Status/Ready",
+		FullMethod: "/update.Status/Available",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StatusServer).Ready(ctx, req.(*ReadyRequest))
+		return srv.(StatusServer).Available(ctx, req.(*AvailableRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -98,8 +98,8 @@ var Status_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StatusServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Ready",
-			Handler:    _Status_Ready_Handler,
+			MethodName: "Available",
+			Handler:    _Status_Available_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

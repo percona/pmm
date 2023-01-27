@@ -19,10 +19,10 @@ var (
 	_ = math.Inf
 )
 
-func (this *ReadyRequest) Validate() error {
+func (this *AvailableRequest) Validate() error {
 	return nil
 }
 
-func (this *ReadyResponse) Validate() error {
+func (this *AvailableResponse) Validate() error {
 	return nil
 }

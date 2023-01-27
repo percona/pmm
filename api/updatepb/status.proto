@@ -7,21 +7,21 @@ option go_package = "api/updatepb;updatepb";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 
-message ReadyRequest {}
+message AvailableRequest {}
 
-message ReadyResponse {}
+message AvailableResponse {}
 
 // Status service provides public status APIs for pmm-server-upgrade.
 service Status {
-  // Ready checks if updater is ready.
-  rpc Ready(ReadyRequest) returns (ReadyResponse) {
+  // Available checks if updater is available.
+  rpc Available(AvailableRequest) returns (AvailableResponse) {
     option (google.api.http) = {
-      post: "/v1/Ready"
+      post: "/v1/Available"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Check if updater is ready"
-      description: "Checks if updater is ready."
+      summary: "Check if updater is available"
+      description: "Checks if updater is available."
     };
   }
 }

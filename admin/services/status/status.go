@@ -30,7 +30,7 @@ func New() *Server {
 	return &Server{}
 }
 
-// Ready returns no error if the daemon is ready.
-func (s *Server) Ready(ctx context.Context, req *updatepb.ReadyRequest) (*updatepb.ReadyResponse, error) {
-	return &updatepb.ReadyResponse{}, nil
+// Available returns no error if the daemon is available.
+func (s *Server) Available(ctx context.Context, req *updatepb.AvailableRequest) (*updatepb.AvailableResponse, error) {
+	return &updatepb.AvailableResponse{}, nil
 }

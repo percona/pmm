@@ -321,7 +321,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	}
 
 	if res.UpdateAvailable {
-		ready, err := s.isUpdaterReady(ctx)
+		ready, err := s.isUpdaterAvailable(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -332,7 +332,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	return res, nil
 }
 
-func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
+func (s *Server) isUpdaterAvailable(ctx context.Context) (bool, error) {
 	ctxConn, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -351,7 +351,7 @@ func (s *Server) isUpdaterReady(ctx context.Context) (bool, error) {
 	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	if _, err := c.Ready(ctxAPI, &updatepb.ReadyRequest{}); err != nil {
+	if _, err := c.Available(ctxAPI, &updatepb.AvailableRequest{}); err != nil {
 		return false, err
 	}
 
