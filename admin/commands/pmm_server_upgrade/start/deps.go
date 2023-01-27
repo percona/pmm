@@ -21,7 +21,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-//go:generate ../../../../bin/mockery -name=functions -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=containerManager -case=snake -inpkg -testonly
 
 // containerManager contain methods required to interact with Docker containers.
 type containerManager interface {

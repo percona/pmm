@@ -28,7 +28,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall not install Docker if installed", func(t *testing.T) {
 		t.Parallel()
-		m := &mockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -40,7 +40,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall install Docker if not installed", func(t *testing.T) {
 		t.Parallel()
-		m := &mockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
@@ -53,7 +53,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall skip Docker installation", func(t *testing.T) {
 		t.Parallel()
-		m := &mockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
