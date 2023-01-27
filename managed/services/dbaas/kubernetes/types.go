@@ -30,9 +30,10 @@ import (
 )
 
 const (
-	dbaasAPI          = "dbaas.percona.com/v1"
-	dbaasKind         = "DatabaseCluster"
-	pxcSecretNameTmpl = "dbaas-%s-pxc-secrets" //nolint:gosec
+	dbaasAPI            = "dbaas.percona.com/v1"
+	dbaasKind           = "DatabaseCluster"
+	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
+	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
 	// DatabaseTypePXC is a pxc database
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
@@ -273,14 +274,14 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 }
 
 // DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType) (*dbaasv1.DatabaseCluster, error) {
+func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation, backupImage string) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) {
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
 	}
 	diskSize := resource.NewQuantity(cluster.Params.Replicaset.DiskSize, resource.DecimalSI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	clusterMemory := resource.NewQuantity(cluster.Params.Replicaset.ComputeResources.MemoryBytes, resource.DecimalSI)
 	dbCluster := &dbaasv1.DatabaseCluster{
@@ -296,6 +297,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			DatabaseImage:  cluster.Params.Image,
 			DatabaseConfig: cluster.Params.Replicaset.Configuration,
 			ClusterSize:    cluster.Params.ClusterSize,
+			SecretsName:    fmt.Sprintf(psmdbSecretNameTmpl, cluster.Name),
 			DBInstance: dbaasv1.DBInstanceSpec{
 				DiskSize: *diskSize,
 				CPU:      cpu,
@@ -305,8 +307,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				PMM: &dbaasv1.PMMSpec{},
 			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
-			// FIXME: Remove it
-			// Backup:       dbaasv1.BackupSpec{},
+			Backup:       &dbaasv1.BackupSpec{},
 		},
 	}
 	if cluster.Params.Replicaset.StorageClass != "" {
@@ -317,17 +318,89 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
 		if !ok {
-			return dbCluster, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
 		annotations, ok := exposeAnnotationsMap[clusterType]
 		if !ok {
-			return dbCluster, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
+	}
+	var dbRestore *dbaasv1.DatabaseClusterRestore
+	if cluster.Params.Restore != nil {
+		if cluster.Params.Restore.SecretsName != "" {
+			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
+		}
+		dbCluster.Spec.Backup.Enabled = true
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+				},
+			},
+		}
+
+		dbRestore = &dbaasv1.DatabaseClusterRestore{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "DatabaseClusterRestore",
+				APIVersion: "dbaas.percona.com/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
+			},
+			Spec: dbaasv1.DatabaseClusterRestoreSpec{
+				DatabaseCluster: dbCluster.Name,
+				DatabaseType:    "psmdb",
+				BackupSource: &dbaasv1.BackupSource{
+					Destination: cluster.Params.Restore.Destination,
+					StorageType: dbaasv1.BackupStorageS3,
+					S3: &dbaasv1.BackupStorageProviderSpec{
+						Bucket:            backupLocation.S3Config.BucketName,
+						Region:            backupLocation.S3Config.BucketRegion,
+						EndpointURL:       backupLocation.S3Config.Endpoint,
+						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+					},
+					StorageName: backupLocation.Name,
+				},
+			},
+		}
+	}
+	if cluster.Params.Backup != nil {
+
+		dbCluster.Spec.Backup.Enabled = true
+		if backupImage != "" {
+			dbCluster.Spec.Backup.Image = backupImage
+		}
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+				},
+			},
+		}
+		dbCluster.Spec.Backup.ServiceAccountName = cluster.Params.Backup.ServiceAccount
+		dbCluster.Spec.Backup.Schedule = []dbaasv1.BackupSchedule{
+			{
+				Name:        "schedule",
+				Enabled:     true,
+				Schedule:    cluster.Params.Backup.CronExpression,
+				Keep:        int(cluster.Params.Backup.KeepCopies),
+				StorageName: backupLocation.Name,
+			},
+		}
+
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -338,7 +411,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	return dbCluster, nil
+	return dbCluster, dbRestore, nil
 }
 
 // UpdatePatchForPSMDB returns a patch to update a database cluster

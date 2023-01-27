@@ -143,7 +143,6 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	} else {
 		backupImage = backupComponent.ImagePath
 	}
-	_ = backupImage
 
 	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
@@ -155,15 +154,18 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		req.Params.Replicaset.StorageClass = className
 	}
+	backupLocation, err := s.getBackupLocation(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting backup location")
+	}
 	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting cluster type")
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPSMDB(req, clusterType)
+	dbCluster, dbRestore, err := kubernetes.DatabaseClusterForPSMDB(req, clusterType, backupLocation, backupImage)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
-	dbCluster.Spec.SecretsName = fmt.Sprintf(psmdbSecretNameTmpl, req.Name)
 
 	secrets := map[string][]byte{
 		"MONGODB_BACKUP_USER":          []byte("backup"),
@@ -197,11 +199,13 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		secrets["PMM_SERVER_USER"] = []byte("api_key")
 		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
-	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-	if err != nil {
-		return nil, err
+
+	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
+		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+		if err != nil {
+			return nil, err
+		}
 	}
-	// TODO: Setup backups
 
 	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
@@ -212,6 +216,19 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 			}
 		}
 		return nil, err
+	}
+	if dbRestore != nil {
+		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
+		secrets, err := kubernetes.SecretForBackup(secretsName, backupLocation)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed generating secret for backup location")
+		}
+		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
+			return nil, errors.Wrap(err, "failed to create a secret")
+		}
+		if err := s.kubernetesClient.CreateRestore(dbRestore); err != nil {
+			return nil, err
+		}
 	}
 
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
@@ -307,6 +324,15 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	}
 
 	return &dbaasv1beta1.UpdatePSMDBClusterResponse{}, nil
+}
+func (s PSMDBClusterService) getBackupLocation(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*models.BackupLocation, error) {
+	if req.Params != nil && req.Params.Backup != nil {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
+	}
+	if req.Params != nil && req.Params.Restore != nil {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
+	}
+	return nil, nil
 }
 
 // GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
