@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -47,7 +48,7 @@ func main() {
 func listener(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("upgrade:", err)
+		log.Println("upgrade:", err)
 		return
 	}
 	defer c.Close()
@@ -57,12 +58,18 @@ func listener(w http.ResponseWriter, r *http.Request) {
 			log.Println("read:", err)
 			break
 		}
-		log.Printf("recv: %s", message)
+		log.Println("recv:", string(message))
 
 		var body request
 		json.Unmarshal(message, &body)
 
-		bytes, err := json.Marshal(router(body.Kind, body.Data))
+		u, err := url.Parse(r.Header.Get("Origin"))
+		if err != nil {
+			log.Println("read:", err)
+			break
+		}
+
+		bytes, err := json.Marshal(router(u.Host, body.Kind, body.Data))
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -76,10 +83,12 @@ func listener(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func router(kind, data string) response {
+func router(origin, kind, data string) response {
+	log.Println("origin:", origin)
+
 	switch kind {
 	case "get":
-		return get(kind, data)
+		return get(origin, kind)
 	default:
 		return response{
 			Error: "not supported kind",
@@ -87,17 +96,22 @@ func router(kind, data string) response {
 	}
 }
 
-func get(kind, data string) response {
-	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", data))
+func get(origin, kind string) response {
+	// TODO check ../ etc
+	// TODO format origin to path friendly
+	target, html, err := readHTMLFile(fmt.Sprintf("./html/%s.html", origin))
 	if err != nil {
-		return response{
-			Error: err.Error(),
+		// html/css is optional
+		if !errors.Is(err, os.ErrNotExist) {
+			return response{
+				Error: err.Error(),
+			}
 		}
 	}
 
-	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", data))
+	script, err := os.ReadFile(fmt.Sprintf("./scripts/%s.js", origin))
 	if err != nil {
-		// script is optional.
+		// script is optional
 		if !errors.Is(err, os.ErrNotExist) {
 			return response{
 				Error: err.Error(),
@@ -118,8 +132,8 @@ func readHTMLFile(path string) (string, string, error) {
 		return "", "", err
 	}
 
-	target := ""
-	html := []string{}
+	var target string
+	var html []string
 	lineNumber := 0
 	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)

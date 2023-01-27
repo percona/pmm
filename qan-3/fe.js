@@ -7,12 +7,10 @@ ws.onmessage = function (res) {
         return;
     }
 
-    let e = document.querySelector(response.Target)
-    if (!e) {
-        console.log("Element " + response.Target + " doesnt exists");
-        return;
-    } 
-    e.innerHTML = response.HTML;
+    if (response.Target != "") { 
+        let e = document.querySelector(response.Target)
+        e ? e.innerHTML = response.HTML : console.log("Element " + response.Target + " doesnt exists");
+    }
 
     if (response.Script != "") { 
         let script = document.createElement('script');
@@ -25,16 +23,12 @@ ws.onmessage = function (res) {
     }
 }
 ws.onopen = () => {
-    document.querySelector(".overview-filters").innerText = "loading...";
-    document.querySelector(".query-analytics-data").innerText = "loading...";
-    setTimeout(() => { request("get", "filter"); }, 2000);
-    setTimeout(() => { request("get", "content"); }, 3000);
+    request("get", "test");
 }
 
 function request(kind, data) {
-    if (!data) {
+    if (!data)
         console.log("No data provied");
-    }
 
     let req = JSON.stringify({
         Kind: kind,
