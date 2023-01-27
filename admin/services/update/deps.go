@@ -20,9 +20,9 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
-//go:generate ../../../bin/mockery -name=dockerFunctions -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=containerManager -case=snake -inpkg -testonly
 
 // functions contain methods required to interact with Docker.
-type dockerFunctions interface {
+type containerManager interface {
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 }

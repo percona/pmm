@@ -41,7 +41,7 @@ const logsFileNamePattern = "upgrade.*.log"
 type Server struct {
 	// Context coming from cli commands. When cancelled, the command has been cancelled.
 	cliCtx             context.Context
-	docker             dockerFunctions
+	docker             containerManager
 	dockerImage        string
 	gRPCMessageMaxSize uint32
 	updateInProgress   map[string]struct{}
