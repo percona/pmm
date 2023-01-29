@@ -77,7 +77,7 @@ func NewMongoDBBackupJob(
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		jobLogger:      newPbmJobLogger(id, dbURL),
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
 	}, nil
 }
 
@@ -134,7 +134,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	streamCtx, streamCancel := context.WithCancel(ctx)
 	defer streamCancel()
 	go func() {
-		err := j.jobLogger.streamLogs(streamCtx, send, pbmBackupJob, pbmBackupOut.Name)
+		err := j.jobLogger.streamLogs(streamCtx, send, pbmBackupOut.Name)
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			j.l.Errorf("stream logs: %v", err)
 		}

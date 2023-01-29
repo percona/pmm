@@ -37,12 +37,14 @@ const (
 type pbmJobLogger struct {
 	dbURL      *url.URL
 	jobID      string
+	jobType    pbmJob
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, mongoURL *url.URL) *pbmJobLogger {
+func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *url.URL) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
+		jobType:    jobType,
 		logChunkID: 0,
 		dbURL:      mongoURL,
 	}
@@ -62,7 +64,7 @@ func (l *pbmJobLogger) sendLog(send Send, data string, done bool) {
 	})
 }
 
-func (l *pbmJobLogger) streamLogs(ctx context.Context, send Send, jobType pbmJob, name string) error {
+func (l *pbmJobLogger) streamLogs(ctx context.Context, send Send, name string) error {
 	var (
 		err    error
 		logs   []pbmLogEntry
@@ -77,7 +79,7 @@ func (l *pbmJobLogger) streamLogs(ctx context.Context, send Send, jobType pbmJob
 	for {
 		select {
 		case <-ticker.C:
-			logs, err = retrieveLogs(ctx, l.dbURL, fmt.Sprintf("%s/%s", jobType, name))
+			logs, err = retrieveLogs(ctx, l.dbURL, fmt.Sprintf("%s/%s", l.jobType, name))
 			if err != nil {
 				return err
 			}
