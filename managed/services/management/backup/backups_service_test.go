@@ -462,7 +462,7 @@ func TestGetLogs(t *testing.T) {
 
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				JobId: &backuppb.GetLogsRequest_BackupArtifactId{
+				LogJobId: &backuppb.GetLogsRequest_BackupArtifactId{
 					BackupArtifactId: "artifact",
 				},
 				Offset: tc.offset,
@@ -500,7 +500,7 @@ func TestGetLogs(t *testing.T) {
 		}
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				JobId: &backuppb.GetLogsRequest_RestoreId{
+				LogJobId: &backuppb.GetLogsRequest_RestoreId{
 					RestoreId: "physical-restore-1",
 				},
 				Offset: tc.offset,
@@ -539,7 +539,7 @@ func TestGetLogs(t *testing.T) {
 
 		for _, tc := range testCases {
 			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-				JobId: &backuppb.GetLogsRequest_RestoreId{
+				LogJobId: &backuppb.GetLogsRequest_RestoreId{
 					RestoreId: "logical-restore-1",
 				},
 				Offset: tc.offset,

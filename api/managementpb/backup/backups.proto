@@ -210,7 +210,7 @@ message GetLogsRequest {
   ];
   uint32 offset = 2;
   uint32 limit = 3;
-  oneof job_id {
+  oneof log_job_id {
     string backup_artifact_id = 4;
     string restore_id = 5;
   };
