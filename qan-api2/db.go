@@ -105,7 +105,6 @@ func createDB(dsn string) error {
 var fs embed.FS
 
 func runMigrations(dsn string) error {
-
 	d, err := iofs.New(fs, "migrations/sql")
 	if err != nil {
 		return err
