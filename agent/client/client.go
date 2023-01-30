@@ -55,14 +55,14 @@ const (
 	clockDriftWarning = 5 * time.Second
 )
 
-// getter allows for getting a config.
-type getter interface {
+// configGetter allows for getting a config.
+type configGetter interface {
 	Get() *config.Config
 }
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg               getter
+	cfg               configGetter
 	supervisor        supervisor
 	connectionChecker connectionChecker
 	softwareVersioner softwareVersioner
@@ -87,7 +87,7 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg getter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
