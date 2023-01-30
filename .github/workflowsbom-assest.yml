@@ -6,7 +6,7 @@ on:
       
 jobs:
   vmproxy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: create vmproxy SBOM
         uses: anchore/sbom-action@v0
