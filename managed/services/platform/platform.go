@@ -19,6 +19,7 @@ package platform
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -37,7 +38,10 @@ import (
 
 const rollbackFailed = "Failed to rollback:"
 
-var errGetSSODetailsFailed = status.Error(codes.Aborted, "Failed to fetch SSO details.")
+var (
+	errGetSSODetailsFailed = status.Error(codes.Aborted, "Failed to fetch SSO details.")
+	errProxyNotSupported   = status.Error(codes.Aborted, "PMM Platform connection does not support proxy.")
+)
 
 // Service is responsible for interactions with Percona Platform.
 type Service struct {
@@ -88,6 +92,9 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 
 	resp, err := s.client.Connect(ctx, req.PersonalAccessToken, settings.PMMServerID, req.ServerName, pmmServerURL, pmmServerOAuthCallbackURL)
 	if err != nil {
+		if strings.Contains(err.Error(), "proxyconnect tcp") {
+			return nil, errProxyNotSupported
+		}
 		return nil, err
 	}
 
