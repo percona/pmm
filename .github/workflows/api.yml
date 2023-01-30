@@ -77,6 +77,7 @@ jobs:
         run: |
           git status
           git diff --exit-code
+          # if this fails, you most probably can fix it by running `make gen` in the root of the project
 
       - name: Update API compatibility descriptors.
         run: |
