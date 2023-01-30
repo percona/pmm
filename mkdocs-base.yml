@@ -4,7 +4,7 @@ site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
 site_url: ""
-copyright: Percona LLC, &#169; 2022
+copyright: Percona LLC, &#169; 2023
 use_directory_urls: false
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
@@ -69,9 +69,9 @@ plugins:
       - "setting-up/client/docker.md"
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "_pdf/PerconaMonitoringAndManagement-2.33.0.pdf"
+    output_path: "_pdf/PerconaMonitoringAndManagement-2.34.0.pdf"
     cover_title: "Documentation"
-    cover_subtitle: 2.33.0 (Dec 13, 2022)
+    cover_subtitle: 2.34.0 (Jan 23, 2023)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/PMM_Logo.svg
     custom_template_path: _resources/templates
@@ -248,6 +248,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.34.0": release-notes/2.34.0.md
       - "PMM 2.33.0": release-notes/2.33.0.md
       - "PMM 2.32.0": release-notes/2.32.0.md
       - "PMM 2.31.0": release-notes/2.31.0.md

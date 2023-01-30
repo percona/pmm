@@ -28,15 +28,14 @@ From the left menu, select <i class="uil uil-database"></i> *DBaaS*.
 !!! note alert alert-primary "Availability"
     Automatic addition of k8s cluster in PMM is available starting with PMM 2.32.0.
 
-If you deploy PMM in k8s, you must manually add these k8s to PMM. In order to simplify DBaaS, k8s clusters can now be automatically added to PMM as follows:
+In order to simplify DBaaS, k8s clusters can now be automatically added to PMM as follows:
 
 **Prerequisites:** Helm Chart/Manifest installed
 
 1. Use [Helm](https://github.com/helm/helm) to install PMM server on Kubernetes clusters. For more information, see [documentation](../setting-up/server/helm.md).
-
-  ```sh
-  helm install pmm --set service.type="LoadBalancer" --set image.repository=percona/pmm-server --set image.tag=2.32.0 --set secret.pmm_password=admin percona/pmm
-  ```
+    ```sh
+    helm install pmm --set service.type="LoadBalancer" --set image.repository=percona/pmm-server --set image.tag=2.32.0 --set secret.pmm_password=admin percona/pmm
+    ```
 
 2. Log in to PMM.
 
@@ -126,6 +125,7 @@ The Kubernetes Cluster tab shows the status of operators.
 
 ![!](../_images/PMM_DBaaS_Kubernetes_Cluster_Operator_Status.png)
 
+
 ### Kubernetes operator update
 
 When a new version of the operator is available the *Operators* column shows a message with this information. Click the message to go to the operator release notes to find out more about the update.
@@ -151,12 +151,6 @@ You must create at least one Kubernetes cluster to create a DB cluster.
 To monitor a DB cluster, set up a [public address](../how-to/configure.md#public-address) for PMM Server first.
 
 
-####Add a one-click DB cluster
-
-
-!!! note alert alert-primary "Availability"
-    This feature is available starting with PMM 2.30.0.
-
 You can create a DB cluster literally at the click of a button. All the fields will be automatically populated with the default values. 
 
 To create a DB cluster, do the following:
@@ -165,40 +159,16 @@ To create a DB cluster, do the following:
 
 2. Click *Create DB Cluster*.
 
-3. Click *Create Cluster* to create your Cluster.
+3. From the drop-down menu, select the values for the following:
+    - *Kubernetes Cluster*
+    - *Database Type*  
+    - *Database Version*
 
-####Add a DB cluster with custom values
+4. Expand  *Advanced Settings* panel.
 
-1. Select the *DB Cluster* tab.
+    1. Select the number of nodes. (The lower limit is 1.)
 
-2. Click *Create DB Cluster*.
-
-3. In section 1, *Basic Options*:
-
-    1. Enter a value for *Cluster name*. A cluster name:
-        - must begin with a lowercase letter;
-        - can comprise lowercase letters, numbers and dashes;
-        - must end with an alphanumeric character.
-
-    2. Select a cluster from the *Kubernetes Cluster* menu.
-
-    3. Select a database type from the *Database Type* menu.
-
-        ![!](../_images/PMM_DBaaS_DB_Cluster_Basic_Options_Filled.jpg)
-
-4. Expand section 2, *Advanced Options*.
-
-    1. Select *Topology*, either *Cluster* or *Single Node*.
-
-    2. Select the number of nodes. (The lower limit is 3.)
-
-    3. Select *External Access* if you want to make your DB cluster available outside of Kubernetes cluster.
-
-        By default, only internal access is provided.
-
-        *External Access* can't be granted for local Kubernetes clusters (e.g. minikube).
-
-    4. Select a preset for *Resources per Node*.
+    2. Select a preset *Resources per Node*.
 
         *Small*, *Medium* and *Large* are fixed preset values for *Memory*, *CPU*, and *Disk*.
 
@@ -208,9 +178,23 @@ To create a DB cluster, do the following:
 
         ![!](../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.png)
 
-5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If inactive, check the values for fields in sections whose icon is red.)
+    3. Enter the following on the *Database Configurations* panel:
 
-    Click *Create Cluster* to create your cluster.
+    - *Storage Class* - Select the storage class from the drop-down. Storage classes allow dynamic provisioning of persistent storage for PMM. Using storage classes, you can create and attach volumes on-demand without manually managing the underlying storage infrastructure. 
+    - *Database configuration*- Enter the config string into the Configuration text box to configure the database engine.
+
+        ![!](../_images/PMM_DBaaS_DB_Cluster_Advanced_DB_Config.png)
+
+    4. Enter the following on the *Network and Security* panel:
+
+    - *Expose* - Select this checkbox to make this DB cluster available outside of the kubernetes cluster.
+    - *Internet Facing* - Select this checkbox if you want the cluster to be accessible on the Internet.
+    - *Source Range* - For security, you can control the exposure level by providing the IP address in the *Source Range* field. This allows you to choose the IP addresses that can access your DB cluster. To add more than one source range, click *Add New*.
+
+
+5. Click *Create Cluster* to create your cluster.
+
+    
 
 6. A row appears with information on your cluster:
 
