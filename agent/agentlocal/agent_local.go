@@ -61,9 +61,15 @@ const (
 	serverZipFile   = "pmm-agent.log"
 )
 
+// getReloader allows for getting and reloading a config.
+type getReloader interface {
+	Get() *config.Config
+	Reload(l *logrus.Entry) (string, error)
+}
+
 // Server represents local pmm-agent API server.
 type Server struct {
-	cfg            config.GetReloader
+	cfg            getReloader
 	supervisor     supervisor
 	client         client
 	configFilepath string
@@ -79,7 +85,7 @@ type Server struct {
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(cfg config.GetReloader, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
+func NewServer(cfg getReloader, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
 	return &Server{
 		cfg:            cfg,
 		supervisor:     supervisor,

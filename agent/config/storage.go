@@ -20,23 +20,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Getter allows for getting a config.
-type Getter interface {
-	Get() *Config
-}
-
-// GetReloader allows for getting and reloading a config.
-type GetReloader interface {
-	Get() *Config
-	Reload(l *logrus.Entry) (string, error)
-}
-
-// Check interfaces.
-var (
-	_ Getter      = &Storage{}
-	_ GetReloader = &Storage{}
-)
-
 // NewStorage creates a new instance of Storage with optional initial config.
 func NewStorage(cfg *Config) *Storage {
 	return &Storage{
@@ -50,7 +33,7 @@ type Storage struct {
 	mu  sync.RWMutex
 }
 
-// Get returns a global config object.
+// Get returns config.
 func (s *Storage) Get() *Config {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -58,7 +41,7 @@ func (s *Storage) Get() *Config {
 	return s.cfg
 }
 
-// Reload reloads config into the global object.
+// Reload reloads config.
 func (s *Storage) Reload(l *logrus.Entry) (string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -47,10 +47,15 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+// getter allows for getting a config.
+type getter interface {
+	Get() *config.Config
+}
+
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
 	ctx           context.Context
-	cfg           config.Getter
+	cfg           getter
 	portsRegistry *portsRegistry
 	changes       chan *agentpb.StateChangedRequest
 	qanRequests   chan *agentpb.QANCollectRequest
@@ -89,7 +94,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, cfg config.Getter) *Supervisor {
+func NewSupervisor(ctx context.Context, cfg getter) *Supervisor {
 	return &Supervisor{
 		ctx:           ctx,
 		cfg:           cfg,

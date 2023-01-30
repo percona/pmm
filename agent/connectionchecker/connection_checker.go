@@ -43,14 +43,19 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+// getter allows for getting a config.
+type getter interface {
+	Get() *config.Config
+}
+
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
 	l   *logrus.Entry
-	cfg config.Getter
+	cfg getter
 }
 
 // New creates new ConnectionChecker.
-func New(cfg config.Getter) *ConnectionChecker {
+func New(cfg getter) *ConnectionChecker {
 	return &ConnectionChecker{
 		l:   logrus.WithField("component", "connectionchecker"),
 		cfg: cfg,
