@@ -278,6 +278,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
 	}
+	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
+		return nil, nil, errors.New("only s3 compatible storages are supported for backup/restore")
+	}
 	diskSize := resource.NewQuantity(cluster.Params.Replicaset.DiskSize, resource.DecimalSI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Replicaset.ComputeResources.CpuM))
 	if err != nil {
@@ -521,12 +524,7 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	return nil
 }
 
-func BackupStorage(secretsName string, backupLocation *models.BackupLocation) (map[string]*dbaasv1.BackupStorageSpec, error) {
-	storages := make(map[string]*dbaasv1.BackupStorageSpec)
-	return storages, nil
-}
-
-func SecretForBackup(secretsName string, backupLocation *models.BackupLocation) (map[string][]byte, error) {
+func SecretForBackup(backupLocation *models.BackupLocation) (map[string][]byte, error) {
 	return map[string][]byte{
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),
 		"AWS_SECRET_ACCESS_KEY": []byte(backupLocation.S3Config.SecretKey),

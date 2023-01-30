@@ -220,7 +220,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	}
 	if dbRestore != nil {
 		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
-		secrets, err := kubernetes.SecretForBackup(secretsName, backupLocation)
+		secrets, err := kubernetes.SecretForBackup(backupLocation)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed generating secret for backup location")
 		}
