@@ -22,7 +22,7 @@ enum DistributionMethod {
 
 // UpdateMethod defines the method for updating PMM Server.
 enum UpdateMethod {
-  INVALID = 0;
+  UPDATE_METHOD_INVALID = 0;
   PMM_UPDATE = 1;
   PMM_SERVER_UPGRADE = 2;
 }
