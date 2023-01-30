@@ -76,6 +76,25 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
+  - id: MySQLPlugins
+    source: VM
+    query: mysql_plugin
+    transform:
+      type: JSON
+      metric: mysql_plugins
+    summary: "Plugins on the MySQL instance"
+    data:
+      - metric_name: "1"
+        label: "library"
+      - metric_name: "2"
+        label: "license"
+      - metric_name: "3"
+        label: "name"
+      - metric_name: "4"
+        label: "status"
+      - metric_name: "5"
+        label: "type"
+
   - id: MySQLEngineRocksDBCount
     source: VM
     query: count({__name__="mysql_global_variables_rocksdb_block_cache_size"})
@@ -720,23 +739,3 @@ telemetry:
         label: "job"
       - metric_name: "6"
         value: 1
-
-  - id: MySQLPlugins
-    source: VM
-    query: mysql_plugin
-    transform:
-      type: JSON
-      metric: pmm_mysql_plugins
-    summary: "Plugins on the MySQL instance"
-    data:
-      - metric_name: "1"
-        label: "library"
-      - metric_name: "2"
-        label: "license"
-      - metric_name: "3"
-        label: "name"
-      - metric_name: "4"
-        label: "status"
-      - metric_name: "5"
-        label: "type"
-
