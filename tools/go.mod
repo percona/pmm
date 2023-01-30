@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
-	github.com/bufbuild/buf v1.13.0
+	github.com/bufbuild/buf v1.13.1
 	github.com/daixiang0/gci v0.9.0
 	github.com/go-delve/delve v1.20.1
 	github.com/go-openapi/runtime v0.25.0
