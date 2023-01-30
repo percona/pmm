@@ -373,7 +373,7 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil
 }
 
-// DeleteDBCluster deletes DB cluster by given name and type.
+// ListS3Backups returns list of backup artifacts stored on s3
 func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
 	if req == nil && (req != nil && req.LocationId == "") {
 		return nil, errors.New("location_id cannot be empty")

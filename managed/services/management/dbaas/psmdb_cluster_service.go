@@ -154,7 +154,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		req.Params.Replicaset.StorageClass = className
 	}
-	backupLocation, err := s.getBackupLocation(ctx, req)
+	backupLocation, err := s.getBackupLocation(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting backup location")
 	}
@@ -326,7 +326,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	return &dbaasv1beta1.UpdatePSMDBClusterResponse{}, nil
 }
 
-func (s PSMDBClusterService) getBackupLocation(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*models.BackupLocation, error) {
+func (s PSMDBClusterService) getBackupLocation(req *dbaasv1beta1.CreatePSMDBClusterRequest) (*models.BackupLocation, error) {
 	if req.Params != nil && req.Params.Backup != nil {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
 	}

@@ -162,7 +162,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
 		}
 	}
-	backupLocation, err := s.getBackupLocation(ctx, req)
+	backupLocation, err := s.getBackupLocation(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting backup location")
 	}
@@ -411,7 +411,7 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 	}, nil
 }
 
-func (s PXCClustersService) getBackupLocation(ctx context.Context, req *dbaasv1beta1.CreatePXCClusterRequest) (*models.BackupLocation, error) {
+func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCClusterRequest) (*models.BackupLocation, error) {
 	if req.Params != nil && req.Params.Backup != nil {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
 	}
