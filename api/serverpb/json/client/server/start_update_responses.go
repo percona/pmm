@@ -126,7 +126,7 @@ swagger:model StartUpdateBody
 */
 type StartUpdateBody struct {
 	// UpdateMethod defines the method for updating PMM Server.
-	// Enum: [PMM_UPDATE PMM_SERVER_UPGRADE]
+	// Enum: [INVALID PMM_UPDATE PMM_SERVER_UPGRADE]
 	Method *string `json:"method,omitempty"`
 }
 
@@ -148,7 +148,7 @@ var startUpdateBodyTypeMethodPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INVALID","PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -157,6 +157,9 @@ func init() {
 }
 
 const (
+
+	// StartUpdateBodyMethodINVALID captures enum value "INVALID"
+	StartUpdateBodyMethodINVALID string = "INVALID"
 
 	// StartUpdateBodyMethodPMMUPDATE captures enum value "PMM_UPDATE"
 	StartUpdateBodyMethodPMMUPDATE string = "PMM_UPDATE"

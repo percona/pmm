@@ -1172,8 +1172,9 @@
                 "method": {
                   "description": "UpdateMethod defines the method for updating PMM Server.",
                   "type": "string",
-                  "default": "PMM_UPDATE",
+                  "default": "INVALID",
                   "enum": [
+                    "INVALID",
                     "PMM_UPDATE",
                     "PMM_SERVER_UPGRADE"
                   ],
@@ -1269,8 +1270,9 @@
                 "method": {
                   "description": "UpdateMethod defines the method for updating PMM Server.",
                   "type": "string",
-                  "default": "PMM_UPDATE",
+                  "default": "INVALID",
                   "enum": [
+                    "INVALID",
                     "PMM_UPDATE",
                     "PMM_SERVER_UPGRADE"
                   ],

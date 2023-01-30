@@ -132,7 +132,7 @@ type UpdateStatusBody struct {
 	LogOffset int64 `json:"log_offset,omitempty"`
 
 	// UpdateMethod defines the method for updating PMM Server.
-	// Enum: [PMM_UPDATE PMM_SERVER_UPGRADE]
+	// Enum: [INVALID PMM_UPDATE PMM_SERVER_UPGRADE]
 	Method *string `json:"method,omitempty"`
 }
 
@@ -154,7 +154,7 @@ var updateStatusBodyTypeMethodPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INVALID","PMM_UPDATE","PMM_SERVER_UPGRADE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -163,6 +163,9 @@ func init() {
 }
 
 const (
+
+	// UpdateStatusBodyMethodINVALID captures enum value "INVALID"
+	UpdateStatusBodyMethodINVALID string = "INVALID"
 
 	// UpdateStatusBodyMethodPMMUPDATE captures enum value "PMM_UPDATE"
 	UpdateStatusBodyMethodPMMUPDATE string = "PMM_UPDATE"

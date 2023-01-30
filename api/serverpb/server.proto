@@ -22,8 +22,9 @@ enum DistributionMethod {
 
 // UpdateMethod defines the method for updating PMM Server.
 enum UpdateMethod {
-  PMM_UPDATE = 0;
-  PMM_SERVER_UPGRADE = 1;
+  INVALID = 0;
+  PMM_UPDATE = 1;
+  PMM_SERVER_UPGRADE = 2;
 }
 
 // VersionInfo describes component version, or PMM Server as a whole.
