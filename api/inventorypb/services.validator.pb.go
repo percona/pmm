@@ -316,13 +316,13 @@ func (this *RemoveCustomLabelsResponse) Validate() error {
 	return nil
 }
 
-func (this *UpdateServiceRequest) Validate() error {
+func (this *ChangeServiceRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
 	return nil
 }
 
-func (this *UpdateServiceResponse) Validate() error {
+func (this *ChangeServiceResponse) Validate() error {
 	return nil
 }

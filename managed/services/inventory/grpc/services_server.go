@@ -279,7 +279,7 @@ func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryp
 	return s.s.RemoveCustomLabels(ctx, req)
 }
 
-// UpdateService updates configuration of a service.
-func (s *servicesServer) UpdateService(ctx context.Context, req *inventorypb.UpdateServiceRequest) (*inventorypb.UpdateServiceResponse, error) {
-	return s.s.UpdateService(ctx, req)
+// ChangeService updates configuration of a service.
+func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
+	return s.s.ChangeService(ctx, req)
 }

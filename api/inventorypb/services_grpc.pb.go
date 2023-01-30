@@ -47,8 +47,8 @@ type ServicesClient interface {
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
-	// UpdateService allows updating configuration of a service.
-	UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error)
+	// ChangeService allows changing configuration of a service.
+	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
 }
 
 type servicesClient struct {
@@ -167,9 +167,9 @@ func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCusto
 	return out, nil
 }
 
-func (c *servicesClient) UpdateService(ctx context.Context, in *UpdateServiceRequest, opts ...grpc.CallOption) (*UpdateServiceResponse, error) {
-	out := new(UpdateServiceResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Services/UpdateService", in, out, opts...)
+func (c *servicesClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
+	out := new(ChangeServiceResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/ChangeService", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +204,8 @@ type ServicesServer interface {
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
-	// UpdateService allows updating configuration of a service.
-	UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error)
+	// ChangeService allows changing configuration of a service.
+	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
 	mustEmbedUnimplementedServicesServer()
 }
 
@@ -260,8 +260,8 @@ func (UnimplementedServicesServer) RemoveCustomLabels(context.Context, *RemoveCu
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
 }
 
-func (UnimplementedServicesServer) UpdateService(context.Context, *UpdateServiceRequest) (*UpdateServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateService not implemented")
+func (UnimplementedServicesServer) ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
 }
 func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
 
@@ -492,20 +492,20 @@ func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_UpdateService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateServiceRequest)
+func _Services_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).UpdateService(ctx, in)
+		return srv.(ServicesServer).ChangeService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Services/UpdateService",
+		FullMethod: "/inventory.Services/ChangeService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).UpdateService(ctx, req.(*UpdateServiceRequest))
+		return srv.(ServicesServer).ChangeService(ctx, req.(*ChangeServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -566,8 +566,8 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Services_RemoveCustomLabels_Handler,
 		},
 		{
-			MethodName: "UpdateService",
-			Handler:    _Services_UpdateService_Handler,
+			MethodName: "ChangeService",
+			Handler:    _Services_ChangeService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

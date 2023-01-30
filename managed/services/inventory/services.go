@@ -433,8 +433,8 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }
 
-// UpdateService updates configuration of a service.
-func (ss *ServicesService) UpdateService(ctx context.Context, req *inventorypb.UpdateServiceRequest) (*inventorypb.UpdateServiceResponse, error) {
+// ChangeService updates configuration of a service.
+func (ss *ServicesService) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
@@ -462,7 +462,7 @@ func (ss *ServicesService) UpdateService(ctx context.Context, req *inventorypb.U
 		return nil, err
 	}
 
-	return &inventorypb.UpdateServiceResponse{}, nil
+	return &inventorypb.ChangeServiceResponse{}, nil
 }
 
 func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {
