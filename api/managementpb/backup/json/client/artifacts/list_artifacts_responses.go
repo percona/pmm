@@ -62,12 +62,12 @@ type ListArtifactsOK struct {
 func (o *ListArtifactsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListArtifactsOK) GetPayload() *ListArtifactsOKBody {
 	return o.Payload
 }
 
 func (o *ListArtifactsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListArtifactsOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListArtifactsDefault) Code() int {
 func (o *ListArtifactsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListArtifactsDefault) GetPayload() *ListArtifactsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListArtifactsDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ ListArtifactsDefaultBody list artifacts default body
 swagger:model ListArtifactsDefaultBody
 */
 type ListArtifactsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -190,7 +191,9 @@ func (o *ListArtifactsDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListArtifactsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,6 +204,7 @@ func (o *ListArtifactsDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -229,6 +233,7 @@ ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
 swagger:model ListArtifactsDefaultBodyDetailsItems0
 */
 type ListArtifactsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -266,6 +271,7 @@ ListArtifactsOKBody list artifacts OK body
 swagger:model ListArtifactsOKBody
 */
 type ListArtifactsOKBody struct {
+
 	// artifacts
 	Artifacts []*ListArtifactsOKBodyArtifactsItems0 `json:"artifacts"`
 }
@@ -325,7 +331,9 @@ func (o *ListArtifactsOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *ListArtifactsOKBody) contextValidateArtifacts(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Artifacts); i++ {
+
 		if o.Artifacts[i] != nil {
 			if err := o.Artifacts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -336,6 +344,7 @@ func (o *ListArtifactsOKBody) contextValidateArtifacts(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -364,6 +373,7 @@ ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
 swagger:model ListArtifactsOKBodyArtifactsItems0
 */
 type ListArtifactsOKBodyArtifactsItems0 struct {
+
 	// Machine-readable artifact ID.
 	ArtifactID string `json:"artifact_id,omitempty"`
 

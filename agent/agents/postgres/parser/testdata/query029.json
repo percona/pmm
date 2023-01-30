@@ -1,3 +1,7 @@
 {
-  "error": "error on parsing sql query: syntax error at or near \"ATTACH\""
+  "tables": [
+    "index_name",
+    "name"
+  ],
+  "error": ""
 }

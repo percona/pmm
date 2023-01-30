@@ -60,6 +60,7 @@ AddPostgreSQLServiceParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type AddPostgreSQLServiceParams struct {
+
 	// Body.
 	Body AddPostgreSQLServiceBody
 
@@ -129,6 +130,7 @@ func (o *AddPostgreSQLServiceParams) SetBody(body AddPostgreSQLServiceBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddPostgreSQLServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

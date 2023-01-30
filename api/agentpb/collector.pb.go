@@ -7,13 +7,11 @@
 package agentpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -2816,23 +2814,20 @@ func file_agentpb_collector_proto_rawDescGZIP() []byte {
 	return file_agentpb_collector_proto_rawDescData
 }
 
-var (
-	file_agentpb_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_agentpb_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 7)
-	file_agentpb_collector_proto_goTypes   = []interface{}{
-		(ExampleFormat)(0),               // 0: agent.ExampleFormat
-		(ExampleType)(0),                 // 1: agent.ExampleType
-		(*MetricsBucket)(nil),            // 2: agent.MetricsBucket
-		(*HistogramItem)(nil),            // 3: agent.HistogramItem
-		(*MetricsBucket_Common)(nil),     // 4: agent.MetricsBucket.Common
-		(*MetricsBucket_MySQL)(nil),      // 5: agent.MetricsBucket.MySQL
-		(*MetricsBucket_MongoDB)(nil),    // 6: agent.MetricsBucket.MongoDB
-		(*MetricsBucket_PostgreSQL)(nil), // 7: agent.MetricsBucket.PostgreSQL
-		nil,                              // 8: agent.MetricsBucket.Common.ErrorsEntry
-		(inventorypb.AgentType)(0),       // 9: inventory.AgentType
-	}
-)
-
+var file_agentpb_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_agentpb_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_agentpb_collector_proto_goTypes = []interface{}{
+	(ExampleFormat)(0),               // 0: agent.ExampleFormat
+	(ExampleType)(0),                 // 1: agent.ExampleType
+	(*MetricsBucket)(nil),            // 2: agent.MetricsBucket
+	(*HistogramItem)(nil),            // 3: agent.HistogramItem
+	(*MetricsBucket_Common)(nil),     // 4: agent.MetricsBucket.Common
+	(*MetricsBucket_MySQL)(nil),      // 5: agent.MetricsBucket.MySQL
+	(*MetricsBucket_MongoDB)(nil),    // 6: agent.MetricsBucket.MongoDB
+	(*MetricsBucket_PostgreSQL)(nil), // 7: agent.MetricsBucket.PostgreSQL
+	nil,                              // 8: agent.MetricsBucket.Common.ErrorsEntry
+	(inventorypb.AgentType)(0),       // 9: inventory.AgentType
+}
 var file_agentpb_collector_proto_depIdxs = []int32{
 	4, // 0: agent.MetricsBucket.common:type_name -> agent.MetricsBucket.Common
 	5, // 1: agent.MetricsBucket.mysql:type_name -> agent.MetricsBucket.MySQL

@@ -503,16 +503,16 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		if err := k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 			return errors.Wrap(err, "failed to create kubernetes client")
 		}
-		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
+		// out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
 
-		switch {
-		case err != nil && accessError(err):
-			k.l.Warn(err)
-		case err != nil:
-			return err
-		case len(out.Items) != 0:
-			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
-		}
+		// switch {
+		// case err != nil && accessError(err):
+		// 	k.l.Warn(err)
+		// case err != nil:
+		// 	return err
+		// case len(out.Items) != 0:
+		// 	return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
+		// }
 
 		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 	})

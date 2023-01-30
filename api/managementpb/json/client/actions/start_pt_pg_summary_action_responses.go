@@ -60,12 +60,12 @@ type StartPTPgSummaryActionOK struct {
 func (o *StartPTPgSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] startPtPgSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTPgSummaryActionOK) GetPayload() *StartPTPgSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTPgSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTPgSummaryActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartPTPgSummaryActionDefault) Code() int {
 func (o *StartPTPgSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] StartPTPgSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTPgSummaryActionDefault) GetPayload() *StartPTPgSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTPgSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTPgSummaryActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartPTPgSummaryActionBody Message to prepare pt-pg-summary data
 swagger:model StartPTPgSummaryActionBody
 */
 type StartPTPgSummaryActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -163,6 +164,7 @@ StartPTPgSummaryActionDefaultBody start PT pg summary action default body
 swagger:model StartPTPgSummaryActionDefaultBody
 */
 type StartPTPgSummaryActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *StartPTPgSummaryActionDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *StartPTPgSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *StartPTPgSummaryActionDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ StartPTPgSummaryActionDefaultBodyDetailsItems0 start PT pg summary action defaul
 swagger:model StartPTPgSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTPgSummaryActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ StartPTPgSummaryActionOKBody Message to retrieve the prepared pt-pg-summary data
 swagger:model StartPTPgSummaryActionOKBody
 */
 type StartPTPgSummaryActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

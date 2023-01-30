@@ -61,12 +61,12 @@ type ListPitrTimerangesOK struct {
 func (o *ListPitrTimerangesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] listPitrTimerangesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListPitrTimerangesOK) GetPayload() *ListPitrTimerangesOKBody {
 	return o.Payload
 }
 
 func (o *ListPitrTimerangesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListPitrTimerangesOKBody)
 
 	// response payload
@@ -103,12 +103,12 @@ func (o *ListPitrTimerangesDefault) Code() int {
 func (o *ListPitrTimerangesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimeranges][%d] ListPitrTimeranges default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListPitrTimerangesDefault) GetPayload() *ListPitrTimerangesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListPitrTimerangesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListPitrTimerangesDefaultBody)
 
 	// response payload
@@ -124,6 +124,7 @@ ListPitrTimerangesBody list pitr timeranges body
 swagger:model ListPitrTimerangesBody
 */
 type ListPitrTimerangesBody struct {
+
 	// Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
@@ -161,6 +162,7 @@ ListPitrTimerangesDefaultBody list pitr timeranges default body
 swagger:model ListPitrTimerangesDefaultBody
 */
 type ListPitrTimerangesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -226,7 +228,9 @@ func (o *ListPitrTimerangesDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListPitrTimerangesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -237,6 +241,7 @@ func (o *ListPitrTimerangesDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -265,6 +270,7 @@ ListPitrTimerangesDefaultBodyDetailsItems0 list pitr timeranges default body det
 swagger:model ListPitrTimerangesDefaultBodyDetailsItems0
 */
 type ListPitrTimerangesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -302,6 +308,7 @@ ListPitrTimerangesOKBody list pitr timeranges OK body
 swagger:model ListPitrTimerangesOKBody
 */
 type ListPitrTimerangesOKBody struct {
+
 	// timeranges
 	Timeranges []*ListPitrTimerangesOKBodyTimerangesItems0 `json:"timeranges"`
 }
@@ -361,7 +368,9 @@ func (o *ListPitrTimerangesOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListPitrTimerangesOKBody) contextValidateTimeranges(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Timeranges); i++ {
+
 		if o.Timeranges[i] != nil {
 			if err := o.Timeranges[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -372,6 +381,7 @@ func (o *ListPitrTimerangesOKBody) contextValidateTimeranges(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -400,6 +410,7 @@ ListPitrTimerangesOKBodyTimerangesItems0 list pitr timeranges OK body timeranges
 swagger:model ListPitrTimerangesOKBodyTimerangesItems0
 */
 type ListPitrTimerangesOKBodyTimerangesItems0 struct {
+
 	// start_timestamp is the time of the first event in the PITR chunk.
 	// Format: date-time
 	StartTimestamp strfmt.DateTime `json:"start_timestamp,omitempty"`

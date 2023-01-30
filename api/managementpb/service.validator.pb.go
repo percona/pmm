@@ -6,22 +6,18 @@ package managementpb
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "github.com/percona/pmm/api/inventorypb"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
-
-	_ "github.com/percona/pmm/api/inventorypb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *AddNodeParams) Validate() error {
 	if this.NodeName == "" {
@@ -30,11 +26,9 @@ func (this *AddNodeParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *RemoveServiceRequest) Validate() error {
 	return nil
 }
-
 func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }

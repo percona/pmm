@@ -60,6 +60,7 @@ StartMySQLExplainTraditionalJSONActionParams contains all the parameters to send
 	Typically these are written to a http.Request.
 */
 type StartMySQLExplainTraditionalJSONActionParams struct {
+
 	// Body.
 	Body StartMySQLExplainTraditionalJSONActionBody
 
@@ -129,6 +130,7 @@ func (o *StartMySQLExplainTraditionalJSONActionParams) SetBody(body StartMySQLEx
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartMySQLExplainTraditionalJSONActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -7,14 +7,13 @@
 package inventorypb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -3157,57 +3156,54 @@ func file_inventorypb_services_proto_rawDescGZIP() []byte {
 	return file_inventorypb_services_proto_rawDescData
 }
 
-var (
-	file_inventorypb_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventorypb_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 43)
-	file_inventorypb_services_proto_goTypes   = []interface{}{
-		(ServiceType)(0),                       // 0: inventory.ServiceType
-		(*MySQLService)(nil),                   // 1: inventory.MySQLService
-		(*MongoDBService)(nil),                 // 2: inventory.MongoDBService
-		(*PostgreSQLService)(nil),              // 3: inventory.PostgreSQLService
-		(*ProxySQLService)(nil),                // 4: inventory.ProxySQLService
-		(*HAProxyService)(nil),                 // 5: inventory.HAProxyService
-		(*ExternalService)(nil),                // 6: inventory.ExternalService
-		(*ListServicesRequest)(nil),            // 7: inventory.ListServicesRequest
-		(*ListServicesResponse)(nil),           // 8: inventory.ListServicesResponse
-		(*ListActiveServiceTypesRequest)(nil),  // 9: inventory.ListActiveServiceTypesRequest
-		(*ListActiveServiceTypesResponse)(nil), // 10: inventory.ListActiveServiceTypesResponse
-		(*GetServiceRequest)(nil),              // 11: inventory.GetServiceRequest
-		(*GetServiceResponse)(nil),             // 12: inventory.GetServiceResponse
-		(*AddMySQLServiceRequest)(nil),         // 13: inventory.AddMySQLServiceRequest
-		(*AddMySQLServiceResponse)(nil),        // 14: inventory.AddMySQLServiceResponse
-		(*AddMongoDBServiceRequest)(nil),       // 15: inventory.AddMongoDBServiceRequest
-		(*AddMongoDBServiceResponse)(nil),      // 16: inventory.AddMongoDBServiceResponse
-		(*AddPostgreSQLServiceRequest)(nil),    // 17: inventory.AddPostgreSQLServiceRequest
-		(*AddPostgreSQLServiceResponse)(nil),   // 18: inventory.AddPostgreSQLServiceResponse
-		(*AddProxySQLServiceRequest)(nil),      // 19: inventory.AddProxySQLServiceRequest
-		(*AddProxySQLServiceResponse)(nil),     // 20: inventory.AddProxySQLServiceResponse
-		(*AddHAProxyServiceRequest)(nil),       // 21: inventory.AddHAProxyServiceRequest
-		(*AddHAProxyServiceResponse)(nil),      // 22: inventory.AddHAProxyServiceResponse
-		(*AddExternalServiceRequest)(nil),      // 23: inventory.AddExternalServiceRequest
-		(*AddExternalServiceResponse)(nil),     // 24: inventory.AddExternalServiceResponse
-		(*RemoveServiceRequest)(nil),           // 25: inventory.RemoveServiceRequest
-		(*RemoveServiceResponse)(nil),          // 26: inventory.RemoveServiceResponse
-		(*AddCustomLabelsRequest)(nil),         // 27: inventory.AddCustomLabelsRequest
-		(*AddCustomLabelsResponse)(nil),        // 28: inventory.AddCustomLabelsResponse
-		(*RemoveCustomLabelsRequest)(nil),      // 29: inventory.RemoveCustomLabelsRequest
-		(*RemoveCustomLabelsResponse)(nil),     // 30: inventory.RemoveCustomLabelsResponse
-		nil,                                    // 31: inventory.MySQLService.CustomLabelsEntry
-		nil,                                    // 32: inventory.MongoDBService.CustomLabelsEntry
-		nil,                                    // 33: inventory.PostgreSQLService.CustomLabelsEntry
-		nil,                                    // 34: inventory.ProxySQLService.CustomLabelsEntry
-		nil,                                    // 35: inventory.HAProxyService.CustomLabelsEntry
-		nil,                                    // 36: inventory.ExternalService.CustomLabelsEntry
-		nil,                                    // 37: inventory.AddMySQLServiceRequest.CustomLabelsEntry
-		nil,                                    // 38: inventory.AddMongoDBServiceRequest.CustomLabelsEntry
-		nil,                                    // 39: inventory.AddPostgreSQLServiceRequest.CustomLabelsEntry
-		nil,                                    // 40: inventory.AddProxySQLServiceRequest.CustomLabelsEntry
-		nil,                                    // 41: inventory.AddHAProxyServiceRequest.CustomLabelsEntry
-		nil,                                    // 42: inventory.AddExternalServiceRequest.CustomLabelsEntry
-		nil,                                    // 43: inventory.AddCustomLabelsRequest.CustomLabelsEntry
-	}
-)
-
+var file_inventorypb_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_inventorypb_services_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_inventorypb_services_proto_goTypes = []interface{}{
+	(ServiceType)(0),                       // 0: inventory.ServiceType
+	(*MySQLService)(nil),                   // 1: inventory.MySQLService
+	(*MongoDBService)(nil),                 // 2: inventory.MongoDBService
+	(*PostgreSQLService)(nil),              // 3: inventory.PostgreSQLService
+	(*ProxySQLService)(nil),                // 4: inventory.ProxySQLService
+	(*HAProxyService)(nil),                 // 5: inventory.HAProxyService
+	(*ExternalService)(nil),                // 6: inventory.ExternalService
+	(*ListServicesRequest)(nil),            // 7: inventory.ListServicesRequest
+	(*ListServicesResponse)(nil),           // 8: inventory.ListServicesResponse
+	(*ListActiveServiceTypesRequest)(nil),  // 9: inventory.ListActiveServiceTypesRequest
+	(*ListActiveServiceTypesResponse)(nil), // 10: inventory.ListActiveServiceTypesResponse
+	(*GetServiceRequest)(nil),              // 11: inventory.GetServiceRequest
+	(*GetServiceResponse)(nil),             // 12: inventory.GetServiceResponse
+	(*AddMySQLServiceRequest)(nil),         // 13: inventory.AddMySQLServiceRequest
+	(*AddMySQLServiceResponse)(nil),        // 14: inventory.AddMySQLServiceResponse
+	(*AddMongoDBServiceRequest)(nil),       // 15: inventory.AddMongoDBServiceRequest
+	(*AddMongoDBServiceResponse)(nil),      // 16: inventory.AddMongoDBServiceResponse
+	(*AddPostgreSQLServiceRequest)(nil),    // 17: inventory.AddPostgreSQLServiceRequest
+	(*AddPostgreSQLServiceResponse)(nil),   // 18: inventory.AddPostgreSQLServiceResponse
+	(*AddProxySQLServiceRequest)(nil),      // 19: inventory.AddProxySQLServiceRequest
+	(*AddProxySQLServiceResponse)(nil),     // 20: inventory.AddProxySQLServiceResponse
+	(*AddHAProxyServiceRequest)(nil),       // 21: inventory.AddHAProxyServiceRequest
+	(*AddHAProxyServiceResponse)(nil),      // 22: inventory.AddHAProxyServiceResponse
+	(*AddExternalServiceRequest)(nil),      // 23: inventory.AddExternalServiceRequest
+	(*AddExternalServiceResponse)(nil),     // 24: inventory.AddExternalServiceResponse
+	(*RemoveServiceRequest)(nil),           // 25: inventory.RemoveServiceRequest
+	(*RemoveServiceResponse)(nil),          // 26: inventory.RemoveServiceResponse
+	(*AddCustomLabelsRequest)(nil),         // 27: inventory.AddCustomLabelsRequest
+	(*AddCustomLabelsResponse)(nil),        // 28: inventory.AddCustomLabelsResponse
+	(*RemoveCustomLabelsRequest)(nil),      // 29: inventory.RemoveCustomLabelsRequest
+	(*RemoveCustomLabelsResponse)(nil),     // 30: inventory.RemoveCustomLabelsResponse
+	nil,                                    // 31: inventory.MySQLService.CustomLabelsEntry
+	nil,                                    // 32: inventory.MongoDBService.CustomLabelsEntry
+	nil,                                    // 33: inventory.PostgreSQLService.CustomLabelsEntry
+	nil,                                    // 34: inventory.ProxySQLService.CustomLabelsEntry
+	nil,                                    // 35: inventory.HAProxyService.CustomLabelsEntry
+	nil,                                    // 36: inventory.ExternalService.CustomLabelsEntry
+	nil,                                    // 37: inventory.AddMySQLServiceRequest.CustomLabelsEntry
+	nil,                                    // 38: inventory.AddMongoDBServiceRequest.CustomLabelsEntry
+	nil,                                    // 39: inventory.AddPostgreSQLServiceRequest.CustomLabelsEntry
+	nil,                                    // 40: inventory.AddProxySQLServiceRequest.CustomLabelsEntry
+	nil,                                    // 41: inventory.AddHAProxyServiceRequest.CustomLabelsEntry
+	nil,                                    // 42: inventory.AddExternalServiceRequest.CustomLabelsEntry
+	nil,                                    // 43: inventory.AddCustomLabelsRequest.CustomLabelsEntry
+}
 var file_inventorypb_services_proto_depIdxs = []int32{
 	31, // 0: inventory.MySQLService.custom_labels:type_name -> inventory.MySQLService.CustomLabelsEntry
 	32, // 1: inventory.MongoDBService.custom_labels:type_name -> inventory.MongoDBService.CustomLabelsEntry

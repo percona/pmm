@@ -60,6 +60,7 @@ CheckForOperatorUpdateParams contains all the parameters to send to the API endp
 	Typically these are written to a http.Request.
 */
 type CheckForOperatorUpdateParams struct {
+
 	// Body.
 	Body interface{}
 
@@ -129,6 +130,7 @@ func (o *CheckForOperatorUpdateParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *CheckForOperatorUpdateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

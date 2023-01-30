@@ -60,12 +60,12 @@ type UpdateStatusOK struct {
 func (o *UpdateStatusOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdateStatusOK) GetPayload() *UpdateStatusOKBody {
 	return o.Payload
 }
 
 func (o *UpdateStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateStatusOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *UpdateStatusDefault) Code() int {
 func (o *UpdateStatusDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdateStatusDefault) GetPayload() *UpdateStatusDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateStatusDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ UpdateStatusBody update status body
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
+
 	// Authentication token.
 	AuthToken string `json:"auth_token,omitempty"`
 
@@ -163,6 +164,7 @@ UpdateStatusDefaultBody update status default body
 swagger:model UpdateStatusDefaultBody
 */
 type UpdateStatusDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *UpdateStatusDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *UpdateStatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *UpdateStatusDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -348,6 +353,7 @@ UpdateStatusDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized prot
 swagger:model UpdateStatusDefaultBodyDetailsItems0
 */
 type UpdateStatusDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -411,6 +417,7 @@ UpdateStatusOKBody update status OK body
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
+
 	// Progress log lines.
 	LogLines []string `json:"log_lines"`
 

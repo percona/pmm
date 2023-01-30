@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_SecurityChecks_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFailedServicesRequest
@@ -47,6 +45,7 @@ func request_SecurityChecks_ListFailedServices_0(ctx context.Context, marshaler 
 
 	msg, err := client.ListFailedServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_SecurityChecks_ListFailedServices_0(ctx context.Context, mars
 
 	msg, err := server.ListFailedServices(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,6 +79,7 @@ func request_SecurityChecks_GetFailedChecks_0(ctx context.Context, marshaler run
 
 	msg, err := client.GetFailedChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,6 +96,7 @@ func local_request_SecurityChecks_GetFailedChecks_0(ctx context.Context, marshal
 
 	msg, err := server.GetFailedChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_ToggleCheckAlert_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +113,7 @@ func request_SecurityChecks_ToggleCheckAlert_0(ctx context.Context, marshaler ru
 
 	msg, err := client.ToggleCheckAlert(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_ToggleCheckAlert_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,6 +130,7 @@ func local_request_SecurityChecks_ToggleCheckAlert_0(ctx context.Context, marsha
 
 	msg, err := server.ToggleCheckAlert(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_GetSecurityCheckResults_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -143,6 +147,7 @@ func request_SecurityChecks_GetSecurityCheckResults_0(ctx context.Context, marsh
 
 	msg, err := client.GetSecurityCheckResults(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_GetSecurityCheckResults_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -159,6 +164,7 @@ func local_request_SecurityChecks_GetSecurityCheckResults_0(ctx context.Context,
 
 	msg, err := server.GetSecurityCheckResults(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_StartSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -175,6 +181,7 @@ func request_SecurityChecks_StartSecurityChecks_0(ctx context.Context, marshaler
 
 	msg, err := client.StartSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_StartSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -191,6 +198,7 @@ func local_request_SecurityChecks_StartSecurityChecks_0(ctx context.Context, mar
 
 	msg, err := server.StartSecurityChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_ListSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -207,6 +215,7 @@ func request_SecurityChecks_ListSecurityChecks_0(ctx context.Context, marshaler 
 
 	msg, err := client.ListSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_ListSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -223,6 +232,7 @@ func local_request_SecurityChecks_ListSecurityChecks_0(ctx context.Context, mars
 
 	msg, err := server.ListSecurityChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_SecurityChecks_ChangeSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -239,6 +249,7 @@ func request_SecurityChecks_ChangeSecurityChecks_0(ctx context.Context, marshale
 
 	msg, err := client.ChangeSecurityChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_SecurityChecks_ChangeSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityChecksServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -255,6 +266,7 @@ func local_request_SecurityChecks_ChangeSecurityChecks_0(ctx context.Context, ma
 
 	msg, err := server.ChangeSecurityChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterSecurityChecksHandlerServer registers the http handlers for service SecurityChecks to "mux".
@@ -262,6 +274,7 @@ func local_request_SecurityChecks_ChangeSecurityChecks_0(ctx context.Context, ma
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSecurityChecksHandlerFromEndpoint instead.
 func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SecurityChecksServer) error {
+
 	mux.Handle("POST", pattern_SecurityChecks_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -284,6 +297,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -308,6 +322,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ToggleCheckAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -332,6 +347,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ToggleCheckAlert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetSecurityCheckResults_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -356,6 +372,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -380,6 +397,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -404,6 +422,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -428,6 +447,7 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -470,6 +490,7 @@ func RegisterSecurityChecksHandler(ctx context.Context, mux *runtime.ServeMux, c
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "SecurityChecksClient" to call the correct interceptors.
 func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SecurityChecksClient) error {
+
 	mux.Handle("POST", pattern_SecurityChecks_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -489,6 +510,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -510,6 +532,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ToggleCheckAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -531,6 +554,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ToggleCheckAlert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetSecurityCheckResults_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -552,6 +576,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -573,6 +598,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -594,6 +620,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -615,6 +642,7 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

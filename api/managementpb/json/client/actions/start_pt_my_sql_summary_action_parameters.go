@@ -60,6 +60,7 @@ StartPTMySQLSummaryActionParams contains all the parameters to send to the API e
 	Typically these are written to a http.Request.
 */
 type StartPTMySQLSummaryActionParams struct {
+
 	// Body.
 	Body StartPTMySQLSummaryActionBody
 
@@ -129,6 +130,7 @@ func (o *StartPTMySQLSummaryActionParams) SetBody(body StartPTMySQLSummaryAction
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartPTMySQLSummaryActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

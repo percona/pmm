@@ -8,7 +8,6 @@ package agentpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -76,7 +75,8 @@ type AgentServer interface {
 }
 
 // UnimplementedAgentServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentServer struct{}
+type UnimplementedAgentServer struct {
+}
 
 func (UnimplementedAgentServer) Connect(Agent_ConnectServer) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")

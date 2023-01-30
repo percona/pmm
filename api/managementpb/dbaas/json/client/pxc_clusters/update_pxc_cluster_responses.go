@@ -60,12 +60,12 @@ type UpdatePXCClusterOK struct {
 func (o *UpdatePXCClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdatePXCClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UpdatePXCClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *UpdatePXCClusterDefault) Code() int {
 func (o *UpdatePXCClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdatePXCClusterDefault) GetPayload() *UpdatePXCClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdatePXCClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdatePXCClusterDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ UpdatePXCClusterBody update PXC cluster body
 swagger:model UpdatePXCClusterBody
 */
 type UpdatePXCClusterBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -188,6 +189,7 @@ func (o *UpdatePXCClusterBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *UpdatePXCClusterBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -225,6 +227,7 @@ UpdatePXCClusterDefaultBody update PXC cluster default body
 swagger:model UpdatePXCClusterDefaultBody
 */
 type UpdatePXCClusterDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -290,7 +293,9 @@ func (o *UpdatePXCClusterDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *UpdatePXCClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -301,6 +306,7 @@ func (o *UpdatePXCClusterDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -329,6 +335,7 @@ UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details
 swagger:model UpdatePXCClusterDefaultBodyDetailsItems0
 */
 type UpdatePXCClusterDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -366,6 +373,7 @@ UpdatePXCClusterParamsBodyParams UpdatePXCClusterParams represents PXC cluster p
 swagger:model UpdatePXCClusterParamsBodyParams
 */
 type UpdatePXCClusterParamsBodyParams struct {
+
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -487,6 +495,7 @@ func (o *UpdatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, 
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -502,6 +511,7 @@ func (o *UpdatePXCClusterParamsBodyParams) contextValidateHaproxy(ctx context.Co
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -517,6 +527,7 @@ func (o *UpdatePXCClusterParamsBodyParams) contextValidateProxysql(ctx context.C
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -554,6 +565,7 @@ UpdatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxy
 */
 type UpdatePXCClusterParamsBodyParamsHaproxy struct {
+
 	// compute resources
 	ComputeResources *UpdatePXCClusterParamsBodyParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
 }
@@ -606,6 +618,7 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxy) ContextValidate(ctx context.Co
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -643,6 +656,7 @@ UpdatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represe
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxyComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -683,6 +697,7 @@ UpdatePXCClusterParamsBodyParamsPXC PXC container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsPXC
 */
 type UpdatePXCClusterParamsBodyParamsPXC struct {
+
 	// Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
 	// in given tag is triggered. If entirely different image is given, error is returned.
 	Image string `json:"image,omitempty"`
@@ -745,6 +760,7 @@ func (o *UpdatePXCClusterParamsBodyParamsPXC) ContextValidate(ctx context.Contex
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -782,6 +798,7 @@ UpdatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents 
 swagger:model UpdatePXCClusterParamsBodyParamsPXCComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsPXCComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -822,6 +839,7 @@ UpdatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsProxysql
 */
 type UpdatePXCClusterParamsBodyParamsProxysql struct {
+
 	// compute resources
 	ComputeResources *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
 }
@@ -874,6 +892,7 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysql) ContextValidate(ctx context.C
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -911,6 +930,7 @@ UpdatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources repres
 swagger:model UpdatePXCClusterParamsBodyParamsProxysqlComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsProxysqlComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

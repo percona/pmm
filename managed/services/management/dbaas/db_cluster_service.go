@@ -68,8 +68,10 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}
 	dbClusters, err := s.kubernetesClient.ListDatabaseClusters(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed listing database clusters")
+		// return nil, errors.Wrap(err, "failed listing database clusters")
+		dbClusters = &dbaasv1.DatabaseClusterList{Items: []dbaasv1.DatabaseCluster{}}
 	}
+
 	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting psmdb operator version")

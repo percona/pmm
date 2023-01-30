@@ -62,12 +62,12 @@ type GetSecurityCheckResultsOK struct {
 func (o *GetSecurityCheckResultsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetSecurityCheckResultsOK) GetPayload() *GetSecurityCheckResultsOKBody {
 	return o.Payload
 }
 
 func (o *GetSecurityCheckResultsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetSecurityCheckResultsOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *GetSecurityCheckResultsDefault) Code() int {
 func (o *GetSecurityCheckResultsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetSecurityCheckResultsDefault) GetPayload() *GetSecurityCheckResultsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetSecurityCheckResultsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetSecurityCheckResultsDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ GetSecurityCheckResultsDefaultBody get security check results default body
 swagger:model GetSecurityCheckResultsDefaultBody
 */
 type GetSecurityCheckResultsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -190,7 +191,9 @@ func (o *GetSecurityCheckResultsDefaultBody) ContextValidate(ctx context.Context
 }
 
 func (o *GetSecurityCheckResultsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,6 +204,7 @@ func (o *GetSecurityCheckResultsDefaultBody) contextValidateDetails(ctx context.
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -229,6 +233,7 @@ GetSecurityCheckResultsDefaultBodyDetailsItems0 get security check results defau
 swagger:model GetSecurityCheckResultsDefaultBodyDetailsItems0
 */
 type GetSecurityCheckResultsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -266,6 +271,7 @@ GetSecurityCheckResultsOKBody get security check results OK body
 swagger:model GetSecurityCheckResultsOKBody
 */
 type GetSecurityCheckResultsOKBody struct {
+
 	// results
 	Results []*GetSecurityCheckResultsOKBodyResultsItems0 `json:"results"`
 }
@@ -325,7 +331,9 @@ func (o *GetSecurityCheckResultsOKBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetSecurityCheckResultsOKBody) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Results); i++ {
+
 		if o.Results[i] != nil {
 			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -336,6 +344,7 @@ func (o *GetSecurityCheckResultsOKBody) contextValidateResults(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -364,6 +373,7 @@ GetSecurityCheckResultsOKBodyResultsItems0 SecurityCheckResult represents the ch
 swagger:model GetSecurityCheckResultsOKBodyResultsItems0
 */
 type GetSecurityCheckResultsOKBodyResultsItems0 struct {
+
 	// summary
 	Summary string `json:"summary,omitempty"`
 

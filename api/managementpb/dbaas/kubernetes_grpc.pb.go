@@ -8,7 +8,6 @@ package dbaasv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -127,28 +126,24 @@ type KubernetesServer interface {
 }
 
 // UnimplementedKubernetesServer must be embedded to have forward compatible implementations.
-type UnimplementedKubernetesServer struct{}
+type UnimplementedKubernetesServer struct {
+}
 
 func (UnimplementedKubernetesServer) ListKubernetesClusters(context.Context, *ListKubernetesClustersRequest) (*ListKubernetesClustersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListKubernetesClusters not implemented")
 }
-
 func (UnimplementedKubernetesServer) RegisterKubernetesCluster(context.Context, *RegisterKubernetesClusterRequest) (*RegisterKubernetesClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterKubernetesCluster not implemented")
 }
-
 func (UnimplementedKubernetesServer) UnregisterKubernetesCluster(context.Context, *UnregisterKubernetesClusterRequest) (*UnregisterKubernetesClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterKubernetesCluster not implemented")
 }
-
 func (UnimplementedKubernetesServer) GetKubernetesCluster(context.Context, *GetKubernetesClusterRequest) (*GetKubernetesClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetKubernetesCluster not implemented")
 }
-
 func (UnimplementedKubernetesServer) GetResources(context.Context, *GetResourcesRequest) (*GetResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
 }
-
 func (UnimplementedKubernetesServer) ListStorageClasses(context.Context, *ListStorageClassesRequest) (*ListStorageClassesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListStorageClasses not implemented")
 }

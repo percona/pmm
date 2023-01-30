@@ -62,12 +62,12 @@ type AddPostgreSQLOK struct {
 func (o *AddPostgreSQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
 }
-
 func (o *AddPostgreSQLOK) GetPayload() *AddPostgreSQLOKBody {
 	return o.Payload
 }
 
 func (o *AddPostgreSQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPostgreSQLOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddPostgreSQLDefault) Code() int {
 func (o *AddPostgreSQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddPostgreSQLDefault) GetPayload() *AddPostgreSQLDefaultBody {
 	return o.Payload
 }
 
 func (o *AddPostgreSQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPostgreSQLDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddPostgreSQLBody add postgre SQL body
 swagger:model AddPostgreSQLBody
 */
 type AddPostgreSQLBody struct {
+
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -376,6 +377,7 @@ func (o *AddPostgreSQLBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddPostgreSQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -413,6 +415,7 @@ AddPostgreSQLDefaultBody add postgre SQL default body
 swagger:model AddPostgreSQLDefaultBody
 */
 type AddPostgreSQLDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -478,7 +481,9 @@ func (o *AddPostgreSQLDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddPostgreSQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -489,6 +494,7 @@ func (o *AddPostgreSQLDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -517,6 +523,7 @@ AddPostgreSQLDefaultBodyDetailsItems0 add postgre SQL default body details items
 swagger:model AddPostgreSQLDefaultBodyDetailsItems0
 */
 type AddPostgreSQLDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -554,6 +561,7 @@ AddPostgreSQLOKBody add postgre SQL OK body
 swagger:model AddPostgreSQLOKBody
 */
 type AddPostgreSQLOKBody struct {
+
 	// postgres exporter
 	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
@@ -696,6 +704,7 @@ func (o *AddPostgreSQLOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *AddPostgreSQLOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -711,6 +720,7 @@ func (o *AddPostgreSQLOKBody) contextValidatePostgresExporter(ctx context.Contex
 }
 
 func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatementsAgent != nil {
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -726,6 +736,7 @@ func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx 
 }
 
 func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -741,6 +752,7 @@ func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx
 }
 
 func (o *AddPostgreSQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -778,6 +790,7 @@ AddPostgreSQLOKBodyPostgresExporter PostgresExporter runs on Generic or Containe
 swagger:model AddPostgreSQLOKBodyPostgresExporter
 */
 type AddPostgreSQLOKBodyPostgresExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -987,6 +1000,7 @@ AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent
 swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
 */
 type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1192,6 +1206,7 @@ AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAge
 swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1400,6 +1415,7 @@ AddPostgreSQLOKBodyService PostgreSQLService represents a generic PostgreSQL ins
 swagger:model AddPostgreSQLOKBodyService
 */
 type AddPostgreSQLOKBodyService struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1470,6 +1486,7 @@ AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inve
 swagger:model AddPostgreSQLParamsBodyAddNode
 */
 type AddPostgreSQLParamsBodyAddNode struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

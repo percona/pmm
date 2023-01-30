@@ -60,12 +60,12 @@ type GetPXCClusterResourcesOK struct {
 func (o *GetPXCClusterResourcesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Resources/Get][%d] getPxcClusterResourcesOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPXCClusterResourcesOK) GetPayload() *GetPXCClusterResourcesOKBody {
 	return o.Payload
 }
 
 func (o *GetPXCClusterResourcesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCClusterResourcesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetPXCClusterResourcesDefault) Code() int {
 func (o *GetPXCClusterResourcesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Resources/Get][%d] GetPXCClusterResources default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPXCClusterResourcesDefault) GetPayload() *GetPXCClusterResourcesDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPXCClusterResourcesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPXCClusterResourcesDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ GetPXCClusterResourcesBody get PXC cluster resources body
 swagger:model GetPXCClusterResourcesBody
 */
 type GetPXCClusterResourcesBody struct {
+
 	// params
 	Params *GetPXCClusterResourcesParamsBodyParams `json:"params,omitempty"`
 }
@@ -175,6 +176,7 @@ func (o *GetPXCClusterResourcesBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetPXCClusterResourcesBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -212,6 +214,7 @@ GetPXCClusterResourcesDefaultBody get PXC cluster resources default body
 swagger:model GetPXCClusterResourcesDefaultBody
 */
 type GetPXCClusterResourcesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -277,7 +280,9 @@ func (o *GetPXCClusterResourcesDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *GetPXCClusterResourcesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -288,6 +293,7 @@ func (o *GetPXCClusterResourcesDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -316,6 +322,7 @@ GetPXCClusterResourcesDefaultBodyDetailsItems0 get PXC cluster resources default
 swagger:model GetPXCClusterResourcesDefaultBodyDetailsItems0
 */
 type GetPXCClusterResourcesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -353,6 +360,7 @@ GetPXCClusterResourcesOKBody get PXC cluster resources OK body
 swagger:model GetPXCClusterResourcesOKBody
 */
 type GetPXCClusterResourcesOKBody struct {
+
 	// expected
 	Expected *GetPXCClusterResourcesOKBodyExpected `json:"expected,omitempty"`
 }
@@ -405,6 +413,7 @@ func (o *GetPXCClusterResourcesOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *GetPXCClusterResourcesOKBody) contextValidateExpected(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Expected != nil {
 		if err := o.Expected.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -442,6 +451,7 @@ GetPXCClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resou
 swagger:model GetPXCClusterResourcesOKBodyExpected
 */
 type GetPXCClusterResourcesOKBodyExpected struct {
+
 	// Memory in bytes.
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 
@@ -486,6 +496,7 @@ GetPXCClusterResourcesParamsBodyParams PXCClusterParams represents PXC cluster p
 swagger:model GetPXCClusterResourcesParamsBodyParams
 */
 type GetPXCClusterResourcesParamsBodyParams struct {
+
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -601,6 +612,7 @@ func (o *GetPXCClusterResourcesParamsBodyParams) ContextValidate(ctx context.Con
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -616,6 +628,7 @@ func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateHaproxy(ctx cont
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -631,6 +644,7 @@ func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateProxysql(ctx con
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParams) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -669,6 +683,7 @@ GetPXCClusterResourcesParamsBodyParamsHaproxy HAProxy container parameters.
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxy
 */
 type GetPXCClusterResourcesParamsBodyParamsHaproxy struct {
+
 	// Docker image used for HAProxy.
 	Image string `json:"image,omitempty"`
 
@@ -724,6 +739,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxy) ContextValidate(ctx cont
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -761,6 +777,7 @@ GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources ComputeResources r
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -802,6 +819,7 @@ GetPXCClusterResourcesParamsBodyParamsPXC PXC container parameters.
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXC
 */
 type GetPXCClusterResourcesParamsBodyParamsPXC struct {
+
 	// Docker image used for PXC.
 	Image string `json:"image,omitempty"`
 
@@ -866,6 +884,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXC) ContextValidate(ctx context.
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -903,6 +922,7 @@ GetPXCClusterResourcesParamsBodyParamsPXCComputeResources ComputeResources repre
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXCComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsPXCComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -944,6 +964,7 @@ GetPXCClusterResourcesParamsBodyParamsProxysql ProxySQL container parameters.
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysql
 */
 type GetPXCClusterResourcesParamsBodyParamsProxysql struct {
+
 	// Docker image used for ProxySQL.
 	Image string `json:"image,omitempty"`
 
@@ -1002,6 +1023,7 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysql) ContextValidate(ctx con
 }
 
 func (o *GetPXCClusterResourcesParamsBodyParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1039,6 +1061,7 @@ GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources ComputeResources 
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

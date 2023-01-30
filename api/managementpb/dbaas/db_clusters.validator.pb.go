@@ -6,19 +6,16 @@ package dbaasv1beta1
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *PSMDBCluster) Validate() error {
 	if this.Operation != nil {
@@ -33,7 +30,6 @@ func (this *PSMDBCluster) Validate() error {
 	}
 	return nil
 }
-
 func (this *PXCCluster) Validate() error {
 	if this.Operation != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
@@ -47,14 +43,12 @@ func (this *PXCCluster) Validate() error {
 	}
 	return nil
 }
-
 func (this *ListDBClustersRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	return nil
 }
-
 func (this *ListDBClustersResponse) Validate() error {
 	for _, item := range this.PxcClusters {
 		if item != nil {
@@ -72,7 +66,6 @@ func (this *ListDBClustersResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *RestartDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -82,11 +75,9 @@ func (this *RestartDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *RestartDBClusterResponse) Validate() error {
 	return nil
 }
-
 func (this *GetDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -96,7 +87,6 @@ func (this *GetDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *GetDBClusterResponse) Validate() error {
 	if this.PxcCluster != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PxcCluster); err != nil {
@@ -110,7 +100,6 @@ func (this *GetDBClusterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *DeleteDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -120,7 +109,6 @@ func (this *DeleteDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *DeleteDBClusterResponse) Validate() error {
 	return nil
 }

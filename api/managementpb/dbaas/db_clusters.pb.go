@@ -7,13 +7,12 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -947,28 +946,25 @@ func file_managementpb_dbaas_db_clusters_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_db_clusters_proto_rawDescData
 }
 
-var (
-	file_managementpb_dbaas_db_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_dbaas_db_clusters_proto_msgTypes  = make([]protoimpl.MessageInfo, 10)
-	file_managementpb_dbaas_db_clusters_proto_goTypes   = []interface{}{
-		(DBClusterState)(0),              // 0: dbaas.v1beta1.DBClusterState
-		(*PSMDBCluster)(nil),             // 1: dbaas.v1beta1.PSMDBCluster
-		(*PXCCluster)(nil),               // 2: dbaas.v1beta1.PXCCluster
-		(*ListDBClustersRequest)(nil),    // 3: dbaas.v1beta1.ListDBClustersRequest
-		(*ListDBClustersResponse)(nil),   // 4: dbaas.v1beta1.ListDBClustersResponse
-		(*RestartDBClusterRequest)(nil),  // 5: dbaas.v1beta1.RestartDBClusterRequest
-		(*RestartDBClusterResponse)(nil), // 6: dbaas.v1beta1.RestartDBClusterResponse
-		(*GetDBClusterRequest)(nil),      // 7: dbaas.v1beta1.GetDBClusterRequest
-		(*GetDBClusterResponse)(nil),     // 8: dbaas.v1beta1.GetDBClusterResponse
-		(*DeleteDBClusterRequest)(nil),   // 9: dbaas.v1beta1.DeleteDBClusterRequest
-		(*DeleteDBClusterResponse)(nil),  // 10: dbaas.v1beta1.DeleteDBClusterResponse
-		(*RunningOperation)(nil),         // 11: dbaas.v1beta1.RunningOperation
-		(*PSMDBClusterParams)(nil),       // 12: dbaas.v1beta1.PSMDBClusterParams
-		(*PXCClusterParams)(nil),         // 13: dbaas.v1beta1.PXCClusterParams
-		(DBClusterType)(0),               // 14: dbaas.v1beta1.DBClusterType
-	}
-)
-
+var file_managementpb_dbaas_db_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_dbaas_db_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_managementpb_dbaas_db_clusters_proto_goTypes = []interface{}{
+	(DBClusterState)(0),              // 0: dbaas.v1beta1.DBClusterState
+	(*PSMDBCluster)(nil),             // 1: dbaas.v1beta1.PSMDBCluster
+	(*PXCCluster)(nil),               // 2: dbaas.v1beta1.PXCCluster
+	(*ListDBClustersRequest)(nil),    // 3: dbaas.v1beta1.ListDBClustersRequest
+	(*ListDBClustersResponse)(nil),   // 4: dbaas.v1beta1.ListDBClustersResponse
+	(*RestartDBClusterRequest)(nil),  // 5: dbaas.v1beta1.RestartDBClusterRequest
+	(*RestartDBClusterResponse)(nil), // 6: dbaas.v1beta1.RestartDBClusterResponse
+	(*GetDBClusterRequest)(nil),      // 7: dbaas.v1beta1.GetDBClusterRequest
+	(*GetDBClusterResponse)(nil),     // 8: dbaas.v1beta1.GetDBClusterResponse
+	(*DeleteDBClusterRequest)(nil),   // 9: dbaas.v1beta1.DeleteDBClusterRequest
+	(*DeleteDBClusterResponse)(nil),  // 10: dbaas.v1beta1.DeleteDBClusterResponse
+	(*RunningOperation)(nil),         // 11: dbaas.v1beta1.RunningOperation
+	(*PSMDBClusterParams)(nil),       // 12: dbaas.v1beta1.PSMDBClusterParams
+	(*PXCClusterParams)(nil),         // 13: dbaas.v1beta1.PXCClusterParams
+	(DBClusterType)(0),               // 14: dbaas.v1beta1.DBClusterType
+}
 var file_managementpb_dbaas_db_clusters_proto_depIdxs = []int32{
 	0,  // 0: dbaas.v1beta1.PSMDBCluster.state:type_name -> dbaas.v1beta1.DBClusterState
 	11, // 1: dbaas.v1beta1.PSMDBCluster.operation:type_name -> dbaas.v1beta1.RunningOperation

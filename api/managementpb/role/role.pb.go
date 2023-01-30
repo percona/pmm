@@ -7,14 +7,13 @@
 package rolev1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -249,6 +248,8 @@ type DeleteRoleRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	RoleId uint32 `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	// Role ID to be used as a replacement for the role. Additional logic applies.
+	ReplacementRoleId uint32 `protobuf:"varint,2,opt,name=replacement_role_id,json=replacementRoleId,proto3" json:"replacement_role_id,omitempty"`
 }
 
 func (x *DeleteRoleRequest) Reset() {
@@ -286,6 +287,13 @@ func (*DeleteRoleRequest) Descriptor() ([]byte, []int) {
 func (x *DeleteRoleRequest) GetRoleId() uint32 {
 	if x != nil {
 		return x.RoleId
+	}
+	return 0
+}
+
+func (x *DeleteRoleRequest) GetReplacementRoleId() uint32 {
+	if x != nil {
+		return x.ReplacementRoleId
 	}
 	return 0
 }
@@ -814,10 +822,13 @@ var file_managementpb_role_role_proto_rawDesc = []byte{
 	0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x0b, 0x64, 0x65, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x14, 0x0a,
 	0x12, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x34, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x6f, 0x6c,
+	0x6e, 0x73, 0x65, 0x22, 0x64, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x6f, 0x6c,
 	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1f, 0x0a, 0x07, 0x72, 0x6f, 0x6c, 0x65,
 	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x10,
-	0x00, 0x52, 0x06, 0x72, 0x6f, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x14, 0x0a, 0x12, 0x44, 0x65, 0x6c,
+	0x00, 0x52, 0x06, 0x72, 0x6f, 0x6c, 0x65, 0x49, 0x64, 0x12, 0x2e, 0x0a, 0x13, 0x72, 0x65, 0x70,
+	0x6c, 0x61, 0x63, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x72, 0x6f, 0x6c, 0x65, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x11, 0x72, 0x65, 0x70, 0x6c, 0x61, 0x63, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x52, 0x6f, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x14, 0x0a, 0x12, 0x44, 0x65, 0x6c,
 	0x65, 0x74, 0x65, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
 	0x31, 0x0a, 0x0e, 0x47, 0x65, 0x74, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x12, 0x1f, 0x0a, 0x07, 0x72, 0x6f, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
@@ -955,27 +966,24 @@ func file_managementpb_role_role_proto_rawDescGZIP() []byte {
 	return file_managementpb_role_role_proto_rawDescData
 }
 
-var (
-	file_managementpb_role_role_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-	file_managementpb_role_role_proto_goTypes  = []interface{}{
-		(*CreateRoleRequest)(nil),          // 0: role.v1beta1.CreateRoleRequest
-		(*CreateRoleResponse)(nil),         // 1: role.v1beta1.CreateRoleResponse
-		(*UpdateRoleRequest)(nil),          // 2: role.v1beta1.UpdateRoleRequest
-		(*UpdateRoleResponse)(nil),         // 3: role.v1beta1.UpdateRoleResponse
-		(*DeleteRoleRequest)(nil),          // 4: role.v1beta1.DeleteRoleRequest
-		(*DeleteRoleResponse)(nil),         // 5: role.v1beta1.DeleteRoleResponse
-		(*GetRoleRequest)(nil),             // 6: role.v1beta1.GetRoleRequest
-		(*GetRoleResponse)(nil),            // 7: role.v1beta1.GetRoleResponse
-		(*SetDefaultRoleRequest)(nil),      // 8: role.v1beta1.SetDefaultRoleRequest
-		(*SetDefaultRoleResponse)(nil),     // 9: role.v1beta1.SetDefaultRoleResponse
-		(*AssignRolesRequest)(nil),         // 10: role.v1beta1.AssignRolesRequest
-		(*AssignRolesResponse)(nil),        // 11: role.v1beta1.AssignRolesResponse
-		(*ListRolesRequest)(nil),           // 12: role.v1beta1.ListRolesRequest
-		(*ListRolesResponse)(nil),          // 13: role.v1beta1.ListRolesResponse
-		(*ListRolesResponse_RoleData)(nil), // 14: role.v1beta1.ListRolesResponse.RoleData
-	}
-)
-
+var file_managementpb_role_role_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_managementpb_role_role_proto_goTypes = []interface{}{
+	(*CreateRoleRequest)(nil),          // 0: role.v1beta1.CreateRoleRequest
+	(*CreateRoleResponse)(nil),         // 1: role.v1beta1.CreateRoleResponse
+	(*UpdateRoleRequest)(nil),          // 2: role.v1beta1.UpdateRoleRequest
+	(*UpdateRoleResponse)(nil),         // 3: role.v1beta1.UpdateRoleResponse
+	(*DeleteRoleRequest)(nil),          // 4: role.v1beta1.DeleteRoleRequest
+	(*DeleteRoleResponse)(nil),         // 5: role.v1beta1.DeleteRoleResponse
+	(*GetRoleRequest)(nil),             // 6: role.v1beta1.GetRoleRequest
+	(*GetRoleResponse)(nil),            // 7: role.v1beta1.GetRoleResponse
+	(*SetDefaultRoleRequest)(nil),      // 8: role.v1beta1.SetDefaultRoleRequest
+	(*SetDefaultRoleResponse)(nil),     // 9: role.v1beta1.SetDefaultRoleResponse
+	(*AssignRolesRequest)(nil),         // 10: role.v1beta1.AssignRolesRequest
+	(*AssignRolesResponse)(nil),        // 11: role.v1beta1.AssignRolesResponse
+	(*ListRolesRequest)(nil),           // 12: role.v1beta1.ListRolesRequest
+	(*ListRolesResponse)(nil),          // 13: role.v1beta1.ListRolesResponse
+	(*ListRolesResponse_RoleData)(nil), // 14: role.v1beta1.ListRolesResponse.RoleData
+}
 var file_managementpb_role_role_proto_depIdxs = []int32{
 	14, // 0: role.v1beta1.ListRolesResponse.roles:type_name -> role.v1beta1.ListRolesResponse.RoleData
 	0,  // 1: role.v1beta1.Role.CreateRole:input_type -> role.v1beta1.CreateRoleRequest

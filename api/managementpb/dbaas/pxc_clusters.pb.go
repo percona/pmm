@@ -7,13 +7,12 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1441,33 +1440,30 @@ func file_managementpb_dbaas_pxc_clusters_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_pxc_clusters_proto_rawDescData
 }
 
-var (
-	file_managementpb_dbaas_pxc_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_dbaas_pxc_clusters_proto_msgTypes  = make([]protoimpl.MessageInfo, 17)
-	file_managementpb_dbaas_pxc_clusters_proto_goTypes   = []interface{}{
-		(PXCBackupState)(0),                                             // 0: dbaas.v1beta1.PXCBackupState
-		(*PXCClusterParams)(nil),                                        // 1: dbaas.v1beta1.PXCClusterParams
-		(*GetPXCClusterCredentialsRequest)(nil),                         // 2: dbaas.v1beta1.GetPXCClusterCredentialsRequest
-		(*PXCClusterConnectionCredentials)(nil),                         // 3: dbaas.v1beta1.PXCClusterConnectionCredentials
-		(*GetPXCClusterCredentialsResponse)(nil),                        // 4: dbaas.v1beta1.GetPXCClusterCredentialsResponse
-		(*CreatePXCClusterRequest)(nil),                                 // 5: dbaas.v1beta1.CreatePXCClusterRequest
-		(*CreatePXCClusterResponse)(nil),                                // 6: dbaas.v1beta1.CreatePXCClusterResponse
-		(*UpdatePXCClusterRequest)(nil),                                 // 7: dbaas.v1beta1.UpdatePXCClusterRequest
-		(*UpdatePXCClusterResponse)(nil),                                // 8: dbaas.v1beta1.UpdatePXCClusterResponse
-		(*GetPXCClusterResourcesRequest)(nil),                           // 9: dbaas.v1beta1.GetPXCClusterResourcesRequest
-		(*GetPXCClusterResourcesResponse)(nil),                          // 10: dbaas.v1beta1.GetPXCClusterResourcesResponse
-		(*PXCClusterParams_PXC)(nil),                                    // 11: dbaas.v1beta1.PXCClusterParams.PXC
-		(*PXCClusterParams_ProxySQL)(nil),                               // 12: dbaas.v1beta1.PXCClusterParams.ProxySQL
-		(*PXCClusterParams_HAProxy)(nil),                                // 13: dbaas.v1beta1.PXCClusterParams.HAProxy
-		(*UpdatePXCClusterRequest_UpdatePXCClusterParams)(nil),          // 14: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
-		(*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC)(nil),      // 15: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
-		(*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL)(nil), // 16: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
-		(*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy)(nil),  // 17: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
-		(*Resources)(nil),                                               // 18: dbaas.v1beta1.Resources
-		(*ComputeResources)(nil),                                        // 19: dbaas.v1beta1.ComputeResources
-	}
-)
-
+var file_managementpb_dbaas_pxc_clusters_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_dbaas_pxc_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_managementpb_dbaas_pxc_clusters_proto_goTypes = []interface{}{
+	(PXCBackupState)(0),                                             // 0: dbaas.v1beta1.PXCBackupState
+	(*PXCClusterParams)(nil),                                        // 1: dbaas.v1beta1.PXCClusterParams
+	(*GetPXCClusterCredentialsRequest)(nil),                         // 2: dbaas.v1beta1.GetPXCClusterCredentialsRequest
+	(*PXCClusterConnectionCredentials)(nil),                         // 3: dbaas.v1beta1.PXCClusterConnectionCredentials
+	(*GetPXCClusterCredentialsResponse)(nil),                        // 4: dbaas.v1beta1.GetPXCClusterCredentialsResponse
+	(*CreatePXCClusterRequest)(nil),                                 // 5: dbaas.v1beta1.CreatePXCClusterRequest
+	(*CreatePXCClusterResponse)(nil),                                // 6: dbaas.v1beta1.CreatePXCClusterResponse
+	(*UpdatePXCClusterRequest)(nil),                                 // 7: dbaas.v1beta1.UpdatePXCClusterRequest
+	(*UpdatePXCClusterResponse)(nil),                                // 8: dbaas.v1beta1.UpdatePXCClusterResponse
+	(*GetPXCClusterResourcesRequest)(nil),                           // 9: dbaas.v1beta1.GetPXCClusterResourcesRequest
+	(*GetPXCClusterResourcesResponse)(nil),                          // 10: dbaas.v1beta1.GetPXCClusterResourcesResponse
+	(*PXCClusterParams_PXC)(nil),                                    // 11: dbaas.v1beta1.PXCClusterParams.PXC
+	(*PXCClusterParams_ProxySQL)(nil),                               // 12: dbaas.v1beta1.PXCClusterParams.ProxySQL
+	(*PXCClusterParams_HAProxy)(nil),                                // 13: dbaas.v1beta1.PXCClusterParams.HAProxy
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams)(nil),          // 14: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC)(nil),      // 15: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.PXC
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL)(nil), // 16: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.ProxySQL
+	(*UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy)(nil),  // 17: dbaas.v1beta1.UpdatePXCClusterRequest.UpdatePXCClusterParams.HAProxy
+	(*Resources)(nil),                                               // 18: dbaas.v1beta1.Resources
+	(*ComputeResources)(nil),                                        // 19: dbaas.v1beta1.ComputeResources
+}
 var file_managementpb_dbaas_pxc_clusters_proto_depIdxs = []int32{
 	11, // 0: dbaas.v1beta1.PXCClusterParams.pxc:type_name -> dbaas.v1beta1.PXCClusterParams.PXC
 	12, // 1: dbaas.v1beta1.PXCClusterParams.proxysql:type_name -> dbaas.v1beta1.PXCClusterParams.ProxySQL

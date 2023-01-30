@@ -60,12 +60,12 @@ type CancelActionOK struct {
 func (o *CancelActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
 }
-
 func (o *CancelActionOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *CancelActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *CancelActionDefault) Code() int {
 func (o *CancelActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CancelActionDefault) GetPayload() *CancelActionDefaultBody {
 	return o.Payload
 }
 
 func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CancelActionDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ CancelActionBody cancel action body
 swagger:model CancelActionBody
 */
 type CancelActionBody struct {
+
 	// Unique Action ID. Required.
 	ActionID string `json:"action_id,omitempty"`
 }
@@ -158,6 +159,7 @@ CancelActionDefaultBody cancel action default body
 swagger:model CancelActionDefaultBody
 */
 type CancelActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,7 +225,9 @@ func (o *CancelActionDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *CancelActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -234,6 +238,7 @@ func (o *CancelActionDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -262,6 +267,7 @@ CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
 swagger:model CancelActionDefaultBodyDetailsItems0
 */
 type CancelActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

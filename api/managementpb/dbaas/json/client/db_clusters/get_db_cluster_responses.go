@@ -62,12 +62,12 @@ type GetDBClusterOK struct {
 func (o *GetDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Get][%d] getDbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *GetDBClusterOK) GetPayload() *GetDBClusterOKBody {
 	return o.Payload
 }
 
 func (o *GetDBClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetDBClusterOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *GetDBClusterDefault) Code() int {
 func (o *GetDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Get][%d] GetDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetDBClusterDefault) GetPayload() *GetDBClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *GetDBClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetDBClusterDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ GetDBClusterBody get DB cluster body
 swagger:model GetDBClusterBody
 */
 type GetDBClusterBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -165,6 +166,7 @@ GetDBClusterDefaultBody get DB cluster default body
 swagger:model GetDBClusterDefaultBody
 */
 type GetDBClusterDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,7 +232,9 @@ func (o *GetDBClusterDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,6 +245,7 @@ func (o *GetDBClusterDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -269,6 +274,7 @@ GetDBClusterDefaultBodyDetailsItems0 get DB cluster default body details items0
 swagger:model GetDBClusterDefaultBodyDetailsItems0
 */
 type GetDBClusterDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -306,6 +312,7 @@ GetDBClusterOKBody get DB cluster OK body
 swagger:model GetDBClusterOKBody
 */
 type GetDBClusterOKBody struct {
+
 	// psmdb cluster
 	PSMDBCluster *GetDBClusterOKBodyPSMDBCluster `json:"psmdb_cluster,omitempty"`
 
@@ -388,6 +395,7 @@ func (o *GetDBClusterOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetDBClusterOKBody) contextValidatePSMDBCluster(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PSMDBCluster != nil {
 		if err := o.PSMDBCluster.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -403,6 +411,7 @@ func (o *GetDBClusterOKBody) contextValidatePSMDBCluster(ctx context.Context, fo
 }
 
 func (o *GetDBClusterOKBody) contextValidatePXCCluster(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PXCCluster != nil {
 		if err := o.PXCCluster.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -440,6 +449,7 @@ GetDBClusterOKBodyPSMDBCluster PSMDBCluster represents PSMDB cluster information
 swagger:model GetDBClusterOKBodyPSMDBCluster
 */
 type GetDBClusterOKBodyPSMDBCluster struct {
+
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
@@ -612,6 +622,7 @@ func (o *GetDBClusterOKBodyPSMDBCluster) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetDBClusterOKBodyPSMDBCluster) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Operation != nil {
 		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -627,6 +638,7 @@ func (o *GetDBClusterOKBodyPSMDBCluster) contextValidateOperation(ctx context.Co
 }
 
 func (o *GetDBClusterOKBodyPSMDBCluster) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -664,6 +676,7 @@ GetDBClusterOKBodyPSMDBClusterOperation RunningOperation respresents a long-runn
 swagger:model GetDBClusterOKBodyPSMDBClusterOperation
 */
 type GetDBClusterOKBodyPSMDBClusterOperation struct {
+
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
 	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
@@ -707,6 +720,7 @@ GetDBClusterOKBodyPSMDBClusterParams PSMDBClusterParams represents PSMDB cluster
 swagger:model GetDBClusterOKBodyPSMDBClusterParams
 */
 type GetDBClusterOKBodyPSMDBClusterParams struct {
+
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -765,6 +779,7 @@ func (o *GetDBClusterOKBodyPSMDBClusterParams) ContextValidate(ctx context.Conte
 }
 
 func (o *GetDBClusterOKBodyPSMDBClusterParams) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Replicaset != nil {
 		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -803,6 +818,7 @@ GetDBClusterOKBodyPSMDBClusterParamsReplicaset ReplicaSet container parameters.
 swagger:model GetDBClusterOKBodyPSMDBClusterParamsReplicaset
 */
 type GetDBClusterOKBodyPSMDBClusterParamsReplicaset struct {
+
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -864,6 +880,7 @@ func (o *GetDBClusterOKBodyPSMDBClusterParamsReplicaset) ContextValidate(ctx con
 }
 
 func (o *GetDBClusterOKBodyPSMDBClusterParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -901,6 +918,7 @@ GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources ComputeResources 
 swagger:model GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources
 */
 type GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -941,6 +959,7 @@ GetDBClusterOKBodyPXCCluster PXCCluster represents PXC cluster information.
 swagger:model GetDBClusterOKBodyPXCCluster
 */
 type GetDBClusterOKBodyPXCCluster struct {
+
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
@@ -1113,6 +1132,7 @@ func (o *GetDBClusterOKBodyPXCCluster) ContextValidate(ctx context.Context, form
 }
 
 func (o *GetDBClusterOKBodyPXCCluster) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Operation != nil {
 		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1128,6 +1148,7 @@ func (o *GetDBClusterOKBodyPXCCluster) contextValidateOperation(ctx context.Cont
 }
 
 func (o *GetDBClusterOKBodyPXCCluster) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1165,6 +1186,7 @@ GetDBClusterOKBodyPXCClusterOperation RunningOperation respresents a long-runnin
 swagger:model GetDBClusterOKBodyPXCClusterOperation
 */
 type GetDBClusterOKBodyPXCClusterOperation struct {
+
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
 	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
@@ -1208,6 +1230,7 @@ GetDBClusterOKBodyPXCClusterParams PXCClusterParams represents PXC cluster param
 swagger:model GetDBClusterOKBodyPXCClusterParams
 */
 type GetDBClusterOKBodyPXCClusterParams struct {
+
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -1323,6 +1346,7 @@ func (o *GetDBClusterOKBodyPXCClusterParams) ContextValidate(ctx context.Context
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParams) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1338,6 +1362,7 @@ func (o *GetDBClusterOKBodyPXCClusterParams) contextValidateHaproxy(ctx context.
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParams) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1353,6 +1378,7 @@ func (o *GetDBClusterOKBodyPXCClusterParams) contextValidateProxysql(ctx context
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParams) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1391,6 +1417,7 @@ GetDBClusterOKBodyPXCClusterParamsHaproxy HAProxy container parameters.
 swagger:model GetDBClusterOKBodyPXCClusterParamsHaproxy
 */
 type GetDBClusterOKBodyPXCClusterParamsHaproxy struct {
+
 	// Docker image used for HAProxy.
 	Image string `json:"image,omitempty"`
 
@@ -1446,6 +1473,7 @@ func (o *GetDBClusterOKBodyPXCClusterParamsHaproxy) ContextValidate(ctx context.
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1483,6 +1511,7 @@ GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources ComputeResources repre
 swagger:model GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -1524,6 +1553,7 @@ GetDBClusterOKBodyPXCClusterParamsPXC PXC container parameters.
 swagger:model GetDBClusterOKBodyPXCClusterParamsPXC
 */
 type GetDBClusterOKBodyPXCClusterParamsPXC struct {
+
 	// Docker image used for PXC.
 	Image string `json:"image,omitempty"`
 
@@ -1588,6 +1618,7 @@ func (o *GetDBClusterOKBodyPXCClusterParamsPXC) ContextValidate(ctx context.Cont
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1625,6 +1656,7 @@ GetDBClusterOKBodyPXCClusterParamsPXCComputeResources ComputeResources represent
 swagger:model GetDBClusterOKBodyPXCClusterParamsPXCComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsPXCComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -1666,6 +1698,7 @@ GetDBClusterOKBodyPXCClusterParamsProxysql ProxySQL container parameters.
 swagger:model GetDBClusterOKBodyPXCClusterParamsProxysql
 */
 type GetDBClusterOKBodyPXCClusterParamsProxysql struct {
+
 	// Docker image used for ProxySQL.
 	Image string `json:"image,omitempty"`
 
@@ -1724,6 +1757,7 @@ func (o *GetDBClusterOKBodyPXCClusterParamsProxysql) ContextValidate(ctx context
 }
 
 func (o *GetDBClusterOKBodyPXCClusterParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1761,6 +1795,7 @@ GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources ComputeResources repr
 swagger:model GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

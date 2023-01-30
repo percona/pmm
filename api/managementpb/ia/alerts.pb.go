@@ -7,16 +7,14 @@
 package iav1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	managementpb "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	managementpb "github.com/percona/pmm/api/managementpb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -452,25 +450,22 @@ func file_managementpb_ia_alerts_proto_rawDescGZIP() []byte {
 	return file_managementpb_ia_alerts_proto_rawDescData
 }
 
-var (
-	file_managementpb_ia_alerts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-	file_managementpb_ia_alerts_proto_goTypes  = []interface{}{
-		(*Alert)(nil),                   // 0: ia.v1beta1.Alert
-		(*ListAlertsRequest)(nil),       // 1: ia.v1beta1.ListAlertsRequest
-		(*ListAlertsResponse)(nil),      // 2: ia.v1beta1.ListAlertsResponse
-		(*ToggleAlertsRequest)(nil),     // 3: ia.v1beta1.ToggleAlertsRequest
-		(*ToggleAlertsResponse)(nil),    // 4: ia.v1beta1.ToggleAlertsResponse
-		nil,                             // 5: ia.v1beta1.Alert.LabelsEntry
-		(managementpb.Severity)(0),      // 6: management.Severity
-		(Status)(0),                     // 7: ia.v1beta1.Status
-		(*Rule)(nil),                    // 8: ia.v1beta1.Rule
-		(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
-		(*managementpb.PageParams)(nil), // 10: management.PageParams
-		(*managementpb.PageTotals)(nil), // 11: management.PageTotals
-		(managementpb.BooleanFlag)(0),   // 12: managementpb.BooleanFlag
-	}
-)
-
+var file_managementpb_ia_alerts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_managementpb_ia_alerts_proto_goTypes = []interface{}{
+	(*Alert)(nil),                   // 0: ia.v1beta1.Alert
+	(*ListAlertsRequest)(nil),       // 1: ia.v1beta1.ListAlertsRequest
+	(*ListAlertsResponse)(nil),      // 2: ia.v1beta1.ListAlertsResponse
+	(*ToggleAlertsRequest)(nil),     // 3: ia.v1beta1.ToggleAlertsRequest
+	(*ToggleAlertsResponse)(nil),    // 4: ia.v1beta1.ToggleAlertsResponse
+	nil,                             // 5: ia.v1beta1.Alert.LabelsEntry
+	(managementpb.Severity)(0),      // 6: management.Severity
+	(Status)(0),                     // 7: ia.v1beta1.Status
+	(*Rule)(nil),                    // 8: ia.v1beta1.Rule
+	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
+	(*managementpb.PageParams)(nil), // 10: management.PageParams
+	(*managementpb.PageTotals)(nil), // 11: management.PageTotals
+	(managementpb.BooleanFlag)(0),   // 12: managementpb.BooleanFlag
+}
 var file_managementpb_ia_alerts_proto_depIdxs = []int32{
 	6,  // 0: ia.v1beta1.Alert.severity:type_name -> management.Severity
 	7,  // 1: ia.v1beta1.Alert.status:type_name -> ia.v1beta1.Status
