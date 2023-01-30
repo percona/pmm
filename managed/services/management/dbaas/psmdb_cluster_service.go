@@ -91,7 +91,7 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(psmdbSecretNameTmpl, req.Name))
+	secret, err := s.kubernetesClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
