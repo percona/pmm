@@ -390,8 +390,7 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 		Credentials: credentials.NewStaticCredentials(
 			backupLocation.S3Config.AccessKey,
 			backupLocation.S3Config.SecretKey,
-			"",
-		),
+			""),
 	})
 	if err != nil {
 		return nil, err

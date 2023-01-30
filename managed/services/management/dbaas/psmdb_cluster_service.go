@@ -219,10 +219,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	}
 	if dbRestore != nil {
 		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
-		secrets, err := kubernetes.SecretForBackup(backupLocation)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed generating secret for backup location")
-		}
+		secrets := kubernetes.SecretForBackup(backupLocation)
 		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
 			return nil, errors.Wrap(err, "failed to create a secret")
 		}

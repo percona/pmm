@@ -98,7 +98,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 // DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) {
+func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
 		return nil, nil, errors.New("pxc cluster must have one and only one proxy type defined")
 	}
@@ -274,7 +274,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 }
 
 // DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation, backupImage string) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) {
+func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation, backupImage string) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
 	if cluster.Params.Replicaset.Configuration == "" {
 		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
 	}
@@ -524,9 +524,9 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	return nil
 }
 
-func SecretForBackup(backupLocation *models.BackupLocation) (map[string][]byte, error) {
+func SecretForBackup(backupLocation *models.BackupLocation) map[string][]byte {
 	return map[string][]byte{
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),
 		"AWS_SECRET_ACCESS_KEY": []byte(backupLocation.S3Config.SecretKey),
-	}, nil
+	}
 }
