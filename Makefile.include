@@ -38,7 +38,7 @@ gen: clean            ## Generate files.
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/platformpb api/userpb ; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -58,7 +58,7 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/azure, managementpb/role and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
@@ -83,25 +83,12 @@ gen: clean            ## Generate files.
 		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
+		api/managementpb/role/json/role.json \
 		api/qanpb/json/qanpb.json \
 		api/platformpb/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev.json
 
 	bin/swagger-order --output=api/swagger/swagger-dev.json api/swagger/swagger-dev.json
-
-	# generate API spec with only dev PMM Server APIs specifically for readme.io (omit agentlocalpb)
-	bin/swagger mixin --output=api/swagger/swagger-dev-only.json \
-		api/swagger/header-dev.json \
-		api/managementpb/dbaas/json/dbaas.json \
-		api/managementpb/ia/json/ia.json \
-		api/managementpb/alerting/json/alerting.json \
-		api/managementpb/backup/json/backup.json \
-		api/managementpb/azure/json/azure.json \
-		api/qanpb/json/qanpb.json \
-		api/platformpb/json/platformpb.json
-	bin/swagger validate api/swagger/swagger-dev-only.json
-
-	bin/swagger-order --output=api/swagger/swagger-dev-only.json api/swagger/swagger-dev-only.json
 
 	make clean_swagger
 	make -C agent gen
@@ -139,10 +126,10 @@ clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/role api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
-	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
+	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)

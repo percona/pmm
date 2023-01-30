@@ -11,9 +11,9 @@ on:
   pull_request:
     paths:
       - "api/**"
+      - "golangci*"
       - "third_party/**"
       - "tools/**"
-      - "golangci*"
 
   workflow_call:
     inputs:
