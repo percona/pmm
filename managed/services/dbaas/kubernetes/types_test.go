@@ -79,6 +79,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -146,6 +147,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -210,6 +212,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -268,6 +271,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -333,6 +337,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -398,6 +403,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -423,7 +429,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 	}
 	for _, testCase := range testCases {
 		tt := testCase
-		cluster, _, err := DatabaseClusterForPXC(tt.input, tt.clusterType, &models.BackupLocation{})
+		cluster, _, err := DatabaseClusterForPXC(tt.input, tt.clusterType, &models.BackupLocation{Type: models.S3BackupLocationType})
 		assert.NoError(t, err, tt.name)
 		assert.Equal(t, tt.expected, cluster, tt.name)
 	}
