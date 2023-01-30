@@ -49,8 +49,12 @@ func (s *Storage) Reload(l *logrus.Entry) (string, error) {
 	newCfg := &Config{}
 	cfgPath, err := getFromCmdLine(newCfg, l)
 	if err != nil {
-		s.cfg = newCfg
+		if _, ok := err.(ConfigFileDoesNotExistError); !ok {
+			return cfgPath, err
+		}
 	}
+
+	s.cfg = newCfg
 
 	return cfgPath, err
 }
