@@ -60,12 +60,12 @@ type UpdateRoleOK struct {
 func (o *UpdateRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Update][%d] updateRoleOk  %+v", 200, o.Payload)
 }
+
 func (o *UpdateRoleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UpdateRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *UpdateRoleDefault) Code() int {
 func (o *UpdateRoleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Update][%d] UpdateRole default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *UpdateRoleDefault) GetPayload() *UpdateRoleDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateRoleDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ UpdateRoleBody update role body
 swagger:model UpdateRoleBody
 */
 type UpdateRoleBody struct {
-
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 
@@ -168,7 +167,6 @@ UpdateRoleDefaultBody update role default body
 swagger:model UpdateRoleDefaultBody
 */
 type UpdateRoleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -234,9 +232,7 @@ func (o *UpdateRoleDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UpdateRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -247,7 +243,6 @@ func (o *UpdateRoleDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -276,7 +271,6 @@ UpdateRoleDefaultBodyDetailsItems0 update role default body details items0
 swagger:model UpdateRoleDefaultBodyDetailsItems0
 */
 type UpdateRoleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

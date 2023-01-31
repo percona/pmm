@@ -62,12 +62,12 @@ type ListAlertsOK struct {
 func (o *ListAlertsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/List][%d] listAlertsOk  %+v", 200, o.Payload)
 }
+
 func (o *ListAlertsOK) GetPayload() *ListAlertsOKBody {
 	return o.Payload
 }
 
 func (o *ListAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAlertsOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListAlertsDefault) Code() int {
 func (o *ListAlertsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/List][%d] ListAlerts default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListAlertsDefault) GetPayload() *ListAlertsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListAlertsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAlertsDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ListAlertsBody list alerts body
 swagger:model ListAlertsBody
 */
 type ListAlertsBody struct {
-
 	// page params
 	PageParams *ListAlertsParamsBodyPageParams `json:"page_params,omitempty"`
 }
@@ -178,7 +177,6 @@ func (o *ListAlertsBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *ListAlertsBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PageParams != nil {
 		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -216,7 +214,6 @@ ListAlertsDefaultBody list alerts default body
 swagger:model ListAlertsDefaultBody
 */
 type ListAlertsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -282,9 +279,7 @@ func (o *ListAlertsDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ListAlertsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -295,7 +290,6 @@ func (o *ListAlertsDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -324,7 +318,6 @@ ListAlertsDefaultBodyDetailsItems0 list alerts default body details items0
 swagger:model ListAlertsDefaultBodyDetailsItems0
 */
 type ListAlertsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -362,7 +355,6 @@ ListAlertsOKBody list alerts OK body
 swagger:model ListAlertsOKBody
 */
 type ListAlertsOKBody struct {
-
 	// alerts
 	Alerts []*ListAlertsOKBodyAlertsItems0 `json:"alerts"`
 
@@ -452,9 +444,7 @@ func (o *ListAlertsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *ListAlertsOKBody) contextValidateAlerts(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Alerts); i++ {
-
 		if o.Alerts[i] != nil {
 			if err := o.Alerts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -465,14 +455,12 @@ func (o *ListAlertsOKBody) contextValidateAlerts(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListAlertsOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Totals != nil {
 		if err := o.Totals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -510,7 +498,6 @@ ListAlertsOKBodyAlertsItems0 Alert represents Alert.
 swagger:model ListAlertsOKBodyAlertsItems0
 */
 type ListAlertsOKBodyAlertsItems0 struct {
-
 	// ID.
 	AlertID string `json:"alert_id,omitempty"`
 
@@ -747,7 +734,6 @@ func (o *ListAlertsOKBodyAlertsItems0) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAlertsOKBodyAlertsItems0) contextValidateRule(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Rule != nil {
 		if err := o.Rule.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -785,7 +771,6 @@ ListAlertsOKBodyAlertsItems0Rule Rule represents Alert Rule.
 swagger:model ListAlertsOKBodyAlertsItems0Rule
 */
 type ListAlertsOKBodyAlertsItems0Rule struct {
-
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
@@ -1154,9 +1139,7 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateParamsDefinitions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.ParamsDefinitions); i++ {
-
 		if o.ParamsDefinitions[i] != nil {
 			if err := o.ParamsDefinitions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1167,16 +1150,13 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateParamsDefinitions(ctx 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateParamsValues(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.ParamsValues); i++ {
-
 		if o.ParamsValues[i] != nil {
 			if err := o.ParamsValues[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1187,16 +1167,13 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateParamsValues(ctx conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Filters); i++ {
-
 		if o.Filters[i] != nil {
 			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1207,16 +1184,13 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateFilters(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateChannels(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Channels); i++ {
-
 		if o.Channels[i] != nil {
 			if err := o.Channels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1227,7 +1201,6 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) contextValidateChannels(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -1262,7 +1235,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0 Channel represents a single Notif
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0 struct {
-
 	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 
@@ -1414,7 +1386,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) ContextValidate(ctx con
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1430,7 +1401,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidateEmailCon
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1446,7 +1416,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidatePagerdut
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1462,7 +1431,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidateSlackCon
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1500,7 +1468,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0EmailConfig EmailConfig represents
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0EmailConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0EmailConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -1541,7 +1508,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0PagerdutyConfig PagerDutyConfig re
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0PagerdutyConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0PagerdutyConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -1585,7 +1551,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0SlackConfig SlackConfig represents
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0SlackConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0SlackConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -1626,7 +1591,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfig WebhookConfig repres
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -1688,7 +1652,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfig) ContextVal
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1726,7 +1689,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig HTTPConfig
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig struct {
-
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
 
@@ -1818,7 +1780,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig) 
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1834,7 +1795,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig) 
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1872,7 +1832,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigBasicAuth B
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigBasicAuth
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
-
 	// username
 	Username string `json:"username,omitempty"`
 
@@ -1917,7 +1876,6 @@ ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigTLSConfig T
 swagger:model ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
 type ListAlertsOKBodyAlertsItems0RuleChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
-
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
 	CaFile string `json:"ca_file,omitempty"`
@@ -1982,7 +1940,6 @@ ListAlertsOKBodyAlertsItems0RuleFiltersItems0 Filter repsents a single filter co
 swagger:model ListAlertsOKBodyAlertsItems0RuleFiltersItems0
 */
 type ListAlertsOKBodyAlertsItems0RuleFiltersItems0 struct {
-
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
@@ -2090,7 +2047,6 @@ ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0 ParamDefinition represen
 swagger:model ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0
 */
 type ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
@@ -2322,7 +2278,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) ContextValidat
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) contextValidateBool(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Bool != nil {
 		if err := o.Bool.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -2338,7 +2293,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) contextValidat
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) contextValidateFloat(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Float != nil {
 		if err := o.Float.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -2354,7 +2308,6 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) contextValidat
 }
 
 func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) contextValidateString(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.String != nil {
 		if err := o.String.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -2392,7 +2345,6 @@ ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Bool BoolParamDefinition 
 swagger:model ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Bool
 */
 type ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Bool struct {
-
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.
 	//
@@ -2490,7 +2442,6 @@ ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Float FloatParamDefinitio
 swagger:model ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Float
 */
 type ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Float struct {
-
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
 
@@ -2543,7 +2494,6 @@ ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0String StringParamDefinit
 swagger:model ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0String
 */
 type ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0String struct {
-
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
 
@@ -2584,7 +2534,6 @@ ListAlertsOKBodyAlertsItems0RuleParamsValuesItems0 ParamValue represents a singl
 swagger:model ListAlertsOKBodyAlertsItems0RuleParamsValuesItems0
 */
 type ListAlertsOKBodyAlertsItems0RuleParamsValuesItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
@@ -2692,7 +2641,6 @@ ListAlertsOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListAlertsOKBodyTotals
 */
 type ListAlertsOKBodyTotals struct {
-
 	// Total number of results.
 	TotalItems int32 `json:"total_items,omitempty"`
 
@@ -2733,7 +2681,6 @@ ListAlertsParamsBodyPageParams PageParams represents page request parameters for
 swagger:model ListAlertsParamsBodyPageParams
 */
 type ListAlertsParamsBodyPageParams struct {
-
 	// Maximum number of results per page.
 	PageSize int32 `json:"page_size,omitempty"`
 

@@ -61,12 +61,12 @@ type GetMetricsOK struct {
 func (o *GetMetricsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
+
 func (o *GetMetricsOK) GetPayload() *GetMetricsOKBody {
 	return o.Payload
 }
 
 func (o *GetMetricsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetMetricsOKBody)
 
 	// response payload
@@ -103,12 +103,12 @@ func (o *GetMetricsDefault) Code() int {
 func (o *GetMetricsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetMetricsDefault) GetPayload() *GetMetricsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetMetricsDefaultBody)
 
 	// response payload
@@ -124,7 +124,6 @@ GetMetricsBody MetricsRequest defines filtering of metrics for specific value of
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -236,9 +235,7 @@ func (o *GetMetricsBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *GetMetricsBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Labels); i++ {
-
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -249,7 +246,6 @@ func (o *GetMetricsBody) contextValidateLabels(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -278,7 +274,6 @@ GetMetricsDefaultBody get metrics default body
 swagger:model GetMetricsDefaultBody
 */
 type GetMetricsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -344,9 +339,7 @@ func (o *GetMetricsDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetMetricsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -357,7 +350,6 @@ func (o *GetMetricsDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -386,7 +378,6 @@ GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
 swagger:model GetMetricsDefaultBodyDetailsItems0
 */
 type GetMetricsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -424,7 +415,6 @@ GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (e
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
-
 	// metrics
 	Metrics map[string]GetMetricsOKBodyMetricsAnon `json:"metrics,omitempty"`
 
@@ -564,24 +554,19 @@ func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *GetMetricsOKBody) contextValidateMetrics(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range o.Metrics {
-
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetMetricsOKBody) contextValidateSparkline(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Sparkline); i++ {
-
 		if o.Sparkline[i] != nil {
 			if err := o.Sparkline[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -592,22 +577,18 @@ func (o *GetMetricsOKBody) contextValidateSparkline(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetMetricsOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range o.Totals {
-
 		if val, ok := o.Totals[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -636,7 +617,6 @@ GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyMetricsAnon
 */
 type GetMetricsOKBodyMetricsAnon struct {
-
 	// rate
 	Rate float32 `json:"rate,omitempty"`
 
@@ -696,7 +676,6 @@ GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (
 swagger:model GetMetricsOKBodySparklineItems0
 */
 type GetMetricsOKBodySparklineItems0 struct {
-
 	// The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.
 	Point int64 `json:"point,omitempty"`
 
@@ -926,7 +905,6 @@ GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyTotalsAnon
 */
 type GetMetricsOKBodyTotalsAnon struct {
-
 	// rate
 	Rate float32 `json:"rate,omitempty"`
 
@@ -985,7 +963,6 @@ GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions 
 swagger:model GetMetricsParamsBodyLabelsItems0
 */
 type GetMetricsParamsBodyLabelsItems0 struct {
-
 	// key
 	Key string `json:"key,omitempty"`
 

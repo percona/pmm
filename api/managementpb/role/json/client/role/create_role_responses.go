@@ -60,12 +60,12 @@ type CreateRoleOK struct {
 func (o *CreateRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Create][%d] createRoleOk  %+v", 200, o.Payload)
 }
+
 func (o *CreateRoleOK) GetPayload() *CreateRoleOKBody {
 	return o.Payload
 }
 
 func (o *CreateRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateRoleOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *CreateRoleDefault) Code() int {
 func (o *CreateRoleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Create][%d] CreateRole default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *CreateRoleDefault) GetPayload() *CreateRoleDefaultBody {
 	return o.Payload
 }
 
 func (o *CreateRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateRoleDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ CreateRoleBody create role body
 swagger:model CreateRoleBody
 */
 type CreateRoleBody struct {
-
 	// title
 	Title string `json:"title,omitempty"`
 
@@ -167,7 +166,6 @@ CreateRoleDefaultBody create role default body
 swagger:model CreateRoleDefaultBody
 */
 type CreateRoleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -233,9 +231,7 @@ func (o *CreateRoleDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *CreateRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -246,7 +242,6 @@ func (o *CreateRoleDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -275,7 +270,6 @@ CreateRoleDefaultBodyDetailsItems0 create role default body details items0
 swagger:model CreateRoleDefaultBodyDetailsItems0
 */
 type CreateRoleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -313,7 +307,6 @@ CreateRoleOKBody create role OK body
 swagger:model CreateRoleOKBody
 */
 type CreateRoleOKBody struct {
-
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 }

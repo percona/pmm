@@ -60,7 +60,6 @@ ChangeChannelParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ChangeChannelParams struct {
-
 	// Body.
 	Body ChangeChannelBody
 
@@ -130,7 +129,6 @@ func (o *ChangeChannelParams) SetBody(body ChangeChannelBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeChannelParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

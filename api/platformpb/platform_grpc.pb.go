@@ -8,6 +8,7 @@ package platformpb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -131,27 +132,32 @@ type PlatformServer interface {
 }
 
 // UnimplementedPlatformServer must be embedded to have forward compatible implementations.
-type UnimplementedPlatformServer struct {
-}
+type UnimplementedPlatformServer struct{}
 
 func (UnimplementedPlatformServer) Connect(context.Context, *ConnectRequest) (*ConnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
+
 func (UnimplementedPlatformServer) Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
+
 func (UnimplementedPlatformServer) SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationTickets not implemented")
 }
+
 func (UnimplementedPlatformServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationEntitlements not implemented")
 }
+
 func (UnimplementedPlatformServer) GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContactInformation not implemented")
 }
+
 func (UnimplementedPlatformServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
 }
+
 func (UnimplementedPlatformServer) UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserStatus not implemented")
 }

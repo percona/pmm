@@ -7,12 +7,13 @@
 package azurev1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -825,17 +826,20 @@ func file_managementpb_azure_azure_proto_rawDescGZIP() []byte {
 	return file_managementpb_azure_azure_proto_rawDescData
 }
 
-var file_managementpb_azure_azure_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_azure_azure_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_managementpb_azure_azure_proto_goTypes = []interface{}{
-	(DiscoverAzureDatabaseType)(0),        // 0: azure.v1beta1.DiscoverAzureDatabaseType
-	(*DiscoverAzureDatabaseRequest)(nil),  // 1: azure.v1beta1.DiscoverAzureDatabaseRequest
-	(*DiscoverAzureDatabaseInstance)(nil), // 2: azure.v1beta1.DiscoverAzureDatabaseInstance
-	(*DiscoverAzureDatabaseResponse)(nil), // 3: azure.v1beta1.DiscoverAzureDatabaseResponse
-	(*AddAzureDatabaseRequest)(nil),       // 4: azure.v1beta1.AddAzureDatabaseRequest
-	(*AddAzureDatabaseResponse)(nil),      // 5: azure.v1beta1.AddAzureDatabaseResponse
-	nil,                                   // 6: azure.v1beta1.AddAzureDatabaseRequest.CustomLabelsEntry
-}
+var (
+	file_managementpb_azure_azure_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_azure_azure_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
+	file_managementpb_azure_azure_proto_goTypes   = []interface{}{
+		(DiscoverAzureDatabaseType)(0),        // 0: azure.v1beta1.DiscoverAzureDatabaseType
+		(*DiscoverAzureDatabaseRequest)(nil),  // 1: azure.v1beta1.DiscoverAzureDatabaseRequest
+		(*DiscoverAzureDatabaseInstance)(nil), // 2: azure.v1beta1.DiscoverAzureDatabaseInstance
+		(*DiscoverAzureDatabaseResponse)(nil), // 3: azure.v1beta1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseRequest)(nil),       // 4: azure.v1beta1.AddAzureDatabaseRequest
+		(*AddAzureDatabaseResponse)(nil),      // 5: azure.v1beta1.AddAzureDatabaseResponse
+		nil,                                   // 6: azure.v1beta1.AddAzureDatabaseRequest.CustomLabelsEntry
+	}
+)
+
 var file_managementpb_azure_azure_proto_depIdxs = []int32{
 	0, // 0: azure.v1beta1.DiscoverAzureDatabaseInstance.type:type_name -> azure.v1beta1.DiscoverAzureDatabaseType
 	2, // 1: azure.v1beta1.DiscoverAzureDatabaseResponse.azure_database_instance:type_name -> azure.v1beta1.DiscoverAzureDatabaseInstance

@@ -60,12 +60,12 @@ type SetDefaultRoleOK struct {
 func (o *SetDefaultRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/SetDefault][%d] setDefaultRoleOk  %+v", 200, o.Payload)
 }
+
 func (o *SetDefaultRoleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *SetDefaultRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *SetDefaultRoleDefault) Code() int {
 func (o *SetDefaultRoleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/SetDefault][%d] SetDefaultRole default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *SetDefaultRoleDefault) GetPayload() *SetDefaultRoleDefaultBody {
 	return o.Payload
 }
 
 func (o *SetDefaultRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(SetDefaultRoleDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ SetDefaultRoleBody set default role body
 swagger:model SetDefaultRoleBody
 */
 type SetDefaultRoleBody struct {
-
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 }
@@ -159,7 +158,6 @@ SetDefaultRoleDefaultBody set default role default body
 swagger:model SetDefaultRoleDefaultBody
 */
 type SetDefaultRoleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -225,9 +223,7 @@ func (o *SetDefaultRoleDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *SetDefaultRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,7 +234,6 @@ func (o *SetDefaultRoleDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -267,7 +262,6 @@ SetDefaultRoleDefaultBodyDetailsItems0 set default role default body details ite
 swagger:model SetDefaultRoleDefaultBodyDetailsItems0
 */
 type SetDefaultRoleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

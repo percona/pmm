@@ -62,12 +62,12 @@ type ListDBClustersOK struct {
 func (o *ListDBClustersOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/List][%d] listDbClustersOk  %+v", 200, o.Payload)
 }
+
 func (o *ListDBClustersOK) GetPayload() *ListDBClustersOKBody {
 	return o.Payload
 }
 
 func (o *ListDBClustersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListDBClustersOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListDBClustersDefault) Code() int {
 func (o *ListDBClustersDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/List][%d] ListDBClusters default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListDBClustersDefault) GetPayload() *ListDBClustersDefaultBody {
 	return o.Payload
 }
 
 func (o *ListDBClustersDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListDBClustersDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ListDBClustersBody list DB clusters body
 swagger:model ListDBClustersBody
 */
 type ListDBClustersBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 }
@@ -163,7 +162,6 @@ ListDBClustersDefaultBody list DB clusters default body
 swagger:model ListDBClustersDefaultBody
 */
 type ListDBClustersDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,9 +227,7 @@ func (o *ListDBClustersDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ListDBClustersDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,7 +238,6 @@ func (o *ListDBClustersDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -271,7 +266,6 @@ ListDBClustersDefaultBodyDetailsItems0 list DB clusters default body details ite
 swagger:model ListDBClustersDefaultBodyDetailsItems0
 */
 type ListDBClustersDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -309,7 +303,6 @@ ListDBClustersOKBody list DB clusters OK body
 swagger:model ListDBClustersOKBody
 */
 type ListDBClustersOKBody struct {
-
 	// PXC clusters information.
 	PXCClusters []*ListDBClustersOKBodyPXCClustersItems0 `json:"pxc_clusters"`
 
@@ -406,9 +399,7 @@ func (o *ListDBClustersOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListDBClustersOKBody) contextValidatePXCClusters(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.PXCClusters); i++ {
-
 		if o.PXCClusters[i] != nil {
 			if err := o.PXCClusters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -419,16 +410,13 @@ func (o *ListDBClustersOKBody) contextValidatePXCClusters(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListDBClustersOKBody) contextValidatePSMDBClusters(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.PSMDBClusters); i++ {
-
 		if o.PSMDBClusters[i] != nil {
 			if err := o.PSMDBClusters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -439,7 +427,6 @@ func (o *ListDBClustersOKBody) contextValidatePSMDBClusters(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -468,7 +455,6 @@ ListDBClustersOKBodyPSMDBClustersItems0 PSMDBCluster represents PSMDB cluster in
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0
 */
 type ListDBClustersOKBodyPSMDBClustersItems0 struct {
-
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
@@ -641,7 +627,6 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) ContextValidate(ctx context.Co
 }
 
 func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Operation != nil {
 		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -657,7 +642,6 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateOperation(ctx c
 }
 
 func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -695,7 +679,6 @@ ListDBClustersOKBodyPSMDBClustersItems0Operation RunningOperation respresents a 
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0Operation
 */
 type ListDBClustersOKBodyPSMDBClustersItems0Operation struct {
-
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
 	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
@@ -739,7 +722,6 @@ ListDBClustersOKBodyPSMDBClustersItems0Params PSMDBClusterParams represents PSMD
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0Params
 */
 type ListDBClustersOKBodyPSMDBClustersItems0Params struct {
-
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -798,7 +780,6 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) ContextValidate(ctx cont
 }
 
 func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Replicaset != nil {
 		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -837,7 +818,6 @@ ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset ReplicaSet container par
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset
 */
 type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset struct {
-
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -899,7 +879,6 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) ContextValidat
 }
 
 func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -937,7 +916,6 @@ ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources ComputeR
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
 */
 type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -978,7 +956,6 @@ ListDBClustersOKBodyPXCClustersItems0 PXCCluster represents PXC cluster informat
 swagger:model ListDBClustersOKBodyPXCClustersItems0
 */
 type ListDBClustersOKBodyPXCClustersItems0 struct {
-
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
@@ -1151,7 +1128,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) ContextValidate(ctx context.Cont
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Operation != nil {
 		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1167,7 +1143,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateOperation(ctx con
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1205,7 +1180,6 @@ ListDBClustersOKBodyPXCClustersItems0Operation RunningOperation respresents a lo
 swagger:model ListDBClustersOKBodyPXCClustersItems0Operation
 */
 type ListDBClustersOKBodyPXCClustersItems0Operation struct {
-
 	// Finished steps of the operaion; can decrease or increase compared to the previous value.
 	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
@@ -1249,7 +1223,6 @@ ListDBClustersOKBodyPXCClustersItems0Params PXCClusterParams represents PXC clus
 swagger:model ListDBClustersOKBodyPXCClustersItems0Params
 */
 type ListDBClustersOKBodyPXCClustersItems0Params struct {
-
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -1365,7 +1338,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) ContextValidate(ctx contex
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1381,7 +1353,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateHaproxy(ctx
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1397,7 +1368,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateProxysql(ct
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1436,7 +1406,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy HAProxy container parameters.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy struct {
-
 	// Docker image used for HAProxy.
 	Image string `json:"image,omitempty"`
 
@@ -1492,7 +1461,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) ContextValidate(ctx
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1530,7 +1498,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources ComputeResour
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -1572,7 +1539,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsPXC PXC container parameters.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXC
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsPXC struct {
-
 	// Docker image used for PXC.
 	Image string `json:"image,omitempty"`
 
@@ -1637,7 +1603,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) ContextValidate(ctx con
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1675,7 +1640,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources ComputeResources 
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -1717,7 +1681,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsProxysql ProxySQL container parameter
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysql
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsProxysql struct {
-
 	// Docker image used for ProxySQL.
 	Image string `json:"image,omitempty"`
 
@@ -1776,7 +1739,6 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) ContextValidate(ct
 }
 
 func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1814,7 +1776,6 @@ ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources ComputeResou
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

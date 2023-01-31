@@ -60,7 +60,6 @@ ChangeQANPostgreSQLPgStatMonitorAgentParams contains all the parameters to send 
 	Typically these are written to a http.Request.
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
-
 	// Body.
 	Body ChangeQANPostgreSQLPgStatMonitorAgentBody
 
@@ -130,7 +129,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentParams) SetBody(body ChangeQANPost
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

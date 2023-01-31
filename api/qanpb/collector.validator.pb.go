@@ -6,15 +6,19 @@ package qanv1beta1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/percona/pmm/api/inventorypb"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+
+	_ "github.com/percona/pmm/api/inventorypb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *CollectRequest) Validate() error {
 	for _, item := range this.MetricsBucket {
@@ -26,12 +30,14 @@ func (this *CollectRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *MetricsBucket) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *CollectResponse) Validate() error {
 	return nil
 }

@@ -7,13 +7,14 @@
 package qanv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1553,37 +1554,40 @@ func file_qanpb_object_details_proto_rawDescGZIP() []byte {
 	return file_qanpb_object_details_proto_rawDescData
 }
 
-var file_qanpb_object_details_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
-var file_qanpb_object_details_proto_goTypes = []interface{}{
-	(*MetricsRequest)(nil),                     // 0: qan.v1beta1.MetricsRequest
-	(*MetricsReply)(nil),                       // 1: qan.v1beta1.MetricsReply
-	(*MetricValues)(nil),                       // 2: qan.v1beta1.MetricValues
-	(*Labels)(nil),                             // 3: qan.v1beta1.Labels
-	(*QueryExampleRequest)(nil),                // 4: qan.v1beta1.QueryExampleRequest
-	(*QueryExampleReply)(nil),                  // 5: qan.v1beta1.QueryExampleReply
-	(*QueryExample)(nil),                       // 6: qan.v1beta1.QueryExample
-	(*ObjectDetailsLabelsRequest)(nil),         // 7: qan.v1beta1.ObjectDetailsLabelsRequest
-	(*ObjectDetailsLabelsReply)(nil),           // 8: qan.v1beta1.ObjectDetailsLabelsReply
-	(*ListLabelValues)(nil),                    // 9: qan.v1beta1.ListLabelValues
-	(*QueryPlanRequest)(nil),                   // 10: qan.v1beta1.QueryPlanRequest
-	(*QueryPlanReply)(nil),                     // 11: qan.v1beta1.QueryPlanReply
-	(*HistogramRequest)(nil),                   // 12: qan.v1beta1.HistogramRequest
-	(*HistogramReply)(nil),                     // 13: qan.v1beta1.HistogramReply
-	(*HistogramItem)(nil),                      // 14: qan.v1beta1.HistogramItem
-	(*QueryExistsRequest)(nil),                 // 15: qan.v1beta1.QueryExistsRequest
-	(*ExplainFingerprintByQueryIDRequest)(nil), // 16: qan.v1beta1.ExplainFingerprintByQueryIDRequest
-	(*ExplainFingerprintByQueryIDReply)(nil),   // 17: qan.v1beta1.ExplainFingerprintByQueryIDReply
-	nil,                                        // 18: qan.v1beta1.MetricsReply.MetricsEntry
-	nil,                                        // 19: qan.v1beta1.MetricsReply.TextMetricsEntry
-	nil,                                        // 20: qan.v1beta1.MetricsReply.TotalsEntry
-	nil,                                        // 21: qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry
-	(*timestamppb.Timestamp)(nil),              // 22: google.protobuf.Timestamp
-	(*MapFieldEntry)(nil),                      // 23: qan.v1beta1.MapFieldEntry
-	(*Point)(nil),                              // 24: qan.v1beta1.Point
-	(ExampleFormat)(0),                         // 25: qan.v1beta1.ExampleFormat
-	(ExampleType)(0),                           // 26: qan.v1beta1.ExampleType
-	(*wrapperspb.BoolValue)(nil),               // 27: google.protobuf.BoolValue
-}
+var (
+	file_qanpb_object_details_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+	file_qanpb_object_details_proto_goTypes  = []interface{}{
+		(*MetricsRequest)(nil),                     // 0: qan.v1beta1.MetricsRequest
+		(*MetricsReply)(nil),                       // 1: qan.v1beta1.MetricsReply
+		(*MetricValues)(nil),                       // 2: qan.v1beta1.MetricValues
+		(*Labels)(nil),                             // 3: qan.v1beta1.Labels
+		(*QueryExampleRequest)(nil),                // 4: qan.v1beta1.QueryExampleRequest
+		(*QueryExampleReply)(nil),                  // 5: qan.v1beta1.QueryExampleReply
+		(*QueryExample)(nil),                       // 6: qan.v1beta1.QueryExample
+		(*ObjectDetailsLabelsRequest)(nil),         // 7: qan.v1beta1.ObjectDetailsLabelsRequest
+		(*ObjectDetailsLabelsReply)(nil),           // 8: qan.v1beta1.ObjectDetailsLabelsReply
+		(*ListLabelValues)(nil),                    // 9: qan.v1beta1.ListLabelValues
+		(*QueryPlanRequest)(nil),                   // 10: qan.v1beta1.QueryPlanRequest
+		(*QueryPlanReply)(nil),                     // 11: qan.v1beta1.QueryPlanReply
+		(*HistogramRequest)(nil),                   // 12: qan.v1beta1.HistogramRequest
+		(*HistogramReply)(nil),                     // 13: qan.v1beta1.HistogramReply
+		(*HistogramItem)(nil),                      // 14: qan.v1beta1.HistogramItem
+		(*QueryExistsRequest)(nil),                 // 15: qan.v1beta1.QueryExistsRequest
+		(*ExplainFingerprintByQueryIDRequest)(nil), // 16: qan.v1beta1.ExplainFingerprintByQueryIDRequest
+		(*ExplainFingerprintByQueryIDReply)(nil),   // 17: qan.v1beta1.ExplainFingerprintByQueryIDReply
+		nil,                                        // 18: qan.v1beta1.MetricsReply.MetricsEntry
+		nil,                                        // 19: qan.v1beta1.MetricsReply.TextMetricsEntry
+		nil,                                        // 20: qan.v1beta1.MetricsReply.TotalsEntry
+		nil,                                        // 21: qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry
+		(*timestamppb.Timestamp)(nil),              // 22: google.protobuf.Timestamp
+		(*MapFieldEntry)(nil),                      // 23: qan.v1beta1.MapFieldEntry
+		(*Point)(nil),                              // 24: qan.v1beta1.Point
+		(ExampleFormat)(0),                         // 25: qan.v1beta1.ExampleFormat
+		(ExampleType)(0),                           // 26: qan.v1beta1.ExampleType
+		(*wrapperspb.BoolValue)(nil),               // 27: google.protobuf.BoolValue
+	}
+)
+
 var file_qanpb_object_details_proto_depIdxs = []int32{
 	22, // 0: qan.v1beta1.MetricsRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	22, // 1: qan.v1beta1.MetricsRequest.period_start_to:type_name -> google.protobuf.Timestamp

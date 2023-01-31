@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListDBClustersRequest
@@ -45,7 +47,6 @@ func request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler runtime.
 
 	msg, err := client.ListDBClusters(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler ru
 
 	msg, err := server.ListDBClusters(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +79,6 @@ func request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +95,6 @@ func local_request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetDBCluster(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_DBClusters_RestartDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +111,6 @@ func request_DBClusters_RestartDBCluster_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.RestartDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_DBClusters_RestartDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +127,6 @@ func local_request_DBClusters_RestartDBCluster_0(ctx context.Context, marshaler 
 
 	msg, err := server.RestartDBCluster(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +143,6 @@ func request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.DeleteDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +159,6 @@ func local_request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler r
 
 	msg, err := server.DeleteDBCluster(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterDBClustersHandlerServer registers the http handlers for service DBClusters to "mux".
@@ -172,7 +166,6 @@ func local_request_DBClusters_DeleteDBCluster_0(ctx context.Context, marshaler r
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDBClustersHandlerFromEndpoint instead.
 func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DBClustersServer) error {
-
 	mux.Handle("POST", pattern_DBClusters_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -195,7 +188,6 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_ListDBClusters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_GetDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -220,7 +212,6 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_GetDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_RestartDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -245,7 +236,6 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_RestartDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -270,7 +260,6 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_DeleteDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -313,7 +302,6 @@ func RegisterDBClustersHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "DBClustersClient" to call the correct interceptors.
 func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DBClustersClient) error {
-
 	mux.Handle("POST", pattern_DBClusters_ListDBClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -333,7 +321,6 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_ListDBClusters_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_GetDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -355,7 +342,6 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_GetDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_RestartDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -377,7 +363,6 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_RestartDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_DBClusters_DeleteDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -399,7 +384,6 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_DeleteDBCluster_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

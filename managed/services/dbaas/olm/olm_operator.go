@@ -115,7 +115,7 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		return nil // already installed
 	}
 
-	var crdFile, olmFile []byte
+	var crdFile, olmFile, perconaCatalog []byte
 
 	crdFile, err = fs.ReadFile(data.OLMCRDs, "crds/olm/crds.yaml")
 	if err != nil {
@@ -123,7 +123,6 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 	}
 
 	if err := o.k8sclient.ApplyFile(crdFile); err != nil {
-		// TODO: revert applied files before return
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
 
@@ -133,7 +132,15 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 	}
 
 	if err := o.k8sclient.ApplyFile(olmFile); err != nil {
-		// TODO: revert applied files before return
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
+	}
+
+	perconaCatalog, err = fs.ReadFile(data.OLMCRDs, "crds/olm/percona-dbaas-catalog.yaml")
+	if err != nil {
+		return errors.Wrapf(err, "failed to read percona catalog yaml file")
+	}
+
+	if err := o.k8sclient.ApplyFile(perconaCatalog); err != nil {
 		return errors.Wrapf(err, "cannot apply %q file", crdFile)
 	}
 
@@ -236,6 +243,9 @@ func (o *OperatorService) InstallOperator(ctx context.Context, req InstallOperat
 	}
 
 	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+		o.lock.Lock()
+		defer o.lock.Unlock()
+
 		subs, err = o.k8sclient.GetSubscription(ctx, req.Namespace, req.Name)
 		if err != nil || subs == nil || (subs != nil && subs.Status.Install == nil) {
 			return false, err

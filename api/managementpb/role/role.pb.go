@@ -7,13 +7,14 @@
 package rolev1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -966,24 +967,27 @@ func file_managementpb_role_role_proto_rawDescGZIP() []byte {
 	return file_managementpb_role_role_proto_rawDescData
 }
 
-var file_managementpb_role_role_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-var file_managementpb_role_role_proto_goTypes = []interface{}{
-	(*CreateRoleRequest)(nil),          // 0: role.v1beta1.CreateRoleRequest
-	(*CreateRoleResponse)(nil),         // 1: role.v1beta1.CreateRoleResponse
-	(*UpdateRoleRequest)(nil),          // 2: role.v1beta1.UpdateRoleRequest
-	(*UpdateRoleResponse)(nil),         // 3: role.v1beta1.UpdateRoleResponse
-	(*DeleteRoleRequest)(nil),          // 4: role.v1beta1.DeleteRoleRequest
-	(*DeleteRoleResponse)(nil),         // 5: role.v1beta1.DeleteRoleResponse
-	(*GetRoleRequest)(nil),             // 6: role.v1beta1.GetRoleRequest
-	(*GetRoleResponse)(nil),            // 7: role.v1beta1.GetRoleResponse
-	(*SetDefaultRoleRequest)(nil),      // 8: role.v1beta1.SetDefaultRoleRequest
-	(*SetDefaultRoleResponse)(nil),     // 9: role.v1beta1.SetDefaultRoleResponse
-	(*AssignRolesRequest)(nil),         // 10: role.v1beta1.AssignRolesRequest
-	(*AssignRolesResponse)(nil),        // 11: role.v1beta1.AssignRolesResponse
-	(*ListRolesRequest)(nil),           // 12: role.v1beta1.ListRolesRequest
-	(*ListRolesResponse)(nil),          // 13: role.v1beta1.ListRolesResponse
-	(*ListRolesResponse_RoleData)(nil), // 14: role.v1beta1.ListRolesResponse.RoleData
-}
+var (
+	file_managementpb_role_role_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+	file_managementpb_role_role_proto_goTypes  = []interface{}{
+		(*CreateRoleRequest)(nil),          // 0: role.v1beta1.CreateRoleRequest
+		(*CreateRoleResponse)(nil),         // 1: role.v1beta1.CreateRoleResponse
+		(*UpdateRoleRequest)(nil),          // 2: role.v1beta1.UpdateRoleRequest
+		(*UpdateRoleResponse)(nil),         // 3: role.v1beta1.UpdateRoleResponse
+		(*DeleteRoleRequest)(nil),          // 4: role.v1beta1.DeleteRoleRequest
+		(*DeleteRoleResponse)(nil),         // 5: role.v1beta1.DeleteRoleResponse
+		(*GetRoleRequest)(nil),             // 6: role.v1beta1.GetRoleRequest
+		(*GetRoleResponse)(nil),            // 7: role.v1beta1.GetRoleResponse
+		(*SetDefaultRoleRequest)(nil),      // 8: role.v1beta1.SetDefaultRoleRequest
+		(*SetDefaultRoleResponse)(nil),     // 9: role.v1beta1.SetDefaultRoleResponse
+		(*AssignRolesRequest)(nil),         // 10: role.v1beta1.AssignRolesRequest
+		(*AssignRolesResponse)(nil),        // 11: role.v1beta1.AssignRolesResponse
+		(*ListRolesRequest)(nil),           // 12: role.v1beta1.ListRolesRequest
+		(*ListRolesResponse)(nil),          // 13: role.v1beta1.ListRolesResponse
+		(*ListRolesResponse_RoleData)(nil), // 14: role.v1beta1.ListRolesResponse.RoleData
+	}
+)
+
 var file_managementpb_role_role_proto_depIdxs = []int32{
 	14, // 0: role.v1beta1.ListRolesResponse.roles:type_name -> role.v1beta1.ListRolesResponse.RoleData
 	0,  // 1: role.v1beta1.Role.CreateRole:input_type -> role.v1beta1.CreateRoleRequest

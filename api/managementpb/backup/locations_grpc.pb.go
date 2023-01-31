@@ -8,6 +8,7 @@ package backupv1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -105,21 +106,24 @@ type LocationsServer interface {
 }
 
 // UnimplementedLocationsServer must be embedded to have forward compatible implementations.
-type UnimplementedLocationsServer struct {
-}
+type UnimplementedLocationsServer struct{}
 
 func (UnimplementedLocationsServer) ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListLocations not implemented")
 }
+
 func (UnimplementedLocationsServer) AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddLocation not implemented")
 }
+
 func (UnimplementedLocationsServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeLocation not implemented")
 }
+
 func (UnimplementedLocationsServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLocation not implemented")
 }
+
 func (UnimplementedLocationsServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestLocationConfig not implemented")
 }

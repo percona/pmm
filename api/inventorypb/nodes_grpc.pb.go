@@ -8,6 +8,7 @@ package inventorypb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -144,30 +145,36 @@ type NodesServer interface {
 }
 
 // UnimplementedNodesServer must be embedded to have forward compatible implementations.
-type UnimplementedNodesServer struct {
-}
+type UnimplementedNodesServer struct{}
 
 func (UnimplementedNodesServer) ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
+
 func (UnimplementedNodesServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
+
 func (UnimplementedNodesServer) AddGenericNode(context.Context, *AddGenericNodeRequest) (*AddGenericNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddGenericNode not implemented")
 }
+
 func (UnimplementedNodesServer) AddContainerNode(context.Context, *AddContainerNodeRequest) (*AddContainerNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddContainerNode not implemented")
 }
+
 func (UnimplementedNodesServer) AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteNode not implemented")
 }
+
 func (UnimplementedNodesServer) AddRemoteRDSNode(context.Context, *AddRemoteRDSNodeRequest) (*AddRemoteRDSNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteRDSNode not implemented")
 }
+
 func (UnimplementedNodesServer) AddRemoteAzureDatabaseNode(context.Context, *AddRemoteAzureDatabaseNodeRequest) (*AddRemoteAzureDatabaseNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteAzureDatabaseNode not implemented")
 }
+
 func (UnimplementedNodesServer) RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveNode not implemented")
 }

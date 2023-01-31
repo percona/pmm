@@ -8,6 +8,7 @@ package dbaasv1beta1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -53,8 +54,7 @@ type LogsAPIServer interface {
 }
 
 // UnimplementedLogsAPIServer must be embedded to have forward compatible implementations.
-type UnimplementedLogsAPIServer struct {
-}
+type UnimplementedLogsAPIServer struct{}
 
 func (UnimplementedLogsAPIServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")

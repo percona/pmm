@@ -476,6 +476,24 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		}
 	}
 
+	if _, ok := operatorsToInstall["dbaas"]; ok {
+		operatorName := "dbaas-operator"
+		params := olm.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "percona-dbaas-catalog",
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                "stable-v0",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
 	return retval
 }
 
@@ -503,16 +521,16 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		if err := k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
 			return errors.Wrap(err, "failed to create kubernetes client")
 		}
-		// out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
+		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
 
-		// switch {
-		// case err != nil && accessError(err):
-		// 	k.l.Warn(err)
-		// case err != nil:
-		// 	return err
-		// case len(out.Items) != 0:
-		// 	return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
-		// }
+		switch {
+		case err != nil && accessError(err):
+			k.l.Warn(err)
+		case err != nil:
+			return err
+		case len(out.Items) != 0:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
+		}
 
 		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 	})

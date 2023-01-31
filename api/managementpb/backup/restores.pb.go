@@ -7,12 +7,13 @@
 package backupv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -415,16 +416,19 @@ func file_managementpb_backup_restores_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_restores_proto_rawDescData
 }
 
-var file_managementpb_backup_restores_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_backup_restores_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_backup_restores_proto_goTypes = []interface{}{
-	(RestoreStatus)(0),                 // 0: backup.v1.RestoreStatus
-	(*RestoreHistoryItem)(nil),         // 1: backup.v1.RestoreHistoryItem
-	(*ListRestoreHistoryRequest)(nil),  // 2: backup.v1.ListRestoreHistoryRequest
-	(*ListRestoreHistoryResponse)(nil), // 3: backup.v1.ListRestoreHistoryResponse
-	(DataModel)(0),                     // 4: backup.v1.DataModel
-	(*timestamppb.Timestamp)(nil),      // 5: google.protobuf.Timestamp
-}
+var (
+	file_managementpb_backup_restores_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_backup_restores_proto_msgTypes  = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_backup_restores_proto_goTypes   = []interface{}{
+		(RestoreStatus)(0),                 // 0: backup.v1.RestoreStatus
+		(*RestoreHistoryItem)(nil),         // 1: backup.v1.RestoreHistoryItem
+		(*ListRestoreHistoryRequest)(nil),  // 2: backup.v1.ListRestoreHistoryRequest
+		(*ListRestoreHistoryResponse)(nil), // 3: backup.v1.ListRestoreHistoryResponse
+		(DataModel)(0),                     // 4: backup.v1.DataModel
+		(*timestamppb.Timestamp)(nil),      // 5: google.protobuf.Timestamp
+	}
+)
+
 var file_managementpb_backup_restores_proto_depIdxs = []int32{
 	4, // 0: backup.v1.RestoreHistoryItem.data_model:type_name -> backup.v1.DataModel
 	0, // 1: backup.v1.RestoreHistoryItem.status:type_name -> backup.v1.RestoreStatus

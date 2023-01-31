@@ -26,6 +26,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 
@@ -103,6 +104,7 @@ var (
 type Client struct {
 	clientset       kubernetes.Interface
 	dbClusterClient *database.DatabaseClusterClient
+	rcLock          *sync.Mutex
 	restConfig      *rest.Config
 	namespace       string
 }
@@ -175,6 +177,7 @@ func NewFromInCluster() (*Client, error) {
 	c := &Client{
 		clientset:  clientset,
 		restConfig: config,
+		rcLock:     &sync.Mutex{},
 	}
 	err = c.setup()
 	return c, err
@@ -196,6 +199,7 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	c := &Client{
 		clientset:  clientset,
 		restConfig: config,
+		rcLock:     &sync.Mutex{},
 	}
 	err = c.setup()
 	return c, err
@@ -989,6 +993,9 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 
 // GetSubscription retrieves an OLM subscription by namespace and name.
 func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
+	c.rcLock.Lock()
+	defer c.rcLock.Unlock()
+
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
@@ -999,6 +1006,9 @@ func (c *Client) GetSubscription(ctx context.Context, namespace, name string) (*
 
 // ListSubscriptions all the subscriptions in the namespace.
 func (c *Client) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	c.rcLock.Lock()
+	defer c.rcLock.Unlock()
+
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
@@ -1009,6 +1019,9 @@ func (c *Client) ListSubscriptions(ctx context.Context, namespace string) (*v1al
 
 // GetInstallPlan retrieves an OLM install plan by namespace and name.
 func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name string) (*v1alpha1.InstallPlan, error) {
+	c.rcLock.Lock()
+	defer c.rcLock.Unlock()
+
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")
@@ -1019,6 +1032,9 @@ func (c *Client) GetInstallPlan(ctx context.Context, namespace string, name stri
 
 // UpdateInstallPlan updates the existing install plan in the specified namespace.
 func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error) {
+	c.rcLock.Lock()
+	defer c.rcLock.Unlock()
+
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create an operator client instance")

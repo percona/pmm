@@ -6,19 +6,22 @@ package serverpb
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/durationpb"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "google.golang.org/protobuf/types/known/durationpb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *VersionInfo) Validate() error {
 	if this.Timestamp != nil {
@@ -28,9 +31,11 @@ func (this *VersionInfo) Validate() error {
 	}
 	return nil
 }
+
 func (this *VersionRequest) Validate() error {
 	return nil
 }
+
 func (this *VersionResponse) Validate() error {
 	if this.Server != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Server); err != nil {
@@ -44,15 +49,19 @@ func (this *VersionResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ReadinessRequest) Validate() error {
 	return nil
 }
+
 func (this *ReadinessResponse) Validate() error {
 	return nil
 }
+
 func (this *CheckUpdatesRequest) Validate() error {
 	return nil
 }
+
 func (this *CheckUpdatesResponse) Validate() error {
 	if this.Installed != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Installed); err != nil {
@@ -71,18 +80,23 @@ func (this *CheckUpdatesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *StartUpdateRequest) Validate() error {
 	return nil
 }
+
 func (this *StartUpdateResponse) Validate() error {
 	return nil
 }
+
 func (this *UpdateStatusRequest) Validate() error {
 	return nil
 }
+
 func (this *UpdateStatusResponse) Validate() error {
 	return nil
 }
+
 func (this *MetricsResolutions) Validate() error {
 	if this.Hr != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Hr); err != nil {
@@ -101,6 +115,7 @@ func (this *MetricsResolutions) Validate() error {
 	}
 	return nil
 }
+
 func (this *EmailAlertingSettings) Validate() error {
 	if this.From == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("From", fmt.Errorf(`value '%v' must not be an empty string`, this.From))
@@ -110,12 +125,14 @@ func (this *EmailAlertingSettings) Validate() error {
 	}
 	return nil
 }
+
 func (this *SlackAlertingSettings) Validate() error {
 	if this.Url == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Url", fmt.Errorf(`value '%v' must not be an empty string`, this.Url))
 	}
 	return nil
 }
+
 func (this *STTCheckIntervals) Validate() error {
 	if this.StandardInterval != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StandardInterval); err != nil {
@@ -134,6 +151,7 @@ func (this *STTCheckIntervals) Validate() error {
 	}
 	return nil
 }
+
 func (this *Settings) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
@@ -162,9 +180,11 @@ func (this *Settings) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetSettingsRequest) Validate() error {
 	return nil
 }
+
 func (this *GetSettingsResponse) Validate() error {
 	if this.Settings != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Settings); err != nil {
@@ -173,6 +193,7 @@ func (this *GetSettingsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeSettingsRequest) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
@@ -201,6 +222,7 @@ func (this *ChangeSettingsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeSettingsResponse) Validate() error {
 	if this.Settings != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Settings); err != nil {
@@ -209,6 +231,7 @@ func (this *ChangeSettingsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *TestEmailAlertingSettingsRequest) Validate() error {
 	if this.EmailAlertingSettings != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailAlertingSettings); err != nil {
@@ -217,15 +240,18 @@ func (this *TestEmailAlertingSettingsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *TestEmailAlertingSettingsResponse) Validate() error {
 	return nil
 }
+
 func (this *AWSInstanceCheckRequest) Validate() error {
 	if this.InstanceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("InstanceId", fmt.Errorf(`value '%v' must not be an empty string`, this.InstanceId))
 	}
 	return nil
 }
+
 func (this *AWSInstanceCheckResponse) Validate() error {
 	return nil
 }

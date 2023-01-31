@@ -8,6 +8,7 @@ package backupv1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -79,15 +80,16 @@ type ArtifactsServer interface {
 }
 
 // UnimplementedArtifactsServer must be embedded to have forward compatible implementations.
-type UnimplementedArtifactsServer struct {
-}
+type UnimplementedArtifactsServer struct{}
 
 func (UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
+
 func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
+
 func (UnimplementedArtifactsServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }

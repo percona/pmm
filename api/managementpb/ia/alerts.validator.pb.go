@@ -6,18 +6,22 @@ package iav1beta1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
-	_ "github.com/percona/pmm/api/managementpb"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
+
+	_ "github.com/percona/pmm/api/managementpb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *Alert) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
@@ -38,6 +42,7 @@ func (this *Alert) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertsRequest) Validate() error {
 	if this.PageParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
@@ -46,6 +51,7 @@ func (this *ListAlertsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertsResponse) Validate() error {
 	for _, item := range this.Alerts {
 		if item != nil {
@@ -61,9 +67,11 @@ func (this *ListAlertsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ToggleAlertsRequest) Validate() error {
 	return nil
 }
+
 func (this *ToggleAlertsResponse) Validate() error {
 	return nil
 }

@@ -5,10 +5,9 @@ package checks
 import (
 	context "context"
 
-	ammodels "github.com/percona/pmm/api/alertmanager/ammodels"
-
 	mock "github.com/stretchr/testify/mock"
 
+	ammodels "github.com/percona/pmm/api/alertmanager/ammodels"
 	services "github.com/percona/pmm/managed/services"
 )
 

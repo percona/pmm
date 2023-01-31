@@ -7,10 +7,11 @@
 package backupv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -163,11 +164,14 @@ func file_managementpb_backup_common_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_common_proto_rawDescData
 }
 
-var file_managementpb_backup_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_managementpb_backup_common_proto_goTypes = []interface{}{
-	(DataModel)(0),  // 0: backup.v1.DataModel
-	(BackupMode)(0), // 1: backup.v1.BackupMode
-}
+var (
+	file_managementpb_backup_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+	file_managementpb_backup_common_proto_goTypes   = []interface{}{
+		(DataModel)(0),  // 0: backup.v1.DataModel
+		(BackupMode)(0), // 1: backup.v1.BackupMode
+	}
+)
+
 var file_managementpb_backup_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

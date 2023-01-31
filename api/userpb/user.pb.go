@@ -7,6 +7,9 @@
 package userpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -14,8 +17,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -426,15 +427,18 @@ func file_userpb_user_proto_rawDescGZIP() []byte {
 	return file_userpb_user_proto_rawDescData
 }
 
-var file_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_userpb_user_proto_goTypes = []interface{}{
-	(*UserDetailsRequest)(nil),           // 0: user.UserDetailsRequest
-	(*UserDetailsResponse)(nil),          // 1: user.UserDetailsResponse
-	(*UserUpdateRequest)(nil),            // 2: user.UserUpdateRequest
-	(*ListUsersRequest)(nil),             // 3: user.ListUsersRequest
-	(*ListUsersResponse)(nil),            // 4: user.ListUsersResponse
-	(*ListUsersResponse_UserDetail)(nil), // 5: user.ListUsersResponse.UserDetail
-}
+var (
+	file_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_userpb_user_proto_goTypes  = []interface{}{
+		(*UserDetailsRequest)(nil),           // 0: user.UserDetailsRequest
+		(*UserDetailsResponse)(nil),          // 1: user.UserDetailsResponse
+		(*UserUpdateRequest)(nil),            // 2: user.UserUpdateRequest
+		(*ListUsersRequest)(nil),             // 3: user.ListUsersRequest
+		(*ListUsersResponse)(nil),            // 4: user.ListUsersResponse
+		(*ListUsersResponse_UserDetail)(nil), // 5: user.ListUsersResponse.UserDetail
+	}
+)
+
 var file_userpb_user_proto_depIdxs = []int32{
 	5, // 0: user.ListUsersResponse.users:type_name -> user.ListUsersResponse.UserDetail
 	0, // 1: user.User.GetUser:input_type -> user.UserDetailsRequest
