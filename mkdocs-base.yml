@@ -30,6 +30,17 @@ theme:
         icon: material/toggle-switch
         name: Switch to light mode
 
+# Theme features
+
+  features:
+    - search.highlight
+    - navigation.top
+    - content.tabs.link
+    - content.code.copy 
+    - navigation.tracking 
+    - content.action.edit
+    - content.action.view 
+
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
@@ -56,9 +67,16 @@ markdown_extensions:
   pymdownx.highlight:
     linenums: false
   lightgallery: {}
+  pymdownx.inlinehilite: {}
+  pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
   search: {}
+  section-index: {}
+  search: 
+    separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   git-revision-date: {}
   macros:
     include_yaml:

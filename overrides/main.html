@@ -1,30 +1,81 @@
+{# Import the theme's layout. #}
 {% extends "base.html" %}
 
-{% block extrahead %}
-{{ super() }}
+{%- macro relbar2 () %}
 
-<script>
-(function (w, d, s, l, i) {
-    w[l] = w[l] || []; w[l].push({
-      'gtm.start': new Date().getTime(), 
-      event: 'gtm.js'
-    });
-    var f = d.getElementsByTagName(s)[0],
-    j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-    j.async = true; 
-    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-    f.parentNode.insertBefore(j, f);
-  })(window, document, 'script', 'dataLayer', 'GTM-K48FGP2');
-</script>
-{% endblock %}
+{%- endmacro %}
+              
+              {% block extrahead %}
+              {{ super() }}
+
+              <script>
+              (function (w, d, s, l, i) {
+                  w[l] = w[l] || []; w[l].push({
+                    'gtm.start': new Date().getTime(), 
+                    event: 'gtm.js'
+                  });
+                  var f = d.getElementsByTagName(s)[0],
+                  j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                  j.async = true; 
+                  j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                  f.parentNode.insertBefore(j, f);
+                })(window, document, 'script', 'dataLayer', 'GTM-K48FGP2');
+              </script>
+              {% endblock %}
 
 
-{% block scripts %}
-{{ super() }}
+              {% block scripts %}
+              {{ super() }}
 
-<img src="https://tracking.g2crowd.com/attribution_tracking/conversions/1007137.gif?e=" width="1" height="1" />
+              <img src="https://tracking.g2crowd.com/attribution_tracking/conversions/1007137.gif?e=" width="1" height="1" />
 
-<noscript>
-  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K48FGP2" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
-{% endblock %}
+              <noscript>
+                <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K48FGP2" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+              </noscript>
+              {% endblock %}
+
+              {% block content %}
+
+                <!-- Edit and view button -->
+                {% if page.edit_url %}
+                  {% set edit = "https://github.com/percona/pmm-doc/edit/main/docs/" %}
+                  {% set view = "https://raw.githubusercontent.com/percona/pmm-doc/main/docs/" %}
+                  <a
+                    href="{{ page.edit_url }}"
+                    title="{{ lang.t('edit.link.title') }}"
+                    class="md-content__button md-icon"
+                  >
+                    {% include ".icons/material/file-edit-outline.svg" %}
+                  </a>
+                  <a
+                    href="{{ page.edit_url | replace(edit, view) }}"
+                    title="View source of this page"
+                    class="md-content__button md-icon"
+                  >
+                    {% include ".icons/material/file-eye-outline.svg" %}
+                  </a>
+                {% endif %}
+
+                <!--
+                  Hack: check whether the content contains a h1 headline. If it
+                  doesn't, the page title (or respectively site name) is used
+                  as the main headline.
+                -->
+                {% if not "\x3ch1" in page.content %}
+                  <h1>{{ page.title | d(config.site_name, true)}}</h1>
+                {% endif %}
+
+                <!-- Markdown content -->
+                {{ page.content }}
+
+                {{ relbar2() }}
+
+                <!-- Last update of source file -->
+                {% if page and page.meta %}
+                  {% if page.meta.git_revision_date_localized or
+                        page.meta.revision_date
+                  %}
+                    {% include "partials/source-file.html" %}
+                  {% endif %}
+                {% endif %}
+              {% endblock %}
