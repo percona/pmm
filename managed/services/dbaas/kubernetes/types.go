@@ -176,49 +176,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Resources = resources
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
-	var dbRestore *dbaasv1.DatabaseClusterRestore
-	if cluster.Params.Restore != nil {
-		if cluster.Params.Restore.SecretsName != "" {
-			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
-		}
-		dbCluster.Spec.Backup.Enabled = true
-		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
-				Type: dbaasv1.BackupStorageType(backupLocation.Type),
-				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
-					Bucket:            backupLocation.S3Config.BucketName,
-					Region:            backupLocation.S3Config.BucketRegion,
-					EndpointURL:       backupLocation.S3Config.Endpoint,
-					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
-				},
-			},
-		}
-
-		dbRestore = &dbaasv1.DatabaseClusterRestore{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "DatabaseClusterRestore",
-				APIVersion: "dbaas.percona.com/v1",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
-			},
-			Spec: dbaasv1.DatabaseClusterRestoreSpec{
-				DatabaseCluster: dbCluster.Name,
-				DatabaseType:    "pxc",
-				BackupSource: &dbaasv1.BackupSource{
-					Destination: cluster.Params.Restore.Destination,
-					StorageType: dbaasv1.BackupStorageS3,
-					S3: &dbaasv1.BackupStorageProviderSpec{
-						Bucket:            backupLocation.S3Config.BucketName,
-						Region:            backupLocation.S3Config.BucketRegion,
-						EndpointURL:       backupLocation.S3Config.Endpoint,
-						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
-					},
-					StorageName: backupLocation.Name,
-				},
-			},
-		}
-	}
 	if cluster.Params.Backup != nil {
 
 		dbCluster.Spec.Backup.Enabled = true
@@ -248,12 +205,12 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
 		if !ok {
-			return dbCluster, dbRestore, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
 		annotations, ok := exposeAnnotationsMap[clusterType]
 		if !ok {
-			return dbCluster, dbRestore, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
@@ -270,7 +227,50 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	return dbCluster, dbRestore, nil
+	if cluster.Params.Restore != nil {
+		if cluster.Params.Restore.SecretsName != "" {
+			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
+		}
+		dbCluster.Spec.Backup.Enabled = true
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+				},
+			},
+		}
+
+		dbRestore := &dbaasv1.DatabaseClusterRestore{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "DatabaseClusterRestore",
+				APIVersion: "dbaas.percona.com/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
+			},
+			Spec: dbaasv1.DatabaseClusterRestoreSpec{
+				DatabaseCluster: dbCluster.Name,
+				DatabaseType:    "pxc",
+				BackupSource: &dbaasv1.BackupSource{
+					Destination: cluster.Params.Restore.Destination,
+					StorageType: dbaasv1.BackupStorageS3,
+					S3: &dbaasv1.BackupStorageProviderSpec{
+						Bucket:            backupLocation.S3Config.BucketName,
+						Region:            backupLocation.S3Config.BucketRegion,
+						EndpointURL:       backupLocation.S3Config.Endpoint,
+						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+					},
+					StorageName: backupLocation.Name,
+				},
+			},
+		}
+		return dbCluster, dbRestore, nil
+	}
+	return dbCluster, nil, nil
 }
 
 // DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
@@ -333,49 +333,6 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
 	}
-	var dbRestore *dbaasv1.DatabaseClusterRestore
-	if cluster.Params.Restore != nil {
-		if cluster.Params.Restore.SecretsName != "" {
-			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
-		}
-		dbCluster.Spec.Backup.Enabled = true
-		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
-				Type: dbaasv1.BackupStorageType(backupLocation.Type),
-				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
-					Bucket:            backupLocation.S3Config.BucketName,
-					Region:            backupLocation.S3Config.BucketRegion,
-					EndpointURL:       backupLocation.S3Config.Endpoint,
-					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
-				},
-			},
-		}
-
-		dbRestore = &dbaasv1.DatabaseClusterRestore{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "DatabaseClusterRestore",
-				APIVersion: "dbaas.percona.com/v1",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
-			},
-			Spec: dbaasv1.DatabaseClusterRestoreSpec{
-				DatabaseCluster: dbCluster.Name,
-				DatabaseType:    "psmdb",
-				BackupSource: &dbaasv1.BackupSource{
-					Destination: cluster.Params.Restore.Destination,
-					StorageType: dbaasv1.BackupStorageS3,
-					S3: &dbaasv1.BackupStorageProviderSpec{
-						Bucket:            backupLocation.S3Config.BucketName,
-						Region:            backupLocation.S3Config.BucketRegion,
-						EndpointURL:       backupLocation.S3Config.Endpoint,
-						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
-					},
-					StorageName: backupLocation.Name,
-				},
-			},
-		}
-	}
 	if cluster.Params.Backup != nil {
 
 		dbCluster.Spec.Backup.Enabled = true
@@ -414,7 +371,50 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	return dbCluster, dbRestore, nil
+	if cluster.Params.Restore != nil {
+		if cluster.Params.Restore.SecretsName != "" {
+			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
+		}
+		dbCluster.Spec.Backup.Enabled = true
+		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
+			backupLocation.Name: {
+				Type: dbaasv1.BackupStorageType(backupLocation.Type),
+				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
+					Bucket:            backupLocation.S3Config.BucketName,
+					Region:            backupLocation.S3Config.BucketRegion,
+					EndpointURL:       backupLocation.S3Config.Endpoint,
+					CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+				},
+			},
+		}
+
+		dbRestore := &dbaasv1.DatabaseClusterRestore{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "DatabaseClusterRestore",
+				APIVersion: "dbaas.percona.com/v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: fmt.Sprintf("%s-restore", dbCluster.Name),
+			},
+			Spec: dbaasv1.DatabaseClusterRestoreSpec{
+				DatabaseCluster: dbCluster.Name,
+				DatabaseType:    "psmdb",
+				BackupSource: &dbaasv1.BackupSource{
+					Destination: cluster.Params.Restore.Destination,
+					StorageType: dbaasv1.BackupStorageS3,
+					S3: &dbaasv1.BackupStorageProviderSpec{
+						Bucket:            backupLocation.S3Config.BucketName,
+						Region:            backupLocation.S3Config.BucketRegion,
+						EndpointURL:       backupLocation.S3Config.Endpoint,
+						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
+					},
+					StorageName: backupLocation.Name,
+				},
+			},
+		}
+		return dbCluster, dbRestore, nil
+	}
+	return dbCluster, nil, nil
 }
 
 // UpdatePatchForPSMDB returns a patch to update a database cluster
