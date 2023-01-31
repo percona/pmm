@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
-	github.com/bufbuild/buf v1.13.0
+	github.com/bufbuild/buf v1.13.1
 	github.com/daixiang0/gci v0.9.0
 	github.com/go-delve/delve v1.20.1
 	github.com/go-openapi/runtime v0.25.0
@@ -16,7 +16,6 @@ require (
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/kevinburke/go-bindata v3.24.0+incompatible
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
 	github.com/reviewdog/reviewdog v0.14.1
