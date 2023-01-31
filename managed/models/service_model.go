@@ -106,7 +106,7 @@ func (s *Service) SetCustomLabels(m map[string]string) error {
 	return setLabels(m, &s.CustomLabels)
 }
 
-// ChangeStandardLabels changes standard labels and returns a list of columns which were updated.
+// ChangeStandardLabels changes standard labels and returns a list of columns that have been updated.
 func (s *Service) ChangeStandardLabels(labels ServiceStandardLabelsParams) []string {
 	columns := []string{}
 

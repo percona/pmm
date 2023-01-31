@@ -405,3 +405,48 @@ func ValidateServiceType(serviceType ServiceType) error {
 		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
 	}
 }
+
+// ChangeStandardLabelsParams contains parameters for changing standard labels for a service.
+type ChangeStandardLabelsParams struct {
+	ServiceID      string
+	Cluster        *string
+	Environment    *string
+	ReplicationSet *string
+	ExternalGroup  *string
+}
+
+// ChangeStandardLabels changes standard labels for a service.
+func ChangeStandardLabels(q *reform.Querier, id string, labels ServiceStandardLabelsParams) error {
+	s, err := FindServiceByID(q, id)
+	if err != nil {
+		return err
+	}
+
+	columns := []string{}
+
+	if labels.Cluster != nil {
+		columns = append(columns, "cluster")
+		s.Cluster = *labels.Cluster
+	}
+
+	if labels.Environment != nil {
+		columns = append(columns, "environment")
+		s.Environment = *labels.Environment
+	}
+
+	if labels.ReplicationSet != nil {
+		columns = append(columns, "replication_set")
+		s.ReplicationSet = *labels.ReplicationSet
+	}
+
+	if labels.ExternalGroup != nil {
+		columns = append(columns, "external_group")
+		s.ExternalGroup = *labels.ExternalGroup
+	}
+
+	if err = q.UpdateColumns(s, columns...); err != nil {
+		return err
+	}
+
+	return nil
+}

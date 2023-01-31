@@ -433,22 +433,16 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }
 
-// ChangeService updates configuration of a service.
-func (ss *ServicesService) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
+// ChangeService changes service configuration.
+func (ss *ServicesService) ChangeService(ctx context.Context, params *models.ChangeStandardLabelsParams) (*inventorypb.ChangeServiceResponse, error) {
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
-
-		columns := service.ChangeStandardLabels(models.ServiceStandardLabelsParams{
-			Cluster:        req.Cluster,
-			Environment:    req.Environment,
-			ReplicationSet: req.ReplicationSet,
-			ExternalGroup:  req.ExternalGroup,
+		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        params.Cluster,
+			Environment:    params.Environment,
+			ReplicationSet: params.ReplicationSet,
+			ExternalGroup:  params.ExternalGroup,
 		})
-
-		if err = tx.UpdateColumns(service, columns...); err != nil {
+		if err != nil {
 			return err
 		}
 
@@ -458,7 +452,7 @@ func (ss *ServicesService) ChangeService(ctx context.Context, req *inventorypb.C
 		return nil, errTx
 	}
 
-	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
 		return nil, err
 	}
 
