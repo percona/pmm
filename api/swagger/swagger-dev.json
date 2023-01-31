@@ -29559,13 +29559,9 @@
                   "format": "int64",
                   "x-order": 2
                 },
-                "backup_artifact_id": {
-                  "type": "string",
-                  "x-order": 3
-                },
                 "restore_id": {
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }

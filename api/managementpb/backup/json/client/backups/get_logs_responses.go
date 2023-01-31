@@ -132,9 +132,6 @@ type GetLogsBody struct {
 	// limit
 	Limit int64 `json:"limit,omitempty"`
 
-	// backup artifact id
-	BackupArtifactID string `json:"backup_artifact_id,omitempty"`
-
 	// restore id
 	RestoreID string `json:"restore_id,omitempty"`
 }

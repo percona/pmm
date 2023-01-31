@@ -448,10 +448,6 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "backup_artifact_id": {
-                  "type": "string",
-                  "x-order": 3
-                },
                 "limit": {
                   "type": "integer",
                   "format": "int64",
@@ -464,7 +460,7 @@
                 },
                 "restore_id": {
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
