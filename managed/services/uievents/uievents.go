@@ -19,18 +19,21 @@ package uievents
 import (
 	"context"
 	"encoding/json"
-	"github.com/HdrHistogram/hdrhistogram-go"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	"github.com/percona/pmm/managed/services/telemetry"
-	"github.com/sirupsen/logrus"
 	"sort"
 	"time"
 
+	"github.com/HdrHistogram/hdrhistogram-go"
+	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	"github.com/sirupsen/logrus"
+
 	uievents "github.com/percona/pmm/api/uieventspb"
+	"github.com/percona/pmm/managed/services/telemetry"
 )
 
-const cleanupAfterHours = 30
-const cleanupCheckInterval = 1 * time.Minute
+const (
+	cleanupAfterHours    = 30
+	cleanupCheckInterval = 1 * time.Minute
+)
 
 // Service provides facility for storing UI events.
 type Service struct {
@@ -105,8 +108,8 @@ func (s *Service) processDashboardStat(metrics []*pmmv1.ServerMetric_Metric) []*
 
 	if len(s.dashboardUsage) > 0 {
 		dashboardStat := &Stat{
-			SlowDashboardsP95_1s: []string{},
-			SlowDashboardsP95_5s: []string{},
+			SlowDashboardsP95_1s:  []string{},
+			SlowDashboardsP95_5s:  []string{},
 			SlowDashboardsP95_10s: []string{},
 		}
 

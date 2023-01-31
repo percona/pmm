@@ -228,21 +228,21 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	}
 
 	for _, telemetry := range s.config.telemetry {
-        if telemetry.Extension != "" {
-            extension, ok := s.extensions[telemetry.Extension]
-            if ok {
-                metrics, err := extension.FetchMetrics(ctx, &telemetry)
-                if err != nil {
-                    s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
-                    continue
-                }
-                telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
-            } else {
-                s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
-            }
+		if telemetry.Extension != "" {
+			extension, ok := s.extensions[telemetry.Extension]
+			if ok {
+				metrics, err := extension.FetchMetrics(ctx, &telemetry)
+				if err != nil {
+					s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
+					continue
+				}
+				telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
+			} else {
+				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
+			}
 
-            continue
-        }
+			continue
+		}
 
 		// locate DS in initialized state
 		ds := initializedDataSources[telemetry.Source]

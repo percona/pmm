@@ -2,6 +2,7 @@ package telemetry
 
 import (
 	"context"
+
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 )
 
