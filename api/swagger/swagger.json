@@ -12830,11 +12830,11 @@
     },
     "/v1/inventory/Services/Change": {
       "post": {
-        "description": "Changes configuration for a service.",
+        "description": "Changes service configuration.",
         "tags": [
           "Services"
         ],
-        "summary": "Cahnge service",
+        "summary": "Change service",
         "operationId": "ChangeService",
         "parameters": [
           {

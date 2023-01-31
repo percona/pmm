@@ -331,9 +331,9 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...Cl
 }
 
 /*
-ChangeService cahnges service
+ChangeService changes service
 
-Changes configuration for a service.
+Changes service configuration.
 */
 func (a *Client) ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error) {
 	// TODO: Validate the params before sending

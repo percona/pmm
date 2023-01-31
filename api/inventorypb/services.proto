@@ -623,8 +623,8 @@ service Services {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Cahnge service"
-      description: "Changes configuration for a service."
+      summary: "Change service"
+      description: "Changes service configuration."
     };
   }
 }
