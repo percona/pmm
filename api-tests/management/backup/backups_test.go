@@ -303,7 +303,7 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there are no other scheduled backups.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A PITR backup for the cluster 'test_cluster' can be enabled only if there are no other scheduled backups for this cluster.")
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {

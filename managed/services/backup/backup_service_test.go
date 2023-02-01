@@ -96,7 +96,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	localLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
@@ -143,7 +143,7 @@ func TestPerformBackup(t *testing.T) {
 			{
 				name:          "unsupported location type",
 				dbVersion:     "8.0.25",
-				locationModel: localLocation,
+				locationModel: filesystemLocation,
 				dataModel:     models.PhysicalDataModel,
 				expectedError: ErrIncompatibleLocationType,
 			},
@@ -266,7 +266,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	FilesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
@@ -437,7 +437,7 @@ func TestRestoreBackup(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       "mongo-artifact-name-local",
 				Vendor:     string(models.MongoDBServiceType),
-				LocationID: FilesystemLocation.ID,
+				LocationID: filesystemLocation.ID,
 				ServiceID:  *agent.ServiceID,
 				DataModel:  models.LogicalDataModel,
 				Mode:       models.PITR,
