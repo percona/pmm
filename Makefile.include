@@ -93,7 +93,6 @@ gen: clean            ## Generate files.
 	make clean_swagger
 	make -C agent gen
 	make -C managed gen
-	make -C qan-api2 gen
 
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
