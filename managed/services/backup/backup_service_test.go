@@ -334,10 +334,6 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, updatedArtifact)
 
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("8.0.25", nil).Once()
-			mockedCompatibilityService.On("CheckArtifactCompatibility", artifact.ID, "8.0.25").Return(nil).Once()
-
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
@@ -432,10 +428,6 @@ func TestRestoreBackup(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("", nil).Once()
-			mockedCompatibilityService.On("CheckArtifactCompatibility", artifact.ID, "").Return(nil).Once()
-
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
@@ -454,7 +446,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
-			require.ErrorIs(t, err, ErrIncompatibleLocationType)
+			require.ErrorIs(t, err, ErrArtifactNotReady)
 			assert.Empty(t, restoreID)
 		})
 	})

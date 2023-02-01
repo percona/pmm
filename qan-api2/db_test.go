@@ -27,7 +27,7 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	_ "github.com/golang-migrate/migrate/database/clickhouse"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

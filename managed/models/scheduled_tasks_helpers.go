@@ -47,12 +47,13 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 
 // ScheduledTasksFilter represents filters for scheduled tasks.
 type ScheduledTasksFilter struct {
-	Disabled   *bool
-	Types      []ScheduledTaskType
-	ServiceID  string
-	LocationID string
-	Mode       BackupMode
-	Name       string
+	Disabled    *bool
+	Types       []ScheduledTaskType
+	ServiceID   string
+	ClusterName string
+	LocationID  string
+	Mode        BackupMode
+	Name        string
 }
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
@@ -84,6 +85,12 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'service_id' = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
+		idx++
+	}
+	if filters.ClusterName != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'cluster_name' = "+q.Placeholder(idx))
+		args = append(args, filters.ClusterName)
 		idx++
 	}
 	if filters.LocationID != "" {

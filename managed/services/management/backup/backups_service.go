@@ -81,18 +81,19 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
+	dataModel, err := convertModelToBackupModel(req.DataModel)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+	}
+
 	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
-	var dataModel models.DataModel
-	switch svc.ServiceType { //nolint:exhaustive
-	case models.MySQLServiceType:
-		dataModel = models.PhysicalDataModel
-	case models.MongoDBServiceType:
-		dataModel, err = convertModelToBackupModel(req.DataModel)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+
+	if svc.ServiceType == models.MongoDBServiceType {
+		if svc.Cluster == "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 		}
 	}
 
@@ -172,11 +173,18 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			return err
 		}
 
+		dataModel, err := convertModelToBackupModel(req.DataModel)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+		}
+
 		backupParams := &scheduler.BackupTaskParams{
-			ServiceID:     req.ServiceId,
+			ServiceID:     svc.ServiceID,
+			ClusterName:   svc.Cluster,
 			LocationID:    req.LocationId,
 			Name:          req.Name,
 			Description:   req.Description,
+			DataModel:     dataModel,
 			Mode:          mode,
 			Retention:     req.Retention,
 			Retries:       req.Retries,
@@ -186,16 +194,15 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			backupParams.DataModel = models.PhysicalDataModel
 			task, err = scheduler.NewMySQLBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			backupParams.DataModel, err = convertModelToBackupModel(req.DataModel)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+			if svc.Cluster == "" {
+				return status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 			}
+
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)

@@ -815,6 +815,11 @@ var databaseSchema = [][]string{
 		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
 	},
 	77: {
+		`UPDATE scheduled_tasks
+			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
+			WHERE type = 'mongodb_backup'`,
+	},
+	78: {
 		`INSERT INTO service_software_versions(
 			service_id,
 			service_type,
