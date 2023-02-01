@@ -55,7 +55,7 @@ const (
 	clockDriftWarning = 5 * time.Second
 )
 
-// configGetter allows for getting a config.
+// configGetter allows to get a config.
 type configGetter interface {
 	Get() *config.Config
 }
