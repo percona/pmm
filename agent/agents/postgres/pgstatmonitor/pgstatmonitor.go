@@ -81,6 +81,7 @@ const (
 	pgStatMonitorVersion20PG12
 	pgStatMonitorVersion20PG13
 	pgStatMonitorVersion20PG14
+	pgStatMonitorVersion20PG15
 )
 
 const (
@@ -179,6 +180,9 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	version := pgStatMonitorVersion06
 	switch {
 	case vPGSM.Core().GreaterThanOrEqual(v20):
+		if vPG >= 15 {
+			version = pgStatMonitorVersion20PG15
+		}
 		if vPG >= 14 {
 			version = pgStatMonitorVersion20PG14
 			break
