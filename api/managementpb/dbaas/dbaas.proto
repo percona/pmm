@@ -25,7 +25,7 @@ message ComputeResources {
 message Backup {
   // Backup Location id of stored backup location in PMM.
   string location_id = 1;
-  // Keep copies represents how many copyies should retain.
+// Keep copies represents how many copies should retain.
   int32 keep_copies = 2;
   // Cron expression represents cron expression
   string cron_expression = 3;
