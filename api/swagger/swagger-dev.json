@@ -29535,7 +29535,7 @@
         "tags": [
           "Backups"
         ],
-        "summary": "GetLogs returns logs for provided artifact.",
+        "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogsMixin7",
         "parameters": [
           {
@@ -29558,6 +29558,10 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 2
+                },
+                "restore_id": {
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
