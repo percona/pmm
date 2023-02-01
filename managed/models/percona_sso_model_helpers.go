@@ -23,18 +23,25 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
-var ErrNotConnectedToPortal = errors.New("PMM Server is not connected to Portal")
+var (
+	perconaSSOMtx           sync.Mutex
+	ErrNotConnectedToPortal = errors.New("PMM Server is not connected to Portal")
+)
 
 // GetPerconaSSODetails returns PerconaSSODetails if there are any, error otherwise.
 // Access token is automatically refreshed if it is expired.
 // Get, check eventually refresh done in one tx.
 func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODetails, error) {
+	perconaSSOMtx.Lock()
+	defer perconaSSOMtx.Unlock()
+
 	ssoDetails, err := q.SelectOneFrom(PerconaSSODetailsTable, "")
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
