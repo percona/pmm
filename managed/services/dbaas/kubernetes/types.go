@@ -333,7 +333,6 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 		}
 	}
 	if cluster.Params.Backup != nil {
-
 		dbCluster.Spec.Backup.Enabled = true
 		if backupImage != "" {
 			dbCluster.Spec.Backup.Image = backupImage
