@@ -99,6 +99,12 @@ type Settings struct {
 
 	// DefaultRoleID defines a default role to be assigned to new users.
 	DefaultRoleID int `json:"default_role_id"`
+
+	// AccessControl holds information about access control.
+	AccessControl struct {
+		// Enabled is true if access control is enabled.
+		Enabled bool `json:"enabled"`
+	} `json:"access_control"`
 }
 
 // EmailAlertingSettings represents email settings for Integrated Alerting.

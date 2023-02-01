@@ -38,6 +38,7 @@ const (
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
+	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 )
@@ -62,6 +63,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
+//   - ENABLE_RBAC enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -170,6 +172,15 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if k == envTestDbaas {
 				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
 			}
+
+		case envEnableAccessControl:
+			envSettings.EnableAccessControl, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+			envSettings.DisableAccessControl = !envSettings.EnableAccessControl
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
