@@ -194,12 +194,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			}
 		}
 	}
-	if dbRestore != nil {
+	if req.Params.Backup != nil || req.Params.Restore != nil && backupLocation != nil {
 		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
 		secrets := kubernetes.SecretForBackup(backupLocation)
 		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
 			return nil, errors.Wrap(err, "failed to create a secret")
 		}
+	}
+	if dbRestore != nil {
 		if err := s.kubernetesClient.CreateRestore(dbRestore); err != nil {
 			return nil, err
 		}
@@ -406,10 +408,10 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 }
 
 func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCClusterRequest) (*models.BackupLocation, error) {
-	if req.Params != nil && req.Params.Backup != nil {
+	if req.Params != nil && req.Params.Backup != nil && req.Params.Backup.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
 	}
-	if req.Params != nil && req.Params.Restore != nil {
+	if req.Params != nil && req.Params.Restore != nil && req.Params.Backup.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
 	}
 	return nil, nil

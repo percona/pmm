@@ -327,6 +327,13 @@ func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret
 	return k.client.GetSecret(ctx, name)
 }
 
+// ListSecrets returns secret by name
+func (k *Kubernetes) ListSecrets(ctx context.Context) (*corev1.SecretList, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.ListSecrets(ctx)
+}
+
 // CreatePMMSecret creates pmm secret in kubernetes.
 func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byte) error {
 	k.lock.Lock()

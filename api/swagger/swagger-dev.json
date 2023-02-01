@@ -22945,6 +22945,88 @@
         }
       }
     },
+    "/v1/management/DBaaS/Secrets/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListSecrets returns a list of secrets from k8s",
+        "operationId": "ListSecrets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "secrets": {
+                  "description": "Secret list.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of a secret",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/External/Add": {
       "post": {
         "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",

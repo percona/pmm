@@ -163,3 +163,25 @@ func (this *ListS3BackupsResponse) Validate() error {
 	}
 	return nil
 }
+
+func (this *ListSecretsRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	return nil
+}
+
+func (this *Secret) Validate() error {
+	return nil
+}
+
+func (this *ListSecretsResponse) Validate() error {
+	for _, item := range this.Secrets {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Secrets", err)
+			}
+		}
+	}
+	return nil
+}

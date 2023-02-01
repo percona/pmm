@@ -129,4 +129,5 @@ type kubernetesClient interface {
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
+	ListSecrets(context.Context) (*corev1.SecretList, error)
 }

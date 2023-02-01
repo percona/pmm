@@ -412,6 +412,28 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 	return &dbaasv1beta1.ListS3BackupsResponse{Backups: items}, nil
 }
 
+// ListSecrets returns list of secret names to the end user
+func (s DBClusterService) ListSecrets(ctx context.Context, req *dbaasv1beta1.ListSecretsRequest) (*dbaasv1beta1.ListSecretsResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
+		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	}
+	secretsList, err := s.kubernetesClient.ListSecrets(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed listing database clusters")
+	}
+	var secrets []*dbaasv1beta1.Secret
+	for _, secret := range secretsList.Items {
+		secrets = append(secrets, &dbaasv1beta1.Secret{
+			Name: secret.Name,
+		})
+	}
+	return &dbaasv1beta1.ListSecretsResponse{Secrets: secrets}, nil
+}
+
 func dbClusterStates() map[dbaasv1.AppState]dbaasv1beta1.DBClusterState {
 	return map[dbaasv1.AppState]dbaasv1beta1.DBClusterState{
 		dbaasv1.AppStateUnknown:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_INVALID,

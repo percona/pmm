@@ -357,6 +357,29 @@ func (_m *mockKubernetesClient) ListDatabaseClusters(_a0 context.Context) (*v1.D
 	return r0, r1
 }
 
+// ListSecrets provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) ListSecrets(_a0 context.Context) (*corev1.SecretList, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *corev1.SecretList
+	if rf, ok := ret.Get(0).(func(context.Context) *corev1.SecretList); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.SecretList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PatchDatabaseCluster provides a mock function with given fields: _a0
 func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 *v1.DatabaseCluster) error {
 	ret := _m.Called(_a0)
