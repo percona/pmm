@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -32,8 +33,16 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// ErrRetriesExhausted is returned when remaining retries are 0.
-var ErrRetriesExhausted = errors.New("retries exhausted")
+var (
+	// ErrRetriesExhausted is returned when remaining retries are 0.
+	ErrRetriesExhausted = errors.New("retries exhausted")
+
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
+	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoPITRRestore              = version.Must(version.NewVersion("2.32.0-0"))
+)
 
 const (
 	maxRestartInterval = 8 * time.Hour
@@ -354,6 +363,11 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
 func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
+	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
+		return err
+	}
+
 	mySQLReq := &agentpb.StartJobRequest_MySQLBackup{
 		Name:     name,
 		User:     dbConfig.User,
@@ -407,6 +421,19 @@ func (s *JobsService) StartMongoDBBackupJob(
 	locationConfig *models.BackupLocationConfig,
 ) error {
 	var err error
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb logical backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
+		return err
+	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
 		Name:       name,
@@ -427,6 +454,11 @@ func (s *JobsService) StartMongoDBBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb backup to client local storage",
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
+			return err
+		}
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig{
 			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
@@ -466,6 +498,11 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	name string,
 	locationConfig *models.BackupLocationConfig,
 ) error {
+	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
+		return err
+	}
+
 	if locationConfig.S3Config == nil {
 		return errors.Errorf("location config is not set")
 	}
@@ -511,6 +548,30 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
 ) error {
+	var err error
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb physical restore", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb logical restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
+		return err
+	}
+
+	if pitrTimestamp.Unix() != 0 {
+		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
+		// then invoke PMMAgentSupported
+		if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
+			return err
+		}
+	}
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
 		Name:          name,
 		User:          dbConfig.User,
@@ -527,6 +588,11 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.FilesystemConfig != nil:
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb restore from client local storage",
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
+			return err
+		}
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig{
 			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
