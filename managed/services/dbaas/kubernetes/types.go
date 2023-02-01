@@ -177,7 +177,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
 	if cluster.Params.Backup != nil {
-
 		dbCluster.Spec.Backup.Enabled = true
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
 			backupLocation.Name: {
