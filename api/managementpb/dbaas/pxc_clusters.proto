@@ -20,9 +20,6 @@ enum PXCBackupState {
   PXC_BACKUP_STATE_FAILED = 3;
 }
 
-
-
-
 // PXCClusterParams represents PXC cluster parameters that can be updated.
 message PXCClusterParams {
   // PXC container parameters.
