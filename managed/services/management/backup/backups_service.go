@@ -429,6 +429,10 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 			models.MongoDBRestoreBackupJob,
 		},
 	}
+	if req.ArtifactId != "" && req.RestoreId != "" {
+		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
+	}
+
 	if req.ArtifactId != "" {
 		jobsFilter.ArtifactID = req.ArtifactId
 	} else if req.RestoreId != "" {
