@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"github.com/hashicorp/go-version"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 )
+
+// pmmAgentMinVersionForMongoBackupSoftwareCheck minimum agent version for getting required backup software versions.
+var pmmAgentMinVersionForMongoBackupSoftwareCheck = version.Must(version.NewVersion("2.35.0-0"))
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {
@@ -46,6 +50,7 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
 	softwareList := agents.GetRequiredBackupSoftwareList(serviceModel.ServiceType)
 	if len(softwareList) == 0 {
+		s.l.Infof("Required backup software is not specified for %s service type.", serviceModel.ServiceType)
 		return "", nil
 	}
 
@@ -111,7 +116,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 
 // CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
 // and they are compatible with the db version, currently only supports backup tools for MySQL
-// Returns db version.
+// Returns version of the installed database.
 func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	var serviceModel *models.Service
 	var agentModel *models.Agent
@@ -135,6 +140,17 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 	})
 	if errTx != nil {
 		return "", errTx
+	}
+
+	if serviceModel.ServiceType == models.MongoDBServiceType {
+		if err := agents.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
+			pmmAgentMinVersionForMongoBackupSoftwareCheck); err != nil {
+			if errors.Is(err, &agents.AgentNotSupportedError{}) {
+				s.l.Warnf("Got versioner error message: %s.", err.Error())
+				return "", nil
+			}
+			return "", err
+		}
 	}
 
 	return s.checkCompatibility(serviceModel, agentModel)
