@@ -61,7 +61,7 @@ const (
 	serverZipFile   = "pmm-agent.log"
 )
 
-// configGetReloader allows for getting and reloading a config.
+// configGetReloader allows to get and reload a config.
 type configGetReloader interface {
 	Get() *config.Config
 	Reload(l *logrus.Entry) (string, error)
