@@ -17,8 +17,8 @@ package backup
 
 import (
 	"context"
-	"github.com/hashicorp/go-version"
 
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"

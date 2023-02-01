@@ -446,7 +446,7 @@ func TestRestoreBackup(t *testing.T) {
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
-			require.ErrorIs(t, err, ErrArtifactNotReady)
+			require.ErrorIs(t, err, ErrIncompatibleLocationType)
 			assert.Empty(t, restoreID)
 		})
 	})
