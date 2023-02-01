@@ -19,10 +19,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 const accessControlCacheExpiration = 3 * time.Second
