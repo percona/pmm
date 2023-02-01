@@ -177,7 +177,7 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 		return pgStatMonitorVersion06, "", err
 	}
 
-	version := pgStatMonitorVersion06
+	var version pgStatMonitorVersion
 	switch {
 	case vPGSM.Core().GreaterThanOrEqual(v20):
 		if vPG >= 15 {
@@ -216,6 +216,8 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 		version = pgStatMonitorVersion09
 	case vPGSM.GreaterThanOrEqual(v08):
 		version = pgStatMonitorVersion08
+	default:
+		version = pgStatMonitorVersion06
 	}
 
 	prerelease := vPGSM.Prerelease()
