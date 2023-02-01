@@ -404,10 +404,26 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 	if err != nil {
 		return nil, err
 	}
+	keyMap := make(map[string]struct{})
 	for _, item := range obj.Contents {
-		items = append(items, &dbaasv1beta1.S3Item{
-			Key: fmt.Sprintf("s3://%s/%s", backupLocation.S3Config.BucketName, strings.Replace(*item.Key, ".md5", "", -1)),
-		})
+		if *item.Key == ".pmb.init" {
+			continue
+		}
+		parts := strings.Split(*item.Key, "Z_")
+		if len(parts) == 2 {
+			if _, ok := keyMap[parts[0]]; !ok {
+				items = append(items, &dbaasv1beta1.S3Item{
+					Key: fmt.Sprintf("s3://%s/%s", backupLocation.S3Config.BucketName, fmt.Sprintf("%sZ", parts[0])),
+				})
+				keyMap[parts[0]] = struct{}{}
+			}
+		}
+		parts = strings.Split(*item.Key, ".md5")
+		if len(parts) == 2 {
+			items = append(items, &dbaasv1beta1.S3Item{
+				Key: fmt.Sprintf("s3://%s/%s", backupLocation.S3Config.BucketName, parts[0]),
+			})
+		}
 	}
 	return &dbaasv1beta1.ListS3BackupsResponse{Backups: items}, nil
 }
