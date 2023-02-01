@@ -38,10 +38,6 @@ func (e *AgentNotSupportedError) Error() string {
 		e.AgentID, e.AgentVersion, e.MinAgentVersion)
 }
 
-func (e *AgentNotSupportedError) Is(target error) bool {
-	return target == &AgentNotSupportedError{}
-}
-
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
