@@ -226,7 +226,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	if cluster.Params.Restore != nil {
+	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
@@ -369,7 +369,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	if cluster.Params.Restore != nil {
+	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
