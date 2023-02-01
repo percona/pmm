@@ -52,6 +52,7 @@ func FindJobByID(q *reform.Querier, id string) (*Job, error) {
 // JobsFilter represents filter for jobs.
 type JobsFilter struct {
 	ArtifactID string
+	RestoreID  string
 	Types      []JobType
 }
 
@@ -74,6 +75,13 @@ func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'artifact_id' = "+q.Placeholder(idx))
 		args = append(args, filters.ArtifactID)
+		idx++
+	}
+
+	if filters.RestoreID != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'restore_id' = "+q.Placeholder(idx))
+		args = append(args, filters.RestoreID)
 	}
 
 	var tail strings.Builder
