@@ -18,7 +18,10 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -36,6 +39,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/dbaas/olm"
@@ -331,7 +335,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	operatorsToInstall := make(map[string]bool)
 	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
 		operatorsToInstall["olm"] = true
-		operatorsToInstall["vm"] = true
+		operatorsToInstall["victoria-metrics"] = true
 		operatorsToInstall["dbaas"] = true
 	}
 	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
@@ -414,83 +418,43 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		if err != nil {
 			retval["olm"] = err
 			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
+			return retval
 		}
 	}
 
 	namespace := "default"
+
 	catalogSourceNamespace := "olm"
 	operatorGroup := "percona-operators-group"
 
-	if _, ok := operatorsToInstall["pxc"]; ok {
-		operatorName := "percona-xtradb-cluster-operator"
-		params := olm.InstallOperatorRequest{
-			Namespace:              namespace,
-			Name:                   operatorName,
-			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
-			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable",
-			InstallPlanApproval:    v1alpha1.ApprovalManual,
-		}
-
-		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["pxc"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-		}
+	operatorConfigs, err := getOperatorConfigs()
+	if err != nil {
+		retval["olm"] = errors.New("cannot read default olm operators config")
+		k.l.Error("failed to register the Kubernetes cluster because cannot get the operator configs")
+		return retval
 	}
 
-	if _, ok := operatorsToInstall["psmdb"]; ok {
-		operatorName := "percona-server-mongodb-operator"
-		params := olm.InstallOperatorRequest{
-			Namespace:              namespace,
-			Name:                   operatorName,
-			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
-			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable",
-			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
+	for operator := range operatorsToInstall {
+		config, ok := operatorConfigs.Operators[operator]
+		if !ok {
+			retval[operator] = fmt.Errorf("cannot get the catalog config for the %q operator", operator)
+			k.l.Error("cannot install OLM operator to register the Kubernetes cluster because cannot get the operator configs")
+			continue
 		}
 
-		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["pmdb"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["vm"]; ok {
-		operatorName := "victoriametrics-operator"
 		params := olm.InstallOperatorRequest{
 			Namespace:              namespace,
-			Name:                   operatorName,
+			Name:                   config.Name,
 			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
+			CatalogSource:          config.Catalog,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "beta",
+			Channel:                config.Channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["dbaas"]; ok {
-		operatorName := "dbaas-operator"
-		params := olm.InstallOperatorRequest{
-			Namespace:              namespace,
-			Name:                   operatorName,
-			OperatorGroup:          operatorGroup,
-			CatalogSource:          "percona-dbaas-catalog",
-			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v0",
-			InstallPlanApproval:    v1alpha1.ApprovalManual,
-		}
-
-		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			retval[operator] = err
+			k.l.Errorf("cannot instal the %q operator in the new cluster: %s", operator, err)
 		}
 	}
 
@@ -539,6 +503,40 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 	}
 
 	return &dbaasv1beta1.UnregisterKubernetesClusterResponse{}, nil
+}
+
+type OperatorConfig struct {
+	Name                      string `yaml:"name"`
+	Catalog                   string `yaml:"catalog"`
+	Channel                   string `yaml:"channel"`
+	AutoInstallOnRegistration bool   `yaml:"auto-install-on-registration"`
+}
+
+type OperatorConfigs struct {
+	Operators map[string]OperatorConfig `yaml:"operators"`
+}
+
+func getOperatorConfigs() (*OperatorConfigs, error) {
+	var config OperatorConfigs
+
+	data, err := fs.ReadFile(data.OLMConfigs, "configs/olm-catalog-sources.yaml")
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read percona catalog yaml file")
+	}
+
+	if filename := os.Getenv("PMM_OLM_OPERATORS_CONFIG"); filename != "" {
+		data, err = os.ReadFile(filepath.Clean(filename))
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to read percona catalog yaml file")
+		}
+	}
+
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot parse OLM operators config")
+	}
+
+	return &config, nil
 }
 
 // GetKubernetesCluster return KubeAuth with Kubernetes config.
