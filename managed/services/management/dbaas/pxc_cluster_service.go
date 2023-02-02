@@ -52,6 +52,7 @@ type PXCClustersService struct {
 	grafanaClient     grafanaClient
 	kubernetesClient  kubernetesClient
 	componentsService componentsService
+	kubeStorage       *KubeStorage
 	versionServiceURL string
 
 	dbaasv1beta1.UnimplementedPXCClustersServer
@@ -69,23 +70,21 @@ func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetes
 		kubernetesClient:  kubernetesClient,
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
+		kubeStorage:       NewKubeStorage(db),
 	}
 }
 
 // GetPXCClusterCredentials returns a PXC cluster credentials.
 func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPXCClusterCredentialsRequest) (*dbaasv1beta1.GetPXCClusterCredentialsResponse, error) { //nolint:lll
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}

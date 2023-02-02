@@ -67,6 +67,7 @@ type kubernetesServer struct {
 	kubernetesClient kubernetesClient
 	versionService   versionService
 	grafanaClient    grafanaClient
+	kubeStorage      *KubeStorage
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
@@ -84,6 +85,7 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient,
 		kubernetesClient: kubernetesClient,
 		versionService:   versionService,
 		grafanaClient:    grafanaClient,
+		kubeStorage:      NewKubeStorage(db),
 	}
 }
 
