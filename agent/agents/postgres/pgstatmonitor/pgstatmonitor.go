@@ -182,6 +182,7 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	case vPGSM.Core().GreaterThanOrEqual(v20):
 		if vPG >= 15 {
 			version = pgStatMonitorVersion20PG15
+			break
 		}
 		if vPG >= 14 {
 			version = pgStatMonitorVersion20PG14
