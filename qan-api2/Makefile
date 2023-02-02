@@ -24,9 +24,6 @@ release:                        ## Build qan-api2 release binary.
 		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-gen:                            ## Generate files.
-	../bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
-
 install:                        ## Install qan-api2 binary.
 	go install -v ./...
 

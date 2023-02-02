@@ -411,26 +411,6 @@ func TestGetLogs(t *testing.T) {
 		_ = sqlDB.Close()
 	})
 
-	job, err := models.CreateJob(db.Querier, models.CreateJobParams{
-		PMMAgentID: "agent",
-		Type:       models.MongoDBBackupJob,
-		Data: &models.JobData{
-			MongoDBBackup: &models.MongoDBBackupJobData{
-				ServiceID:  "svc",
-				ArtifactID: "artifact",
-			},
-		},
-	})
-	require.NoError(t, err)
-	for chunkID := 0; chunkID < 5; chunkID++ {
-		_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
-			JobID:   job.ID,
-			ChunkID: chunkID,
-			Data:    "not important",
-		})
-		assert.NoError(t, err)
-	}
-
 	type testCase struct {
 		offset uint32
 		limit  uint32
@@ -458,17 +438,113 @@ func TestGetLogs(t *testing.T) {
 			expect: []uint32{},
 		},
 	}
-	for _, tc := range testCases {
-		logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-			ArtifactId: "artifact",
-			Offset:     tc.offset,
-			Limit:      tc.limit,
+
+	t.Run("get backup logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBBackup: &models.MongoDBBackupJobData{
+					ServiceID:  "svc",
+					ArtifactID: "artifact",
+				},
+			},
 		})
-		assert.NoError(t, err)
-		chunkIDs := make([]uint32, 0, len(logs.Logs))
-		for _, log := range logs.Logs {
-			chunkIDs = append(chunkIDs, log.ChunkId)
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
 		}
-		assert.Equal(t, tc.expect, chunkIDs)
-	}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				ArtifactId: "artifact",
+				Offset:     tc.offset,
+				Limit:      tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get physical restore logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "physical-restore-1",
+					DataModel: models.PhysicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "physical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get logical restore logs", func(t *testing.T) {
+		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "logical-restore-1",
+					DataModel: models.LogicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   logicalRestore.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "logical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
 }

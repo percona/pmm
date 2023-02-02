@@ -132,12 +132,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@v1
+        uses: upsidr/merge-gatekeeper@v1.2.0
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
+          ignored: "WhiteSource License Check"
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   workflow_success:
