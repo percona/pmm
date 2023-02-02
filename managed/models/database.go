@@ -814,6 +814,12 @@ var databaseSchema = [][]string{
 		`ALTER TABLE roles
 		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
 	},
+	77: {
+		`CREATE TABLE files (
+			name VARCHAR NOT NULL CHECK (name <> '') PRIMARY KEY,
+			content BYTEA NOT NULL CHECK (content <> '')
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
