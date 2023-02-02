@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestUpdate(t *testing.T) {
+func TestFile(t *testing.T) {
 	t.Parallel()
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(78))
