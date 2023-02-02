@@ -36,7 +36,15 @@ type ClientService interface {
 
 	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
 
+	DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*DeleteFileOK, error)
+
+	GetFile(params *GetFileParams, opts ...ClientOption) (*GetFileOK, error)
+
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
+
+	InsertFile(params *InsertFileParams, opts ...ClientOption) (*InsertFileOK, error)
+
+	ListFiles(params *ListFilesParams, opts ...ClientOption) (*ListFilesOK, error)
 
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
@@ -45,6 +53,8 @@ type ClientService interface {
 	StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error)
 
 	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error)
+
+	UpdateFile(params *UpdateFileParams, opts ...ClientOption) (*UpdateFileOK, error)
 
 	UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error)
 
@@ -171,6 +181,84 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 }
 
 /*
+DeleteFile deletes file
+
+Deletes a File.
+*/
+func (a *Client) DeleteFile(params *DeleteFileParams, opts ...ClientOption) (*DeleteFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteFileParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteFile",
+		Method:             "POST",
+		PathPattern:        "/v1/File/Delete",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteFileOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteFileDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetFile gets file
+
+Retrieves a File by Name.
+*/
+func (a *Client) GetFile(params *GetFileParams, opts ...ClientOption) (*GetFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetFileParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetFile",
+		Method:             "POST",
+		PathPattern:        "/v1/File/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetFileOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetFileDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetSettings gets settings
 
 Returns current PMM Server settings.
@@ -206,6 +294,84 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+InsertFile inserts file
+
+Inserts a File.
+*/
+func (a *Client) InsertFile(params *InsertFileParams, opts ...ClientOption) (*InsertFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewInsertFileParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "InsertFile",
+		Method:             "POST",
+		PathPattern:        "/v1/File/Insert",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &InsertFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*InsertFileOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*InsertFileDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListFiles lists files
+
+Lists Files.
+*/
+func (a *Client) ListFiles(params *ListFilesParams, opts ...ClientOption) (*ListFilesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListFilesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListFiles",
+		Method:             "POST",
+		PathPattern:        "/v1/File/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListFilesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListFilesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListFilesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -362,6 +528,45 @@ func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsPara
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*TestEmailAlertingSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateFile updates file
+
+Updates an existing File.
+*/
+func (a *Client) UpdateFile(params *UpdateFileParams, opts ...ClientOption) (*UpdateFileOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateFileParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateFile",
+		Method:             "POST",
+		PathPattern:        "/v1/File/Update",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateFileReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateFileOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdateFileDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

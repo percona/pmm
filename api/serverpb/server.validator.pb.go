@@ -255,3 +255,58 @@ func (this *AWSInstanceCheckRequest) Validate() error {
 func (this *AWSInstanceCheckResponse) Validate() error {
 	return nil
 }
+
+func (this *GetFileRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *GetFileResponse) Validate() error {
+	return nil
+}
+
+func (this *InsertFileRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	if !(len(this.Content) > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Content", fmt.Errorf(`value '%v' must have a length greater than '0'`, this.Content))
+	}
+	return nil
+}
+
+func (this *UpdateFileRequest) Validate() error {
+	if this.OldName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("OldName", fmt.Errorf(`value '%v' must not be an empty string`, this.OldName))
+	}
+	return nil
+}
+
+func (this *DeleteFileRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *ListFilesResponse) Validate() error {
+	return nil
+}
+
+func (this *InsertFileResponse) Validate() error {
+	return nil
+}
+
+func (this *UpdateFileResponse) Validate() error {
+	return nil
+}
+
+func (this *DeleteFileResponse) Validate() error {
+	return nil
+}
+
+func (this *ListFilesRequest) Validate() error {
+	return nil
+}
