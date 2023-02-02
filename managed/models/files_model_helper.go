@@ -58,6 +58,7 @@ func GetFile(q *reform.Querier, name string) (file File, err error) {
 	return
 }
 
+// ReadAndUpsertFiles reads files from provided paths and returns file names in given order. Empty name on not found.
 func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string) ([]string, error) {
 	names := make([]string, 0, len(paths))
 	for _, path := range paths {
