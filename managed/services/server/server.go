@@ -624,6 +624,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 			EnableDBaaS:  req.EnableDbaas,
 			DisableDBaaS: req.DisableDbaas,
+
+			EnableAccessControl:  req.EnableAccessControl,
+			DisableAccessControl: req.DisableAccessControl,
 		}
 
 		if req.EmailAlertingSettings != nil {
