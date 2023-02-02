@@ -115,7 +115,7 @@ WHERE name = $3
 		}
 
 		if _, txErr = t.Querier.Exec(query, &file.Name, &file.Content, &fp.OldName); txErr != nil {
-			errors.Wrap(txErr, "failed to update file")
+			txErr = errors.Wrap(txErr, "failed to update file")
 		}
 		return
 	}
