@@ -33,7 +33,7 @@ import (
 func TestUpdate(t *testing.T) {
 	t.Parallel()
 
-	sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(77))
+	sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(78))
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()
@@ -61,7 +61,24 @@ func TestUpdate(t *testing.T) {
 		insertVMFile(tx.Querier)
 	})
 
-	t.Run("change", func(t *testing.T) {
+	t.Run("upsert", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		old := insertVMFile(tx.Querier)
+		want := models.File{Name: old.Name}
+		want.Content, err = os.ReadFile("../testdata/supervisord.d/grafana.ini")
+		require.NoError(t, err)
+
+		updated, err := models.UpsertFile(context.Background(), tx.Querier, models.InsertFileParams{Name: old.Name, Content: want.Content})
+		require.NoError(t, err)
+		assert.Equal(t, want, updated)
+	})
+
+	t.Run("update", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
