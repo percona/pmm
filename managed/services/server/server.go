@@ -872,7 +872,11 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 
 // InsertFile inserts a new File.
 func (s *Server) InsertFile(_ context.Context, req *serverpb.InsertFileRequest) (*serverpb.InsertFileResponse, error) {
-	if _, err := models.InsertFile(s.db.Querier, models.InsertFileParams{Name: req.Name, Content: req.Content}); err != nil {
+	fp := models.InsertFileParams{Name: req.Name, Content: req.Content}
+	if err := fp.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+	if _, err := models.InsertFile(s.db.Querier, fp); err != nil {
 		return nil, err
 	}
 	return &serverpb.InsertFileResponse{}, nil
@@ -880,11 +884,11 @@ func (s *Server) InsertFile(_ context.Context, req *serverpb.InsertFileRequest) 
 
 // UpdateFile updates a File.
 func (s *Server) UpdateFile(ctx context.Context, req *serverpb.UpdateFileRequest) (_ *serverpb.UpdateFileResponse, err error) {
-	if _, err = models.UpdateFile(ctx, s.db, models.UpdateFileParams{
-		OldName: req.OldName,
-		NewName: req.NewName,
-		Content: req.Content,
-	}); errors.Is(err, models.ErrFileNotFound) {
+	fp := models.UpdateFileParams{OldName: req.OldName, NewName: req.NewName, Content: req.Content}
+	if err := fp.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+	if _, err = models.UpdateFile(ctx, s.db, fp); errors.Is(err, models.ErrFileNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 	return &serverpb.UpdateFileResponse{}, err
