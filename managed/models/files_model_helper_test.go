@@ -31,8 +31,6 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	t.Parallel()
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(78))
 	defer func() {
 		require.NoError(t, sqlDB.Close())
