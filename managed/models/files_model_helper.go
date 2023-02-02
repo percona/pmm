@@ -58,28 +58,30 @@ func GetFile(q *reform.Querier, name string) (file File, err error) {
 	return
 }
 
-func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string) (names []string, err error) {
+func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string) ([]string, error) {
+	names := make([]string, 0, len(paths))
 	for _, path := range paths {
 		content, err := os.ReadFile(path) //nolint:gosec
 		if err != nil {
 			if !os.IsNotExist(err) {
-				return nil, errors.Wrapf(err, `inserting base config from path: %s`, path)
+				return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
 			}
+			names = append(names, "")
 			continue
 		}
 
 		fp := InsertFileParams{Name: filepath.Base(path), Content: content}
 		if err = fp.Validate(); err != nil {
-			return nil, errors.Wrapf(err, `inserting base config from path: %s`, path)
+			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
 		}
 
 		file, err := UpsertFile(ctx, q, fp)
 		if err != nil {
-			return nil, errors.Wrapf(err, `inserting base config from path: %s`, path)
+			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
 		}
 		names = append(names, file.Name)
 	}
-	return
+	return names, nil
 }
 
 // findAndLockFile retrieves a file by name and locks it for update.

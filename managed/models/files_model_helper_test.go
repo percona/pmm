@@ -78,6 +78,19 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, want, updated)
 	})
 
+	t.Run("read and upsert", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		want := []string{"", "grafana.ini", "promscrape.base.yml"}
+		names, err := models.ReadAndUpsertFiles(context.Background(), tx.Querier, "non_existent_path", "../testdata/supervisord.d/grafana.ini", "../testdata/victoriametrics/promscrape.base.yml")
+		require.NoError(t, err)
+		assert.Equal(t, want, names)
+	})
+
 	t.Run("update", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
