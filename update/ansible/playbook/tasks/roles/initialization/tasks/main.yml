@@ -57,3 +57,42 @@
   include_role:
     name: postgres
   when: is_postgres_11.stat.exists
+
+- name: Create grafana database in postgres
+  postgresql_db:
+    name: grafana
+    state: present
+
+- name: Create grafana user in postgres
+  postgresql_user:
+    db: grafana
+    name: grafana
+    password: grafana
+    priv: 'ALL'
+    expires: infinity
+    state: present
+  when: not ansible_check_mode
+
+- name: Run SQLite -> Postgres only for docker upgrade
+  block:
+    - name: Check that the SQLite grafana database exists
+      stat:
+        path: /srv/grafana/grafana.db
+      register: is_database_sqlite
+
+    - name: Migrate Grafana database from SQLite to Postgresql
+      include_role:
+        name: sqlite-to-postgres
+      when: is_database_sqlite.stat.exists
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+  when: ui_upgrade is defined
+
+- name: Fix grafana fields type
+  postgresql_query:
+    db: grafana
+    query: "{{ item }}"
+  loop:
+    - ALTER TABLE tag ALTER COLUMN key TYPE text;
+    - ALTER TABLE tag ALTER COLUMN value TYPE text;
+  when: not ansible_check_mode

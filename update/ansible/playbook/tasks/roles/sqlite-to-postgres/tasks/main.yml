@@ -24,7 +24,7 @@
     dest: /etc/grafana/grafana.ini
     section: database
     option: type
-    value: localhost
+    value: postgres
 
 - name: Set database host
   ini_file:
@@ -97,7 +97,7 @@
   command: grafana-db-migrator --fix-folders-id /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
-
+    
 - name: Create backup for SQLite Grafana database
   copy:
     src: /srv/grafana/grafana.db

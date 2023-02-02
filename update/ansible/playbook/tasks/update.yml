@@ -113,24 +113,11 @@
       wait_for:
         path: /var/run/postgresql/.s.PGSQL.5432
 
-    - name: Create grafana database in postgres
-      postgresql_db:
-        name: grafana
-        state: present
-
-    - name: Create grafana user in postgres
-      postgresql_user:
-        db: grafana
-        name: grafana
-        password: grafana
-        priv: 'ALL'
-        expires: infinity
-        state: present
-      when: not ansible_check_mode
-
     - name: Run initialization playbook
       include_role:
         name: initialization
+      vars:
+        ui_upgrade: True
 
     - name: Enable crond service
       when: not is_docker
@@ -334,15 +321,6 @@
       when: is_database_sqlite.stat.exists
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-
-    - name: Fix grafana fields type
-      postgresql_query:
-        db: grafana
-        query: "{{ item }}"
-      loop:
-        - ALTER TABLE tag ALTER COLUMN key TYPE text;
-        - ALTER TABLE tag ALTER COLUMN value TYPE text;
-      when: not ansible_check_mode
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
