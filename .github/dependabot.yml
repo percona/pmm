@@ -4,26 +4,29 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+
   - package-ecosystem: "gomod"
     directory: "/tools"
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+      interval: "daily"
 
-
-  - package-ecosystem: "gomod"
-    directory: "/managed/tools"
-    schedule:
-      interval: "weekly"
   - package-ecosystem: "gomod"
     directory: "/api-tests/tools"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+
   - package-ecosystem: "docker"
-    directory: "/managed"
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "npm"
+    directory: "/cli-tests"
+    schedule:
+      interval: "daily"

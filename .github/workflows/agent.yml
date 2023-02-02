@@ -11,9 +11,10 @@ on:
   pull_request:
     paths-ignore:
       - "admin/**"
+      - "api-tests/**"
       - "cli-tests/**"
-      - "managed/**"
       - "docs/**"
+      - "managed/**"
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
