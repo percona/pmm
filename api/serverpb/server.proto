@@ -306,45 +306,16 @@ message GetFileResponse {
   bytes content = 2;
 }
 
-message InsertFileRequest {
-  string name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  bytes content = 2 [
-    (validator.field) = {
-      length_gt: 0
-    }
-  ];
-}
-
 message UpdateFileRequest {
-  string old_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  string new_name = 2;
-  bytes content = 3;
-}
-
-message DeleteFileRequest {
   string name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  bytes content = 2;
 }
 
-message ListFilesResponse {
-  repeated string names = 1;
-}
-
-message InsertFileResponse {}
 message UpdateFileResponse {}
-message DeleteFileResponse {}
-message ListFilesRequest {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -446,39 +417,6 @@ service Server {
       description: "Checks AWS EC2 instance ID."
     };
   }
-  // InsertFile inserts a file.
-  rpc InsertFile(InsertFileRequest) returns (InsertFileResponse) {
-    option (google.api.http) = {
-      post: "/v1/File/Insert"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Insert File"
-      description: "Inserts a File."
-    };
-  }
-  // UpdateFile updates an existing file.
-  rpc UpdateFile(UpdateFileRequest) returns (UpdateFileResponse) {
-    option (google.api.http) = {
-      post: "/v1/File/Update"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Update File"
-      description: "Updates an existing File."
-    };
-  }
-  // DeleteFile deletes a file.
-  rpc DeleteFile(DeleteFileRequest) returns (DeleteFileResponse) {
-    option (google.api.http) = {
-      post: "/v1/File/Delete"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Delete File"
-      description: "Deletes a File."
-    };
-  }
   // GetFile retrieves a single file.
   rpc GetFile(GetFileRequest) returns (GetFileResponse) {
     option (google.api.http) = {
@@ -490,15 +428,15 @@ service Server {
       description: "Retrieves a File by Name."
     };
   }
-  // ListFiles retrieves a files.
-  rpc ListFiles(ListFilesRequest) returns (ListFilesResponse) {
+  // UpdateFile updates an existing file.
+  rpc UpdateFile(UpdateFileRequest) returns (UpdateFileResponse) {
     option (google.api.http) = {
-      post: "/v1/File/List"
-      body: "*"      
+      post: "/v1/File/Update"
+      body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Files"
-      description: "Lists Files."
+      summary: "Update File"
+      description: "Updates an existing File."
     };
   }
 }

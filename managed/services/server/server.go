@@ -870,39 +870,6 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 	return &serverpb.AWSInstanceCheckResponse{}, nil
 }
 
-// InsertFile inserts a new File.
-func (s *Server) InsertFile(_ context.Context, req *serverpb.InsertFileRequest) (*serverpb.InsertFileResponse, error) {
-	fp := models.InsertFileParams{Name: req.Name, Content: req.Content}
-	if err := fp.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
-	}
-	if _, err := models.InsertFile(s.db.Querier, fp); err != nil {
-		return nil, err
-	}
-	return &serverpb.InsertFileResponse{}, nil
-}
-
-// UpdateFile updates a File.
-func (s *Server) UpdateFile(ctx context.Context, req *serverpb.UpdateFileRequest) (_ *serverpb.UpdateFileResponse, err error) {
-	fp := models.UpdateFileParams{OldName: req.OldName, NewName: req.NewName, Content: req.Content}
-	if err := fp.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
-	}
-	if _, err = models.UpdateFile(ctx, s.db, fp); errors.Is(err, models.ErrFileNotFound) {
-		return nil, status.Errorf(codes.NotFound, err.Error())
-	}
-	return &serverpb.UpdateFileResponse{}, err
-}
-
-// DeleteFile deletes a File.
-func (s *Server) DeleteFile(_ context.Context, req *serverpb.DeleteFileRequest) (_ *serverpb.DeleteFileResponse, err error) {
-	if err = models.DeleteFile(s.db.Querier, req.Name); errors.Is(err, models.ErrFileNotFound) {
-		return nil, status.Errorf(codes.NotFound, err.Error())
-	}
-
-	return &serverpb.DeleteFileResponse{}, err
-}
-
 // GetFile retrieves a File.
 func (s *Server) GetFile(_ context.Context, req *serverpb.GetFileRequest) (_ *serverpb.GetFileResponse, err error) {
 	var file models.File
@@ -912,26 +879,16 @@ func (s *Server) GetFile(_ context.Context, req *serverpb.GetFileRequest) (_ *se
 	return &serverpb.GetFileResponse{Name: file.Name, Content: file.Content}, err
 }
 
-// ErrInvalidFileData is returned when a row cannot be asserted to file.
-var ErrInvalidFileData = errors.New("File data invalid")
-
-// ListFiles lists all Files.
-func (s *Server) ListFiles(_ context.Context, _ *serverpb.ListFilesRequest) (*serverpb.ListFilesResponse, error) {
-	rows, err := s.db.SelectAllFrom(models.FileTable, "")
-	if err != nil {
-		return nil, err
+// UpdateFile updates a File.
+func (s *Server) UpdateFile(ctx context.Context, req *serverpb.UpdateFileRequest) (_ *serverpb.UpdateFileResponse, err error) {
+	fp := models.UpdateFileParams{Name: req.Name, Content: req.Content}
+	if err := fp.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
-
-	res := &serverpb.ListFilesResponse{Names: make([]string, 0, len(rows))}
-	for _, row := range rows {
-		file, ok := row.(*models.File)
-		if !ok {
-			return nil, errors.Wrap(ErrInvalidFileData, "invalid data in files table")
-		}
-		res.Names = append(res.Names, file.Name)
+	if _, err = models.UpdateFile(ctx, s.db, fp); errors.Is(err, models.ErrFileNotFound) {
+		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
-
-	return res, nil
+	return &serverpb.UpdateFileResponse{}, err
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,

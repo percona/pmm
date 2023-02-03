@@ -285,6 +285,63 @@ func TestServer(t *testing.T) {
 	})
 }
 
+func TestServerFileEndpoints(t *testing.T) {
+	t.Parallel()
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	setupSever := func(t *testing.T) *Server {
+		s, err := NewServer(&Params{DB: db})
+		require.NoError(t, err)
+		return s
+	}
+
+	t.Run("Get File", func(t *testing.T) {
+		s := setupSever(t)
+		t.Cleanup(func() {
+			require.NoError(t, models.DeleteFile(db.Querier, t.Name()))
+		})
+
+		// inputs validation out of test scope
+		file, err := models.InsertFile(db.Querier, models.InsertFileParams{Name: t.Name(), Content: []byte("test")})
+		require.NoError(t, err)
+
+		want := serverpb.GetFileResponse{Name: file.Name, Content: file.Content}
+		actual, err := s.GetFile(context.TODO(), &serverpb.GetFileRequest{Name: want.Name})
+		require.NoError(t, err)
+
+		require.Equal(t, want.Name, actual.Name)
+		require.Equal(t, want.Content, actual.Content)
+	})
+
+	t.Run("Update File", func(t *testing.T) {
+		s := setupSever(t)
+		t.Cleanup(func() {
+			require.NoError(t, models.DeleteFile(db.Querier, t.Name()))
+		})
+
+		// inputs validation out of test scope
+		file, err := models.InsertFile(db.Querier, models.InsertFileParams{Name: t.Name(), Content: []byte("test")})
+		require.NoError(t, err)
+
+		file.Content = []byte("updated-by-test")
+		_, err = s.UpdateFile(context.TODO(), &serverpb.UpdateFileRequest{Name: file.Name, Content: file.Content})
+		require.NoError(t, err)
+
+		want := serverpb.GetFileResponse{Name: file.Name, Content: file.Content}
+		actual, err := s.GetFile(context.TODO(), &serverpb.GetFileRequest{Name: file.Name})
+		require.NoError(t, err)
+
+		require.Equal(t, want.Name, actual.Name)
+		require.Equal(t, want.Content, actual.Content)
+	})
+}
+
 func TestServer_TestEmailAlertingSettings(t *testing.T) {
 	t.Parallel()
 

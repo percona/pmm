@@ -121,11 +121,8 @@ UpdateFileBody update file body
 swagger:model UpdateFileBody
 */
 type UpdateFileBody struct {
-	// old name
-	OldName string `json:"old_name,omitempty"`
-
-	// new name
-	NewName string `json:"new_name,omitempty"`
+	// name
+	Name string `json:"name,omitempty"`
 
 	// content
 	// Format: byte
