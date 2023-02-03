@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -50,7 +51,10 @@ func TestNodeService(t *testing.T) {
 
 			require.NoError(t, sqlDB.Close())
 		}
-		s = NewNodeService(db)
+		var apiKeyProvider mockApiKeyProvider
+		apiKeyProvider.Test(t)
+		apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+		s = NewNodeService(db, &apiKeyProvider)
 
 		return
 	}
@@ -78,6 +82,7 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
 				},
+				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
 			assert.NoError(t, err)
@@ -111,6 +116,7 @@ func TestNodeService(t *testing.T) {
 						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
+					Token: "test-token",
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
@@ -135,6 +141,7 @@ func TestNodeService(t *testing.T) {
 						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
+					Token: "test-token",
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
