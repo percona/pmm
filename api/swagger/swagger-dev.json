@@ -24663,6 +24663,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "token": {
+                  "description": "Token represents token for vmagent auth config.",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
