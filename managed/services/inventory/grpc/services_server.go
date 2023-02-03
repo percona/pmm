@@ -18,6 +18,9 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/AlekSi/pointer"
 
@@ -27,14 +30,18 @@ import (
 )
 
 type servicesServer struct {
-	s *inventory.ServicesService
+	s            *inventory.ServicesService
+	mgmtServices inventory.MgmtServices
 
 	inventorypb.UnimplementedServicesServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer {
-	return &servicesServer{s: s}
+func NewServicesServer(s *inventory.ServicesService, mgmtServices inventory.MgmtServices) inventorypb.ServicesServer {
+	return &servicesServer{
+		s:            s,
+		mgmtServices: mgmtServices,
+	}
 }
 
 var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
@@ -281,11 +288,26 @@ func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryp
 
 // ChangeService changes service configuration.
 func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
-	return s.s.ChangeService(ctx, &models.ChangeStandardLabelsParams{
+	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
 		ServiceID:      req.ServiceId,
 		Cluster:        req.Cluster,
 		Environment:    req.Environment,
 		ReplicationSet: req.ReplicationSet,
 		ExternalGroup:  req.ExternalGroup,
 	})
+
+	if err != nil {
+		return nil, toAPIError(err)
+	}
+
+	return &inventorypb.ChangeServiceResponse{}, nil
+}
+
+func toAPIError(err error) error {
+	switch {
+	case errors.Is(err, inventory.ErrClusterBlocked):
+		return status.Error(codes.FailedPrecondition, err.Error())
+	default:
+		return err
+	}
 }

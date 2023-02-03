@@ -434,7 +434,11 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 }
 
 // ChangeService changes service configuration.
-func (ss *ServicesService) ChangeService(ctx context.Context, params *models.ChangeStandardLabelsParams) (*inventorypb.ChangeServiceResponse, error) {
+func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices MgmtServices, params *models.ChangeStandardLabelsParams) error {
+	if err := removeScheduledTasks(ctx, ss.db, mgmtServices, params); err != nil {
+		return err
+	}
+
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
 			Cluster:        params.Cluster,
@@ -449,14 +453,14 @@ func (ss *ServicesService) ChangeService(ctx context.Context, params *models.Cha
 		return nil
 	})
 	if errTx != nil {
-		return nil, errTx
+		return errTx
 	}
 
 	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &inventorypb.ChangeServiceResponse{}, nil
+	return nil
 }
 
 func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {
