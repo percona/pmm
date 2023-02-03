@@ -28,11 +28,7 @@ import (
 
 // InsertFile inserts file.
 func InsertFile(q *reform.Querier, fp InsertFileParams) (File, error) {
-	file := File{
-		Name:    fp.Name,
-		Content: fp.Content,
-	}
-
+	file := File{Name: fp.Name, Content: fp.Content}
 	err := q.Insert(&file)
 	return file, err
 }
@@ -58,17 +54,13 @@ func GetFile(q *reform.Querier, name string) (file File, err error) {
 	return
 }
 
-// ReadAndUpsertFiles reads files from provided paths and returns file names in given order. Empty name on not found.
+// ReadAndUpsertFiles reads files from provided paths and returns file names in given order. Inserts empty content on not found.
 func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string) ([]string, error) {
 	names := make([]string, 0, len(paths))
 	for _, path := range paths {
 		content, err := os.ReadFile(path) //nolint:gosec
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
-			}
-			names = append(names, "")
-			continue
+		if err != nil && !os.IsNotExist(err) {
+			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
 		}
 
 		fp := InsertFileParams{Name: filepath.Base(path), Content: content}
@@ -87,34 +79,30 @@ func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string)
 
 // findAndLockFile retrieves a file by name and locks it for update.
 func findAndLockFile(q *reform.Querier, name string) (file File, err error) {
-	const query = `WHERE name = $1 FOR UPDATE`
+	const query = `WHERE name = $1 FOR NO KEY UPDATE`
 	if err = q.SelectOneTo(&file, query, name); err != nil && errors.As(err, reform.ErrNoRows) {
 		return file, ErrFileNotFound
 	}
 	return
 }
 
-// UpdateFile updates file with given params.
+// UpdateFile updates file with given content.
 func UpdateFile(ctx context.Context, db reform.DBTXContext, fp UpdateFileParams) (file File, err error) {
 	const query = `
 UPDATE files
-SET name = $1, content = $2
-WHERE name = $3
+SET content = $1
+WHERE name = $2
 `
 	updateFile := func(t *reform.TX) (txErr error) {
-		if file, txErr = findAndLockFile(t.Querier, fp.OldName); txErr != nil {
+		if file, txErr = findAndLockFile(t.Querier, fp.Name); txErr != nil {
 			return
 		}
 
-		if len(fp.NewName) != 0 && fp.NewName != file.Name {
-			file.Name = fp.NewName
-		}
-
-		if len(fp.Content) != 0 && bytes.Compare(fp.Content, file.Content) != 0 {
+		if bytes.Compare(fp.Content, file.Content) != 0 {
 			file.Content = fp.Content
 		}
 
-		if _, txErr = t.Querier.Exec(query, &file.Name, &file.Content, &fp.OldName); txErr != nil {
+		if _, txErr = t.Querier.Exec(query, &file.Content, &file.Name); txErr != nil {
 			txErr = errors.Wrap(txErr, "failed to update file")
 		}
 		return

@@ -20,7 +20,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -31,7 +30,7 @@ import (
 )
 
 func TestFile(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(78))
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()
@@ -42,7 +41,11 @@ func TestFile(t *testing.T) {
 		want.Content, err = os.ReadFile("../testdata/victoriametrics/promscrape.base.yml")
 		require.NoError(t, err)
 
-		actual, err := models.InsertFile(q, models.InsertFileParams{Name: want.Name, Content: want.Content})
+		fp := models.InsertFileParams{Name: want.Name, Content: want.Content}
+		err = fp.Validate()
+		require.NoError(t, err)
+
+		actual, err := models.InsertFile(q, fp)
 		require.NoError(t, err)
 		assert.Equal(t, actual, want)
 		return actual
@@ -71,7 +74,11 @@ func TestFile(t *testing.T) {
 		want.Content, err = os.ReadFile("../testdata/supervisord.d/grafana.ini")
 		require.NoError(t, err)
 
-		updated, err := models.UpsertFile(context.Background(), tx.Querier, models.InsertFileParams{Name: old.Name, Content: want.Content})
+		fp := models.InsertFileParams{Name: old.Name, Content: want.Content}
+		err = fp.Validate()
+		require.NoError(t, err)
+
+		updated, err := models.UpsertFile(context.Background(), tx.Querier, fp)
 		require.NoError(t, err)
 		assert.Equal(t, want, updated)
 	})
@@ -83,8 +90,8 @@ func TestFile(t *testing.T) {
 			require.NoError(t, tx.Rollback())
 		})
 
-		want := []string{"", "grafana.ini", "promscrape.base.yml"}
-		names, err := models.ReadAndUpsertFiles(context.Background(), tx.Querier, "non_existent_path", "../testdata/supervisord.d/grafana.ini", "../testdata/victoriametrics/promscrape.base.yml")
+		want := []string{"non-existent-path", "grafana.ini", "promscrape.base.yml"}
+		names, err := models.ReadAndUpsertFiles(context.Background(), tx.Querier, "non-existent-path", "../testdata/supervisord.d/grafana.ini", "../testdata/victoriametrics/promscrape.base.yml")
 		require.NoError(t, err)
 		assert.Equal(t, want, names)
 	})
@@ -98,11 +105,15 @@ func TestFile(t *testing.T) {
 
 		q := tx.Querier
 		old := insertVMFile(q)
-		want := models.File{Name: "new_test"}
+		want := models.File{Name: old.Name}
 		want.Content, err = os.ReadFile("../testdata/supervisord.d/grafana.ini")
 		require.NoError(t, err)
 
-		updated, err := models.UpdateFile(context.Background(), tx, models.UpdateFileParams{OldName: old.Name, NewName: want.Name, Content: want.Content})
+		fp := models.UpdateFileParams{Name: old.Name, Content: want.Content}
+		err = fp.Validate()
+		require.NoError(t, err)
+
+		updated, err := models.UpdateFile(context.Background(), tx, fp)
 		require.NoError(t, err)
 		assert.Equal(t, want, updated)
 	})

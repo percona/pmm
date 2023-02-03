@@ -58,30 +58,19 @@ func (p *InsertFileParams) Validate() error {
 	if err := checkFileName(p.Name); err != nil {
 		return err
 	}
-
-	if len(p.Content) < 1 {
-		return errors.New("empty file content")
-	}
 	return nil
 }
 
 // UpdateFileParams represent update file params.
 type UpdateFileParams struct {
-	OldName string
-	NewName string
+	Name    string
 	Content []byte
 }
 
 // Validate validates params.
 func (p *UpdateFileParams) Validate() error {
-	if len(p.OldName) == 0 {
-		return errors.New("empty file name to update")
-	}
-	if len(p.Content) == 0 && len(p.NewName) == 0 {
-		return errors.New("empty file update body")
-	}
-	if err := checkFileName(p.NewName); len(p.NewName) != 0 && err != nil {
-		return err
+	if len(p.Name) == 0 {
+		return errors.New("empty name for file to update")
 	}
 	return nil
 }
