@@ -1,0 +1,22 @@
+---
+operators:
+  psmdb:
+    name: percona-server-mongodb-operator 
+    catalog: percona-dbaas-catalog
+    channel: stable-v1
+    auto-install-on-registration: true
+  pxc:
+    name: percona-xtradb-cluster-operator
+    catalog: percona-dbaas-catalog
+    channel: stable-v1
+    auto-install-on-registration: true
+  victoria-metrics:
+    name: victoriametrics-operator
+    catalog: percona-dbaas-catalog
+    channel: stable-v0
+    auto-install-on-registration: true
+  dbaas:
+    name: dbaas-operator
+    catalog: percona-dbaas-catalog
+    channel: stable-v0
+    auto-install-on-registration: true

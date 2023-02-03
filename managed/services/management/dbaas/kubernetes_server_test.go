@@ -17,6 +17,7 @@ package dbaas
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -478,4 +479,39 @@ func TestUseIAMAuthenticator(t *testing.T) {
 			assert.Equalf(t, tt.expectedTransform, value, "Given and expected kubeconfigs don't match in the test case number %d.", i)
 		})
 	}
+}
+
+func TestGetOperatorConfigs(t *testing.T) {
+	data := `---
+operators:
+  psmdb:
+    name: percona-server-mongodb-operator 
+    catalog: percona-dbaas-catalog
+    channel: stable-v79014
+    auto-install-on-registration: true
+  pxc:
+    name: percona-xtradb-cluster-operator
+    catalog: percona-dbaas-catalog
+    channel: stable-v79015
+    auto-install-on-registration: true
+  dbaas:
+    name: dbaas-operator
+    catalog: percona-dbaas-catalog
+    channel: stable-v79016
+    auto-install-on-registration: true`
+
+	f, err := os.CreateTemp("", "test-olm-operator-config.*.yaml")
+	require.NoError(t, err)
+	defer os.Remove(f.Name())
+
+	_, err = f.Write([]byte(data))
+	assert.NoError(t, err)
+
+	t.Setenv("PMM_OLM_OPERATORS_CONFIG", f.Name())
+
+	cfg, err := getOperatorConfigs()
+	assert.NoError(t, err)
+
+	assert.Equal(t, 3, len(cfg.Operators))
+	assert.Equal(t, "stable-v79015", cfg.Operators["pxc"].Channel)
 }

@@ -25,3 +25,6 @@ var IATemplates embed.FS
 
 //go:embed crds/*
 var OLMCRDs embed.FS
+
+//go:embed configs/*
+var OLMConfigs embed.FS
