@@ -27,9 +27,6 @@ import (
 
 // Regular expressions to match important lines in slow log.
 var (
-	isNewTime = func(s string) bool {
-		return strings.Contains(s, "-")
-	}
 	timeRe    = regexp.MustCompile(`Time: (\S+\s{1,2}\S+)`)
 	timeNewRe = regexp.MustCompile(`Time:\s+(\d{4}-\d{2}-\d{2}\S+)`)
 	userRe    = regexp.MustCompile(`User@Host: ([^\[]+|\[[^[]+\]).*?@ (\S*) \[(.*)\]`)
@@ -37,10 +34,9 @@ var (
 	isHeader  = func(s string) bool {
 		return len(s) > 1 && s[0:2] == "# "
 	}
-	metricsRe = regexp.MustCompile(`(\w+): (\S+|\z)`)
-	adminRe   = regexp.MustCompile(`command: (.+)`)
-	setRe     = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
-	useRe     = regexp.MustCompile(`^(?i)use `)
+	adminRe = regexp.MustCompile(`command: (.+)`)
+	setRe   = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
+	useRe   = regexp.MustCompile(`^(?i)use `)
 )
 
 // A SlowLogParser parses a MySQL slow log.
