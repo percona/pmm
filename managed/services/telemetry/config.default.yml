@@ -225,6 +225,22 @@ telemetry:
       - metric_name: "mongodb_storage_engine_type"
         label: engine
 
+  - id: MongoDBIsEncryptionAtRestEnabled
+    source: VM
+    query: (group(mongodb_up) by (service_name)) * on(service_name) group_left(service_name) mongodb_security_encryption_enabled OR (group(mongodb_up) by (service_name)) - 1
+    summary: "Returns 1 if encryption at rest is enabled on the mongo instance, otherwise returns 0"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_enabled"
+        value: 1
+
+  - id: MongoDBEncryptionType
+    source: VM
+    query: mongodb_security_encryption_enabled
+    summary: "Returns the type of how encryption at rest was enabled (using local file, kmip or vault)"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_type"
+        label: type
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
@@ -343,7 +359,7 @@ telemetry:
   # Nodes information - v2
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
-    query: version, agent_type, runs_on_node_id FROM agents
+    query: a.version, a.agent_type, COALESCE(a.runs_on_node_id, aa.runs_on_node_id) AS runs_on_node_id FROM agents a LEFT JOIN agents aa ON a.pmm_agent_id = aa.agent_id
     summary: "Agents version"
     transform:
       type: JSON
