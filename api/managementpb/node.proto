@@ -54,6 +54,8 @@ message RegisterNodeResponse {
   inventory.GenericNode generic_node = 1;
   inventory.ContainerNode container_node = 2;
   inventory.PMMAgent pmm_agent = 3;
+  // Token represents token for vmagent auth config.
+  string token = 4;
 }
 
 // Node service provides public Management API methods for Nodes.
