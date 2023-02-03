@@ -78,7 +78,7 @@ func (p *UpdateFileParams) Validate() error {
 		return errors.New("empty file name to update")
 	}
 	if len(p.Content) == 0 && len(p.NewName) == 0 {
-		errors.New("empty file update body")
+		return errors.New("empty file update body")
 	}
 	if err := checkFileName(p.NewName); len(p.NewName) != 0 && err != nil {
 		return err

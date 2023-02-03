@@ -37,7 +37,7 @@ func InsertFile(q *reform.Querier, fp InsertFileParams) (File, error) {
 	return file, err
 }
 
-// UpsertFile inserts file and updates content on path duplicate.
+// UpsertFile inserts file and updates content on name duplicate.
 func UpsertFile(ctx context.Context, q *reform.Querier, fp InsertFileParams) (File, error) {
 	const query = `
 INSERT INTO files(name, content) 
