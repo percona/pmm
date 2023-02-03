@@ -39,6 +39,7 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) {
 	k.clients[name] = kubeClient
 	return kubeClient, nil
 }
+
 func (k *KubeStorage) DeleteClient(name string) error {
 	k.mu.Lock()
 	defer k.mu.Unlock()

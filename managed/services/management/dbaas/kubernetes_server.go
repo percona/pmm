@@ -61,31 +61,29 @@ var (
 )
 
 type kubernetesServer struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	dbaasClient      dbaasClient
-	kubernetesClient kubernetesClient
-	versionService   versionService
-	grafanaClient    grafanaClient
-	kubeStorage      *KubeStorage
+	l              *logrus.Entry
+	db             *reform.DB
+	dbaasClient    dbaasClient
+	versionService versionService
+	grafanaClient  grafanaClient
+	kubeStorage    *KubeStorage
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
 func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient,
-	kubernetesClient kubernetesClient, versionService versionService,
+	versionService versionService,
 	grafanaClient grafanaClient,
 ) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:                l,
-		db:               db,
-		dbaasClient:      dbaasClient,
-		kubernetesClient: kubernetesClient,
-		versionService:   versionService,
-		grafanaClient:    grafanaClient,
-		kubeStorage:      NewKubeStorage(db),
+		l:              l,
+		db:             db,
+		dbaasClient:    dbaasClient,
+		versionService: versionService,
+		grafanaClient:  grafanaClient,
+		kubeStorage:    NewKubeStorage(db),
 	}
 }
 
@@ -589,6 +587,10 @@ func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kube
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return err
+		}
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
@@ -604,13 +606,11 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
 		if req.Force {
+
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		if err := k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-			return errors.Wrap(err, "failed to create kubernetes client")
-		}
-		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
+		out, err := kubeClient.ListDatabaseClusters(ctx)
 
 		switch {
 		case err != nil && accessError(err):
@@ -677,40 +677,35 @@ func accessError(err error) bool {
 
 // GetResources returns all and available resources of a Kubernetes cluster.
 func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.GetResourcesRequest) (*dbaasv1beta1.GetResourcesResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
-	if err != nil {
-		return nil, err
-	}
-
-	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get cluster type
-	clusterType, err := k.kubernetesClient.GetClusterType(ctx)
+	clusterType, err := kubeClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var volumes *corev1.PersistentVolumeList
 	if clusterType == kubernetes.ClusterTypeEKS {
-		volumes, err = k.kubernetesClient.GetPersistentVolumes(ctx)
+		volumes, err = kubeClient.GetPersistentVolumes(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
-	allCPUMillis, allMemoryBytes, allDiskBytes, err := k.kubernetesClient.GetAllClusterResources(ctx, clusterType, volumes)
+	allCPUMillis, allMemoryBytes, allDiskBytes, err := kubeClient.GetAllClusterResources(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}
 
-	consumedCPUMillis, consumedMemoryBytes, err := k.kubernetesClient.GetConsumedCPUAndMemory(ctx, "")
+	consumedCPUMillis, consumedMemoryBytes, err := kubeClient.GetConsumedCPUAndMemory(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
-	consumedDiskBytes, err := k.kubernetesClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
+	consumedDiskBytes, err := kubeClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}
@@ -747,17 +742,12 @@ func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.Ge
 
 // ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
 func (k kubernetesServer) ListStorageClasses(ctx context.Context, req *dbaasv1beta1.ListStorageClassesRequest) (*dbaasv1beta1.ListStorageClassesResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	storageClasses, err := k.kubernetesClient.GetStorageClasses(ctx)
+	storageClasses, err := kubeClient.GetStorageClasses(ctx)
 	if err != nil {
 		return nil, err
 	}
