@@ -218,9 +218,6 @@ func (this *RemoveScheduledBackupResponse) Validate() error {
 }
 
 func (this *GetLogsRequest) Validate() error {
-	if this.ArtifactId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ArtifactId", fmt.Errorf(`value '%v' must not be an empty string`, this.ArtifactId))
-	}
 	return nil
 }
 
