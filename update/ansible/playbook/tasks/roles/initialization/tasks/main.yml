@@ -87,3 +87,22 @@
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
   when: ui_upgrade is defined
+
+- name: Check if initial Grafana data were created
+  postgresql_query:
+    db: grafana
+    query: SELECT 1 FROM tag WHERE id=1
+  retries: 3
+  delay: 3
+  register: psql_result
+  until: psql_result.rowcount == 1
+  when: not ansible_check_mode
+
+- name: Fix grafana fields type
+  postgresql_query:
+    db: grafana
+    query: "{{ item }}"
+  loop:
+    - ALTER TABLE tag ALTER COLUMN key TYPE text;
+    - ALTER TABLE tag ALTER COLUMN value TYPE text;
+  when: not ansible_check_mode
