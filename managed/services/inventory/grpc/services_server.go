@@ -18,11 +18,11 @@ package grpc
 import (
 	"context"
 	"fmt"
+
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
@@ -295,7 +295,6 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.Cha
 		ReplicationSet: req.ReplicationSet,
 		ExternalGroup:  req.ExternalGroup,
 	})
-
 	if err != nil {
 		return nil, toAPIError(err)
 	}
