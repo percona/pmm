@@ -329,6 +329,8 @@
       loop:
         - ALTER TABLE tag ALTER COLUMN key TYPE text;
         - ALTER TABLE tag ALTER COLUMN value TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
       when: not ansible_check_mode
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
