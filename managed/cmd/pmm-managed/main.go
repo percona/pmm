@@ -260,7 +260,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, inventory.MgmtServices{mgmtBackupsService, mgmtArtifactsService, mgmtRestoreHistoryService}))
+	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, management.MgmtServices{mgmtBackupsService, mgmtArtifactsService, mgmtRestoreHistoryService}))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db)

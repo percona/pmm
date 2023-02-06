@@ -23,20 +23,14 @@ import (
 
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
-	managementbackup "github.com/percona/pmm/managed/services/management/backup"
+	"github.com/percona/pmm/managed/services/management"
 )
 
 // ErrClusterBlocked is returned when there is a not finished job that doesn't allow to change service cluster name.
 var ErrClusterBlocked = errors.New("cluster/service is blocked")
 
-type MgmtServices struct {
-	BackupsService        *managementbackup.BackupsService
-	ArtifactsService      *managementbackup.ArtifactsService
-	RestoreHistoryService *managementbackup.RestoreHistoryService
-}
-
 // removeScheduledTasks removes scheduled backup tasks and check there are no running backup/restore tasks in case user changes service cluster label.
-func removeScheduledTasks(ctx context.Context, db *reform.DB, mgmtServices MgmtServices, params *models.ChangeStandardLabelsParams) error {
+func removeScheduledTasks(ctx context.Context, db *reform.DB, mgmtServices management.MgmtServices, params *models.ChangeStandardLabelsParams) error {
 	if params.Cluster == nil {
 		return nil
 	}

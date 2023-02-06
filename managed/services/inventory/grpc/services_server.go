@@ -27,17 +27,18 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
+	"github.com/percona/pmm/managed/services/management"
 )
 
 type servicesServer struct {
 	s            *inventory.ServicesService
-	mgmtServices inventory.MgmtServices
+	mgmtServices management.MgmtServices
 
 	inventorypb.UnimplementedServicesServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService, mgmtServices inventory.MgmtServices) inventorypb.ServicesServer {
+func NewServicesServer(s *inventory.ServicesService, mgmtServices management.MgmtServices) inventorypb.ServicesServer {
 	return &servicesServer{
 		s:            s,
 		mgmtServices: mgmtServices,

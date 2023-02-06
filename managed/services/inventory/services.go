@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management"
 )
 
 // ServicesService works with inventory API Services.
@@ -434,7 +435,7 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 }
 
 // ChangeService changes service configuration.
-func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices MgmtServices, params *models.ChangeStandardLabelsParams) error {
+func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices management.MgmtServices, params *models.ChangeStandardLabelsParams) error {
 	if err := removeScheduledTasks(ctx, ss.db, mgmtServices, params); err != nil {
 		return err
 	}
