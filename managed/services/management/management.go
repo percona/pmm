@@ -25,14 +25,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 )
-
-type MgmtServices struct {
-	BackupsService        *managementbackup.BackupsService
-	ArtifactsService      *managementbackup.ArtifactsService
-	RestoreHistoryService *managementbackup.RestoreHistoryService
-}
 
 func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.AddNodeParams, address string) (string, error) {
 	if err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams); err != nil {

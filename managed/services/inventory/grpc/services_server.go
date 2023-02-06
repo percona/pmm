@@ -27,18 +27,18 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
-	"github.com/percona/pmm/managed/services/management"
+	"github.com/percona/pmm/managed/services/management/common"
 )
 
 type servicesServer struct {
 	s            *inventory.ServicesService
-	mgmtServices management.MgmtServices
+	mgmtServices common.MgmtServices
 
 	inventorypb.UnimplementedServicesServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService, mgmtServices management.MgmtServices) inventorypb.ServicesServer {
+func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventorypb.ServicesServer {
 	return &servicesServer{
 		s:            s,
 		mgmtServices: mgmtServices,
@@ -303,9 +303,10 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.Cha
 	return &inventorypb.ChangeServiceResponse{}, nil
 }
 
+// toAPIError converts GO errors into API-level errors.
 func toAPIError(err error) error {
 	switch {
-	case errors.Is(err, inventory.ErrClusterBlocked):
+	case errors.Is(err, common.ErrClusterBlocked):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	default:
 		return err
