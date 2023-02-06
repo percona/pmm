@@ -14,7 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package common contains common and cross-service logics.
-
 package common
 
 import (
