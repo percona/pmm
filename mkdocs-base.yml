@@ -91,10 +91,10 @@ plugins:
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
     output_path: '_pdf/PerconaMonitoringAndManagement-2.34.0.pdf'
-    cover_title: 'Documentation'
+    cover_title: 'Percona Monitoring and Management Documentation'
     cover_subtitle: 2.34.0 (Jan 30, 2023)
     author: "Percona Technical Documentation Team"
-    cover_logo: docs/_images/PMM_Logo.svg
+    cover_logo: docs/_images/Percona_Logo_Color.png
     custom_template_path: _resources/templates
     enabled_if_env: ENABLE_PDF_EXPORT
   # Check links - but extends build time significantly
