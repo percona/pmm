@@ -171,6 +171,12 @@
                   "description": "name represent file name with extension.",
                   "type": "string",
                   "x-order": 0
+                },
+                "updated_at": {
+                  "description": "updated_at represent file modification timestamp.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
                 }
               }
             }

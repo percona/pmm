@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
@@ -28,8 +29,9 @@ import (
 //
 //reform:files
 type File struct {
-	Name    string `reform:"name,pk"`
-	Content []byte `reform:"content"`
+	Name      string    `reform:"name,pk"`
+	Content   []byte    `reform:"content"`
+	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // ErrFileNotFound is returned when a file is not found.

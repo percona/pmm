@@ -304,6 +304,8 @@ message GetFileResponse {
   string name = 1;
   // content represent file content.
   bytes content = 2;
+  // updated_at represent file modification timestamp.
+  google.protobuf.Timestamp updated_at = 3;
 }
 
 message UpdateFileRequest {

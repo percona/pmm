@@ -876,7 +876,7 @@ func (s *Server) GetFile(_ context.Context, req *serverpb.GetFileRequest) (_ *se
 	if file, err = models.GetFile(s.db.Querier, req.Name); errors.Is(err, models.ErrFileNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
-	return &serverpb.GetFileResponse{Name: file.Name, Content: file.Content}, err
+	return &serverpb.GetFileResponse{Name: file.Name, Content: file.Content, UpdatedAt: timestamppb.New(file.UpdatedAt)}, err
 }
 
 // UpdateFile updates a File.

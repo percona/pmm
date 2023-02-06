@@ -15,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetFileReader is a Reader for the GetFile structure.
@@ -414,10 +415,35 @@ type GetFileOKBody struct {
 	// content represent file content.
 	// Format: byte
 	Content strfmt.Base64 `json:"content,omitempty"`
+
+	// updated_at represent file modification timestamp.
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
 }
 
 // Validate validates this get file OK body
 func (o *GetFileOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetFileOKBody) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("getFileOk"+"."+"updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

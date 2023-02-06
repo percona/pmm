@@ -822,7 +822,8 @@ var databaseSchema = [][]string{
 	78: {
 		`CREATE TABLE files (
 			name VARCHAR NOT NULL CHECK (name <> '') PRIMARY KEY,
-			content BYTEA NOT NULL
+			content BYTEA NOT NULL,
+			updated_at TIMESTAMP NOT NULL
 		)`,
 	},
 }

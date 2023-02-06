@@ -19,6 +19,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,7 +38,7 @@ func TestFile(t *testing.T) {
 
 	insertVMFile := func(q *reform.Querier) models.File {
 		var err error
-		want := models.File{Name: "test"}
+		want := models.File{Name: "test", UpdatedAt: models.Now()}
 		want.Content, err = os.ReadFile("../testdata/victoriametrics/promscrape.base.yml")
 		require.NoError(t, err)
 
@@ -47,7 +48,9 @@ func TestFile(t *testing.T) {
 
 		actual, err := models.InsertFile(q, fp)
 		require.NoError(t, err)
-		assert.Equal(t, actual, want)
+		assert.Equal(t, want.Name, actual.Name)
+		assert.Equal(t, want.Content, actual.Content)
+		assert.WithinDuration(t, want.UpdatedAt, actual.UpdatedAt, 10*time.Second)
 		return actual
 	}
 
@@ -70,7 +73,7 @@ func TestFile(t *testing.T) {
 		})
 
 		old := insertVMFile(tx.Querier)
-		want := models.File{Name: old.Name}
+		want := models.File{Name: old.Name, UpdatedAt: models.Now()}
 		want.Content, err = os.ReadFile("../testdata/supervisord.d/grafana.ini")
 		require.NoError(t, err)
 
@@ -80,7 +83,9 @@ func TestFile(t *testing.T) {
 
 		updated, err := models.UpsertFile(context.Background(), tx.Querier, fp)
 		require.NoError(t, err)
-		assert.Equal(t, want, updated)
+		assert.Equal(t, want.Name, updated.Name)
+		assert.Equal(t, want.Content, updated.Content)
+		assert.WithinDuration(t, want.UpdatedAt, updated.UpdatedAt, 10*time.Second)
 	})
 
 	t.Run("read and upsert", func(t *testing.T) {
@@ -105,7 +110,7 @@ func TestFile(t *testing.T) {
 
 		q := tx.Querier
 		old := insertVMFile(q)
-		want := models.File{Name: old.Name}
+		want := models.File{Name: old.Name, UpdatedAt: models.Now()}
 		want.Content, err = os.ReadFile("../testdata/supervisord.d/grafana.ini")
 		require.NoError(t, err)
 
@@ -115,7 +120,9 @@ func TestFile(t *testing.T) {
 
 		updated, err := models.UpdateFile(context.Background(), tx, fp)
 		require.NoError(t, err)
-		assert.Equal(t, want, updated)
+		assert.Equal(t, want.Name, updated.Name)
+		assert.Equal(t, want.Content, updated.Content)
+		assert.WithinDuration(t, want.UpdatedAt, updated.UpdatedAt, 10*time.Second)
 	})
 
 	t.Run("find by name", func(t *testing.T) {
@@ -129,7 +136,9 @@ func TestFile(t *testing.T) {
 		want := insertVMFile(q)
 		actual, err := models.GetFile(q, want.Name)
 		assert.NoError(t, err)
-		assert.Equal(t, want, actual)
+		assert.Equal(t, want.Name, actual.Name)
+		assert.Equal(t, want.Content, actual.Content)
+		assert.WithinDuration(t, want.UpdatedAt, actual.UpdatedAt, 10*time.Second)
 	})
 
 	t.Run("delete", func(t *testing.T) {

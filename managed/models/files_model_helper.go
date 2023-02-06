@@ -28,21 +28,23 @@ import (
 
 // InsertFile inserts file.
 func InsertFile(q *reform.Querier, fp InsertFileParams) (File, error) {
-	file := File{Name: fp.Name, Content: fp.Content}
+	file := File{Name: fp.Name, Content: fp.Content, UpdatedAt: Now()}
 	err := q.Insert(&file)
 	return file, err
 }
 
 // UpsertFile inserts file and updates content on name duplicate.
-func UpsertFile(ctx context.Context, q *reform.Querier, fp InsertFileParams) (File, error) {
+func UpsertFile(ctx context.Context, q *reform.Querier, fp InsertFileParams) (file File, err error) {
 	const query = `
-INSERT INTO files(name, content) 
-VALUES ($1, $2)
+INSERT INTO files(name, content, updated_at) 
+VALUES ($1, $2, $3)
 ON CONFLICT (name) DO UPDATE SET
-content = EXCLUDED.content
+content = EXCLUDED.content,
+updated_at = EXCLUDED.updated_at
+RETURNING name, content, updated_at
 `
-	_, err := q.ExecContext(ctx, query, fp.Name, fp.Content)
-	return File{Name: fp.Name, Content: fp.Content}, err
+	err = q.WithContext(ctx).QueryRow(query, fp.Name, fp.Content, Now()).Scan(&file.Name, &file.Content, &file.UpdatedAt)
+	return
 }
 
 // GetFile retrieves a file by its name.
@@ -90,8 +92,10 @@ func findAndLockFile(q *reform.Querier, name string) (file File, err error) {
 func UpdateFile(ctx context.Context, db reform.DBTXContext, fp UpdateFileParams) (file File, err error) {
 	const query = `
 UPDATE files
-SET content = $1
-WHERE name = $2
+SET content = $1,
+updated_at = $2
+WHERE name = $3
+RETURNING name, content, updated_at
 `
 	updateFile := func(t *reform.TX) (txErr error) {
 		if file, txErr = findAndLockFile(t.Querier, fp.Name); txErr != nil {
@@ -102,7 +106,7 @@ WHERE name = $2
 			file.Content = fp.Content
 		}
 
-		if _, txErr = t.Querier.Exec(query, &file.Content, &file.Name); txErr != nil {
+		if txErr = t.Querier.QueryRow(query, &file.Content, Now(), &file.Name).Scan(&file.Name, &file.Content, &file.UpdatedAt); txErr != nil {
 			txErr = errors.Wrap(txErr, "failed to update file")
 		}
 		return

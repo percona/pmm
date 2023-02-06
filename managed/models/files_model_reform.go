@@ -30,6 +30,7 @@ func (v *fileTableType) Columns() []string {
 	return []string{
 		"name",
 		"content",
+		"updated_at",
 	}
 }
 
@@ -56,6 +57,7 @@ var FileTable = &fileTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "Name", Type: "string", Column: "name"},
 			{Name: "Content", Type: "[]uint8", Column: "content"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -64,9 +66,10 @@ var FileTable = &fileTableType{
 
 // String returns a string representation of this struct or record.
 func (s File) String() string {
-	res := make([]string, 2)
+	res := make([]string, 3)
 	res[0] = "Name: " + reform.Inspect(s.Name, true)
 	res[1] = "Content: " + reform.Inspect(s.Content, true)
+	res[2] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -76,6 +79,7 @@ func (s *File) Values() []interface{} {
 	return []interface{}{
 		s.Name,
 		s.Content,
+		s.UpdatedAt,
 	}
 }
 
@@ -85,6 +89,7 @@ func (s *File) Pointers() []interface{} {
 	return []interface{}{
 		&s.Name,
 		&s.Content,
+		&s.UpdatedAt,
 	}
 }
 
