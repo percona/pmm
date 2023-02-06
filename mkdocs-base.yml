@@ -12,10 +12,13 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  custom_dir: overrides
   logo: _images/percona-logo.svg
   favicon: _images/percona-favicon.ico
+  custom_dir: _resource/overrides/
+  font:
+    text: Poppins
   palette:
+
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: percona-light
@@ -47,8 +50,8 @@ extra_css:
   - css/percona.css
   - css/lightgallery.min.css
 
-extra_javascript:
-  - js/lightgallery.min.js
+#extra_javascript:
+#  - js/lightgallery.min.js
 
 markdown_extensions:
   attr_list: {}
@@ -103,9 +106,16 @@ plugins:
     javascript_dir: js
     canonical_version: null
 
-extra: # Used in main.html template and can't be externalized
-  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
-  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+extra:
+  homepage:
+    https://docs.percona.com
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
 
 # Common navigation for percona.com, render.com and PDF
 nav:
