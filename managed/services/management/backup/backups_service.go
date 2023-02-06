@@ -239,7 +239,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
-// ListScheduledBackups lists all tasks related to backup.
+// ListScheduledBackups lists all tasks related to a backup.
 func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
@@ -420,15 +420,28 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
-// GetLogs returns logs for artifact.
+// GetLogs returns logs from the underlying tools for a backup/restore job.
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
-	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
-		ArtifactID: req.ArtifactId,
+	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
 			models.MongoDBBackupJob,
+			models.MongoDBRestoreBackupJob,
 		},
-	})
+	}
+	if req.ArtifactId != "" && req.RestoreId != "" {
+		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
+	}
+
+	if req.ArtifactId != "" {
+		jobsFilter.ArtifactID = req.ArtifactId
+	} else if req.RestoreId != "" {
+		jobsFilter.RestoreID = req.RestoreId
+	} else {
+		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
+	}
+
+	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -436,11 +449,11 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
 	}
 	if len(jobs) > 1 {
-		s.l.Warnf("artifact %s appear in more than one job", req.ArtifactId)
+		s.l.Warn("provided ID appear in more than one job")
 	}
 
 	filter := models.JobLogsFilter{
-		JobID:  jobs[len(jobs)-1].ID,
+		JobID:  jobs[0].ID,
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
