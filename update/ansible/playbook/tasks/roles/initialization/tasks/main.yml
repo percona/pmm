@@ -88,10 +88,19 @@
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
   when: ui_upgrade is defined
 
+- name: Stop grafana before upgrade
+  supervisorctl:
+    name: grafana
+    state: restarted
+
+- name: wait for grafana database initiazation
+  pause:
+    seconds: 5
+
 - name: Check if initial Grafana data were created
   postgresql_query:
     db: grafana
-    query: SELECT 1 FROM org WHERE id=1
+    query: SELECT 1 FROM tag WHERE id=1
   retries: 3
   delay: 3
   register: psql_result
