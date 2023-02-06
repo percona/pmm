@@ -115,7 +115,6 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
-
 	if err != nil {
 		return nil, err
 	}
