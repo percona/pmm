@@ -107,7 +107,8 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
-	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
+	forceResync := conf.Storage.FileSystem.Path != ""
+	if err := pbmConfigure(ctx, j.l, j.dbURL, forceResync, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
@@ -136,7 +137,6 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	go func() {
 		err := j.jobLogger.streamLogs(streamCtx, send, restoreOut.Name)
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
-			j.jobLogger.sendLog(send, err.Error(), false)
 			j.l.Errorf("stream logs: %v", err)
 		}
 	}()
@@ -154,6 +154,10 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		},
 	})
 
+	select {
+	case <-ctx.Done():
+	case <-time.After(waitForLogs):
+	}
 	return nil
 }
 
