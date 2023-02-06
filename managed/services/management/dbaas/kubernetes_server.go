@@ -606,7 +606,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
 		if req.Force {
-
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
