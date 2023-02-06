@@ -322,6 +322,15 @@
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
 
+    - name: Fix grafana fields type
+      postgresql_query:
+        db: grafana
+        query: "{{ item }}"
+      loop:
+        - ALTER TABLE tag ALTER COLUMN key TYPE text;
+        - ALTER TABLE tag ALTER COLUMN value TYPE text;
+      when: not ansible_check_mode
+
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
