@@ -727,7 +727,7 @@ telemetry:
     query: type AS storage_type, count(*) AS count FROM backup_locations GROUP BY type
     summary: "How many storages configured by types"
     data:
-      - metric_name: "1"
+      - metric_name: "storage_type"
         column: "storage_type"
-      - metric_name: "2"
+      - metric_name: "count"
         column: "count"
