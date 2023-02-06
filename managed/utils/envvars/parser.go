@@ -159,6 +159,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "CONTAINER":
 			continue
 
+		case "PMM_INSTALL_METHOD":
+			continue
+
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
 			if err != nil {
