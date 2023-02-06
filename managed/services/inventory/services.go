@@ -447,11 +447,7 @@ func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices commo
 			ReplicationSet: params.ReplicationSet,
 			ExternalGroup:  params.ExternalGroup,
 		})
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return err
 	})
 	if errTx != nil {
 		return errTx
