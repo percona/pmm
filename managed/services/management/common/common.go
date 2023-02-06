@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package management contains management business logic and APIs.
+// Package common contains common and cross-service logics.
 
 package common
 
