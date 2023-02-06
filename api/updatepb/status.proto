@@ -15,10 +15,6 @@ message AvailableResponse {}
 service Status {
   // Available checks if updater is available.
   rpc Available(AvailableRequest) returns (AvailableResponse) {
-    option (google.api.http) = {
-      post: "/v1/Available"
-      body: "*"
-    };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check if updater is available"
       description: "Checks if updater is available."

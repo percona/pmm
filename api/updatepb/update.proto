@@ -44,10 +44,6 @@ message UpdateStatusResponse {
 service Update {
   // StartUpdate starts PMM Server update.
   rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
-    option (google.api.http) = {
-      post: "/v1/Updates/Start"
-      body: "*"
-    };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start update"
       description: "Starts PMM Server update."
@@ -55,10 +51,6 @@ service Update {
   }
   // UpdateStatus returns PMM Server update status.
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
-    option (google.api.http) = {
-      post: "/v1/Updates/Status"
-      body: "*"
-    };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Return update status"
       description: "Returns PMM Server update status."
