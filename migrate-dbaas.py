@@ -99,8 +99,8 @@ def convert_pxc(cluster):
                 "image": mon.get("image"),
                 "serverHost": mon.get("serverHost", None),
                 "serverUser": mon.get("serverUser", None),
-                "publicAddress": mon.get("publicAddress", None),
-                "login": mon.get("login", None),
+                "publicAddress": mon.get("serverHost", None),
+                "login": mon.get("serverUser", None),
                 "password": mon.get("password", None),
             },
             "resources": mon.get("resources"),
@@ -143,7 +143,7 @@ def convert_psmdb(cluster):
         print("Cluster has no replicasets configured. Skipping")
         return
 
-    database_cluster["spec"]["databaseConfig"] = replsets[0].get("configuration")
+    database_cluster["spec"]["databaseConfig"] = replsets[0].get("configuration", "")
     database_cluster["spec"]["clusterSize"] = replsets[0].get("size")
 
     mongos = cluster.get("spec", {}).get("sharding", {}).get("mongos", None)
@@ -166,8 +166,8 @@ def convert_psmdb(cluster):
                 "image": mon.get("image"),
                 "serverHost": mon.get("serverHost", None),
                 "serverUser": mon.get("serverUser", None),
-                "publicAddress": mon.get("publicAddress", None),
-                "login": mon.get("login", None),
+                "publicAddress": mon.get("serverHost", None),
+                "login": mon.get("serverUser", None),
                 "password": mon.get("password", None),
             },
             "resources": mon.get("resources"),

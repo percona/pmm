@@ -55,7 +55,7 @@ func TestSupervisor(t *testing.T) {
 		Server:        config.Server{Address: "localhost:443"},
 		LogLinesCount: 1,
 	})
-	s := NewSupervisor(ctx, cfgStorage)
+	s := NewSupervisor(ctx, nil, cfgStorage)
 	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
@@ -298,7 +298,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Server:        config.Server{},
 			LogLinesCount: 1,
 		})
-		s := NewSupervisor(ctx, cfgStorage) //nolint:varnamelen
+		s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
 		go s.Run(ctx)
 
 		teardown := func() {

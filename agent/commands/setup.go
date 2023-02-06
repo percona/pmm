@@ -137,7 +137,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
-	agentID, err := serverRegister(&cfg.Setup)
+	agentID, token, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
@@ -157,9 +157,14 @@ func register(cfg *config.Config, l *logrus.Entry) {
 		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
 		os.Exit(1)
 	}
-
-	fmt.Printf("Registered.\n")
 	cfg.ID = agentID
+	if token != "" {
+		cfg.Server.Username = "api_key"
+		cfg.Server.Password = token
+	} else {
+		l.Info("PMM Server responded with an empty api key token. Consider upgrading PMM Server to the latest version.")
+	}
+	fmt.Printf("Registered.\n")
 }
 
 func reload(l *logrus.Entry) {

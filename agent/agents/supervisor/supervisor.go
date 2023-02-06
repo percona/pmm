@@ -54,12 +54,13 @@ type configGetter interface {
 
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
-	ctx           context.Context
-	cfg           configGetter
-	portsRegistry *portsRegistry
-	changes       chan *agentpb.StateChangedRequest
-	qanRequests   chan *agentpb.QANCollectRequest
-	l             *logrus.Entry
+	ctx            context.Context
+	agentVersioner agentVersioner
+	cfg            configGetter
+	portsRegistry  *portsRegistry
+	changes        chan *agentpb.StateChangedRequest
+	qanRequests    chan *agentpb.QANCollectRequest
+	l              *logrus.Entry
 
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
@@ -94,14 +95,15 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, cfg configGetter) *Supervisor {
+func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
-		ctx:           ctx,
-		cfg:           cfg,
-		portsRegistry: newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
-		changes:       make(chan *agentpb.StateChangedRequest, 100),
-		qanRequests:   make(chan *agentpb.QANCollectRequest, 100),
-		l:             logrus.WithField("component", "supervisor"),
+		ctx:            ctx,
+		agentVersioner: av,
+		cfg:            cfg,
+		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
+		changes:        make(chan *agentpb.StateChangedRequest, 100),
+		qanRequests:    make(chan *agentpb.QANCollectRequest, 100),
+		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
@@ -424,6 +426,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	process := process.New(processParams, agentProcess.RedactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
+	version, err := s.version(agentProcess.Type, processParams.Path)
+	if err != nil {
+		l.Warnf("Cannot parse version for type %s", agentType)
+	}
+
 	done := make(chan struct{})
 	go func() {
 		for status := range process.Changes() {
@@ -434,6 +441,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 				Status:          status,
 				ListenPort:      uint32(port),
 				ProcessExecPath: processParams.Path,
+				Version:         version,
 			}
 		}
 		close(done)
@@ -672,6 +680,27 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	}
 
 	return &processParams, nil
+}
+
+func (s *Supervisor) version(agentType inventorypb.AgentType, path string) (string, error) {
+	switch agentType {
+	case inventorypb.AgentType_NODE_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, nodeExporterRegexp, "--version")
+	case inventorypb.AgentType_MYSQLD_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, mysqldExporterRegexp, "--version")
+	case inventorypb.AgentType_MONGODB_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, mongodbExporterRegexp, "--version")
+	case inventorypb.AgentType_POSTGRES_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, postgresExporterRegexp, "--version")
+	case inventorypb.AgentType_PROXYSQL_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, proxysqlExporterRegexp, "--version")
+	case inventorypb.AgentType_RDS_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
+	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
+	default:
+		return "", nil
+	}
 }
 
 // stopAll stops all agents.

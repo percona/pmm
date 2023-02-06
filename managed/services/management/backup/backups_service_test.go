@@ -41,7 +41,7 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName, clusterName string) *models.Agent { //nolint:unparam
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
@@ -56,6 +56,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	var service *models.Service
 	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
+		Cluster:     clusterName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
 		Port:        pointer.ToUint16(60000),
@@ -82,7 +83,7 @@ func TestStartBackup(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		backupSvc := NewBackupsService(db, backupService, nil, nil)
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		for _, tc := range []struct {
 			testName    string
@@ -115,6 +116,7 @@ func TestStartBackup(t *testing.T) {
 					LocationId:    "locationID",
 					Name:          "name",
 					Description:   "description",
+					DataModel:     backuppb.DataModel_PHYSICAL,
 					RetryInterval: nil,
 					Retries:       0,
 				})
@@ -134,7 +136,7 @@ func TestStartBackup(t *testing.T) {
 	t.Run("mongodb", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
 		locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name:        "Test location snapshots",
@@ -251,7 +253,7 @@ func TestScheduledBackups(t *testing.T) {
 		schedulerService := scheduler.New(db, backupService)
 		backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
 
-		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
 
 		t.Run("schedule/change", func(t *testing.T) {
 			req := &backuppb.ScheduleBackupRequest{
@@ -263,6 +265,7 @@ func TestScheduledBackups(t *testing.T) {
 				Description:    t.Name(),
 				Enabled:        true,
 				Mode:           backuppb.BackupMode_SNAPSHOT,
+				DataModel:      backuppb.DataModel_PHYSICAL,
 				Retries:        maxRetriesAttempts - 1,
 				RetryInterval:  durationpb.New(maxRetryInterval),
 			}
@@ -355,9 +358,9 @@ func TestScheduledBackups(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
-		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
+		t.Run("PITR unsupported for physical model", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
@@ -377,7 +380,7 @@ func TestScheduledBackups(t *testing.T) {
 			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
 		})
 
-		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
+		t.Run("normal", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
@@ -408,26 +411,6 @@ func TestGetLogs(t *testing.T) {
 		_ = sqlDB.Close()
 	})
 
-	job, err := models.CreateJob(db.Querier, models.CreateJobParams{
-		PMMAgentID: "agent",
-		Type:       models.MongoDBBackupJob,
-		Data: &models.JobData{
-			MongoDBBackup: &models.MongoDBBackupJobData{
-				ServiceID:  "svc",
-				ArtifactID: "artifact",
-			},
-		},
-	})
-	require.NoError(t, err)
-	for chunkID := 0; chunkID < 5; chunkID++ {
-		_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
-			JobID:   job.ID,
-			ChunkID: chunkID,
-			Data:    "not important",
-		})
-		assert.NoError(t, err)
-	}
-
 	type testCase struct {
 		offset uint32
 		limit  uint32
@@ -455,17 +438,113 @@ func TestGetLogs(t *testing.T) {
 			expect: []uint32{},
 		},
 	}
-	for _, tc := range testCases {
-		logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-			ArtifactId: "artifact",
-			Offset:     tc.offset,
-			Limit:      tc.limit,
+
+	t.Run("get backup logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBBackup: &models.MongoDBBackupJobData{
+					ServiceID:  "svc",
+					ArtifactID: "artifact",
+				},
+			},
 		})
-		assert.NoError(t, err)
-		chunkIDs := make([]uint32, 0, len(logs.Logs))
-		for _, log := range logs.Logs {
-			chunkIDs = append(chunkIDs, log.ChunkId)
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
 		}
-		assert.Equal(t, tc.expect, chunkIDs)
-	}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				ArtifactId: "artifact",
+				Offset:     tc.offset,
+				Limit:      tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get physical restore logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "physical-restore-1",
+					DataModel: models.PhysicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "physical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get logical restore logs", func(t *testing.T) {
+		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "logical-restore-1",
+					DataModel: models.LogicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   logicalRestore.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "logical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
 }
