@@ -34,6 +34,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
@@ -417,14 +418,11 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 
 // ListSecrets returns list of secret names to the end user
 func (s DBClusterService) ListSecrets(ctx context.Context, req *dbaasv1beta1.ListSecretsRequest) (*dbaasv1beta1.ListSecretsResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	secretsList, err := s.kubernetesClient.ListSecrets(ctx)
+	secretsList, err := kubeClient.ListSecrets(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed listing database clusters")
 	}
