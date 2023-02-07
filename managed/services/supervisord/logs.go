@@ -59,14 +59,16 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
+	amfp             amBaseFileProvider
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, amfp amBaseFileProvider) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
+		amfp:             amfp,
 	}
 }
 
@@ -147,10 +149,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 			Err:      err,
 		})
 	}
-	for _, f := range []string{
-		"/etc/alertmanager.yml",
-		"/srv/alertmanager/alertmanager.base.yml",
-	} {
+	for _, f := range []string{"/etc/alertmanager.yml"} {
 		b, m, err := readFile(f)
 		if err == nil {
 			b, err = maskAlertManagerSensitiveValues(b)
@@ -164,6 +163,20 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 			logger.Get(ctx).WithField("component", "logs").Error(err)
 		}
 	}
+
+	file, err := l.amfp.GetBaseFile()
+	if err == nil {
+		b, err := maskAlertManagerSensitiveValues(file.Content)
+		files = append(files, fileContent{
+			Name:     file.Name,
+			Modified: file.UpdatedAt,
+			Data:     b,
+			Err:      err,
+		})
+	} else {
+		logger.Get(ctx).WithField("component", "logs").Error(err)
+	}
+
 	// add configs
 	for _, f := range []string{
 		"/etc/nginx/nginx.conf",

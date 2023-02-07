@@ -770,14 +770,19 @@ func main() {
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 
-	alertManager := alertmanager.New(db)
+	alertManager, err := alertmanager.New(db)
+	if err != nil {
+		l.Panicf("Alertmanager service problem: %+v", err)
+	}
 	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
 	// Generate configuration file before reloading with supervisord, checking status, etc.
-	alertManager.GenerateBaseConfigs()
+	if err = alertManager.GenerateBaseConfigs(); err != nil {
+		l.Panicf("Alertmanager service problem while generating base configs: %+v", err)
+	}
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
+	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, alertManager)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()

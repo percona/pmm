@@ -31,6 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
@@ -120,7 +121,9 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	amfpMock := &mockAmBaseFileProvider{}
+	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+	l := NewLogs("2.4.5", checker, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -156,7 +159,9 @@ func TestFiles(t *testing.T) {
 
 func TestZip(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	amfpMock := &mockAmBaseFileProvider{}
+	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+	l := NewLogs("2.4.5", checker, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
