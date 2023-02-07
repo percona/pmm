@@ -112,9 +112,10 @@ func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{}
+		afpMock := &mockAlertFlagsProvider{}
+		afpMock.On("ListAlertFlags").Return([]string{})
 
-		s := New("/etc/supervisord.d", checker, vmParams, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, afpMock, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -144,7 +145,7 @@ func TestDevContainer(t *testing.T) {
 			DataRetention: 3600 * time.Hour,
 		}
 
-		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings, nil)
+		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings, nil, []string{})
 		require.NoError(t, err)
 		changed, err := s.saveConfigAndReload("victoriametrics", b)
 		require.NoError(t, err)
@@ -166,8 +167,7 @@ func TestDevContainer(t *testing.T) {
 
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{}
-		s := New("/etc/supervisord.d", checker, vmParams, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, nil, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
