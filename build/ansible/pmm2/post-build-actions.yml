@@ -95,7 +95,6 @@
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become: yes
       become_user: postgres
-      become_method: su
 
     - name: Check pmm-managed database existence
       postgresql_db:
@@ -126,7 +125,6 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
       become_user: postgres
-      become_method: su
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all
