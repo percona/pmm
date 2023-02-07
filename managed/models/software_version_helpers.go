@@ -64,6 +64,8 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
@@ -110,6 +112,8 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
