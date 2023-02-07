@@ -15,9 +15,7 @@
 
 package supervisord
 
-import (
-	"github.com/percona/pmm/managed/models"
-)
+import "github.com/percona/pmm/managed/models"
 
 //go:generate ../../../bin/mockery -name=alertFlagsProvider -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=vmBaseFileProvider -case=snake -inpkg -testonly
