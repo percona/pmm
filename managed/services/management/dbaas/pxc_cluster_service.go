@@ -132,30 +132,6 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		req.Params.Pxc.StorageClass = className
 	}
-	if req.Params.Haproxy != nil {
-		if req.Params.Haproxy.Image == "" {
-			// PXC operator requires to specify HAproxy image
-			// It uses default operator distribution based on version
-			// following the template operatorimage:version-haproxy
-			version, err := kubeClient.GetPXCOperatorVersion(ctx)
-			if err != nil {
-				return nil, err
-			}
-			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
-		}
-	}
-	if req.Params.Proxysql != nil {
-		if req.Params.Proxysql.Image == "" {
-			// PXC operator requires to specify ProxySQL image
-			// It uses default operator distribution based on version
-			// following the template operatorimage:version-proxysql
-			version, err := kubeClient.GetPXCOperatorVersion(ctx)
-			if err != nil {
-				return nil, err
-			}
-			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
-		}
-	}
 	clusterType, err := kubeClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting cluster type")
