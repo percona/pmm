@@ -416,8 +416,8 @@ type ChangeStandardLabelsParams struct {
 }
 
 // ChangeStandardLabels changes standard labels for a service.
-func ChangeStandardLabels(q *reform.Querier, id string, labels ServiceStandardLabelsParams) error {
-	s, err := FindServiceByID(q, id)
+func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceStandardLabelsParams) error {
+	s, err := FindServiceByID(q, serviceID)
 	if err != nil {
 		return err
 	}

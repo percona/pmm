@@ -439,6 +439,36 @@ func TestServiceHelpers(t *testing.T) {
 		assert.NotNil(t, services)
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
 	})
+
+	t.Run("Change standard labels", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		s, err := models.AddNewService(q, models.ExternalServiceType, &models.AddDBMSServiceParams{
+			ServiceName:   "mongors1",
+			NodeID:        "N1",
+			Cluster:       "cluster0",
+			ExternalGroup: "ext",
+			Address:       pointer.ToString("127.0.0.1"),
+			Port:          pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		err = models.ChangeStandardLabels(q, s.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        pointer.ToString("cluster"),
+			Environment:    pointer.ToString("env"),
+			ReplicationSet: pointer.ToString("rs"),
+			ExternalGroup:  pointer.ToString("external"),
+		})
+		require.NoError(t, err)
+
+		ns, err := models.FindServiceByID(q, s.ServiceID)
+		require.NoError(t, err)
+
+		assert.Equal(t, ns.Cluster, "cluster")
+		assert.Equal(t, ns.Environment, "env")
+		assert.Equal(t, ns.ReplicationSet, "rs")
+		assert.Equal(t, ns.ExternalGroup, "external")
+	})
 }
 
 func pointerToServiceType(serviceType models.ServiceType) *models.ServiceType {
