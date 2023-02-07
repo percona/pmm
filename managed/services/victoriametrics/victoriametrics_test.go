@@ -19,6 +19,7 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -35,16 +36,18 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-const configPath = "../../testdata/victoriametrics/promscrape.yml"
+const (
+	configPath         = "../../testdata/victoriametrics/promscrape.yml"
+	testBaseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
+)
 
-func setup(t *testing.T) (*reform.DB, *Service, []byte) {
+func setup(t *testing.T, baseConfigPath string) (*reform.DB, *Service, []byte) {
 	t.Helper()
 	check := require.New(t)
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
-	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
+	svc, err := NewVictoriaMetrics(db, configPath, "http://127.0.0.1:9090/prometheus/", baseConfigPath)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -55,12 +58,13 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	return db, svc, original
 }
 
-func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
+func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte, baseConfigPath string) {
 	t.Helper()
 	check := assert.New(t)
 
 	check.NoError(os.WriteFile(configPath, original, 0o600))
 	check.NoError(svc.reload(context.Background()))
+	check.NoError(models.DeleteFile(db.Querier, filepath.Base(baseConfigPath)))
 
 	check.NoError(db.DBInterface().(*sql.DB).Close())
 }
@@ -68,8 +72,8 @@ func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 func TestVictoriaMetrics(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
 		check := require.New(t)
-		db, svc, original := setup(t)
-		defer teardown(t, db, svc, original)
+		db, svc, original := setup(t, BasePrometheusConfigPath)
+		defer teardown(t, db, svc, original, BasePrometheusConfigPath)
 
 		check.NoError(svc.updateConfiguration(context.Background()))
 
@@ -80,8 +84,8 @@ func TestVictoriaMetrics(t *testing.T) {
 
 	t.Run("Normal", func(t *testing.T) {
 		check := require.New(t)
-		db, svc, original := setup(t)
-		defer teardown(t, db, svc, original)
+		db, svc, original := setup(t, BasePrometheusConfigPath)
+		defer teardown(t, db, svc, original, BasePrometheusConfigPath)
 		err := models.SaveSettings(db.Querier, &models.Settings{})
 		check.NoError(err)
 
@@ -727,8 +731,8 @@ scrape_configs:
 }
 
 func TestConfigReload(t *testing.T) {
-	db, svc, original := setup(t)
-	defer teardown(t, db, svc, original)
+	db, svc, original := setup(t, BasePrometheusConfigPath)
+	defer teardown(t, db, svc, original, BasePrometheusConfigPath)
 	t.Run("Good file, reload ok", func(t *testing.T) {
 		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
@@ -796,10 +800,8 @@ unknown_filed: unknown_value
 }
 
 func TestBaseConfig(t *testing.T) {
-	db, svc, original := setup(t)
-	defer teardown(t, db, svc, original)
-
-	svc.baseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
+	db, svc, original := setup(t, testBaseConfigPath)
+	defer teardown(t, db, svc, original, testBaseConfigPath)
 
 	expected := strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
