@@ -18315,6 +18315,88 @@
         }
       }
     },
+    "/v1/management/DBaaS/Backups/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListS3Backups lists backups stored on s3.",
+        "operationId": "ListS3Backups",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "location_id": {
+                  "type": "string",
+                  "title": "Backup Location ID to list backups from",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "backups": {
+                  "description": "Backup list.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "Key of a filename on s3.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/ChangePSMDB": {
       "post": {
         "tags": [
@@ -19778,6 +19860,56 @@
                             }
                           },
                           "x-order": 3
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents cron expression",
+                              "x-order": 2
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 4
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "destination": {
+                              "description": "Destination filename.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 5
                         }
                       },
                       "x-order": 3
@@ -19801,6 +19933,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -19909,6 +20091,56 @@
                           "description": "Docker image used for PSMDB.",
                           "type": "string",
                           "x-order": 2
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents cron expression",
+                              "x-order": 2
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 3
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "destination": {
+                              "description": "Destination filename.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 4
                         }
                       },
                       "x-order": 3
@@ -19932,6 +20164,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 1
@@ -20178,6 +20460,56 @@
                               }
                             },
                             "x-order": 3
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents cron expression",
+                                "x-order": 2
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 4
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "destination": {
+                                "description": "Destination filename.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 5
                           }
                         },
                         "x-order": 3
@@ -20201,6 +20533,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents cron expression",
+                            "x-order": 2
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "restore": {
+                        "type": "object",
+                        "title": "Restore represents restoration payload to restore a database cluster from backup",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "destination": {
+                            "description": "Destination filename.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -20313,6 +20695,56 @@
                             "description": "Docker image used for PSMDB.",
                             "type": "string",
                             "x-order": 2
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents cron expression",
+                                "x-order": 2
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 3
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "destination": {
+                                "description": "Destination filename.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 4
                           }
                         },
                         "x-order": 3
@@ -20336,6 +20768,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents cron expression",
+                            "x-order": 2
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "restore": {
+                        "type": "object",
+                        "title": "Restore represents restoration payload to restore a database cluster from backup",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "destination": {
+                            "description": "Destination filename.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -21233,6 +21715,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -21371,6 +21903,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -21835,6 +22417,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 2
@@ -22041,6 +22673,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -22380,6 +23062,88 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Secrets/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListSecrets returns a list of secrets from k8s",
+        "operationId": "ListSecrets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "secrets": {
+                  "description": "Secret list.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of a secret",
+                        "x-order": 0
+                      }
                     }
                   },
                   "x-order": 0
