@@ -19713,7 +19713,7 @@
                               "x-order": 0
                             },
                             "keep_copies": {
-                              "description": "Keep copies represents how many copyies should retain.",
+                              "description": "Keep copies represents how many copies should retain.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 1
@@ -19786,7 +19786,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
@@ -19944,7 +19944,7 @@
                               "x-order": 0
                             },
                             "keep_copies": {
-                              "description": "Keep copies represents how many copyies should retain.",
+                              "description": "Keep copies represents how many copies should retain.",
                               "type": "integer",
                               "format": "int32",
                               "x-order": 1
@@ -20017,7 +20017,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
@@ -20313,7 +20313,7 @@
                                 "x-order": 0
                               },
                               "keep_copies": {
-                                "description": "Keep copies represents how many copyies should retain.",
+                                "description": "Keep copies represents how many copies should retain.",
                                 "type": "integer",
                                 "format": "int32",
                                 "x-order": 1
@@ -20386,7 +20386,7 @@
                             "x-order": 0
                           },
                           "keep_copies": {
-                            "description": "Keep copies represents how many copyies should retain.",
+                            "description": "Keep copies represents how many copies should retain.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 1
@@ -20548,7 +20548,7 @@
                                 "x-order": 0
                               },
                               "keep_copies": {
-                                "description": "Keep copies represents how many copyies should retain.",
+                                "description": "Keep copies represents how many copies should retain.",
                                 "type": "integer",
                                 "format": "int32",
                                 "x-order": 1
@@ -20621,7 +20621,7 @@
                             "x-order": 0
                           },
                           "keep_copies": {
-                            "description": "Keep copies represents how many copyies should retain.",
+                            "description": "Keep copies represents how many copies should retain.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 1
@@ -21568,7 +21568,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
@@ -21756,7 +21756,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
@@ -22270,7 +22270,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
@@ -22526,7 +22526,7 @@
                           "x-order": 0
                         },
                         "keep_copies": {
-                          "description": "Keep copies represents how many copyies should retain.",
+                          "description": "Keep copies represents how many copies should retain.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1

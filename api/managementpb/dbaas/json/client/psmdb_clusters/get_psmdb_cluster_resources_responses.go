@@ -674,7 +674,7 @@ type GetPSMDBClusterResourcesParamsBodyParamsBackup struct {
 	// Backup Location id of stored backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
 	// Cron expression represents cron expression

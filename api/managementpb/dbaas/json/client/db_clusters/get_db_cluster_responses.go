@@ -757,7 +757,7 @@ type GetDBClusterOKBodyPSMDBClusterBackup struct {
 	// Backup Location id of stored backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
 	// Cron expression represents cron expression
@@ -1031,7 +1031,7 @@ type GetDBClusterOKBodyPSMDBClusterParamsBackup struct {
 	// Backup Location id of stored backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
 	// Cron expression represents cron expression
@@ -1616,7 +1616,7 @@ type GetDBClusterOKBodyPXCClusterBackup struct {
 	// Backup Location id of stored backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
 	// Cron expression represents cron expression
@@ -1977,7 +1977,7 @@ type GetDBClusterOKBodyPXCClusterParamsBackup struct {
 	// Backup Location id of stored backup location in PMM.
 	LocationID string `json:"location_id,omitempty"`
 
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `json:"keep_copies,omitempty"`
 
 	// Cron expression represents cron expression

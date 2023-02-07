@@ -264,7 +264,7 @@ type Backup struct {
 
 	// Backup Location id of stored backup location in PMM.
 	LocationId string `protobuf:"bytes,1,opt,name=location_id,json=locationId,proto3" json:"location_id,omitempty"`
-	// Keep copies represents how many copyies should retain.
+	// Keep copies represents how many copies should retain.
 	KeepCopies int32 `protobuf:"varint,2,opt,name=keep_copies,json=keepCopies,proto3" json:"keep_copies,omitempty"`
 	// Cron expression represents cron expression
 	CronExpression string `protobuf:"bytes,3,opt,name=cron_expression,json=cronExpression,proto3" json:"cron_expression,omitempty"`
