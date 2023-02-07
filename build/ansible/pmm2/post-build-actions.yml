@@ -96,30 +96,16 @@
       become: yes
       become_user: postgres
 
-    - name: Check pmm-managed database existence
-      postgresql_db:
-        login_user: postgres
-        name: pmm-managed
-        state: present
-      register: db_exists
-
     - name: Remove pmm-managed database
       postgresql_db:
         login_user: postgres
         name: pmm-managed
         state: absent
-      when: db_exists.db | default(false)
-
-    - name: Check if pmm-managed role exists
-      postgresql_user:
-        name: pmm-managed
-      register: db_role_exists
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
         name: pmm-managed
         state: absent
-      when: db_role_exists.changed == False
 
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
