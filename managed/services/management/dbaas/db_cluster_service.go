@@ -42,43 +42,40 @@ type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
 	grafanaClient        grafanaClient
-	kubernetesClient     kubernetesClient
+	kubeStorage          *KubeStorage
 	versionServiceClient *VersionServiceClient
 
 	dbaasv1beta1.UnimplementedDBClustersServer
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer { //nolint:lll
+func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer {
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
 		l:                    l,
-		kubernetesClient:     kubernetesClient,
 		grafanaClient:        grafanaClient,
+		kubeStorage:          NewKubeStorage(db),
 		versionServiceClient: versionServiceClient,
 	}
 }
 
 // ListDBClusters returns a list of all DB clusters.
 func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.ListDBClustersRequest) (*dbaasv1beta1.ListDBClustersResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbClusters, err := s.kubernetesClient.ListDatabaseClusters(ctx)
+	dbClusters, err := kubeClient.ListDatabaseClusters(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed listing database clusters")
 	}
-	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
+	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		s.l.Errorf("failed determining version of psmdb operator: %v", err)
 	}
 
-	pxcOperatorVersion, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		s.l.Errorf("failed determining version of pxc operator: %v", err)
 	}
@@ -285,23 +282,20 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 }
 
 func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.GetDBClusterRequest) (*dbaasv1beta1.GetDBClusterResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting the database cluster")
 	}
-	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
+	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting psmdb operator version")
 	}
 
-	pxcOperatorVersion, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
+	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
@@ -325,14 +319,11 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 
 // RestartDBCluster restarts DB cluster by given name and type.
 func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta1.RestartDBClusterRequest) (*dbaasv1beta1.RestartDBClusterResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	err = s.kubernetesClient.RestartDatabaseCluster(ctx, req.Name)
+	err = kubeClient.RestartDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -342,14 +333,11 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 
 // DeleteDBCluster deletes DB cluster by given name and type.
 func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1.DeleteDBClusterRequest) (*dbaasv1beta1.DeleteDBClusterResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	err = s.kubernetesClient.DeleteDatabaseCluster(ctx, req.Name)
+	err = kubeClient.DeleteDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -430,14 +418,11 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 
 // ListSecrets returns list of secret names to the end user
 func (s DBClusterService) ListSecrets(ctx context.Context, req *dbaasv1beta1.ListSecretsRequest) (*dbaasv1beta1.ListSecretsResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	secretsList, err := s.kubernetesClient.ListSecrets(ctx)
+	secretsList, err := kubeClient.ListSecrets(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed listing database clusters")
 	}
