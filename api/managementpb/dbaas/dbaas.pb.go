@@ -256,6 +256,149 @@ func (x *ComputeResources) GetMemoryBytes() int64 {
 	return 0
 }
 
+// Backup configuration for a database cluster
+type Backup struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Backup Location id of stored backup location in PMM.
+	LocationId string `protobuf:"bytes,1,opt,name=location_id,json=locationId,proto3" json:"location_id,omitempty"`
+	// Keep copies represents how many copies should retain.
+	KeepCopies int32 `protobuf:"varint,2,opt,name=keep_copies,json=keepCopies,proto3" json:"keep_copies,omitempty"`
+	// Cron expression represents cron expression
+	CronExpression string `protobuf:"bytes,3,opt,name=cron_expression,json=cronExpression,proto3" json:"cron_expression,omitempty"`
+	// Service acccount used for backups
+	ServiceAccount string `protobuf:"bytes,4,opt,name=service_account,json=serviceAccount,proto3" json:"service_account,omitempty"`
+}
+
+func (x *Backup) Reset() {
+	*x = Backup{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Backup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Backup) ProtoMessage() {}
+
+func (x *Backup) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Backup.ProtoReflect.Descriptor instead.
+func (*Backup) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_dbaas_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Backup) GetLocationId() string {
+	if x != nil {
+		return x.LocationId
+	}
+	return ""
+}
+
+func (x *Backup) GetKeepCopies() int32 {
+	if x != nil {
+		return x.KeepCopies
+	}
+	return 0
+}
+
+func (x *Backup) GetCronExpression() string {
+	if x != nil {
+		return x.CronExpression
+	}
+	return ""
+}
+
+func (x *Backup) GetServiceAccount() string {
+	if x != nil {
+		return x.ServiceAccount
+	}
+	return ""
+}
+
+// Restore represents restoration payload to restore a database cluster from backup
+type Restore struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Backup location in PMM.
+	LocationId string `protobuf:"bytes,1,opt,name=location_id,json=locationId,proto3" json:"location_id,omitempty"`
+	// Destination filename.
+	Destination string `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
+	// K8s Secrets name.
+	SecretsName string `protobuf:"bytes,3,opt,name=secrets_name,json=secretsName,proto3" json:"secrets_name,omitempty"`
+}
+
+func (x *Restore) Reset() {
+	*x = Restore{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Restore) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Restore) ProtoMessage() {}
+
+func (x *Restore) ProtoReflect() protoreflect.Message {
+	mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Restore.ProtoReflect.Descriptor instead.
+func (*Restore) Descriptor() ([]byte, []int) {
+	return file_managementpb_dbaas_dbaas_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Restore) GetLocationId() string {
+	if x != nil {
+		return x.LocationId
+	}
+	return ""
+}
+
+func (x *Restore) GetDestination() string {
+	if x != nil {
+		return x.Destination
+	}
+	return ""
+}
+
+func (x *Restore) GetSecretsName() string {
+	if x != nil {
+		return x.SecretsName
+	}
+	return ""
+}
+
 // Resources contains Kubernetes cluster resources.
 type Resources struct {
 	state         protoimpl.MessageState
@@ -274,7 +417,7 @@ type Resources struct {
 func (x *Resources) Reset() {
 	*x = Resources{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[2]
+		mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -287,7 +430,7 @@ func (x *Resources) String() string {
 func (*Resources) ProtoMessage() {}
 
 func (x *Resources) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[2]
+	mi := &file_managementpb_dbaas_dbaas_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -300,7 +443,7 @@ func (x *Resources) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Resources.ProtoReflect.Descriptor instead.
 func (*Resources) Descriptor() ([]byte, []int) {
-	return file_managementpb_dbaas_dbaas_proto_rawDescGZIP(), []int{2}
+	return file_managementpb_dbaas_dbaas_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Resources) GetMemoryBytes() uint64 {
@@ -342,7 +485,24 @@ var file_managementpb_dbaas_dbaas_proto_rawDesc = []byte{
 	0x5f, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x63, 0x70, 0x75, 0x4d, 0x12, 0x21,
 	0x0a, 0x0c, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x5f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x42, 0x79, 0x74, 0x65,
-	0x73, 0x22, 0x60, 0x0a, 0x09, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x21,
+	0x73, 0x22, 0x9c, 0x01, 0x0a, 0x06, 0x42, 0x61, 0x63, 0x6b, 0x75, 0x70, 0x12, 0x1f, 0x0a, 0x0b,
+	0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0a, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x1f, 0x0a,
+	0x0b, 0x6b, 0x65, 0x65, 0x70, 0x5f, 0x63, 0x6f, 0x70, 0x69, 0x65, 0x73, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x0a, 0x6b, 0x65, 0x65, 0x70, 0x43, 0x6f, 0x70, 0x69, 0x65, 0x73, 0x12, 0x27,
+	0x0a, 0x0f, 0x63, 0x72, 0x6f, 0x6e, 0x5f, 0x65, 0x78, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f,
+	0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x63, 0x72, 0x6f, 0x6e, 0x45, 0x78, 0x70,
+	0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x27, 0x0a, 0x0f, 0x73, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
+	0x22, 0x6f, 0x0a, 0x07, 0x52, 0x65, 0x73, 0x74, 0x6f, 0x72, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x6c,
+	0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x0a, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0b,
+	0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x21,
+	0x0a, 0x0c, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x73, 0x4e, 0x61, 0x6d,
+	0x65, 0x22, 0x60, 0x0a, 0x09, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x21,
 	0x0a, 0x0c, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x5f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x42, 0x79, 0x74, 0x65,
 	0x73, 0x12, 0x13, 0x0a, 0x05, 0x63, 0x70, 0x75, 0x5f, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04,
@@ -392,13 +552,15 @@ func file_managementpb_dbaas_dbaas_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_dbaas_dbaas_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_managementpb_dbaas_dbaas_proto_msgTypes  = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_dbaas_dbaas_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
 	file_managementpb_dbaas_dbaas_proto_goTypes   = []interface{}{
 		(DBClusterType)(0),       // 0: dbaas.v1beta1.DBClusterType
 		(OperatorsStatus)(0),     // 1: dbaas.v1beta1.OperatorsStatus
 		(*RunningOperation)(nil), // 2: dbaas.v1beta1.RunningOperation
 		(*ComputeResources)(nil), // 3: dbaas.v1beta1.ComputeResources
-		(*Resources)(nil),        // 4: dbaas.v1beta1.Resources
+		(*Backup)(nil),           // 4: dbaas.v1beta1.Backup
+		(*Restore)(nil),          // 5: dbaas.v1beta1.Restore
+		(*Resources)(nil),        // 6: dbaas.v1beta1.Resources
 	}
 )
 
@@ -441,6 +603,30 @@ func file_managementpb_dbaas_dbaas_proto_init() {
 			}
 		}
 		file_managementpb_dbaas_dbaas_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Backup); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_dbaas_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Restore); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_managementpb_dbaas_dbaas_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Resources); i {
 			case 0:
 				return &v.state
@@ -459,7 +645,7 @@ func file_managementpb_dbaas_dbaas_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_dbaas_dbaas_proto_rawDesc,
 			NumEnums:      2,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
