@@ -153,6 +153,12 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
 
+		case "DEMO_MODE":
+			envSettings.EnableDemoMode, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+
 		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
 			continue
 

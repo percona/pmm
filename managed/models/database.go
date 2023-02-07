@@ -819,6 +819,10 @@ var databaseSchema = [][]string{
 			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
 			WHERE type = 'mongodb_backup'`,
 	},
+	78: {
+		`ALTER TABLE settings
+			ADD COLUMN demo_mode BOOLEAN NULL DEFAULT false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
