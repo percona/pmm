@@ -36,7 +36,9 @@ type softwareVersioner interface {
 	MySQLdVersion() (string, error)
 	XtrabackupVersion() (string, error)
 	XbcloudVersion() (string, error)
-	Qpress() (string, error)
+	QpressVersion() (string, error)
+	MongoDBVersion() (string, error)
+	PBMVersion() (string, error)
 }
 
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.

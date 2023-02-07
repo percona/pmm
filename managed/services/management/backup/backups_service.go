@@ -641,6 +641,8 @@ func convertBackupError(backupErr error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(backupErr, backup.ErrIncompatibleLocationType):
 		return status.Error(codes.FailedPrecondition, backupErr.Error())
+	case errors.Is(backupErr, backup.ErrIncompatiblePBM):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 
 	default:
 		return backupErr
@@ -678,6 +680,8 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	case errors.Is(restoreError, backup.ErrIncompatibleTargetMongoDB):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB
 	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
@@ -687,6 +691,8 @@ func convertRestoreBackupError(restoreError error) error {
 	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrArtifactNotReady):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatiblePBM):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 
 	default:
