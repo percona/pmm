@@ -239,8 +239,14 @@ func TestPXCClusterService(t *testing.T) {
 			},
 		}
 		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "hostname",
+			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
 			},
 		}
 
@@ -274,6 +280,9 @@ func TestPXCClusterService(t *testing.T) {
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: name,
+			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
 			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "amazing.com",

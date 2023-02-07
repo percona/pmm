@@ -336,6 +336,9 @@ func TestPSMDBClusterService(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "another-third-psmdb-test",
 			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(psmdbSecretNameTmpl, "another-third-psmdb-test"),
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "hostname",
 			},

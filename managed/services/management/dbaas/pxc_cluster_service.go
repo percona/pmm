@@ -82,7 +82,7 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := kubeClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	secret, err := kubeClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -121,7 +121,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, err
 	}
 
-	if err := s.fillDefaults(ctx, req.KubernetesClusterName, req); err != nil {
+	if err := s.fillDefaults(ctx, req.KubernetesClusterName, req, kubeClient); err != nil {
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
@@ -160,11 +160,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting cluster type")
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPXC(req, clusterType)
+	backupLocation, err := s.getBackupLocation(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting backup location")
+	}
+	dbCluster, dbRestore, err := kubernetes.DatabaseClusterForPXC(req, clusterType, backupLocation)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
-	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
 
 	secrets, err := generatePasswords(map[string][]byte{
 		"root":         {},
@@ -192,11 +195,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}
-	err = kubeClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-	if err != nil {
-		return nil, err
+	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
+		err = kubeClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+		if err != nil {
+			return nil, err
+		}
 	}
 	err = kubeClient.CreateDatabaseCluster(dbCluster)
+
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -205,11 +211,24 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			}
 		}
 	}
+	if req.Params.Backup != nil || req.Params.Restore != nil && backupLocation != nil {
+		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
+		secrets := kubernetes.SecretForBackup(backupLocation)
+		if err := kubeClient.CreatePMMSecret(secretsName, secrets); err != nil {
+			return nil, errors.Wrap(err, "failed to create a secret")
+		}
+	}
+	if dbRestore != nil {
+		if err := kubeClient.CreateRestore(dbRestore); err != nil {
+			return nil, err
+		}
+	}
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
 }
 
+//nolint:cyclop
 func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterName string,
-	req *dbaasv1beta1.CreatePXCClusterRequest,
+	req *dbaasv1beta1.CreatePXCClusterRequest, kubeClient kubernetesClient,
 ) error {
 	if req.Name != "" {
 		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
@@ -269,6 +288,16 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterN
 		if req.Params.Haproxy.ComputeResources.MemoryBytes == 0 {
 			req.Params.Haproxy.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
 		}
+		if req.Params.Haproxy.Image == "" {
+			// PXC operator requires to specify HAproxy image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-haproxy
+			version, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return err
+			}
+			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
+		}
 	}
 
 	if req.Params.Proxysql != nil {
@@ -283,6 +312,16 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterN
 		}
 		if req.Params.Proxysql.ComputeResources.MemoryBytes == 0 {
 			req.Params.Proxysql.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
+		}
+		if req.Params.Proxysql.Image == "" {
+			// PXC operator requires to specify ProxySQL image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-proxysql
+			version, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return err
+			}
+			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
 		}
 	}
 
@@ -380,4 +419,14 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 			DiskSize:    disk,
 		},
 	}, nil
+}
+
+func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCClusterRequest) (*models.BackupLocation, error) {
+	if req.Params != nil && req.Params.Backup != nil && req.Params.Backup.LocationId != "" {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
+	}
+	if req.Params != nil && req.Params.Restore != nil && req.Params.Restore.LocationId != "" {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
+	}
+	return nil, nil
 }
