@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management/common"
 )
 
 // ServicesService works with inventory API Services.
@@ -434,7 +435,11 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 }
 
 // ChangeService changes service configuration.
-func (ss *ServicesService) ChangeService(ctx context.Context, params *models.ChangeStandardLabelsParams) (*inventorypb.ChangeServiceResponse, error) {
+func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices common.MgmtServices, params *models.ChangeStandardLabelsParams) error {
+	if err := mgmtServices.RemoveScheduledTasks(ctx, ss.db, params); err != nil {
+		return err
+	}
+
 	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
 			Cluster:        params.Cluster,
@@ -445,14 +450,14 @@ func (ss *ServicesService) ChangeService(ctx context.Context, params *models.Cha
 		return err
 	})
 	if errTx != nil {
-		return nil, errTx
+		return errTx
 	}
 
 	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &inventorypb.ChangeServiceResponse{}, nil
+	return nil
 }
 
 func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {

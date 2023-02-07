@@ -11533,7 +11533,7 @@
     },
     "/v1/inventory/Services/Change": {
       "post": {
-        "description": "Changes service configuration.",
+        "description": "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.",
         "tags": [
           "Services"
         ],
