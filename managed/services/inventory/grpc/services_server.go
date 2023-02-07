@@ -306,7 +306,7 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.Cha
 // toAPIError converts GO errors into API-level errors.
 func toAPIError(err error) error {
 	switch {
-	case errors.Is(err, common.ErrClusterBlocked):
+	case errors.Is(err, common.ErrClusterLocked):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	default:
 		return err

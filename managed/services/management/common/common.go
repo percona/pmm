@@ -27,8 +27,8 @@ import (
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 )
 
-// ErrClusterBlocked is returned when there is an unfinished job that doesn't allow to change service cluster name.
-var ErrClusterBlocked = errors.New("cluster/service is blocked")
+// ErrClusterLocked is returned when there is an unfinished job that doesn't allow to change service cluster name.
+var ErrClusterLocked = errors.New("cluster/service is locked")
 
 type MgmtServices struct {
 	BackupsService        *managementbackup.BackupsService
@@ -106,7 +106,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, artifact := range artifacts.Artifacts {
 		if _, ok := sMap[artifact.ServiceId]; ok && statusNotFinal(artifact.Status) {
-			return errors.Wrapf(ErrClusterBlocked, "there is an unfinished backup job for service %s or other service in the same cluster", service.ServiceID)
+			return errors.Wrapf(ErrClusterLocked, "there is an unfinished backup job for service %s or other service in the same cluster", service.ServiceID)
 		}
 	}
 
@@ -118,7 +118,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, restoreItem := range restores.Items {
 		if _, ok := sMap[restoreItem.ServiceId]; ok && restoreItem.Status == backuppb.RestoreStatus_RESTORE_STATUS_IN_PROGRESS {
-			return errors.Wrapf(ErrClusterBlocked, "there is an unfinished restore job for service %s or other service in the same cluster", service.ServiceID)
+			return errors.Wrapf(ErrClusterLocked, "there is an unfinished restore job for service %s or other service in the same cluster", service.ServiceID)
 		}
 	}
 
