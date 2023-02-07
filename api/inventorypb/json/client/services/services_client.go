@@ -333,7 +333,7 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...Cl
 /*
 ChangeService changes service
 
-Changes service configuration. If new cluster label specified, removes all existing scheduled backup/restore tasks for the related services. Fails if there are any backup/restore running tasks.
+Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.
 */
 func (a *Client) ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error) {
 	// TODO: Validate the params before sending
