@@ -230,14 +230,20 @@ func TestPXCClusterService(t *testing.T) {
 			},
 		}
 		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "hostname",
+			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
 			},
 		}
 
 		kubernetesClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
 
-		kubernetesClient.On("GetSecret", ctx, mock.Anything).Return(mockReq, nil)
+		kubernetesClient.On("GetSecret", ctx, fmt.Sprintf(pxcSecretNameTmpl, name)).Return(mockReq, nil)
 
 		in := dbaasv1beta1.GetPXCClusterCredentialsRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -263,6 +269,9 @@ func TestPXCClusterService(t *testing.T) {
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: name,
+			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
 			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "amazing.com",
