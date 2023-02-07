@@ -50,42 +50,39 @@ type PXCClustersService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
-	kubernetesClient  kubernetesClient
 	componentsService componentsService
+	kubeStorage       *KubeStorage
 	versionServiceURL string
 
 	dbaasv1beta1.UnimplementedPXCClustersServer
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
-	componentsService componentsService, versionServiceURL string,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService,
+	versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
 	return &PXCClustersService{
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
-		kubernetesClient:  kubernetesClient,
 		versionServiceURL: versionServiceURL,
 		componentsService: componentsService,
+		kubeStorage:       NewKubeStorage(db),
 	}
 }
 
 // GetPXCClusterCredentials returns a PXC cluster credentials.
 func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPXCClusterCredentialsRequest) (*dbaasv1beta1.GetPXCClusterCredentialsResponse, error) { //nolint:lll
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := s.kubernetesClient.GetSecret(ctx, fmt.Sprintf(pxcSecretNameTmpl, req.Name))
+	secret, err := kubeClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -119,58 +116,34 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.New("pxc cluster must have one and only one proxy type defined")
 	}
 
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.fillDefaults(ctx, kubernetesCluster, req); err != nil {
+	if err := s.fillDefaults(ctx, req.KubernetesClusterName, req, kubeClient); err != nil {
 		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
 	if req.Params.Pxc.StorageClass == "" {
-		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
+		className, err := kubeClient.GetDefaultStorageClassName(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get storage classes")
 		}
 		req.Params.Pxc.StorageClass = className
 	}
-	if req.Params.Haproxy != nil {
-		if req.Params.Haproxy.Image == "" {
-			// PXC operator requires to specify HAproxy image
-			// It uses default operator distribution based on version
-			// following the template operatorimage:version-haproxy
-			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
-			if err != nil {
-				return nil, err
-			}
-			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
-		}
-	}
-	if req.Params.Proxysql != nil {
-		if req.Params.Proxysql.Image == "" {
-			// PXC operator requires to specify ProxySQL image
-			// It uses default operator distribution based on version
-			// following the template operatorimage:version-proxysql
-			version, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
-			if err != nil {
-				return nil, err
-			}
-			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
-		}
-	}
-	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
+	clusterType, err := kubeClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting cluster type")
 	}
-	dbCluster, err := kubernetes.DatabaseClusterForPXC(req, clusterType)
+	backupLocation, err := s.getBackupLocation(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting backup location")
+	}
+	dbCluster, dbRestore, err := kubernetes.DatabaseClusterForPXC(req, clusterType, backupLocation)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
-	dbCluster.Spec.SecretsName = fmt.Sprintf(pxcSecretNameTmpl, req.Name)
 
 	secrets, err := generatePasswords(map[string][]byte{
 		"root":         {},
@@ -198,11 +171,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}
-	err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-	if err != nil {
-		return nil, err
+	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
+		err = kubeClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
+	err = kubeClient.CreateDatabaseCluster(dbCluster)
+
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -211,11 +187,24 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 			}
 		}
 	}
+	if req.Params.Backup != nil || req.Params.Restore != nil && backupLocation != nil {
+		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
+		secrets := kubernetes.SecretForBackup(backupLocation)
+		if err := kubeClient.CreatePMMSecret(secretsName, secrets); err != nil {
+			return nil, errors.Wrap(err, "failed to create a secret")
+		}
+	}
+	if dbRestore != nil {
+		if err := kubeClient.CreateRestore(dbRestore); err != nil {
+			return nil, err
+		}
+	}
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
 }
 
-func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster *models.KubernetesCluster,
-	req *dbaasv1beta1.CreatePXCClusterRequest,
+//nolint:cyclop
+func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterName string,
+	req *dbaasv1beta1.CreatePXCClusterRequest, kubeClient kubernetesClient,
 ) error {
 	if req.Name != "" {
 		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
@@ -275,6 +264,16 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 		if req.Params.Haproxy.ComputeResources.MemoryBytes == 0 {
 			req.Params.Haproxy.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
 		}
+		if req.Params.Haproxy.Image == "" {
+			// PXC operator requires to specify HAproxy image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-haproxy
+			version, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return err
+			}
+			req.Params.Haproxy.Image = fmt.Sprintf(haProxyTemplate, version)
+		}
 	}
 
 	if req.Params.Proxysql != nil {
@@ -290,12 +289,22 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 		if req.Params.Proxysql.ComputeResources.MemoryBytes == 0 {
 			req.Params.Proxysql.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
 		}
+		if req.Params.Proxysql.Image == "" {
+			// PXC operator requires to specify ProxySQL image
+			// It uses default operator distribution based on version
+			// following the template operatorimage:version-proxysql
+			version, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return err
+			}
+			req.Params.Proxysql.Image = fmt.Sprintf(proxySQLTemplate, version)
+		}
 	}
 
 	// Only call the version service if it is really needed.
 	if req.Name == "" || req.Params.Pxc.Image == "" {
 		pxcComponents, err := s.componentsService.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
-			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+			KubernetesClusterName: kubernetesClusterName,
 		})
 		if err != nil {
 			return errors.New("cannot get the list of PXC components")
@@ -329,17 +338,14 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 //
 //nolint:dupl
 func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1beta1.UpdatePXCClusterRequest) (*dbaasv1beta1.UpdatePXCClusterResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
-	if err != nil {
-		return nil, err
-	}
 	if (req.Params.Proxysql != nil) && (req.Params.Haproxy != nil) {
 		return nil, errors.New("can't update both proxies, only one is in use")
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
 	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +354,7 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
 
-	err = s.kubernetesClient.PatchDatabaseCluster(dbCluster)
+	err = kubeClient.PatchDatabaseCluster(dbCluster)
 
 	if err != nil {
 		return nil, err
@@ -389,4 +395,14 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 			DiskSize:    disk,
 		},
 	}, nil
+}
+
+func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCClusterRequest) (*models.BackupLocation, error) {
+	if req.Params != nil && req.Params.Backup != nil && req.Params.Backup.LocationId != "" {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)
+	}
+	if req.Params != nil && req.Params.Restore != nil && req.Params.Restore.LocationId != "" {
+		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
+	}
+	return nil, nil
 }
