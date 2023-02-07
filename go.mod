@@ -52,7 +52,7 @@ require (
 	github.com/percona-platform/dbaas-api v0.0.0-20221214134301-b6a331250826
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/dbaas-operator v0.0.13
-	github.com/percona/exporter_shared v0.7.3
+	github.com/percona/exporter_shared v0.7.4
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
 	github.com/percona/promconfig v0.2.5
@@ -71,7 +71,7 @@ require (
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.1.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.4.0
+	golang.org/x/sys v0.5.0
 	golang.org/x/text v0.6.0
 	golang.org/x/tools v0.5.0
 	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37

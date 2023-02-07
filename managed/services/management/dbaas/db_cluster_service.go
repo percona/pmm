@@ -71,12 +71,12 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}
 	psmdbOperatorVersion, err := s.kubernetesClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed getting psmdb operator version")
+		s.l.Errorf("failed determining version of psmdb operator: %v", err)
 	}
 
 	pxcOperatorVersion, err := s.kubernetesClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed getting pxc operator version")
+		s.l.Errorf("failed determining version of pxc operator: %v", err)
 	}
 	psmdbClusters := []*dbaasv1beta1.PSMDBCluster{}
 	pxcClusters := []*dbaasv1beta1.PXCCluster{}
@@ -302,14 +302,14 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
 	resp := &dbaasv1beta1.GetDBClusterResponse{}
-	if dbCluster.Spec.Database == kubernetes.DatabaseTypePXC {
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePXC && pxcOperatorVersion != "" {
 		c, err := s.getPXCCluster(ctx, *dbCluster, pxcOperatorVersion)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed getting PXC cluster")
 		}
 		resp.PxcCluster = c
 	}
-	if dbCluster.Spec.Database == kubernetes.DatabaseTypePSMDB {
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePSMDB && psmdbOperatorVersion != "" {
 		c, err := s.getPSMDBCluster(ctx, *dbCluster, psmdbOperatorVersion)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed getting PSMDB cluster")
