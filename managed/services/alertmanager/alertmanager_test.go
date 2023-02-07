@@ -330,12 +330,15 @@ var htmlTemplate = `|
             </html>`
 
 func TestIsReady(t *testing.T) {
-	New(nil).GenerateBaseConfigs() // this method should not use database
-
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	svc := New(db)
+
+	svc, err := New(db)
+	assert.NoError(t, err)
+
+	err = svc.GenerateBaseConfigs()
+	assert.NoError(t, err)
 
 	assert.NoError(t, svc.updateConfiguration(ctx))
 	assert.NoError(t, svc.IsReady(ctx))
@@ -354,13 +357,13 @@ func marshalAndValidate(t *testing.T, svc *Service, base *alertmanager.Config) s
 }
 
 func TestPopulateConfig(t *testing.T) {
-	New(nil).GenerateBaseConfigs() // this method should not use database
-
 	t.Run("without receivers and routes", func(t *testing.T) {
 		tests.SetTestIDReader(t)
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		svc := New(db)
+
+		svc, err := New(db)
+		require.NoError(t, err)
 
 		cfg := svc.loadBaseConfig()
 		cfg.Global = &alertmanager.GlobalConfig{
@@ -390,7 +393,8 @@ templates: []
 		tests.SetTestIDReader(t)
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		svc := New(db)
+		svc, err := New(db)
+		require.NoError(t, err)
 
 		channel1, err := models.CreateChannel(db.Querier, &models.CreateChannelParams{
 			Summary: "channel1",
@@ -729,8 +733,12 @@ func TestGenerateReceivers(t *testing.T) {
 		"2":   {"2"},
 		"1+2": {"1", "2"},
 	}
-	s := New(nil)
-	actualR, err := s.generateReceivers(chanMap, recvSet)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	svc, err := New(db)
+	require.NoError(t, err)
+
+	actualR, err := svc.generateReceivers(chanMap, recvSet)
 	require.NoError(t, err)
 	actual, err := yaml.Marshal(actualR)
 	require.NoError(t, err)
