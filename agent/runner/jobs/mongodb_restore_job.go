@@ -108,7 +108,8 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer os.Remove(confFile) //nolint:errcheck
 
 	forceResync := conf.Storage.FileSystem.Path != ""
-	if err := pbmConfigure(ctx, j.l, j.dbURL, forceResync, confFile); err != nil {
+	configFlag := createPBMConfigFlag(confFile, j.dbURL, forceResync)
+	if err := pbmConfigure(ctx, j.l, configFlag); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
@@ -154,10 +155,6 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		},
 	})
 
-	select {
-	case <-ctx.Done():
-	case <-time.After(waitForLogs):
-	}
 	return nil
 }
 
