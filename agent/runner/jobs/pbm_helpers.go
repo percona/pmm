@@ -326,6 +326,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRe
 }
 
 func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore, backupType, confFile string) error {
+	l.Infof("detecting restore name")
 	var name string
 	var err error
 
@@ -339,7 +340,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		name = restoreInfo.Name
 	}
 
-	l.Infof("waiting for pbm restore: %s", restoreInfo.Name)
+	l.Infof("waiting for pbm restore: %s", name)
 
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
