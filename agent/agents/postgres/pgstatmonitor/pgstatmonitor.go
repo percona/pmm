@@ -369,7 +369,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 			// In case of PGSM 2.0 and above we need create view first.
 			_, err := m.q.Exec(pgsm20SettingsViewQuery)
 			if err != nil {
-				// If it is already exists we just igroning error
+				// If it is already exists we just igroning error, otherwise it return error.
 				if !strings.Contains(err.Error(), "already exists") {
 					return nil, err
 				}
