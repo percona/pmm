@@ -35,7 +35,11 @@ func (c *Client) handleVersionsRequest(r *agentpb.GetVersionsRequest) []*agentpb
 		case *agentpb.GetVersionsRequest_Software_Xbcloud:
 			version, err = c.softwareVersioner.XbcloudVersion()
 		case *agentpb.GetVersionsRequest_Software_Qpress:
-			version, err = c.softwareVersioner.Qpress()
+			version, err = c.softwareVersioner.QpressVersion()
+		case *agentpb.GetVersionsRequest_Software_Mongod:
+			version, err = c.softwareVersioner.MongoDBVersion()
+		case *agentpb.GetVersionsRequest_Software_Pbm:
+			version, err = c.softwareVersioner.PBMVersion()
 		default:
 			err = errors.Errorf("unknown software type %T", s.Software)
 		}
