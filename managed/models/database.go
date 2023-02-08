@@ -838,6 +838,13 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`CREATE TABLE files (
+			name VARCHAR NOT NULL CHECK (name <> '') PRIMARY KEY,
+			content BYTEA NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

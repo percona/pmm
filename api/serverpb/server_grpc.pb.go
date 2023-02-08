@@ -42,6 +42,10 @@ type ServerClient interface {
 	TestEmailAlertingSettings(ctx context.Context, in *TestEmailAlertingSettingsRequest, opts ...grpc.CallOption) (*TestEmailAlertingSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
 	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
+	// GetFile retrieves a single file.
+	GetFile(ctx context.Context, in *GetFileRequest, opts ...grpc.CallOption) (*GetFileResponse, error)
+	// UpdateFile updates an existing file.
+	UpdateFile(ctx context.Context, in *UpdateFileRequest, opts ...grpc.CallOption) (*UpdateFileResponse, error)
 }
 
 type serverClient struct {
@@ -133,6 +137,24 @@ func (c *serverClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceChec
 	return out, nil
 }
 
+func (c *serverClient) GetFile(ctx context.Context, in *GetFileRequest, opts ...grpc.CallOption) (*GetFileResponse, error) {
+	out := new(GetFileResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/GetFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverClient) UpdateFile(ctx context.Context, in *UpdateFileRequest, opts ...grpc.CallOption) (*UpdateFileResponse, error) {
+	out := new(UpdateFileResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/UpdateFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServer is the server API for Server service.
 // All implementations must embed UnimplementedServerServer
 // for forward compatibility
@@ -156,6 +178,10 @@ type ServerServer interface {
 	TestEmailAlertingSettings(context.Context, *TestEmailAlertingSettingsRequest) (*TestEmailAlertingSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
 	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
+	// GetFile retrieves a single file.
+	GetFile(context.Context, *GetFileRequest) (*GetFileResponse, error)
+	// UpdateFile updates an existing file.
+	UpdateFile(context.Context, *UpdateFileRequest) (*UpdateFileResponse, error)
 	mustEmbedUnimplementedServerServer()
 }
 
@@ -196,6 +222,14 @@ func (UnimplementedServerServer) TestEmailAlertingSettings(context.Context, *Tes
 
 func (UnimplementedServerServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AWSInstanceCheck not implemented")
+}
+
+func (UnimplementedServerServer) GetFile(context.Context, *GetFileRequest) (*GetFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFile not implemented")
+}
+
+func (UnimplementedServerServer) UpdateFile(context.Context, *UpdateFileRequest) (*UpdateFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateFile not implemented")
 }
 func (UnimplementedServerServer) mustEmbedUnimplementedServerServer() {}
 
@@ -372,6 +406,42 @@ func _Server_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Server_GetFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).GetFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/GetFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).GetFile(ctx, req.(*GetFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Server_UpdateFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).UpdateFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/UpdateFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).UpdateFile(ctx, req.(*UpdateFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Server_ServiceDesc is the grpc.ServiceDesc for Server service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -414,6 +484,14 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AWSInstanceCheck",
 			Handler:    _Server_AWSInstanceCheck_Handler,
+		},
+		{
+			MethodName: "GetFile",
+			Handler:    _Server_GetFile_Handler,
+		},
+		{
+			MethodName: "UpdateFile",
+			Handler:    _Server_UpdateFile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

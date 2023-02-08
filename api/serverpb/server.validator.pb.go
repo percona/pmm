@@ -255,3 +255,30 @@ func (this *AWSInstanceCheckRequest) Validate() error {
 func (this *AWSInstanceCheckResponse) Validate() error {
 	return nil
 }
+
+func (this *GetFileRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *GetFileResponse) Validate() error {
+	if this.UpdatedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.UpdatedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("UpdatedAt", err)
+		}
+	}
+	return nil
+}
+
+func (this *UpdateFileRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *UpdateFileResponse) Validate() error {
+	return nil
+}

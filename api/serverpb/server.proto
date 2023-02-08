@@ -291,6 +291,34 @@ message AWSInstanceCheckRequest {
 
 message AWSInstanceCheckResponse {}
 
+message GetFileRequest {
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message GetFileResponse {
+  // name represent file name with extension.
+  string name = 1;
+  // content represent file content.
+  bytes content = 2;
+  // updated_at represent file modification timestamp.
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+message UpdateFileRequest {
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  bytes content = 2;
+}
+
+message UpdateFileResponse {}
+
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -389,6 +417,28 @@ service Server {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "AWS instance check"
       description: "Checks AWS EC2 instance ID."
+    };
+  }
+  // GetFile retrieves a single file.
+  rpc GetFile(GetFileRequest) returns (GetFileResponse) {
+    option (google.api.http) = {
+      post: "/v1/File/Get"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get File"
+      description: "Retrieves a File by Name."
+    };
+  }
+  // UpdateFile updates an existing file.
+  rpc UpdateFile(UpdateFileRequest) returns (UpdateFileResponse) {
+    option (google.api.http) = {
+      post: "/v1/File/Update"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update File"
+      description: "Updates an existing File."
     };
   }
 }
