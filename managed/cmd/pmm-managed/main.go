@@ -744,11 +744,7 @@ func main() {
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
 
-	vmParams, err := models.NewVictoriaMetricsParams(victoriametrics.BasePrometheusConfigPath)
-	if err != nil {
-		l.Panicf("cannot load victoriametrics params problem: %+v", err)
-	}
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, *victoriaMetricsURLF, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(db, *victoriaMetricsConfigF, *victoriaMetricsURLF, victoriametrics.BasePrometheusConfigPath)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -782,8 +778,8 @@ func main() {
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, alertManager)
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmdb, alertManager)
+	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmdb, gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {

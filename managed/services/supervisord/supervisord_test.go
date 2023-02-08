@@ -36,8 +36,7 @@ func TestConfig(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+	s := New(configDir, pmmUpdateCheck, nil, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
@@ -54,7 +53,7 @@ func TestConfig(t *testing.T) {
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings, nil)
+			actual, err := s.marshalConfig(tmpl, settings, nil, nil)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
@@ -67,8 +66,7 @@ func TestDBaaSController(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+	s := New(configDir, pmmUpdateCheck, nil, gRPCMessageMaxSize)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
@@ -102,7 +100,7 @@ func TestDBaaSController(t *testing.T) {
 
 		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
 		require.NoError(t, err)
-		actual, err := s.marshalConfig(tp, &st, nil)
+		actual, err := s.marshalConfig(tp, &st, nil, nil)
 		require.NoError(t, err)
 		assert.Equal(t, string(expected), string(actual))
 	}

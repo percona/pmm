@@ -54,6 +54,7 @@ var commonExpectedFiles = []string{
 	"pmm.conf",
 	"pmm.ini",
 	"postgresql14.log",
+	"prometheus.base.yml",
 	"qan-api2.ini",
 	"qan-api2.log",
 	"supervisorctl_status.log",
@@ -121,9 +122,14 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
+
 	amfpMock := &mockAmBaseFileProvider{}
 	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
-	l := NewLogs("2.4.5", checker, amfpMock)
+
+	vmfpMock := &mockVmBaseFileProvider{}
+	vmfpMock.On("GetBaseFile").Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
+
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -131,11 +137,6 @@ func TestFiles(t *testing.T) {
 	for _, f := range files {
 		// present only after update
 		if f.Name == "pmm-update-perform.log" {
-			continue
-		}
-
-		if f.Name == "prometheus.base.yml" {
-			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
 		}
 
@@ -159,9 +160,14 @@ func TestFiles(t *testing.T) {
 
 func TestZip(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
+
 	amfpMock := &mockAmBaseFileProvider{}
 	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
-	l := NewLogs("2.4.5", checker, amfpMock)
+
+	vmfpMock := &mockVmBaseFileProvider{}
+	vmfpMock.On("GetBaseFile").Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
+
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
@@ -178,7 +184,6 @@ func TestZip(t *testing.T) {
 		"client/status.json",
 		"client/pmm-agent/pmm-agent.log",
 		"systemctl_status.log",
-		"prometheus.base.yml",
 	}
 	if os.Getenv("ENABLE_DBAAS") == "1" {
 		additionalFiles = append(additionalFiles, "dbaas-controller.log")
