@@ -203,6 +203,11 @@ func TestRestoreBackupErrors(t *testing.T) {
 			backupError: backup.ErrIncompatibleTargetMySQL,
 			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL,
 		},
+		{
+			testName:    "target MongoDB is not compatible",
+			backupError: backup.ErrIncompatibleTargetMongoDB,
+			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB,
+		},
 	} {
 		t.Run(tc.testName, func(t *testing.T) {
 			backupError := fmt.Errorf("error: %w", tc.backupError)
