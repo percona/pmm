@@ -19,6 +19,7 @@ import "github.com/percona/pmm/managed/models"
 
 //go:generate ../../../bin/mockery -name=alertFlagsProvider -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=vmBaseFileProvider -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=amBaseFileProvider -case=snake -inpkg -testonly
 
 // alertFlagsProvider is a subset of methods of victoria.Metrics service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -29,5 +30,11 @@ type alertFlagsProvider interface {
 // vmBaseFileProvider is a subset of methods of victoria.Metrics service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type vmBaseFileProvider interface {
+	GetBaseFile() (models.File, error)
+}
+
+// amBaseFileProvider is a subset of methods of alertmanager service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type amBaseFileProvider interface {
 	GetBaseFile() (models.File, error)
 }

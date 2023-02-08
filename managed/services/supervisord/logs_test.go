@@ -123,10 +123,13 @@ func TestAddAdminSummary(t *testing.T) {
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
+	amfpMock := &mockAmBaseFileProvider{}
+	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+
 	vmfpMock := &mockVmBaseFileProvider{}
 	vmfpMock.On("GetBaseFile").Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
 
-	l := NewLogs("2.4.5", checker, vmfpMock)
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -158,10 +161,13 @@ func TestFiles(t *testing.T) {
 func TestZip(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
+	amfpMock := &mockAmBaseFileProvider{}
+	amfpMock.On("GetBaseFile").Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+
 	vmfpMock := &mockVmBaseFileProvider{}
 	vmfpMock.On("GetBaseFile").Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
 
-	l := NewLogs("2.4.5", checker, vmfpMock)
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer

@@ -82,28 +82,37 @@ var emailTemplate string
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
-	db     *reform.DB
-	client *http.Client
+	db             *reform.DB
+	client         *http.Client
+	baseConfigName string
 
 	l        *logrus.Entry
 	reloadCh chan struct{}
 }
 
 // New creates new service.
-func New(db *reform.DB) *Service {
-	return &Service{
+func New(db *reform.DB) (*Service, error) {
+	out := &Service{
 		db:       db,
 		client:   &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		l:        logrus.WithField("component", "alertmanager"),
 		reloadCh: make(chan struct{}, 1),
 	}
+
+	names, err := models.ReadAndUpsertFiles(context.TODO(), out.db.Querier, alertmanagerBaseConfigPath)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	out.baseConfigName = names[0]
+	return out, nil
 }
 
 // GenerateBaseConfigs generates alertmanager.base.yml if it is absent,
 // and then writes basic alertmanager.yml if it is absent or empty.
 // It is needed because Alertmanager was added to PMM
 // with invalid configuration file (it will fail with "no route provided in config" error).
-func (svc *Service) GenerateBaseConfigs() {
+func (svc *Service) GenerateBaseConfigs() error {
 	for _, dirPath := range []string{alertmanagerDir, alertmanagerDataDir, alertmanagerCertDir} {
 		if err := dir.CreateDataDir(dirPath, "pmm", "pmm", dirPerm); err != nil {
 			svc.l.Error(err)
@@ -122,13 +131,14 @@ receivers:
     - name: empty
 	`) + "\n"
 
-	_, err := os.Stat(alertmanagerBaseConfigPath)
-	svc.l.Debugf("%s status: %v", alertmanagerBaseConfigPath, err)
-	if os.IsNotExist(err) {
-		svc.l.Infof("Creating %s", alertmanagerBaseConfigPath)
-		err = os.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
-		if err != nil {
-			svc.l.Errorf("Failed to write %s: %s", alertmanagerBaseConfigPath, err)
+	file, err := models.GetFile(svc.db.Querier, svc.baseConfigName)
+	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
+		return errors.WithStack(err)
+	}
+
+	if len(file.Content) == 0 {
+		if _, err = models.UpdateFile(context.TODO(), svc.db, models.UpdateFileParams{Name: file.Name, Content: []byte(defaultBase)}); err != nil {
+			return errors.WithStack(err)
 		}
 	}
 
@@ -142,6 +152,7 @@ receivers:
 			svc.l.Errorf("Failed to write %s: %s", alertmanagerConfigPath, err)
 		}
 	}
+	return nil
 }
 
 // Run runs Alertmanager configuration update loop until ctx is canceled.
@@ -237,19 +248,15 @@ func (svc *Service) reload(ctx context.Context) error {
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *alertmanager.Config {
-	buf, err := os.ReadFile(alertmanagerBaseConfigPath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			svc.l.Errorf("Failed to load base Alertmanager config %s: %s", alertmanagerBaseConfigPath, err)
-		}
-
+	file, err := svc.GetBaseFile()
+	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
+		svc.l.Errorf("Failed to load base Alertmanager config %s: %s", alertmanagerBaseConfigPath, err)
 		return &alertmanager.Config{}
 	}
 
 	var cfg alertmanager.Config
-	if err := yaml.Unmarshal(buf, &cfg); err != nil {
+	if err := yaml.Unmarshal(file.Content, &cfg); err != nil {
 		svc.l.Errorf("Failed to parse base Alertmanager config %s: %s.", alertmanagerBaseConfigPath, err)
-
 		return &alertmanager.Config{}
 	}
 
@@ -871,6 +878,14 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (svc *Service) GetBaseFile() (models.File, error) {
+	file, err := models.GetFile(svc.db.Querier, svc.baseConfigName)
+	if err != nil {
+		return file, err
+	}
+	return file, nil
 }
 
 // configure default client; we use it mainly because we can't remove it from generated code
