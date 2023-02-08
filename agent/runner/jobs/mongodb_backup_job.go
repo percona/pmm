@@ -115,7 +115,11 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
-	configParams := createPBMConfigParams(confFile, j.dbURL, false)
+	configParams := pbmConfigParams{
+		configFilePath: confFile,
+		forceResync:    false,
+		dbURL:          j.dbURL,
+	}
 	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}

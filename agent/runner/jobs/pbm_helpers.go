@@ -170,14 +170,6 @@ type pbmConfigParams struct {
 	dbURL          *url.URL
 }
 
-func createPBMConfigParams(confFile string, dbURL *url.URL, forceResync bool) pbmConfigParams {
-	return pbmConfigParams{
-		forceResync:    forceResync,
-		configFilePath: confFile,
-		dbURL:          dbURL,
-	}
-}
-
 func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
