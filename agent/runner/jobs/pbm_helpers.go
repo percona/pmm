@@ -166,15 +166,15 @@ type pbmError struct {
 // pbmConfigFlags groups the flags/options for configuring PBM.
 type pbmConfigFlag struct {
 	configFilePath string
-	forceResync bool
-	dbURL *url.URL
+	forceResync    bool
+	dbURL          *url.URL
 }
 
 func createPBMConfigFlag(confFile string, dbURL *url.URL, forceResync bool) pbmConfigFlag {
 	return pbmConfigFlag{
-		forceResync: forceResync,
+		forceResync:    forceResync,
 		configFilePath: confFile,
-		dbURL: dbURL,
+		dbURL:          dbURL,
 	}
 }
 
@@ -396,7 +396,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, flag pbmConfigFlag)
 	if flag.forceResync {
 		args = append(args, "--force-resync")
 	}
-	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput()
+	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}
