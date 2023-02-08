@@ -48,6 +48,8 @@ const (
 	XtrabackupSoftwareName SoftwareName = "xtrabackup"
 	XbcloudSoftwareName    SoftwareName = "xbcloud"
 	QpressSoftwareName     SoftwareName = "qpress"
+	MongoDBSoftwareName    SoftwareName = "mongodb"
+	PBMSoftwareName        SoftwareName = "pbm"
 )
 
 // SoftwareVersion represents version of the given software.
