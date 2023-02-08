@@ -38,6 +38,17 @@ func (this *SecurityCheck) Validate() error {
 	return nil
 }
 
+func (this *Advisor) Validate() error {
+	for _, item := range this.Check {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Check", err)
+			}
+		}
+	}
+	return nil
+}
+
 func (this *ChangeSecurityCheckParams) Validate() error {
 	return nil
 }
@@ -77,6 +88,14 @@ func (this *ListSecurityChecksResponse) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (this *ListAdvisorsRequest) Validate() error {
+	return nil
+}
+
+func (this *ListAdvisorsResponse) Validate() error {
 	return nil
 }
 

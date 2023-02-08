@@ -18078,6 +18078,65 @@
         }
       }
     },
+    "/v1/management/Advisors/List": {
+      "post": {
+        "description": "Returns a list of available advisors.",
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "List advisors",
+        "operationId": "ListAdvisors",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Annotations/Add": {
       "post": {
         "description": "Adds annotation.",
@@ -28385,7 +28444,7 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of available Security Thread Tool checks.",
+        "description": "Returns a list of available checks.",
         "tags": [
           "SecurityChecks"
         ],

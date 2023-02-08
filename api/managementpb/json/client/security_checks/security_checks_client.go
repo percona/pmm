@@ -34,6 +34,8 @@ type ClientService interface {
 
 	GetSecurityCheckResults(params *GetSecurityCheckResultsParams, opts ...ClientOption) (*GetSecurityCheckResultsOK, error)
 
+	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
+
 	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
 
 	ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error)
@@ -163,6 +165,45 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams, 
 }
 
 /*
+ListAdvisors lists advisors
+
+Returns a list of available advisors.
+*/
+func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListAdvisorsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAdvisors",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Advisors/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAdvisorsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListAdvisorsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListAdvisorsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListFailedServices lists failed services
 
 Returns a list of services with failed checks and a summary of check results.
@@ -204,7 +245,7 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 /*
 ListSecurityChecks lists security checks
 
-Returns a list of available Security Thread Tool checks.
+Returns a list of available checks.
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

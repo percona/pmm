@@ -36,6 +36,8 @@ type SecurityChecksClient interface {
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
+	// ListAdvisors returns a list of available Security Thread Tool checks.
+	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
 	ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error)
 }
@@ -103,6 +105,15 @@ func (c *securityChecksClient) ListSecurityChecks(ctx context.Context, in *ListS
 	return out, nil
 }
 
+func (c *securityChecksClient) ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
+	out := new(ListAdvisorsResponse)
+	err := c.cc.Invoke(ctx, "/management.SecurityChecks/ListAdvisors", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityChecksClient) ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error) {
 	out := new(ChangeSecurityChecksResponse)
 	err := c.cc.Invoke(ctx, "/management.SecurityChecks/ChangeSecurityChecks", in, out, opts...)
@@ -129,6 +140,8 @@ type SecurityChecksServer interface {
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
+	// ListAdvisors returns a list of available Security Thread Tool checks.
+	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
 	ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error)
 	mustEmbedUnimplementedSecurityChecksServer()
@@ -159,6 +172,10 @@ func (UnimplementedSecurityChecksServer) StartSecurityChecks(context.Context, *S
 
 func (UnimplementedSecurityChecksServer) ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityChecks not implemented")
+}
+
+func (UnimplementedSecurityChecksServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisors not implemented")
 }
 
 func (UnimplementedSecurityChecksServer) ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error) {
@@ -285,6 +302,24 @@ func _SecurityChecks_ListSecurityChecks_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityChecks_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdvisorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityChecksServer).ListAdvisors(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.SecurityChecks/ListAdvisors",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityChecksServer).ListAdvisors(ctx, req.(*ListAdvisorsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityChecks_ChangeSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeSecurityChecksRequest)
 	if err := dec(in); err != nil {
@@ -333,6 +368,10 @@ var SecurityChecks_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSecurityChecks",
 			Handler:    _SecurityChecks_ListSecurityChecks_Handler,
+		},
+		{
+			MethodName: "ListAdvisors",
+			Handler:    _SecurityChecks_ListAdvisors_Handler,
 		},
 		{
 			MethodName: "ChangeSecurityChecks",

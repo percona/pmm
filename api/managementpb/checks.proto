@@ -85,6 +85,21 @@ message SecurityCheck {
   SecurityCheckInterval interval = 5;
 }
 
+message Advisor {
+  // Machine-readable name (ID) that is used in expression.
+  string name = 1;
+  // True if that check is disabled.
+  bool disabled = 2;
+  // Long human-readable description.
+  string description = 3;
+  // Short human-readable summary.
+  string summary = 4;
+  // Category.
+  string category = 5;
+  // Advisor checks.
+  repeated SecurityCheck check = 6;
+}
+
 // ChangeSecurityCheckParams specifies a single check parameters.
 message ChangeSecurityCheckParams {
   // The name of the check to change.
@@ -115,6 +130,12 @@ message ListSecurityChecksRequest {}
 
 message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
+}
+
+message ListAdvisorsRequest {}
+
+message ListAdvisorsResponse {
+
 }
 
 message ChangeSecurityChecksRequest {
@@ -214,7 +235,18 @@ service SecurityChecks {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Security Checks"
-      description: "Returns a list of available Security Thread Tool checks."
+      description: "Returns a list of available checks."
+    };
+  }
+  // ListAdvisors returns a list of available Security Thread Tool checks.
+  rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Advisors/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List advisors"
+      description: "Returns a list of available advisors."
     };
   }
   // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
