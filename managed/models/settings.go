@@ -99,9 +99,6 @@ type Settings struct {
 
 	// DefaultRoleID defines a default role to be assigned to new users.
 	DefaultRoleID int `json:"default_role_id"`
-
-	// DemoMode indicates a Platform demo instance.
-	DemoMode bool `json:"demo_mode"`
 }
 
 // EmailAlertingSettings represents email settings for Integrated Alerting.

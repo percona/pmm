@@ -443,6 +443,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		}
 		templateParams["PerconaSSODetails"] = ssoDetails
 		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
 	} else {
 		templateParams["PerconaSSODetails"] = nil
@@ -772,7 +773,7 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-		cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || '{{ .DemoMode}}') && 'Admin' || 'Viewer'"
+		cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')') && 'Admin' || 'Viewer'"
 		cfg:default.auth.generic_oauth.use_pkce="true"
 
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"

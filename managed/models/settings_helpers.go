@@ -122,9 +122,6 @@ type ChangeSettingsParams struct {
 
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID int
-
-	// EnableDemoMode enables a Platform Demo mode.
-	EnableDemoMode bool
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -302,10 +299,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.DefaultRoleID != 0 {
 		settings.DefaultRoleID = params.DefaultRoleID
-	}
-
-	if params.EnableDemoMode {
-		settings.DemoMode = true
 	}
 
 	err = SaveSettings(q, settings)
