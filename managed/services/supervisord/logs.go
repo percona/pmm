@@ -59,13 +59,13 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
-	amfp             amBaseFileProvider
-	vmfp             vmBaseFileProvider
+	amfp             baseFileProvider
+	vmfp             baseFileProvider
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmfp vmBaseFileProvider, amfp amBaseFileProvider) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmfp baseFileProvider, amfp baseFileProvider) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
