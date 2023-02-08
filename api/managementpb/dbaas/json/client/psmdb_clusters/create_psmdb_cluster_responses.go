@@ -375,21 +375,54 @@ type CreatePSMDBClusterParamsBodyParams struct {
 	// Docker image used for PSMDB.
 	Image string `json:"image,omitempty"`
 
+	// backup
+	Backup *CreatePSMDBClusterParamsBodyParamsBackup `json:"backup,omitempty"`
+
 	// replicaset
 	Replicaset *CreatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
+
+	// restore
+	Restore *CreatePSMDBClusterParamsBodyParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this create PSMDB cluster params body params
 func (o *CreatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateBackup(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateReplicaset(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRestore(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParams) validateBackup(formats strfmt.Registry) error {
+	if swag.IsZero(o.Backup) { // not required
+		return nil
+	}
+
+	if o.Backup != nil {
+		if err := o.Backup.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -412,17 +445,59 @@ func (o *CreatePSMDBClusterParamsBodyParams) validateReplicaset(formats strfmt.R
 	return nil
 }
 
+func (o *CreatePSMDBClusterParamsBodyParams) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create PSMDB cluster params body params based on the context it is used
 func (o *CreatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateBackup(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParams) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+	if o.Backup != nil {
+		if err := o.Backup.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -433,6 +508,21 @@ func (o *CreatePSMDBClusterParamsBodyParams) contextValidateReplicaset(ctx conte
 				return ve.ValidateName("body" + "." + "params" + "." + "replicaset")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params" + "." + "replicaset")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *CreatePSMDBClusterParamsBodyParams) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
 			}
 			return err
 		}
@@ -452,6 +542,52 @@ func (o *CreatePSMDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	var res CreatePSMDBClusterParamsBodyParams
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePSMDBClusterParamsBodyParamsBackup Backup configuration for a database cluster
+swagger:model CreatePSMDBClusterParamsBodyParamsBackup
+*/
+type CreatePSMDBClusterParamsBodyParamsBackup struct {
+	// Backup Location id of stored backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Keep copies represents how many copies should retain.
+	KeepCopies int32 `json:"keep_copies,omitempty"`
+
+	// Cron expression represents cron expression
+	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
+}
+
+// Validate validates this create PSMDB cluster params body params backup
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create PSMDB cluster params body params backup based on context it is used
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
+	var res CreatePSMDBClusterParamsBodyParamsBackup
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -591,6 +727,49 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources) MarshalBi
 // UnmarshalBinary interface implementation
 func (o *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
 	var res CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePSMDBClusterParamsBodyParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model CreatePSMDBClusterParamsBodyParamsRestore
+*/
+type CreatePSMDBClusterParamsBodyParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename.
+	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
+}
+
+// Validate validates this create PSMDB cluster params body params restore
+func (o *CreatePSMDBClusterParamsBodyParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create PSMDB cluster params body params restore based on context it is used
+func (o *CreatePSMDBClusterParamsBodyParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePSMDBClusterParamsBodyParamsRestore) UnmarshalBinary(b []byte) error {
+	var res CreatePSMDBClusterParamsBodyParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
