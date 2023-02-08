@@ -397,7 +397,7 @@ func (s *Server) setSocketPermissionsAndOwner(socketPath string, l *logrus.Entry
 	}
 
 	if err = os.Chown(socketPath, -1, int(stat.Gid)); err != nil {
-		l.Errorf("Could change group ownership of socket file %s. Error: %v", socketPath, err)
+		l.Errorf("Could not change group ownership of socket file %s. Error: %v", socketPath, err)
 		return nil
 	}
 
