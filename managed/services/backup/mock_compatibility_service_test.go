@@ -13,6 +13,20 @@ type mockCompatibilityService struct {
 	mock.Mock
 }
 
+// CheckArtifactCompatibility provides a mock function with given fields: artifactID, targetDBVersion
+func (_m *mockCompatibilityService) CheckArtifactCompatibility(artifactID string, targetDBVersion string) error {
+	ret := _m.Called(artifactID, targetDBVersion)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(artifactID, targetDBVersion)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CheckSoftwareCompatibilityForService provides a mock function with given fields: ctx, serviceID
 func (_m *mockCompatibilityService) CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	ret := _m.Called(ctx, serviceID)

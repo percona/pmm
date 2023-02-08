@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -25,6 +26,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 )
+
+// pmmAgentMinVersionForMongoBackupSoftwareCheck minimum agent version for getting required backup software versions.
+var pmmAgentMinVersionForMongoBackupSoftwareCheck = version.Must(version.NewVersion("2.35.0-0"))
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {
@@ -44,26 +48,24 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 
 // checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
-	// Only MySQL compatibility checking implemented for now.
-	if serviceModel.ServiceType != models.MySQLServiceType {
+	softwareList := agents.GetRequiredBackupSoftwareList(serviceModel.ServiceType)
+	if len(softwareList) == 0 {
+		s.l.Infof("Required backup software is not specified for %s service type.", serviceModel.ServiceType)
 		return "", nil
 	}
 
-	softwares := []agents.Software{&agents.Mysqld{}, &agents.Xtrabackup{}, &agents.Xbcloud{}, &agents.Qpress{}}
-	svs, err := s.v.GetVersions(agentModel.AgentID, softwares)
+	svs, err := s.v.GetVersions(agentModel.AgentID, softwareList)
 	if err != nil {
 		return "", err
 	}
-	if len(svs) != len(softwares) {
-		return "", errors.Wrapf(ErrComparisonImpossible, "response slice len %d != request len %d", len(svs), len(softwares))
+	if len(svs) != len(softwareList) {
+		s.l.Errorf("Response slice len %d != request len %d.", len(svs), len(softwareList))
+		return "", ErrComparisonImpossible
 	}
 
-	svm := make(map[models.SoftwareName]string, len(softwares))
-	for i, software := range softwares {
-		name, err := convertSoftwareName(software)
-		if err != nil {
-			return "", err
-		}
+	svm := make(map[models.SoftwareName]string, len(softwareList))
+	for i, software := range softwareList {
+		name := software.Name()
 		if svs[i].Error != "" {
 			return "", errors.Wrapf(ErrComparisonImpossible, "failed to get software %s version: %s", name, svs[i].Error)
 		}
@@ -71,11 +73,22 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 		svm[name] = svs[i].Version
 	}
 
-	if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
+	var binaryName models.SoftwareName
+	switch serviceModel.ServiceType {
+	case models.MySQLServiceType:
+		binaryName = models.MysqldSoftwareName
+		err = mySQLBackupSoftwareInstalledAndCompatible(svm)
+	case models.MongoDBServiceType:
+		binaryName = models.MongoDBSoftwareName
+		err = mongoDBBackupSoftwareInstalledAndCompatible(svm)
+	default:
+		return "", nil
+	}
+	if err != nil {
 		return "", err
 	}
 
-	return svm[models.MysqldSoftwareName], nil
+	return svm[binaryName], nil
 }
 
 // findCompatibleServiceIDs looks for services compatible to artifact in given array of services' software versions.
@@ -84,7 +97,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 	for _, sv := range svs {
 		svm := softwareVersionsToMap(sv.SoftwareVersions)
 
-		if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
+		if err := mySQLBackupSoftwareInstalledAndCompatible(svm); err != nil {
 			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
 			continue
 		}
@@ -103,10 +116,11 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 
 // CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
 // and they are compatible with the db version, currently only supports backup tools for MySQL
-// Returns db version.
+// Returns version of the installed database.
 func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	var serviceModel *models.Service
 	var agentModel *models.Agent
+
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		serviceModel, err = models.FindServiceByID(tx.Querier, serviceID)
@@ -126,6 +140,18 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 	})
 	if errTx != nil {
 		return "", errTx
+	}
+
+	if serviceModel.ServiceType == models.MongoDBServiceType {
+		if err := agents.PMMAgentSupported(s.db.Querier, agentModel.AgentID, "get mongodb backup software versions",
+			pmmAgentMinVersionForMongoBackupSoftwareCheck); err != nil {
+			var agentNotSupportedError *agents.AgentNotSupportedError
+			if errors.As(err, &agentNotSupportedError) {
+				s.l.Warnf("Got versioner error message: %s.", err.Error())
+				return "", nil
+			}
+			return "", err
+		}
 	}
 
 	return s.checkCompatibility(serviceModel, agentModel)
@@ -187,4 +213,37 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 	}
 
 	return compatibleServices, nil
+}
+
+// CheckArtifactCompatibility check compatibility between artifact and target database.
+func (s *CompatibilityService) CheckArtifactCompatibility(artifactID, targetDBVersion string) error {
+	artifactModel, err := models.FindArtifactByID(s.db.Querier, artifactID)
+	if err != nil {
+		return err
+	}
+
+	serviceModel, err := models.FindServiceByID(s.db.Querier, artifactModel.ServiceID)
+	if err != nil {
+		return err
+	}
+
+	return s.artifactCompatibility(artifactModel, serviceModel, targetDBVersion)
+}
+
+// artifactCompatibility contains logic for CheckArtifactCompatibility
+func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artifact, serviceModel *models.Service, targetDBVersion string) error {
+	var err error
+	if artifactModel.DBVersion != "" && artifactModel.DBVersion != targetDBVersion {
+		switch serviceModel.ServiceType {
+		case models.MySQLServiceType:
+			err = ErrIncompatibleTargetMySQL
+		case models.MongoDBServiceType:
+			err = ErrIncompatibleTargetMongoDB
+		default:
+			return nil
+		}
+		return errors.Wrapf(err, "backup artifact db version %q does not match the target db version %q", artifactModel.DBVersion, targetDBVersion)
+	}
+
+	return nil
 }
