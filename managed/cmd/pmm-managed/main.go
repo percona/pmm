@@ -203,14 +203,10 @@ type gRPCServerDeps struct {
 	agentService         *agents.AgentService
 }
 
-type gRPCServerFeatures struct {
-	enableAccessControl bool
-}
-
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll
-func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServerFeatures) {
+func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
@@ -278,9 +274,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
-	if features.enableAccessControl {
-		rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
-	}
+
+	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
@@ -678,8 +673,6 @@ func main() {
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
-	enableAccessControl := kingpin.Flag("enable-access-control", "Enable access control").Default("false").Envar("ENABLE_RBAC").Bool()
-
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -851,7 +844,6 @@ func main() {
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
-		EnableAccessControl:  *enableAccessControl,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -926,11 +918,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
-
-	if *enableAccessControl == true {
-		l.Info("Access control is enabled")
-	}
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -1025,8 +1013,6 @@ func main() {
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
-			}, gRPCServerFeatures{
-				enableAccessControl: *enableAccessControl,
 			})
 	}()
 
