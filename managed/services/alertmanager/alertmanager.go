@@ -131,7 +131,7 @@ receivers:
     - name: empty
 	`) + "\n"
 
-	file, err := models.GetFile(svc.db.Querier, svc.baseConfigName)
+	file, err := svc.GetBaseFile()
 	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
 		return errors.WithStack(err)
 	}
