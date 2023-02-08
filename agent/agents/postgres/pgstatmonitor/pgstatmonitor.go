@@ -367,11 +367,11 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	if settingsValuesAreText {
 		if pgsmVersion >= pgStatMonitorVersion20PG12 {
 			// In case of PGSM 2.0 and above we need create view first.
-			_, err := m.q.Exec(pgsm20SettingsViewQuery)
-			if err != nil {
+			_, errSettings := m.q.Exec(pgsm20SettingsViewQuery)
+			if errSettings != nil {
 				// If it is already exists we just igroning error, otherwise it return error.
-				if !strings.Contains(err.Error(), "already exists") {
-					return nil, err
+				if !strings.Contains(errSettings.Error(), "already exists") {
+					return nil, errSettings
 				}
 			}
 
