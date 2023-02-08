@@ -336,6 +336,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 type http1ServerDeps struct {
 	logs       *supervisord.Logs
 	authServer *grafana.AuthServer
+	db         *reform.DB
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -426,8 +427,10 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/", proxyMux)
 
+	e := managementdbaas.NewKubeExposer(deps.db, mux)
+	mux.Handle("/v1/kubernetes/", e.Handler())
+	mux.Handle("/", proxyMux)
 	server := &http.Server{ //nolint:gosec
 		Addr:     http1Addr,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
@@ -1022,6 +1025,7 @@ func main() {
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
+			db:         db,
 		})
 	}()
 

@@ -20,6 +20,7 @@ package dbaas
 
 import (
 	"context"
+	"net/http"
 
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -130,4 +131,6 @@ type kubernetesClient interface {
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
 	ListSecrets(context.Context) (*corev1.SecretList, error)
+	GetTransport() (http.RoundTripper, error)
+	GetHost() string
 }

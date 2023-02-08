@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -497,6 +498,12 @@ func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 		DescribeEvents(events, w)
 		return nil
 	})
+}
+func (c *Client) GetTransport() (http.RoundTripper, error) {
+	return rest.TransportFor(c.restConfig)
+}
+func (c *Client) GetHost() string {
+	return c.restConfig.Host
 }
 
 func tabbedString(f func(io.Writer) error) (string, error) {

@@ -661,3 +661,9 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 func (k *Kubernetes) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return k.client.GetStorageClasses(ctx)
 }
+func (k *Kubernetes) GetTransport() (http.RoundTripper, error) {
+	return k.client.GetTransport()
+}
+func (k *Kubernetes) GetHost() string {
+	return k.client.GetHost()
+}
