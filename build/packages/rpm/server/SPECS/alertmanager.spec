@@ -46,6 +46,9 @@ install -d %{buildroot}%{_sharedstatedir}/%{repo}
 %dir %attr(-, nobody, nobody) %{_sharedstatedir}/%{repo}
 
 %changelog
+* Wed Feb  8 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 0.25.0
+- PMM-11497 Upgrade AlertManager to 0.25
+
 * Tue May  4 2021 David Mikus <david.mikus.sde@gmail.com> - 0.21.0
 - PMM-7302 Upgrade AlertManager to 0.21
 
