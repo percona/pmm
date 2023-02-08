@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -85,7 +86,8 @@ const (
 )
 
 const (
-	queryTag = "pmm-agent:pgstatmonitor"
+	queryTag                = "pmm-agent:pgstatmonitor"
+	pgsm20SettingsViewQuery = "CREATE VIEW pg_stat_monitor_settings AS SELECT * FROM pg_settings WHERE name like 'pg_stat_monitor.%';"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
 	commandTypeSelect       = "SELECT"
@@ -351,14 +353,32 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 type settings map[string]*pgStatMonitorSettingsTextValue
 
 func (m *PGStatMonitorQAN) getSettings() (settings, error) {
-	var settingsRows []reform.Struct
-
 	settingsValuesAreText, err := areSettingsTextValues(m.q)
 	if err != nil {
 		return nil, err
 	}
+
+	pgsmVersion, _, err := getPGMonitorVersion(m.q)
+	if err != nil {
+		return nil, err
+	}
+
+	var settingsRows []reform.Struct
 	if settingsValuesAreText {
-		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+		if pgsmVersion >= pgStatMonitorVersion20PG12 {
+			// In case of PGSM 2.0 and above we need create view first.
+			_, err := m.q.Exec(pgsm20SettingsViewQuery)
+			if err != nil {
+				// If it is already exists we just igroning error
+				if !strings.Contains(err.Error(), "already exists") {
+					return nil, err
+				}
+			}
+
+			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValue20View, "")
+		} else {
+			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+		}
 	} else {
 		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
 	}
@@ -369,8 +389,16 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	settings := make(settings)
 	for _, row := range settingsRows {
 		if settingsValuesAreText {
-			setting := row.(*pgStatMonitorSettingsTextValue)
-			settings[setting.Name] = setting
+			if pgsmVersion >= pgStatMonitorVersion20PG12 {
+				setting := row.(*pgStatMonitorSettingsTextValue20)
+				settings[setting.Name] = &pgStatMonitorSettingsTextValue{
+					Name:  setting.Name,
+					Value: setting.Setting,
+				}
+			} else {
+				setting := row.(*pgStatMonitorSettingsTextValue)
+				settings[setting.Name] = setting
+			}
 		} else {
 			setting := row.(*pgStatMonitorSettings)
 			name := setting.Name
@@ -390,7 +418,7 @@ func (s settings) getNormalizedQueryValue() (bool, error) {
 		return false, errors.New("failed to get pgsm_normalized_query property")
 	}
 
-	if s[key].Value == "yes" || s[key].Value == "1" {
+	if s[key].Value == "yes" || s[key].Value == "1" || s[key].Value == "on" {
 		return true, nil
 	}
 

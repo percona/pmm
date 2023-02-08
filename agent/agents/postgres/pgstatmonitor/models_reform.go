@@ -332,9 +332,90 @@ var (
 	_ fmt.Stringer  = (*pgStatMonitorSettingsTextValue)(nil)
 )
 
+type pgStatMonitorSettingsTextValue20ViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *pgStatMonitorSettingsTextValue20ViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("pg_stat_monitor_settings").
+func (v *pgStatMonitorSettingsTextValue20ViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *pgStatMonitorSettingsTextValue20ViewType) Columns() []string {
+	return []string{
+		"name",
+		"setting",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *pgStatMonitorSettingsTextValue20ViewType) NewStruct() reform.Struct {
+	return new(pgStatMonitorSettingsTextValue20)
+}
+
+// pgStatMonitorSettingsTextValue20View represents pg_stat_monitor_settings view or table in SQL database.
+var pgStatMonitorSettingsTextValue20View = &pgStatMonitorSettingsTextValue20ViewType{
+	s: parse.StructInfo{
+		Type:    "pgStatMonitorSettingsTextValue20",
+		SQLName: "pg_stat_monitor_settings",
+		Fields: []parse.FieldInfo{
+			{Name: "Name", Type: "string", Column: "name"},
+			{Name: "Setting", Type: "string", Column: "setting"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(pgStatMonitorSettingsTextValue20).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s pgStatMonitorSettingsTextValue20) String() string {
+	res := make([]string, 2)
+	res[0] = "Name: " + reform.Inspect(s.Name, true)
+	res[1] = "Setting: " + reform.Inspect(s.Setting, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitorSettingsTextValue20) Values() []interface{} {
+	return []interface{}{
+		s.Name,
+		s.Setting,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitorSettingsTextValue20) Pointers() []interface{} {
+	return []interface{}{
+		&s.Name,
+		&s.Setting,
+	}
+}
+
+// View returns View object for that struct.
+func (s *pgStatMonitorSettingsTextValue20) View() reform.View {
+	return pgStatMonitorSettingsTextValue20View
+}
+
+// check interfaces
+var (
+	_ reform.View   = pgStatMonitorSettingsTextValue20View
+	_ reform.Struct = (*pgStatMonitorSettingsTextValue20)(nil)
+	_ fmt.Stringer  = (*pgStatMonitorSettingsTextValue20)(nil)
+)
+
 func init() {
 	parse.AssertUpToDate(&pgStatDatabaseView.s, new(pgStatDatabase))
 	parse.AssertUpToDate(&pgUserView.s, new(pgUser))
 	parse.AssertUpToDate(&pgStatMonitorSettingsView.s, new(pgStatMonitorSettings))
 	parse.AssertUpToDate(&pgStatMonitorSettingsTextValueView.s, new(pgStatMonitorSettingsTextValue))
+	parse.AssertUpToDate(&pgStatMonitorSettingsTextValue20View.s, new(pgStatMonitorSettingsTextValue20))
 }

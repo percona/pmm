@@ -42,12 +42,20 @@ type pgStatMonitorSettings struct {
 	Value int64  `reform:"value"`
 }
 
-// pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view 1.0.0-rc.2 and higher.
+// pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view 1.0.0-rc.2 to before 2.0.0-dev.
 //
 //reform:pg_stat_monitor_settings
 type pgStatMonitorSettingsTextValue struct {
 	Name  string `reform:"name"`
 	Value string `reform:"value"`
+}
+
+// pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view 2.0.0-dev and higher.
+//
+//reform:pg_stat_monitor_settings
+type pgStatMonitorSettingsTextValue20 struct {
+	Name    string `reform:"name"`
+	Setting string `reform:"setting"`
 }
 
 // pgStatMonitorExtended contains pgStatMonitor data and extends it with database, username and tables data.
