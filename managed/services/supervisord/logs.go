@@ -59,14 +59,16 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
+	vmfp             vmBaseFileProvider
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmfp vmBaseFileProvider) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
+		vmfp:             vmfp,
 	}
 }
 
@@ -170,8 +172,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
 
-		"/srv/prometheus/prometheus.base.yml",
-
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
@@ -191,6 +191,15 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 			Err:      err,
 		})
 	}
+
+	// add prometheus base config file
+	file, err := l.vmfp.GetBaseFile()
+	files = append(files, fileContent{
+		Name:     file.Name,
+		Data:     file.Content,
+		Modified: file.UpdatedAt,
+		Err:      err,
+	})
 
 	// add PMM version
 	files = append(files, fileContent{
