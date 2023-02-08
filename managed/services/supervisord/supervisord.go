@@ -580,6 +580,7 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+//nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
