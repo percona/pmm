@@ -169,6 +169,11 @@
                   "type": "string",
                   "x-order": 5
                 },
+                "disable_access_control": {
+                  "type": "boolean",
+                  "title": "Disable Access Control",
+                  "x-order": 30
+                },
                 "disable_alerting": {
                   "description": "Disable Alerting.",
                   "type": "boolean",
@@ -248,6 +253,11 @@
                     }
                   },
                   "x-order": 16
+                },
+                "enable_access_control": {
+                  "type": "boolean",
+                  "title": "Enable Access Control",
+                  "x-order": 29
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
