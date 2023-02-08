@@ -137,7 +137,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct {
+type Config struct { //nolint:musttag
 	// no config file there
 
 	ID             string `yaml:"id"`

@@ -266,6 +266,11 @@ func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, er
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
+// ListSecrets returns secrets
+func (c *Client) ListSecrets(ctx context.Context) (*corev1.SecretList, error) {
+	return c.clientset.CoreV1().Secrets(c.namespace).List(ctx, metav1.ListOptions{})
+}
+
 // DeleteObject deletes object from the k8s cluster
 func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
