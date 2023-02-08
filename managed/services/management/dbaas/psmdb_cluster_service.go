@@ -46,15 +46,15 @@ type PSMDBClusterService struct {
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
-	kubernetesClient  kubernetesClient
 	componentsService componentsService
+	kubeStorage       *KubeStorage
 	versionServiceURL string
 
 	dbaasv1beta1.UnimplementedPSMDBClustersServer
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernetesClient kubernetesClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
@@ -62,8 +62,8 @@ func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, kubernet
 		db:                db,
 		l:                 l,
 		grafanaClient:     grafanaClient,
-		kubernetesClient:  kubernetesClient,
 		componentsService: componentsService,
+		kubeStorage:       NewKubeStorage(db),
 		versionServiceURL: versionServiceURL,
 	}
 }
@@ -80,18 +80,15 @@ func (s *PSMDBClusterService) Enabled() bool {
 
 // GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.
 func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterCredentialsRequest) (*dbaasv1beta1.GetPSMDBClusterCredentialsResponse, error) { //nolint:lll
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting database cluster")
 	}
-	secret, err := s.kubernetesClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
+	secret, err := kubeClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting secret")
 	}
@@ -112,22 +109,19 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 // CreatePSMDBCluster creates PSMDB cluster with given parameters.
 //
 //nolint:dupl
-func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*dbaasv1beta1.CreatePSMDBClusterResponse, error) {
+func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*dbaasv1beta1.CreatePSMDBClusterResponse, error) { //nolint:lll
+
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		return nil, err
 	}
-
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
 
 	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
-		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+		KubernetesClusterName: req.KubernetesClusterName,
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get the list of PSMDB components")
@@ -144,23 +138,23 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		backupImage = backupComponent.ImagePath
 	}
 
-	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
+	if err := s.fillDefaults(req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
 	}
 	if req.Params.Replicaset.StorageClass == "" {
-		className, err := s.kubernetesClient.GetDefaultStorageClassName(ctx)
+		className, err := kubeClient.GetDefaultStorageClassName(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get storage classes")
 		}
 		req.Params.Replicaset.StorageClass = className
 	}
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
 	backupLocation, err := s.getBackupLocation(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting backup location")
-	}
-	clusterType, err := s.kubernetesClient.GetClusterType(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed getting cluster type")
 	}
 	dbCluster, dbRestore, err := kubernetes.DatabaseClusterForPSMDB(req, clusterType, backupLocation, backupImage)
 	if err != nil {
@@ -199,15 +193,14 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		secrets["PMM_SERVER_USER"] = []byte("api_key")
 		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
-
 	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
-		err = s.kubernetesClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
+		err = kubeClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	err = s.kubernetesClient.CreateDatabaseCluster(dbCluster)
+	err = kubeClient.CreateDatabaseCluster(dbCluster)
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -220,12 +213,12 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	if req.Params.Backup != nil || req.Params.Restore != nil && backupLocation != nil {
 		secretsName := fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName)
 		secrets := kubernetes.SecretForBackup(backupLocation)
-		if err := s.kubernetesClient.CreatePMMSecret(secretsName, secrets); err != nil {
+		if err := kubeClient.CreatePMMSecret(secretsName, secrets); err != nil {
 			return nil, errors.Wrap(err, "failed to create a secret")
 		}
 	}
 	if dbRestore != nil {
-		if err := s.kubernetesClient.CreateRestore(dbRestore); err != nil {
+		if err := kubeClient.CreateRestore(dbRestore); err != nil {
 			return nil, err
 		}
 	}
@@ -233,7 +226,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
 }
 
-func (s PSMDBClusterService) fillDefaults(_ context.Context, _ *models.KubernetesCluster,
+func (s PSMDBClusterService) fillDefaults(
 	req *dbaasv1beta1.CreatePSMDBClusterRequest, psmdbComponents *dbaasv1beta1.GetPSMDBComponentsResponse,
 ) error {
 	if req.Name != "" {
@@ -294,21 +287,18 @@ func (s PSMDBClusterService) fillDefaults(_ context.Context, _ *models.Kubernete
 			req.Name = req.Name[:21]
 		}
 	}
-	//}
+	// }
 
 	return nil
 }
 
 // UpdatePSMDBCluster updates PSMDB cluster.
 func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaasv1beta1.UpdatePSMDBClusterResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
-	if err := s.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "failed creating kubernetes client")
-	}
-	dbCluster, err := s.kubernetesClient.GetDatabaseCluster(ctx, req.Name)
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -317,7 +307,7 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
-	err = s.kubernetesClient.PatchDatabaseCluster(dbCluster)
+	err = kubeClient.PatchDatabaseCluster(dbCluster)
 	if err != nil {
 		return nil, err
 	}

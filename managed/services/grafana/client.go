@@ -93,7 +93,7 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 }
 
 // clientError contains error response details.
-type clientError struct {
+type clientError struct { //nolint:musttag
 	Method       string
 	URL          string
 	Code         int

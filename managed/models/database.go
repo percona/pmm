@@ -820,6 +820,25 @@ var databaseSchema = [][]string{
 			WHERE type = 'mongodb_backup'`,
 	},
 	78: {
+		`INSERT INTO service_software_versions(
+			service_id,
+			service_type,
+			software_versions,
+			next_check_at,
+			created_at,
+			updated_at
+		)
+		SELECT
+			service_id,
+			service_type,
+			'[]' AS software_versions,
+			(NOW() AT TIME ZONE 'utc') AS next_check_at,
+			(NOW() AT TIME ZONE 'utc') AS created_at,
+			(NOW() AT TIME ZONE 'utc') AS updated_at
+		FROM services
+        WHERE service_type = 'mongodb';`,
+	},
+	79: {
 		`CREATE TABLE files (
 			name VARCHAR NOT NULL CHECK (name <> '') PRIMARY KEY,
 			content BYTEA NOT NULL,
