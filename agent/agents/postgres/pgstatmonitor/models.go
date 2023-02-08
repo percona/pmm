@@ -42,7 +42,7 @@ type pgStatMonitorSettings struct {
 	Value int64  `reform:"value"`
 }
 
-// pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view 1.0.0-rc.2 to before 2.0.0-dev.
+// pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view from 1.0.0-rc.2 until 2.0.0-dev (2.0.0.-dev excluded).
 //
 //reform:pg_stat_monitor_settings
 type pgStatMonitorSettingsTextValue struct {
