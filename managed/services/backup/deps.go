@@ -99,6 +99,8 @@ type compatibilityService interface {
 	// and they are compatible with the db version.
 	// Returns db version.
 	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
+	// CheckArtifactCompatibility check compatibility between artifact and target database.
+	CheckArtifactCompatibility(artifactID, targetDBVersion string) error
 }
 
 type pitrLocationClient interface {
