@@ -163,15 +163,15 @@ type pbmError struct {
 	Error string `json:"Error"`
 }
 
-// pbmConfigFlags groups the flags/options for configuring PBM.
-type pbmConfigFlag struct {
+// pbmConfigParams groups the flags/options for configuring PBM.
+type pbmConfigParams struct {
 	configFilePath string
 	forceResync    bool
 	dbURL          *url.URL
 }
 
-func createPBMConfigFlag(confFile string, dbURL *url.URL, forceResync bool) pbmConfigFlag {
-	return pbmConfigFlag{
+func createPBMConfigParams(confFile string, dbURL *url.URL, forceResync bool) pbmConfigParams {
+	return pbmConfigParams{
 		forceResync:    forceResync,
 		configFilePath: confFile,
 		dbURL:          dbURL,
@@ -382,7 +382,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	}
 }
 
-func pbmConfigure(ctx context.Context, l logrus.FieldLogger, flag pbmConfigFlag) error {
+func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigParams) error {
 	l.Info("Configuring PBM.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
@@ -390,10 +390,10 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, flag pbmConfigFlag)
 	args := []string{
 		"config",
 		"--out=json",
-		"--mongodb-uri=" + flag.dbURL.String(),
-		"--file=" + flag.configFilePath,
+		"--mongodb-uri=" + params.dbURL.String(),
+		"--file=" + params.configFilePath,
 	}
-	if flag.forceResync {
+	if params.forceResync {
 		args = append(args, "--force-resync")
 	}
 	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
