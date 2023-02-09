@@ -400,7 +400,9 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 	if err != nil {
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
-	err = models.ChangeKubernetesClusterToReady(k.db.Querier, req.KubernetesClusterName)
+	err = k.db.InTransaction(func(t *reform.TX) error {
+		return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
+	})
 	if err != nil {
 		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 	}
