@@ -469,6 +469,9 @@ type GetDBClusterOKBodyPSMDBCluster struct {
 	// Is DB cluster accessible via public internet.
 	InternetFacing bool `json:"internet_facing,omitempty"`
 
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// backup
 	Backup *GetDBClusterOKBodyPSMDBClusterBackup `json:"backup,omitempty"`
 
@@ -1327,6 +1330,9 @@ type GetDBClusterOKBodyPXCCluster struct {
 
 	// Is DB cluster accessible via public internet.
 	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
 
 	// backup
 	Backup *GetDBClusterOKBodyPXCClusterBackup `json:"backup,omitempty"`

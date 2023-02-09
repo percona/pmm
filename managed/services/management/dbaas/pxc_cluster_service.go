@@ -349,7 +349,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}

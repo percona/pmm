@@ -129,6 +129,12 @@ message UpdatePSMDBClusterRequest {
   }
   // Cluster parameters.
   UpdatePSMDBClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
 }
 
 message UpdatePSMDBClusterResponse {}

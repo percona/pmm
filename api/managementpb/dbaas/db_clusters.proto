@@ -52,6 +52,8 @@ message PSMDBCluster {
   Backup backup = 9;
   // Restore configuration parameters.
   Restore restore = 10;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 11;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -77,6 +79,8 @@ message PXCCluster {
   Backup backup = 9;
   // Restore configuration parameters.
   Restore restore = 10;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 11;
 }
 
 message ListDBClustersRequest {

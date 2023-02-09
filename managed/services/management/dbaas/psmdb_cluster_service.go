@@ -302,7 +302,11 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, err
 	}

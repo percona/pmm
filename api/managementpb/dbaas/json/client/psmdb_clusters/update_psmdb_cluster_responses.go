@@ -127,6 +127,15 @@ type UpdatePSMDBClusterBody struct {
 	// PSMDB cluster name.
 	Name string `json:"name,omitempty"`
 
+	// Make DB cluster accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *UpdatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
 }
