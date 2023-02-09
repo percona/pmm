@@ -36,6 +36,16 @@ func (this *PXCClusterParams) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
 		}
 	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
+	if this.Restore != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Restore); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Restore", err)
+		}
+	}
 	return nil
 }
 

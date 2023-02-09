@@ -372,6 +372,9 @@ type CreatePXCClusterParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// backup
+	Backup *CreatePXCClusterParamsBodyParamsBackup `json:"backup,omitempty"`
+
 	// haproxy
 	Haproxy *CreatePXCClusterParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
 
@@ -380,11 +383,18 @@ type CreatePXCClusterParamsBodyParams struct {
 
 	// pxc
 	PXC *CreatePXCClusterParamsBodyParamsPXC `json:"pxc,omitempty"`
+
+	// restore
+	Restore *CreatePXCClusterParamsBodyParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this create PXC cluster params body params
 func (o *CreatePXCClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateBackup(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
@@ -398,9 +408,32 @@ func (o *CreatePXCClusterParamsBodyParams) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePXCClusterParamsBodyParams) validateBackup(formats strfmt.Registry) error {
+	if swag.IsZero(o.Backup) { // not required
+		return nil
+	}
+
+	if o.Backup != nil {
+		if err := o.Backup.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -461,9 +494,32 @@ func (o *CreatePXCClusterParamsBodyParams) validatePXC(formats strfmt.Registry) 
 	return nil
 }
 
+func (o *CreatePXCClusterParamsBodyParams) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create PXC cluster params body params based on the context it is used
 func (o *CreatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.contextValidateBackup(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
 		res = append(res, err)
@@ -477,9 +533,28 @@ func (o *CreatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *CreatePXCClusterParamsBodyParams) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+	if o.Backup != nil {
+		if err := o.Backup.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -528,6 +603,21 @@ func (o *CreatePXCClusterParamsBodyParams) contextValidatePXC(ctx context.Contex
 	return nil
 }
 
+func (o *CreatePXCClusterParamsBodyParams) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *CreatePXCClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -539,6 +629,52 @@ func (o *CreatePXCClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreatePXCClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	var res CreatePXCClusterParamsBodyParams
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePXCClusterParamsBodyParamsBackup Backup configuration for a database cluster
+swagger:model CreatePXCClusterParamsBodyParamsBackup
+*/
+type CreatePXCClusterParamsBodyParamsBackup struct {
+	// Backup Location id of stored backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Keep copies represents how many copies should retain.
+	KeepCopies int32 `json:"keep_copies,omitempty"`
+
+	// Cron expression represents cron expression
+	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
+}
+
+// Validate validates this create PXC cluster params body params backup
+func (o *CreatePXCClusterParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create PXC cluster params body params backup based on context it is used
+func (o *CreatePXCClusterParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePXCClusterParamsBodyParamsBackup) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePXCClusterParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
+	var res CreatePXCClusterParamsBodyParamsBackup
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -950,6 +1086,49 @@ func (o *CreatePXCClusterParamsBodyParamsProxysqlComputeResources) MarshalBinary
 // UnmarshalBinary interface implementation
 func (o *CreatePXCClusterParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res CreatePXCClusterParamsBodyParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+CreatePXCClusterParamsBodyParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model CreatePXCClusterParamsBodyParamsRestore
+*/
+type CreatePXCClusterParamsBodyParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename.
+	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
+}
+
+// Validate validates this create PXC cluster params body params restore
+func (o *CreatePXCClusterParamsBodyParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this create PXC cluster params body params restore based on context it is used
+func (o *CreatePXCClusterParamsBodyParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreatePXCClusterParamsBodyParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreatePXCClusterParamsBodyParamsRestore) UnmarshalBinary(b []byte) error {
+	var res CreatePXCClusterParamsBodyParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
