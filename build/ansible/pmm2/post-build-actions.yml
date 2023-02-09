@@ -96,8 +96,12 @@
         state: absent
 
     - name: Confirm if pmm-managed database has been deleted
-      shell: psql -c "select datname from pg_database where datname='pmm-managed';"
+      shell: sudo -u postgres psql -c "select datname from pg_database where datname='pmm-managed';"
       register: result_db
+
+    - name: Display pmm-managed database existence result
+      debug:
+        var: result_db.stdout
 
     - name: Display result
       debug:
