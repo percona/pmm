@@ -146,27 +146,30 @@ type clientInterface interface {
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c             clientInterface
-	checker       awsInstanceChecker
-	db            *reform.DB
-	l             *logrus.Entry
-	accessControl bool
+	c       clientInterface
+	checker awsInstanceChecker
+	db      *reform.DB
+	l       *logrus.Entry
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
+
+	accessControl *accessControl
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB, enableAccessControl bool) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
 	return &AuthServer{
-		c:             c,
-		checker:       checker,
-		db:            db,
-		l:             logrus.WithField("component", "grafana/auth"),
-		cache:         make(map[string]cacheItem),
-		accessControl: enableAccessControl,
+		c:       c,
+		checker: checker,
+		db:      db,
+		l:       logrus.WithField("component", "grafana/auth"),
+		cache:   make(map[string]cacheItem),
+		accessControl: &accessControl{
+			db: db,
+		},
 	}
 }
 
@@ -308,10 +311,6 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 }
 
 func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
-	if !s.accessControl {
-		return false
-	}
-
 	addFilters := false
 	for _, p := range vmProxyPrefixes {
 		if strings.HasPrefix(req.URL.Path, p) {
@@ -320,7 +319,11 @@ func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
 		}
 	}
 
-	return addFilters
+	if !addFilters {
+		return false
+	}
+
+	return s.accessControl.isEnabled()
 }
 
 func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
