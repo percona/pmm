@@ -579,6 +579,14 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+// StopService stops given service.
+func (s *Service) StopService(name string) error {
+	if _, err := s.supervisorctl("stop", name); err != nil {
+		return err
+	}
+	return nil
+}
+
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
