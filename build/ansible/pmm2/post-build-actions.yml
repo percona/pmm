@@ -95,23 +95,15 @@
         name: pmm-managed
         state: absent
 
-    - name: Confirm if pmm-managed database has been deleted
-      shell: sudo -u postgres psql -c "select datname from pg_database where datname='pmm-managed';"
+    - name: Check if pmm-managed database exists
+      postgresql_db:
+        login_user: postgres
+        name: database_name
       register: result_db
 
-    - name: Display pmm-managed database existence result
+    - name: Output result_db
       debug:
-        var: result_db.stdout
-
-    - name: Display result
-      debug:
-        msg: "The pmm-managed database has been deleted."
-      when: result_db.failed
-
-    - name: Display result
-      debug:
-        msg: "The pmm-managed database still exists."
-      when: not result_db.failed
+        var: result_db
 
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
