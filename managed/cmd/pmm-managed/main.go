@@ -663,6 +663,7 @@ func main() {
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").Default("pmm-managed").String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").Default("pmm-managed").String()
+	postgresDBStopF := kingpin.Flag("postgres-stop", "PostgreSQL internal database stop").Default("false").Envar("POSTGRES_STOP").Bool()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -770,6 +771,12 @@ func main() {
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+
+	if *postgresDBStopF {
+		if err = supervisord.StopService("postgresql"); err != nil {
+			l.Panicf("Supervisor service problem while stopping internal postgresql: %+v", err)
+		}
+	}
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
