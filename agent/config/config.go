@@ -168,13 +168,13 @@ func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
 }
 
-// Get parses command-line flags, environment variables and configuration file
+// getFromCmdLine parses command-line flags, environment variables and configuration file
 // (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
 // It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
 // and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
-func Get(cfg *Config, l *logrus.Entry) (string, error) {
+func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 	return get(os.Args[1:], cfg, l)
 }
 
