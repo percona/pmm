@@ -3240,6 +3240,16 @@
                   "description": "Disable DBaaS.",
                   "type": "boolean",
                   "x-order": 28
+                },
+                "enable_access_control": {
+                  "type": "boolean",
+                  "title": "Enable Access Control",
+                  "x-order": 29
+                },
+                "disable_access_control": {
+                  "type": "boolean",
+                  "title": "Disable Access Control",
+                  "x-order": 30
                 }
               }
             }
