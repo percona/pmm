@@ -752,11 +752,11 @@ telemetry:
     source: PMMDB_SELECT
     query: >
       j.type bm_job_type,
-      	j.mod bm_backup_mode,
-      	j.dm bm_data_model,
+      	coalesce(j.mod, 'N/A') bm_backup_mode,
+      	coalesce(j.dm, 'N/A') bm_data_model,
       	coalesce(a_backup.type, 'N/A') bm_job_run_type,
       	j.job_status bm_job_status,
-      	coalesce(bl_backup.type, bl_restore.type) bm_location_type,
+      	coalesce(bl_backup.type, bl_restore.type, 'N/A') bm_location_type,
       	count(*) count
       from (select type, 
       			"data"->"type"->>'mode' mod, 
