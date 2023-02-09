@@ -400,12 +400,18 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 	if err != nil {
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
-	err = k.db.InTransaction(func(t *reform.TX) error {
-		return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
-	})
-	if err != nil {
-		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err = k.db.InTransaction(func(t *reform.TX) error {
+			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
+		})
+		if err != nil {
+			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
+		}
+	}()
+	wg.Wait()
 }
 
 func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, req *dbaasv1beta1.RegisterKubernetesClusterRequest) map[string]error {
