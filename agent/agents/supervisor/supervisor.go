@@ -187,6 +187,20 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
+// ClearChangesChannel drains state change channel
+func (s *Supervisor) ClearChangesChannel() {
+	for {
+		select {
+		case _, ok := <-s.changes:
+			if !ok {
+				return
+			}
+		default:
+			return
+		}
+	}
+}
+
 // Changes returns channel with Agent's state changes.
 func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return s.changes
