@@ -34,9 +34,6 @@ type File struct {
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
-// ErrFileNotFound is returned when a file is not found.
-var ErrFileNotFound = fmt.Errorf("File not found")
-
 // InsertFileParams represent insert file params. Call validate before use.
 type InsertFileParams struct {
 	Name    string

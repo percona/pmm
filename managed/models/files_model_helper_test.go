@@ -16,7 +16,6 @@
 package models_test
 
 import (
-	"context"
 	"os"
 	"testing"
 	"time"
@@ -62,7 +61,10 @@ func TestFile(t *testing.T) {
 			require.NoError(t, tx.Rollback())
 		})
 
-		insertVMFile(tx.Querier)
+		old := insertVMFile(tx.Querier)
+		duplicate, err := models.InsertFile(tx.Querier, models.InsertFileParams{Name: old.Name, Content: []byte("test")})
+		require.NoError(t, err)
+		assert.Equal(t, old, duplicate)
 	})
 
 	t.Run("upsert", func(t *testing.T) {
@@ -81,24 +83,25 @@ func TestFile(t *testing.T) {
 		err = fp.Validate()
 		require.NoError(t, err)
 
-		updated, err := models.UpsertFile(context.Background(), tx.Querier, fp)
+		updated, err := models.UpsertFile(tx.Querier, fp)
 		require.NoError(t, err)
 		assert.Equal(t, want.Name, updated.Name)
 		assert.Equal(t, want.Content, updated.Content)
 		assert.WithinDuration(t, want.UpdatedAt, updated.UpdatedAt, 10*time.Second)
 	})
 
-	t.Run("read and upsert", func(t *testing.T) {
+	t.Run("get and insert", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
 			require.NoError(t, tx.Rollback())
 		})
 
-		want := []string{"non-existent-path", "grafana.ini", "promscrape.base.yml"}
-		names, err := models.ReadAndUpsertFiles(context.Background(), tx.Querier, "non-existent-path", "../testdata/supervisord.d/grafana.ini", "../testdata/victoriametrics/promscrape.base.yml")
+		want, err := models.GetOrInsertFile(tx.Querier, "../testdata/victoriametrics/promscrape.base.yml")
 		require.NoError(t, err)
-		assert.Equal(t, want, names)
+		actual, err := models.GetOrInsertFile(tx.Querier, "../non-existent-path/promscrape.base.yml")
+		require.NoError(t, err)
+		assert.Equal(t, want, actual)
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -118,7 +121,7 @@ func TestFile(t *testing.T) {
 		err = fp.Validate()
 		require.NoError(t, err)
 
-		updated, err := models.UpdateFile(context.Background(), tx, fp)
+		updated, err := models.UpdateFile(tx.Context(), tx, fp)
 		require.NoError(t, err)
 		assert.Equal(t, want.Name, updated.Name)
 		assert.Equal(t, want.Content, updated.Content)
@@ -154,6 +157,6 @@ func TestFile(t *testing.T) {
 		assert.NoError(t, err)
 
 		_, err = models.GetFile(q, file.Name)
-		assert.Equal(t, err, models.ErrFileNotFound)
+		assert.Equal(t, err, models.ErrNotFound)
 	})
 }

@@ -26,15 +26,24 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// InsertFile inserts file.
-func InsertFile(q *reform.Querier, fp InsertFileParams) (File, error) {
-	file := File{Name: fp.Name, Content: fp.Content, UpdatedAt: Now()}
-	err := q.Insert(&file)
-	return file, err
+// InsertFile inserts file. Does nothing on duplicate. Retrieves stored.
+func InsertFile(q *reform.Querier, fp InsertFileParams) (file File, err error) {
+	const query = `
+INSERT INTO files(name, content, updated_at) 
+VALUES ($1, $2, $3)
+ON CONFLICT (name) DO NOTHING
+RETURNING name, content, updated_at
+	`
+	err = q.QueryRow(query, fp.Name, fp.Content, Now()).Scan(&file.Name, &file.Content, &file.UpdatedAt)
+	if err != nil && errors.As(err, &reform.ErrNoRows) {
+		file.Name = fp.Name
+		err = q.Reload(&file)
+	}
+	return
 }
 
 // UpsertFile inserts file and updates content on name duplicate.
-func UpsertFile(ctx context.Context, q *reform.Querier, fp InsertFileParams) (file File, err error) {
+func UpsertFile(q *reform.Querier, fp InsertFileParams) (file File, err error) {
 	const query = `
 INSERT INTO files(name, content, updated_at) 
 VALUES ($1, $2, $3)
@@ -43,7 +52,7 @@ content = EXCLUDED.content,
 updated_at = EXCLUDED.updated_at
 RETURNING name, content, updated_at
 `
-	err = q.WithContext(ctx).QueryRow(query, fp.Name, fp.Content, Now()).Scan(&file.Name, &file.Content, &file.UpdatedAt)
+	err = q.QueryRow(query, fp.Name, fp.Content, Now()).Scan(&file.Name, &file.Content, &file.UpdatedAt)
 	return
 }
 
@@ -51,39 +60,40 @@ RETURNING name, content, updated_at
 func GetFile(q *reform.Querier, name string) (file File, err error) {
 	file.Name = name
 	if err = q.Reload(&file); err != nil && errors.As(err, &reform.ErrNoRows) {
-		return file, ErrFileNotFound
+		return file, ErrNotFound
 	}
 	return
 }
 
-// ReadAndUpsertFiles reads files from provided paths and returns file names in given order. Inserts empty content on not found.
-func ReadAndUpsertFiles(ctx context.Context, q *reform.Querier, paths ...string) ([]string, error) {
-	names := make([]string, 0, len(paths))
-	for _, path := range paths {
-		content, err := os.ReadFile(path) //nolint:gosec
-		if err != nil && !os.IsNotExist(err) {
-			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
-		}
-
-		fp := InsertFileParams{Name: filepath.Base(path), Content: content}
-		if err = fp.Validate(); err != nil {
-			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
-		}
-
-		file, err := UpsertFile(ctx, q, fp)
-		if err != nil {
-			return nil, errors.Wrapf(err, `inserting file from path: %s`, path)
-		}
-		names = append(names, file.Name)
+// GetOrInsertFile gets file by base of path as name. Inserts on not found.
+func GetOrInsertFile(q *reform.Querier, path string) (file File, err error) {
+	name := filepath.Base(path)
+	content, err := os.ReadFile(path) //nolint:gosec
+	if err != nil && !os.IsNotExist(err) {
+		return file, errors.Wrapf(err, `get or insert file from path: %s`, path)
 	}
-	return names, nil
+
+	fp := InsertFileParams{Name: name, Content: content}
+	if err = fp.Validate(); err != nil {
+		return file, errors.Wrapf(err, `get or insert file from path: %s`, path)
+	}
+
+	if file, err = GetFile(q, name); err != nil {
+		if !errors.Is(err, ErrNotFound) {
+			return file, errors.Wrapf(err, `get or insert file from path: %s`, path)
+		}
+		if file, err = InsertFile(q, fp); err != nil {
+			return file, errors.Wrapf(err, `get or insert file from path: %s`, path)
+		}
+	}
+	return
 }
 
 // findAndLockFile retrieves a file by name and locks it for update.
 func findAndLockFile(q *reform.Querier, name string) (file File, err error) {
 	const query = `WHERE name = $1 FOR NO KEY UPDATE`
 	if err = q.SelectOneTo(&file, query, name); err != nil && errors.As(err, reform.ErrNoRows) {
-		return file, ErrFileNotFound
+		return file, ErrNotFound
 	}
 	return
 }
@@ -126,7 +136,7 @@ RETURNING name, content, updated_at
 // DeleteFile deletes file by its name.
 func DeleteFile(q *reform.Querier, name string) (err error) {
 	if err = q.Delete(&File{Name: name}); err != nil && errors.As(err, reform.ErrNoRows) {
-		return ErrFileNotFound
+		return ErrNotFound
 	}
 	return
 }
