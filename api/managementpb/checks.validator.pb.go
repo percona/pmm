@@ -39,10 +39,10 @@ func (this *SecurityCheck) Validate() error {
 }
 
 func (this *Advisor) Validate() error {
-	for _, item := range this.Check {
+	for _, item := range this.Checks {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Check", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Checks", err)
 			}
 		}
 	}
