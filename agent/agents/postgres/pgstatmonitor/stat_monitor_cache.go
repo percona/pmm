@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	pgquery "github.com/pganalyze/pg_query_go"
+	pgquery "github.com/pganalyze/pg_query_go/v2"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"

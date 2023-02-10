@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
+      - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
       - "managed/**"
@@ -28,12 +29,12 @@ on:
 
 jobs:
   test:
-    name: Test QAN
+    name: Tests
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
@@ -44,11 +45,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: percona-platform/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 

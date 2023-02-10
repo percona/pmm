@@ -30,13 +30,17 @@ const (
 	xtrabackupBin       = "xtrabackup"
 	xbcloudBin          = "xbcloud"
 	qpressBin           = "qpress"
+	mongodbBin          = "mongod"
+	pbmBin              = "pbm"
 )
 
 var (
 	mysqldVersionRegexp     = regexp.MustCompile("^.*Ver ([!-~]*).*")
 	xtrabackupVersionRegexp = regexp.MustCompile("xtrabackup version ([!-~]*).*")
 	xbcloudVersionRegexp    = regexp.MustCompile("^xbcloud[ ][ ]Ver ([!-~]*).*")
-	qpressRegexp            = regexp.MustCompile("^qpress[ ]([!-~]*).*")
+	qpressVersionRegexp     = regexp.MustCompile("^qpress[ ]([!-~]*).*")
+	mongodbVersionRegexp    = regexp.MustCompile("^db version v([!-~]*).*")
+	pbmVersionRegexp        = regexp.MustCompile("^Version:[ ]*([!-~]*).*")
 
 	// ErrNotFound is used for indicating that binary is not found.
 	ErrNotFound = errors.New("not found")
@@ -131,7 +135,27 @@ func (v *Versioner) XbcloudVersion() (string, error) {
 	return v.binaryVersion(xbcloudBin, 0, xbcloudVersionRegexp, "--version")
 }
 
-// Qpress retrieves qpress binary version.
-func (v *Versioner) Qpress() (string, error) {
-	return v.binaryVersion(qpressBin, 255, qpressRegexp)
+// QpressVersion retrieves qpress binary version.
+func (v *Versioner) QpressVersion() (string, error) {
+	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp)
+}
+
+// MongoDBVersion retrieves mongodb binary version.
+func (v *Versioner) MongoDBVersion() (string, error) {
+	return v.binaryVersion(mongodbBin, 0, mongodbVersionRegexp, "--version")
+}
+
+// PBMVersion retrieves pbm binary version.
+func (v *Versioner) PBMVersion() (string, error) {
+	return v.binaryVersion(pbmBin, 0, pbmVersionRegexp, "version")
+}
+
+// BinaryVersion retrieves agent binary version.
+func (v *Versioner) BinaryVersion(
+	binaryName string,
+	expectedExitCode int,
+	versionRegexp *regexp.Regexp,
+	arg ...string,
+) (string, error) {
+	return v.binaryVersion(binaryName, expectedExitCode, versionRegexp, arg...)
 }

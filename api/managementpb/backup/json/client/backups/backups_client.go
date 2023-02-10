@@ -85,7 +85,7 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 }
 
 /*
-GetLogs gets logs returns logs for provided artifact
+GetLogs gets logs returns logs from the underlying tools for a backup restore job
 */
 func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending

@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:dupword
 package backup
 
 import (
@@ -44,14 +43,16 @@ func TestScheduleBackup(t *testing.T) {
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer management.RemovePMMAgentWithSubAgents(t, pmmAgentID)
-		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
+		mongo1Name := pmmapitests.TestString(t, "mongo")
+		mongo2Name := pmmapitests.TestString(t, "mongo")
 
-		params := &mongodb.AddMongoDBParams{
+		mongo1Resp, err := managementClient.Default.MongoDB.AddMongoDB(&mongodb.AddMongoDBParams{
 			Context: pmmapitests.Context,
 			Body: mongodb.AddMongoDBBody{
 				NodeID:      nodeID,
+				Cluster:     "test_cluster",
 				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
+				ServiceName: mongo1Name,
 				Address:     "10.10.10.10",
 				Port:        27017,
 				Username:    "username",
@@ -59,11 +60,29 @@ func TestScheduleBackup(t *testing.T) {
 				SkipConnectionCheck: true,
 				DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
 			},
-		}
-		addMongoDBOK, err := managementClient.Default.MongoDB.AddMongoDB(params)
+		})
 		require.NoError(t, err)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		mongo1ID := mongo1Resp.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(t, mongo1ID)
+
+		mongo2Resp, err := managementClient.Default.MongoDB.AddMongoDB(&mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				NodeID:      nodeID,
+				Cluster:     "test_cluster",
+				PMMAgentID:  pmmAgentID,
+				ServiceName: mongo2Name,
+				Address:     "10.10.10.11",
+				Port:        27017,
+				Username:    "username",
+
+				SkipConnectionCheck: true,
+				DisableCollectors:   []string{"global_status", "perf_schema.tablelocks"},
+			},
+		})
+		require.NoError(t, err)
+		mongo2ID := mongo2Resp.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(t, mongo2ID)
 
 		resp, err := backupClient.Default.Locations.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
@@ -83,7 +102,7 @@ func TestScheduleBackup(t *testing.T) {
 			client := backupClient.Default.Backups
 			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
@@ -162,7 +181,7 @@ func TestScheduleBackup(t *testing.T) {
 			client := backupClient.Default.Backups
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
@@ -179,7 +198,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			sb2, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
@@ -200,7 +219,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
@@ -217,7 +236,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			pitrb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
@@ -234,7 +253,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			pitrb2, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing3",
@@ -250,11 +269,11 @@ func TestScheduleBackup(t *testing.T) {
 			defer removeScheduledBackup(t, pitrb2.Payload.ScheduledBackupID)
 		})
 
-		t.Run("only one enabled PITR backup allowed", func(t *testing.T) {
+		t.Run("only one enabled PITR backup allowed for the same cluster", func(t *testing.T) {
 			client := backupClient.Default.Backups
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
@@ -271,7 +290,7 @@ func TestScheduleBackup(t *testing.T) {
 
 			_, err = client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo2ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
@@ -283,48 +302,14 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there  no other scheduled backups.")
-		})
-
-		t.Run("prevent snapshot backups when PITR enabled", func(t *testing.T) {
-			client := backupClient.Default.Backups
-			pitrb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
-					LocationID:     locationID,
-					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
-					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
-					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-
-			require.NoError(t, err)
-			defer removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
-
-			_, err = client.StartBackup(&backups.StartBackupParams{
-				Body: backups.StartBackupBody{
-					ServiceID:   serviceID,
-					LocationID:  locationID,
-					Name:        "test-snapshot",
-					Description: "Test snapshot.",
-					DataModel:   pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400,
-				codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.",
-				serviceName)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A PITR backup for the cluster 'test_cluster' can be enabled only if there are no other scheduled backups for this cluster.")
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
 			client := backupClient.Default.Backups
 			_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           t.Name(),
@@ -343,7 +328,7 @@ func TestScheduleBackup(t *testing.T) {
 			client := backupClient.Default.Backups
 			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
-					ServiceID:      serviceID,
+					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
