@@ -871,9 +871,9 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 }
 
 // GetFile retrieves a File.
-func (s *Server) GetFile(_ context.Context, req *serverpb.GetFileRequest) (_ *serverpb.GetFileResponse, err error) {
+func (s *Server) GetFile(ctx context.Context, req *serverpb.GetFileRequest) (_ *serverpb.GetFileResponse, err error) {
 	var file models.File
-	if file, err = models.GetFile(s.db.Querier, req.Name); errors.Is(err, models.ErrFileNotFound) {
+	if file, err = models.GetFile(s.db.WithContext(ctx), req.Name); errors.Is(err, models.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 	return &serverpb.GetFileResponse{Name: file.Name, Content: file.Content, UpdatedAt: timestamppb.New(file.UpdatedAt)}, err
@@ -885,7 +885,7 @@ func (s *Server) UpdateFile(ctx context.Context, req *serverpb.UpdateFileRequest
 	if err := fp.Validate(); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
-	if _, err = models.UpdateFile(ctx, s.db, fp); errors.Is(err, models.ErrFileNotFound) {
+	if _, err = models.UpdateFile(ctx, s.db, fp); errors.Is(err, models.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 	return &serverpb.UpdateFileResponse{}, err
