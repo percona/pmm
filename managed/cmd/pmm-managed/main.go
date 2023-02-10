@@ -763,7 +763,7 @@ func main() {
 	}
 	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
 	// Generate configuration file before reloading with supervisord, checking status, etc.
-	if err = alertManager.GenerateBaseConfigs(); err != nil {
+	if err = alertManager.GenerateBaseConfigs(ctx); err != nil {
 		l.Panicf("Alertmanager service problem while generating base configs: %+v", err)
 	}
 
