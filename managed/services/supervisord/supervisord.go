@@ -548,7 +548,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 
 	var err error
 
-	alertFlags := s.afp.ListAlertFlags()
+	alertFlags := s.afp.ListAlertFlags(context.TODO())
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {
 			continue
