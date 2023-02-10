@@ -889,7 +889,7 @@ scrape_configs:
             instance: pmm-server
       follow_redirects: false
 `) + "\n"
-	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
+	newcfg, err := svc.marshalConfig(svc.loadBaseConfig(context.Background()))
 	assert.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
 }

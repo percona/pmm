@@ -77,7 +77,7 @@ func NewVictoriaMetrics(db *reform.DB, scrapeConfigPath, baseURL, basePromConfig
 		return nil, errors.WithStack(err)
 	}
 
-	names, err := models.ReadAndUpsertFiles(context.TODO(), db.Querier, basePromConfigPath)
+	file, err := models.GetOrInsertFile(db.Querier, basePromConfigPath)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -87,7 +87,7 @@ func NewVictoriaMetrics(db *reform.DB, scrapeConfigPath, baseURL, basePromConfig
 		db:               db,
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		baseConfigName:   names[0],
+		baseConfigName:   file.Name,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 	}, nil
@@ -157,7 +157,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 		}
 	}()
 
-	base := svc.loadBaseConfig()
+	base := svc.loadBaseConfig(ctx)
 	cfg, err := svc.marshalConfig(base)
 	if err != nil {
 		return err
@@ -193,9 +193,9 @@ func (svc *Service) reload(ctx context.Context) error {
 }
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
-func (svc *Service) loadBaseConfig() *config.Config {
-	file, err := svc.GetBaseFile()
-	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
+func (svc *Service) loadBaseConfig(ctx context.Context) *config.Config {
+	file, err := svc.GetBaseFile(ctx)
+	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.baseConfigName, err)
 		return &config.Config{}
 	}
@@ -418,8 +418,8 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	return nil
 }
 
-func (svc *Service) ListAlertFlags() []string {
-	cfg := svc.loadBaseConfig()
+func (svc *Service) ListAlertFlags(ctx context.Context) []string {
+	cfg := svc.loadBaseConfig(ctx)
 	out := make([]string, 0, len(cfg.RuleFiles)+1)
 	for _, r := range cfg.RuleFiles {
 		out = append(out, "--rule="+r)
@@ -430,8 +430,8 @@ func (svc *Service) ListAlertFlags() []string {
 	return out
 }
 
-func (svc *Service) GetBaseFile() (models.File, error) {
-	file, err := models.GetFile(svc.db.Querier, svc.baseConfigName)
+func (svc *Service) GetBaseFile(ctx context.Context) (models.File, error) {
+	file, err := models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
 	if err != nil {
 		return file, err
 	}
