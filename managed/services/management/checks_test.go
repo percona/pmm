@@ -366,7 +366,7 @@ func TestListSecurityChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
-		checksService.On("GetChecks", mock.Anything).
+		checksService.On("GetAdvisors", mock.Anything).
 			Return(map[string]check.Check{
 				"one":   {Name: "one", Interval: check.Standard},
 				"two":   {Name: "two", Interval: check.Frequent},

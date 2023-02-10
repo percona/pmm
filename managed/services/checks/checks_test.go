@@ -72,17 +72,17 @@ func TestDownloadChecks(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadChecks(ctx)
+		dChecks, err := s.downloadAdvisors(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
-		checks, err = s.GetChecks()
+		checks, err = s.GetAdvisors()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
@@ -96,11 +96,11 @@ func TestDownloadChecks(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadChecks(ctx)
+		dChecks, err := s.downloadAdvisors(ctx)
 		require.NoError(t, err)
 		assert.Empty(t, dChecks)
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
 	})
@@ -156,7 +156,7 @@ func TestCollectChecks(t *testing.T) {
 
 		s.CollectChecks(context.Background())
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		require.Len(t, checks, 5)
 
@@ -194,7 +194,7 @@ func TestDisableChecks(t *testing.T) {
 
 		s.CollectChecks(context.Background())
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -220,7 +220,7 @@ func TestDisableChecks(t *testing.T) {
 
 		s.CollectChecks(context.Background())
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -269,7 +269,7 @@ func TestEnableChecks(t *testing.T) {
 
 		s.CollectChecks(context.Background())
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -301,7 +301,7 @@ func TestChangeInterval(t *testing.T) {
 
 		s.CollectChecks(context.Background())
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -313,7 +313,7 @@ func TestChangeInterval(t *testing.T) {
 		err = s.ChangeInterval(params)
 		require.NoError(t, err)
 
-		updatedChecks, err := s.GetChecks()
+		updatedChecks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		for _, c := range updatedChecks {
 			assert.Equal(t, check.Rare, c.Interval)
@@ -323,7 +323,7 @@ func TestChangeInterval(t *testing.T) {
 			err = s.runChecksGroup(context.Background(), "")
 			require.NoError(t, err)
 
-			checks, err := s.GetChecks()
+			checks, err := s.GetAdvisors()
 			require.NoError(t, err)
 			for _, c := range checks {
 				assert.Equal(t, check.Rare, c.Interval)
