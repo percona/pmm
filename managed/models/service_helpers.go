@@ -239,6 +239,7 @@ type AddDBMSServiceParams struct {
 }
 
 // AddNewService adds new service to storage.
+// Must be performed in transaction.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
 	switch serviceType {
 	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType:
@@ -302,15 +303,8 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, errors.WithStack(err)
 	}
 
-	if serviceType == MySQLServiceType {
-		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
-			ServiceID:        id,
-			ServiceType:      serviceType,
-			SoftwareVersions: []SoftwareVersion{},
-			NextCheckAt:      time.Now(),
-		}); err != nil {
-			return nil, errors.WithStack(err)
-		}
+	if err := initSoftwareVersions(q, id, serviceType); err != nil {
+		return nil, err
 	}
 
 	return row, nil
@@ -404,4 +398,23 @@ func ValidateServiceType(serviceType ServiceType) error {
 	default:
 		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
 	}
+}
+
+func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {
+	switch serviceType {
+	case MySQLServiceType:
+		fallthrough
+	case MongoDBServiceType:
+		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
+			ServiceID:        serviceID,
+			ServiceType:      serviceType,
+			SoftwareVersions: []SoftwareVersion{},
+			NextCheckAt:      time.Now(),
+		}); err != nil {
+			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
+		}
+	default:
+		return nil
+	}
+	return nil
 }

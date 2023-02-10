@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -79,8 +80,8 @@ func TestClient(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfg := &config.Config{}
-		client := New(cfg, nil, nil, nil, nil, nil, nil)
+		cfgStorage := config.NewStorage(&config.Config{})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -90,12 +91,12 @@ func TestClient(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfg := &config.Config{
+		cfgStorage := config.NewStorage(&config.Config{
 			Server: config.Server{
 				Address: "127.0.0.1:1",
 			},
-		}
-		client := New(cfg, nil, nil, nil, nil, nil, nil)
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -106,13 +107,13 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
-		cfg := &config.Config{
+		cfgStorage := config.NewStorage(&config.Config{
 			ID: "agent_id",
 			Server: config.Server{
 				Address: "127.0.0.1:1",
 			},
-		}
-		client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -146,20 +147,22 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfg := &config.Config{
+			cfgStorage := config.NewStorage(&config.Config{
 				ID: "agent_id",
 				Server: config.Server{
 					Address:    fmt.Sprintf("127.0.0.1:%d", port),
 					WithoutTLS: true,
 				},
-			}
+			})
 
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+			s.On("ClearChangesChannel").Return()
 
-			r := runner.New(cfg.RunnerCapacity)
-			client := New(cfg, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			r := runner.New(cfgStorage.Get().RunnerCapacity)
+			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -179,15 +182,15 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfg := &config.Config{
+			cfgStorage := config.NewStorage(&config.Config{
 				ID: "agent_id",
 				Server: config.Server{
 					Address:    fmt.Sprintf("127.0.0.1:%d", port),
 					WithoutTLS: true,
 				},
-			}
+			})
 
-			client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
@@ -262,20 +265,22 @@ func TestUnexpectedActionType(t *testing.T) {
 	port, teardown := setup(t, connect)
 	defer teardown()
 
-	cfg := &config.Config{
+	cfgStorage := config.NewStorage(&config.Config{
 		ID: "agent_id",
 		Server: config.Server{
 			Address:    fmt.Sprintf("127.0.0.1:%d", port),
 			WithoutTLS: true,
 		},
-	}
+	})
 
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
 
-	r := runner.New(cfg.RunnerCapacity)
-	client := New(cfg, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	r := runner.New(cfgStorage.Get().RunnerCapacity)
+	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())

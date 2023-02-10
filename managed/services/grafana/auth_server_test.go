@@ -71,7 +71,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil, true)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -114,7 +114,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil, true)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -140,7 +140,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil, true)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -167,7 +167,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, nil, true)
+	s := NewAuthServer(c, checker, nil)
 
 	req, err := http.NewRequest("GET", "/dummy", nil)
 	require.NoError(t, err)
@@ -284,7 +284,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	defer checker.AssertExpectations(t)
 
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, &checker, db, true)
+	s := NewAuthServer(c, &checker, db)
 
 	var roleA models.Role
 	roleA.Title = "Role A"
@@ -296,6 +296,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	roleB.Title = "Role B"
 	roleB.Filter = "filter B"
 	err = models.CreateRole(db.Querier, &roleB)
+	require.NoError(t, err)
+
+	// Enable access control
+	_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
+		EnableAccessControl: true,
+	})
 	require.NoError(t, err)
 
 	for userID, roleIDs := range map[int][]int{

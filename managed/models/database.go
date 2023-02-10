@@ -819,6 +819,25 @@ var databaseSchema = [][]string{
 			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
 			WHERE type = 'mongodb_backup'`,
 	},
+	78: {
+		`INSERT INTO service_software_versions(
+			service_id,
+			service_type,
+			software_versions,
+			next_check_at,
+			created_at,
+			updated_at
+		)
+		SELECT
+			service_id,
+			service_type,
+			'[]' AS software_versions,
+			(NOW() AT TIME ZONE 'utc') AS next_check_at,
+			(NOW() AT TIME ZONE 'utc') AS created_at,
+			(NOW() AT TIME ZONE 'utc') AS updated_at
+		FROM services
+        WHERE service_type = 'mongodb';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -39,3 +39,6 @@ TARGET ?= _bash
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
+
+update-dbaas-catalog: 				## Update the DBaaS catalog from the latest production branch (percona-platform).
+	wget https://raw.githubusercontent.com/percona/dbaas-catalog/percona-platform/percona-dbaas-catalog.yaml -o managed/data/crds/olm/percona-dbaas-catalog.yaml

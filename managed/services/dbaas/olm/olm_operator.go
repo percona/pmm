@@ -188,6 +188,8 @@ func (o *OperatorService) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrap(err, "error while waiting for deployment rollout")
 	}
 
+	fmt.Println("----------------------------------------------------------------------------------------------------")
+	fmt.Println("saliendo de install olm")
 	return nil
 }
 

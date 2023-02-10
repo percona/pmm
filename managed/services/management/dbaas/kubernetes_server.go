@@ -63,6 +63,7 @@ type kubernetesServer struct {
 	grafanaClient      grafanaClient
 	kubernetesClient   kubernetesClient
 	olmOperatorService olm.OperatorServiceManager
+	kubeStorage        *KubeStorage
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
@@ -80,6 +81,7 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, kubernetesClien
 		versionService:     versionService,
 		grafanaClient:      grafanaClient,
 		olmOperatorService: olms,
+		kubeStorage:        NewKubeStorage(db),
 	}
 }
 
@@ -360,19 +362,25 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, clusterName, kubeConfig, pmmPublicAddress string,
 	apiKey string, apiKeyID int64,
 ) {
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> Entrando a k.installDefaultOperators")
 	errs := k.installDefaultOperators(operatorsToInstall)
 	if errs["vm"] != nil {
+		fmt.Println("####################################################################################################")
 		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
 		return
 	}
 
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> Entrando a k.StartMonitoring")
 	err := k.startMonitoring(ctx, pmmPublicAddress, apiKey, apiKeyID, kubeConfig)
 	if err != nil {
+		fmt.Println("====================================================================================================")
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
 
+	fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> Entrando a k.ChangeKubernetesClusterToReady")
 	err = models.ChangeKubernetesClusterToReady(k.db.Querier, clusterName)
 	if err != nil {
+		fmt.Println("####################################################################################################")
 		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 	}
 }
@@ -413,6 +421,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		err := k.olmOperatorService.InstallOLMOperator(ctx)
 		if err != nil {
 			retval["olm"] = err
+			fmt.Println("====================================================================================================")
 			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 		}
 	}
@@ -422,6 +431,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	operatorGroup := "percona-operators-group"
 
 	if _, ok := operatorsToInstall["pxc"]; ok {
+		fmt.Println("> > > > > > > > > > Installing PXC operator")
 		operatorName := "percona-xtradb-cluster-operator"
 		params := olm.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -435,11 +445,13 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			retval["pxc"] = err
+			fmt.Println("====================================================================================================")
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
 
 	if _, ok := operatorsToInstall["psmdb"]; ok {
+		fmt.Println("> > > > > > > > > > Installing PSMDB operator")
 		operatorName := "percona-server-mongodb-operator"
 		params := olm.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -454,11 +466,13 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			retval["pmdb"] = err
+			fmt.Println("====================================================================================================")
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
 
 	if _, ok := operatorsToInstall["vm"]; ok {
+		fmt.Println("> > > > > > > > > > Installing VM operator")
 		operatorName := "victoriametrics-operator"
 		params := olm.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -472,11 +486,13 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
 			retval["vm"] = err
+			fmt.Println("====================================================================================================")
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
 	}
 
 	if _, ok := operatorsToInstall["dbaas"]; ok {
+		fmt.Println("> > > > > > > > > > Installing DBaaS operator")
 		operatorName := "dbaas-operator"
 		params := olm.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -500,6 +516,10 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return err
+		}
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
@@ -518,10 +538,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		if err := k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig); err != nil {
-			return errors.Wrap(err, "failed to create kubernetes client")
-		}
-		out, err := k.kubernetesClient.ListDatabaseClusters(ctx)
+		out, err := kubeClient.ListDatabaseClusters(ctx)
 
 		switch {
 		case err != nil && accessError(err):
@@ -588,40 +605,35 @@ func accessError(err error) bool {
 
 // GetResources returns all and available resources of a Kubernetes cluster.
 func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.GetResourcesRequest) (*dbaasv1beta1.GetResourcesResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
-	if err != nil {
-		return nil, err
-	}
-
-	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get cluster type
-	clusterType, err := k.kubernetesClient.GetClusterType(ctx)
+	clusterType, err := kubeClient.GetClusterType(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var volumes *corev1.PersistentVolumeList
 	if clusterType == kubernetes.ClusterTypeEKS {
-		volumes, err = k.kubernetesClient.GetPersistentVolumes(ctx)
+		volumes, err = kubeClient.GetPersistentVolumes(ctx)
 		if err != nil {
 			return nil, err
 		}
 	}
-	allCPUMillis, allMemoryBytes, allDiskBytes, err := k.kubernetesClient.GetAllClusterResources(ctx, clusterType, volumes)
+	allCPUMillis, allMemoryBytes, allDiskBytes, err := kubeClient.GetAllClusterResources(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}
 
-	consumedCPUMillis, consumedMemoryBytes, err := k.kubernetesClient.GetConsumedCPUAndMemory(ctx, "")
+	consumedCPUMillis, consumedMemoryBytes, err := kubeClient.GetConsumedCPUAndMemory(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
-	consumedDiskBytes, err := k.kubernetesClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
+	consumedDiskBytes, err := kubeClient.GetConsumedDiskBytes(ctx, clusterType, volumes)
 	if err != nil {
 		return nil, err
 	}
@@ -658,17 +670,12 @@ func (k kubernetesServer) GetResources(ctx context.Context, req *dbaasv1beta1.Ge
 
 // ListStorageClasses returns the names of all storage classes available in a Kubernetes cluster.
 func (k kubernetesServer) ListStorageClasses(ctx context.Context, req *dbaasv1beta1.ListStorageClassesRequest) (*dbaasv1beta1.ListStorageClassesResponse, error) {
-	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = k.kubernetesClient.SetKubeconfig(kubernetesCluster.KubeConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	storageClasses, err := k.kubernetesClient.GetStorageClasses(ctx)
+	storageClasses, err := kubeClient.GetStorageClasses(ctx)
 	if err != nil {
 		return nil, err
 	}
