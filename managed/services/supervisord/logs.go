@@ -166,7 +166,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		}
 	}
 
-	file, err := l.amfp.GetBaseFile()
+	file, err := l.amfp.GetBaseFile(ctx)
 	if err == nil {
 		b, err := maskAlertManagerSensitiveValues(file.Content)
 		files = append(files, fileContent{
@@ -206,7 +206,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	}
 
 	// add prometheus base config file
-	file, err = l.vmfp.GetBaseFile()
+	file, err = l.vmfp.GetBaseFile(ctx)
 	files = append(files, fileContent{
 		Name:     file.Name,
 		Data:     file.Content,
