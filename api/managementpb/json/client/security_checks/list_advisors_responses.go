@@ -7,6 +7,7 @@ package security_checks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListAdvisorsReader is a Reader for the ListAdvisors structure.
@@ -54,20 +56,22 @@ ListAdvisorsOK describes a response with status code 200, with default header va
 A successful response.
 */
 type ListAdvisorsOK struct {
-	Payload interface{}
+	Payload *ListAdvisorsOKBody
 }
 
 func (o *ListAdvisorsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Advisors/List][%d] listAdvisorsOk  %+v", 200, o.Payload)
 }
 
-func (o *ListAdvisorsOK) GetPayload() interface{} {
+func (o *ListAdvisorsOK) GetPayload() *ListAdvisorsOKBody {
 	return o.Payload
 }
 
 func (o *ListAdvisorsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ListAdvisorsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -250,6 +254,324 @@ func (o *ListAdvisorsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAdvisorsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res ListAdvisorsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAdvisorsOKBody list advisors OK body
+swagger:model ListAdvisorsOKBody
+*/
+type ListAdvisorsOKBody struct {
+	// advisors
+	Advisors []*ListAdvisorsOKBodyAdvisorsItems0 `json:"advisors"`
+}
+
+// Validate validates this list advisors OK body
+func (o *ListAdvisorsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAdvisors(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBody) validateAdvisors(formats strfmt.Registry) error {
+	if swag.IsZero(o.Advisors) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Advisors); i++ {
+		if swag.IsZero(o.Advisors[i]) { // not required
+			continue
+		}
+
+		if o.Advisors[i] != nil {
+			if err := o.Advisors[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list advisors OK body based on the context it is used
+func (o *ListAdvisorsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAdvisors(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Advisors); i++ {
+		if o.Advisors[i] != nil {
+			if err := o.Advisors[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAdvisorsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAdvisorsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListAdvisorsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAdvisorsOKBodyAdvisorsItems0 list advisors OK body advisors items0
+swagger:model ListAdvisorsOKBodyAdvisorsItems0
+*/
+type ListAdvisorsOKBodyAdvisorsItems0 struct {
+	// Machine-readable name (ID) that is used in expression.
+	Name string `json:"name,omitempty"`
+
+	// Long human-readable description.
+	Description string `json:"description,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
+	// Comment.
+	Comment string `json:"comment,omitempty"`
+
+	// Category.
+	Category string `json:"category,omitempty"`
+
+	// Advisor checks.
+	Checks []*ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 `json:"checks"`
+}
+
+// Validate validates this list advisors OK body advisors items0
+func (o *ListAdvisorsOKBodyAdvisorsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateChecks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBodyAdvisorsItems0) validateChecks(formats strfmt.Registry) error {
+	if swag.IsZero(o.Checks) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Checks); i++ {
+		if swag.IsZero(o.Checks[i]) { // not required
+			continue
+		}
+
+		if o.Checks[i] != nil {
+			if err := o.Checks[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("checks" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("checks" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list advisors OK body advisors items0 based on the context it is used
+func (o *ListAdvisorsOKBodyAdvisorsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateChecks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Checks); i++ {
+		if o.Checks[i] != nil {
+			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("checks" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("checks" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAdvisorsOKBodyAdvisorsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAdvisorsOKBodyAdvisorsItems0) UnmarshalBinary(b []byte) error {
+	var res ListAdvisorsOKBodyAdvisorsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 SecurityCheck contains check name and status.
+swagger:model ListAdvisorsOKBodyAdvisorsItems0ChecksItems0
+*/
+type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
+	// Machine-readable name (ID) that is used in expression.
+	Name string `json:"name,omitempty"`
+
+	// True if that check is disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Long human-readable description.
+	Description string `json:"description,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
+	// SecurityCheckInterval represents possible execution interval values for checks.
+	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
+	Interval *string `json:"interval,omitempty"`
+}
+
+// Validate validates this list advisors OK body advisors items0 checks items0
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum = append(listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD captures enum value "STANDARD"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD string = "STANDARD"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalFREQUENT captures enum value "FREQUENT"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalFREQUENT string = "FREQUENT"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalRARE captures enum value "RARE"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalRARE string = "RARE"
+)
+
+// prop value enum
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateIntervalEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateInterval(formats strfmt.Registry) error {
+	if swag.IsZero(o.Interval) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list advisors OK body advisors items0 checks items0 based on context it is used
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) UnmarshalBinary(b []byte) error {
+	var res ListAdvisorsOKBodyAdvisorsItems0ChecksItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -135,7 +135,7 @@ message ListSecurityChecksResponse {
 message ListAdvisorsRequest {}
 
 message ListAdvisorsResponse {
-
+  repeated Advisor advisors = 1;
 }
 
 message ChangeSecurityChecksRequest {
