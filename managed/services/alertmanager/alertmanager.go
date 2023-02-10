@@ -99,12 +99,12 @@ func New(db *reform.DB) (*Service, error) {
 		reloadCh: make(chan struct{}, 1),
 	}
 
-	names, err := models.ReadAndUpsertFiles(context.TODO(), out.db.Querier, alertmanagerBaseConfigPath)
+	file, err := models.GetOrInsertFile(out.db.Querier, alertmanagerBaseConfigPath)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	out.baseConfigName = names[0]
+	out.baseConfigName = file.Name
 	return out, nil
 }
 
@@ -112,7 +112,7 @@ func New(db *reform.DB) (*Service, error) {
 // and then writes basic alertmanager.yml if it is absent or empty.
 // It is needed because Alertmanager was added to PMM
 // with invalid configuration file (it will fail with "no route provided in config" error).
-func (svc *Service) GenerateBaseConfigs() error {
+func (svc *Service) GenerateBaseConfigs(ctx context.Context) error {
 	for _, dirPath := range []string{alertmanagerDir, alertmanagerDataDir, alertmanagerCertDir} {
 		if err := dir.CreateDataDir(dirPath, "pmm", "pmm", dirPerm); err != nil {
 			svc.l.Error(err)
@@ -131,13 +131,13 @@ receivers:
     - name: empty
 	`) + "\n"
 
-	file, err := svc.GetBaseFile()
-	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
+	file, err := svc.GetBaseFile(ctx)
+	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		return errors.WithStack(err)
 	}
 
 	if len(file.Content) == 0 {
-		if _, err = models.UpdateFile(context.TODO(), svc.db, models.UpdateFileParams{Name: file.Name, Content: []byte(defaultBase)}); err != nil {
+		if _, err = models.UpdateFile(ctx, svc.db, models.UpdateFileParams{Name: file.Name, Content: []byte(defaultBase)}); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -248,8 +248,8 @@ func (svc *Service) reload(ctx context.Context) error {
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *alertmanager.Config {
-	file, err := svc.GetBaseFile()
-	if err != nil && !errors.Is(err, models.ErrFileNotFound) {
+	file, err := svc.GetBaseFile(context.TODO())
+	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		svc.l.Errorf("Failed to load base Alertmanager config %s: %s", alertmanagerBaseConfigPath, err)
 		return &alertmanager.Config{}
 	}
@@ -880,8 +880,8 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	return nil
 }
 
-func (svc *Service) GetBaseFile() (models.File, error) {
-	file, err := models.GetFile(svc.db.Querier, svc.baseConfigName)
+func (svc *Service) GetBaseFile(ctx context.Context) (models.File, error) {
+	file, err := models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
 	if err != nil {
 		return file, err
 	}

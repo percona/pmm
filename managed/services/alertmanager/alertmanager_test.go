@@ -336,7 +336,7 @@ func TestIsReady(t *testing.T) {
 	svc, err := New(db)
 	assert.NoError(t, err)
 
-	err = svc.GenerateBaseConfigs()
+	err = svc.GenerateBaseConfigs(ctx)
 	assert.NoError(t, err)
 
 	assert.NoError(t, svc.updateConfiguration(ctx))
