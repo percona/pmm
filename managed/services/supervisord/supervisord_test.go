@@ -154,3 +154,28 @@ func TestAddAlertManagerParam(t *testing.T) {
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
 	})
 }
+
+func TestSavePMMConfig(t *testing.T) {
+	t.Parallel()
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	tests := []struct {
+		Disable bool
+		File    string
+	}{
+		{
+			Disable: true,
+			File:    "pmm-db_disabled",
+		},
+		{
+			Disable: false,
+			File:    "pmm-db_enabled",
+		},
+	}
+	for _, test := range tests {
+		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
+		require.NoError(t, err)
+		actual, err := marshalConfig(test.Disable)
+		require.NoError(t, err)
+		assert.Equal(t, string(expected), string(actual))
+	}
+}
