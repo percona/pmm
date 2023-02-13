@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
-	"github.com/percona/pmm/admin/commands/pmm_server_upgrade/start"
+	runCmd "github.com/percona/pmm/admin/commands/pmm_server_upgrade/run"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -96,7 +96,7 @@ func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 type PMMServerUpgradeCommands struct {
 	flags.GlobalFlagsBase
 
-	Start      start.StartCommand         `cmd:"" help:"Start daemon"`
+	RunCmd     runCmd.RunCommand          `cmd:"" name:"run" help:"Run daemon"`
 	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 

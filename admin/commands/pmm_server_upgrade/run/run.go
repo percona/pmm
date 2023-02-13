@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package start holds logic for starting pmm-server-upgrade.
-package start
+// Package run holds logic for running pmm-server-upgrade.
+package run
 
 import (
 	"context"
@@ -44,32 +44,32 @@ const (
 	shutdownTimeout    = 1 * time.Second
 )
 
-// StartCommand is used by Kong for CLI flags and commands.
-type StartCommand struct {
+// RunCommand is used by Kong for CLI flags and commands.
+type RunCommand struct {
 	DockerImage string `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
 
 	docker  containerManager
 	globals *flags.GlobalFlags
 }
 
-type startResult struct{}
+type runResult struct{}
 
 // Result is a command run result.
-func (r *startResult) Result() {}
+func (r *runResult) Result() {}
 
 // String stringifies command result.
-func (r *startResult) String() string {
+func (r *runResult) String() string {
 	return "Exiting"
 }
 
 // BeforeApply is run before the command is applied.
-func (c *StartCommand) BeforeApply() error {
+func (c *RunCommand) BeforeApply() error {
 	commands.SetupClientsEnabled = false
 	return nil
 }
 
 // RunCmdWithContext runs command
-func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
+func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
 	logrus.Info("Starting PMM Server Upgrade")
 
 	c.globals = globals
@@ -89,10 +89,10 @@ func (c *StartCommand) RunCmdWithContext(ctx context.Context, globals *flags.Glo
 
 	c.runAPIServer(ctx)
 
-	return &startResult{}, nil
+	return &runResult{}, nil
 }
 
-func (c *StartCommand) runAPIServer(ctx context.Context) {
+func (c *RunCommand) runAPIServer(ctx context.Context) {
 	l := logrus.WithField("component", "local-server/gRPC")
 
 	gRPCServer := grpc.NewServer(
