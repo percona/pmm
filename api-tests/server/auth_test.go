@@ -482,7 +482,6 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	resp.Body.Close()
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -490,6 +489,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 	apiKey := m["key"].(string)
+	resp.Body.Close()
 
 	u.User = nil
 	u.Path = "/graph/api/auth/key"
