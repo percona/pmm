@@ -89,21 +89,17 @@
         login_user: postgres
         name: pmm-managed
         state: absent
+      register: db_check_result
+
+    - name: Output db_check_result
+      debug:
+        msg: "pmm-managed database does not exist"
+        when: db_check_result.changed == True
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
         name: pmm-managed
         state: absent
-
-    - name: Check if pmm-managed database exists
-      postgresql_db:
-        login_user: postgres
-        name: database_name
-      register: result_db
-
-    - name: Output result_db
-      debug:
-        var: result_db
 
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
