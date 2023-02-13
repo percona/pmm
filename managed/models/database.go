@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -37,6 +38,8 @@ const (
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
+	// DefataultPostgreSQLAddr represent default local PostgreSQL database server address.
+	DefataultPostgreSQLAddr = "127.0.0.1:5432"
 )
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -1027,7 +1030,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params.Username, params.Password); err != nil {
+		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
 		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
@@ -1037,7 +1040,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-func setupFixture1(q *reform.Querier, username, password string) error {
+func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1057,30 +1060,66 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 		return err
 	}
 
+	address := strings.Split(params.Address, ":") // TODO: find better solution
+	if params.Address != DefataultPostgreSQLAddr {
+		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+			NodeName: "pmm-server-db",
+			Address:  address[0],
+		}); err != nil {
+			return err
+		}
+	}
+
+	port := uint64(5432)
+	if len(address) == 2 {
+		port, err = strconv.ParseUint(address[1], 10, 16)
+		if err != nil {
+			return err
+		}
+	}
+
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(5432),
+		Database:    params.Name,
+		Address:     &node.Address,
+		Port:        pointer.ToUint16(uint16(port)),
 	})
 	if err != nil {
 		return err
 	}
+
+	tls := params.SSLMode != "disable"
+	tlsSkipVerify := params.SSLMode == "disable" || params.SSLMode == "verify-ca"
+	var psqlOps *PostgreSQLOptions
+	if tls {
+		psqlOps = &PostgreSQLOptions{
+			SSLCa:   params.SSLCAPath,
+			SSLCert: params.SSLCertPath,
+			SSLKey:  params.SSLKeyPath,
+		}
+	}
 	_, err = CreateAgent(q, PostgresExporterType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
+		PMMAgentID:        PMMServerAgentID,
+		ServiceID:         service.ServiceID,
+		TLS:               tls,
+		TLSSkipVerify:     tlsSkipVerify,
+		PostgreSQLOptions: psqlOps,
+		Username:          params.Username,
+		Password:          params.Password,
 	})
 	if err != nil {
 		return err
 	}
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
+		PMMAgentID:        PMMServerAgentID,
+		ServiceID:         service.ServiceID,
+		TLS:               tls,
+		TLSSkipVerify:     tlsSkipVerify,
+		PostgreSQLOptions: psqlOps,
+		Username:          params.Username,
+		Password:          params.Password,
 	})
 	if err != nil {
 		return err
