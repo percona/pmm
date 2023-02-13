@@ -72,22 +72,22 @@ linters:
   disable:
     # keep the rules sorted alpahbetically
     - exhaustivestruct # too annoying
-    - exhaustruct      # too many files to fix/nolint
-    - funlen           # useless
+    - exhaustruct # too many files to fix/nolint
+    - funlen # useless
     - gochecknoglobals # mostly useless
-    - gochecknoinits   # we use init functions
-    - gocyclo          # using cyclop with the max 30 instead
-    - goerr113         # extra work & poor benefit
-    - gomnd            # we are using numbers in many cases
-    - gomoddirectives  # we use replace directives
-    - ifshort          # a lot of false positives
-    - interfacer       # deprecated
-    - maligned         # deprecated
-    - nlreturn         # too annoying
-    - scopelint        # too many false positives
-    - varnamelen       # useless
-    - wrapcheck        # we do not use wrapping everywhere
-    - wsl              # too annoying
+    - gochecknoinits # we use init functions
+    - gocyclo # using cyclop with the max 30 instead
+    - goerr113 # extra work & poor benefit
+    - gomnd # we are using numbers in many cases
+    - gomoddirectives # we use replace directives
+    - ifshort # a lot of false positives
+    - interfacer # deprecated
+    - maligned # deprecated
+    - nlreturn # too annoying
+    - scopelint # too many false positives
+    - varnamelen # useless
+    - wrapcheck # we do not use wrapping everywhere
+    - wsl # too annoying
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
@@ -120,7 +120,7 @@ linters:
     - interfacebloat
     - gosimple
     - contextcheck
-    - bodyclose
+    # - bodyclose
     - prealloc
     - nakedret
     - forbidigo
@@ -150,10 +150,10 @@ issues:
       linters:
         # keep sorted
         - exhaustivestruct # very annoying
-        - funlen           # tests may be long
-        - gocognit         # triggered by subtests
-        - gomnd            # tests are full of magic numbers
-        - testpackage      # senseless
-        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-        - lll              # tests often require long lines
+        - funlen # tests may be long
+        - gocognit # triggered by subtests
+        - gomnd # tests are full of magic numbers
+        - testpackage # senseless
+        - unused # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+        - lll # tests often require long lines
 
