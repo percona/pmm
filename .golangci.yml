@@ -5,7 +5,6 @@ linters-settings:
   cyclop:
     max-complexity: 30
 
-
   depguard:
     list-type: blacklist
     include-go-root: true
@@ -71,63 +70,64 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    # keep sorted
-    - exhaustivestruct  # too annoying
-    - funlen            # useless
-    - gochecknoglobals  # mostly useless
-    - gochecknoinits    # we use init functions
-    - gomnd             # we are using numbers in many cases
-    - gomoddirectives   # we use replace directives
-    - ifshort           # a lot of false positives
-    - interfacer        # deprecated
-    - maligned          # deprecated
-    - nlreturn          # too annoying
-    - scopelint         # too many false positives
-    - varnamelen        # useless
-    - wrapcheck         # we do not use wrapping everywhere
-    - wsl               # too annoying
-    - gocyclo           # using cyclop with the max 30 instead
-    - exhaustruct       # too many files to fix/nolint
-    - goerr113          # extra work & poor benefit
+    # keep the rules sorted alpahbetically
+    - exhaustivestruct # too annoying
+    - exhaustruct      # too many files to fix/nolint
+    - funlen           # useless
+    - gochecknoglobals # mostly useless
+    - gochecknoinits   # we use init functions
+    - gocyclo          # using cyclop with the max 30 instead
+    - goerr113         # extra work & poor benefit
+    - gomnd            # we are using numbers in many cases
+    - gomoddirectives  # we use replace directives
+    - ifshort          # a lot of false positives
+    - interfacer       # deprecated
+    - maligned         # deprecated
+    - nlreturn         # too annoying
+    - scopelint        # too many false positives
+    - varnamelen       # useless
+    - wrapcheck        # we do not use wrapping everywhere
+    - wsl              # too annoying
 
-    - paralleltest #temporary, needs to be processed
-    - tagliatelle #temporary, needs to be processed
-    - thelper #temporary, needs to be processed
-    - tparallel #temporary, needs to be processed
-    - gocritic #temporary, needs to be processed
-    - godot #temporary, needs to be processed
-    - godox #temporary, needs to be processed
-    - revive #temporary, needs to be processed
-    - nosnakecase #temporary, needs to be processed
-    - paralleltest #temporary, needs to be processed
-    - ireturn #temporary, needs to be processed
-    - gocognit #temporary, needs to be processed
-    - maintidx #temporary, needs to be processed
-    - nestif #temporary, needs to be processed
-    - whitespace #temporary, needs to be processed
-    - errorlint #temporary, needs to be processed
-    - forcetypeassert #temporary, needs to be processed
-    - golint #temporary, needs to be processed
-    - deadcode #temporary, needs to be processed
-    - nonamedreturns #temporary, needs to be processed
-    - noctx #temporary, needs to be processed
-    - usestdlibvars #temporary, needs to be processed
-    - execinquery #temporary, needs to be processed
-    - predeclared #temporary, needs to be processed
-    - nosprintfhostport #temporary, needs to be processed
-    - nilnil #temporary, needs to be processed
-    - nilerr #temporary, needs to be processed
-    - interfacebloat #temporary, needs to be processed
-    - gosimple #temporary, needs to be processed
-    - contextcheck #temporary, needs to be processed
-    - bodyclose #temporary, needs to be processed
-    - prealloc #temporary, needs to be processed
-    - nakedret #temporary, needs to be processed
-    - forbidigo #temporary, needs to be processed
-    - errcheck #temporary, needs to be processed
-    - dupl #temporary, needs to be processed
-    - containedctx #temporary, needs to be processed
-
+    # TODO: carefully review all the rules below and either fix the code
+    # or leave disabled and provide a reason why
+    - paralleltest
+    - tagliatelle
+    - thelper
+    - tparallel
+    - gocritic
+    - godot
+    - godox
+    - revive
+    - nosnakecase
+    - paralleltest
+    - ireturn
+    - gocognit
+    - maintidx
+    - nestif
+    - whitespace
+    - errorlint
+    - forcetypeassert
+    - golint
+    - deadcode
+    - nonamedreturns
+    - usestdlibvars
+    - execinquery
+    - predeclared
+    - nosprintfhostport
+    - nilnil
+    - nilerr
+    - interfacebloat
+    - gosimple
+    - contextcheck
+    - bodyclose
+    - prealloc
+    - nakedret
+    - forbidigo
+    - errcheck
+    - dupl
+    - containedctx
+    # ENDTODO
 
 run:
   timeout: 5m
@@ -139,12 +139,12 @@ issues:
   exclude-use-default: false
   exclude:
     # gas: Duplicated errcheck checks
-    - 'G104: Errors unhandled'
+    - "G104: Errors unhandled"
     # golint: Methods for implementing interfaces are not documented
-    - 'exported method `.+` should have comment or be unexported'
-    - 'comment on exported method `.+` should be of the form `.+ ...`'
+    - "exported method `.+` should have comment or be unexported"
+    - "comment on exported method `.+` should be of the form `.+ ...`"
     # golint: We have to return unexported types due to oneof implementation
-    - 'exported method .+ returns unexported type .+, which can be annoying to use'
+    - "exported method .+ returns unexported type .+, which can be annoying to use"
   exclude-rules:
     - path: _test\.go
       linters:
