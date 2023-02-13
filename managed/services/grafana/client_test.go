@@ -34,7 +34,7 @@ func TestClient(t *testing.T) {
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 
-	req, err := http.NewRequest("GET", "/dummy", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
 	require.NoError(t, err)
 	req.SetBasicAuth("admin", "admin")
 	authHeaders := req.Header
@@ -88,7 +88,7 @@ func TestClient(t *testing.T) {
 				}()
 			}
 
-			req, err := http.NewRequest("GET", "/dummy", nil)
+			req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
 			require.NoError(t, err)
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
@@ -118,7 +118,7 @@ func TestClient(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequest("GET", "/dummy", nil)
+				req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
@@ -159,7 +159,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("CreateAnnotation", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/dummy", nil)
+		req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 		authorization := req.Header.Get("Authorization")
@@ -206,7 +206,7 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("Auth error", func(t *testing.T) {
-			req, _ := http.NewRequest("GET", "/dummy", nil)
+			req, _ := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
 			req.SetBasicAuth("nouser", "wrongpassword")
 			authorization := req.Header.Get("Authorization")
 			_, err = c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)
