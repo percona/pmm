@@ -99,6 +99,11 @@ type ChangeSettingsParams struct {
 	// Disable Integrated Alerting features.
 	DisableAlerting bool
 
+	// Enable Access Control features.
+	EnableAccessControl bool
+	// Disable Access Control features.
+	DisableAccessControl bool
+
 	// Email config for Integrated Alerting.
 	EmailAlertingSettings *EmailAlertingSettings
 	// If true removes email alerting settings.
@@ -281,6 +286,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAlerting {
 		settings.Alerting.Disabled = false
+	}
+
+	if params.DisableAccessControl {
+		settings.AccessControl.Enabled = false
+	}
+	if params.EnableAccessControl {
+		settings.AccessControl.Enabled = true
 	}
 
 	if params.RemoveEmailAlertingSettings {

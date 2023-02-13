@@ -280,6 +280,10 @@ message ChangeSettingsRequest {
   bool enable_dbaas = 26;
   // Disable DBaaS.
   bool disable_dbaas = 27;
+  // Enable Access Control
+  bool enable_access_control = 30;
+  // Disable Access Control
+  bool disable_access_control = 31;
 }
 
 message ChangeSettingsResponse {

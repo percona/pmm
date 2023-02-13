@@ -18,6 +18,7 @@ package dbaas
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -45,7 +46,7 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubernetesClient *mockKubernetesClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -54,7 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
-		kubernetesClient = &mockKubernetesClient{}
+		kubeClient = &mockKubernetesClient{}
 		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
@@ -63,7 +64,13 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		s := ks.(*kubernetesServer)
+		clients := map[string]kubernetesClient{
+			clusterName: kubeClient,
+		}
+		s.kubeStorage.clients = clients
+		ks = s
 		return
 	}
 
@@ -80,9 +87,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, kubernetesClient, grafanaClient, teardown := setup(t)
-		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
-		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		ctx, ks, dc, kubeClient, grafanaClient, teardown := setup(t)
 		defer teardown(t)
 		kubeconfig := "preferences: {}\n"
 
@@ -111,6 +116,12 @@ func TestKubernetesServer(t *testing.T) {
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 
 		kubernetesClusterName := "test-cluster"
+		clients := map[string]kubernetesClient{
+			kubernetesClusterName: kubeClient,
+		}
+		s := ks.(*kubernetesServer)
+		s.kubeStorage.clients = clients
+		ks = s
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 			KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: kubeconfig},
@@ -177,7 +188,7 @@ func TestKubernetesServer(t *testing.T) {
 				},
 			},
 		}
-		listDatabaseMock := kubernetesClient.On("ListDatabaseClusters", ctx)
+		listDatabaseMock := kubeClient.On("ListDatabaseClusters", ctx)
 		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
@@ -229,6 +240,10 @@ func TestKubernetesServer(t *testing.T) {
 		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Empty(t, clusters.KubernetesClusters)
+
+		// Let goroutines to finish their tasks
+		// TODO: @gen1us2k find a better solution to prevent datarace.
+		time.Sleep(3 * time.Second)
 	})
 }
 
@@ -248,7 +263,7 @@ contexts:
   name: local
 current-context: local`
 	)
-	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubeClient *mockKubernetesClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		uuid.SetRand(&tests.IDReader{})
@@ -256,7 +271,7 @@ current-context: local`
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient := &mockDbaasClient{}
-		kubernetesClient = &mockKubernetesClient{}
+		kubeClient = &mockKubernetesClient{}
 		grafanaClient := &mockGrafanaClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
@@ -272,18 +287,23 @@ current-context: local`
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		s := ks.(*kubernetesServer)
+		clients := map[string]kubernetesClient{
+			clusterName: kubeClient,
+		}
+		s.kubeStorage.clients = clients
+		ks = s
 		return
 	}
 	t.Run("GetResources", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-		kubernetesClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
-		kubernetesClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
-		kubernetesClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(50), uint64(100), nil)
-		kubernetesClient.On("GetConsumedDiskBytes", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(150), nil)
+		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
+		kubeClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
+		kubeClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(50), uint64(100), nil)
+		kubeClient.On("GetConsumedDiskBytes", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(150), nil)
 
 		resp, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -314,12 +334,10 @@ current-context: local`
 	})
 
 	t.Run("GetResources GetClusterType error", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-
-		kubernetesClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeUnknown, errors.New("error"))
+		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeUnknown, errors.New("error"))
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -328,13 +346,12 @@ current-context: local`
 	})
 
 	t.Run("GetResources GetAllClusterResources error", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-		kubernetesClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
+		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
 
-		kubernetesClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(0), uint64(0), uint64(0), errors.New("error"))
+		kubeClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(0), uint64(0), uint64(0), errors.New("error"))
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -343,14 +360,13 @@ current-context: local`
 	})
 
 	t.Run("GetResources GetConsumedCPUAndMemory error", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-		kubernetesClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
-		kubernetesClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
+		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
+		kubeClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
 
-		kubernetesClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(0), uint64(0), errors.New("error"))
+		kubeClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(0), uint64(0), errors.New("error"))
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -359,15 +375,14 @@ current-context: local`
 	})
 
 	t.Run("GetResources GetConsumedDiskBytes error", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-		kubernetesClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
-		kubernetesClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
-		kubernetesClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(50), uint64(100), nil)
+		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeMinikube, nil)
+		kubeClient.On("GetAllClusterResources", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(100), uint64(200), uint64(300), nil)
+		kubeClient.On("GetConsumedCPUAndMemory", mock.Anything, "").Return(uint64(50), uint64(100), nil)
 
-		kubernetesClient.On("GetConsumedDiskBytes", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(0), errors.New("error"))
+		kubeClient.On("GetConsumedDiskBytes", mock.Anything, kubernetes.ClusterTypeMinikube, mock.Anything).Return(uint64(0), errors.New("error"))
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -392,7 +407,7 @@ contexts:
   name: local
 current-context: local`
 	)
-	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubeClient *mockKubernetesClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		uuid.SetRand(&tests.IDReader{})
@@ -400,7 +415,7 @@ current-context: local`
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient := &mockDbaasClient{}
-		kubernetesClient = &mockKubernetesClient{}
+		kubeClient = &mockKubernetesClient{}
 		grafanaClient := &mockGrafanaClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
@@ -416,15 +431,21 @@ current-context: local`
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		s := ks.(*kubernetesServer)
+		clients := map[string]kubernetesClient{
+			clusterName: kubeClient,
+		}
+		s.kubeStorage.clients = clients
+		ks = s
 		return
 	}
 	t.Run("ListStorageClasses", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
-		kubernetesClient.On("GetStorageClasses", mock.Anything).Return(&storagev1.StorageClassList{
+		kubeClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("GetStorageClasses", mock.Anything).Return(&storagev1.StorageClassList{
 			Items: []storagev1.StorageClass{
 				{
 					ObjectMeta: metav1.ObjectMeta{
@@ -461,12 +482,12 @@ current-context: local`
 	})
 
 	t.Run("ListStorageClasses GetStorageClasses error", func(t *testing.T) {
-		ks, kubernetesClient, teardown := setup(t)
+		ks, kubeClient, teardown := setup(t)
 		defer teardown(t)
 
-		kubernetesClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
 
-		kubernetesClient.On("GetStorageClasses", mock.Anything).Return(nil, errors.New("error"))
+		kubeClient.On("GetStorageClasses", mock.Anything).Return(nil, errors.New("error"))
 
 		_, err := ks.ListStorageClasses(context.Background(), &dbaasv1beta1.ListStorageClassesRequest{
 			KubernetesClusterName: "test-cluster",
