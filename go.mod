@@ -84,7 +84,7 @@ require (
 	k8s.io/apimachinery v0.26.1
 	k8s.io/cli-runtime v0.26.1
 	k8s.io/client-go v0.26.1
-	modernc.org/sqlite v1.20.3
+	modernc.org/sqlite v1.20.4
 	vitess.io/vitess v0.15.2
 )
 
