@@ -25,8 +25,8 @@ import (
 )
 
 // SavePMMConfig renders and saves pmm config.
-func SavePMMConfig(disableDB bool) error {
-	cfg, err := marshalConfig(disableDB)
+func SavePMMConfig(params map[string]any) error {
+	cfg, err := marshalConfig(params)
 	if err != nil {
 		return err
 	}
@@ -36,9 +36,9 @@ func SavePMMConfig(disableDB bool) error {
 	return nil
 }
 
-func marshalConfig(disableDB bool) ([]byte, error) {
+func marshalConfig(params map[string]any) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := pmmTemplate.Execute(&buf, map[string]bool{"DisableInternalDB": disableDB}); err != nil {
+	if err := pmmTemplate.Execute(&buf, params); err != nil {
 		return nil, errors.Wrapf(err, "failed to render pmm template")
 	}
 	return buf.Bytes(), nil

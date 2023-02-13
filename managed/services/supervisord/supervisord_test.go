@@ -159,22 +159,22 @@ func TestSavePMMConfig(t *testing.T) {
 	t.Parallel()
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	tests := []struct {
-		Disable bool
-		File    string
+		params map[string]any
+		file   string
 	}{
 		{
-			Disable: true,
-			File:    "pmm-db_disabled",
+			params: map[string]any{"DisableInternalDB": true},
+			file:   "pmm-db_disabled",
 		},
 		{
-			Disable: false,
-			File:    "pmm-db_enabled",
+			params: map[string]any{"DisableInternalDB": false},
+			file:   "pmm-db_enabled",
 		},
 	}
 	for _, test := range tests {
-		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
+		expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
 		require.NoError(t, err)
-		actual, err := marshalConfig(test.Disable)
+		actual, err := marshalConfig(test.params)
 		require.NoError(t, err)
 		assert.Equal(t, string(expected), string(actual))
 	}
