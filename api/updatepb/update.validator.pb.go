@@ -24,8 +24,8 @@ var (
 )
 
 func (this *StartUpdateRequest) Validate() error {
-	if this.Hostname == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Hostname", fmt.Errorf(`value '%v' must not be an empty string`, this.Hostname))
+	if this.ContainerId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ContainerId", fmt.Errorf(`value '%v' must not be an empty string`, this.ContainerId))
 	}
 	return nil
 }

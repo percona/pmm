@@ -68,7 +68,7 @@ func New(ctx context.Context, dockerImage string, gRPCMessageMaxSize uint32) (*S
 
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateRequest) (*updatepb.StartUpdateResponse, error) {
-	containerID := req.Hostname
+	containerID := req.ContainerId
 
 	logrus.Debugf("Inspecting container %s", containerID)
 	container, err := s.docker.ContainerInspect(ctx, containerID)

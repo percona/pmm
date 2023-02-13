@@ -11,8 +11,8 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
 message StartUpdateRequest {
-  // Hostname of the PMM Server
-  string hostname = 1 [
+  // Container ID of the PMM Server
+  string container_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }

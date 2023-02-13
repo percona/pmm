@@ -417,7 +417,7 @@ func (s *Server) startUpdateViaServerUpgrade(ctx context.Context) (*serverpb.Sta
 	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	res, err := c.StartUpdate(ctxAPI, &updatepb.StartUpdateRequest{Hostname: hostname})
+	res, err := c.StartUpdate(ctxAPI, &updatepb.StartUpdateRequest{ContainerId: hostname})
 	if err != nil {
 		return nil, err
 	}
