@@ -18,6 +18,7 @@ package kubernetes
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -177,9 +178,10 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
 	if cluster.Params.Backup != nil {
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Enabled = true
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -196,7 +198,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				Enabled:     true,
 				Schedule:    cluster.Params.Backup.CronExpression,
 				Keep:        int(cluster.Params.Backup.KeepCopies),
-				StorageName: backupLocation.Name,
+				StorageName: storageName,
 			},
 		}
 
@@ -231,8 +233,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
 		dbCluster.Spec.Backup.Enabled = true
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -263,7 +266,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 						EndpointURL:       backupLocation.S3Config.Endpoint,
 						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
 					},
-					StorageName: backupLocation.Name,
+					StorageName: storageName,
 				},
 			},
 		}
@@ -337,8 +340,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 		if backupImage != "" {
 			dbCluster.Spec.Backup.Image = backupImage
 		}
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -355,7 +359,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				Enabled:     true,
 				Schedule:    cluster.Params.Backup.CronExpression,
 				Keep:        int(cluster.Params.Backup.KeepCopies),
-				StorageName: backupLocation.Name,
+				StorageName: storageName,
 			},
 		}
 
@@ -374,8 +378,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
 		dbCluster.Spec.Backup.Enabled = true
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -406,7 +411,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 						EndpointURL:       backupLocation.S3Config.Endpoint,
 						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
 					},
-					StorageName: backupLocation.Name,
+					StorageName: storageName,
 				},
 			},
 		}
