@@ -390,6 +390,14 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, pmmPublicAddress string,
 	apiKey string, apiKeyID int64, req *dbaasv1beta1.RegisterKubernetesClusterRequest,
 ) {
+	defer func() {
+		err := k.db.InTransaction(func(t *reform.TX) error {
+			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
+		})
+		if err != nil {
+			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
+		}
+	}()
 	errs := k.installDefaultOperators(operatorsToInstall, req)
 	if errs["vm"] != nil {
 		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
@@ -400,14 +408,6 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 	if err != nil {
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
-	go func(db *reform.DB) {
-		err = db.InTransaction(func(t *reform.TX) error {
-			return models.ChangeKubernetesClusterToReady(t.Querier, req.KubernetesClusterName)
-		})
-		if err != nil {
-			k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
-		}
-	}(k.db)
 }
 
 func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, req *dbaasv1beta1.RegisterKubernetesClusterRequest) map[string]error {
