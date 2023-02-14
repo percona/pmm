@@ -183,7 +183,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
 
-	s.CollectChecks(ctx)
+	s.CollectAdvisors(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -363,7 +363,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return services.ErrSTTDisabled
 	}
 
-	s.CollectChecks(ctx)
+	s.CollectAdvisors(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
@@ -381,7 +381,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 
 	go func() {
 		ctx := context.Background()
-		s.CollectChecks(ctx)
+		s.CollectAdvisors(ctx)
 		if err := s.run(ctx, "", checkNames); err != nil {
 			s.l.Errorf("Failed to execute STT checks: %+v.", err)
 		}
@@ -426,6 +426,7 @@ func (s *Service) GetAdvisors() ([]check.Advisor, error) {
 			if interval, ok := cs[c.Name]; ok {
 				c.Interval = check.Interval(interval)
 			}
+			checks = append(checks, c)
 		}
 		a.Checks = checks
 		res = append(res, a)
@@ -525,7 +526,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		}
 
 		// since we re-run checks at regular intervals using a call
-		// to s.runChecksGroup which in turn calls s.CollectChecks
+		// to s.runChecksGroup which in turn calls s.CollectAdvisors
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -1381,8 +1382,8 @@ func (s *Service) groupChecksByDB(checks map[string]check.Check) (mySQLChecks, p
 	return
 }
 
-// CollectChecks loads checks from file or SaaS, and stores versions this pmm-managed can handle.
-func (s *Service) CollectChecks(ctx context.Context) {
+// CollectAdvisors loads advisors from file or SaaS, and stores versions this pmm-managed version can handle.
+func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
 	if s.localChecksFile != "" {
@@ -1390,7 +1391,7 @@ func (s *Service) CollectChecks(ctx context.Context) {
 		checks, err := s.loadLocalChecks(s.localChecksFile)
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
-			return // keep previously loaded checks
+			return // keep previously loaded advisors
 		}
 
 		advisors = append(advisors, check.Advisor{
@@ -1398,15 +1399,14 @@ func (s *Service) CollectChecks(ctx context.Context) {
 			Name:        "dev_advisor",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
-			Category:    "development",
+			Category:    "dev",
 			Checks:      checks,
 		})
-
 	} else {
 		advisors, err = s.downloadAdvisors(ctx)
 		if err != nil {
 			s.l.Errorf("Failed to download checks: %s.", err)
-			return // keep previously downloaded checks
+			return // keep previously downloaded advisors
 		}
 		// defer it to run after updateAdvisors
 		defer s.incChecksDownload()
@@ -1432,6 +1432,12 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 		return nil, errors.Wrap(err, "failed to parse test checks file")
 	}
 
+	for _, c := range checks {
+		if c.Advisor != "dev" {
+			return nil, errors.Errorf("Local checks supposed to be linked to 'dev' advisor.")
+		}
+	}
+
 	return checks, nil
 }
 
@@ -1443,7 +1449,7 @@ func (s *Service) downloadAdvisors(ctx context.Context) ([]check.Advisor, error)
 	}
 
 	if settings.Telemetry.Disabled {
-		s.l.Debug("Checks downloading skipped due to disabled telemetry.")
+		s.l.Debug("Advisors downloading skipped due to disabled telemetry.")
 		return nil, nil
 	}
 

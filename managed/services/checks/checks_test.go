@@ -47,7 +47,7 @@ const (
 	vmAddress            = "http://127.0.0.1:9090/prometheus/"
 )
 
-func TestDownloadChecks(t *testing.T) {
+func TestDownloadAdvisors(t *testing.T) {
 	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
 	if clientID == "" || clientSecret == "" {
 		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
@@ -142,7 +142,7 @@ func TestLoadLocalChecks(t *testing.T) {
 	assert.Empty(t, c5.Query)
 }
 
-func TestCollectChecks(t *testing.T) {
+func TestCollectAdvisors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
@@ -154,14 +154,22 @@ func TestCollectChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetAdvisors()
+		advisors, err := s.GetAdvisors()
 		require.NoError(t, err)
-		require.Len(t, checks, 5)
+		require.Len(t, advisors, 1)
 
-		checkNames := make([]string, 0, len(checks))
-		for _, c := range checks {
+		advisor := advisors[0]
+		require.Equal(t, advisor.Name, "dev_advisor")
+		require.Equal(t, advisor.Summary, "Dev Advisor")
+		require.Equal(t, advisor.Description, "Advisor used for developing checks")
+		require.Equal(t, advisor.Category, "dev")
+		require.Empty(t, advisor.Tiers)
+		require.Len(t, advisor.Checks, 5)
+
+		checkNames := make([]string, 0, len(advisor.Checks))
+		for _, c := range advisor.Checks {
 			checkNames = append(checkNames, c.Name)
 		}
 		assert.ElementsMatch(t, []string{
@@ -178,8 +186,24 @@ func TestCollectChecks(t *testing.T) {
 		s.platformPublicKeys = []string{devPlatformPublicKey}
 		require.NoError(t, err)
 
-		s.CollectChecks(context.Background())
-		assert.NotEmpty(t, s.checks)
+		s.CollectAdvisors(context.Background())
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		require.NotEmpty(t, checks)
+
+		advisors, err := s.GetAdvisors()
+		require.NoError(t, err)
+		require.NotEmpty(t, s.advisors)
+
+		checksFromAdvisors := make(map[string]check.Check)
+		for _, advisor := range advisors {
+			for _, c := range advisor.Checks {
+				checksFromAdvisors[c.Name] = c
+			}
+		}
+
+		assert.Equal(t, checks, checksFromAdvisors)
 	})
 }
 
@@ -192,9 +216,9 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -218,9 +242,9 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -247,7 +271,7 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
 		err = s.DisableChecks([]string{"unknown_check"})
 		require.Error(t, err)
@@ -267,9 +291,9 @@ func TestEnableChecks(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -299,9 +323,9 @@ func TestChangeInterval(t *testing.T) {
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetAdvisors()
+		checks, err := s.GetChecks()
 		require.NoError(t, err)
 		assert.Len(t, checks, 5)
 
@@ -313,7 +337,7 @@ func TestChangeInterval(t *testing.T) {
 		err = s.ChangeInterval(params)
 		require.NoError(t, err)
 
-		updatedChecks, err := s.GetAdvisors()
+		updatedChecks, err := s.GetChecks()
 		require.NoError(t, err)
 		for _, c := range updatedChecks {
 			assert.Equal(t, check.Rare, c.Interval)
@@ -323,7 +347,7 @@ func TestChangeInterval(t *testing.T) {
 			err = s.runChecksGroup(context.Background(), "")
 			require.NoError(t, err)
 
-			checks, err := s.GetAdvisors()
+			checks, err := s.GetChecks()
 			require.NoError(t, err)
 			for _, c := range checks {
 				assert.Equal(t, check.Rare, c.Interval)
@@ -383,7 +407,8 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		s.localChecksFile = testChecksFile
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
+		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
 		err = s.runChecksGroup(context.Background(), "")
@@ -409,33 +434,83 @@ func TestStartChecks(t *testing.T) {
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 
-	valid := []check.Check{
-		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
-		{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
-		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-		{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-		{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-		{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
-		{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
-		{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
-		{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
+	valid := []check.Advisor{
+		{
+			Name:        "mysql_advisor",
+			Summary:     "MySQL advisor",
+			Description: "Test mySQL advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
+			},
+		},
+		{
+			Name:        "postgresql_advisor",
+			Summary:     "PostgreSQL advisor",
+			Description: "Test postgreSQL advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous, common.Registered},
+			Checks: []check.Check{
+				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
+			},
+		},
+		{
+			Name:        "mongodb_advisor",
+			Summary:     "MongoDB advisor",
+			Description: "Test mongoDB advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Paid},
+			Checks: []check.Check{
+				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+				{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
+				{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
+				{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
+				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
+			},
+		},
 	}
 
-	invalid := []check.Check{
-		{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
-		{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
-		{Name: "missing type", Version: 1},
+	invalid := []check.Advisor{
+		{
+			Name:        "completely_invalid_advisor",
+			Summary:     "Completely invalid advisor",
+			Description: "Test advisor that contains only unsupported checks",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
+				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+			},
+		},
+		{
+			Name:        "partially_invalid_advisor",
+			Summary:     "Partially invalid advisor",
+			Description: "Test advisor that contains some unsupported checks",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+				{Name: "missing type", Version: 1},
+			},
+		},
 	}
 
 	checks := append(valid, invalid...)
 
+	partiallyValidAdvisor := invalid[1]
+	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
+	expected := append(valid, partiallyValidAdvisor)
+
 	s, err := New(nil, nil, nil, nil, vmAddress)
 	require.NoError(t, err)
 	actual := s.filterSupportedChecks(checks)
-	assert.ElementsMatch(t, valid, actual)
+	assert.ElementsMatch(t, expected, actual)
 }
 
 func TestGroupChecksByDB(t *testing.T) {

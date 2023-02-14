@@ -20,7 +20,7 @@ func (_m *mockChecksService) CleanupAlerts() {
 }
 
 // CollectChecks provides a mock function with given fields: ctx
-func (_m *mockChecksService) CollectChecks(ctx context.Context) {
+func (_m *mockChecksService) CollectAdvisors(ctx context.Context) {
 	_m.Called(ctx)
 }
 

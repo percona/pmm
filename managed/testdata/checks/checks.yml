@@ -5,6 +5,7 @@ checks:
     summary: Good Check PG
     description: Good check for PostgreSQL.
     type: POSTGRESQL_SELECT
+    advisor: dev
     query: rolpassword FROM pg_authid WHERE rolcanlogin
     interval: standard
     script: |
@@ -17,6 +18,7 @@ checks:
     summary: Bad Check MYSQL
     description: Bad check for MYSQL.
     type: MYSQL_SHOW
+    advisor: dev
     query: VARIABLES LIKE 'version%'
     interval: standard
     script: |
@@ -41,6 +43,7 @@ checks:
     summary: Good Check Mongo
     description: Good check for MongoDB.
     type: MONGODB_BUILDINFO
+    advisor: dev
     query: ""
     interval: standard
     script: |
@@ -52,6 +55,7 @@ checks:
     summary: Check Mongo replSetGetStatus
     description: Check that we can use command replSetGetStatus.
     type: MONGODB_REPLSETGETSTATUS
+    advisor: dev
     query: ""
     interval: standard
     script: |
@@ -63,6 +67,7 @@ checks:
     summary: Check Mongo getDiagnosticData
     description: Check that we can use command getDiagnosticData.
     type: MONGODB_GETDIAGNOSTICDATA
+    advisor: dev
     query: ""
     interval: standard
     script: |
