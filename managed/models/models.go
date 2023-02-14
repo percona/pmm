@@ -135,7 +135,7 @@ func prepareLabels(m map[string]string, removeEmptyValues bool) error {
 // getLabels deserializes model's Prometheus labels.
 func getLabels(b []byte) (map[string]string, error) {
 	if len(b) == 0 {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 	m := make(map[string]string)
 	if err := json.Unmarshal(b, &m); err != nil {
