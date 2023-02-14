@@ -176,7 +176,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// https://dev.mysql.com/doc/refman/8.0/en/explain-extended.html
 	rows, err := tx.QueryContext(ctx, "SHOW /* pmm-agent */ WARNINGS")
 	if err != nil {
-		return b, nil // ingore error, return original output
+		// ingore error, return original output
+		return b, nil //nolint:nilerr
 	}
 	defer rows.Close() //nolint:errcheck
 

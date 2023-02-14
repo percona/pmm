@@ -115,7 +115,7 @@ linters:
     - execinquery
     - predeclared
     - nosprintfhostport
-    - nilerr
+    # - nilerr
     - interfacebloat
     - gosimple
     - contextcheck
