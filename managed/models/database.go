@@ -20,6 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"strconv"
@@ -1060,25 +1061,27 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+	if idx := strings.LastIndexByte(params.Address, ':'); idx < 0 {
+		params.Address += ":5432"
+	}
 
-	address := strings.Split(params.Address, ":") // TODO: find better solution
+	address, portStr, err := net.SplitHostPort(params.Address)
+	if err != nil {
+		return err
+	}
 	if params.Address != DefaultPostgreSQLAddr {
 		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: "pmm-server-db",
-			Address:  address[0],
+			Address:  address,
 		}); err != nil {
 			return err
 		}
 	}
 
-	port := uint64(5432)
-	if len(address) == 2 {
-		port, err = strconv.ParseUint(address[1], 10, 16)
-		if err != nil {
-			return err
-		}
+	port, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return err
 	}
-
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
