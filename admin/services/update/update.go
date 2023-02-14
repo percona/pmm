@@ -99,7 +99,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 		logger := logrus.New()
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
 
-		cmd := dockerCmd.New(
+		cmd := dockerCmd.NewUpgradeCommand(
 			logger.WithField("update", logFile.Name()),
 			5*time.Second)
 		cmd.ContainerID = containerID

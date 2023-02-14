@@ -76,7 +76,7 @@ func (u *upgradeResult) String() string {
 	return "ok"
 }
 
-func New(l *logrus.Entry, waitBeforeContainerStop time.Duration) *UpgradeCommand {
+func NewUpgradeCommand(l *logrus.Entry, waitBeforeContainerStop time.Duration) *UpgradeCommand {
 	return &UpgradeCommand{
 		l:                       l,
 		waitBeforeContainerStop: waitBeforeContainerStop,
