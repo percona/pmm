@@ -104,6 +104,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		conditions += " AND (state_code = 3 OR state_code = 4)"
 		ssc.l.Debug("PGSM version with state and state_code")
 	}
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		// since version above we should scrape only buckets where bucket_done = true
+		conditions += " AND bucket_done"
+	}
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
 		err = errors.Wrap(e, "failed to query pg_stat_monitor")
