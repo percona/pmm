@@ -474,14 +474,14 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 		if s.PostgreSQLOptions != nil {
 			if files := s.Files(); len(files) != 0 {
-				for key := range files {
+				for key, value := range files {
 					switch key {
 					case caFilePlaceholder:
-						q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+						q.Add("sslrootcert", value)
 					case certificateFilePlaceholder:
-						q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
+						q.Add("sslcert", value)
 					case certificateKeyFilePlaceholder:
-						q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
+						q.Add("sslkey", value)
 					}
 				}
 			}
