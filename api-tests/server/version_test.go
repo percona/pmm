@@ -46,9 +46,11 @@ func TestVersion(t *testing.T) {
 			})
 
 			t.Logf("URI: %s", uri)
-			resp, err := http.Get(uri.String())
+			req, _ := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
 			defer resp.Body.Close() //nolint:errcheck
+
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 			t.Logf("Response: %s", b)

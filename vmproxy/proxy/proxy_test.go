@@ -64,7 +64,10 @@ func TestProxy(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
 
 		handler.ServeHTTP(rec, req)
-		require.Equal(t, rec.Result().StatusCode, http.StatusOK)
+		resp := rec.Result()
+		defer resp.Body.Close()
+
+		require.Equal(t, resp.StatusCode, http.StatusOK)
 	})
 
 	t.Run("shall properly handle filters", func(t *testing.T) {
@@ -134,7 +137,10 @@ func TestProxy(t *testing.T) {
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
-				require.Equal(t, tc.expectedStatus, rec.Result().StatusCode)
+				resp := rec.Result()
+				defer resp.Body.Close()
+
+				require.Equal(t, tc.expectedStatus, resp.StatusCode)
 			})
 		}
 	})

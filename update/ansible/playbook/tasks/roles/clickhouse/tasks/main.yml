@@ -39,7 +39,7 @@
     name: clickhouse
     file: clickhouse
     description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    baseurl: "https://packages.clickhouse.com/rpm/stable/"
     enabled: no
     gpgcheck: 1
     gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"

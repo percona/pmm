@@ -951,7 +951,7 @@ groups:
 						p.Settings.MetricsResolutions.LR = change
 						b, err := json.Marshal(p.Settings)
 						require.NoError(t, err)
-						req, err := http.NewRequest("POST", changeURI.String(), bytes.NewReader(b))
+						req, err := http.NewRequestWithContext(pmmapitests.Context, "POST", changeURI.String(), bytes.NewReader(b))
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
@@ -981,7 +981,7 @@ groups:
 						require.NoError(t, err)
 						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
 
-						req, err = http.NewRequest("POST", getURI.String(), nil)
+						req, err = http.NewRequestWithContext(pmmapitests.Context, "POST", getURI.String(), nil)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
