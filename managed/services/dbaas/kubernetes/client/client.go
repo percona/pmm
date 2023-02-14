@@ -993,7 +993,14 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 		},
 	}
 
-	return operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
+	sub, err := operatorClient.OperatorsV1alpha1().Subscriptions(namespace).Create(ctx, subscription, metav1.CreateOptions{})
+	if err != nil {
+		if apierrors.IsAlreadyExists(err) {
+			return sub, nil
+		}
+		return sub, err
+	}
+	return sub, nil
 }
 
 // GetSubscription retrieves an OLM subscription by namespace and name.

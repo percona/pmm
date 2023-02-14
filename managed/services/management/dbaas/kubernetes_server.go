@@ -429,6 +429,27 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	namespace := "default"
 	catalogSourceNamespace := "olm"
 	operatorGroup := "percona-operators-group"
+	catalogSource := "percona-dbaas-catalog"
+
+	if _, ok := operatorsToInstall["vm"]; ok {
+		fmt.Println("> > > > > > > > > > Installing VM operator")
+		operatorName := "victoriametrics-operator"
+		params := olm.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          catalogSource,
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                "stable-v0",
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
+			retval["vm"] = err
+			fmt.Println("====================================================================================================")
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
 
 	if _, ok := operatorsToInstall["pxc"]; ok {
 		fmt.Println("> > > > > > > > > > Installing PXC operator")
@@ -437,9 +458,9 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
+			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable",
+			Channel:                "stable-v1",
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -457,35 +478,15 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
+			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable",
+			Channel:                "stable-v1",
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
 		}
 
 		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["pmdb"] = err
-			fmt.Println("====================================================================================================")
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["vm"]; ok {
-		fmt.Println("> > > > > > > > > > Installing VM operator")
-		operatorName := "victoriametrics-operator"
-		params := olm.InstallOperatorRequest{
-			Namespace:              namespace,
-			Name:                   operatorName,
-			OperatorGroup:          operatorGroup,
-			CatalogSource:          "operatorhubio-catalog",
-			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "beta",
-			InstallPlanApproval:    v1alpha1.ApprovalManual,
-		}
-
-		if err := k.olmOperatorService.InstallOperator(ctx, params); err != nil {
-			retval["vm"] = err
+			retval["psmdb"] = err
 			fmt.Println("====================================================================================================")
 			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
 		}
