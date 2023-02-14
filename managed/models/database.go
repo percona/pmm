@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -39,7 +40,7 @@ const (
 	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
 	// DefataultPostgreSQLAddr represent default local PostgreSQL database server address.
-	DefataultPostgreSQLAddr = "127.0.0.1:5432"
+	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 )
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -1061,7 +1062,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	address := strings.Split(params.Address, ":") // TODO: find better solution
-	if params.Address != DefataultPostgreSQLAddr {
+	if params.Address != DefaultPostgreSQLAddr {
 		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
 			NodeName: "pmm-server-db",
 			Address:  address[0],
@@ -1090,41 +1091,39 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	tls := params.SSLMode != "disable"
-	tlsSkipVerify := params.SSLMode == "disable" || params.SSLMode == "verify-ca"
-	var psqlOps *PostgreSQLOptions
-	if tls {
-		psqlOps = &PostgreSQLOptions{
-			SSLCa:   params.SSLCAPath,
-			SSLCert: params.SSLCertPath,
-			SSLKey:  params.SSLKeyPath,
+	ap := &CreateAgentParams{
+		PMMAgentID:    PMMServerAgentID,
+		ServiceID:     service.ServiceID,
+		TLS:           params.SSLMode != "disable",
+		TLSSkipVerify: params.SSLMode == "disable" || params.SSLMode == "verify-ca",
+		Username:      params.Username,
+		Password:      params.Password,
+	}
+	if ap.TLS {
+		ap.PostgreSQLOptions = &PostgreSQLOptions{}
+		for path, field := range map[string]*string{
+			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
+			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
+			params.SSLKeyPath:  &ap.PostgreSQLOptions.SSLKey,
+		} {
+			if len(path) == 0 {
+				continue
+			}
+			content, err := os.ReadFile(path) //nolint:gosec
+			if err != nil {
+				return err
+			}
+			*field = string(content)
 		}
 	}
-	_, err = CreateAgent(q, PostgresExporterType, &CreateAgentParams{
-		PMMAgentID:        PMMServerAgentID,
-		ServiceID:         service.ServiceID,
-		TLS:               tls,
-		TLSSkipVerify:     tlsSkipVerify,
-		PostgreSQLOptions: psqlOps,
-		Username:          params.Username,
-		Password:          params.Password,
-	})
+	_, err = CreateAgent(q, PostgresExporterType, ap)
 	if err != nil {
 		return err
 	}
-	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, &CreateAgentParams{
-		PMMAgentID:        PMMServerAgentID,
-		ServiceID:         service.ServiceID,
-		TLS:               tls,
-		TLSSkipVerify:     tlsSkipVerify,
-		PostgreSQLOptions: psqlOps,
-		Username:          params.Username,
-		Password:          params.Password,
-	})
+	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
