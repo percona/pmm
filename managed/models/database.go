@@ -1061,11 +1061,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
 		return err
 	}
-	if idx := strings.LastIndexByte(params.Address, ':'); idx < 0 {
-		params.Address += ":5432"
-	}
-
-	address, portStr, err := net.SplitHostPort(params.Address)
+	address, port, err := preparePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
@@ -1078,17 +1074,13 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		}
 	}
 
-	port, err := strconv.ParseUint(portStr, 10, 16)
-	if err != nil {
-		return err
-	}
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
 		Database:    params.Name,
 		Address:     &node.Address,
-		Port:        pointer.ToUint16(uint16(port)),
+		Port:        pointer.ToUint16(port),
 	})
 	if err != nil {
 		return err
@@ -1134,4 +1126,20 @@ func setupFixture2(q *reform.Querier, username, password string) error {
 	// TODO add clickhouse_exporter
 
 	return nil
+}
+
+// preparePGAddress prepares PostgreSQL address.
+func preparePGAddress(address string) (string, uint16, error) {
+	if idx := strings.LastIndexByte(address, ':'); idx < 0 {
+		return address, 5432, nil
+	}
+	address, portStr, err := net.SplitHostPort(address)
+	if err != nil {
+		return "", 0, err
+	}
+	parsedPort, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return "", 0, err
+	}
+	return address, uint16(parsedPort), nil
 }
