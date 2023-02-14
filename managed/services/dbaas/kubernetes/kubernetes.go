@@ -18,21 +18,26 @@ package kubernetes
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/v1beta1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
 )
@@ -660,4 +665,127 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 // GetStorageClasses returns all storage classes available in the cluster.
 func (k *Kubernetes) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return k.client.GetStorageClasses(ctx)
+}
+func (k *Kubernetes) ProvisionMonitoring(ctx context.Context, login, password string) error {
+	files := []string{
+		"crds/victoriametrics/crs/vmagent_rbac.yaml",
+		"crds/victoriametrics/crs/vmnodescrape.yaml",
+		"crds/victoriametrics/crs/vmpodscrape.yaml",
+		"crds/victoriametrics/kube-state-metrics/service-account.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
+		"crds/victoriametrics/kube-state-metrics/deployment.yaml",
+		"crds/victoriametrics/kube-state-metrics/service.yaml",
+		"crds/victoriametrics/kube-state-metrics.yaml",
+	}
+	for _, path := range files {
+		file, err := data.OLMCRDs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		err = k.client.ApplyFile(file)
+		if err != nil {
+			return errors.Wrapf(err, "cannot apply file: %q", path)
+		}
+	}
+
+	randomCrypto, err := rand.Prime(rand.Reader, 64)
+	if err != nil {
+		return err
+	}
+
+	secretName := fmt.Sprintf("vm-operator-%d", randomCrypto)
+	err = k.CreatePMMSecret(secretName, map[string][]byte{
+		"username": []byte(login),
+		"password": []byte(password),
+	})
+	if err != nil {
+		return err
+	}
+
+	vmagent := vmAgentSpec(secretName, login, password)
+	return k.client.Apply(ctx, vmagent)
+}
+func (k *Kubernetes) CleanupMonitoring(ctx context.Context) error {
+	files := []string{
+		"crds/victoriametrics/kube-state-metrics.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role.yaml",
+		"crds/victoriametrics/kube-state-metrics/deployment.yaml",
+		"crds/victoriametrics/kube-state-metrics/service-account.yaml",
+		"crds/victoriametrics/kube-state-metrics/service.yaml",
+		"crds/victoriametrics/crs/vmagent_rbac.yaml",
+		"crds/victoriametrics/crs/vmnodescrape.yaml",
+		"crds/victoriametrics/crs/vmpodscrape.yaml",
+	}
+	for _, path := range files {
+		file, err := data.OLMCRDs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		err = k.client.DeleteFile(ctx, file)
+		if err != nil {
+			return errors.Wrapf(err, "cannot apply file: %q", path)
+		}
+	}
+
+	return nil
+}
+func vmAgentSpec(secretName, address string) *victoriametricsv1beta1.VMAgent {
+	return &victoriametricsv1beta1.VMAgent{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "VMAgent",
+			APIVersion: "operator.victoriametrics.com/v1beta1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "pmm-vmagent-" + secretName,
+		},
+		Spec: victoriametricsv1beta1.VMAgentSpec{
+			ServiceScrapeNamespaceSelector: new(metav1.LabelSelector),
+			ServiceScrapeSelector:          new(metav1.LabelSelector),
+			PodScrapeNamespaceSelector:     new(metav1.LabelSelector),
+			PodScrapeSelector:              new(metav1.LabelSelector),
+			ProbeSelector:                  new(metav1.LabelSelector),
+			ProbeNamespaceSelector:         new(metav1.LabelSelector),
+			StaticScrapeSelector:           new(metav1.LabelSelector),
+			StaticScrapeNamespaceSelector:  new(metav1.LabelSelector),
+			ReplicaCount:                   1,
+			SelectAllByDefault:             true,
+			Resources: &corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("250m"),
+					corev1.ResourceMemory: resource.MustParse("350Mi"),
+				},
+				Limits: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("500m"),
+					corev1.ResourceMemory: resource.MustParse("850Mi"),
+				},
+			},
+			ExtraArgs: map[string]string{
+				"memory.allowedPercent": "40",
+			},
+			RemoteWrite: []monitoring.VMAgentRemoteWriteSpec{
+				{
+					URL: fmt.Sprintf("%s/victoriametrics/api/v1/write", address),
+					TLSConfig: &monitoring.TLSConfig{
+						InsecureSkipVerify: true,
+					},
+					BasicAuth: &monitoring.BasicAuth{
+						Username: corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secretName,
+							},
+							Key: "username",
+						},
+						Password: corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secretName,
+							},
+							Key: "password",
+						},
+					},
+				},
+			},
+		},
+	}
 }
