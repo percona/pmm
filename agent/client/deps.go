@@ -19,6 +19,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -44,11 +45,13 @@ type softwareVersioner interface {
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
+	ClearChangesChannel()
 	Changes() <-chan *agentpb.StateChangedRequest
 	QANRequests() <-chan *agentpb.QANCollectRequest
 	SetState(*agentpb.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
+	AgentsList() []*agentlocalpb.AgentInfo
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 }

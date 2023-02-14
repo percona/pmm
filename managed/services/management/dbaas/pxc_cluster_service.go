@@ -404,5 +404,5 @@ func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCCluster
 	if req.Params != nil && req.Params.Restore != nil && req.Params.Restore.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
 	}
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }
