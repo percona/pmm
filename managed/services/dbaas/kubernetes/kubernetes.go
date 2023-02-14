@@ -44,6 +44,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
@@ -66,6 +67,8 @@ const (
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
 	managedByKey                           = "dbaas.percona.com/managed-by"
+	templateLabelKey                       = "dbaas.percona.com/template"
+	engineLabelKey                         = "dbaas.percona.com/engine"
 
 	// ContainerStateWaiting represents a state when container requires some
 	// operations being done in order to complete start up.
@@ -903,4 +906,55 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	_, err = k.client.UpdateInstallPlan(ctx, namespace, ip)
 
 	return err
+}
+
+// ListTemplates returns a list of templates.
+func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+
+	labelSelector := fmt.Sprintf("%s=%s,%s=%s",
+		templateLabelKey, "yes",
+		engineLabelKey, engine)
+
+	templateCRDs, err := k.client.ListCRDs(ctx, labelSelector)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed listing template CRDs")
+	}
+
+	templates := []*dbaasv1beta1.Template{}
+	for _, templateCRD := range templateCRDs.Items {
+		var storedVersionName string
+		for _, version := range templateCRD.Spec.Versions {
+			if version.Storage {
+				storedVersionName = version.Name
+				break
+			}
+		}
+		// XXX: logically we should check that storedVersionName has been set and
+		// return an error otherwise but according to the
+		// CustomResourceDefinitionVersion documentation
+		// "There must be exactly one version with storage=true." so we are sure
+		// that storedVersionName will be set. If for some reason it's not, it will
+		// fail to find the CRs so an error will be returned either way.
+		gvr := schema.GroupVersionResource{
+			Group:    templateCRD.Spec.Group,
+			Version:  storedVersionName,
+			Resource: templateCRD.Spec.Names.Plural,
+		}
+
+		templateCRs, err := k.client.ListCRs(ctx, namespace, gvr)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed listing template CRs")
+		}
+
+		for _, templateCR := range templateCRs.Items {
+			templates = append(templates, &dbaasv1beta1.Template{
+				Name: templateCR.Object["metadata"].(map[string]interface{})["name"].(string),
+				Kind: templateCR.Object["kind"].(string),
+			})
+		}
+	}
+
+	return templates, nil
 }
