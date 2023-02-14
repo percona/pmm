@@ -119,7 +119,6 @@ linters:
     - interfacebloat
     - gosimple
     - contextcheck
-    - bodyclose
     - prealloc
     - nakedret
     - forbidigo
