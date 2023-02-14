@@ -101,7 +101,7 @@ type Service struct {
 
 	am       sync.Mutex
 	advisors []check.Advisor
-	checks   map[string]*check.Check // Checks extracted from advisors and stored by name.
+	checks   map[string]check.Check // Checks extracted from advisors and stored by name.
 
 	tm             sync.Mutex
 	rareTicker     *time.Ticker
@@ -444,12 +444,11 @@ func (s *Service) GetChecks() (map[string]check.Check, error) {
 
 	res := make(map[string]check.Check, len(s.checks))
 	for _, c := range s.checks {
-		nc := *c
-		if interval, ok := cs[nc.Name]; ok {
-			nc.Interval = check.Interval(interval)
+		if interval, ok := cs[c.Name]; ok {
+			c.Interval = check.Interval(interval)
 		}
 
-		res[c.Name] = nc
+		res[c.Name] = c
 	}
 
 	return res, nil
@@ -1541,12 +1540,14 @@ func (s *Service) updateAdvisors(advisors []check.Advisor) {
 
 	s.advisors = advisors
 
-	checks := make(map[string]*check.Check)
+	checks := make(map[string]check.Check)
 	for _, a := range s.advisors {
 		for _, c := range a.Checks {
-			checks[c.Name] = &c
+			checks[c.Name] = c
 		}
 	}
+
+	s.checks = checks
 }
 
 // UpdateIntervals updates STT restart timers intervals.
