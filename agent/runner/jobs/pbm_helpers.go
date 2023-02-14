@@ -401,12 +401,23 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 		"--mongodb-uri=" + params.dbURL.String(),
 		"--file=" + params.configFilePath,
 	}
-	if params.forceResync {
-		args = append(args, "--force-resync")
-	}
+
 	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
+	}
+
+	if params.forceResync {
+		args := []string{
+			"config",
+			"--out=json",
+			"--mongodb-uri=" + params.dbURL.String(),
+			"--force-resync",
+		}
+		output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput()
+		if err != nil {
+			return errors.Wrapf(err, "pbm config resync error: %s", string(output))
+		}
 	}
 
 	return nil
