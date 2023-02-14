@@ -19,7 +19,7 @@ func (_m *mockChecksService) CleanupAlerts() {
 	_m.Called()
 }
 
-// CollectChecks provides a mock function with given fields: ctx
+// CollectAdvisors provides a mock function with given fields: ctx
 func (_m *mockChecksService) CollectAdvisors(ctx context.Context) {
 	_m.Called(ctx)
 }
