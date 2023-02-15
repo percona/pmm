@@ -19,7 +19,9 @@ package testdb
 import (
 	"context"
 	"database/sql"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -70,11 +72,22 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 	_, err := models.SetupDB(context.TODO(), db, models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
-
+		Address:          models.DefaultPostgreSQLAddr,
+		Name:             newName(11),
 		Username:         username,
 		Password:         password,
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
 	})
 	require.NoError(tb, err)
+}
+
+func newName(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	const alp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = alp[rand.Intn(len(alp))] //nolint:gosec
+	}
+	return string(b)
 }
