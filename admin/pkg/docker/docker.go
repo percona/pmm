@@ -19,11 +19,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"os/exec"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -266,7 +268,7 @@ func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.
 
 // ContainerStop stops a container.
 func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
-	return b.Cli.ContainerStop(ctx, containerID, timeout)
+	return b.Cli.ContainerStop(ctx, containerID, container.StopOptions{Timeout: pointer.ToInt(int(math.Ceil(timeout.Seconds())))})
 }
 
 // ContainerUpdate updates container configuration.
