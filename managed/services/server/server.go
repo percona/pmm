@@ -371,7 +371,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
 		return s.startUpdateViaServerUpgrade(ctx)
 	default:
-		return nil, status.Error(codes.FailedPrecondition, "Invalid update method provided.")
+		s.l.Warn("Update method has not been provided in the API call. Defaulting to PMM Update.")
+		return s.startUpdateViaPMMUpdate()
 	}
 }
 
