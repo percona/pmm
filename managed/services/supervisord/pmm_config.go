@@ -114,7 +114,8 @@ stdout_logfile = /srv/logs/pmm-update-perform-init.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 3
 redirect_stderr = true
-{{ if not .DisableInternalDB}}
+
+{{- if not .DisableInternalDB}}
 [program:postgresql]
 priority = 1
 command =
@@ -137,7 +138,8 @@ stdout_logfile = /srv/logs/postgresql14.log
 stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true
-{{end}}
+{{- end}}
+
 [program:clickhouse]
 priority = 2
 command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/config.xml
