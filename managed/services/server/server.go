@@ -440,7 +440,8 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
 		return s.updateStatusViaServerUpgrade(ctx, req)
 	default:
-		return nil, status.Error(codes.FailedPrecondition, "Invalid update method provided.")
+		s.l.Warn("Update method has not been provided in the API call. Defaulting to PMM Update.")
+		return s.updateStatusViaPMMUpdate(ctx, req)
 	}
 }
 
