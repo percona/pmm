@@ -1,4 +1,4 @@
-# Percona Monitoring and Management 2.x
+# Percona Monitoring and Management
 
 [![CI](https://github.com/percona/pmm/actions/workflows/common.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/common.yml)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
