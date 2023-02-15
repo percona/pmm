@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package operator contains logic related to kubernetes operators.
-package olm
+package kubernetes
 
 import (
 	"context"
@@ -34,7 +34,9 @@ import (
 func TestInstallOlmOperator(t *testing.T) {
 	ctx := context.Background()
 	k8sclient := &client.MockKubeClientConnector{}
-	olms := NewFromConnector(k8sclient)
+
+	olms := NewEmpty()
+	olms.client = k8sclient
 
 	t.Run("Install OLM Operator", func(t *testing.T) {
 		k8sclient.On("CreateSubscriptionForCatalog", mock.Anything, mock.Anything, mock.Anything,

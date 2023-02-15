@@ -24,6 +24,7 @@ import (
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -32,12 +33,13 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/dbaas/olm"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -46,7 +48,7 @@ import (
 
 func TestKubernetesServer(t *testing.T) {
 	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
-		kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, grafanaClient *mockGrafanaClient,
+		kubeClient *mockKubernetesClient, grafanaClient *mockGrafanaClient,
 		versionService *mockVersionService, teardown func(t *testing.T),
 	) {
 		t.Helper()
@@ -61,7 +63,6 @@ func TestKubernetesServer(t *testing.T) {
 		dbaasClient = &mockDbaasClient{}
 		kubeClient = &mockKubernetesClient{}
 		grafanaClient = &mockGrafanaClient{}
-		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -70,7 +71,7 @@ func TestKubernetesServer(t *testing.T) {
 		}
 		// versionService = NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
 		versionService = &mockVersionService{}
-		ks = NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
 		clients := map[string]kubernetesClient{
 			clusterName: kubeClient,
@@ -93,9 +94,9 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dbaasClient, kubernetesClient, olms, grafanaClient, versionService, teardown := setup(t)
-		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
-		kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		ctx, ks, dbaasClient, kubeClient, grafanaClient, versionService, teardown := setup(t)
+		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
 
 		v1120, _ := goversion.NewVersion("1.12.0")
@@ -114,10 +115,9 @@ func TestKubernetesServer(t *testing.T) {
 			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 		}, nil)
 
-		olms.On("SetKubeConfig", mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
-		olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
-		olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -210,7 +210,7 @@ func TestKubernetesServer(t *testing.T) {
 		}
 
 		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
-		listDatabaseMock := kubernetesClient.On("ListDatabaseClusters", ctx)
+		listDatabaseMock := kubeClient.On("ListDatabaseClusters", ctx)
 		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{

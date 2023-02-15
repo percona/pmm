@@ -77,7 +77,6 @@ import (
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
-	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -203,7 +202,6 @@ type gRPCServerDeps struct {
 	componentsService    *managementdbaas.ComponentsService
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
-	olmOperatorService   *olm.OperatorService
 	kubernetesClient     *kubernetes.Kubernetes
 }
 
@@ -215,133 +213,133 @@ type gRPCServerFeatures struct {
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll
-func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
-	l := logrus.WithField("component", "gRPC")
-	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
-	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
-	grpcStreamInterceptor := grpcMetrics.StreamServerInterceptor()
-	grpcUnaryInterceptor := grpcMetrics.UnaryServerInterceptor()
+	func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
+		l := logrus.WithField("component", "gRPC")
+		l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
-	gRPCServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+		grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+		grpcStreamInterceptor := grpcMetrics.StreamServerInterceptor()
+		grpcUnaryInterceptor := grpcMetrics.UnaryServerInterceptor()
 
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary(grpcUnaryInterceptor),
-			interceptors.UnaryServiceEnabledInterceptor(),
-			grpc_validator.UnaryServerInterceptor())),
-		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			interceptors.Stream(grpcStreamInterceptor),
-			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
-	)
+		gRPCServer := grpc.NewServer(
+			grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
-	grpcServer := grpc.NewServer(
-		grpc.StreamInterceptor(grpcStreamInterceptor),
-		grpc.UnaryInterceptor(grpcUnaryInterceptor))
-	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		l.Debug("Reflection and channelz are enabled.")
-		reflection.Register(gRPCServer)
-		channelz.RegisterChannelzServiceToServer(gRPCServer)
+			grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+				interceptors.Unary(grpcUnaryInterceptor),
+				interceptors.UnaryServiceEnabledInterceptor(),
+				grpc_validator.UnaryServerInterceptor())),
+			grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+				interceptors.Stream(grpcStreamInterceptor),
+				interceptors.StreamServiceEnabledInterceptor(),
+				grpc_validator.StreamServerInterceptor())),
+		)
 
-		l.Debug("RPC response latency histogram enabled.")
-		grpcMetrics.EnableHandlingTimeHistogram()
-	}
-	grpcMetrics.InitializeMetrics(grpcServer)
+		grpcServer := grpc.NewServer(
+			grpc.StreamInterceptor(grpcStreamInterceptor),
+			grpc.UnaryInterceptor(grpcUnaryInterceptor))
+		if l.Logger.GetLevel() >= logrus.DebugLevel {
+			l.Debug("Reflection and channelz are enabled.")
+			reflection.Register(gRPCServer)
+			channelz.RegisterChannelzServiceToServer(gRPCServer)
 
-	serverpb.RegisterServerServer(gRPCServer, deps.server)
-
-	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
-
-	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
-	agentsSvc := inventory.NewAgentsService(
-		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.agentService)
-
-	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
-	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
-
-	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-
-	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
-	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
-	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
-	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
-	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
-	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
-	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck))
-	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck))
-	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
-	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
-
-	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
-
-	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
-	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
-	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
-
-	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
-	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
-	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
-
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient, deps.olmOperatorService)
-	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
-	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
-	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.olmOperatorService))
-
-	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
-
-	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	if err == nil {
-		platformpb.RegisterPlatformServer(gRPCServer, platformService)
-	} else {
-		l.Fatalf("Failed to register platform service: %s", err.Error())
-	}
-
-	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", gRPCAddr)
-	if err != nil {
-		l.Panic(err)
-	}
-	go func() {
-		for {
-			err = gRPCServer.Serve(listener)
-			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
-				break
-			}
-			l.Errorf("Failed to serve: %s", err)
+			l.Debug("RPC response latency histogram enabled.")
+			grpcMetrics.EnableHandlingTimeHistogram()
 		}
-		l.Info("Server stopped.")
-	}()
+		grpcMetrics.InitializeMetrics(grpcServer)
 
-	<-ctx.Done()
+		serverpb.RegisterServerServer(gRPCServer, deps.server)
 
-	// try to stop server gracefully, then not
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	go func() {
+		agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
+
+		nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
+		servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
+		agentsSvc := inventory.NewAgentsService(
+			deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+			deps.vmdb, deps.connectionCheck, deps.agentService)
+
+		inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
+		inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
+		inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
+
+		nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
+		serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
+		mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
+		mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
+		postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+		proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+
+		managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+		managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
+		managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
+		managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
+		managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
+		managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
+		managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
+		managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck))
+		azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck))
+		managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
+		managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
+		managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
+		managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+
+		rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
+
+		iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
+		iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
+		iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
+		alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
+
+		backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
+		backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
+		backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
+		backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
+
+		k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient)
+		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
+		dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
+		dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+		dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+		dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
+		dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient)
+
+		userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
+
+		platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
+		if err == nil {
+			platformpb.RegisterPlatformServer(gRPCServer, platformService)
+		} else {
+			l.Fatalf("Failed to register platform service: %s", err.Error())
+		}
+
+		// run server until it is stopped gracefully or not
+		listener, err := net.Listen("tcp", gRPCAddr)
+		if err != nil {
+			l.Panic(err)
+		}
+		go func() {
+			for {
+				err = gRPCServer.Serve(listener)
+				if err == nil || errors.Is(err, grpc.ErrServerStopped) {
+					break
+				}
+				l.Errorf("Failed to serve: %s", err)
+			}
+			l.Info("Server stopped.")
+		}()
+
 		<-ctx.Done()
-		gRPCServer.Stop()
-	}()
-	gRPCServer.GracefulStop()
-	cancel()
-}
 
+		// try to stop server gracefully, then not
+		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		go func() {
+			<-ctx.Done()
+			gRPCServer.Stop()
+		}()
+		gRPCServer.GracefulStop()
+		cancel()
+	}
 */
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
@@ -424,7 +422,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient, deps.olmOperatorService)
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient)
 
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
@@ -432,7 +430,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.olmOperatorService))
+	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -953,7 +951,6 @@ func main() {
 
 	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
-	olmOperatorService := olm.NewEmpty()
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
@@ -963,7 +960,7 @@ func main() {
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
-	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, olmOperatorService)
+	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
@@ -1152,7 +1149,6 @@ func main() {
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
-				olmOperatorService:   olmOperatorService,
 			})
 	}()
 

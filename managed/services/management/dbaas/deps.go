@@ -22,6 +22,7 @@ import (
 	"context"
 
 	goversion "github.com/hashicorp/go-version"
+	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
@@ -117,4 +118,12 @@ type kubernetesClient interface {
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
 	ListSecrets(context.Context) (*corev1.SecretList, error)
+	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
+	InstallOLMOperator(ctx context.Context) error
+	// InstallOperator installs an operator via OLM.
+	InstallOperator(ctx context.Context, req kubernetes.InstallOperatorRequest) error
+	// ListSubscriptions all the subscriptions in the namespace.
+	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
+	// UpgradeOperator upgrades an operator to the next available version.
+	UpgradeOperator(ctx context.Context, namespace, name string) error
 }

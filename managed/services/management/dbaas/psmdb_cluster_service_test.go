@@ -37,7 +37,6 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
-	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -92,11 +91,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		pmmversion.PMMVersion = "2.30.0"
 	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-<<<<<<< HEAD
-		componentsService *mockComponentsService, kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
-=======
 		kubeClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
->>>>>>> main
 	) {
 		t.Helper()
 
@@ -111,7 +106,6 @@ func TestPSMDBClusterService(t *testing.T) {
 		grafanaClient = &mockGrafanaClient{}
 		kubeClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
-		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -122,17 +116,10 @@ func TestPSMDBClusterService(t *testing.T) {
 		return
 	}
 
-<<<<<<< HEAD
-	ctx, db, dbaasClient, grafanaClient, componentsService, kubernetesClient, olms, teardown := setup(t)
-	defer teardown(t)
-	versionService := NewVersionServiceClient(versionServiceURL)
-	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
-=======
 	ctx, db, dbaasClient, grafanaClient, kubeClient, componentsService, teardown := setup(t)
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
->>>>>>> main
 
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
@@ -141,36 +128,15 @@ func TestPSMDBClusterService(t *testing.T) {
 		},
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
-<<<<<<< HEAD
-
-	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
-	olms.On("SetKubeConfig", mock.Anything).Return(nil)
-	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
-	olms.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
-	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
-	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
-	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
-	kubernetesClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
-=======
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
-	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
-	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
+	//dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
-	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
-		Subscription: &controllerv1beta1.Subscription{
-			InstallPlanName: "mocked-install-plan",
-		},
-	}
-	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
->>>>>>> main
+	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
+	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: psmdbKubernetesClusterNameTest,

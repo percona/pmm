@@ -39,7 +39,6 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
-	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -94,7 +93,7 @@ func TestPXCClusterService(t *testing.T) {
 		pmmversion.PMMVersion = "2.30.0"
 	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		componentsService *mockComponentsService, kubernetesClient *mockKubernetesClient, olms *olm.MockOperatorServiceManager, teardown func(t *testing.T),
+		componentsService *mockComponentsService, kubeClient *mockKubernetesClient, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -107,7 +106,6 @@ func TestPXCClusterService(t *testing.T) {
 		grafanaClient = &mockGrafanaClient{}
 		kubeClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
-		olms = &olm.MockOperatorServiceManager{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -117,7 +115,7 @@ func TestPXCClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, componentsClient, kubernetesClient, olms, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
 	defer teardown(t)
 
 	versionService := &mockVersionService{}
@@ -125,7 +123,7 @@ func TestPXCClusterService(t *testing.T) {
 	versionService.On("LatestOperatorVersion", mock.Anything, mock.Anything).Return(v1120, v1120, nil)
 	versionService.On("GetVersionServiceURL", mock.Anything).Return("", nil)
 
-	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient, olms)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 	dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "1.11.0",
@@ -134,10 +132,9 @@ func TestPXCClusterService(t *testing.T) {
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
 
-	olms.On("SetKubeConfig", mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
-	olms.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
-	olms.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -158,12 +155,12 @@ func TestPXCClusterService(t *testing.T) {
 
 	wg.Wait()
 
-	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
-	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
-	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
-	kubernetesClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
+	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
+	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		pxcKubernetesClusterNameTest: kubeClient,
 	}

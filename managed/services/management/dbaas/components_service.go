@@ -31,7 +31,6 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/dbaas/olm"
 	"github.com/percona/pmm/managed/utils/stringset"
 	pmmversion "github.com/percona/pmm/version"
 )
@@ -48,7 +47,7 @@ type ComponentsService struct {
 	db                   *reform.DB
 	dbaasClient          dbaasClient
 	versionServiceClient versionService
-	olmOperatorService   olm.OperatorServiceManager
+	kubeStorage          *KubeStorage
 
 	dbaasv1beta1.UnimplementedComponentsServer
 }
@@ -60,14 +59,14 @@ type installedComponentsVersion struct {
 }
 
 // NewComponentsService creates Components Service.
-func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService, olmOperatorService olm.OperatorServiceManager) *ComponentsService {
+func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
 	return &ComponentsService{
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
 		versionServiceClient: versionServiceClient,
-		olmOperatorService:   olmOperatorService,
+		kubeStorage:          NewKubeStorage(db),
 	}
 }
 
@@ -256,11 +255,12 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 	}
 
 	for _, cluster := range clusters {
-		if err := c.olmOperatorService.SetKubeConfig(cluster.KubeConfig); err != nil {
-			return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
+		kubeClient, err := c.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
+		if err != nil {
+			c.l.Errorf("Cannot list the subscriptions for the cluster %q: %s", cluster.KubernetesClusterName, err)
 		}
 
-		subscriptions, err := c.olmOperatorService.ListSubscriptions(ctx, "default")
+		subscriptions, err := kubeClient.ListSubscriptions(ctx, "default")
 		if err != nil {
 			c.l.Errorf("Cannot list the subscriptions for the cluster %q: %s", cluster.KubernetesClusterName, err)
 			continue
@@ -412,22 +412,23 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+	kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	var component *models.Component
 	var installFunc func() error
-
-	if err := c.olmOperatorService.SetKubeConfig(kubernetesCluster.KubeConfig); err != nil {
-		return nil, errors.Wrap(err, "cannot connect to the Kubernetes cluster")
-	}
 
 	switch req.OperatorType {
 	case pxcOperator:
 		installFunc = func() error {
-			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
+			return kubeClient.UpgradeOperator(ctx, defaultNamespace, pxcOperatorName)
 		}
 		component = kubernetesCluster.PXC
 	case psmdbOperator:
 		installFunc = func() error {
-			return c.olmOperatorService.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
+			return kubeClient.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
 	default:
