@@ -105,7 +105,6 @@ linters:
     - gocognit
     - maintidx
     - nestif
-    - whitespace
     - errorlint
     - forcetypeassert
     - golint
@@ -115,7 +114,6 @@ linters:
     - execinquery
     - predeclared
     - nosprintfhostport
-    - nilerr
     - interfacebloat
     - gosimple
     - contextcheck
