@@ -130,7 +130,7 @@ func ipIsPrivate(args ...interface{}) (interface{}, error) {
 		_, net, err := net.ParseCIDR(ip)
 		if err != nil {
 			log.Errorf("invalid ip/network address: %q", ip)
-			return nil, nil //nolint:nilnil
+			return nil, nil //nolint:nilnil,nilerr
 		}
 		for _, network := range privateNetworks {
 			// check if the two networks intersect
