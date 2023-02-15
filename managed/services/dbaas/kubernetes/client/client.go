@@ -106,8 +106,8 @@ var (
 // Client is the internal client for Kubernetes.
 type Client struct {
 	clientset        kubernetes.Interface
-	apiextClientset  *apiextv1clientset.Clientset
-	dynamicClientset *dynamic.DynamicClient
+	apiextClientset  apiextv1clientset.Interface
+	dynamicClientset dynamic.Interface
 	dbClusterClient  *database.DatabaseClusterClient
 	rcLock           *sync.Mutex
 	restConfig       *rest.Config
@@ -1102,6 +1102,22 @@ func (c *Client) ListCRDs(ctx context.Context, labelSelector string) (*apiextv1.
 }
 
 // ListCRs returns a list of CRs.
-func (c *Client) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource) (*unstructured.UnstructuredList, error) {
-	return c.dynamicClientset.Resource(gvr).Namespace(namespace).List(ctx, metav1.ListOptions{})
+func (c *Client) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector string) (*unstructured.UnstructuredList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != "" {
+		parsed, err := metav1.ParseToLabelSelector(labelSelector)
+		if err != nil {
+			return nil, err
+		}
+
+		selector, err := parsed.Marshal()
+		if err != nil {
+			return nil, err
+		}
+
+		options.LabelSelector = string(selector)
+		options.LabelSelector = labelSelector
+	}
+
+	return c.dynamicClientset.Resource(gvr).Namespace(namespace).List(ctx, options)
 }

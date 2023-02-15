@@ -39,6 +39,9 @@ const (
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
+
+	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
+	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
 )
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
@@ -79,7 +82,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 // DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
+func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll,cyclop
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
 		return nil, nil, errors.New("pxc cluster must have one and only one proxy type defined")
 	}
@@ -191,6 +194,15 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
+
+	if cluster.Template != nil && cluster.Template.Name != "" && cluster.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = cluster.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = cluster.Template.Kind
+	}
+
 	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
@@ -332,6 +344,15 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
+
+	if cluster.Template != nil && cluster.Template.Name != "" && cluster.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = cluster.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = cluster.Template.Kind
+	}
+
 	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName

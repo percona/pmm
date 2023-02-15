@@ -258,7 +258,9 @@ func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) erro
 func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
-	cluster.ObjectMeta.Annotations = make(map[string]string)
+	if cluster.ObjectMeta.Annotations == nil {
+		cluster.ObjectMeta.Annotations = make(map[string]string)
+	}
 	cluster.ObjectMeta.Annotations[managedByKey] = "pmm"
 	return k.client.ApplyObject(cluster)
 }
@@ -943,7 +945,7 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 			Resource: templateCRD.Spec.Names.Plural,
 		}
 
-		templateCRs, err := k.client.ListCRs(ctx, namespace, gvr)
+		templateCRs, err := k.client.ListCRs(ctx, namespace, gvr, labelSelector)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed listing template CRs")
 		}

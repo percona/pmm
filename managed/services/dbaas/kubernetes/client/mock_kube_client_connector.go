@@ -526,13 +526,13 @@ func (_m *MockKubeClientConnector) ListCRDs(ctx context.Context, labelSelector s
 	return r0, r1
 }
 
-// ListCRs provides a mock function with given fields: ctx, namespace, gvr
-func (_m *MockKubeClientConnector) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource) (*unstructured.UnstructuredList, error) {
-	ret := _m.Called(ctx, namespace, gvr)
+// ListCRs provides a mock function with given fields: ctx, namespace, gvr, labelSelector
+func (_m *MockKubeClientConnector) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector string) (*unstructured.UnstructuredList, error) {
+	ret := _m.Called(ctx, namespace, gvr, labelSelector)
 
 	var r0 *unstructured.UnstructuredList
-	if rf, ok := ret.Get(0).(func(context.Context, string, schema.GroupVersionResource) *unstructured.UnstructuredList); ok {
-		r0 = rf(ctx, namespace, gvr)
+	if rf, ok := ret.Get(0).(func(context.Context, string, schema.GroupVersionResource, string) *unstructured.UnstructuredList); ok {
+		r0 = rf(ctx, namespace, gvr, labelSelector)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*unstructured.UnstructuredList)
@@ -540,8 +540,8 @@ func (_m *MockKubeClientConnector) ListCRs(ctx context.Context, namespace string
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, schema.GroupVersionResource) error); ok {
-		r1 = rf(ctx, namespace, gvr)
+	if rf, ok := ret.Get(1).(func(context.Context, string, schema.GroupVersionResource, string) error); ok {
+		r1 = rf(ctx, namespace, gvr, labelSelector)
 	} else {
 		r1 = ret.Error(1)
 	}

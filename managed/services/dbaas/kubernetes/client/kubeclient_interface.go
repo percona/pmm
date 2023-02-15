@@ -78,5 +78,5 @@ type KubeClientConnector interface {
 	// ListCRDs returns a list of CRDs.
 	ListCRDs(ctx context.Context, labelSelector string) (*apiextv1.CustomResourceDefinitionList, error)
 	// ListCRs returns a list of CRs.
-	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource) (*unstructured.UnstructuredList, error)
+	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector string) (*unstructured.UnstructuredList, error)
 }
