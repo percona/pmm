@@ -67,7 +67,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 			return
 		}
 		if resErr := os.WriteFile(path, oldCfg, 0o644); resErr != nil { //nolint:gosec
-			err = errors.Wrapf(resErr, "failed to restore config: %s", err.Error())
+			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
 		}
 	}()
 
