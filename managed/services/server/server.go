@@ -317,6 +317,9 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
+	// TODO: when checking if pmm-server-upgrade is available, we only check if it's running.
+	// Once pmm-update is removed and we stop distributing rpm packages, we shall add this check
+	// to pmm-server-upgrade.
 	if res.UpdateAvailable {
 		available, err := s.isUpdaterAvailable(ctx)
 		if err != nil {
