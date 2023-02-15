@@ -92,7 +92,7 @@ type RemoveCommand struct {
 // Values comparison is case-insensitive.
 func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {
 	if input == "" {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	for value, variations := range acceptableTypeValues {
