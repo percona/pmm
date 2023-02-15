@@ -360,7 +360,7 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 			// Special case when a user has assigned a role with no filters.
 			// In this case it's irrelevant what other roles are assigned to the user.
 			// The user shall have full access.
-			return nil, nil
+			return []string{}, nil
 		}
 
 		filters = append(filters, r.Filter)
