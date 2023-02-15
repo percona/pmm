@@ -170,10 +170,19 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "CmdTypeText", Type: "string", Column: "cmd_type_text"}, pointer: &s.CmdTypeText},
 			field{info: parse.FieldInfo{Name: "Elevel", Type: "int32", Column: "elevel"}, pointer: &s.Elevel},
 			field{info: parse.FieldInfo{Name: "Sqlcode", Type: "*string", Column: "sqlcode"}, pointer: &s.Sqlcode},
-			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message},
+			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message})
+
+	}
+	if vPGSM >= pgStatMonitorVersion09 && vPG >= 13 {
+		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
 			field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
 			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
+	}
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID})
+	} else {
+		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
 	if vPG <= 12 {
@@ -196,12 +205,6 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "min_plan_time"}, pointer: &s.PlanMinTime},
 			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.PlanMaxTime},
 			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.PlanMeanTime})
-	}
-
-	if vPGSM >= pgStatMonitorVersion20PG12 {
-		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID})
-	} else {
-		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
 	s.pointers = make([]interface{}, len(fields))
