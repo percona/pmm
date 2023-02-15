@@ -35,7 +35,7 @@ func main() {
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
-	if ok, _ := strconv.ParseBool(os.Getenv("DISABLE_INTERNAL_DB")); ok {
+	if ok, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_INTERNAL_DB")); ok {
 		if err := supervisord.SavePMMConfig(map[string]any{"DisableInternalDB": ok}); err != nil {
 			logrus.Errorf("PMM Server configuration error: %s.", err)
 			os.Exit(1)
