@@ -470,6 +470,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
+		vPGSM, _, err := getPGMonitorVersion(m.q)
+		if err != nil {
+			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
+			continue
+		}
+
 		prev := cache[bucketStartTime]
 		for queryID, currentPSM := range bucket {
 			var prevPSM *pgStatMonitorExtended
@@ -544,6 +550,16 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 
+			var cpuSysTime, cpuUserTime float64
+			// Since PGSM 2.0 and higher we should not cumulate times, because its already done on PGSM side
+			if vPGSM >= pgStatMonitorVersion20PG12 {
+				cpuSysTime = currentPSM.CPUSysTime
+				cpuUserTime = currentPSM.CPUUserTime
+			} else {
+				cpuSysTime = currentPSM.CPUSysTime - prevPSM.CPUSysTime
+				cpuUserTime = currentPSM.CPUUserTime - prevPSM.CPUUserTime
+			}
+
 			for _, p := range []struct {
 				value float32  // result value: currentPSM.SumXXX-prevPSM.SumXXX
 				sum   *float32 // MetricsBucket.XXXSum field to write value
@@ -574,8 +590,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.BlkWriteTime-prevPSM.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
 
 				// convert microseconds to seconds
-				{float32(currentPSM.CPUSysTime-prevPSM.CPUSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
-				{float32(currentPSM.CPUUserTime-prevPSM.CPUUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
+				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
+				{float32(cpuUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
 
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 			} {
