@@ -105,7 +105,6 @@ linters:
     - gocognit
     - maintidx
     - nestif
-    - whitespace
     - errorlint
     - forcetypeassert
     - golint
