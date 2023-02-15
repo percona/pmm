@@ -326,7 +326,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 			return nil, err
 		}
 
-		res.ServerUpgradeAvailable = available
+		res.ServerUpgradeServiceAvailable = available
 	}
 
 	return res, nil

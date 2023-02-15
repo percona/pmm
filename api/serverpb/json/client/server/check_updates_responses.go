@@ -426,7 +426,7 @@ type CheckUpdatesOKBody struct {
 	PMMUpdateAvailable bool `json:"pmm_update_available,omitempty"`
 
 	// True if pmm-server-upgrade can be used for an update.
-	ServerUpgradeAvailable bool `json:"server_upgrade_available,omitempty"`
+	ServerUpgradeServiceAvailable bool `json:"server_upgrade_service_available,omitempty"`
 
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
