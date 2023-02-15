@@ -1,4 +1,5 @@
 # Percona Monitoring and Management 2.x
+
 [![CI](https://github.com/percona/pmm/actions/workflows/common.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/common.yml)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
@@ -6,11 +7,11 @@
 [![Discord](https://img.shields.io/discord/808660945513611334?label=Discord&logo=Discord&style=flat)](https://per.co.na/discord)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
-![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
+![PMM](https://www.percona.com/wp-content/uploads/2023/01/logo.svg)
 
 ## Percona Monitoring and Management
 
-A 'single pane of glass' to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
+A `single pane of glass` to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
 
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
 PMM helps users to:
@@ -34,11 +35,10 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
-![Overal Architecture](https://docs.percona.com/percona-monitoring-and-management/_images/C_S_Architecture.jpg "Client Server Architecture")
+![PMM Server](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
 
-![PMM Conponents](https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Architecture_Client_Server.jpg "PMM Server Architecture")
-
+![PMM Client](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
@@ -51,9 +51,7 @@ $ docker pull percona/pmm-server:2
 ```
 2. Create the data volume container
 ```bash
-$ docker create --volume /srv \
---name pmm-data \
-percona/pmm-server:2 /bin/true
+$ docker create --volume /srv --name pmm-data percona/pmm-server:2 /bin/true
 ```
 3. Run PMM server container
 ```bash
@@ -101,4 +99,3 @@ As a general rule of thumb, please try to create bug reports that are:
 ## Licensing
 
 Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](https://github.com/percona/pmm/blob/main/LICENSE) license.
-
