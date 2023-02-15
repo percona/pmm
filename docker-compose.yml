@@ -44,6 +44,7 @@ services:
     #      - POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
     #      - POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
     #      - POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
+    #      - PMM_DISABLE_BUILTIN_POSTGRES=1
 
     extra_hosts:
       - host.docker.internal:host-gateway
