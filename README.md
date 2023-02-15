@@ -54,13 +54,13 @@ $ docker pull percona/pmm-server:2
 ```
 2. Create the data volume container
 ```bash
-$ docker create --volume /srv --name pmm-data percona/pmm-server:2 /bin/true
+$ docker volume create pmm-data
 ```
 3. Run PMM server container
 ```bash
 $ docker run --detach --restart always \
 --publish 443:443 \
---volumes-from pmm-data \
+--volume pmm-data:/srv \
 --name pmm-server \
 percona/pmm-server:2
 ```
