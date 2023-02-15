@@ -1115,6 +1115,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
