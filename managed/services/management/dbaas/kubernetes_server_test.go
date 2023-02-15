@@ -18,6 +18,7 @@ package dbaas
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -239,6 +240,10 @@ func TestKubernetesServer(t *testing.T) {
 		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Empty(t, clusters.KubernetesClusters)
+
+		// Let goroutines to finish their tasks
+		// TODO: @gen1us2k find a better solution to prevent datarace.
+		time.Sleep(3 * time.Second)
 	})
 }
 
