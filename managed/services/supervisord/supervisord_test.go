@@ -159,23 +159,28 @@ func TestSavePMMConfig(t *testing.T) {
 	t.Parallel()
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	tests := []struct {
-		params map[string]any
-		file   string
+		description string
+		params      map[string]any
+		file        string
 	}{
 		{
-			params: map[string]any{"DisableInternalDB": true},
-			file:   "pmm-db_disabled",
+			description: "disable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": true},
+			file:        "pmm-db_disabled",
 		},
 		{
-			params: map[string]any{"DisableInternalDB": false},
-			file:   "pmm-db_enabled",
+			description: "enable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": false},
+			file:        "pmm-db_enabled",
 		},
 	}
 	for _, test := range tests {
-		expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
-		require.NoError(t, err)
-		actual, err := marshalConfig(test.params)
-		require.NoError(t, err)
-		assert.Equal(t, string(expected), string(actual))
+		t.Run(test.description, func(t *testing.T) {
+			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := marshalConfig(test.params)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
 	}
 }
