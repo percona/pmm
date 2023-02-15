@@ -7,7 +7,7 @@
 [![Discord](https://img.shields.io/discord/808660945513611334?label=Discord&logo=Discord&style=flat)](https://per.co.na/discord)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
-![PMM](https://www.percona.com/wp-content/uploads/2023/01/logo.svg)
+![PMM](img/pmm-logo.png)
 
 ## Percona Monitoring and Management
 
