@@ -46,6 +46,20 @@ func (_m *mockKubernetesClient) CreatePMMSecret(_a0 string, _a1 map[string][]byt
 	return r0
 }
 
+// CreateRestore provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) CreateRestore(_a0 *v1.DatabaseClusterRestore) error {
+	ret := _m.Called(_a0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*v1.DatabaseClusterRestore) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteDatabaseCluster provides a mock function with given fields: _a0, _a1
 func (_m *mockKubernetesClient) DeleteDatabaseCluster(_a0 context.Context, _a1 string) error {
 	ret := _m.Called(_a0, _a1)
@@ -330,6 +344,29 @@ func (_m *mockKubernetesClient) ListDatabaseClusters(_a0 context.Context) (*v1.D
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v1.DatabaseClusterList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListSecrets provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) ListSecrets(_a0 context.Context) (*corev1.SecretList, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *corev1.SecretList
+	if rf, ok := ret.Get(0).(func(context.Context) *corev1.SecretList); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*corev1.SecretList)
 		}
 	}
 

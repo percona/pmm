@@ -6,6 +6,7 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	mock "github.com/stretchr/testify/mock"
 
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
 	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
@@ -37,6 +38,22 @@ func (_m *mockSupervisor) AgentLogByID(_a0 string) ([]string, uint) {
 	return r0, r1
 }
 
+// AgentsList provides a mock function with given fields:
+func (_m *mockSupervisor) AgentsList() []*agentlocalpb.AgentInfo {
+	ret := _m.Called()
+
+	var r0 []*agentlocalpb.AgentInfo
+	if rf, ok := ret.Get(0).(func() []*agentlocalpb.AgentInfo); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*agentlocalpb.AgentInfo)
+		}
+	}
+
+	return r0
+}
+
 // Changes provides a mock function with given fields:
 func (_m *mockSupervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	ret := _m.Called()
@@ -51,6 +68,11 @@ func (_m *mockSupervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	}
 
 	return r0
+}
+
+// ClearChangesChannel provides a mock function with given fields:
+func (_m *mockSupervisor) ClearChangesChannel() {
+	_m.Called()
 }
 
 // Collect provides a mock function with given fields: _a0

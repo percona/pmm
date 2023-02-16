@@ -25,6 +25,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestDatabaseClusterForPXC(t *testing.T) {
@@ -78,6 +79,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -99,7 +101,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						},
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -145,6 +147,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -167,7 +170,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						},
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -209,6 +212,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -225,7 +229,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -267,6 +271,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -290,7 +295,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -332,6 +337,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -355,7 +361,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 							"service.beta.kubernetes.io/aws-load-balancer-type":                    "external",
 						},
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -397,6 +403,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 					DatabaseImage:  "pxc_image",
 					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -415,14 +422,14 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
 	}
 	for _, testCase := range testCases {
 		tt := testCase
-		cluster, err := DatabaseClusterForPXC(tt.input, tt.clusterType)
+		cluster, _, err := DatabaseClusterForPXC(tt.input, tt.clusterType, &models.BackupLocation{Type: models.S3BackupLocationType})
 		assert.NoError(t, err, tt.name)
 		assert.Equal(t, tt.expected, cluster, tt.name)
 	}
@@ -469,7 +476,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -502,7 +509,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -541,7 +548,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -575,7 +582,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -617,7 +624,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -650,7 +657,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -691,7 +698,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -731,7 +738,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 							},
 						},
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{

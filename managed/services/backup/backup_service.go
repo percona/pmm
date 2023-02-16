@@ -219,7 +219,6 @@ type restoreJobParams struct {
 	ServiceID     string
 	AgentID       string
 	ArtifactName  string
-	DBVersion     string
 	LocationModel *models.BackupLocation
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
@@ -233,8 +232,11 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", err
 	}
 
-	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
+	targetDBVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
+		return "", err
+	}
+	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
 		return "", err
 	}
 
@@ -269,13 +271,6 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		location, err := models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
 		if err != nil {
 			return err
-		}
-
-		if service.ServiceType == models.MySQLServiceType && artifact.DBVersion != "" {
-			if artifact.DBVersion != dbVersion {
-				return errors.Wrapf(ErrIncompatibleTargetMySQL, "artifact db version %q != db version %q",
-					artifact.DBVersion, dbVersion)
-			}
 		}
 
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
@@ -332,7 +327,6 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			ServiceID:     serviceID,
 			AgentID:       agentID,
 			ArtifactName:  artifact.Name,
-			DBVersion:     artifact.DBVersion,
 			LocationModel: location,
 			ServiceType:   service.ServiceType,
 			DBConfig:      dbConfig,
