@@ -124,7 +124,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 			msg = fmt.Sprintf(msg+". Error: %s", err)
 		}
 
-		return nil, fmt.Errorf(msg)
+		return nil, errors.New(msg)
 	}
 
 	noTimeout := -1 * time.Second
