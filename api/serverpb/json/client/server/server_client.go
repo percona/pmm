@@ -7,7 +7,6 @@ package server
 
 import (
 	"io"
-	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -222,7 +221,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "Logs",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/logs.zip",
 		ProducesMediaTypes: []string{"application/zip"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -261,7 +260,7 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "Readiness",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/v1/readyz",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -417,7 +416,7 @@ func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "Version",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/v1/version",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

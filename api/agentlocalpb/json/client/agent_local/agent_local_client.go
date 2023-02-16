@@ -6,8 +6,6 @@ package agent_local
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"net/http"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 )
@@ -123,7 +121,7 @@ func (a *Client) Status2(params *Status2Params, opts ...ClientOption) (*Status2O
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "Status2",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/local/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

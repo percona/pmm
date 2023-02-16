@@ -7,7 +7,6 @@ package general
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -46,7 +45,7 @@ func (a *Client) GetStatus(params *GetStatusParams, opts ...ClientOption) (*GetS
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getStatus",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

@@ -7,7 +7,6 @@ package receiver
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -46,7 +45,7 @@ func (a *Client) GetReceivers(params *GetReceiversParams, opts ...ClientOption) 
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getReceivers",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/receivers",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

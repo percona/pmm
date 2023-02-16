@@ -7,7 +7,6 @@ package alertgroup
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -46,7 +45,7 @@ func (a *Client) GetAlertGroups(params *GetAlertGroupsParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getAlertGroups",
-		Method:             http.MethodGet,
+		Method:             "GET",
 		PathPattern:        "/alerts/groups",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
