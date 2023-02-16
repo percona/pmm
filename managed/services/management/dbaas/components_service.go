@@ -47,7 +47,7 @@ type ComponentsService struct {
 	db                   *reform.DB
 	dbaasClient          dbaasClient
 	versionServiceClient versionService
-	kubeStorage          *KubeStorage
+	kubeStorage          kubeStorageManager
 
 	dbaasv1beta1.UnimplementedComponentsServer
 }
@@ -59,14 +59,14 @@ type installedComponentsVersion struct {
 }
 
 // NewComponentsService creates Components Service.
-func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
+func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService, kubeStorage kubeStorageManager) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
 	return &ComponentsService{
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
 		versionServiceClient: versionServiceClient,
-		kubeStorage:          NewKubeStorage(db),
+		kubeStorage:          kubeStorage,
 	}
 }
 

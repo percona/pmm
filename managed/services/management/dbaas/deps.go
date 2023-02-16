@@ -38,6 +38,7 @@ import (
 //go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=kubeStorageManager -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -126,4 +127,9 @@ type kubernetesClient interface {
 	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
+}
+
+type kubeStorageManager interface {
+	GetOrSetClient(name string) (kubernetesClient, error)
+	DeleteClient(name string) error
 }

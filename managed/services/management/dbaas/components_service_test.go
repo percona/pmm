@@ -54,7 +54,9 @@ func TestComponentService(t *testing.T) {
 		kubeConfig  = "{}"
 	)
 
-	setup := func(t *testing.T) (ctx context.Context, cs dbaasv1beta1.ComponentsServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient) {
+	setup := func(t *testing.T) (ctx context.Context, cs dbaasv1beta1.ComponentsServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient,
+		kubeStorage kubeStorageManager,
+	) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -79,15 +81,16 @@ func TestComponentService(t *testing.T) {
 		})
 
 		vsc := NewVersionServiceClient(versionServiceURL)
+		kubeStorage = &mockKubeStorageManager{}
 		kubeClient = &mockKubernetesClient{}
-		cs = NewComponentsService(db, dbaasClient, vsc)
+		cs = NewComponentsService(db, dbaasClient, vsc, kubeStorage)
 
 		return
 	}
 
 	t.Run("PXC", func(t *testing.T) {
 		t.Run("BasicGet", func(t *testing.T) {
-			ctx, cs, dbaasClient, _ := setup(t)
+			ctx, cs, dbaasClient, _, _ := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
@@ -111,7 +114,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Change", func(t *testing.T) {
-			ctx, cs, dbaasClient, _ := setup(t)
+			ctx, cs, dbaasClient, _, _ := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
@@ -183,7 +186,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Don't let disable and make default same version", func(t *testing.T) {
-			ctx, cs, _, _ := setup(t)
+			ctx, cs, _, _, _ := setup(t)
 
 			resp, err := cs.ChangePXCComponents(ctx, &dbaasv1beta1.ChangePXCComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -202,7 +205,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("enable and disable", func(t *testing.T) {
-			ctx, cs, _, _ := setup(t)
+			ctx, cs, _, _, _ := setup(t)
 
 			resp, err := cs.ChangePXCComponents(ctx, &dbaasv1beta1.ChangePXCComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -222,7 +225,7 @@ func TestComponentService(t *testing.T) {
 
 	t.Run("PSMDB", func(t *testing.T) {
 		t.Run("BasicGet", func(t *testing.T) {
-			ctx, cs, dbaasClient, _ := setup(t)
+			ctx, cs, dbaasClient, _, _ := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 				Operators: &controllerv1beta1.Operators{PsmdbOperatorVersion: onePointSix},
@@ -246,7 +249,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Change", func(t *testing.T) {
-			ctx, cs, dbaasClient, _ := setup(t)
+			ctx, cs, dbaasClient, _, _ := setup(t)
 
 			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 				Operators: &controllerv1beta1.Operators{PsmdbOperatorVersion: onePointSix},
@@ -319,7 +322,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Don't let disable and make default same version", func(t *testing.T) {
-			ctx, cs, _, _ := setup(t)
+			ctx, cs, _, _, _ := setup(t)
 
 			resp, err := cs.ChangePSMDBComponents(ctx, &dbaasv1beta1.ChangePSMDBComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -337,7 +340,7 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("enable and disable", func(t *testing.T) {
-			ctx, cs, _, _ := setup(t)
+			ctx, cs, _, _, _ := setup(t)
 
 			resp, err := cs.ChangePSMDBComponents(ctx, &dbaasv1beta1.ChangePSMDBComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -514,6 +517,7 @@ const (
 
 func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port string) (
 	*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *mockKubernetesClient,
+	*mockKubeStorageManager,
 ) {
 	t.Helper()
 
@@ -547,7 +551,9 @@ func setup(t *testing.T, clusterName string, response *VersionServiceResponse, p
 		require.NoError(t, sqlDB.Close())
 	})
 
-	return db.Querier, NewComponentsService(db, dbaasClient, vsc), dbaasClient, kubeClient
+	kubeStorage := &mockKubeStorageManager{}
+
+	return db.Querier, NewComponentsService(db, dbaasClient, vsc, kubeStorage), dbaasClient, kubeClient, kubeStorage
 }
 
 func TestInstallOperator(t *testing.T) {
@@ -609,7 +615,8 @@ func TestInstallOperator(t *testing.T) {
 	}
 
 	t.Run("Defaults not supported", func(t *testing.T) {
-		_, c, _, kubeClient := setup(t, clusterName, response, "5497")
+		_, c, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
+		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
@@ -634,7 +641,9 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
-		db, c, _, kubeClient := setup(t, clusterName, response, "5498")
+		db, c, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
+		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
+		kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("UpgradeOperator", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
@@ -718,7 +727,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
 		clusterName := "update-available"
-		_, cs, dbaasClient, kubeClient := setup(t, clusterName, response, "9873")
+		_, cs, dbaasClient, kubeClient, _ := setup(t, clusterName, response, "9873")
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PsmdbOperatorVersion: onePointSeven,
@@ -774,7 +783,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
 		clusterName := "update-not-available"
-		_, cs, dbaasClient, kubeClient := setup(t, clusterName, response, "7895")
+		_, cs, dbaasClient, kubeClient, _ := setup(t, clusterName, response, "7895")
 		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{
 				PsmdbOperatorVersion: onePointEight,
