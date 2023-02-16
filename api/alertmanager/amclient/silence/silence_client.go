@@ -7,6 +7,7 @@ package silence
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -89,7 +90,7 @@ func (a *Client) GetSilence(params *GetSilenceParams, opts ...ClientOption) (*Ge
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getSilence",
-		Method:             "GET",
+		Method:             http.MethodGet,
 		PathPattern:        "/silence/{silenceID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
@@ -127,7 +128,7 @@ func (a *Client) GetSilences(params *GetSilencesParams, opts ...ClientOption) (*
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getSilences",
-		Method:             "GET",
+		Method:             http.MethodGet,
 		PathPattern:        "/silences",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

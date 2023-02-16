@@ -110,7 +110,6 @@ linters:
     - forcetypeassert
     - golint
     - nonamedreturns
-    - usestdlibvars
     - execinquery
     - predeclared
     - nosprintfhostport

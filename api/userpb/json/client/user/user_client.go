@@ -6,6 +6,8 @@ package user
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"net/http"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 )
@@ -49,7 +51,7 @@ func (a *Client) GetUser(params *GetUserParams, opts ...ClientOption) (*GetUserO
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "GetUser",
-		Method:             "GET",
+		Method:             http.MethodGet,
 		PathPattern:        "/v1/user",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

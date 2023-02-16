@@ -7,6 +7,7 @@ package alert
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
@@ -47,7 +48,7 @@ func (a *Client) GetAlerts(params *GetAlertsParams, opts ...ClientOption) (*GetA
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "getAlerts",
-		Method:             "GET",
+		Method:             http.MethodGet,
 		PathPattern:        "/alerts",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
