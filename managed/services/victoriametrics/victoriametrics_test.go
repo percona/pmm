@@ -495,6 +495,7 @@ scrape_configs:
             - perf_schema.file_instances
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
+            - plugins
       scrape_interval: 1m
       scrape_timeout: 54s
       metrics_path: /metrics
@@ -606,6 +607,7 @@ scrape_configs:
             - perf_schema.file_instances
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
+            - plugins
       scrape_interval: 1m
       scrape_timeout: 54s
       metrics_path: /metrics

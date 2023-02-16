@@ -120,7 +120,7 @@ func listRegions(partitions []string) []string {
 				continue
 			}
 
-			for r := range partition.Services()[endpoints.RdsServiceID].Regions() {
+			for r := range partition.Services()[rds.EndpointsID].Regions() {
 				set[r] = struct{}{}
 			}
 			break

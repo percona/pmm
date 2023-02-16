@@ -262,6 +262,10 @@ func TestKubernetesServer(t *testing.T) {
 		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Empty(t, clusters.KubernetesClusters)
+
+		// Let goroutines to finish their tasks
+		// TODO: @gen1us2k find a better solution to prevent datarace.
+		time.Sleep(3 * time.Second)
 	})
 }
 
