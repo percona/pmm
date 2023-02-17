@@ -699,7 +699,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
 
 	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
 	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
@@ -1332,56 +1332,6 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
-func (s *Service) groupChecksByDB(checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) {
-	mySQLChecks = make(map[string]check.Check)
-	postgreSQLChecks = make(map[string]check.Check)
-	mongoDBChecks = make(map[string]check.Check)
-	for _, c := range checks {
-		switch c.Version {
-		case 1:
-			switch c.Type {
-			case check.MySQLSelect:
-				fallthrough
-			case check.MySQLShow:
-				mySQLChecks[c.Name] = c
-
-			case check.PostgreSQLSelect:
-				fallthrough
-			case check.PostgreSQLShow:
-				postgreSQLChecks[c.Name] = c
-
-			case check.MongoDBGetParameter:
-				fallthrough
-			case check.MongoDBBuildInfo:
-				fallthrough
-			case check.MongoDBGetCmdLineOpts:
-				fallthrough
-			case check.MongoDBReplSetGetStatus:
-				fallthrough
-			case check.MongoDBGetDiagnosticData:
-				mongoDBChecks[c.Name] = c
-
-			default:
-				s.l.Warnf("Unknown check type %s, skip it.", c.Type)
-			}
-		case 2:
-			switch c.Family {
-			case check.MySQL:
-				mySQLChecks[c.Name] = c
-			case check.PostgreSQL:
-				postgreSQLChecks[c.Name] = c
-			case check.MongoDB:
-				mongoDBChecks[c.Name] = c
-			default:
-				s.l.Warnf("Unknown check family %s, skip it.", c.Family)
-			}
-		}
-	}
-
-	return
-}
-
 // CollectAdvisors loads advisors from file or SaaS, and stores versions this pmm-managed version can handle.
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
@@ -1586,7 +1536,7 @@ func (s *Service) incChecksDownload() {
 	if err != nil {
 		s.l.Warnf("failed to get checks: %+v", err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
 	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
 	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
 	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)

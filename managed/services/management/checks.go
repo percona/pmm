@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"strings"
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
@@ -281,13 +282,38 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 			Name:        a.Name,
 			Description: a.Description,
 			Summary:     a.Summary,
-			Comment:     "",
+			Comment:     createComment(s.l, a.Checks),
 			Category:    a.Category,
 			Checks:      checks,
 		})
 	}
 
 	return &managementpb.ListAdvisorsResponse{Advisors: res}, nil
+}
+
+func createComment(l *logrus.Entry, checks []check.Check) string {
+	checksM := make(map[string]check.Check, len(checks))
+	for _, c := range checks {
+		checksM[c.Name] = c
+	}
+
+	mysqlChecks, portgresSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
+
+	if len(mysqlChecks) != 0 && len(portgresSQLChecks) != 0 && len(mongoDBChecks) != 0 {
+		return "All technologies supported"
+	}
+
+	b := make([]string, 0, 3)
+	if len(mysqlChecks) != 0 {
+		b = append(b, "MySQL")
+	}
+	if len(portgresSQLChecks) != 0 {
+		b = append(b, "PostgreSQL")
+	}
+	if len(mongoDBChecks) != 0 {
+		b = append(b, "MongoDB")
+	}
+	return "Partial support (" + strings.Join(b, ", ") + ")"
 }
 
 // ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.

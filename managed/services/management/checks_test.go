@@ -23,6 +23,7 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -459,4 +460,49 @@ func TestUpdateSecurityChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, &managementpb.ChangeSecurityChecksResponse{}, resp)
 	})
+}
+
+func TestCreateComment(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.WithField("component", "tests")
+
+	tests := []struct {
+		Name    string
+		Comment string
+		Checks  []check.Check
+	}{
+		{
+			Name:    "all technologies",
+			Comment: "All technologies supported",
+			Checks: []check.Check{
+				{Version: 1, Type: check.MySQLShow},
+				{Version: 1, Type: check.PostgreSQLSelect},
+				{Version: 2, Family: check.MongoDB},
+			},
+		},
+		{
+			Name:    "all technologies",
+			Comment: "Partial support (MySQL, MongoDB)",
+			Checks: []check.Check{
+				{Version: 1, Type: check.MySQLShow},
+				{Version: 2, Family: check.MongoDB},
+			},
+		},
+		{
+			Name:    "all technologies",
+			Comment: "Partial support (MySQL)",
+			Checks: []check.Check{
+				{Version: 1, Type: check.MySQLShow},
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.Comment, createComment(l, tt.Checks))
+		})
+	}
 }
