@@ -16,7 +16,6 @@ Once enabled, restricting access to metrics can be performed by:
 
 ```bash
 curl -X POST "http://localhost/v1/management/Role/Create" \ 
-     -H "accept: application/json" \
      -H "authorization: Basic xxx" \
      -H "Content-Type: application/json" \ 
      -d '{
