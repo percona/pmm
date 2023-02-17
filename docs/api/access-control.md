@@ -31,7 +31,7 @@ Full access can be provided by specifying an empty `filter` field.
 ### Assign a Percona role
 
 Users can be assigned roles by using the `/v1/management/Role/Assign` API.  
-The endpoint assigns new roles to a user. Other roles assigned to the user stay intact.
+The endpoint assigns new roles to a user. Other roles, that may have been assigned to the user previously, stay intact.
 
 ```bash
 curl -X POST "http://localhost/v1/management/Role/Assign" \ 
