@@ -16,7 +16,7 @@ Once enabled, restricting access to metrics can be performed by:
 
 ```bash
 curl -X POST "http://localhost/v1/management/Role/Create" \ 
-     -H "authorization: Basic xxx" \
+     -H "Authorization: Basic xxx" \
      -H "Content-Type: application/json" \ 
      -d '{
         "title": "My custom role role",
@@ -34,7 +34,7 @@ The endpoint assigns new roles to a user. Other roles, that may have been assign
 
 ```bash
 curl -X POST "http://localhost/v1/management/Role/Assign" \ 
-     -H "authorization: Basic xxx" \
+     -H "Authorization: Basic xxx" \
      -H "Content-Type: application/json" \ 
      -d '{
         "user_id": 1,
