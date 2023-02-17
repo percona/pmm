@@ -34,7 +34,6 @@ The endpoint assigns new roles to a user. Other roles, that may have been assign
 
 ```bash
 curl -X POST "http://localhost/v1/management/Role/Assign" \ 
-     -H "accept: application/json" \
      -H "authorization: Basic xxx" \
      -H "Content-Type: application/json" \ 
      -d '{
