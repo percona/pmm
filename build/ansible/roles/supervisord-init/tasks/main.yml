@@ -3,6 +3,9 @@
   pip:
     name: supervisor==4.2.4
 
+- name: Fix supervisor      | Fix supervisor
+  shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
+
 - name: Configure supervisor       | Create a defult configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
 
@@ -89,6 +92,9 @@
     src: supervisord.service
     dest: /usr/lib/systemd/system/
     mode: 0644
+
+- name: Fix motd      | Fix motd
+  shell: echo "Welcome to PMM Server!" > /etc/motd; echo "Welcome to PMM Server!" > /etc/motd.conf
 
 - name: Debug                      | Print the contents of supervisord.conf
   debug:
