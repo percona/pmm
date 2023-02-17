@@ -139,4 +139,4 @@
         group: pmm
         mode: "0775"
     - name: Remove VBoxGuest            | Remove VBoxGuest
-      shell: bash +x /opt/VBoxGuestAdditions*/uninstall.sh
+      shell: bash +x /opt/VBoxGuestAdditions*/uninstall.sh || true
