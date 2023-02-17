@@ -467,7 +467,7 @@ func TestCreateComment(t *testing.T) {
 
 	l := logrus.WithField("component", "tests")
 
-	tests := []struct {
+	testCases := []struct {
 		Name    string
 		Comment string
 		Checks  []check.Check
@@ -476,33 +476,33 @@ func TestCreateComment(t *testing.T) {
 			Name:    "all technologies",
 			Comment: "All technologies supported",
 			Checks: []check.Check{
-				{Version: 1, Type: check.MySQLShow},
-				{Version: 1, Type: check.PostgreSQLSelect},
-				{Version: 2, Family: check.MongoDB},
+				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 1, Name: "b", Type: check.PostgreSQLSelect},
+				{Version: 2, Name: "c", Family: check.MongoDB},
 			},
 		},
 		{
-			Name:    "all technologies",
+			Name:    "partial support",
 			Comment: "Partial support (MySQL, MongoDB)",
 			Checks: []check.Check{
-				{Version: 1, Type: check.MySQLShow},
-				{Version: 2, Family: check.MongoDB},
+				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 2, Name: "b", Family: check.MongoDB},
 			},
 		},
 		{
-			Name:    "all technologies",
+			Name:    "partial support",
 			Comment: "Partial support (MySQL)",
 			Checks: []check.Check{
-				{Version: 1, Type: check.MySQLShow},
+				{Version: 1, Name: "a", Type: check.MySQLShow},
 			},
 		},
 	}
-	for _, tt := range tests {
-		tt := tt
+	for _, tc := range testCases {
+		tc := tc
 
-		t.Run(tt.Name, func(t *testing.T) {
+		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.Comment, createComment(l, tt.Checks))
+			assert.Equal(t, tc.Comment, createComment(l, tc.Checks))
 		})
 	}
 }

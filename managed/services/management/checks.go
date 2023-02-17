@@ -299,10 +299,6 @@ func createComment(l *logrus.Entry, checks []check.Check) string {
 
 	mysqlChecks, portgresSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
 
-	if len(mysqlChecks) != 0 && len(portgresSQLChecks) != 0 && len(mongoDBChecks) != 0 {
-		return "All technologies supported"
-	}
-
 	b := make([]string, 0, 3)
 	if len(mysqlChecks) != 0 {
 		b = append(b, "MySQL")
@@ -313,6 +309,11 @@ func createComment(l *logrus.Entry, checks []check.Check) string {
 	if len(mongoDBChecks) != 0 {
 		b = append(b, "MongoDB")
 	}
+
+	if len(b) == 3 {
+		return "All technologies supported"
+	}
+
 	return "Partial support (" + strings.Join(b, ", ") + ")"
 }
 
