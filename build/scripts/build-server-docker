@@ -21,9 +21,7 @@ sed -i -e "s/pmm_client_repo_name: \".*\"/pmm_client_repo_name: local/" ${docker
 git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
 docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
     sudo chown -R builder /home/builder/rpm/RPMS
-    ls -la /home/builder/rpm/RPMS/
     /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
-    yum list | grep 2.35
 "
 
 if [ -z "${DOCKER_TAG}" ]; then
@@ -31,7 +29,7 @@ if [ -z "${DOCKER_TAG}" ]; then
 fi
 
 IMAGE_VERSION=`echo $DOCKER_TAG | cut -d ':' -f2`
-
+DOCKER_TAG="perconalab/pmm-server:2.35.0-el9"
 
 docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$IMAGE_VERSION" \
