@@ -23,6 +23,7 @@ docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} s
     sudo chown -R builder /home/builder/rpm/RPMS
     ls -la /home/builder/rpm/RPMS/
     /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
+    yum list | grep 2.35
 "
 
 if [ -z "${DOCKER_TAG}" ]; then
