@@ -21,7 +21,9 @@ URL:            https://github.com/percona-platform/grafana
 Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-BuildRequires: nodejs-grunt-cli fontconfig
+#BuildRequires: nodejs-grunt-cli fontconfig
+BuildRequires: fontconfig
+
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
