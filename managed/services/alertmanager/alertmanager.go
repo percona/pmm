@@ -213,7 +213,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 // reload asks Alertmanager to reload configuration.
 func (svc *Service) reload(ctx context.Context) error {
 	u := "http://127.0.0.1:9093/alertmanager/-/reload"
-	req, err := http.NewRequestWithContext(ctx, "POST", u, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -229,7 +229,7 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 	return nil
@@ -851,7 +851,7 @@ func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.Gett
 // IsReady verifies that Alertmanager works.
 func (svc *Service) IsReady(ctx context.Context) error {
 	u := "http://127.0.0.1:9093/alertmanager/-/ready"
-	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -866,7 +866,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
