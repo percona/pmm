@@ -134,23 +134,23 @@
   include_role:
     name: supervisord-init
 
-    - name: Install RPMs               | Install RPMs for PMM2 server
-      yum:
-        name:
-          - percona-grafana
-          - percona-victoriametrics
-          - percona-qan-api2
-          - percona-dashboards
-          - percona-alertmanager
-          - pmm-managed
-          - pmm-update
-          - dbaas-controller
-          - dbaas-tools
-          - pmm-dump
-          - vmproxy
-        state: installed
-        # line below is sed'ed by build-server-docker script
-        enablerepo: "pmm2-server"
+- name: Install RPMs               | Install RPMs for PMM2 server
+  yum:
+    name:
+      - percona-grafana
+      - percona-victoriametrics
+      - percona-qan-api2
+      - percona-dashboards
+      - percona-alertmanager
+      - pmm-managed
+      - pmm-update
+      - dbaas-controller
+      - dbaas-tools
+      - pmm-dump
+      - vmproxy
+    state: installed
+    # line below is sed'ed by build-server-docker script
+    enablerepo: "pmm2-server"
 
 - name: PMM                        | Enable repo for pmm2-client
   command: percona-release enable {{ pmm_client_repos }}
