@@ -328,7 +328,6 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterN
 				req.Name = req.Name[:21]
 			}
 		}
-
 	}
 
 	return nil
