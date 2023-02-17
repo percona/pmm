@@ -21,29 +21,26 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
 func TestGetPostgreSQLVersion(t *testing.T) {
+	t.Parallel()
 	sqlDB, mock, err := sqlmock.New()
-	if err != nil {
-		t.Log("error creating mock database")
-		return
-	}
+	require.NoError(t, err)
 	defer sqlDB.Close() //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
 	ctx := context.Background()
 
-	type testingCase struct {
+	testCases := []struct {
 		name        string
 		mockedData  []string
 		wantVersion PostgreSQLVersion
 		wantError   bool
-	}
-
-	testCases := []testingCase{
+	}{
 		{
 			name: "PostgreSQL 10.9",
 			mockedData: []string{
@@ -77,10 +74,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 			wantError:   true,
 		},
 	}
-
 	column := []string{"version"}
-
-	//nolint:paralleltest
 	for i := range testCases {
 		tc := testCases[i]
 		t.Run(tc.name, func(t *testing.T) {
