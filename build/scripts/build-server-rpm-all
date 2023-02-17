@@ -19,6 +19,5 @@ ${bin_dir}/build-server-rpm vmproxy pmm
 ${bin_dir}/build-server-rpm victoriametrics
 ${bin_dir}/build-server-rpm alertmanager
 ${bin_dir}/build-server-rpm grafana
-# ${bin_dir}/build-server-rpm grafana-db-migrator
 
 # vim: expandtab shiftwidth=4 tabstop=4
