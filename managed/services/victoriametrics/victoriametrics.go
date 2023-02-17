@@ -431,5 +431,5 @@ func (svc *Service) ListAlertFlags(ctx context.Context) []string {
 }
 
 func (svc *Service) GetBaseFile(ctx context.Context) (models.File, error) {
-        return models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
+	return models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
 }
