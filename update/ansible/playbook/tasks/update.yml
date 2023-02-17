@@ -1,8 +1,13 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: true
+  remote_user: root
+  gather_facts: true
+
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -19,19 +24,33 @@
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
-      no_log: yes
+      # no_log: true
       register: srv_pmm_distribution
 
-    - name: detect containers
+    - name: Distribution              | Detect docker
       set_fact:
-        is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: yes
+        # is_docker: '{{ ansible_virtualization_type == "docker" }}'
+        is_docker: '{{ lookup("file", "/srv/pmm-distribution", errors="ignore") == "docker" }}'
+      # no_log: true
       when: srv_pmm_distribution.stat.exists
 
+    # NOTE: This fact is surprisingly getting set to true when it is being built for AMI/OVF,
+    # since the `/srv/distibution` file DOES NOT exist before post-build-action.yml is called.
     - name: force container
       set_fact:
         is_docker: True
       when: is_docker is undefined
+
+    - name: Info                      | Print debug information
+      debug:
+        msg:
+          - 'Contents of /etc/cloud/cloud.cfg: {{ lookup("file", "/etc/cloud/cloud.cfg", errors="ignore") | to_nice_yaml(indent=4) }}'
+          - 'Contents of /etc/passwd: {{ lookup("file", "/etc/passwd") }}'
+          - 'Contents of /etc/group: {{ lookup("file", "/etc/group") }}'
+          - 'Environment PATH: {{ lookup("env", "PATH") }}'
+          - "Current user: {{ ansible_user_id }}"
+          - "Current user home: {{ ansible_user_dir }}"
+
   tasks:
     # we need install this package here because it contain VERSION file
     - name: Remove percona-dashboard without architecture
@@ -46,12 +65,12 @@
           - percona-grafana
         state: latest
 
-    - name: Create supervisor dir
+    - name: Create supervisord dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Upgrade supervisor config
+    - name: Copy supervisord config
       copy:
         src: pmm.ini
         dest: /etc/supervisord.d/pmm.ini
@@ -67,11 +86,12 @@
       include_role:
         name: grafana
 
+    # NOTE: this playbook requires that supevisord be running
     - name: Install postgres
       include_role:
         name: postgres
 
-    # Set forking type to 'simple'
+    # Important: set 'forking' to 'simple'
     - name: Configure systemd
       when: not is_docker
       copy:
@@ -92,7 +112,7 @@
         name: supervisord
         enabled: yes
 
-    - name: Supervisord start        | Start supervisord service for AMI/OVF
+    - name: Supervisord start         | Start supervisord service for AMI/OVF
       when: not is_docker
       systemd:
         name: supervisord
@@ -102,11 +122,11 @@
     - name: Check that supervisor socket exists
       stat:
         path: /var/run/supervisor/supervisor.sock
-      register: is_supervisor_running
+      register: supervisor_socket
 
     - name: Supervisord start         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists
-      shell: supervisord -c /etc/supervisord.conf &
+      when: is_docker and not supervisor_socket.stat.exists
+      shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
       include_role:
@@ -131,14 +151,15 @@
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
 
     - name: Reread supervisord configuration
-      command: supervisorctl reread
+      command: /usr/local/bin/supervisorctl reread
+      become: true
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
+    # see https://jira.percona.com/browse/PMM-8492 for details about the issue
     - name: Delete experimental repo file in 2.16 version
       file:
         path: "/etc/yum.repos.d/percona-original-experimental.repo"
@@ -168,14 +189,31 @@
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
-      command: supervisorctl {{ item }} pmm-managed
-      changed_when: True
+      command: /usr/local/bin/supervisorctl {{ item }} pmm-managed
+      become: true
+      changed_when: true
       with_items: ["stop", "remove", "add"]
 
     # give pmm-managed time to update supervisord configuration,
     # and give update UI time to catch up after pmm-managed restart
     - name: Wait for pmm-managed
       pause: seconds=5
+
+    - name: Tail supervisord logs
+      command: /usr/local/bin/supervisorctl maintail -100000
+      become: true
+      register: supervisord_status
+      changed_when: false
+
+    - name: Check the logs of supervisord
+      debug: var=supervisord_status.stdout_lines
+
+    - name: Tail pmm-managed logs
+      command: tail -n 10000 /srv/logs/pmm-managed.log
+      register: pmm_managed_logtail
+
+    - name: Check the logs of pmm-managed
+      debug: var=pmm_managed_logtail.stdout_lines
 
     - name: Update system packages
       yum:
@@ -185,12 +223,15 @@
         exclude:
           - nginx*
 
-    - name: Updating vulnerable packages
+    - name: Updating only select packages
       yum:
         name: "{{ item }}"
         state: latest
       loop:
         - nss
+        - tzdata
+        - libssh2
+        - sshpass
 
     - name: Install nginx
       include_role:
@@ -209,7 +250,7 @@
         enabled: no
       when: not is_docker
 
-    - name: Remove old packages
+    - name: Remove old or redundant packages
       yum:
         state: absent
         name:
@@ -235,7 +276,7 @@
         mode: 0755
 
     # https://jira.percona.com/browse/PMM-5271
-    - name: Check volume size
+    - name: Patch volume size script
       when: not is_docker
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
@@ -256,18 +297,24 @@
       file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
     - name: Reread supervisord configuration again
-      command: supervisorctl reread
+      command: /usr/local/bin/supervisorctl reread
+      become: true
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
     - name: Check reread results
-      debug: var=reread_result.stdout_lines
+      debug:
+        msg:
+          - reread_result.stdout_lines
+          - '{{ lookup("file", "/srv/logs/pmm-managed.log", errors="ignore") }}'
 
     - name: Restart services
-      command: supervisorctl {{ item.1 }} {{ item.0 }}
-      changed_when: True
+      command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
+      become: true
+      changed_when: true
       with_nested:
         - - alertmanager
+          - nginx
           - grafana
           - qan-api2
           - pmm-agent
@@ -291,29 +338,40 @@
         value: "true"
 
     - name: Reread pmm-update-perform-init supervisor config
-      command: supervisorctl reread
+      command: /usr/local/bin/supervisorctl reread
+      become: true
       register: reread_init__result
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
     - name: Update/restart other services
-      command: supervisorctl update
+      command: /usr/local/bin/supervisorctl update
+      become: true
       register: update_result
       changed_when: "'updated' in update_result.stdout"
 
-    - name: Check other services
+    - name: Print other services's logs
       debug: var=update_result.stdout_lines
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
-    - name: Get supervisord log
-      shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+    - name: Get supervisord logs
+      shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+      become: true
       register: maintail_result
       changed_when: False
 
-    - name: Check supervisord log
+    - name: Print supervisord logs
       debug: var=maintail_result.stdout_lines
 
-    - name: Delete content & directory
+    - name: Cleanup yum cache
       file:
         state: absent
         path: /var/cache/yum
+
+    - name: Print qan-api2 logs
+      debug:
+        msg: "{{ lookup('file', '/srv/logs/qan-api2.log', errors='ignore') }}"
+
+    - name: Print clickhouse-server logs
+      debug:
+        msg: "{{ lookup('file', '/srv/logs/clickhouse-server.log', errors='ignore') }}"

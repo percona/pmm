@@ -40,7 +40,8 @@ go env
 cd $(mktemp -d)
 go mod init tools
 env GOPROXY=https://proxy.golang.org go get -v \
-    github.com/go-delve/delve/cmd/dlv@latest &
+    github.com/go-delve/delve/cmd/dlv@latest \
+    golang.org/x/tools/gopls@latest &
 
 cd /root/go/src/github.com/percona/pmm
 make init
