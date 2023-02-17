@@ -21,6 +21,7 @@ sed -i -e "s/pmm_client_repo_name: \".*\"/pmm_client_repo_name: local/" ${docker
 git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
 docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
     sudo chown -R builder /home/builder/rpm/RPMS
+    ls -la
     /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
 "
 
