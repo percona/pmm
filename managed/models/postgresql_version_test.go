@@ -75,8 +75,8 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 		},
 	}
 	column := []string{"version"}
-	for i := range testCases {
-		tc := testCases[i]
+	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			for _, version := range tc.mockedData {
 				mock.ExpectQuery("SELECT").
