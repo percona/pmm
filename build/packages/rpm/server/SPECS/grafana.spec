@@ -21,9 +21,10 @@ URL:            https://github.com/percona-platform/grafana
 Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-#BuildRequires: nodejs-grunt-cli fontconfig
 BuildRequires: fontconfig
-
+%if 0%{?rhel} < 9
+BuildRequires: nodejs-grunt-cli
+%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -33,6 +34,9 @@ Graphite, InfluxDB & OpenTSDB.
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
+%if 0%{?rhel} >= 9
+    sudo npm install -g grunt-cli
+%endif
 
 %build
 mkdir -p _build/src
@@ -81,7 +85,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 getent group grafana >/dev/null || groupadd -r grafana
 getent passwd grafana >/dev/null || \
     useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Dashboard" grafana
+    -c "Grafana Server" grafana
 exit 0
 
 %changelog

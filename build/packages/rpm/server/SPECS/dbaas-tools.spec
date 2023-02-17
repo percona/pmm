@@ -11,7 +11,7 @@
 %global install_golang 1
 
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         1
+%define release         2
 %define rpm_release     %{release}.%{build_timestamp}%{?dist}
 
 Name:           dbaas-tools
@@ -26,9 +26,6 @@ Source0:        https://github.com/kubernetes-sigs/aws-iam-authenticator/archive
 Source1:        https://github.com/kubernetes/kubernetes/archive/%{commit_k8s}/kubernetes-%{shortcommit_k8s}.tar.gz
 
 BuildRequires: which
-
-%description
-%{summary}
 
 %description
 %{summary}
@@ -51,7 +48,7 @@ export CGO_ENABLED=0
 export USER=builder
 
 cd src/github.com/kubernetes-sigs/aws-iam-authenticator-%{commit_aws}
-sed -i '/dockers:/,+23d' .goreleaser.yaml
+sed -i '/- darwin/d;/- windows/d;/- arm64/d;/dockers:/,+23d' .goreleaser.yaml
 make goreleaser
 
 cd %{_builddir}/kubernetes-%{commit_k8s}/
