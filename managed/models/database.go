@@ -1099,8 +1099,8 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	ap := &CreateAgentParams{
 		PMMAgentID:    PMMServerAgentID,
 		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != "disable",
-		TLSSkipVerify: params.SSLMode == "disable" || params.SSLMode == "verify-ca",
+		TLS:           params.SSLMode != DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
 		Username:      params.Username,
 		Password:      params.Password,
 	}
