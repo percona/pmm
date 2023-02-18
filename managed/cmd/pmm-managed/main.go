@@ -815,15 +815,15 @@ func main() {
 		*supervisordConfigDirF,
 		pmmUpdateCheck,
 		vmParams,
-		models.GrafanaParams{
-			PostgresAddr:        *postgresAddrF,
-			PostgresDBName:      *postgresDBNameF,
-			PostgresDBUsername:  *postgresDBUsernameF,
-			PostgresDBPassword:  *postgresDBPasswordF,
-			PostgresSSLMode:     *postgresSSLModeF,
-			PostgresSSLCAPath:   *postgresSSLCAPathF,
-			PostgresSSLKeyPath:  *postgresSSLKeyPathF,
-			PostgresSSLCertPath: *postgresSSLCertPathF,
+		models.PGParams{
+			Addr:        *postgresAddrF,
+			DBName:      *postgresDBNameF,
+			DBUsername:  *postgresDBUsernameF,
+			DBPassword:  *postgresDBPasswordF,
+			SSLMode:     *postgresSSLModeF,
+			SSLCAPath:   *postgresSSLCAPathF,
+			SSLKeyPath:  *postgresSSLKeyPathF,
+			SSLCertPath: *postgresSSLCertPathF,
 		},
 		gRPCMessageMaxSize)
 
