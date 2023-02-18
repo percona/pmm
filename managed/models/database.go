@@ -1138,7 +1138,7 @@ func setupFixture2(q *reform.Querier, username, password string) error {
 
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
 func parsePGAddress(address string) (string, uint16, error) {
-	if idx := strings.LastIndexByte(address, ':'); idx < 0 {
+	if !strings.Contains(addressStr, ":") {
 		return address, 5432, nil
 	}
 	address, portStr, err := net.SplitHostPort(address)
