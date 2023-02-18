@@ -41,6 +41,8 @@ const (
 	minPGVersion float64 = 14
 	// DefataultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
+	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
+	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
 	// DisableSSLMode represent disable PostgreSQL ssl mode
 	DisableSSLMode string = "disable"
@@ -1075,7 +1077,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 	if params.Address != DefaultPostgreSQLAddr {
 		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
-			NodeName: "pmm-server-db",
+			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
 		}); err != nil {
 			return err
