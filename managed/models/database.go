@@ -1080,7 +1080,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		NodeID:      node.NodeID,
 		Database:    params.Name,
 		Address:     &node.Address,
-		Port:        pointer.ToUint16(port),
+		Port:        &port,
 	})
 	if err != nil {
 		return err
