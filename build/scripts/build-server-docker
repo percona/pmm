@@ -29,7 +29,6 @@ if [ -z "${DOCKER_TAG}" ]; then
 fi
 
 IMAGE_VERSION=`echo $DOCKER_TAG | cut -d ':' -f2`
-DOCKER_TAG="perconalab/pmm-server:2.35.0-el9"
 
 docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$IMAGE_VERSION" \
