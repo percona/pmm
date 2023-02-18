@@ -671,9 +671,9 @@ func main() {
 		Envar("POSTGRES_USERNAME").
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
-		Default("disable").
+		Default(models.DisableSSLMode).
 		Envar("POSTGRES_SSL_MODE").
-		Enum("disable", "require", "verify-ca", "verify-full")
+		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
 		Envar("POSTGRES_SSL_CA_PATH").
 		String()
@@ -815,15 +815,15 @@ func main() {
 		*supervisordConfigDirF,
 		pmmUpdateCheck,
 		vmParams,
-		models.GrafanaParams{
-			PostgresAddr:        *postgresAddrF,
-			PostgresDBName:      *postgresDBNameF,
-			PostgresDBUsername:  *postgresDBUsernameF,
-			PostgresDBPassword:  *postgresDBPasswordF,
-			PostgresSSLMode:     *postgresSSLModeF,
-			PostgresSSLCAPath:   *postgresSSLCAPathF,
-			PostgresSSLKeyPath:  *postgresSSLKeyPathF,
-			PostgresSSLCertPath: *postgresSSLCertPathF,
+		models.PGParams{
+			Addr:        *postgresAddrF,
+			DBName:      *postgresDBNameF,
+			DBUsername:  *postgresDBUsernameF,
+			DBPassword:  *postgresDBPasswordF,
+			SSLMode:     *postgresSSLModeF,
+			SSLCAPath:   *postgresSSLCAPathF,
+			SSLKeyPath:  *postgresSSLKeyPathF,
+			SSLCertPath: *postgresSSLCertPathF,
 		},
 		gRPCMessageMaxSize)
 

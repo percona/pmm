@@ -41,6 +41,15 @@ const (
 	minPGVersion float64 = 14
 	// DefataultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
+
+	// DisableSSLMode represent disable PostgreSQL ssl mode
+	DisableSSLMode string = "disable"
+	// RequireSSLMode represent require PostgreSQL ssl mode
+	RequireSSLMode string = "require"
+	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode
+	VerifyCaSSLMode string = "verify-ca"
+	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode
+	VerifyFullSSLMode string = "verify-full"
 )
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -838,11 +847,11 @@ var databaseSchema = [][]string{
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {
-		params.SSLMode = "disable"
+		params.SSLMode = DisableSSLMode
 	}
 
 	q.Set("sslmode", params.SSLMode)
-	if params.SSLMode != "disable" {
+	if params.SSLMode != DisableSSLMode {
 		q.Set("sslrootcert", params.SSLCAPath)
 		q.Set("sslcert", params.SSLCertPath)
 		q.Set("sslkey", params.SSLKeyPath)

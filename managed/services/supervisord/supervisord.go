@@ -67,7 +67,7 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
-	gfParams models.GrafanaParams
+	pgParams models.PGParams
 }
 
 type sub struct {
@@ -82,7 +82,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gfParams models.GrafanaParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -93,7 +93,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
 		vmParams:           vmParams,
-		gfParams:           gfParams,
+		pgParams:           pgParams,
 	}
 }
 
@@ -497,14 +497,14 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
-	templateParams["PostgresAddr"] = s.gfParams.PostgresAddr
-	templateParams["PostgresDBName"] = s.gfParams.PostgresDBName
-	templateParams["PostgresDBUsername"] = s.gfParams.PostgresDBUsername
-	templateParams["PostgresDBPassword"] = s.gfParams.PostgresDBPassword
-	templateParams["PostgresSSLMode"] = s.gfParams.PostgresSSLMode
-	templateParams["PostgresSSLCAPath"] = s.gfParams.PostgresSSLCAPath
-	templateParams["PostgresSSLKeyPath"] = s.gfParams.PostgresSSLKeyPath
-	templateParams["PostgresSSLCertPath"] = s.gfParams.PostgresSSLCertPath
+	templateParams["PostgresAddr"] = s.pgParams.Addr
+	templateParams["PostgresDBName"] = s.pgParams.DBName
+	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
+	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
+	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
+	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
+	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
+	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
