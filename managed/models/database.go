@@ -1128,8 +1128,8 @@ func setupFixture2(q *reform.Querier, username, password string) error {
 	return nil
 }
 
-// preparePGAddress prepares PostgreSQL address.
-func preparePGAddress(address string) (string, uint16, error) {
+// parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
+func parsePGAddress(address string) (string, uint16, error) {
 	if idx := strings.LastIndexByte(address, ':'); idx < 0 {
 		return address, 5432, nil
 	}
