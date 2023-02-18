@@ -114,8 +114,8 @@ stdout_logfile = /srv/logs/pmm-update-perform-init.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+{{- if not .DisableInternalDB }}
 
-{{- if not .DisableInternalDB}}
 [program:postgresql]
 priority = 1
 command =
