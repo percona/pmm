@@ -26,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -1061,7 +1060,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
 		return err
 	}
-	address, port, err := preparePGAddress(params.Address)
+	address, port, err := parsePGAddress(params.Address)
 	if err != nil {
 		return err
 	}
