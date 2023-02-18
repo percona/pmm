@@ -35,13 +35,6 @@ func main() {
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
-	if ok, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES")); ok {
-		if err := supervisord.SavePMMConfig(map[string]any{"DisableInternalDB": ok}); err != nil {
-			logrus.Errorf("PMM Server configuration error: %s.", err)
-			os.Exit(1)
-		}
-	}
-
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s.", warn)
@@ -56,6 +49,13 @@ func main() {
 	err := models.ValidateSettings(envSettings)
 	if err != nil {
 		logrus.Errorf("Configuration error: %s.", err)
+		os.Exit(1)
+	}
+
+	pmmConfigParams := make(map[string]any, 1)
+	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
+	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
 }
