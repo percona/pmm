@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 # enable nodesource repo for nodejs
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
