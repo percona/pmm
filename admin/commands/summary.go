@@ -203,7 +203,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
 			var html []byte
-			req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
 			if err != nil {
 				logrus.Debugf("%s", err)
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
@@ -230,7 +230,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 // getURL returns `GET url` response body.
 func getURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
