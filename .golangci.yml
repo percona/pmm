@@ -121,7 +121,6 @@ linters:
     - forbidigo
     - errcheck
     - dupl
-    - containedctx
     # ENDTODO
 
 run:
