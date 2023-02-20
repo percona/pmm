@@ -39,7 +39,7 @@ const (
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
-	// DefataultPostgreSQLAddr represent default local PostgreSQL database server address.
+	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
