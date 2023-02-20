@@ -26,7 +26,12 @@ import (
 	apiextv1clientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apiextfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
+	"k8s.io/client-go/dynamic"
+	dynamicfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	fake "k8s.io/client-go/kubernetes/fake"
 )
@@ -289,6 +294,307 @@ func TestListCRDs(t *testing.T) {
 				if test.err == nil {
 					assert.NoError(t, err)
 					assert.Equal(t, test.countExpectedCRDs, len(crds.Items))
+				} else {
+					assert.Error(t, err)
+					assert.Equal(t, test.err, err)
+				}
+			}
+		}(test))
+	}
+}
+
+func TestListCRs(t *testing.T) {
+	t.Parallel()
+
+	data := []struct {
+		clientset          dynamic.Interface
+		inputNamespace     string
+		inputGVR           schema.GroupVersionResource
+		inputLabelSelector string
+		countExpectedCRs   int
+		err                error
+	}{
+		// one CR matches namespace
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "another-cr",
+							"namespace": "get-me-outta-here",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "",
+			countExpectedCRs:   1,
+		},
+		// one CR matches GVR
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}:    "MyCoolKindList",
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "othercoolkinds"}: "OtherKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "OtherKind",
+						"metadata": map[string]interface{}{
+							"name":      "another-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "",
+			countExpectedCRs:   1,
+		},
+		// no label selector
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "cool-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_2": "custom_label_value_2",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "",
+			countExpectedCRs:   2,
+		},
+		// one CR matches label selector
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "cool-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_2": "custom_label_value_2",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
+			countExpectedCRs:   1,
+		},
+		// two CRs match label selector
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "cool-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+								"custom_label_key_2": "custom_label_value_2",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "another-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_3": "custom_label_value_1",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
+			countExpectedCRs:   2,
+		},
+		// one CR matches label selector with multiple labels
+		{
+			clientset: dynamicfake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(),
+				map[schema.GroupVersionResource]string{
+					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "awesome-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "cool-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_1": "custom_label_value_1",
+								"custom_label_key_2": "custom_label_value_2",
+							},
+						},
+					},
+				}, &unstructured.Unstructured{
+					Object: map[string]interface{}{
+						"apiVersion": "dbaas.percona.com/v1",
+						"kind":       "MyCoolKind",
+						"metadata": map[string]interface{}{
+							"name":      "another-cr",
+							"namespace": "my-safe-space",
+							"labels": map[string]interface{}{
+								"custom_label_key_3": "custom_label_value_1",
+							},
+						},
+					},
+				}),
+			inputNamespace: "my-safe-space",
+			inputGVR: schema.GroupVersionResource{
+				Group:    "dbaas.percona.com",
+				Version:  "v1",
+				Resource: "mycoolkinds",
+			},
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1,custom_label_key_2=custom_label_value_2",
+			countExpectedCRs:   1,
+		},
+	}
+
+	for _, test := range data {
+		t.Run("", func(test struct {
+			clientset          dynamic.Interface
+			inputNamespace     string
+			inputGVR           schema.GroupVersionResource
+			inputLabelSelector string
+			countExpectedCRs   int
+			err                error
+		},
+		) func(t *testing.T) {
+			return func(t *testing.T) {
+				clientset := test.clientset
+				client := &Client{dynamicClientset: clientset, namespace: "default"}
+
+				crds, err := client.ListCRs(context.Background(), test.inputNamespace, test.inputGVR, test.inputLabelSelector)
+				if test.err == nil {
+					assert.NoError(t, err)
+					assert.Equal(t, test.countExpectedCRs, len(crds.Items))
 				} else {
 					assert.Error(t, err)
 					assert.Equal(t, test.err, err)
