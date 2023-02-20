@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -84,96 +85,109 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		name = name + "_" + time.Now().Format(time.RFC3339)
 	}
 
-	errTX := s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
-		var err error
+	// Because this transaction uses serializable isolation level it requires retries mechanism.
+	for i := 0; ; i++ {
+		errTX := s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+			var err error
 
-		svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
-		if err != nil {
-			return err
-		}
-
-		locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
-		if err != nil {
-			return err
-		}
-
-		var jobType models.JobType
-		switch svc.ServiceType {
-		case models.MySQLServiceType:
-			jobType = models.MySQLBackupJob
-
-			if params.DataModel != models.PhysicalDataModel {
-				return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
-			}
-
-			if locationModel.Type != models.S3BackupLocationType {
-				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
-			}
-
-			if params.Mode != models.Snapshot {
-				return errors.New("the only supported backup mode for mySQL is snapshot")
-			}
-		case models.MongoDBServiceType:
-			jobType = models.MongoDBBackupJob
-
-			if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-				return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
-			}
-
-			if params.Mode != models.Snapshot && params.Mode != models.PITR {
-				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
-			}
-
-			if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
+			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
+			if err != nil {
 				return err
 			}
 
-			// For PITR backups reuse existing artifact if it's present.
-			if params.Mode == models.PITR {
-				artifact, err = models.FindArtifactByName(tx.Querier, name)
-				if err != nil && !errors.Is(err, models.ErrNotFound) {
+			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
+			if err != nil {
+				return err
+			}
+
+			var jobType models.JobType
+			switch svc.ServiceType {
+			case models.MySQLServiceType:
+				jobType = models.MySQLBackupJob
+
+				if params.DataModel != models.PhysicalDataModel {
+					return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
+				}
+
+				if locationModel.Type != models.S3BackupLocationType {
+					return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
+				}
+
+				if params.Mode != models.Snapshot {
+					return errors.New("the only supported backup mode for mySQL is snapshot")
+				}
+			case models.MongoDBServiceType:
+				jobType = models.MongoDBBackupJob
+
+				if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
+					return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+				}
+
+				if params.Mode != models.Snapshot && params.Mode != models.PITR {
+					return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
+				}
+
+				if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
+					return err
+				}
+
+				// For PITR backups reuse existing artifact if it's present.
+				if params.Mode == models.PITR {
+					artifact, err = models.FindArtifactByName(tx.Querier, name)
+					if err != nil && !errors.Is(err, models.ErrNotFound) {
+						return err
+					}
+				}
+
+			case models.PostgreSQLServiceType,
+				models.ProxySQLServiceType,
+				models.HAProxyServiceType,
+				models.ExternalServiceType:
+				return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+			default:
+				return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
+			}
+
+			if artifact == nil {
+				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+					Name:       name,
+					Vendor:     string(svc.ServiceType),
+					DBVersion:  dbVersion,
+					LocationID: locationModel.ID,
+					ServiceID:  svc.ServiceID,
+					DataModel:  params.DataModel,
+					Mode:       params.Mode,
+					Status:     models.PendingBackupStatus,
+					ScheduleID: params.ScheduleID,
+				}); err != nil {
+					return err
+				}
+			} else {
+				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.PendingBackupStatus),
+				}); err != nil {
 					return err
 				}
 			}
 
-		case models.PostgreSQLServiceType,
-			models.ProxySQLServiceType,
-			models.HAProxyServiceType,
-			models.ExternalServiceType:
-			return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
-		default:
-			return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
-		}
-
-		if artifact == nil {
-			if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
-				Name:       name,
-				Vendor:     string(svc.ServiceType),
-				DBVersion:  dbVersion,
-				LocationID: locationModel.ID,
-				ServiceID:  svc.ServiceID,
-				DataModel:  params.DataModel,
-				Mode:       params.Mode,
-				Status:     models.PendingBackupStatus,
-				ScheduleID: params.ScheduleID,
-			}); err != nil {
+			if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
 				return err
 			}
-		} else {
-			if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
-			}); err != nil {
-				return err
+			return nil
+		})
+
+		if errTX == nil || i >= 10 {
+			break
+		}
+
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) {
+			// Serialization failure error code
+			if pgErr.Code == "40001" {
+				continue
 			}
 		}
 
-		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
-			return err
-		}
-		return nil
-	})
-
-	if errTX != nil {
 		return "", errTX
 	}
 
