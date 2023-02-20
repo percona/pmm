@@ -112,7 +112,6 @@ linters:
     - nonamedreturns
     - execinquery
     - predeclared
-    - nosprintfhostport
     - interfacebloat
     - gosimple
     - contextcheck
