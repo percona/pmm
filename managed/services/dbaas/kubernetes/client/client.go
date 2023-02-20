@@ -96,13 +96,6 @@ const (
 	LEVEL_4
 )
 
-var (
-	inClusterConfig = rest.InClusterConfig
-	newForConfig    = func(c *rest.Config) (kubernetes.Interface, error) {
-		return kubernetes.NewForConfig(c)
-	}
-)
-
 // Client is the internal client for Kubernetes.
 type Client struct {
 	clientset        kubernetes.Interface
@@ -169,13 +162,13 @@ func (e podErrors) Error() string {
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
 func NewFromInCluster() (*Client, error) {
-	config, err := inClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := newForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +200,7 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := newForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
