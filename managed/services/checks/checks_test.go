@@ -382,7 +382,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		results, err := s.GetSecurityCheckResults()
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
 	})
 }
 
@@ -427,7 +427,7 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		err = s.runChecksGroup(context.Background(), "")
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
 	})
 }
 
@@ -729,7 +729,7 @@ func TestGetFailedChecks(t *testing.T) {
 	t.Run("STT disabled", func(t *testing.T) {
 		ams := mockAlertmanagerService{}
 		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrSTTDisabled)
+		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
 		s, err := New(db, nil, nil, &ams, vmAddress)
 		require.NoError(t, err)
@@ -743,7 +743,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		results, err := s.GetChecksResults(ctx, "test_svc")
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
 	})
 }
 

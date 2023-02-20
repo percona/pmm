@@ -49,7 +49,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return(services.ErrSTTDisabled)
+		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -73,7 +73,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrSTTDisabled)
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -141,7 +141,7 @@ func TestGetFailedChecks(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, services.ErrSTTDisabled)
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 

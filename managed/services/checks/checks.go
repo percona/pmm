@@ -249,8 +249,8 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 		switch err {
 		case nil:
 			// nothing, continue
-		case services.ErrSTTDisabled:
-			s.l.Info("STT is not enabled, doing nothing.")
+		case services.ErrAdvisorsDisabled:
+			s.l.Info("Advisor checks are not enabled, doing nothing.")
 		default:
 			s.l.Error(err)
 		}
@@ -271,7 +271,7 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetSecurityCheckResults returns the results of the STT checks that were run. It returns services.ErrSTTDisabled if STT is disabled.
+// GetSecurityCheckResults returns the results of the advisors checks that were run. It returns services.ErrAdvisorsDisabled if advisors checks are disabled.
 func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -279,7 +279,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	}
 
 	if settings.SaaS.STTDisabled {
-		return nil, services.ErrSTTDisabled
+		return nil, services.ErrAdvisorsDisabled
 	}
 
 	return s.alertsRegistry.getCheckResults(), nil
@@ -293,7 +293,7 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 	}
 
 	if settings.SaaS.STTDisabled {
-		return nil, services.ErrSTTDisabled
+		return nil, services.ErrAdvisorsDisabled
 	}
 
 	filters := &services.FilterParams{
@@ -360,14 +360,14 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 	}
 
 	if settings.SaaS.STTDisabled {
-		return services.ErrSTTDisabled
+		return services.ErrAdvisorsDisabled
 	}
 
 	s.CollectAdvisors(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
-// StartChecks downloads and executes STT checks in asynchronous way.
+// StartChecks downloads and executes advisor checks in asynchronous way.
 // If checkNames specified then only matched checks will be executed.
 func (s *Service) StartChecks(checkNames []string) error {
 	settings, err := models.GetSettings(s.db)
@@ -376,14 +376,14 @@ func (s *Service) StartChecks(checkNames []string) error {
 	}
 
 	if settings.SaaS.STTDisabled {
-		return services.ErrSTTDisabled
+		return services.ErrAdvisorsDisabled
 	}
 
 	go func() {
 		ctx := context.Background()
 		s.CollectAdvisors(ctx)
 		if err := s.run(ctx, "", checkNames); err != nil {
-			s.l.Errorf("Failed to execute STT checks: %+v.", err)
+			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
 	}()
 
@@ -1210,16 +1210,16 @@ type StarlarkScriptData struct {
 	QueriesResults [][]byte `json:"queries_results"`
 }
 
-func (s *Service) processResults(ctx context.Context, sttCheck check.Check, target services.Target, queryResults [][]byte) ([]services.CheckResult, error) {
+func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults [][]byte) ([]services.CheckResult, error) {
 	l := s.l.WithFields(logrus.Fields{
-		"name":       sttCheck.Name,
+		"name":       aCheck.Name,
 		"service_id": target.ServiceID,
 	})
 
 	input := &StarlarkScriptData{
-		Version:        sttCheck.Version,
-		Name:           sttCheck.Name,
-		Script:         sttCheck.Script,
+		Version:        aCheck.Version,
+		Name:           aCheck.Name,
+		Script:         aCheck.Script,
 		QueriesResults: queryResults,
 	}
 
@@ -1257,8 +1257,8 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: sttCheck.Name,
-			Interval:  sttCheck.Interval,
+			CheckName: aCheck.Name,
+			Interval:  aCheck.Interval,
 			Target:    target,
 			Result:    result,
 		}
@@ -1506,7 +1506,7 @@ func (s *Service) updateAdvisors(advisors []check.Advisor) {
 	s.checks = checks
 }
 
-// UpdateIntervals updates STT restart timers intervals.
+// UpdateIntervals updates advisor checks restart timer intervals.
 func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 	s.tm.Lock()
 	s.rareTicker.Reset(rare)

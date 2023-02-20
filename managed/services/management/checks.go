@@ -50,7 +50,7 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -113,7 +113,7 @@ func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb
 func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementpb.GetFailedChecksRequest) (*managementpb.GetFailedChecksResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -179,7 +179,7 @@ func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *management
 func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -206,7 +206,7 @@ func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managemen
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
