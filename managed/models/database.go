@@ -1111,7 +1111,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
 			params.SSLKeyPath:  &ap.PostgreSQLOptions.SSLKey,
 		} {
-			if len(path) == 0 {
+			if path == "" {
 				continue
 			}
 			content, err := os.ReadFile(path) //nolint:gosec
