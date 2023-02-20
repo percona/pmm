@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -165,7 +166,7 @@ func TestGetZipFile(t *testing.T) {
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/logs.zip", nil)
+		req := httptest.NewRequest(http.MethodGet, "/logs.zip", nil)
 		s.ZipLogs(rec, req)
 		existFile, err := io.ReadAll(rec.Body)
 		require.NoError(t, err)

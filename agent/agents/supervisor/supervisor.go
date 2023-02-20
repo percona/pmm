@@ -54,7 +54,8 @@ type configGetter interface {
 
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
-	ctx            context.Context
+	// TODO: refactor to move context outside of struct
+	ctx            context.Context //nolint:containedctx
 	agentVersioner agentVersioner
 	cfg            configGetter
 	portsRegistry  *portsRegistry
