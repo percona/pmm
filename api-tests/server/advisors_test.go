@@ -46,7 +46,7 @@ func TestStartChecks(t *testing.T) {
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
 }
@@ -61,7 +61,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are is disabled.`)
 		assert.Nil(t, results)
 	})
 
