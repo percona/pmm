@@ -86,8 +86,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	}
 
 	// Because this transaction uses serializable isolation level it requires retries mechanism.
+	var errTX error
 	for i := 0; ; i++ {
-		errTX := s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
 			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
@@ -188,6 +189,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
+		return "", errTX
+	}
+
+	if errTX != nil {
 		return "", errTX
 	}
 
