@@ -22,6 +22,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextv1clientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	apiextfake "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
@@ -154,6 +157,138 @@ func TestGetPods(t *testing.T) {
 				if test.err == nil {
 					assert.NoError(t, err)
 					assert.Equal(t, test.countExpectedPods, len(pods.Items))
+				} else {
+					assert.Error(t, err)
+					assert.Equal(t, test.err, err)
+				}
+			}
+		}(test))
+	}
+}
+
+func TestListCRDs(t *testing.T) {
+	t.Parallel()
+
+	data := []struct {
+		clientset          apiextv1clientset.Interface
+		inputLabelSelector string
+		countExpectedCRDs  int
+		err                error
+	}{
+		// no label selector
+		{
+			clientset: apiextfake.NewSimpleClientset(&apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "awesome-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cool-crd",
+					Labels: map[string]string{
+						"custom_label_key_2": "custom_label_value_2",
+					},
+				},
+			}),
+			inputLabelSelector: "",
+			countExpectedCRDs:  2,
+		},
+		// one CRD matches label selector
+		{
+			clientset: apiextfake.NewSimpleClientset(&apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "awesome-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cool-crd",
+					Labels: map[string]string{
+						"custom_label_key_2": "custom_label_value_2",
+					},
+				},
+			}),
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
+			countExpectedCRDs:  1,
+		},
+		// two CRDs match label selector
+		{
+			clientset: apiextfake.NewSimpleClientset(&apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "awesome-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cool-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+						"custom_label_key_2": "custom_label_value_2",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "another-crd",
+					Labels: map[string]string{
+						"custom_label_key_3": "custom_label_value_1",
+					},
+				},
+			}),
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
+			countExpectedCRDs:  2,
+		},
+		// one CRD matches label selector with multiple labels
+		{
+			clientset: apiextfake.NewSimpleClientset(&apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "awesome-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cool-crd",
+					Labels: map[string]string{
+						"custom_label_key_1": "custom_label_value_1",
+						"custom_label_key_2": "custom_label_value_2",
+					},
+				},
+			}, &apiextv1.CustomResourceDefinition{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "another-crd",
+					Labels: map[string]string{
+						"custom_label_key_3": "custom_label_value_1",
+					},
+				},
+			}),
+			inputLabelSelector: "custom_label_key_1=custom_label_value_1,custom_label_key_2=custom_label_value_2",
+			countExpectedCRDs:  1,
+		},
+	}
+
+	for _, test := range data {
+		t.Run("", func(test struct {
+			clientset          apiextv1clientset.Interface
+			inputLabelSelector string
+			countExpectedCRDs  int
+			err                error
+		},
+		) func(t *testing.T) {
+			return func(t *testing.T) {
+				clientset := test.clientset
+				client := &Client{apiextClientset: clientset, namespace: "default"}
+
+				crds, err := client.ListCRDs(context.Background(), test.inputLabelSelector)
+				if test.err == nil {
+					assert.NoError(t, err)
+					assert.Equal(t, test.countExpectedCRDs, len(crds.Items))
 				} else {
 					assert.Error(t, err)
 					assert.Equal(t, test.err, err)
