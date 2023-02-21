@@ -302,7 +302,7 @@ func TestServerFileEndpoints(t *testing.T) {
 	}
 
 	t.Run("Get File", func(t *testing.T) {
-		s := setupSever(t)
+		s := setupServer(t)
 		t.Cleanup(func() {
 			require.NoError(t, models.DeleteFile(db.Querier, t.Name()))
 		})
@@ -320,7 +320,7 @@ func TestServerFileEndpoints(t *testing.T) {
 	})
 
 	t.Run("Update File", func(t *testing.T) {
-		s := setupSever(t)
+		s := setupServer(t)
 		t.Cleanup(func() {
 			require.NoError(t, models.DeleteFile(db.Querier, t.Name()))
 		})
