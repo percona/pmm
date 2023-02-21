@@ -125,7 +125,7 @@ func (u *Upgrader) StartUpgrade(ctx context.Context, containerID string) (string
 }
 
 // UpgradeStatus returns PMM Server upgrade status.
-func (u *Upgrader) UpgradeStatus(ctx context.Context, logsToken string, offset uint32) (*StatusResponse, error) {
+func (u *Upgrader) UpgradeStatus(ctx context.Context, logsToken string, offset uint32) *StatusResponse {
 	var err error
 	var lines []string
 	var newOffset uint32
@@ -161,7 +161,7 @@ func (u *Upgrader) UpgradeStatus(ctx context.Context, logsToken string, offset u
 		Lines:  lines,
 		Offset: newOffset,
 		Done:   done,
-	}, nil
+	}
 }
 
 func (u *Upgrader) isUpgradeRunning(name string) bool {

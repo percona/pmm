@@ -22,6 +22,6 @@ import (
 
 type upgrader interface {
 	StartUpgrade(ctx context.Context, containerID string) (string, error)
-	UpgradeStatus(ctx context.Context, logsToken string, offset uint32) (*upgrade.StatusResponse, error)
+	UpgradeStatus(ctx context.Context, logsToken string, offset uint32) *upgrade.StatusResponse
 	IsAnyUpgradeRunning() bool
 }

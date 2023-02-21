@@ -30,11 +30,11 @@ type Server struct {
 }
 
 // New returns new instance of Server.
-func New(ctx context.Context, upgrader upgrader) (*Server, error) {
+func New(ctx context.Context, upgrader upgrader) *Server {
 	return &Server{
 		cliCtx:   ctx,
 		upgrader: upgrader,
-	}, nil
+	}
 }
 
 // StartUpdate starts PMM Server upgrade.
@@ -49,10 +49,7 @@ func (s *Server) StartUpdate(_ context.Context, req *updatepb.StartUpdateRequest
 
 // UpdateStatus returns PMM Server upgrade status.
 func (s *Server) UpdateStatus(_ context.Context, req *updatepb.UpdateStatusRequest) (*updatepb.UpdateStatusResponse, error) { //nolint:unparam
-	res, err := s.upgrader.UpgradeStatus(s.cliCtx, req.LogsToken, req.Offset)
-	if err != nil {
-		return nil, err
-	}
+	res := s.upgrader.UpgradeStatus(s.cliCtx, req.LogsToken, req.Offset)
 
 	return &updatepb.UpdateStatusResponse{
 		Lines:  res.Lines,

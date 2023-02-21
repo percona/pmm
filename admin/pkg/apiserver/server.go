@@ -61,10 +61,7 @@ type Server struct {
 func New(ctx context.Context, upgrader upgrader, gRPCMessageMaxSize int) *Server {
 	l := logrus.WithField("component", "api-server/gRPC")
 
-	updateServer, err := update.New(ctx, upgrader)
-	if err != nil {
-		l.Fatal(err)
-	}
+	updateServer := update.New(ctx, upgrader)
 
 	return &Server{
 		l:                  l,
