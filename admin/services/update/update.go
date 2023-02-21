@@ -38,7 +38,7 @@ func New(ctx context.Context, upgrader upgrader) (*Server, error) {
 }
 
 // StartUpdate starts PMM Server upgrade.
-func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateRequest) (*updatepb.StartUpdateResponse, error) {
+func (s *Server) StartUpdate(_ context.Context, req *updatepb.StartUpdateRequest) (*updatepb.StartUpdateResponse, error) {
 	logFileName, err := s.upgrader.StartUpgrade(s.cliCtx, req.ContainerId)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *updatepb.StartUpdateReque
 }
 
 // UpdateStatus returns PMM Server upgrade status.
-func (s *Server) UpdateStatus(ctx context.Context, req *updatepb.UpdateStatusRequest) (*updatepb.UpdateStatusResponse, error) { //nolint:unparam
+func (s *Server) UpdateStatus(_ context.Context, req *updatepb.UpdateStatusRequest) (*updatepb.UpdateStatusResponse, error) { //nolint:unparam
 	res, err := s.upgrader.UpgradeStatus(s.cliCtx, req.LogsToken, req.Offset)
 	if err != nil {
 		return nil, err

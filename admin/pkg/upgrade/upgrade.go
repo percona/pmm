@@ -35,6 +35,7 @@ import (
 
 const logsFileNamePattern = "upgrade.*.log"
 
+// StatusResponse holds information about upgrade status.
 type StatusResponse struct {
 	// Individual log lines.
 	Lines []string
@@ -44,8 +45,8 @@ type StatusResponse struct {
 	Done bool
 }
 
+// Upgrader manages PMM Server upgrades.
 type Upgrader struct {
-	// Context coming from cli commands. When cancelled, the command has been cancelled.
 	ctx                context.Context
 	docker             containerManager
 	dockerImage        string
@@ -55,6 +56,7 @@ type Upgrader struct {
 	upgradeMu         sync.RWMutex
 }
 
+// New returns new Upgrader.
 func New(ctx context.Context, dockerImage string, gRPCMessageMaxSize uint32) *Upgrader {
 	return &Upgrader{
 		ctx:                ctx,
