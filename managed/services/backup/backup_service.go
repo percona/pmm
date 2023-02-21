@@ -183,13 +183,14 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		}
 
 		var pgErr *pq.Error
-		if errors.As(err, &pgErr) {
+		if errors.As(errTX, &pgErr) {
 			// Serialization failure error code
 			if pgErr.Code == "40001" {
-				s.l.Infof("Transactin serialization failure, iteration %d", i)
-				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) // jitter
+				s.l.Infof("Transaction serialization failure, retry iteration %d", i)
+				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) //nolit:gosec // jitter
 				continue
 			}
+			s.l.Infof("Unknown pq error, code: %s", pgErr.Code.Name())
 		}
 
 		return "", errTX
