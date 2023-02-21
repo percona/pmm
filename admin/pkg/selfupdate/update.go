@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package self_update holds logic to self updating pmm-server-upgrade.
-package self_update
+// Package selfupdate holds logic to self updating pmm-server-upgrade.
+package selfupdate
 
 import (
 	"context"

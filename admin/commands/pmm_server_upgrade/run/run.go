@@ -25,9 +25,9 @@ import (
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/pkg/api_server"
+	"github.com/percona/pmm/admin/pkg/apiserver"
 	"github.com/percona/pmm/admin/pkg/docker"
-	"github.com/percona/pmm/admin/pkg/self_update"
+	"github.com/percona/pmm/admin/pkg/selfupdate"
 )
 
 // RunCommand is used by Kong for CLI flags and commands.
@@ -81,13 +81,13 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 	}
 
 	// API server
-	server := api_server.New(c.DockerImage)
+	server := apiserver.New(c.DockerImage)
 	server.EnableDebug = c.globals.EnableDebug
 	updateService := server.Start(ctx)
 
 	// Self update
 	if !c.DisableSelfUpdate {
-		updater := self_update.New(
+		updater := selfupdate.New(
 			c.docker,
 			c.SelfUpdateDockerImage,
 			c.SelfUpdateDisableImagePull,

@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package api_server holds logic for operating API server.
-package api_server
+// Package apiserver holds logic for operating API server.
+package apiserver
 
 import (
 	"context"
-	"errors"
 	"net"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
