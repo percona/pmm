@@ -19,6 +19,7 @@ package backup
 import (
 	"context"
 	"database/sql"
+	"math/rand"
 	"time"
 
 	"github.com/lib/pq"
@@ -177,14 +178,17 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			return nil
 		})
 
-		if errTX == nil || i >= 10 {
+		if errTX == nil || i >= 30 {
 			break
 		}
 
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) {
 			// Serialization failure error code
+
 			if pgErr.Code == "40001" {
+				d := rand.Intn(100) // jitter
+				time.Sleep(time.Duration(d) * time.Millisecond)
 				continue
 			}
 		}
