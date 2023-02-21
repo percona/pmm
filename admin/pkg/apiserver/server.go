@@ -22,10 +22,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
