@@ -88,7 +88,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 	// Because this transaction uses serializable isolation level it requires retries mechanism.
 	var errTX error
-	for i := 0; ; i++ {
+	for i := 1; ; i++ {
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
@@ -185,10 +185,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) {
 			// Serialization failure error code
-
 			if pgErr.Code == "40001" {
-				d := rand.Intn(100) // jitter
-				time.Sleep(time.Duration(d) * time.Millisecond)
+				s.l.Infof("Transactin serialization failure, iteration %d", i)
+				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) // jitter
 				continue
 			}
 		}
