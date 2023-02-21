@@ -178,7 +178,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			return nil
 		})
 
-        // Cap the number of retries to 30
+		// Cap the number of retries to 30
 		if errTX == nil || i >= 30 {
 			break
 		}
