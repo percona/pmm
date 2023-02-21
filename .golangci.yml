@@ -110,19 +110,15 @@ linters:
     - forcetypeassert
     - golint
     - nonamedreturns
-    - usestdlibvars
     - execinquery
     - predeclared
-    - nosprintfhostport
     - interfacebloat
     - gosimple
     - contextcheck
-    - prealloc
     - nakedret
     - forbidigo
     - errcheck
     - dupl
-    - containedctx
     # ENDTODO
 
 run:
