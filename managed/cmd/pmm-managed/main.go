@@ -724,8 +724,8 @@ func main() {
 		l.Panicf("Failed to load config: %+v", err)
 	}
 	// in order to reproduce postgres behaviour.
-	if *postgresSSLModeF == "require" && *postgresSSLCAPathF != "" {
-		*postgresSSLModeF = "verify-ca"
+	if *postgresSSLModeF == models.RequireSSLMode && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = models.VerifyCaSSLMode
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 	pmmdb := ds.PmmDBSelect
