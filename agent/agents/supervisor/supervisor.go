@@ -384,16 +384,16 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 
 // filter extracts IDs of the Agents that should be started, restarted with new parameters, or stopped,
 // and filters out IDs of the Agents that should not be changed.
-func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
+func filter(existing, ap map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
 	// existing agents not present in the new requested state should be stopped
 	for existingID := range existing {
-		if new[existingID] == nil {
+		if ap[existingID] == nil {
 			toStop = append(toStop, existingID)
 		}
 	}
 
 	// detect new and changed agents
-	for newID, newParams := range new {
+	for newID, newParams := range ap {
 		existingParams := existing[newID]
 		if existingParams == nil {
 			toStart = append(toStart, newID)

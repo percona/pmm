@@ -111,7 +111,6 @@ linters:
     - golint
     - nonamedreturns
     - execinquery
-    - predeclared
     - interfacebloat
     - gosimple
     - contextcheck
