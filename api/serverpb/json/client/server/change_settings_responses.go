@@ -201,6 +201,12 @@ type ChangeSettingsBody struct {
 	// Disable DBaaS.
 	DisableDbaas bool `json:"disable_dbaas,omitempty"`
 
+	// Enable Access Control
+	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+
+	// Disable Access Control
+	DisableAccessControl bool `json:"disable_access_control,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 

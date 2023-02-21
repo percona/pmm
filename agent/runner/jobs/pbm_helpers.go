@@ -163,6 +163,13 @@ type pbmError struct {
 	Error string `json:"Error"`
 }
 
+// pbmConfigParams groups the flags/options for configuring PBM.
+type pbmConfigParams struct {
+	configFilePath string
+	forceResync    bool
+	dbURL          *url.URL
+}
+
 func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
@@ -311,7 +318,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRe
 }
 
 func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore, backupType, confFile string) error {
-	l.Infof("waiting for pbm restore")
+	l.Infof("Detecting restore name")
 	var name string
 	var err error
 
@@ -325,6 +332,8 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		name = restoreInfo.Name
 	}
 
+	l.Infof("waiting for pbm restore: %s", name)
+
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
@@ -334,7 +343,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		case <-ticker.C:
 			var info describeInfo
 			if backupType == "physical" {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", "--config="+confFile, name)
+				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name, "--config="+confFile)
 			} else {
 				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
 			}
@@ -365,17 +374,21 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	}
 }
 
-func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, confFile string) error {
-	l.Info("Configuring S3 location.")
+func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigParams) error {
+	l.Info("Configuring PBM.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	output, err := exec.CommandContext( //nolint:gosec
-		nCtx,
-		pbmBin,
+	args := []string{
 		"config",
-		"--mongodb-uri="+dbURL.String(),
-		"--file="+confFile).CombinedOutput()
+		"--out=json",
+		"--mongodb-uri=" + params.dbURL.String(),
+		"--file=" + params.configFilePath,
+	}
+	if params.forceResync {
+		args = append(args, "--force-resync")
+	}
+	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
 	}

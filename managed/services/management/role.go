@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -44,6 +45,16 @@ func NewRoleService(db *reform.DB) *RoleService {
 	return &RoleService{
 		db: db,
 	}
+}
+
+// Enabled returns if service is enabled and can be used.
+func (r *RoleService) Enabled() bool {
+	settings, err := models.GetSettings(r.db)
+	if err != nil {
+		logrus.WithError(err).Error("cannot get settings")
+		return false
+	}
+	return settings.AccessControl.Enabled
 }
 
 // CreateRole creates a new Role.

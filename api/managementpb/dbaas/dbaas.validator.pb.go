@@ -25,6 +25,14 @@ func (this *ComputeResources) Validate() error {
 	return nil
 }
 
+func (this *Backup) Validate() error {
+	return nil
+}
+
+func (this *Restore) Validate() error {
+	return nil
+}
+
 func (this *Resources) Validate() error {
 	return nil
 }

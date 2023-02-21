@@ -63,6 +63,10 @@ message PXCClusterParams {
   ProxySQL proxysql = 3;
   // HAProxy container parameters.
   HAProxy haproxy = 4;
+  // Backup configuration parameters.
+  Backup backup = 5;
+  // Restore configuration parameters.
+  Restore restore = 6;
 }
 
 message GetPXCClusterCredentialsRequest {

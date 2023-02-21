@@ -38,7 +38,7 @@ const (
 )
 
 // ServiceConfig telemetry config.
-type ServiceConfig struct {
+type ServiceConfig struct { //nolint:musttag
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
 	telemetry    []Config `yaml:"-"`
@@ -79,7 +79,7 @@ type DSGrafanaSqliteDB struct {
 }
 
 // DSConfigPMMDB telemetry config.
-type DSConfigPMMDB struct {
+type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
