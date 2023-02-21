@@ -881,11 +881,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 }
 
 func (svc *Service) GetBaseFile(ctx context.Context) (models.File, error) {
-	file, err := models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
-	if err != nil {
-		return file, err
-	}
-	return file, nil
+	return models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
 }
 
 // configure default client; we use it mainly because we can't remove it from generated code
