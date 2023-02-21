@@ -11,8 +11,8 @@ test.describe.configure({ mode: 'parallel' })
 //
 // CI builds them automatically.
 // You can build them locally with the following commands run from the repo root:
-// - make -C ../admin build-docker PMM_RELEASE_VERSION=first
-// - make -C ../admin build-docker PMM_RELEASE_VERSION=latest
+// - make -C admin build-docker PMM_RELEASE_VERSION=first
+// - make -C admin build-docker PMM_RELEASE_VERSION=latest
 test.describe('Self-update', async () => {
   test('shall not update - running latest version', async () => {
     let output = await cli.exec(`docker tag percona/pmm-server-upgrade:latest psu-no-update:latest`)

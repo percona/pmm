@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package selfupdate
+package upgrade
 
 import (
 	"context"
@@ -38,13 +38,4 @@ type containerManager interface {
 type imageManager interface {
 	ImageInspectWithRaw(ctx context.Context, imageID string) (types.ImageInspect, []byte, error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
-}
-
-type upgradeRunner interface {
-	IsAnyUpgradeRunning() bool
-}
-
-type serverStartStopper interface {
-	Start(ctx context.Context)
-	Stop()
 }

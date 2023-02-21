@@ -33,7 +33,7 @@ const (
 	updateInterval   = 24 * time.Hour
 )
 
-// SelfUpdater allows for running self-update of pmm-server-upgrade.
+// SelfUpdater manages self-update process.
 type SelfUpdater struct {
 	l                   *logrus.Entry
 	apiServer           serverStartStopper
@@ -42,17 +42,17 @@ type SelfUpdater struct {
 	docker              containerManager
 	dockerImage         string
 	triggerOnStart      bool
-	updater             updateRunningChecker
+	upgradeRunner       upgradeRunner
 
-	// isRunning is true if self-update is running.
+	// isRunning is locked if self-update is running.
 	isRunning sync.Mutex
 }
 
 // New returns new SelfUpdater.
 func New(
 	docker containerManager, dockerImage string, disableImagePull bool,
-	apiServer serverStartStopper, updater updateRunningChecker, triggerOnStart bool,
-	containerNamePrefix string,
+	apiServer serverStartStopper, triggerOnStart bool,
+	containerNamePrefix string, upgradeRunner upgradeRunner,
 ) *SelfUpdater {
 	return &SelfUpdater{
 		l:                   logrus.WithField("component", "self-updater"),
@@ -62,7 +62,7 @@ func New(
 		docker:              docker,
 		dockerImage:         dockerImage,
 		triggerOnStart:      triggerOnStart,
-		updater:             updater,
+		upgradeRunner:       upgradeRunner,
 	}
 }
 
@@ -94,9 +94,7 @@ func (s *SelfUpdater) run(ctx context.Context) {
 
 		s.l.Info("Restarting API server after self-update error")
 		// Starting API server gracefully returns if it's already running
-		if updater := s.apiServer.Start(ctx); updater != nil {
-			s.updater = updater
-		}
+		s.apiServer.Start(ctx)
 	}
 }
 
@@ -253,8 +251,8 @@ func (s *SelfUpdater) prepareUpdate(ctx context.Context, currentContainer types.
 	s.l.Info("Newer version is available. Starting update")
 
 	// Check if update is running
-	if s.updater.IsAnyUpdateRunning() {
-		s.l.Info("PMM Server update in progress. Aborting update")
+	if s.upgradeRunner.IsAnyUpgradeRunning() {
+		s.l.Info("PMM Server upgrade in progress. Aborting self-update")
 		return false, nil
 	}
 
@@ -263,8 +261,8 @@ func (s *SelfUpdater) prepareUpdate(ctx context.Context, currentContainer types.
 	s.apiServer.Stop()
 
 	// Check if update is running, again to avoid race conditions
-	if s.updater.IsAnyUpdateRunning() {
-		s.l.Info("PMM Server update in progress. Aborting update")
+	if s.upgradeRunner.IsAnyUpgradeRunning() {
+		s.l.Info("PMM Server upgrade in progress. Aborting self-update")
 		return false, nil
 	}
 

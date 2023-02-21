@@ -28,7 +28,10 @@ import (
 	"github.com/percona/pmm/admin/pkg/apiserver"
 	"github.com/percona/pmm/admin/pkg/docker"
 	"github.com/percona/pmm/admin/pkg/selfupdate"
+	"github.com/percona/pmm/admin/pkg/upgrade"
 )
+
+const gRPCMessageMaxSize = 100 * 1024 * 1024
 
 // RunCommand is used by Kong for CLI flags and commands.
 type RunCommand struct {
@@ -81,10 +84,12 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 
+	upgrader := upgrade.New(ctx, c.DockerImage, gRPCMessageMaxSize)
+
 	// API server
-	server := apiserver.New(c.DockerImage)
+	server := apiserver.New(ctx, upgrader, gRPCMessageMaxSize)
 	server.EnableDebug = c.globals.EnableDebug
-	updateService := server.Start(ctx)
+	server.Start(ctx)
 
 	// Self update
 	if !c.DisableSelfUpdate {
@@ -93,9 +98,9 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 			c.SelfUpdateDockerImage,
 			c.SelfUpdateDisableImagePull,
 			server,
-			updateService,
 			c.SelfUpdateTriggerOnStart,
-			c.SelfUpdateContainerNamePrefix)
+			c.SelfUpdateContainerNamePrefix,
+			upgrader)
 		updater.Start(ctx)
 	}
 

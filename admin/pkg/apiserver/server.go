@@ -36,66 +36,65 @@ import (
 )
 
 const (
-	gRPCMessageMaxSize = 100 * 1024 * 1024
-	socketPath         = "/srv/pmm-server-upgrade.sock"
-	shutdownTimeout    = 1 * time.Second
+	socketPath      = "/srv/pmm-server-upgrade.sock"
+	shutdownTimeout = 1 * time.Second
 )
 
 // Server allows for running API server.
 type Server struct {
 	EnableDebug bool
-	Update      UpdateOpts
 
-	l *logrus.Entry
+	l                  *logrus.Entry
+	gRPCMessageMaxSize int
+
 	// gRPCServer stores reference to the current server which is running. It is nil if the server is not running.
 	gRPCServer   *grpc.Server
 	gRPCServerMu sync.Mutex
+
+	updateServer *update.Server
+	upgrader     upgrader
 
 	// stopped channel receives a message once the server is stopped.
 	stopped chan struct{}
 }
 
-// UpdateOpts specify options for update service.
-type UpdateOpts struct {
-	DockerImage string
-}
-
 // New returns new Server.
-func New(dockerImage string) *Server {
-	return &Server{
-		Update: UpdateOpts{
-			DockerImage: dockerImage,
-		},
+func New(ctx context.Context, upgrader upgrader, gRPCMessageMaxSize int) *Server {
+	l := logrus.WithField("component", "api-server/gRPC")
 
-		l:       logrus.WithField("component", "api-server/gRPC"),
-		stopped: make(chan struct{}),
+	updateServer, err := update.New(ctx, upgrader)
+	if err != nil {
+		l.Fatal(err)
+	}
+
+	return &Server{
+		l:                  l,
+		gRPCMessageMaxSize: gRPCMessageMaxSize,
+		stopped:            make(chan struct{}),
+		updateServer:       updateServer,
+		upgrader:           upgrader,
 	}
 }
 
-// Start starts API server. If the server is running, it's a no-op.
-func (s *Server) Start(ctx context.Context) *update.Server {
+// Start starts API server. If the server is already running, it's a no-op.
+func (s *Server) Start(ctx context.Context) {
 	s.gRPCServerMu.Lock()
 	defer s.gRPCServerMu.Unlock()
 
 	if s.gRPCServer != nil {
 		s.l.Info("API server already running. Skipping start")
-		return nil
+		return
 	}
 
 	s.gRPCServer = grpc.NewServer(
-		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+		grpc.MaxRecvMsgSize(s.gRPCMessageMaxSize),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_validator.UnaryServerInterceptor(),
 		)),
 	)
 
-	u, err := update.New(ctx, s.Update.DockerImage, gRPCMessageMaxSize)
-	if err != nil {
-		s.l.Fatal(err)
-	}
-
 	updatepb.RegisterStatusServer(s.gRPCServer, status.New())
-	updatepb.RegisterUpdateServer(s.gRPCServer, u)
+	updatepb.RegisterUpdateServer(s.gRPCServer, s.updateServer)
 
 	if s.EnableDebug {
 		s.l.Debug("Reflection and channelz are enabled")
@@ -138,12 +137,17 @@ func (s *Server) Start(ctx context.Context) *update.Server {
 			s.Stop()
 		}
 	}()
-
-	return u
 }
 
 // Stop tries to stop server gracefully or force the stop after a timeout.
 func (s *Server) Stop() {
+	s.gRPCServerMu.Lock()
+	defer s.gRPCServerMu.Unlock()
+
+	if s.gRPCServer == nil {
+		return
+	}
+
 	stopped := make(chan struct{})
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	go func() {
@@ -155,8 +159,6 @@ func (s *Server) Stop() {
 	shutdownCancel()
 	<-stopped
 
-	s.gRPCServerMu.Lock()
-	defer s.gRPCServerMu.Unlock()
 	s.gRPCServer = nil
 
 	// Notify the server has been stopped
