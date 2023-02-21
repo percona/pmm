@@ -34,10 +34,11 @@ import (
 type RunCommand struct {
 	DockerImage string `group:"PMM Server upgrade" default:"percona/pmm-server:2" help:"Docker image to use for updating PMM to the latest version"`
 
-	DisableSelfUpdate          bool   `group:"Self update" help:"Disables self-update of pmm-server-upgrade"`
-	SelfUpdateDockerImage      string `group:"Self update" default:"percona/pmm-server-upgrade:2" help:"Docker image to use for self-updating pmm-server-upgrade"`
-	SelfUpdateDisableImagePull bool   `group:"Self update" help:"Disables pulling a new docker image of pmm-server-upgrade before self-update"`
-	SelfUpdateTriggerOnStart   bool   `group:"Self update" help:"Trigger self-update check on start" `
+	DisableSelfUpdate             bool   `group:"Self update" help:"Disables self-update of pmm-server-upgrade"`
+	SelfUpdateDockerImage         string `group:"Self update" default:"percona/pmm-server-upgrade:2" help:"Docker image to use for self-updating pmm-server-upgrade"`
+	SelfUpdateDisableImagePull    bool   `group:"Self update" help:"Disables pulling a new docker image of pmm-server-upgrade before self-update"`
+	SelfUpdateTriggerOnStart      bool   `group:"Self update" help:"Trigger self-update check on start" `
+	SelfUpdateContainerNamePrefix string `group:"Self update" default:"pmm-server-upgrade" help:"Container name prefix to use when creating a new container"`
 
 	docker  containerManager
 	globals *flags.GlobalFlags
@@ -93,7 +94,8 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 			c.SelfUpdateDisableImagePull,
 			server,
 			updateService,
-			c.SelfUpdateTriggerOnStart)
+			c.SelfUpdateTriggerOnStart,
+			c.SelfUpdateContainerNamePrefix)
 		updater.Start(ctx)
 	}
 

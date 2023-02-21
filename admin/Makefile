@@ -11,6 +11,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+PMM_SERVER_UPGRADE_DOCKER_TAG ?= $(PMM_RELEASE_VERSION)
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
@@ -41,6 +42,14 @@ install-race:                   ## Install pmm, pmm-admin, pmm-server-upgrade bi
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
+
+build-docker: release			## Build docker image for pmm-server-upgrade
+	docker build \
+		-t percona/pmm-server-upgrade:$(PMM_SERVER_UPGRADE_DOCKER_TAG) \
+		-f ../build/docker/pmm-server-upgrade/Dockerfile \
+		--build-arg VERSION=$(PMM_RELEASE_VERSION) \
+		--build-arg BUILD_DATE=$(PMM_RELEASE_TIMESTAMP) \
+		$(PMM_RELEASE_PATH)/
 
 TEST_FLAGS ?= -timeout=20s
 

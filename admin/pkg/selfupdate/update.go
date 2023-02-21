@@ -35,13 +35,14 @@ const (
 
 // SelfUpdater allows for running self-update of pmm-server-upgrade.
 type SelfUpdater struct {
-	l                *logrus.Entry
-	apiServer        serverStartStopper
-	disableImagePull bool
-	docker           containerManager
-	dockerImage      string
-	triggerOnStart   bool
-	updater          updateRunningChecker
+	l                   *logrus.Entry
+	apiServer           serverStartStopper
+	containerNamePrefix string
+	disableImagePull    bool
+	docker              containerManager
+	dockerImage         string
+	triggerOnStart      bool
+	updater             updateRunningChecker
 
 	// isRunning is true if self-update is running.
 	isRunning sync.Mutex
@@ -51,15 +52,17 @@ type SelfUpdater struct {
 func New(
 	docker containerManager, dockerImage string, disableImagePull bool,
 	apiServer serverStartStopper, updater updateRunningChecker, triggerOnStart bool,
+	containerNamePrefix string,
 ) *SelfUpdater {
 	return &SelfUpdater{
-		l:                logrus.WithField("component", "self-updater"),
-		apiServer:        apiServer,
-		disableImagePull: disableImagePull,
-		docker:           docker,
-		dockerImage:      dockerImage,
-		triggerOnStart:   triggerOnStart,
-		updater:          updater,
+		l:                   logrus.WithField("component", "self-updater"),
+		apiServer:           apiServer,
+		containerNamePrefix: containerNamePrefix,
+		disableImagePull:    disableImagePull,
+		docker:              docker,
+		dockerImage:         dockerImage,
+		triggerOnStart:      triggerOnStart,
+		updater:             updater,
 	}
 }
 
@@ -89,7 +92,7 @@ func (s *SelfUpdater) run(ctx context.Context) {
 	if err := s.maybeUpdate(ctx); err != nil {
 		s.l.Error(err)
 
-		s.l.Info("Starting API server")
+		s.l.Info("Restarting API server after self-update error")
 		// Starting API server gracefully returns if it's already running
 		if updater := s.apiServer.Start(ctx); updater != nil {
 			s.updater = updater
@@ -155,7 +158,7 @@ func (s *SelfUpdater) startNewContainer(ctx context.Context, currentContainer ty
 		VolumesFrom:   []string{currentContainer.ID + ":rw"},
 	}
 
-	containerName := fmt.Sprintf("pmm-server-upgrade-%s", time.Now().Format(dateSuffixFormat))
+	containerName := fmt.Sprintf("%s-%s", s.containerNamePrefix, time.Now().Format(dateSuffixFormat))
 
 	s.l.Infof("Starting new container %s", containerName)
 	containerID, err := s.docker.RunContainer(ctx, &container.Config{
