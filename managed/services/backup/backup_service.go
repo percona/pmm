@@ -187,7 +187,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			// Serialization failure error code
 			if pgErr.Code == "40001" {
 				s.l.Infof("Transaction serialization failure, retry iteration %d", i)
-				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) //nolit:gosec // jitter
+				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) //nolnit:gosec // jitter
 				continue
 			}
 			s.l.Infof("Unknown pq error, code: %s", pgErr.Code.Name())
