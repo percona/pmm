@@ -182,7 +182,7 @@ func (s *Server) IsAnyUpdateRunning() bool {
 	s.updateMu.RLock()
 	defer s.updateMu.RUnlock()
 
-	return len(s.updateInProgress) > 0
+	return len(s.updateInProgress) != 0
 }
 
 // getLogs returns some lines and a new offset from a log file starting from the given offset.

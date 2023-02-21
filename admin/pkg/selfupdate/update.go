@@ -220,8 +220,7 @@ func (s *SelfUpdater) isUpdateAvailable(ctx context.Context, currentContainer ty
 	s.l.Debugf(
 		"Docker image hash. Current = %s. New = %s",
 		currentContainer.ContainerJSONBase.Image,
-		newImage.ID,
-	)
+		newImage.ID)
 
 	// Check if we're running an older version
 	if currentContainer.ContainerJSONBase.Image == newImage.ID {

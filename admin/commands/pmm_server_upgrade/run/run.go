@@ -93,8 +93,7 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 			c.SelfUpdateDisableImagePull,
 			server,
 			updateService,
-			c.SelfUpdateTriggerOnStart,
-		)
+			c.SelfUpdateTriggerOnStart)
 		updater.Start(ctx)
 	}
 
