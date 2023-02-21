@@ -52,7 +52,6 @@ type Server struct {
 	gRPCServerMu sync.Mutex
 
 	updateServer *update.Server
-	upgrader     upgrader
 
 	// stopped channel receives a message once the server is stopped.
 	stopped chan struct{}
@@ -72,7 +71,6 @@ func New(ctx context.Context, upgrader upgrader, gRPCMessageMaxSize int) *Server
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 		stopped:            make(chan struct{}),
 		updateServer:       updateServer,
-		upgrader:           upgrader,
 	}
 }
 
