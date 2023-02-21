@@ -165,13 +165,23 @@ func TestSavePMMConfig(t *testing.T) {
 	}{
 		{
 			description: "disable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": true},
+			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false},
 			file:        "pmm-db_disabled",
 		},
 		{
 			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false},
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false},
 			file:        "pmm-db_enabled",
+		},
+		{
+			description: "disable supervisord",
+			params:      map[string]any{"DisableSupervisor": true, "DisableInternalDB": false},
+			file:        "pmm-supervisord_disabled",
+		},
+		{
+			description: "enable supervisord",
+			params:      map[string]any{"DisableSupervisor": false, "DisableInternalDB": false},
+			file:        "pmm-supervisord_enabled",
 		},
 	}
 	for _, test := range tests {

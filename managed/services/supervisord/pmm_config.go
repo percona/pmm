@@ -82,6 +82,7 @@ var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Pars
 chmod = 0700
 username = dummy
 password = dummy
+{{- if not .DisableSupervisor }}
 
 [supervisord]
 logfile = /srv/logs/supervisord.log
@@ -93,19 +94,19 @@ nodaemon = true
 nocleanup = false
 user = root
 strip_ansi = false
+{{- end }}
 
 [supervisorctl]
 username = dummy
 password = dummy
 
-; we rewrite autostart to true during update or build.
 [program:pmm-update-perform-init]
 command = /usr/sbin/pmm-update -run-playbook -playbook=/usr/share/pmm-update/ansible/playbook/tasks/init.yml
 directory = /
 autorestart = unexpected
 priority=-1
 exitcodes = 0
-autostart = false
+autostart = true
 startretries = 3
 startsecs = 1
 stopsignal = TERM
@@ -138,7 +139,7 @@ stdout_logfile = /srv/logs/postgresql14.log
 stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true
-{{- end}}
+{{- end }}
 
 [program:clickhouse]
 priority = 2
