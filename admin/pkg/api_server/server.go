@@ -20,18 +20,19 @@ import (
 	"errors"
 	"net"
 	"os"
+	"sync"
 	"time"
-
-	channelz "google.golang.org/grpc/channelz/service"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	channelz "google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/reflection"
+
 	"github.com/percona/pmm/admin/services/status"
 	"github.com/percona/pmm/admin/services/update"
 	"github.com/percona/pmm/api/updatepb"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -40,27 +41,48 @@ const (
 	shutdownTimeout    = 1 * time.Second
 )
 
+// Server allows for running API server.
 type Server struct {
 	EnableDebug bool
 	Update      UpdateOpts
+
+	l *logrus.Entry
+	// gRPCServer stores reference to the current server which is running. It is nil if the server is not running.
+	gRPCServer   *grpc.Server
+	gRPCServerMu sync.Mutex
+
+	// stopped channel receives a message once the server is stopped.
+	stopped chan struct{}
 }
 
+// UpdateOpts specify options for update service.
 type UpdateOpts struct {
 	DockerImage string
 }
 
+// New returns new Server.
 func New(dockerImage string) *Server {
 	return &Server{
 		Update: UpdateOpts{
 			DockerImage: dockerImage,
 		},
+
+		l:       logrus.WithField("component", "api-server/gRPC"),
+		stopped: make(chan struct{}),
 	}
 }
 
-func (s *Server) Run(ctx context.Context) {
-	l := logrus.WithField("component", "local-server/gRPC")
+// Start starts API server. If the server is running, it's a no-op.
+func (s *Server) Start(ctx context.Context) *update.Server {
+	s.gRPCServerMu.Lock()
+	defer s.gRPCServerMu.Unlock()
 
-	gRPCServer := grpc.NewServer(
+	if s.gRPCServer != nil {
+		s.l.Info("API server already running. Skipping start")
+		return nil
+	}
+
+	s.gRPCServer = grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_validator.UnaryServerInterceptor(),
@@ -69,57 +91,77 @@ func (s *Server) Run(ctx context.Context) {
 
 	u, err := update.New(ctx, s.Update.DockerImage, gRPCMessageMaxSize)
 	if err != nil {
-		l.Fatal(err)
+		s.l.Fatal(err)
 	}
 
-	updatepb.RegisterStatusServer(gRPCServer, status.New())
-	updatepb.RegisterUpdateServer(gRPCServer, u)
+	updatepb.RegisterStatusServer(s.gRPCServer, status.New())
+	updatepb.RegisterUpdateServer(s.gRPCServer, u)
 
 	if s.EnableDebug {
-		l.Debug("Reflection and channelz are enabled")
-		reflection.Register(gRPCServer)
-		channelz.RegisterChannelzServiceToServer(gRPCServer)
+		s.l.Debug("Reflection and channelz are enabled")
+		reflection.Register(s.gRPCServer)
+		channelz.RegisterChannelzServiceToServer(s.gRPCServer)
 	}
 
 	// run server until it is stopped gracefully
 	go func() {
 		var err error
 		for {
-			l.Infof("Starting gRPC server on unix://%s", socketPath)
+			s.l.Infof("Starting gRPC server on unix://%s", socketPath)
 			err = os.Remove(socketPath)
 			if err != nil && !errors.Is(err, os.ErrNotExist) {
-				l.Panic(err)
+				s.l.Panic(err)
 			}
 
 			var listener net.Listener
 			listener, err = net.Listen("unix", socketPath)
 			if err != nil {
-				l.Panic(err)
+				s.l.Panic(err)
 			}
 
-			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
+			err = s.gRPCServer.Serve(listener) // listener will be closed when this method returns
 			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
 				break
 			}
 		}
 		if err != nil {
-			l.Errorf("Failed to serve: %s", err)
+			s.l.Errorf("Failed to serve: %s", err)
 			return
 		}
-		l.Debug("Server stopped")
+		s.l.Debug("Server stopped")
 	}()
 
-	<-ctx.Done()
+	go func() {
+		select {
+		case <-s.stopped:
+		case <-ctx.Done():
+			s.Stop()
+		}
+	}()
 
-	// Try to stop server gracefully or force the stop after a timeout.
+	return u
+}
+
+// Stop tries to stop server gracefully or force the stop after a timeout.
+func (s *Server) Stop() {
 	stopped := make(chan struct{})
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	go func() {
 		<-shutdownCtx.Done()
-		gRPCServer.Stop()
+		s.gRPCServer.Stop()
 		close(stopped)
 	}()
-	gRPCServer.GracefulStop()
+	s.gRPCServer.GracefulStop()
 	shutdownCancel()
 	<-stopped
+
+	s.gRPCServerMu.Lock()
+	defer s.gRPCServerMu.Unlock()
+	s.gRPCServer = nil
+
+	// Notify the server has been stopped
+	select {
+	case s.stopped <- struct{}{}:
+	default:
+	}
 }

@@ -44,8 +44,9 @@ type Server struct {
 	docker             containerManager
 	dockerImage        string
 	gRPCMessageMaxSize uint32
-	updateInProgress   map[string]struct{}
-	updateMu           sync.RWMutex
+
+	updateInProgress map[string]struct{}
+	updateMu         sync.RWMutex
 
 	updatepb.UnimplementedUpdateServer
 }
@@ -174,6 +175,14 @@ func (s *Server) isUpdateRunning(name string) bool {
 	_, ok := s.updateInProgress[name]
 
 	return ok
+}
+
+// IsAnyUpdateRunning returns true if there's at least one update in progress.
+func (s *Server) IsAnyUpdateRunning() bool {
+	s.updateMu.RLock()
+	defer s.updateMu.RUnlock()
+
+	return len(s.updateInProgress) > 0
 }
 
 // getLogs returns some lines and a new offset from a log file starting from the given offset.
