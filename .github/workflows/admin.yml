@@ -164,7 +164,7 @@ jobs:
           git status
 
   pmm-server-upgrade-test:
-    name: pmm-server-upgrade tests
+    name: pmm-server-upgrade Tests
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
