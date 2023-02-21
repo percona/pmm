@@ -1,23 +1,19 @@
 import { test, expect } from '@playwright/test'
 import * as cli from '@helpers/cliHelper'
-import PMMRestClient from '@tests/support/types/request'
 import { teardown } from '@tests/helpers/containers'
 import PromiseRetry from 'promise-retry';
 
 test.describe.configure({ mode: 'parallel' })
 
+// This test requires the following Docker images to be already built
+// - percona/pmm-server-upgrade:latest
+// - percona/pmm-server-upgrade:first
+//
+// CI builds them automatically.
+// You can build them locally with the following commands run from the repo root:
+// - make -C ../admin build-docker PMM_RELEASE_VERSION=first
+// - make -C ../admin build-docker PMM_RELEASE_VERSION=latest
 test.describe('Self-update', async () => {
-  // beforeAll runs in every worker
-  // TODO: migrate to config.projects.dependencies with playwright 1.31 to run only once
-  // https://playwright.dev/docs/next/api/class-testproject#test-project-dependencies
-  test.beforeAll(async () => {
-    let output = await cli.exec(`make -C ../admin build-docker PMM_RELEASE_VERSION=first`)
-    await output.assertSuccess()
-
-    output = await cli.exec(`make -C ../admin build-docker PMM_RELEASE_VERSION=latest`)
-    await output.assertSuccess()
-  })
-
   test('shall not update - running latest version', async () => {
     let output = await cli.exec(`docker tag percona/pmm-server-upgrade:latest psu-no-update:latest`)
     await output.assertSuccess()
