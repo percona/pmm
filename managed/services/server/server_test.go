@@ -295,7 +295,7 @@ func TestServerFileEndpoints(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	setupSever := func(t *testing.T) *Server {
+	setupServer := func(t *testing.T) *Server {
 		s, err := NewServer(&Params{DB: db})
 		require.NoError(t, err)
 		return s
