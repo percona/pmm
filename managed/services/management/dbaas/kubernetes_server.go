@@ -487,7 +487,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			retval["psmdb"] = err
 			k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
 		}
-
 	}
 	if _, ok := operatorsToInstall["dbaas"]; ok {
 		operator := "dbaas-operator"
