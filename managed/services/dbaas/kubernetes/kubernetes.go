@@ -386,11 +386,9 @@ func (k *Kubernetes) CreateRestore(restore *dbaasv1.DatabaseClusterRestore) erro
 	return k.client.ApplyObject(restore)
 }
 
-// GetPods returns list of pods based on given filters. Filters are args to
-// kubectl command. For example "-lyour-label=value,next-label=value", "-ntest-namespace".
-func (k *Kubernetes) GetPods(ctx context.Context, namespace string, filters ...string) (*corev1.PodList, error) {
-	podList, err := k.client.GetPods(ctx, namespace, strings.Join(filters, ""))
-	return podList, err
+// GetPods returns list of pods.
+func (k *Kubernetes) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
+	return k.client.GetPods(ctx, namespace, labelSelector)
 }
 
 // GetLogs returns logs as slice of log lines - strings - for given pod's container.
@@ -590,7 +588,7 @@ func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace stri
 	cpuMillis uint64, memoryBytes uint64, err error,
 ) {
 	// Get CPU and Memory Requests of Pods' containers.
-	pods, err := k.GetPods(ctx, namespace)
+	pods, err := k.GetPods(ctx, namespace, nil)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "failed to get consumed resources")
 	}
@@ -915,9 +913,12 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 
-	labelSelector := fmt.Sprintf("%s=%s,%s=%s",
-		templateLabelKey, "yes",
-		engineLabelKey, engine)
+	labelSelector := &metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			templateLabelKey: "yes",
+			engineLabelKey:   engine,
+		},
+	}
 
 	templateCRDs, err := k.client.ListCRDs(ctx, labelSelector)
 	if err != nil {

@@ -158,7 +158,7 @@ func TestGetPods(t *testing.T) {
 				clientset := test.clientset
 				client := &Client{clientset: clientset, namespace: "default"}
 
-				pods, err := client.GetPods(context.Background(), test.inputNamespace, "")
+				pods, err := client.GetPods(context.Background(), test.inputNamespace, nil)
 				if test.err == nil {
 					assert.NoError(t, err)
 					assert.Equal(t, test.countExpectedPods, len(pods.Items))
@@ -176,7 +176,7 @@ func TestListCRDs(t *testing.T) {
 
 	data := []struct {
 		clientset          apiextv1clientset.Interface
-		inputLabelSelector string
+		inputLabelSelector *metav1.LabelSelector
 		countExpectedCRDs  int
 		err                error
 	}{
@@ -197,7 +197,7 @@ func TestListCRDs(t *testing.T) {
 					},
 				},
 			}),
-			inputLabelSelector: "",
+			inputLabelSelector: nil,
 			countExpectedCRDs:  2,
 		},
 		// one CRD matches label selector
@@ -217,8 +217,12 @@ func TestListCRDs(t *testing.T) {
 					},
 				},
 			}),
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
-			countExpectedCRDs:  1,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+				},
+			},
+			countExpectedCRDs: 1,
 		},
 		// two CRDs match label selector
 		{
@@ -245,8 +249,12 @@ func TestListCRDs(t *testing.T) {
 					},
 				},
 			}),
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
-			countExpectedCRDs:  2,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+				},
+			},
+			countExpectedCRDs: 2,
 		},
 		// one CRD matches label selector with multiple labels
 		{
@@ -273,15 +281,20 @@ func TestListCRDs(t *testing.T) {
 					},
 				},
 			}),
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1,custom_label_key_2=custom_label_value_2",
-			countExpectedCRDs:  1,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+					"custom_label_key_2": "custom_label_value_2",
+				},
+			},
+			countExpectedCRDs: 1,
 		},
 	}
 
 	for _, test := range data {
 		t.Run("", func(test struct {
 			clientset          apiextv1clientset.Interface
-			inputLabelSelector string
+			inputLabelSelector *metav1.LabelSelector
 			countExpectedCRDs  int
 			err                error
 		},
@@ -310,7 +323,7 @@ func TestListCRs(t *testing.T) {
 		clientset          dynamic.Interface
 		inputNamespace     string
 		inputGVR           schema.GroupVersionResource
-		inputLabelSelector string
+		inputLabelSelector *metav1.LabelSelector
 		countExpectedCRs   int
 		err                error
 	}{
@@ -350,7 +363,7 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "",
+			inputLabelSelector: nil,
 			countExpectedCRs:   1,
 		},
 		// one CR matches GVR
@@ -390,7 +403,7 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "",
+			inputLabelSelector: nil,
 			countExpectedCRs:   1,
 		},
 		// no label selector
@@ -429,7 +442,7 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "",
+			inputLabelSelector: nil,
 			countExpectedCRs:   2,
 		},
 		// one CR matches label selector
@@ -468,8 +481,12 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
-			countExpectedCRs:   1,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+				},
+			},
+			countExpectedCRs: 1,
 		},
 		// two CRs match label selector
 		{
@@ -520,8 +537,12 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1",
-			countExpectedCRs:   2,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+				},
+			},
+			countExpectedCRs: 2,
 		},
 		// one CR matches label selector with multiple labels
 		{
@@ -572,8 +593,13 @@ func TestListCRs(t *testing.T) {
 				Version:  "v1",
 				Resource: "mycoolkinds",
 			},
-			inputLabelSelector: "custom_label_key_1=custom_label_value_1,custom_label_key_2=custom_label_value_2",
-			countExpectedCRs:   1,
+			inputLabelSelector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"custom_label_key_1": "custom_label_value_1",
+					"custom_label_key_2": "custom_label_value_2",
+				},
+			},
+			countExpectedCRs: 1,
 		},
 	}
 
@@ -582,7 +608,7 @@ func TestListCRs(t *testing.T) {
 			clientset          dynamic.Interface
 			inputNamespace     string
 			inputGVR           schema.GroupVersionResource
-			inputLabelSelector string
+			inputLabelSelector *metav1.LabelSelector
 			countExpectedCRs   int
 			err                error
 		},

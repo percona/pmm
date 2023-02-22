@@ -465,21 +465,10 @@ func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVo
 }
 
 // GetPods returns list of pods
-func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
+func (c *Client) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
 	options := metav1.ListOptions{}
-	if labelSelector != "" {
-		parsed, err := metav1.ParseToLabelSelector(labelSelector)
-		if err != nil {
-			return nil, err
-		}
-
-		selector, err := parsed.Marshal()
-		if err != nil {
-			return nil, err
-		}
-
-		options.LabelSelector = string(selector)
-		options.LabelSelector = labelSelector
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
 	}
 
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
@@ -1074,42 +1063,25 @@ func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, instal
 }
 
 // ListCRDs returns a list of CRDs.
-func (c *Client) ListCRDs(ctx context.Context, labelSelector string) (*apiextv1.CustomResourceDefinitionList, error) {
+func (c *Client) ListCRDs(ctx context.Context, labelSelector *metav1.LabelSelector) (*apiextv1.CustomResourceDefinitionList, error) {
 	options := metav1.ListOptions{}
-	if labelSelector != "" {
-		parsed, err := metav1.ParseToLabelSelector(labelSelector)
-		if err != nil {
-			return nil, err
-		}
-
-		selector, err := parsed.Marshal()
-		if err != nil {
-			return nil, err
-		}
-
-		options.LabelSelector = string(selector)
-		options.LabelSelector = labelSelector
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
 	}
 
 	return c.apiextClientset.ApiextensionsV1().CustomResourceDefinitions().List(ctx, options)
 }
 
 // ListCRs returns a list of CRs.
-func (c *Client) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector string) (*unstructured.UnstructuredList, error) {
+func (c *Client) ListCRs(
+	ctx context.Context,
+	namespace string,
+	gvr schema.GroupVersionResource,
+	labelSelector *metav1.LabelSelector,
+) (*unstructured.UnstructuredList, error) {
 	options := metav1.ListOptions{}
-	if labelSelector != "" {
-		parsed, err := metav1.ParseToLabelSelector(labelSelector)
-		if err != nil {
-			return nil, err
-		}
-
-		selector, err := parsed.Marshal()
-		if err != nil {
-			return nil, err
-		}
-
-		options.LabelSelector = string(selector)
-		options.LabelSelector = labelSelector
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
 	}
 
 	return c.dynamicClientset.Resource(gvr).Namespace(namespace).List(ctx, options)
