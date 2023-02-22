@@ -46,6 +46,7 @@ type ComponentsService struct {
 	l                    *logrus.Entry
 	db                   *reform.DB
 	dbaasClient          dbaasClient
+	kubeStorage          *KubeStorage
 	versionServiceClient versionService
 
 	dbaasv1beta1.UnimplementedComponentsServer
@@ -64,6 +65,7 @@ func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionService
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
+		kubeStorage:          NewKubeStorage(db),
 		versionServiceClient: versionServiceClient,
 	}
 }
@@ -86,17 +88,16 @@ func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 	}
 	if req.KubernetesClusterName != "" {
 		var err error
-		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		checkResponse, e := c.dbaasClient.CheckKubernetesClusterConnection(ctx, kubernetesCluster.KubeConfig)
-		if e != nil {
-			return nil, e
-		}
-
-		params.productVersion = checkResponse.Operators.PsmdbOperatorVersion
+		params.productVersion = psmdbVersion
 	}
 
 	versions, err := c.versions(ctx, params, kubernetesCluster)
@@ -114,17 +115,16 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	}
 	if req.KubernetesClusterName != "" {
 		var err error
-		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		checkResponse, e := c.dbaasClient.CheckKubernetesClusterConnection(ctx, kubernetesCluster.KubeConfig)
-		if e != nil {
-			return nil, e
-		}
-
-		params.productVersion = checkResponse.Operators.PxcOperatorVersion
+		params.productVersion = pxcVersion
 	}
 
 	versions, err := c.versions(ctx, params, kubernetesCluster)
