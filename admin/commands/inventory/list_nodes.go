@@ -78,7 +78,8 @@ func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	var nodesList []listResultNode
+	l := len(result.Payload.Generic) + len(result.Payload.Container) + len(result.Payload.Remote) + len(result.Payload.RemoteRDS)
+	nodesList := make([]listResultNode, 0, l)
 	for _, n := range result.Payload.Generic {
 		nodesList = append(nodesList, listResultNode{
 			NodeType: types.NodeTypeGenericNode,
