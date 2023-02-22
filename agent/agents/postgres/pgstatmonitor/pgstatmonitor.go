@@ -531,7 +531,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			mb.Postgresql.Planid = pointer.GetString(currentPSM.PlanID)
 			mb.Postgresql.QueryPlan = pointer.GetString(currentPSM.QueryPlan)
 
-			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls)
+			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
 			if err != nil {
 				m.l.Warnf(err.Error())
 			} else {
@@ -608,8 +608,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray) ([]*agentpb.HistogramItem, error) {
-	histogram := getHistogramRangesArray()
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentpb.HistogramItem, error) {
+	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
@@ -631,10 +631,37 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	return histogram, nil
 }
 
-func getHistogramRangesArray() []*agentpb.HistogramItem {
-	// For now we using static ranges.
+func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramItem {
+	// For now we using static ranges (different ones since PGSM 2.0).
 	// In future we will compute range values from pg_stat_monitor_settings.
 	// pgsm_histogram_min, pgsm_histogram_max, pgsm_histogram_buckets.
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		return []*agentpb.HistogramItem{
+			{Range: "(0 - 1)"},
+			{Range: "(1 - 2)"},
+			{Range: "(2 - 4)"},
+			{Range: "(4 - 6)"},
+			{Range: "(6 - 10)"},
+			{Range: "(10 - 18)"},
+			{Range: "(18 - 32)"},
+			{Range: "(32 - 57)"},
+			{Range: "(57 - 100)"},
+			{Range: "(100 - 178)"},
+			{Range: "(178 - 317)"},
+			{Range: "(317 - 563)"},
+			{Range: "(563 - 1000)"},
+			{Range: "(1000 - 1779)"},
+			{Range: "(1779 - 3163)"},
+			{Range: "(3163 - 5624)"},
+			{Range: "(5624 - 10000)"},
+			{Range: "(10000 - 17783)"},
+			{Range: "(17783 - 31623)"},
+			{Range: "(31623 - 56234)"},
+			{Range: "(56234 - 100000)"},
+			{Range: "(100000 - ...)"},
+		}
+	}
+
 	return []*agentpb.HistogramItem{
 		{Range: "(0 - 3)"},
 		{Range: "(3 - 10)"},
