@@ -143,6 +143,11 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Dbaas: &dbaasv1beta1.Operator{},
 				},
 			}
+			kubeClient, err := kubernetes.New(cluster.KubeConfig)
+			if err != nil {
+				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
+				return
+			}
 			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
 			if e != nil {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
@@ -156,12 +161,20 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if resp.Operators == nil {
 				return
 			}
+			pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				return
+			}
+			psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
+			if err != nil {
+				return
+			}
 
-			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], resp.Operators.PxcOperatorVersion)
-			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], resp.Operators.PsmdbOperatorVersion)
+			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
+			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], psmdbVersion)
 
-			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
-			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
+			clusters[i].Operators.Pxc.Version = pxcVersion
+			clusters[i].Operators.Psmdb.Version = psmdbVersion
 
 			// FIXME: Uncomment it when FE will be ready
 			// kubeClient, err := kubernetes.New(cluster.KubeConfig)
