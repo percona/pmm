@@ -54,26 +54,19 @@ func TestService_GetFilters(t *testing.T) {
 		rm models.Reporter
 		mm models.Metrics
 	}
-	type args struct {
-		ctx context.Context
-		in  *qanpb.FiltersRequest
-	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
+		in      *qanpb.FiltersRequest
 		want    *qanpb.FiltersReply
 		wantErr bool
 	}{
 		{
 			"success",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-				},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			},
 			&want,
 			false,
@@ -81,14 +74,11 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_username",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					Labels: []*qanpb.MapFieldEntry{
-						{Key: "username", Value: []string{"user1", "user2"}},
-					},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				Labels: []*qanpb.MapFieldEntry{
+					{Key: "username", Value: []string{"user1", "user2"}},
 				},
 			},
 			&want,
@@ -97,16 +87,13 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_client_host_schema_service_name",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					Labels: []*qanpb.MapFieldEntry{
-						{Key: "client_host", Value: []string{"10.11.12.1", "10.11.12.2", "10.11.12.3", "10.11.12.4", "10.11.12.5", "10.11.12.6", "10.11.12.7", "10.11.12.8", "10.11.12.9", "10.11.12.10", "10.11.12.11", "10.11.12.12", "10.11.12.13"}},
-						{Key: "schema", Value: []string{"schema65", "schema6", "schema42", "schema76", "schema90", "schema39", "schema1", "schema17", "schema79", "schema10"}},
-						{Key: "service_name", Value: []string{"server5", "server8", "server6", "server3", "server4", "server2", "server1"}},
-					},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				Labels: []*qanpb.MapFieldEntry{
+					{Key: "client_host", Value: []string{"10.11.12.1", "10.11.12.2", "10.11.12.3", "10.11.12.4", "10.11.12.5", "10.11.12.6", "10.11.12.7", "10.11.12.8", "10.11.12.9", "10.11.12.10", "10.11.12.11", "10.11.12.12", "10.11.12.13"}},
+					{Key: "schema", Value: []string{"schema65", "schema6", "schema42", "schema76", "schema90", "schema39", "schema1", "schema17", "schema79", "schema10"}},
+					{Key: "service_name", Value: []string{"server5", "server8", "server6", "server3", "server4", "server2", "server1"}},
 				},
 			},
 			&want,
@@ -115,29 +102,26 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_multiple",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					Labels: []*qanpb.MapFieldEntry{
-						{Key: "container_id", Value: []string{"container_id"}},
-						{Key: "container_name", Value: []string{"container_name1"}},
-						{Key: "machine_id", Value: []string{"machine_id1"}},
-						{Key: "node_type", Value: []string{"node_type1"}},
-						{Key: "node_name", Value: []string{"node_name1"}},
-						{Key: "node_id", Value: []string{"node_id1"}},
-						{Key: "node_model", Value: []string{"node_model1"}},
-						{Key: "region", Value: []string{"region1"}},
-						{Key: "az", Value: []string{"az1"}},
-						{Key: "environment", Value: []string{"environment1"}},
-						{Key: "service_id", Value: []string{"service_id1"}},
-						{Key: "service_type", Value: []string{"service_type1"}},
-						{Key: "cmd_type", Value: []string{"1"}},
-						{Key: "top_queryid", Value: []string{"top_queryid1"}},
-						{Key: "application_name", Value: []string{"psql"}},
-						{Key: "planid", Value: []string{"planid1"}},
-					},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				Labels: []*qanpb.MapFieldEntry{
+					{Key: "container_id", Value: []string{"container_id"}},
+					{Key: "container_name", Value: []string{"container_name1"}},
+					{Key: "machine_id", Value: []string{"machine_id1"}},
+					{Key: "node_type", Value: []string{"node_type1"}},
+					{Key: "node_name", Value: []string{"node_name1"}},
+					{Key: "node_id", Value: []string{"node_id1"}},
+					{Key: "node_model", Value: []string{"node_model1"}},
+					{Key: "region", Value: []string{"region1"}},
+					{Key: "az", Value: []string{"az1"}},
+					{Key: "environment", Value: []string{"environment1"}},
+					{Key: "service_id", Value: []string{"service_id1"}},
+					{Key: "service_type", Value: []string{"service_type1"}},
+					{Key: "cmd_type", Value: []string{"1"}},
+					{Key: "top_queryid", Value: []string{"top_queryid1"}},
+					{Key: "application_name", Value: []string{"psql"}},
+					{Key: "planid", Value: []string{"planid1"}},
 				},
 			},
 			&want,
@@ -146,14 +130,11 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_labels",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					Labels: []*qanpb.MapFieldEntry{
-						{Key: "label0", Value: []string{"value1"}},
-					},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				Labels: []*qanpb.MapFieldEntry{
+					{Key: "label0", Value: []string{"value1"}},
 				},
 			},
 			&want,
@@ -162,12 +143,9 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"fail",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
-				},
+			&qanpb.FiltersRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 			},
 			nil,
 			true,
@@ -175,10 +153,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"fail",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.FiltersRequest{},
-			},
+			&qanpb.FiltersRequest{},
 			nil,
 			true,
 		},
@@ -189,7 +164,7 @@ func TestService_GetFilters(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.Get(tt.args.ctx, tt.args.in)
+			got, err := s.Get(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
 			}

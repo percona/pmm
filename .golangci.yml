@@ -73,6 +73,7 @@ linters:
     # keep the rules sorted alpahbetically
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
+    - deadcode         # unmaintained, we leverage `unused`
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -105,25 +106,18 @@ linters:
     - gocognit
     - maintidx
     - nestif
-    - whitespace
     - errorlint
     - forcetypeassert
     - golint
-    - deadcode
     - nonamedreturns
-    - usestdlibvars
     - execinquery
-    - predeclared
-    - nosprintfhostport
     - interfacebloat
     - gosimple
     - contextcheck
-    - prealloc
     - nakedret
     - forbidigo
     - errcheck
     - dupl
-    - containedctx
     # ENDTODO
 
 run:
