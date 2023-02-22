@@ -142,20 +142,22 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 		return nil, err
 	}
 
-	getAddressPort := func(socket, address string, port int64) string {
+	getSocketOrHost := func(socket, address string, port int64) string {
 		if socket != "" {
 			return socket
 		}
 		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
 	}
 
-	var servicesList []listResultService
+	l := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql)
+	l += len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
+	servicesList := make([]listResultService, 0, l)
 	for _, s := range servicesRes.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Mongodb {
@@ -163,7 +165,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 			ServiceType: types.ServiceTypeMongoDBService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Postgresql {
@@ -171,7 +173,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 			ServiceType: types.ServiceTypePostgreSQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Proxysql {
@@ -179,7 +181,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 			ServiceType: types.ServiceTypeProxySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Haproxy {
