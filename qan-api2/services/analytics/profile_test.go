@@ -81,31 +81,24 @@ func TestService_GetReport(t *testing.T) {
 		rm models.Reporter
 		mm models.Metrics
 	}
-	type args struct {
-		ctx context.Context
-		in  *qanpb.ReportRequest
-	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
+		in      *qanpb.ReportRequest
 		want    *qanpb.ReportReply
 		wantErr bool
 	}{
 		{
 			"success",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.ReportRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					GroupBy:         "queryid",
-					Columns:         []string{"query_time", "lock_time", "sort_scan"},
-					OrderBy:         "query_time",
-					Offset:          0,
-					Limit:           10,
-				},
+			&qanpb.ReportRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				GroupBy:         "queryid",
+				Columns:         []string{"query_time", "lock_time", "sort_scan"},
+				OrderBy:         "query_time",
+				Offset:          0,
+				Limit:           10,
 			},
 			&want,
 			false,
@@ -113,17 +106,14 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"load without query_time",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.ReportRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					GroupBy:         "queryid",
-					Columns:         []string{"load", "lock_time", "sort_scan"},
-					OrderBy:         "-load",
-					Offset:          0,
-					Limit:           10,
-				},
+			&qanpb.ReportRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				GroupBy:         "queryid",
+				Columns:         []string{"load", "lock_time", "sort_scan"},
+				OrderBy:         "-load",
+				Offset:          0,
+				Limit:           10,
 			},
 			&want,
 			false,
@@ -131,12 +121,9 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"wrong_time_range",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.ReportRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
-				},
+			&qanpb.ReportRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 			},
 			nil,
 			true,
@@ -144,10 +131,7 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"empty_fail",
 			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.ReportRequest{},
-			},
+			&qanpb.ReportRequest{},
 			nil,
 			true,
 		},
@@ -159,7 +143,7 @@ func TestService_GetReport(t *testing.T) {
 				mm: tt.fields.mm,
 			}
 
-			got, err := s.GetReport(tt.args.ctx, tt.args.in)
+			got, err := s.GetReport(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.GetReport() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -190,38 +174,31 @@ func TestService_GetReport_Mix(t *testing.T) {
 		rm models.Reporter
 		mm models.Metrics
 	}
-	type args struct {
-		ctx context.Context
-		in  *qanpb.ReportRequest
-	}
 	test := struct {
 		name    string
 		fields  fields
-		args    args
+		in      *qanpb.ReportRequest
 		want    *qanpb.ReportReply
 		wantErr bool
 	}{
 		"reverce_order",
 		fields{rm: rm, mm: mm},
-		args{
-			context.TODO(),
-			&qanpb.ReportRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-				GroupBy:         "queryid",
-				Columns:         []string{"query_time", "lock_time", "sort_scan"},
-				OrderBy:         "-query_time",
-				Offset:          10,
-				Limit:           10,
-				Labels: []*qanpb.ReportMapFieldEntry{
-					{
-						Key:   "label1",
-						Value: []string{"value1", "value2"},
-					},
-					{
-						Key:   "service_name",
-						Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
-					},
+		&qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns:         []string{"query_time", "lock_time", "sort_scan"},
+			OrderBy:         "-query_time",
+			Offset:          10,
+			Limit:           10,
+			Labels: []*qanpb.ReportMapFieldEntry{
+				{
+					Key:   "label1",
+					Value: []string{"value1", "value2"},
+				},
+				{
+					Key:   "service_name",
+					Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 				},
 			},
 		},
@@ -234,7 +211,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		got, err := s.GetReport(test.args.ctx, test.args.in)
+		got, err := s.GetReport(context.TODO(), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -254,7 +231,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			rm: test.fields.rm,
 			mm: test.fields.mm,
 		}
-		got, err := s.GetReport(test.args.ctx, test.args.in)
+		got, err := s.GetReport(context.TODO(), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -275,7 +252,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		got, err := s.GetReport(test.args.ctx, test.args.in)
+		got, err := s.GetReport(context.TODO(), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -295,8 +272,8 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		test.args.in.Limit = 0
-		_, err := s.GetReport(test.args.ctx, test.args.in)
+		test.in.Limit = 0
+		_, err := s.GetReport(context.TODO(), test.in)
 		if err != nil {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -309,9 +286,9 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		test.args.in.GroupBy = "unknown dimension"
+		test.in.GroupBy = "unknown dimension"
 		expectedErr := fmt.Errorf("unknown group dimension: %s", "unknown dimension")
-		_, err := s.GetReport(test.args.ctx, test.args.in)
+		_, err := s.GetReport(context.TODO(), test.in)
 		if err.Error() != expectedErr.Error() {
 			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
 			return
@@ -565,10 +542,6 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 		rm models.Reporter
 		mm models.Metrics
 	}
-	type args struct {
-		ctx context.Context
-		in  *qanpb.ReportRequest
-	}
 
 	genDimensionvalues := func(dimKey string, amount int) []string {
 		arr := []string{}
@@ -580,78 +553,75 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	test := struct {
 		name    string
 		fields  fields
-		args    args
+		in      *qanpb.ReportRequest
 		wantErr bool
 	}{
 		"",
 		fields{rm: rm, mm: mm},
-		args{
-			context.TODO(),
-			&qanpb.ReportRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-				GroupBy:         "queryid",
-				Columns:         []string{"query_time", "lock_time", "sort_scan"},
-				OrderBy:         "-query_time",
-				Offset:          10,
-				Limit:           10,
-				Labels: []*qanpb.ReportMapFieldEntry{
-					{
-						Key:   "label1",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label2",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label3",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label4",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label5",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label6",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label7",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label8",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "label9",
-						Value: genDimensionvalues("value", 100),
-					},
-					{
-						Key:   "service_name",
-						Value: genDimensionvalues("server", 10),
-					},
-					{
-						Key:   "database",
-						Value: []string{},
-					},
-					{
-						Key:   "schema",
-						Value: genDimensionvalues("schema", 100),
-					},
-					{
-						Key:   "username",
-						Value: genDimensionvalues("user", 100),
-					},
-					{
-						Key:   "client_host",
-						Value: genDimensionvalues("10.11.12.", 100),
-					},
+		&qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns:         []string{"query_time", "lock_time", "sort_scan"},
+			OrderBy:         "-query_time",
+			Offset:          10,
+			Limit:           10,
+			Labels: []*qanpb.ReportMapFieldEntry{
+				{
+					Key:   "label1",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label2",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label3",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label4",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label5",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label6",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label7",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label8",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "label9",
+					Value: genDimensionvalues("value", 100),
+				},
+				{
+					Key:   "service_name",
+					Value: genDimensionvalues("server", 10),
+				},
+				{
+					Key:   "database",
+					Value: []string{},
+				},
+				{
+					Key:   "schema",
+					Value: genDimensionvalues("schema", 100),
+				},
+				{
+					Key:   "username",
+					Value: genDimensionvalues("user", 100),
+				},
+				{
+					Key:   "client_host",
+					Value: genDimensionvalues("10.11.12.", 100),
 				},
 			},
 		},
@@ -662,7 +632,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 			rm: test.fields.rm,
 			mm: test.fields.mm,
 		}
-		got, err := s.GetReport(test.args.ctx, test.args.in)
+		got, err := s.GetReport(context.TODO(), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return

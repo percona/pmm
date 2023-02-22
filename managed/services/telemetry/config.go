@@ -210,7 +210,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig //nolint:prealloc
+	var fileConfigs []FileConfig
 	var fileCfg FileConfig
 
 	var config []byte
