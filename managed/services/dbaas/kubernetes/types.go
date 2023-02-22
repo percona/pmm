@@ -199,7 +199,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				StorageName: backupLocation.Name,
 			},
 		}
-
 	}
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
@@ -215,7 +214,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -358,7 +356,6 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				StorageName: backupLocation.Name,
 			},
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -504,7 +501,6 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 			return err
 		}
 		dbCluster.Spec.LoadBalancer.Resources = resources
-
 	}
 	if updateRequest.Params.Proxysql != nil && updateRequest.Params.Proxysql.ComputeResources != nil {
 		resources, err := convertComputeResource(updateRequest.Params.Proxysql.ComputeResources)
