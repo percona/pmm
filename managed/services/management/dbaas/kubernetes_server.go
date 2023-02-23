@@ -24,7 +24,6 @@ import (
 	"sync"
 	"time"
 
-	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -148,26 +147,18 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
 				return
 			}
-			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
-			if e != nil {
-				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
-				return
-			}
 
-			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus(resp.Status)
+			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK
 			if !cluster.IsReady {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING
 			}
-			if resp.Operators == nil {
-				return
-			}
 			pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 			if err != nil {
-				return
+				k.l.Errorf("couldn't get pxc operator version: %s", err)
 			}
 			psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 			if err != nil {
-				return
+				k.l.Errorf("couldn't get psmdb operator version: %s", err)
 			}
 
 			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
@@ -345,13 +336,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
 
-	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
 	err = k.db.InTransaction(func(t *reform.TX) error {
-		var e error
-		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
-		if e != nil {
-			return e
-		}
 
 		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: req.KubernetesClusterName,
@@ -362,26 +347,19 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
-
-	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
+
 	operatorsToInstall := make(map[string]bool)
-	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-		operatorsToInstall["olm"] = true
-		operatorsToInstall["vm"] = true
-		operatorsToInstall["dbaas"] = true
-	}
-	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+	operatorsToInstall["olm"] = true
+	operatorsToInstall["vm"] = true
+	operatorsToInstall["dbaas"] = true
+	if pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx); pxcVersion == "" || err != nil {
 		operatorsToInstall["pxc"] = true
 	}
-	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+	if psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx); psmdbVersion == "" || err != nil {
 		operatorsToInstall["psmdb"] = true
 	}
 	settings, err := models.GetSettings(k.db.Querier)
