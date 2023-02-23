@@ -105,9 +105,9 @@ This opens the **Restore from backup** dialog, with the **Same service** option 
 
           `pbm restore --time="2022-11-23T19:40:26`
         
-      For more information, see [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/usage/point-in-time-recovery.html).
+      For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/usage/point-in-time-recovery.html).
 
-6. Check the progress of the restore operation, using one of the commands below.
+6. Check the progress of the restore operation, using one of the commands below:
 
     - For logical restores:
     `pbm describe-restore <restore_name>`
@@ -118,7 +118,7 @@ This opens the **Restore from backup** dialog, with the **Same service** option 
     Required arguments:
 
     - PBM generates the `<restore_name>` information after you start the restoring.
-    - The pbm_config.yaml file required for physical restores is the PBM config file that you provided for step 3.
+    - The *pbm_config.yaml* file required for physical restores is the PBM config file that you provided for step 3.
 
 !!! caution alert alert-warning "Important"
     Make sure not to run pbm backup from the new environment while the Percona Backup for MongoDB config is pointing to the remote storage location of the original environment.

@@ -13,11 +13,9 @@ To schedule or create an on-demand backup, check the instructions below. If you 
 7. Choose a storage location for the backup. MongoDB supports both Amazon S3-compatible and local storage. If no options are available here, see the [Create a storage location](prepare_storage_location.md) topic.
 8. Specify the backup type, the schedule, and a retention policy for your backup:
     - **Backup Type**: select **Full**. If you want to create a PITR backup instead, see the [Create MongoDB PITR backups topic](../backup/create_PITR_mongo.md)
-    - **Schedule**: if you're creating a scheduled backup, configure its frequency and start time. 
-     
-        !!! caution alert alert-warning "Important"
-            Make sure that the schedule you specify here does not create overlapping jobs or overhead on the production environment. Also check that your specified schedule does not overlap with production hours.
-
+    - **Schedule**: if you're creating a scheduled backup, configure its frequency and start time.
+    !!! caution alert alert-warning "Important"
+    Make sure that the schedule you specify here does not create overlapping jobs or overhead on the production environment. Also, check that your specified schedule does not overlap with production hours.
     - **Retention**: this option is only available for snapshot backups stored on S3-compatible storage. If you want to keep an unlimited number of backup artifacts, type `0`.
 9. Expand **Advanced Settings** to specify the settings for retrying the backup in case of any issues. You can either let PMM retry the backup again (**Auto**), or do it again yourself (**Manual**). Auto-retry mode enables you to select up to ten retries and an interval of up to eight hours between retries.
 10. To start creating the backup artifact, click **Backup** or **Schedule** at the top of the window, depending on whether you are creating a scheduled or an on-demand backup.

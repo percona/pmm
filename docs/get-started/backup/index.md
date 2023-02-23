@@ -1,17 +1,17 @@
 # Backup and restore
 
-Losing your data can destroy your business. This is why backing up data is critical for all database operations.
-
-Even more important than backing up data, is the ability to restore it in the event of a disaster. PMM enables you to do all this with zero downtime and minimal performance impact.
+Losing your data can destroy your business. This is why backing up data is critical for all database operations. 
+Even more important than backing up data, is the ability to restore it in the event of data loss. 
+PMM enables you to do all this with zero downtime and minimal performance impact.
 
 Currently, PMM provides Backup and Restore functionality to work with:
 
 - MongoDB clusters (Generally Available)
 - MySQL Databases (in Technical Preview)
 
-Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can: 
+Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can:
 
-- Create and restore MongoDB and MySQL backups 
+- Create and restore MongoDB and MySQL backups
 - Automate backup scheduling
 - Set retention policies
 - Monitor your backup and restore activity
@@ -24,8 +24,8 @@ For MySQL databases, you can create and restore on-demand and scheduled physical
 To learn how to create and restore backups, check out subtopics below:
 
 - [Prepare a storage location](prepare_storage_location.md)
-- ![!](../../_images/MongoDB_Logo.png)  [MongoDB  backups](../../get-started/backup/backup_mongo.md)
-- ![!](../../_images/mysql_logo.png) [MySQL backups](backup_mysql.md) 
+- [MongoDB  backups](../../get-started/backup/backup_mongo.md)
+- [MySQL backups](backup_mysql.md) 
 
 
 ## Additional resources
