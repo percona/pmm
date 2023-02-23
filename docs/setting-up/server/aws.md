@@ -73,7 +73,7 @@ Your instance appears in the EC2 console in a table that lists all instances ava
 
 ## Running the instance
 
-After you add your new instance, it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you may continue with the configuration of the PMM Server.
+After you add your new instance ,it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you may continue with configuration of PMM Server.
 
 !!! note alert alert-primary ""
     When started the next time after rebooting, your instance may acquire another IP address. You may choose to set up an elastic IP to avoid this problem.

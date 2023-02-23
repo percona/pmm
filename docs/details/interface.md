@@ -139,4 +139,6 @@ This item lists shortcuts to utility pages.
 
 [Folders]: https://grafana.com/docs/grafana/latest/dashboards/dashboard_folders/
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
+
 [BACKUP]: ../get-started/backup/index.md
+

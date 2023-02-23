@@ -62,4 +62,3 @@ You can pass the API key into a REST API call as a query parameter in the follow
 ```sh
 curl -X GET https://api_key:API_KEY@localhost/v1/version
 ```
-

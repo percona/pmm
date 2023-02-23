@@ -14,7 +14,7 @@ How to run PMM Server as a virtual machine.
 
 ---
 
-Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are labeled **UI** for user interface or **CLI** for command line instructions.
+Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are labelled **UI** for user interface or **CLI** for command line instructions.
 
 ## Terminology
 
@@ -56,7 +56,7 @@ Most steps can be done with either a user interface or on the command line, but 
 2. [Visit the PMM Server download page][OVA].
 3. Choose a *Version* or use the default (the latest).
 4. Click the link for `pmm-server-{{release}}.ova` to download it. Note where your browser saves it.
-5. Right click the link for `pmm-server-{{release}}.sha256sum` and save it in the same place as the `.ova` file.
+5. Right-click the link for `pmm-server-{{release}}.sha256sum` and save it in the same place as the `.ova` file.
 6. (Optional) [Verify](#verify).
 
 ### CLI
@@ -103,7 +103,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 #### CLI
 
 1. Install [`ovftool`][OVFTool]. (You need to register.)
-2. Import and convert the OVA file. (`ovftool` can't change CPU or memory settings during import but it can set the default interface.)
+2. Import and convert the OVA file. (`ovftool` can't change CPU or memory settings during import, but it can set the default interface.)
 
     Choose one of:
 
@@ -179,7 +179,7 @@ shasum -ca 256 pmm-server-{{release}}.sha256sum
 
 #### CLI
 
-1. Open a terminal and change directory to where the downloaded `.ova` file is.
+1. Open a terminal and change the directory to where the downloaded `.ova` file is.
 
 2. (Optional) Do a 'dry run' import to see what values will be used.
 
