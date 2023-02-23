@@ -34,6 +34,14 @@ jobs:
       - name: Start k8s cluster
         run: minikube start
 
+      - name: Setup storage driver for snapshots
+        run: | 
+          minikube addons disable storage-provisioner
+          kubectl delete storageclass standard
+          minikube addons enable csi-hostpath-driver
+          minikube addons enable volumesnapshots
+          kubectl patch storageclass csi-hostpath-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
       - name: Run helm tests
         run: ./docs_test_helm.sh
 
