@@ -796,7 +796,7 @@ func main() {
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
+	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF, *clickhouseAddrF)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}

@@ -19,7 +19,9 @@ package checks
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
+	//_ "github.com/ClickHouse/clickhouse-go/v2"
 	"os"
 	"os/exec"
 	"strconv"
@@ -92,6 +94,7 @@ type Service struct {
 	db                  *reform.DB
 	alertsRegistry      *registry
 	vmClient            v1.API
+	clickhouseDB        *sql.DB
 
 	l                  *logrus.Entry
 	startDelay         time.Duration
@@ -113,7 +116,7 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string) (*Service, error) {
+func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string, clickhouseAddr string) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
@@ -133,12 +136,20 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		platformPublicKeys = k
 	}
 
+	clickhouseDbName := "pmm"
+	defaultDsnF := "tcp://" + clickhouseAddr + "/" + clickhouseDbName
+	clickhouseDb, err := newClickhouseDB(defaultDsnF, 5, 10)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create clickhouse connection")
+	}
+
 	s := &Service{
 		db:                  db,
 		agentsRegistry:      agentsRegistry,
 		alertmanagerService: alertmanagerService,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
 		vmClient:            v1.NewAPI(vmClient),
+		clickhouseDB:        clickhouseDb,
 
 		l:                  l,
 		platformClient:     platformClient,
@@ -175,6 +186,20 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 	}
 
 	return s, nil
+}
+
+// newClickhouseDB return updated db.
+func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
+	db, err := sql.Open("clickhouse", dsn)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+	}
+
+	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
+
+	return db, nil
 }
 
 // Run runs main service loops.
@@ -614,6 +639,8 @@ func (s *Service) minPMMAgentVersionForType(t check.Type) *version.Parsed {
 	case check.MetricsRange:
 		fallthrough
 	case check.MetricsInstant:
+		fallthrough
+	case check.ClickHouseSelect:
 		return nil // These types of queries don't require pmm agent at all, so any version is good.
 
 	default:
@@ -812,6 +839,12 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 				resData[i], err = s.executeMetricsRangeQuery(gCtx, query, target)
 				return err
 			})
+		case check.ClickHouseSelect:
+			eg.Go(func() error {
+				var err error
+				resData[i], err = s.executeClickhouseSelectQuery(gCtx, query, target)
+				return err
+			})
 
 		default:
 			return nil, errors.Errorf("unknown check type")
@@ -824,10 +857,51 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 
 	res, err := s.processResults(ctx, c, target, resData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to process action result")
+		return nil, errors.Wrap(err, "failed to process check result")
 	}
 
 	return res, nil
+}
+
+func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
+	query := "SELECT " + checkQuery.Query
+	s.l.Infof("got query: %s", query)
+	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read query results")
+	}
+
+	var dataRows [][]interface{}
+
+	s.l.Info("got columns: ", columns)
+	for rows.Next() {
+		dest := make([]interface{}, len(columns))
+		for i := range dest {
+			var ei interface{}
+			dest[i] = &ei
+		}
+		if err = rows.Scan(dest...); err != nil {
+			s.l.Warnf("failed to scan query result: %s", err.Error())
+			continue
+		}
+		for idx, d := range dest {
+			value := *(d.(*interface{}))
+			dest[idx] = value
+			if b, ok := (value).([]byte); ok {
+				dest[idx] = string(b)
+			}
+			s.l.Infof("got result: %+v", value)
+		}
+		dataRows = append(dataRows, dest)
+	}
+
+	s.l.Infof("got %d results", len(dataRows))
+	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
@@ -1482,6 +1556,7 @@ func isQueryTypeSupported(typ check.Type) bool {
 	case check.MongoDBGetDiagnosticData:
 	case check.MetricsRange:
 	case check.MetricsInstant:
+	case check.ClickHouseSelect:
 	default:
 		return false
 	}
