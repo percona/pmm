@@ -19,5 +19,5 @@ The following topics are covered as part of access control:
 
 - [Configure access control](configure_access_roles.md)
 - [Labels for access control](lbac.md)
-- [Create access roles](configure_access_roles.md)
+- [Create access roles](access_roles.md)
 - [Use case](use_case.md)
