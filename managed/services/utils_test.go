@@ -40,7 +40,7 @@ func TestGroupChecksByDB(t *testing.T) {
 		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
 		"missing type":             {Name: "missing type", Version: 1},
 		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
-		"PostrgeSQL family V2":     {Name: "PostrgeSQL family V2", Version: 2, Family: check.PostgreSQL},
+		"PostgreSQL family V2":     {Name: "PostgreSQL family V2", Version: 2, Family: check.PostgreSQL},
 		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
 		"missing family":           {Name: "missing family", Version: 2},
 	}
