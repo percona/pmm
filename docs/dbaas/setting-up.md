@@ -1,9 +1,11 @@
-# DBaaS
+# Setting up DBaaS
 
-To enable and use the Database as a Service (DBaaS) feature in PMM, see [DBaaS](../../get-started/dbaas.html).
+To use the Database as a Service (DBaaS) solution in PMM there are a few things that need to be setup first including a suitable Kubernetes Cluster.  If you've already got a kubernetes cluster you can jump ahead and [enable DBaaS in PMM](../dbaas/get-started.html).
 
-You can use [free K8s provided by Percona](https://www.percona.com/blog/private-dbaas-with-free-kubernetes-cluster/) for evaluation. 
-You can also create K8s on AWS using these [instructions](https://www.percona.com/blog/dbaas-kubernetes-in-under-20-min/). 
+If you don't have a Kubernetes cluster available you can use the [free K8s provided by Percona](https://www.percona.com/blog/private-dbaas-with-free-kubernetes-cluster/) for evaluation which will allow you to play around with DBaaS for 3 hours before the cluster expires.
+For a Kubernetes cluster that doesn't expire you can use our "easy script", you can find the instructions [here](https://www.percona.com/blog/dbaas-kubernetes-in-under-20-min/).
+
+In the sections that follow we'll try to outline the steps to create your own Kubernetes cluster in a few popular ways.
 
 
 #### Red Hat, CentOS
@@ -62,7 +64,7 @@ alias kubectl='minikube kubectl --'
     ```
 
 !!! caution alert alert-warning "Important"
-    You must [activate DBaaS](../../get-started/dbaas.md#activate-dbaas) using the PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
+    You must [activate DBaaS](../dbaas/get-started.md#activate-dbaas) using the PMM UI if you omitted `--env ENABLE_DBAAS=1` when starting up the container.
 
 ## Create a Kubernetes cluster
 
@@ -84,7 +86,7 @@ alias kubectl='minikube kubectl --'
     ```
 
     !!! note alert alert-primary ""
-        You will need to copy this output to your clipboard and continue with [adding a Kubernetes cluster to PMM](../../get-started/dbaas.md#add-a-kubernetes-cluster).
+        You will need to copy this output to your clipboard and continue with [adding a Kubernetes cluster to PMM](../dbaas/get-started.md#add-a-kubernetes-cluster).
 
 ### Amazon AWS EKS
 
@@ -93,10 +95,7 @@ alias kubectl='minikube kubectl --'
     ```sh
     eksctl create cluster --write-kubeconfig --name=your-cluster-name --zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
     ```
-2. Follow the instructions on [How to add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
-
-    !!! note alert alert-primary ""
-        If possible, the connection details will show the cluster's external IP (not possible with minikube).
+2. Copy the resulting kubeconfig and follow these instructions to [register a Kubernetes cluster to PMM](../dbaas/get-started.md#add-a-kubernetes-cluster).
 
 ### Google GKE
 
@@ -201,7 +200,7 @@ alias kubectl='minikube kubectl --'
     "
     ```
 
-5. Follow the instructions on [How to add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
+5. Follow the instructions on [How to add a Kubernetes cluster](../dbaas/get-started.md#add-a-kubernetes-cluster) with kubeconfig from the previous step.
 
 ## Deleting clusters
 
@@ -271,9 +270,9 @@ For example, if you only run `eksctl delete cluster` to delete an Amazon EKS clu
 
 3. Set the public address for PMM Server in PMM settings UI
 
-4. Follow the steps for [Add a Kubernetes cluster](../../get-started/dbaas.md#add-a-kubernetes-cluster).
+4. Follow the steps for [Add a Kubernetes cluster](../dbaas/get-started.md#add-a-kubernetes-cluster).
 
-5. Follow the steps for [Add a DB Cluster](../../get-started/dbaas.md#add-a-db-cluster).
+5. Follow the steps for [Add a DB Cluster](../dbaas/get-started.md#add-a-db-cluster).
 
 6. Get the IP address to connect your app/service:
 
@@ -290,7 +289,7 @@ kubectl expose deployment hello-world --type=NodePort.
 ```
 
 !!! seealso alert alert-info "See also"
-    - [DBaaS Dashboard](../../get-started/dbaas.md)
+    - [DBaaS Dashboard](../dbaas/get-started.md)
     - [Install minikube](https://minikube.sigs.k8s.io/docs/start/)
     - [Setting up a Standalone MYSQL Instance on Kubernetes & exposing it using Nginx Ingress Controller][STANDALONE_MYSQL_K8S]
     - [Use a Service to Access an Application in a Cluster][KUBERNETES_ACCESS_APP]
