@@ -743,7 +743,6 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 		}
 
 		for _, target := range targets {
-
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
