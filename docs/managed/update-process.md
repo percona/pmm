@@ -1,9 +1,41 @@
 # Update of PMM Server
 
-## Update process
+Update of PMM Server, which includes `managed` and other components, is triggered by sending a [StartUpdate](https://github.com/percona/pmm/blob/6761010b8b30042936c58c022752f6b57581afee/api/serverpb/server.proto#L325) message.
 
-Update of PMM Server which includes `managed` and other components is triggered by sending a [StartUpdate](https://github.com/percona/pmm/blob/6761010b8b30042936c58c022752f6b57581afee/api/serverpb/server.proto#L325) message.
-This performs the following actions:
+Based on the mode provided, the update is either performed by:
+1. [pmm-server-upgrade](#pmm-server-upgrade)
+2. [pmm-update](#pmm-update-legacy) (legacy)
+
+## pmm-server-upgrade
+
+[pmm-server-upgrade](https://github.com/percona/pmm/tree/main/admin/cmd/pmm-server-upgrade) is a CLI tool to help with replacing PMM Server container with a new container.
+
+1. `pmm-server-upgrade` container runs alongside PMM Server container
+    1. `pmm-server-upgrade` container requires access to `/srv` folder in the PMM Server's container
+    2. `pmm-server-upgrade` container requires access to Docker socket via `/var/run/docker.sock`
+2. `pmm-server-upgrade` provides an API which listens on a unix socket file in `/srv`
+3. PMM Server communicates with `pmm-server-upgrade` over the socket file
+4. PMM Server initiates an upgrade and `pmm-server-upgrade` performs the following actions:
+    1. Stops PMM Server
+    2. Creates backups of all volumes
+    3. Updates PMM Server image to the latest version
+    4. Starts a new PMM Server container with the same configuration as the previous container
+5. PMM Server can request logs from the upgrade process over the API
+
+**Notes**
+- `pmm-server-upgrade` does not handle rollbacks in case of errors
+- `pmm-server-upgrade` requires access to Docker on the host system
+- Depending on the size of the volumes, backups can take considerable amount of time
+
+### Local development
+
+- Run an older version of PMM Server
+- Trigger an upgrade to the latest version from the UI
+- The PMM Server version is not relevant. The process shall be agnostic to the inner workings of PMM Server
+
+## pmm-update (legacy)
+
+`pmm-update` performs the following actions:
 1. Runs [pmm-update](https://github.com/percona/pmm/tree/main/update) command to initiate an update
 2. `pmm-update` first updates itself to the latest version and restarts
 3. `pmm-update` then runs a set of Ansible tasks to update all other components
@@ -12,7 +44,7 @@ This performs the following actions:
 - `pmm-update` does not handle rollbacks in case of errors
 - `pmm-update` requires root priveleges to run
 
-## Testing a custom pmm-update build
+### Testing a custom pmm-update build
 
 When making changes to `pmm-update`, you can test if they work in the following way:
 
@@ -36,7 +68,7 @@ When making changes to `pmm-update`, you can test if they work in the following 
     The rpm file is usually in `/root/rpmbuild/RPMS/pmm-update/noarch/`
 4. You can now trigger an update in the UI and it will install the latest `pmm-update` package
 
-## Building RPM package
+### Building RPM package
 
 All steps are performed in the docker container.
 
