@@ -743,6 +743,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 		}
 
 		for _, target := range targets {
+
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
@@ -1346,10 +1347,10 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 
 		advisors = append(advisors, check.Advisor{
 			Version:     1,
-			Name:        "dev_advisor",
+			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
-			Category:    "dev",
+			Category:    "development",
 			Checks:      checks,
 		})
 	} else {
