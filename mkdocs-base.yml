@@ -164,7 +164,14 @@ nav:
                 - get-started/backup/restore_mysql_backup.md
           - get-started/backup/edit_scheduled.md
           - get-started/backup/delete_a_backup.md
-
+      - Roles and permissions:
+          - get-started/roles-and-permissions/index.md
+          - get-started/roles-and-permissions/configure_access_roles.md
+          - get-started/roles-and-permissions/lbac.md
+          - get-started/roles-and-permissions/access_roles.md
+          - get-started/roles-and-permissions/manage_roles.md
+          - get-started/roles-and-permissions/assign_roles.md
+          - get-started/roles-and-permissions/use_case.md
       - get-started/query-analytics.md
       - get-started/advisors.md
   - How to:
