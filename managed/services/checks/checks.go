@@ -1385,7 +1385,7 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 
 	for _, c := range checks {
 		if c.Advisor != "dev" {
-			return nil, errors.Errorf("Local checks supposed to be linked to 'dev' advisor.")
+			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.")
 		}
 	}
 
