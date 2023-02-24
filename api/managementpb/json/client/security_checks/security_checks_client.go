@@ -167,7 +167,7 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams, 
 /*
 ListAdvisors lists advisors
 
-Returns a list of available advisors.
+Returns a list of advisors available for the user.
 */
 func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error) {
 	// TODO: Validate the params before sending
@@ -243,9 +243,9 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 }
 
 /*
-ListSecurityChecks lists security checks
+ListSecurityChecks lists advisor checks
 
-Returns a list of available checks.
+Returns a list of checks available for the user.
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

@@ -15368,7 +15368,7 @@
     },
     "/v1/management/Advisors/List": {
       "post": {
-        "description": "Returns a list of available advisors.",
+        "description": "Returns a list of advisors available for the user.",
         "tags": [
           "SecurityChecks"
         ],
@@ -20399,11 +20399,11 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of available checks.",
+        "description": "Returns a list of checks available for the user.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "List Security Checks",
+        "summary": "List advisor checks",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
