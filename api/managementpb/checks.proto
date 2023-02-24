@@ -227,7 +227,7 @@ service SecurityChecks {
       description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
-  // ListSecurityChecks returns a list of advisor checks available for the user..
+  // ListSecurityChecks returns a list of advisor checks available to the user..
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/List"
