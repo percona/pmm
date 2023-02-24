@@ -136,6 +136,85 @@ func TestParserSpecial(t *testing.T) {
 		assert.Equal(t, expect, actual)
 	})
 
+	t.Run("parseTime", func(t *testing.T) {
+		t.Parallel()
+
+		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, r.Close())
+		}()
+
+		opts := log.Options{
+			DefaultLocation: time.UTC,
+		}
+		p := NewSlowLogParser(r, opts)
+
+		p.parseTime("Time: 180214 16:18:07")
+		assert.Equal(t, p.event.Ts, time.Date(2018, time.February, 14, 16, 18, 7, 0, time.UTC))
+	})
+
+	t.Run("parseUser", func(t *testing.T) {
+		t.Parallel()
+
+		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, r.Close())
+		}()
+
+		opts := log.Options{
+			DefaultLocation: time.UTC,
+		}
+		p := NewSlowLogParser(r, opts)
+		p.parseUser("User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601")
+		assert.Equal(t, p.event.User, "bookblogs")
+		assert.Equal(t, p.event.Host, "localhost")
+	})
+
+	t.Run("parseMetrics", func(t *testing.T) {
+		t.Parallel()
+
+		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
+		require.NoError(t, err)
+		defer func() {
+			assert.NoError(t, r.Close())
+		}()
+
+		opts := log.Options{
+			DefaultLocation: time.UTC,
+		}
+		p := NewSlowLogParser(r, opts)
+		p.parseMetrics("Query_time: 1.000249  Lock_time: 0.000000")
+		assert.Equal(t, p.event.TimeMetrics, map[string]float64{
+			"Query_time": 1.000249,
+			"Lock_time":  0,
+		})
+
+		p.parseMetrics("Rows_sent: 1  Rows_examined: 0  Rows_affected: 0")
+		assert.Equal(t, p.event.NumberMetrics, map[string]uint64{
+			"Rows_sent":     1,
+			"Rows_examined": 0,
+			"Rows_affected": 0,
+		})
+
+		p.parseMetrics("QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No")
+		assert.Equal(t, p.event.BoolMetrics, map[string]bool{
+			"QC_Hit":            false,
+			"Full_scan":         true,
+			"Full_join":         false,
+			"Tmp_table":         false,
+			"Tmp_table_on_disk": false,
+		})
+
+		p.parseMetrics("Schema: maindb  Last_errno: 0  Killed: 0")
+		assert.Equal(t, p.event.Db, "maindb")
+
+		p.parseMetrics("Log_slow_rate_type: query  Log_slow_rate_limit: 2")
+		assert.Equal(t, p.event.RateType, "query")
+		assert.Equal(t, p.event.RateLimit, uint(2))
+	})
+
 	t.Run("slow023", func(t *testing.T) {
 		t.Parallel()
 

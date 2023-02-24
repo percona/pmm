@@ -183,89 +183,101 @@ func (p *SlowLogParser) parseHeader(line string) {
 
 	switch {
 	case strings.HasPrefix(line, "Time: "):
-		p.logf("time")
-		m := timeRe.FindStringSubmatch(line)
-		if len(m) == 2 {
-			p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opts.DefaultLocation)
-		} else {
-			m = timeNewRe.FindStringSubmatch(line)
-			if len(m) == 2 {
-				p.event.Ts, _ = time.ParseInLocation(time.RFC3339Nano, m[1], p.opts.DefaultLocation)
-			} else {
-				return
-			}
-		}
-		if userRe.MatchString(line) {
-			p.logf("user (bad format)")
-			m := userRe.FindStringSubmatch(line)
-			p.event.User = m[1]
-			p.event.Host = m[2]
-		}
+		p.parseTime(line)
 
 	case strings.HasPrefix(line, "User"):
-		p.logf("user")
-		m := userRe.FindStringSubmatch(line)
-		if len(m) < 3 {
-			return
-		}
-		p.event.User = m[1]
-		p.event.Host = m[2]
+		p.parseUser(line)
 
 	case strings.HasPrefix(line, "admin"):
 		p.parseAdmin(line)
 
 	default:
-		p.logf("metrics")
-		submatch := schema.FindStringSubmatch(line)
-		if len(submatch) == 2 {
-			p.event.Db = submatch[1]
-		}
+		p.parseMetrics(line)
+	}
+}
 
-		if !strings.Contains(line, ":") {
+func (p *SlowLogParser) parseTime(line string) {
+	p.logf("time")
+	m := timeRe.FindStringSubmatch(line)
+	if len(m) == 2 {
+		p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opts.DefaultLocation)
+	} else {
+		m = timeNewRe.FindStringSubmatch(line)
+		if len(m) == 2 {
+			p.event.Ts, _ = time.ParseInLocation(time.RFC3339Nano, m[1], p.opts.DefaultLocation)
+		} else {
 			return
 		}
+	}
+	if userRe.MatchString(line) {
+		p.logf("user (bad format)")
+		m := userRe.FindStringSubmatch(line)
+		p.event.User = m[1]
+		p.event.Host = m[2]
+	}
+}
 
-		line = strings.Replace(line, ": ", ":", -1)
-		for _, kv := range strings.Split(line, " ") {
-			if len(kv) == 0 {
-				continue
+func (p *SlowLogParser) parseUser(line string) {
+	p.logf("user")
+	m := userRe.FindStringSubmatch(line)
+	if len(m) < 3 {
+		return
+	}
+	p.event.User = m[1]
+	p.event.Host = m[2]
+}
+
+func (p *SlowLogParser) parseMetrics(line string) {
+	p.logf("metrics")
+	submatch := schema.FindStringSubmatch(line)
+	if len(submatch) == 2 {
+		p.event.Db = submatch[1]
+	}
+
+	if !strings.Contains(line, ":") {
+		return
+	}
+
+	line = strings.Replace(line, ": ", ":", -1)
+	for _, kv := range strings.Split(line, " ") {
+		if len(kv) == 0 {
+			continue
+		}
+		kv2 := strings.Split(kv, ":")
+		k := strings.TrimSpace(kv2[0])
+		v := ""
+		if len(kv2) > 1 {
+			v = strings.TrimSpace(kv2[1])
+		}
+		switch {
+		// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
+		case strings.HasSuffix(k, "_time") || strings.HasSuffix(k, "_wait"):
+			// microsecond value
+			val, _ := strconv.ParseFloat(v, 64)
+			p.event.TimeMetrics[k] = val
+
+		case v == "Yes" || v == "No":
+			// boolean value
+			if v == "Yes" {
+				p.event.BoolMetrics[k] = true
+			} else {
+				p.event.BoolMetrics[k] = false
 			}
-			kv2 := strings.Split(kv, ":")
-			k := strings.TrimSpace(kv2[0])
-			v := ""
-			if len(kv2) > 1 {
-				v = strings.TrimSpace(kv2[1])
-			}
-			switch {
-			// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
-			case strings.HasSuffix(k, "_time") || strings.HasSuffix(k, "_wait"):
-				// microsecond value
-				val, _ := strconv.ParseFloat(v, 64)
-				p.event.TimeMetrics[k] = val
 
-			case v == "Yes" || v == "No":
-				// boolean value
-				if v == "Yes" {
-					p.event.BoolMetrics[k] = true
-				} else {
-					p.event.BoolMetrics[k] = false
-				}
+		case k == "Schema":
+			p.event.Db = v
 
-			case k == "Schema":
-				p.event.Db = v
+		case k == "Log_slow_rate_type":
+			p.event.RateType = v
 
-			case k == "Log_slow_rate_type":
-				p.event.RateType = v
+		case k == "Log_slow_rate_limit":
+			val, _ := strconv.ParseUint(v, 10, 64)
+			p.event.RateLimit = uint(val)
 
-			case k == "Log_slow_rate_limit":
-				val, _ := strconv.ParseUint(v, 10, 64)
-				p.event.RateLimit = uint(val)
-
-			default:
-				// integer value
-				val, _ := strconv.ParseUint(v, 10, 64)
-				p.event.NumberMetrics[k] = val
-			}
+		default:
+			// integer value
+			val, _ := strconv.ParseUint(v, 10, 64)
+			p.event.NumberMetrics[k] = val
 		}
 	}
 }
