@@ -246,7 +246,7 @@ service SecurityChecks {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisors"
-      description: "Returns a list of advisors available for the user."
+      description: "Returns a list of advisors available to the user."
     };
   }
   // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
