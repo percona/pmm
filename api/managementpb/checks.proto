@@ -235,7 +235,7 @@ service SecurityChecks {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List advisor checks"
-      description: "Returns a list of checks available for the user."
+      description: "Returns a list of checks available to the user."
     };
   }
   // ListAdvisors returns a list of advisors available for the user.
