@@ -45,7 +45,7 @@ const (
 	testChecksFile       = "../../testdata/checks/checks.yml"
 	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 	vmAddress            = "http://127.0.0.1:9090/prometheus/"
-	clickhouseAddr       = "http://127.0.0.1:9000"
+	clickhouseDSN        = "tcp://127.0.0.1:9000/pmm"
 )
 
 func TestDownloadChecks(t *testing.T) {
@@ -59,7 +59,7 @@ func TestDownloadChecks(t *testing.T) {
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
-	s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseDSN)
 	s.platformPublicKeys = []string{devPlatformPublicKey}
 	require.NoError(t, err)
 
@@ -108,7 +108,7 @@ func TestDownloadChecks(t *testing.T) {
 }
 
 func TestLoadLocalChecks(t *testing.T) {
-	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 
 	checks, err := s.loadLocalChecks(testChecksFile)
@@ -151,7 +151,7 @@ func TestCollectChecks(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("collect local checks", func(t *testing.T) {
-		s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -175,7 +175,7 @@ func TestCollectChecks(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, platformClient, nil, nil, vmAddress, clickhouseDSN)
 		s.platformPublicKeys = []string{devPlatformPublicKey}
 		require.NoError(t, err)
 
@@ -189,7 +189,7 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -215,7 +215,7 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -244,7 +244,7 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -264,7 +264,7 @@ func TestEnableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -296,7 +296,7 @@ func TestChangeInterval(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -338,7 +338,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("STT enabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		results, err := s.GetSecurityCheckResults()
@@ -347,7 +347,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		settings, err := models.GetSettings(db)
@@ -368,7 +368,7 @@ func TestStartChecks(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("unknown interval", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 		s.localChecksFile = testChecksFile
 
@@ -380,7 +380,7 @@ func TestStartChecks(t *testing.T) {
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 
-		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		s.localChecksFile = testChecksFile
@@ -392,7 +392,7 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("stt disabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		settings, err := models.GetSettings(db)
@@ -433,7 +433,7 @@ func TestFilterChecks(t *testing.T) {
 
 	checks := append(valid, invalid...)
 
-	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 	actual := s.filterSupportedChecks(checks)
 	assert.ElementsMatch(t, valid, actual)
@@ -460,7 +460,7 @@ func TestGroupChecksByDB(t *testing.T) {
 		"missing family":           {Name: "missing family", Version: 2},
 	}
 
-	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
 
@@ -507,7 +507,7 @@ func TestMinPMMAgents(t *testing.T) {
 		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
-	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 
 	for _, test := range tests {
@@ -547,7 +547,7 @@ func TestFindTargets(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s, err := New(db, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(db, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 
 	t.Run("unknown service", func(t *testing.T) {
@@ -601,7 +601,7 @@ func TestFindTargets(t *testing.T) {
 
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
-	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseAddr)
+	s, err := New(nil, nil, nil, nil, vmAddress, clickhouseDSN)
 	require.NoError(t, err)
 
 	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
@@ -637,7 +637,7 @@ func TestGetFailedChecks(t *testing.T) {
 		ctx := context.Background()
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{}, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		results, err := s.GetChecksResults(context.Background(), "test_svc")
@@ -692,7 +692,7 @@ func TestGetFailedChecks(t *testing.T) {
 		ctx := context.Background()
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{&testAlert}, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		response, err := s.GetChecksResults(ctx, "test_svc")
@@ -705,7 +705,7 @@ func TestGetFailedChecks(t *testing.T) {
 		ctx := context.Background()
 		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrSTTDisabled)
 
-		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(db, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		settings, err := models.GetSettings(db)
@@ -741,7 +741,7 @@ func TestToggleCheckAlert(t *testing.T) {
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
 		ams.On("SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
 
-		s, err := New(nil, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(nil, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		active := len(testAlert.Status.SilencedBy) == 0
@@ -767,7 +767,7 @@ func TestToggleCheckAlert(t *testing.T) {
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
 		ams.On("UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
 
-		s, err := New(nil, nil, nil, &ams, vmAddress, clickhouseAddr)
+		s, err := New(nil, nil, nil, &ams, vmAddress, clickhouseDSN)
 		require.NoError(t, err)
 
 		active := len(testAlert.Status.SilencedBy) == 0
