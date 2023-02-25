@@ -21,7 +21,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	//_ "github.com/ClickHouse/clickhouse-go/v2"
 	"os"
 	"os/exec"
 	"strconv"
@@ -75,6 +74,9 @@ const (
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
+
+	maxClickhouseOpenConnections = 10
+	maxClickhouseIdleConnections = 5
 )
 
 // pmm-agent versions with known changes in Query Actions.
@@ -116,7 +118,7 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string, clickhouseAddr string) (*Service, error) {
+func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string, clickhouseDSN string) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
@@ -136,9 +138,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		platformPublicKeys = k
 	}
 
-	clickhouseDbName := "pmm"
-	defaultDsnF := "tcp://" + clickhouseAddr + "/" + clickhouseDbName
-	clickhouseDb, err := newClickhouseDB(defaultDsnF, 5, 10)
+	clickhouseDb, err := newClickhouseDB(clickhouseDSN, maxClickhouseIdleConnections, maxClickhouseOpenConnections)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create clickhouse connection")
 	}
@@ -188,7 +188,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 	return s, nil
 }
 
-// newClickhouseDB return updated db.
+// newClickhouseDB return a new Clickhouse db.
 func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
@@ -865,7 +865,6 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 
 func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
 	query := "SELECT " + checkQuery.Query
-	s.l.Infof("got query: %s", query)
 	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute query")
@@ -878,7 +877,6 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 
 	var dataRows [][]interface{}
 
-	s.l.Info("got columns: ", columns)
 	for rows.Next() {
 		dest := make([]interface{}, len(columns))
 		for i := range dest {
@@ -895,12 +893,10 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 			if b, ok := (value).([]byte); ok {
 				dest[idx] = string(b)
 			}
-			s.l.Infof("got result: %+v", value)
 		}
 		dataRows = append(dataRows, dest)
 	}
 
-	s.l.Infof("got %d results", len(dataRows))
 	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
 

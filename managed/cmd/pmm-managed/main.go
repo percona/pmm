@@ -36,6 +36,7 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -709,9 +710,10 @@ func main() {
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
 
-	clickhousedb := ds.QanDBSelect
+	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	clickhousedb := ds.QanDBSelect
+	clickhousedb.DSN = clickhouseDSN
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
@@ -796,7 +798,7 @@ func main() {
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF, *clickhouseAddrF)
+	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF, clickhouseDSN)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}
