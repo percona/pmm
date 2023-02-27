@@ -67,6 +67,6 @@ func TestGroupChecksByDB(t *testing.T) {
 
 	// V2 checks
 	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
-	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostrgeSQL family V2"].Family)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostgreSQL family V2"].Family)
 	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
 }
