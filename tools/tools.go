@@ -33,6 +33,7 @@ import (
 	_ "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators"
 	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
+	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/cmd/mockery"
 	_ "golang.org/x/perf/cmd/benchstat"
 	_ "golang.org/x/tools/cmd/goimports"
