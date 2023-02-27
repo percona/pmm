@@ -427,7 +427,7 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		err = s.runChecksGroup(context.Background(), "")
-		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
