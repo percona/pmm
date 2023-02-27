@@ -220,18 +220,10 @@ func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		c.l.Errorf("failed to get psmdb operator version: %v", err)
-		responseCh <- installedComponentsVersion{
-			kuberentesClusterName: kuberentesCluster.KubernetesClusterName,
-		}
-		return
 	}
 	pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		c.l.Errorf("failed to get pxc operator version: %v", err)
-		responseCh <- installedComponentsVersion{
-			kuberentesClusterName: kuberentesCluster.KubernetesClusterName,
-		}
-		return
 	}
 
 	responseCh <- installedComponentsVersion{
