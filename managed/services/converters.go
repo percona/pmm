@@ -223,6 +223,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			RunsOnNodeId:    pointer.GetString(agent.RunsOnNodeID),
 			CustomLabels:    labels,
 			ProcessExecPath: processExecPath,
+			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
 
 	case models.NodeExporterType:

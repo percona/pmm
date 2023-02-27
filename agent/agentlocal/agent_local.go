@@ -59,6 +59,7 @@ import (
 const (
 	shutdownTimeout = 1 * time.Second
 	serverZipFile   = "pmm-agent.log"
+	username        = "pmm"
 )
 
 // configGetReloader allows to get and reload a config.
@@ -314,6 +315,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 
 	mux := http.NewServeMux()
+	mux.Handle("/metrics", s.authMiddleware(metricsHandler))
 	mux.Handle("/debug/metrics", metricsHandler)
 	mux.Handle("/debug/", http.DefaultServeMux)
 	mux.Handle("/debug", debugPageHandler)
@@ -418,4 +420,15 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Cannot dump zip err: %s", err), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (s *Server) authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if user, pass, ok := r.BasicAuth(); !ok || user != username || pass != s.cfg.ID {
+			w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

@@ -133,6 +133,7 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			AgentType: types.AgentTypePMMAgent,
 			AgentID:   a.AgentID,
 			Status:    strings.ToUpper(status),
+			Port:      a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.NodeExporter {

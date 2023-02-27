@@ -31,6 +31,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	victoriaTestConfigs "github.com/percona/pmm/managed/testdata/victoriametrics"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -75,7 +76,7 @@ func TestVictoriaMetrics(t *testing.T) {
 
 		actual, err := os.ReadFile(configPath)
 		check.NoError(err)
-		check.Equal(string(original), string(actual))
+		check.Equal(string(original), string(actual), "actual:\n%s", actual)
 	})
 
 	t.Run("Normal", func(t *testing.T) {
@@ -892,4 +893,104 @@ scrape_configs:
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	assert.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
+}
+
+func fillDBWithPMMTestCases(check *require.Assertions, db *reform.DB, pmmAgentWithPushMode bool) {
+	for _, str := range []reform.Struct{
+		// server side
+		&models.Node{
+			NodeID:   "pmm-server",
+			NodeType: models.GenericNodeType,
+			NodeName: "pmm-server",
+			Address:  "127.0.0.1",
+		},
+		&models.Service{
+			ServiceID:    "/service_id/171e31f9-e9b0-496f-bb4f-b522d4f7c4fa",
+			ServiceType:  models.PostgreSQLServiceType,
+			ServiceName:  "pmm-server-postgresql",
+			NodeID:       "pmm-server",
+			Address:      pointer.ToString("127.0.0.1"),
+			Port:         pointer.ToUint16(5432),
+			DatabaseName: "postgres",
+		},
+		&models.Agent{
+			AgentID:      "pmm-server",
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString("pmm-server"),
+			Version:      pointer.ToString("2.28.0"),
+			ListenPort:   pointer.ToUint16(7777),
+			PushMetrics:  false,
+		},
+
+		// client side
+		&models.Node{
+			NodeID:   "/node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d",
+			NodeType: models.ContainerNodeType,
+			NodeName: "306ccd68606f",
+			Address:  "172.17.0.2",
+			Distro:   "linux",
+		},
+		&models.Agent{
+			AgentID:      "/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743",
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString("/node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d"),
+			Version:      pointer.ToString("2.28.0"),
+			ListenPort:   pointer.ToUint16(7777),
+			PushMetrics:  pmmAgentWithPushMode, // this place tells it will be server victoria metrics scrape config or clients.
+		},
+		&models.Agent{
+			AgentID:     "/agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3",
+			AgentType:   models.NodeExporterType,
+			PMMAgentID:  pointer.ToString("/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743"),
+			NodeID:      pointer.ToString("/node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d"),
+			ListenPort:  pointer.ToUint16(42000),
+			PushMetrics: true,
+		},
+		&models.Agent{
+			AgentID:     "/agent_id/e9117eb5-e2df-41c4-a7e1-7fa6fb9eadc8",
+			AgentType:   models.VMAgentType,
+			PMMAgentID:  pointer.ToString("/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743"),
+			NodeID:      pointer.ToString("/node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d"),
+			ListenPort:  pointer.ToUint16(42001),
+			PushMetrics: true,
+		},
+	} {
+		check.NoError(db.Insert(str), "%+v", str)
+	}
+}
+
+func TestPMMAgent(t *testing.T) {
+	t.Run("PullMode", func(t *testing.T) {
+		check := require.New(t)
+		db, svc, original := setup(t)
+		defer teardown(t, db, svc, original)
+		err := models.SaveSettings(db.Querier, &models.Settings{})
+		check.NoError(err)
+		fillDBWithPMMTestCases(check, db, false)
+
+		serverConf, err := svc.marshalConfig(svc.loadBaseConfig())
+		check.NoError(err)
+		check.Equal(victoriaTestConfigs.ServerPullConfig, string(serverConf), "actual:\n%s", serverConf)
+
+		agentConf, err := svc.BuildScrapeConfigForVMAgent("/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743")
+		check.NoError(err)
+		check.Equal(victoriaTestConfigs.ClientPullConfig, string(agentConf), "actual:\n%s", agentConf)
+	})
+
+	t.Run("PushMode", func(t *testing.T) {
+		check := require.New(t)
+		db, svc, original := setup(t)
+		defer teardown(t, db, svc, original)
+		err := models.SaveSettings(db.Querier, &models.Settings{})
+		check.NoError(err)
+		fillDBWithPMMTestCases(check, db, true)
+
+		serverConf, err := svc.marshalConfig(svc.loadBaseConfig())
+		check.NoError(err)
+		check.Equal(victoriaTestConfigs.ServerPushConfig, string(serverConf), "actual:\n%s", serverConf)
+
+		agentConf, err := svc.BuildScrapeConfigForVMAgent("/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743")
+		check.NoError(err)
+		check.Equal(victoriaTestConfigs.ClientPushConfig, string(agentConf), "actual:\n%s", agentConf)
+	})
 }

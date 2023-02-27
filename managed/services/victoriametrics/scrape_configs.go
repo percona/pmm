@@ -593,3 +593,41 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 	}
 	return []*config.ScrapeConfig{cfg}, nil
 }
+
+func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	labels, err := mergeLabels(params.node, params.service, params.agent)
+	if err != nil {
+		return nil, err
+	}
+
+	port := int(*params.agent.ListenPort)
+	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
+
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName(params.agent, "mr"),
+		ScrapeInterval: config.Duration(s.MR),
+		ScrapeTimeout:  ScrapeTimeout(s.MR),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{
+				{
+					Targets: []string{hostport},
+					Labels:  labels,
+				},
+			},
+		},
+		HTTPClientConfig: config.HTTPClientConfig{
+			BasicAuth: &config.BasicAuth{
+				Username: "pmm",
+				Password: pointer.GetString(&params.agent.AgentID),
+			},
+		},
+	}
+
+	// server's pmm-agent id does not match common agent id naming pattern
+	if params.agent.AgentID == models.PMMServerAgentID {
+		cfg.JobName = fmt.Sprintf("%s_%s_%s", params.agent.AgentType, params.agent.AgentID, "mr")
+	}
+
+	return []*config.ScrapeConfig{cfg}, nil
+}

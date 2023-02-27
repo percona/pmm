@@ -235,6 +235,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 				AgentType: types.AgentTypePMMAgent,
 				AgentID:   a.AgentID,
 				Status:    strings.ToUpper(status),
+				Port:      a.ListenPort,
 			})
 		}
 	}
