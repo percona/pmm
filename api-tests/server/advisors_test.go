@@ -61,7 +61,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are is disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
 
