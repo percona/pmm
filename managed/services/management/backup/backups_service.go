@@ -81,18 +81,19 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
+	dataModel, err := convertModelToBackupModel(req.DataModel)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+	}
+
 	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
-	var dataModel models.DataModel
-	switch svc.ServiceType { //nolint:exhaustive
-	case models.MySQLServiceType:
-		dataModel = models.PhysicalDataModel
-	case models.MongoDBServiceType:
-		dataModel, err = convertModelToBackupModel(req.DataModel)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+
+	if svc.ServiceType == models.MongoDBServiceType {
+		if svc.Cluster == "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 		}
 	}
 
@@ -172,11 +173,18 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			return err
 		}
 
+		dataModel, err := convertModelToBackupModel(req.DataModel)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+		}
+
 		backupParams := &scheduler.BackupTaskParams{
-			ServiceID:     req.ServiceId,
+			ServiceID:     svc.ServiceID,
+			ClusterName:   svc.Cluster,
 			LocationID:    req.LocationId,
 			Name:          req.Name,
 			Description:   req.Description,
+			DataModel:     dataModel,
 			Mode:          mode,
 			Retention:     req.Retention,
 			Retries:       req.Retries,
@@ -186,16 +194,15 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			backupParams.DataModel = models.PhysicalDataModel
 			task, err = scheduler.NewMySQLBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			backupParams.DataModel, err = convertModelToBackupModel(req.DataModel)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+			if svc.Cluster == "" {
+				return status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 			}
+
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)
@@ -232,7 +239,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
-// ListScheduledBackups lists all tasks related to backup.
+// ListScheduledBackups lists all tasks related to a backup.
 func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
@@ -413,15 +420,28 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
-// GetLogs returns logs for artifact.
+// GetLogs returns logs from the underlying tools for a backup/restore job.
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
-	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
-		ArtifactID: req.ArtifactId,
+	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
 			models.MongoDBBackupJob,
+			models.MongoDBRestoreBackupJob,
 		},
-	})
+	}
+	if req.ArtifactId != "" && req.RestoreId != "" {
+		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
+	}
+
+	if req.ArtifactId != "" {
+		jobsFilter.ArtifactID = req.ArtifactId
+	} else if req.RestoreId != "" {
+		jobsFilter.RestoreID = req.RestoreId
+	} else {
+		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
+	}
+
+	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -429,11 +449,11 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
 	}
 	if len(jobs) > 1 {
-		s.l.Warnf("artifact %s appear in more than one job", req.ArtifactId)
+		s.l.Warn("provided ID appear in more than one job")
 	}
 
 	filter := models.JobLogsFilter{
-		JobID:  jobs[len(jobs)-1].ID,
+		JobID:  jobs[0].ID,
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
@@ -621,6 +641,8 @@ func convertBackupError(backupErr error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(backupErr, backup.ErrIncompatibleLocationType):
 		return status.Error(codes.FailedPrecondition, backupErr.Error())
+	case errors.Is(backupErr, backup.ErrIncompatiblePBM):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 
 	default:
 		return backupErr
@@ -658,6 +680,8 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	case errors.Is(restoreError, backup.ErrIncompatibleTargetMongoDB):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB
 	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
@@ -667,6 +691,8 @@ func convertRestoreBackupError(restoreError error) error {
 	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrArtifactNotReady):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatiblePBM):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 
 	default:

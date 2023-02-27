@@ -11,8 +11,9 @@ on:
   pull_request:
     paths-ignore:
       - "agent/**"
-      - "managed/**"
+      - "api-tests/**"
       - "docs/**"
+      - "managed/**"
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"

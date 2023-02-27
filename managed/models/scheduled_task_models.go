@@ -60,6 +60,7 @@ type ScheduledTaskData struct {
 // CommonBackupTaskData contains common data for all backup tasks.
 type CommonBackupTaskData struct {
 	ServiceID     string        `json:"service_id"`
+	ClusterName   string        `json:"cluster_name"`
 	LocationID    string        `json:"location_id"`
 	Name          string        `json:"name"`
 	Description   string        `json:"description"`

@@ -94,7 +94,7 @@ jobs:
           fail_on_error: true
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.50.1 # Version should match specified in Makefile
+          golangci_lint_version: v1.51.1 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
@@ -132,12 +132,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@v1
+        uses: upsidr/merge-gatekeeper@v1.2.1
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
+          ignored: "WhiteSource License Check"
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   workflow_success:

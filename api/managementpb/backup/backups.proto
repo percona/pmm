@@ -205,13 +205,10 @@ message RemoveScheduledBackupRequest {
 message RemoveScheduledBackupResponse {}
 
 message GetLogsRequest {
-  string artifact_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string artifact_id = 1;
   uint32 offset = 2;
   uint32 limit = 3;
+  string restore_id = 4;
 }
 
 message GetLogsResponse {
@@ -282,7 +279,7 @@ service Backups {
       body: "*"
     };
   }
-  // GetLogs returns logs for provided artifact.
+  // GetLogs returns logs from the underlying tools for a backup/restore job.
   rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Backups/GetLogs"

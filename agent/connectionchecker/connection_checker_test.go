@@ -54,7 +54,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+			expectedErr: `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		},
 		{
 			name: "MySQL timeout",
@@ -176,7 +176,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+			expectedErr: `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		},
 		{
 			name: "ProxySQL/MySQL timeout",
@@ -214,9 +214,10 @@ func TestConnectionChecker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			c := New(&config.Paths{
-				TempDir: t.TempDir(),
+			cfgStorage := config.NewStorage(&config.Config{
+				Paths: config.Paths{TempDir: t.TempDir()},
 			})
+			c := New(cfgStorage)
 
 			if tt.panic {
 				require.PanicsWithValue(t, tt.expectedErr, func() {
@@ -237,9 +238,10 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
-		c := New(&config.Paths{
-			TempDir: t.TempDir(),
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
 		})
+		c := New(cfgStorage)
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
@@ -251,9 +253,11 @@ func TestConnectionChecker(t *testing.T) {
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
 
-		c := New(&config.Paths{
-			TempDir: t.TempDir(),
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
 		})
+
+		c := New(cfgStorage)
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:       mongoDBDSNWithSSL,
 			Type:      inventorypb.ServiceType_MONGODB_SERVICE,

@@ -335,6 +335,16 @@ func TestSettings(t *testing.T) {
 			assert.True(t, ns.Azurediscover.Enabled)
 		})
 
+		t.Run("enable Access Control", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAccessControl: true})
+			require.NoError(t, err)
+			assert.False(t, s.AccessControl.Enabled)
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: true})
+			require.NoError(t, err)
+			assert.True(t, ns.AccessControl.Enabled)
+		})
+
 		t.Run("Integrated Alerting settings validation", func(t *testing.T) {
 			emailSettings := &models.EmailAlertingSettings{
 				From:      tests.GenEmail(t),

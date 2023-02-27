@@ -130,7 +130,7 @@ CREATE TABLE "city" (
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, "Error 1146: Table 'world.no_such_table' doesn't exist")
+		assert.EqualError(t, err, "Error 1146 (42S02): Table 'world.no_such_table' doesn't exist")
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -143,7 +143,7 @@ CREATE TABLE "city" (
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		expected := "Error 1146: Table 'world.city\"; DROP TABLE city; --' doesn't exist"
+		expected := "Error 1146 (42S02): Table 'world.city\"; DROP TABLE city; --' doesn't exist"
 		assert.EqualError(t, err, expected)
 
 		var count int

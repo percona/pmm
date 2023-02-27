@@ -167,7 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		require.Error(t, err)
-		assert.Regexp(t, `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
+		assert.Regexp(t, `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
@@ -210,7 +210,7 @@ func TestMySQLExplain(t *testing.T) {
 			defer cancel()
 
 			_, err := a.Run(ctx)
-			expected := "Error 1064: You have an error in your SQL syntax; check the manual that corresponds " +
+			expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 				"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 			require.Error(t, err)
 			assert.Regexp(t, expected, err.Error())
