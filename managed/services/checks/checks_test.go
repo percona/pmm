@@ -743,7 +743,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		results, err := s.GetChecksResults(ctx, "test_svc")
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
