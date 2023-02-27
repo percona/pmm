@@ -106,7 +106,7 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
 	}
 
-	var servicesList []listResultService
+	var servicesList []listResultService //nolint:prealloc
 	for _, s := range result.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,

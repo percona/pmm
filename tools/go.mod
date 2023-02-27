@@ -7,7 +7,7 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percon
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
-	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
+	github.com/apache/skywalking-eyes v0.4.0
 	github.com/bufbuild/buf v1.14.0
 	github.com/daixiang0/gci v0.9.1
 	github.com/go-delve/delve v1.20.1
@@ -174,7 +174,7 @@ require (
 	golang.org/x/build v0.0.0-20200616162219-07bebbe343e9 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
-	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.3.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
