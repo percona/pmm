@@ -382,7 +382,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		results, err := s.GetSecurityCheckResults()
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrAdvisorsDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
