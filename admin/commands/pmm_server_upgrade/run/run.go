@@ -84,7 +84,7 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 
-	upgrader := upgrade.New(ctx, c.DockerImage, gRPCMessageMaxSize)
+	upgrader := upgrade.New(c.DockerImage, gRPCMessageMaxSize)
 
 	// API server
 	server := apiserver.New(ctx, upgrader, gRPCMessageMaxSize)

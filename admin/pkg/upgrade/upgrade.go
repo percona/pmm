@@ -47,7 +47,6 @@ type StatusResponse struct {
 
 // Upgrader manages PMM Server upgrades.
 type Upgrader struct {
-	ctx                context.Context
 	docker             containerManager
 	dockerImage        string
 	gRPCMessageMaxSize uint32
@@ -57,9 +56,8 @@ type Upgrader struct {
 }
 
 // New returns new Upgrader.
-func New(ctx context.Context, dockerImage string, gRPCMessageMaxSize uint32) *Upgrader {
+func New(dockerImage string, gRPCMessageMaxSize uint32) *Upgrader {
 	return &Upgrader{
-		ctx:                ctx,
 		dockerImage:        dockerImage,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 	}
@@ -115,7 +113,7 @@ func (u *Upgrader) StartUpgrade(ctx context.Context, containerID string) (string
 			delete(u.upgradeInProgress, logFile.Name())
 		}()
 
-		_, err := cmd.RunCmdWithContext(u.ctx, &flags.GlobalFlags{})
+		_, err := cmd.RunCmdWithContext(ctx, &flags.GlobalFlags{})
 		if err != nil {
 			logger.Errorf("Could not upgrade container %s. Error: %v", containerID, err)
 		}
