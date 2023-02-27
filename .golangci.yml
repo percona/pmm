@@ -111,17 +111,13 @@ linters:
     - golint
     - nonamedreturns
     - execinquery
-    - predeclared
-    - nosprintfhostport
     - interfacebloat
     - gosimple
     - contextcheck
-    - prealloc
     - nakedret
     - forbidigo
     - errcheck
     - dupl
-    - containedctx
     # ENDTODO
 
 run:
