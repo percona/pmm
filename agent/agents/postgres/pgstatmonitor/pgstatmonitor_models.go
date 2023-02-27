@@ -139,9 +139,12 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID},
 			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime})
 	}
-	if vPGSM <= pgStatMonitorVersion08 {
+	if vPGSM <= pgStatMonitorVersion08 || vPGSM >= pgStatMonitorVersion20PG12 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows"}, pointer: &s.Rows})
+	} else {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows_retrieved"}, pointer: &s.Rows})
 	}
 	if vPGSM >= pgStatMonitorVersion08 {
 		fields = append(fields,
@@ -160,7 +163,6 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	}
 	if vPGSM >= pgStatMonitorVersion09 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows_retrieved"}, pointer: &s.Rows},
 			field{info: parse.FieldInfo{Name: "TopQueryID", Type: "*string", Column: "top_queryid"}, pointer: &s.TopQueryID},
 			field{info: parse.FieldInfo{Name: "PlanID", Type: "*string", Column: "planid"}, pointer: &s.PlanID},
 			field{info: parse.FieldInfo{Name: "QueryPlan", Type: "*string", Column: "query_plan"}, pointer: &s.QueryPlan},
