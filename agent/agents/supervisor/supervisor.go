@@ -54,7 +54,8 @@ type configGetter interface {
 
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
-	ctx            context.Context
+	// TODO: refactor to move context outside of struct
+	ctx            context.Context //nolint:containedctx
 	agentVersioner agentVersioner
 	cfg            configGetter
 	portsRegistry  *portsRegistry
@@ -185,6 +186,20 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	}
 
 	return nil, 0
+}
+
+// ClearChangesChannel drains state change channel
+func (s *Supervisor) ClearChangesChannel() {
+	for {
+		select {
+		case _, ok := <-s.changes:
+			if !ok {
+				return
+			}
+		default:
+			return
+		}
+	}
 }
 
 // Changes returns channel with Agent's state changes.
@@ -369,16 +384,16 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 
 // filter extracts IDs of the Agents that should be started, restarted with new parameters, or stopped,
 // and filters out IDs of the Agents that should not be changed.
-func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
+func filter(existing, ap map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
 	// existing agents not present in the new requested state should be stopped
 	for existingID := range existing {
-		if new[existingID] == nil {
+		if ap[existingID] == nil {
 			toStop = append(toStop, existingID)
 		}
 	}
 
 	// detect new and changed agents
-	for newID, newParams := range new {
+	for newID, newParams := range ap {
 		existingParams := existing[newID]
 		if existingParams == nil {
 			toStart = append(toStart, newID)

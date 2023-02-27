@@ -170,7 +170,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 func (svc *Service) reload(ctx context.Context) error {
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "-", "reload")
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -186,7 +186,7 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != 204 {
+	if resp.StatusCode != http.StatusNoContent {
 		return errors.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil
@@ -396,7 +396,7 @@ func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, erro
 func (svc *Service) IsReady(ctx context.Context) error {
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "health")
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -411,7 +411,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
