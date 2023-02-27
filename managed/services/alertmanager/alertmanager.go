@@ -769,7 +769,7 @@ func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([
 func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*ammodels.GettableAlert, error) {
 	alerts, err := svc.GetAlerts(ctx, params)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get alerts form alertmanager")
+		return nil, errors.Wrapf(err, "failed to get alerts from alertmanager")
 	}
 
 	l := len(ids)

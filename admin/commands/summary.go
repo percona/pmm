@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -139,7 +140,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 	addData(zipW, "client/status.json", now, bytes.NewReader(b))
 
 	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
-	// golangli-lint should continue complain about it until it is fixed
+	// golangci-lint should continue complain about it until it is fixed
 	b, err = exec.Command("pmm-agent", "--version").CombinedOutput()
 	if err != nil {
 		logrus.Debugf("%s", err)
@@ -149,7 +150,8 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "client/pmm-agent")
+	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort))
+	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s/logs.zip", host), "client/pmm-agent")
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}
@@ -195,7 +197,8 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 	for _, agent := range agentsInfo {
 		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
-			b, err := getURL(ctx, fmt.Sprintf("http://%s:%d/api/v1/targets", agentlocal.Localhost, agent.ListenPort))
+			host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agent.ListenPort))
+			b, err := getURL(ctx, fmt.Sprintf("http://%s/api/v1/targets", host))
 			if err != nil {
 				logrus.Debugf("%s", err)
 				b = []byte(err.Error())
@@ -203,7 +206,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
 			var html []byte
-			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/targets", host), nil)
 			if err != nil {
 				logrus.Debugf("%s", err)
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
@@ -301,14 +304,15 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		},
 	}
 
+	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", globals.PMMAgentListenPort))
 	sources := map[string]string{
-		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, globals.PMMAgentListenPort),
+		"client/pprof/pmm-agent": fmt.Sprintf("http://%s/debug/pprof", host),
 	}
 
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
 
 	if !skipServer && isRunOnPmmServer {
-		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
+		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(agentlocal.Localhost, "9933"))
 	}
 
 	for _, p := range profiles {
