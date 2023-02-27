@@ -34,7 +34,7 @@ type SecurityChecksClient interface {
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of advisor checks available for the user..
+	// ListSecurityChecks returns a list of advisor checks available to the user..
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
@@ -138,7 +138,7 @@ type SecurityChecksServer interface {
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of advisor checks available for the user..
+	// ListSecurityChecks returns a list of advisor checks available to the user..
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)

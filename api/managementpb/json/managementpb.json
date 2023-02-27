@@ -1385,7 +1385,7 @@
     },
     "/v1/management/Advisors/List": {
       "post": {
-        "description": "Returns a list of advisors available for the user.",
+        "description": "Returns a list of advisors available to the user.",
         "tags": [
           "SecurityChecks"
         ],
@@ -6416,7 +6416,7 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of checks available for the user.",
+        "description": "Returns a list of checks available to the user.",
         "tags": [
           "SecurityChecks"
         ],
