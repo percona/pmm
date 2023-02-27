@@ -23,7 +23,7 @@ import (
 
 type Server struct {
 	// Context coming from cli commands. When cancelled, the command has been cancelled.
-	cliCtx   context.Context
+	cliCtx   context.Context //nolint:containedctx
 	upgrader upgrader
 
 	updatepb.UnimplementedUpdateServer
