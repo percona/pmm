@@ -684,7 +684,7 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 	var err error
 	for {
 		var rawObj runtime.RawExtension
-		if err = decoder.Decode(&rawObj); err != nil { //nolint:nilerr
+		if err = decoder.Decode(&rawObj); err != nil {
 			break
 		}
 
@@ -701,7 +701,7 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 		objs = append(objs, &unstructured.Unstructured{Object: unstructuredMap})
 	}
 
-	return objs, nil
+	return objs, nil //nolint:nilerr
 }
 
 // DoCSVWait waits until for a CSV to be applied.
