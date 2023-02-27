@@ -118,7 +118,14 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string, clickhouseDSN string) (*Service, error) {
+func New(
+	db *reform.DB,
+	platformClient *platform.Client,
+	agentsRegistry agentsRegistry,
+	alertmanagerService alertmanagerService,
+	vmAddress string,
+	clickhouseDSN string,
+) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
@@ -127,7 +134,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		resendInterval = d
 	}
 
-	vmClient, err := metrics.NewClient(metrics.Config{Address: VMAddress})
+	vmClient, err := metrics.NewClient(metrics.Config{Address: vmAddress})
 	if err != nil {
 		return nil, err
 	}
