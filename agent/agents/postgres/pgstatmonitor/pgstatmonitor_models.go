@@ -171,7 +171,6 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "Elevel", Type: "int32", Column: "elevel"}, pointer: &s.Elevel},
 			field{info: parse.FieldInfo{Name: "Sqlcode", Type: "*string", Column: "sqlcode"}, pointer: &s.Sqlcode},
 			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message})
-
 	}
 	if vPGSM >= pgStatMonitorVersion09 && vPG >= 13 {
 		fields = append(fields,
