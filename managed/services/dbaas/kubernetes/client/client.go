@@ -684,7 +684,7 @@ func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 	var err error
 	for {
 		var rawObj runtime.RawExtension
-		if err = decoder.Decode(&rawObj); err != nil {
+		if err = decoder.Decode(&rawObj); err != nil { //nolint:nilerr
 			break
 		}
 
