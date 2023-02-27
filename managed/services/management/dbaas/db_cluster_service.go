@@ -428,7 +428,7 @@ func (s DBClusterService) ListSecrets(ctx context.Context, req *dbaasv1beta1.Lis
 	if err != nil {
 		return nil, errors.Wrap(err, "failed listing database clusters")
 	}
-	var secrets []*dbaasv1beta1.Secret
+	secrets := make([]*dbaasv1beta1.Secret, 0, len(secretsList.Items))
 	for _, secret := range secretsList.Items {
 		secrets = append(secrets, &dbaasv1beta1.Secret{
 			Name: secret.Name,
