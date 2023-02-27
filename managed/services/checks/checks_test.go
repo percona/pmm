@@ -777,7 +777,7 @@ func TestToggleCheckAlert(t *testing.T) {
 	})
 }
 
-func TestFillQueryPlaceholders(t *testing.T) {
+func TestFillVMQueryPlaceholders(t *testing.T) {
 	t.Parallel()
 
 	target := services.Target{
@@ -791,7 +791,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 		query := "some query with service={{ .ServiceName }} and node={{ .NodeName }}"
 		expected := "some query with service=service_name and node=node_name"
 
-		actual, err := fillQueryPlaceholders(query, target)
+		actual, err := fillVMQueryPlaceholders(query, target)
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
 	})
@@ -801,7 +801,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 
 		query := "some query"
 
-		actual, err := fillQueryPlaceholders(query, target)
+		actual, err := fillVMQueryPlaceholders(query, target)
 		require.NoError(t, err)
 		assert.Equal(t, query, actual)
 	})
@@ -811,7 +811,47 @@ func TestFillQueryPlaceholders(t *testing.T) {
 
 		query := "some query with service={{ .ServiceName }} and os={{ .OS }}"
 
-		_, err := fillQueryPlaceholders(query, target)
+		_, err := fillVMQueryPlaceholders(query, target)
 		require.EqualError(t, err, "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type struct { ServiceName string; NodeName string }")
+	})
+}
+
+func TestFillClickhouseQueryPlaceholders(t *testing.T) {
+	t.Parallel()
+
+	target := services.Target{
+		ServiceName: "test_service_name",
+		ServiceID:   "test_service_id",
+		NodeName:    "node_name",
+	}
+
+	t.Run("normal with placeholders", func(t *testing.T) {
+		t.Parallel()
+
+		query := "m_docs_scanned FROM metrics WHERE service_id={{.ServiceID}} AND period_start >= subtractHours(now(), 1) AND col1 < 10"
+		expected := "m_docs_scanned FROM metrics WHERE service_id=test_service_id AND period_start >= subtractHours(now(), 1) AND col1 < 10"
+
+		actual, err := fillClickhouseQueryPlaceholders(query, target)
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("normal without placeholders", func(t *testing.T) {
+		t.Parallel()
+
+		query := "some query"
+
+		actual, err := fillClickhouseQueryPlaceholders(query, target)
+		require.NoError(t, err)
+		assert.Equal(t, query, actual)
+	})
+
+	t.Run("unknown placeholder", func(t *testing.T) {
+		t.Parallel()
+
+		query := "some query with service={{ .ServiceName }} and os={{ .OS }}"
+
+		_, err := fillClickhouseQueryPlaceholders(query, target)
+		require.EqualError(t, err, "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type struct { ServiceName string; ServiceID string }")
 	})
 }

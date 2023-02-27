@@ -712,8 +712,8 @@ func main() {
 
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	clickhousedb := ds.QanDBSelect
-	clickhousedb.DSN = clickhouseDSN
+	clickhouseDB := ds.QanDBSelect
+	clickhouseDB.DSN = clickhouseDSN
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {

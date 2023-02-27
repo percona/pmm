@@ -138,7 +138,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		platformPublicKeys = k
 	}
 
-	clickhouseDb, err := newClickhouseDB(clickhouseDSN, maxClickhouseIdleConnections, maxClickhouseOpenConnections)
+	clickhouseDB, err := newClickhouseDB(clickhouseDSN, maxClickhouseIdleConnections, maxClickhouseOpenConnections)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create clickhouse connection")
 	}
@@ -149,7 +149,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		alertmanagerService: alertmanagerService,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
 		vmClient:            v1.NewAPI(vmClient),
-		clickhouseDB:        clickhouseDb,
+		clickhouseDB:        clickhouseDB,
 
 		l:                  l,
 		platformClient:     platformClient,
@@ -863,43 +863,6 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	return res, nil
 }
 
-func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
-	query := "SELECT " + checkQuery.Query
-	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute query")
-	}
-	defer rows.Close()
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read query results")
-	}
-
-	var dataRows [][]interface{}
-
-	for rows.Next() {
-		dest := make([]interface{}, len(columns))
-		for i := range dest {
-			var ei interface{}
-			dest[i] = &ei
-		}
-		if err = rows.Scan(dest...); err != nil {
-			s.l.Warnf("failed to scan query result: %s", err.Error())
-			continue
-		}
-		for idx, d := range dest {
-			value := *(d.(*interface{}))
-			dest[idx] = value
-			if b, ok := (value).([]byte); ok {
-				dest[idx] = string(b)
-			}
-		}
-		dataRows = append(dataRows, dest)
-	}
-
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
-}
-
 func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
@@ -1104,7 +1067,7 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 }
 
 func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillQueryPlaceholders(query.Query, target)
+	q, err := fillVMQueryPlaceholders(query.Query, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1137,7 +1100,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 }
 
 func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillQueryPlaceholders(query.Query, target)
+	q, err := fillVMQueryPlaceholders(query.Query, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1194,6 +1157,48 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 	return res, nil
 }
 
+func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
+	query, err := fillClickhouseQueryPlaceholders(checkQuery.Query, target)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	query = "SELECT " + query
+	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read query results")
+	}
+
+	var dataRows [][]interface{}
+
+	for rows.Next() {
+		dest := make([]interface{}, len(columns))
+		for i := range dest {
+			var ei interface{}
+			dest[i] = &ei
+		}
+		if err = rows.Scan(dest...); err != nil {
+			s.l.Warnf("failed to scan query result: %s", err.Error())
+			continue
+		}
+		for idx, d := range dest {
+			value := *(d.(*interface{}))
+			dest[idx] = value
+			if b, ok := (value).([]byte); ok {
+				dest[idx] = string(b)
+			}
+		}
+		dataRows = append(dataRows, dest)
+	}
+
+	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+}
+
 // convertVMValue converts VM results to format applicable to check input.
 func convertVMValue(value model.Value) ([]byte, error) {
 	if value.Type() == model.ValScalar {
@@ -1223,7 +1228,7 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	return res, nil
 }
 
-func fillQueryPlaceholders(query string, target services.Target) (string, error) {
+func fillVMQueryPlaceholders(query string, target services.Target) (string, error) {
 	tm, err := template.New("query").Parse(query)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse query")
@@ -1235,6 +1240,29 @@ func fillQueryPlaceholders(query string, target services.Target) (string, error)
 	}{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
+	}
+
+	var b strings.Builder
+	if err = tm.Execute(&b, data); err != nil {
+		return "", errors.Wrap(err, "failed to fill query placeholders")
+	}
+
+	return b.String(), nil
+}
+
+// fillClickhouseQueryPlaceholders replace placeholders in a clickhouse query (if any) with actual values.
+func fillClickhouseQueryPlaceholders(query string, target services.Target) (string, error) {
+	tm, err := template.New("query").Parse(query)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse query")
+	}
+
+	data := struct {
+		ServiceName string
+		ServiceID   string
+	}{
+		ServiceName: target.ServiceName,
+		ServiceID:   target.ServiceID,
 	}
 
 	var b strings.Builder
