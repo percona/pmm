@@ -39,6 +39,7 @@ const (
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
+	externalNLB       string             = "external"
 
 	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
 	memoryMediumSize = int64(8) * 1000 * 1000 * 1000
@@ -214,7 +215,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
 	}
 	var sourceRanges []string
@@ -330,7 +331,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
 	}
 	if cluster.Params.Backup != nil {
@@ -475,9 +476,8 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range updateRequest.SourceRanges {
@@ -563,9 +563,8 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range updateRequest.SourceRanges {
