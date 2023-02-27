@@ -65,7 +65,7 @@ type Service struct {
 
 	pmmUpdatePerformLogM sync.Mutex
 	supervisordConfigsM  sync.Mutex
-
+	// afp represent victoria metrics alert flags provider.
 	afp alertFlagsProvider
 }
 

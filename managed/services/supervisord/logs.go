@@ -59,8 +59,10 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
-	amfp             baseFileProvider
-	vmfp             baseFileProvider
+	// amfp represent alert manager file provider.
+	amfp baseFileProvider
+	// vmfp represent victoria metrics file provider.
+	vmfp baseFileProvider
 }
 
 // NewLogs creates a new Logs service.
