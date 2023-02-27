@@ -161,10 +161,10 @@ func TestCollectAdvisors(t *testing.T) {
 		require.Len(t, advisors, 1)
 
 		advisor := advisors[0]
-		require.Equal(t, advisor.Name, "dev_advisor")
-		require.Equal(t, advisor.Summary, "Dev Advisor")
-		require.Equal(t, advisor.Description, "Advisor used for developing checks")
-		require.Equal(t, advisor.Category, "dev")
+		require.Equal(t, "dev", advisor.Name)
+		require.Equal(t, "Dev Advisor", advisor.Summary)
+		require.Equal(t, "Advisor used for developing checks", advisor.Description)
+		require.Equal(t, "dev", advisor.Category)
 		require.Empty(t, advisor.Tiers)
 		require.Len(t, advisor.Checks, 5)
 
