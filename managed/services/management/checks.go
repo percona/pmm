@@ -297,13 +297,13 @@ func createComment(l *logrus.Entry, checks []check.Check) string {
 		checksM[c.Name] = c
 	}
 
-	mysqlChecks, portgresSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
+	mysqlChecks, portgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
 
 	b := make([]string, 0, 3)
 	if len(mysqlChecks) != 0 {
 		b = append(b, "MySQL")
 	}
-	if len(portgresSQLChecks) != 0 {
+	if len(portgreSQLChecks) != 0 {
 		b = append(b, "PostgreSQL")
 	}
 	if len(mongoDBChecks) != 0 {
