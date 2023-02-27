@@ -88,6 +88,10 @@ func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 	}
 	if req.KubernetesClusterName != "" {
 		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
 		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 		if err != nil {
 			return nil, err
@@ -115,6 +119,10 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	}
 	if req.KubernetesClusterName != "" {
 		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
 		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 		if err != nil {
 			return nil, err

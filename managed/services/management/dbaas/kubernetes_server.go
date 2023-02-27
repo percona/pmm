@@ -142,7 +142,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Dbaas: &dbaasv1beta1.Operator{},
 				},
 			}
-			kubeClient, err := kubernetes.New(cluster.KubeConfig)
+			kubeClient, err := k.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
 			if err != nil {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
 				return
@@ -337,7 +337,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	}
 
 	err = k.db.InTransaction(func(t *reform.TX) error {
-
 		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: req.KubernetesClusterName,
 			KubeConfig:            req.KubeAuth.Kubeconfig,
