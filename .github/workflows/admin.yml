@@ -211,6 +211,7 @@ jobs:
 
       - name: Build and install
         run: |
+          make -C ../admin install
           make -C ../admin build-docker PMM_RELEASE_VERSION=first
           make -C ../admin build-docker PMM_RELEASE_VERSION=latest
 

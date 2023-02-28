@@ -1,11 +1,17 @@
 # pmm-server-upgrade tests
 
-## Self-update
-### Requirements
+## Requirements
 - `percona/pmm-server-upgrade:latest` image  
   ```
-    make -C admin build-docker PMM_RELEASE_VERSION=latest
+  make -C admin build-docker PMM_RELEASE_VERSION=latest
   ```
+- `pmm` cli tool
+  ```
+  make -C admin install
+  ```
+
+## Self-update
+### Requirements
 - `percona/pmm-server-upgrade:first` image  
   ```
     make -C admin build-docker PMM_RELEASE_VERSION=first
@@ -13,13 +19,6 @@
 
 
 ## Upgrade
-### Requirements
-
-- `percona/pmm-server-upgrade:latest` image  
-  ```
-    make -C admin build-docker PMM_RELEASE_VERSION=latest
-  ```
-
 ### Configuration
 
 `UPGRADER_UPGRADE_OLD_IMAGE` - image used for running the current version of PMM Server
