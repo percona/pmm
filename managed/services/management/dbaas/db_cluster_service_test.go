@@ -101,13 +101,6 @@ func TestDBClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "1.11.0",
-			PsmdbOperatorVersion: "1.11.0",
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 
@@ -122,16 +115,19 @@ func TestDBClusterService(t *testing.T) {
 	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
 	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
 	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+	clients := map[string]kubernetesClient{
+		dbKubernetesClusterNameTest: kubeClient,
+	}
+
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: dbKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: dbKubeconfigTest},
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
-	clients := map[string]kubernetesClient{
-		dbKubernetesClusterNameTest: kubeClient,
-	}
-
 	t.Run("BasicListPXCClusters", func(t *testing.T) {
 		cs := NewDBClusterService(db, grafanaClient, versionService)
 		s := cs.(*DBClusterService)
