@@ -47,8 +47,10 @@ type StatusResponse struct {
 
 // Upgrader manages PMM Server upgrades.
 type Upgrader struct {
-	docker             containerManager
-	dockerImage        string
+	docker                 containerManager
+	dockerImage            string
+	newContainerNamePrefix string
+
 	gRPCMessageMaxSize uint32
 
 	upgradeInProgress map[string]struct{}
@@ -56,10 +58,13 @@ type Upgrader struct {
 }
 
 // New returns new Upgrader.
-func New(dockerImage string, gRPCMessageMaxSize uint32) *Upgrader {
+func New(docker containerManager, dockerImage, newContainerNamePrefix string, gRPCMessageMaxSize uint32) *Upgrader {
 	return &Upgrader{
-		dockerImage:        dockerImage,
-		gRPCMessageMaxSize: gRPCMessageMaxSize,
+		docker:                 docker,
+		dockerImage:            dockerImage,
+		gRPCMessageMaxSize:     gRPCMessageMaxSize,
+		newContainerNamePrefix: newContainerNamePrefix,
+		upgradeInProgress:      make(map[string]struct{}, 1),
 	}
 }
 
@@ -94,12 +99,18 @@ func (u *Upgrader) StartUpgrade(ctx context.Context, containerID string) (string
 		logger := logrus.New()
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
 
+		newContainerNamePrefix := u.newContainerNamePrefix
+		if newContainerNamePrefix == "" {
+			newContainerNamePrefix = "pmm-server"
+		}
+
 		cmd := dockerCmd.NewUpgradeCommand(
 			logger.WithField("upgrade", logFile.Name()),
 			5*time.Second)
 		cmd.ContainerID = containerID
 		cmd.DockerImage = u.dockerImage
-		cmd.NewContainerNamePrefix = "pmm-server"
+		cmd.NewContainerNamePrefix = newContainerNamePrefix
+		cmd.AssumeYes = true
 
 		// Store upgrade in progress info.
 		u.upgradeMu.Lock()

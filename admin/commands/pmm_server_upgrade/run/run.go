@@ -35,7 +35,8 @@ const gRPCMessageMaxSize = 100 * 1024 * 1024
 
 // RunCommand is used by Kong for CLI flags and commands.
 type RunCommand struct {
-	DockerImage string `group:"PMM Server upgrade" default:"percona/pmm-server:2" help:"Docker image to use for updating PMM to the latest version"`
+	DockerImage            string `group:"PMM Server upgrade" default:"percona/pmm-server:2" help:"Docker image to use for updating PMM to the latest version"`
+	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the newly upgraded container for PMM Server"`
 
 	DisableSelfUpdate             bool   `group:"Self update" help:"Disables self-update of pmm-server-upgrade"`
 	SelfUpdateDockerImage         string `group:"Self update" default:"percona/pmm-server-upgrade:2" help:"Docker image to use for self-updating pmm-server-upgrade"`
@@ -84,7 +85,7 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 
-	upgrader := upgrade.New(c.DockerImage, gRPCMessageMaxSize)
+	upgrader := upgrade.New(c.docker, c.DockerImage, c.NewContainerNamePrefix, gRPCMessageMaxSize)
 
 	// API server
 	server := apiserver.New(ctx, upgrader, gRPCMessageMaxSize)
