@@ -1,6 +1,6 @@
 # Tech stack and best practices
 
-Currently, our development team has fewer people than components/repositories. It is important for us to have some shared libraries and tools between them to make our life easier. It's fine to use something else if there is a reason, but that reason/argument should be better than "let's try this new cool package" or "that's an overengineering". :) Also, if we decided to make a change in this list, it's better to change it in all components in a reasonable time.
+Currently, our development team has fewer people than components/repositories. It is important for us to use shared libraries and tools to make our life easier. It's also fine to bring in new ones if there is a reason, but that reason should be more appealing than just "let's try this new cool package" or "that's an overengineering". Also, if we decide to make a change in this list, it's better to change it in all components within a reasonable timeframe.
 
 - Our tech stack
   - [Tech stack](#tech-stack)
@@ -80,7 +80,7 @@ Currently, our development team has fewer people than components/repositories. I
     - `log.LogInfo() // bad`
   - Don’t name methods like `getters` or `setters`
   - Follow the language rules when using compound nouns: `ApplicationServer` not `ApplicationsServer`. Exceptions to this rule may apply when the code is auto-generated.
-  - Add `er` to Interface\* (with exceptions. For example, when we use Interface as a template to generate mocks)
+  - Add `er` to Interface\* (Exception: when we use Interface as a template to generate mocks)
 - If we need to make a set, it's better to use `map[string]struct{}` instead of `map[string]bool` or something else.
 - In case we need enums, it's better to create a new custom type inherited from `string` or `iota`.
 - To check if a string is empty or not, use `str != ""` instead of `len(str) != 0`
