@@ -94,13 +94,6 @@ func TestKubernetesServer(t *testing.T) {
 		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
-		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-			Operators: &controllerv1beta1.Operators{
-				PxcOperatorVersion:   "",
-				PsmdbOperatorVersion: onePointEight,
-			},
-			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-		}, nil)
 
 		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
@@ -122,6 +115,8 @@ func TestKubernetesServer(t *testing.T) {
 		s := ks.(*kubernetesServer)
 		s.kubeStorage.clients = clients
 		ks = s
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.8.0", nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 			KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: kubeconfig},

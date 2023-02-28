@@ -105,13 +105,6 @@ func TestPXCClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "1.11.0",
-			PsmdbOperatorVersion: onePointEight,
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
 	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
 	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
@@ -123,7 +116,15 @@ func TestPXCClusterService(t *testing.T) {
 	}
 	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
 	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 
+	clients := map[string]kubernetesClient{
+		pxcKubernetesClusterNameTest: kubeClient,
+	}
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: pxcKubeconfigTest},
@@ -136,9 +137,6 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
-	clients := map[string]kubernetesClient{
-		pxcKubernetesClusterNameTest: kubeClient,
-	}
 
 	//nolint:dupl
 	t.Run("BasicCreatePXCClusters", func(t *testing.T) {
