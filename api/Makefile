@@ -75,7 +75,7 @@ gen-alertmanager:     # Generate Alertmanager client.
 
 	go install -v ./alertmanager/...
 
-descriptors:          ## Update API compatibility descriptors.
+descriptors:          ## Update API compatibility descriptors
 	../bin/buf build -o descriptor.bin --as-file-descriptor-set pmm
 
 clean_swagger:
