@@ -114,10 +114,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	vPG, err := getPGVersion(db.Querier)
+	vPG, err := getPGVersion(db.Querier, nil)
 	assert.NoError(t, err)
 
-	vPGSM, _, err := getPGMonitorVersion(db.Querier)
+	vPGSM, _, err := getPGMonitorVersion(db.Querier, nil)
 	assert.NoError(t, err)
 
 	_, view := newPgStatMonitorStructs(vPGSM, vPG)
