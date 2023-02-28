@@ -33,7 +33,6 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
-	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -124,8 +123,8 @@ func New(
 	platformClient *platform.Client,
 	agentsRegistry agentsRegistry,
 	alertmanagerService alertmanagerService,
-	vmAddress string,
-	clickhouseDSN string,
+	vmClient v1.API,
+	clickhouseDB *sql.DB,
 ) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
@@ -135,20 +134,10 @@ func New(
 		resendInterval = d
 	}
 
-	vmClient, err := metrics.NewClient(metrics.Config{Address: vmAddress})
-	if err != nil {
-		return nil, err
-	}
-
 	var platformPublicKeys []string
 	if k := envvars.GetPlatformPublicKeys(); k != nil {
 		l.Warnf("Percona Platform public keys changed to %q.", k)
 		platformPublicKeys = k
-	}
-
-	clickhouseDB, err := newClickhouseDB(clickhouseDSN, maxClickhouseIdleConnections, maxClickhouseOpenConnections)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create clickhouse connection")
 	}
 
 	s := &Service{
@@ -156,7 +145,7 @@ func New(
 		agentsRegistry:      agentsRegistry,
 		alertmanagerService: alertmanagerService,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
-		vmClient:            v1.NewAPI(vmClient),
+		vmClient:            vmClient,
 		clickhouseDB:        clickhouseDB,
 
 		l:                  l,
@@ -194,20 +183,6 @@ func New(
 	}
 
 	return s, nil
-}
-
-// newClickhouseDB return a new Clickhouse db.
-func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
-	db, err := sql.Open("clickhouse", dsn)
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
-	}
-
-	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(maxIdleConns)
-	db.SetMaxOpenConns(maxOpenConns)
-
-	return db, nil
 }
 
 // Run runs main service loops.
