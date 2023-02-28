@@ -36,6 +36,7 @@ import (
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
 	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
+	DisableImagePull   bool   `help:"Do not pull new version of the Docker image"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
@@ -81,10 +82,14 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		return nil, err
 	}
 
-	logrus.Infof("Downloading %q", c.DockerImage)
-	res, err := c.pullImage(ctx, globals)
-	if res != nil || err != nil {
-		return res, err
+	if !c.DisableImagePull {
+		logrus.Infof("Downloading %q", c.DockerImage)
+		res, err := c.pullImage(ctx, globals)
+		if res != nil || err != nil {
+			return res, err
+		}
+	} else {
+		logrus.Infof("Download of latest Docker image %q is disabled", c.DockerImage)
 	}
 
 	containerID, err := c.runContainer(ctx, volume, c.DockerImage)
