@@ -26,10 +26,10 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/pmm/inventorypb"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.

@@ -35,7 +35,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 type testServer struct {

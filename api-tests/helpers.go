@@ -26,10 +26,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
 )
 
 type ErrorResponse interface {

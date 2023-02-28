@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client"
+	proxysql "github.com/percona/pmm/api/pmm/managementpb/json/client/proxy_sql"
 )
 
 var addProxySQLResultT = commands.ParseTemplate(`

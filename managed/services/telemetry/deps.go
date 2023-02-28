@@ -22,7 +22,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 
-	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/pmm/serverpb"
 )
 
 //go:generate ../../../bin/mockery -name=distributionUtilService -case=snake -inpkg -testonly

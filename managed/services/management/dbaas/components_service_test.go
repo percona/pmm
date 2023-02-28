@@ -33,7 +33,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"

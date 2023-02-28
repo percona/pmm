@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	"github.com/percona/pmm/api/pmm/serverpb/json/client/server"
 )
 
 func TestVersion(t *testing.T) {

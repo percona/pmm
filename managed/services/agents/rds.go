@@ -23,8 +23,8 @@ import (
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )

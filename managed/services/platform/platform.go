@@ -29,7 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/platformpb"
+	"github.com/percona/pmm/api/pmm/platformpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/platform"

@@ -19,10 +19,10 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	inventoryClient "github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client/service"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`

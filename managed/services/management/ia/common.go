@@ -29,9 +29,9 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/managementpb"
-	alerting "github.com/percona/pmm/api/managementpb/alerting"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/pmm/api/pmm/managementpb"
+	alerting "github.com/percona/pmm/api/pmm/managementpb/alerting"
+	iav1beta1 "github.com/percona/pmm/api/pmm/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 )
 

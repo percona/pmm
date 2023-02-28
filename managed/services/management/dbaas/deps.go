@@ -28,7 +28,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 

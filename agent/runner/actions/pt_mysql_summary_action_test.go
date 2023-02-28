@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 func TestPTMySQLSummaryActionRun(t *testing.T) {

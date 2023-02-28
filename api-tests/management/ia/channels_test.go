@@ -25,9 +25,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
+	alertingClient "github.com/percona/pmm/api/pmm/managementpb/alerting/json/client"
+	channelsClient "github.com/percona/pmm/api/pmm/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/pmm/managementpb/ia/json/client/channels"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results

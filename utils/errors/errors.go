@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/pmm/serverpb"
 )
 
 // PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler

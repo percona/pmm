@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
 )

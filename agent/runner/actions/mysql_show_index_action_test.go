@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 func TestMySQLShowIndex(t *testing.T) {

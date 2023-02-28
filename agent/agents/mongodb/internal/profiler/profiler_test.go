@@ -36,8 +36,8 @@ import (
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 )
 
 type MongoVersion struct {

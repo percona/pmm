@@ -20,8 +20,8 @@ package models
 import (
 	"time"
 
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
+	qanpb "github.com/percona/pmm/api/pmm/qanpb"
 )
 
 const queryTimeout = 30 * time.Second

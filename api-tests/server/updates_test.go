@@ -27,8 +27,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/pmm/serverpb/json/client"
+	"github.com/percona/pmm/api/pmm/serverpb/json/client/server"
 )
 
 func TestCheckUpdates(t *testing.T) {

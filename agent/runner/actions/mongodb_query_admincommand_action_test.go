@@ -28,7 +28,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 func TestMongoDBActions(t *testing.T) {

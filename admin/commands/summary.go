@@ -38,10 +38,10 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
-	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/inventorypb/types"
-	"github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	agents_info "github.com/percona/pmm/api/pmm/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/pmm/inventorypb/types"
+	"github.com/percona/pmm/api/pmm/serverpb/json/client"
+	"github.com/percona/pmm/api/pmm/serverpb/json/client/server"
 	"github.com/percona/pmm/version"
 )
 

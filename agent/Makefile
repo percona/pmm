@@ -33,8 +33,12 @@ release:                        ## Build static pmm-agent release binary (Linux 
 release-dev:
 	env CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
 
-gen:                            ## Generate files.
+gen: clean                      ## Generate files.
 	go generate ./...
+
+clean:                          ## Remove generated files.
+	find . -name *_reform.go -delete
+	find . -name mock_*.go -delete
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:

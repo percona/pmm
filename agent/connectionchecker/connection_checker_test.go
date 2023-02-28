@@ -26,8 +26,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 )
 
 func TestConnectionChecker(t *testing.T) {

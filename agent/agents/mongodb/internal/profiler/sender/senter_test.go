@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 type testWriter struct {

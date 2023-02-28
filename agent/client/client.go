@@ -43,7 +43,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 )

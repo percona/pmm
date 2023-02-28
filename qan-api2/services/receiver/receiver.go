@@ -22,7 +22,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/pmm/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 	"github.com/percona/pmm/qan-api2/utils/logger"
 )

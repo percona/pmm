@@ -29,7 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )

@@ -33,7 +33,7 @@ import (
 	"gopkg.in/reform.v1"
 	corev1 "k8s.io/api/core/v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )

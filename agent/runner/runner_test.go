@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 // assertActionResults checks expected results in any order.

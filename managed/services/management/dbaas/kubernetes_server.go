@@ -34,7 +34,7 @@ import (
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"
@@ -172,10 +172,10 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			// if err != nil {
 			// 	return
 			// }
-			//version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
-			//if err != nil {
+			// version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			// if err != nil {
 			//	return
-			//}
+			// }
 			// clusters[i].Operators.Dbaas.Version = version
 			// clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)

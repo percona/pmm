@@ -29,9 +29,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
+	qanpb "github.com/percona/pmm/api/pmm/qanpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"

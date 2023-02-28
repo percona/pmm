@@ -28,7 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
+	azurev1beta1 "github.com/percona/pmm/api/pmm/managementpb/azure"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 )

@@ -30,8 +30,8 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/api/pmm/inventorypb"
+	backuppb "github.com/percona/pmm/api/pmm/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/agents"

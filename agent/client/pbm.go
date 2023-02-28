@@ -24,7 +24,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 )
 
 const pbmBin = "pbm"

@@ -1,0 +1,43 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/percona/pmm/api/pmm
+    except:
+      - buf.build/googleapis/googleapis
+      - buf.build/grpc-ecosystem/grpc-gateway
+      - buf.build/percona/third_party
+
+plugins:
+  - name: go
+    path: ../bin/protoc-gen-go
+    out: pmm
+    opt:
+      - paths=source_relative
+
+  - name: go-grpc
+    path: ../bin/protoc-gen-go-grpc
+    out: pmm
+    opt:
+      - paths=source_relative
+
+  - name: grpc-gateway
+    path: ../bin/protoc-gen-grpc-gateway
+    out: pmm
+    opt:
+      - paths=source_relative
+
+  - name: govalidators
+    path: ../bin/protoc-gen-govalidators
+    out: pmm
+    opt:
+      - paths=source_relative
+      - lang=go
+      - gogoimport=false
+
+  - name: openapiv2
+    out: pmm
+    path: ../bin/protoc-gen-openapiv2
+    opt:
+      - simple_operation_ids=true
+      - json_names_for_fields=false

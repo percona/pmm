@@ -23,12 +23,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/api/pmm/inventorypb"
+	inventoryClient "github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client/node"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.

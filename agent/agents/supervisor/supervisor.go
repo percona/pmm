@@ -42,9 +42,9 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/agentlocalpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 )
 
 // configGetter allows for getting a config.

@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client"
+	mongodb "github.com/percona/pmm/api/pmm/managementpb/json/client/mongo_db"
 )
 
 const (

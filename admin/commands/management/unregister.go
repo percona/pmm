@@ -20,8 +20,8 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
 )
 
 type unregisterResult struct {

@@ -29,7 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/pmm/inventorypb"
 )
 
 // assertStates checks expected statuses in the same order.

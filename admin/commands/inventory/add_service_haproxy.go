@@ -17,8 +17,8 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
 )
 
 var addHAProxyServiceResultT = commands.ParseTemplate(`

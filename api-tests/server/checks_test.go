@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	managementClient "github.com/percona/pmm/api/pmm/managementpb/json/client"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client/security_checks"
+	serverClient "github.com/percona/pmm/api/pmm/serverpb/json/client"
+	"github.com/percona/pmm/api/pmm/serverpb/json/client/server"
 )
 
 func TestStartChecks(t *testing.T) {

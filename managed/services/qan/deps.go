@@ -20,7 +20,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/pmm/qanpb"
 )
 
 //go:generate ../../../bin/mockery -name=qanCollectorClient  -case=snake -inpkg -testonly

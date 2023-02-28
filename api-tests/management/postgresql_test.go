@@ -24,13 +24,13 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
-	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	inventoryClient "github.com/percona/pmm/api/pmm/inventorypb/json/client"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client/node"
+	postgresql "github.com/percona/pmm/api/pmm/managementpb/json/client/postgre_sql"
+	"github.com/percona/pmm/api/pmm/managementpb/json/client/service"
 )
 
 func TestAddPostgreSQL(t *testing.T) {

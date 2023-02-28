@@ -40,7 +40,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/pmm/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
