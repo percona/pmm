@@ -74,9 +74,6 @@ const (
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
-
-	maxClickhouseOpenConnections = 10
-	maxClickhouseIdleConnections = 5
 )
 
 // pmm-agent versions with known changes in Query Actions.
@@ -125,7 +122,7 @@ func New(
 	alertmanagerService alertmanagerService,
 	vmClient v1.API,
 	clickhouseDB *sql.DB,
-) (*Service, error) {
+) *Service {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
@@ -182,7 +179,7 @@ func New(
 		s.startDelay = 0
 	}
 
-	return s, nil
+	return s
 }
 
 // Run runs main service loops.
@@ -1058,7 +1055,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 		NodeName:    target.NodeName,
 	}
 
-	q, err := fillQueryPlaceholders(query.Query, queryData, target)
+	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1099,7 +1096,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 		NodeName:    target.NodeName,
 	}
 
-	q, err := fillQueryPlaceholders(query.Query, queryData, target)
+	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1165,7 +1162,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 		ServiceID:   target.ServiceID,
 	}
 
-	query, err := fillQueryPlaceholders(checkQuery.Query, queryData, target)
+	query, err := fillQueryPlaceholders(checkQuery.Query, queryData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1213,7 +1210,7 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	return res, nil
 }
 
-func fillQueryPlaceholders(query string, data interface{}, target services.Target) (string, error) {
+func fillQueryPlaceholders(query string, data interface{}) (string, error) {
 	tm, err := template.New("query").Parse(query)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse query")

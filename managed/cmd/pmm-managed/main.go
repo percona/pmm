@@ -26,7 +26,7 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"net/url"
 	"os"
 	"os/signal"
@@ -822,15 +822,12 @@ func main() {
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
 
-	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxIdleConns)
+	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService, err := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
-	if err != nil {
-		l.Fatalf("Could not create checks service: %s", err)
-	}
+	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
 
 	prom.MustRegister(checksService)
 
