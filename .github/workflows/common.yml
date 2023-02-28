@@ -66,6 +66,9 @@ jobs:
       - name: Install development tools
         run: make init
 
+      - name: Generate files
+        run: make gen
+
       - name: Check build
         run: make release
 
