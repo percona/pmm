@@ -64,7 +64,7 @@ func TestNextPrefix(t *testing.T) {
 
 func TestAuthServerMustSetup(t *testing.T) {
 	t.Run("MustCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -107,7 +107,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("MustNotCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -133,7 +133,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("SkipNonUI", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/dummy", nil)
+		req, err := http.NewRequest(http.MethodGet, "/dummy", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -169,7 +169,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, checker, nil)
 
-	req, err := http.NewRequest("GET", "/dummy", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
 	req.SetBasicAuth("admin", "admin")
 	authHeaders := req.Header
@@ -177,7 +177,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("GrafanaAdminFallback", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequest("GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
@@ -188,7 +188,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("NoAnonymousAccess", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequest("GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
 		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
@@ -249,7 +249,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequest("GET", uri, nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
