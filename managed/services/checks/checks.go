@@ -48,6 +48,7 @@ import (
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/signatures"
 	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/utils/sqlrows"
 	"github.com/percona/pmm/version"
 )
 
@@ -1199,32 +1200,10 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute query")
 	}
-	defer rows.Close()
-	columns, err := rows.Columns()
+
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read query results")
-	}
-
-	var dataRows [][]interface{}
-
-	for rows.Next() {
-		dest := make([]interface{}, len(columns))
-		for i := range dest {
-			var ei interface{}
-			dest[i] = &ei
-		}
-		if err = rows.Scan(dest...); err != nil {
-			s.l.Warnf("failed to scan query result: %s", err.Error())
-			continue
-		}
-		for idx, d := range dest {
-			value := *(d.(*interface{}))
-			dest[idx] = value
-			if b, ok := (value).([]byte); ok {
-				dest[idx] = string(b)
-			}
-		}
-		dataRows = append(dataRows, dest)
+		return nil, err
 	}
 
 	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
