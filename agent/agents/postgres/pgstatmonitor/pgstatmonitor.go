@@ -176,7 +176,7 @@ func getPGMonitorVersion(q *reform.Querier, l *logrus.Entry) (pgStatMonitorVersi
 		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
 	}
 
-	l.Infof("pg version is : %s", vPGSM.Core().String())
+	l.Infof("pgsm version is : %s", vPGSM.Core().String())
 
 	vPG, err := getPGVersion(q, l)
 	if err != nil {

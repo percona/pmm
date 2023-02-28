@@ -180,7 +180,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 	var selectCMDType, insertCMDType string
 	var mPlansCallsCnt, mPlansTimeCnt float32
-	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
+	pgsmVersion, _, err := getPGMonitorVersion(db.Querier, nil)
 	assert.NoError(t, err)
 	switch pgsmVersion {
 	case pgStatMonitorVersion06:

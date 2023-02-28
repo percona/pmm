@@ -107,6 +107,8 @@ type field struct {
 	pointer interface{}
 }
 
+//bucket |   bucket_start_time    | userid |   user   | dbid  |      datname       | client_ip |    pgsm_query_id    |       queryid       | toplevel | top_queryid |         query          | comments | planid | query_plan | top_query | application_name | relations | cmd_type | cmd_type_text | elevel | sqlcode |             message              | calls | total_exec_time | min_exec_time | max_exec_time | mean_exec_time | stddev_exec_time | rows | shared_blks_hit | shared_blks_read | shared_blks_dirtied | shared_blks_written | local_blks_hit | local_blks_read | local_blks_dirtied | local_blks_written | temp_blks_read | temp_blks_written | blk_read_time | blk_write_time | temp_blk_read_time | temp_blk_write_time |                  resp_calls                   | cpu_user_time | cpu_sys_time | wal_records | wal_fpi | wal_bytes | bucket_done | plans | total_plan_time | min_plan_time | max_plan_time | mean_plan_time | stddev_plan_time | jit_functions | jit_generation_time | jit_inlining_count | jit_inlining_time | jit_optimization_count | jit_optimization_time | jit_emission_count | jit_emission_time
+
 func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
 	s := &pgStatMonitor{}
 	fields := []field{
@@ -174,14 +176,10 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "Sqlcode", Type: "*string", Column: "sqlcode"}, pointer: &s.Sqlcode},
 			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message})
 	}
-	if vPGSM >= pgStatMonitorVersion09 && vPG >= 13 {
-		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
-			field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
-			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
-	}
 	if vPGSM >= pgStatMonitorVersion20PG12 {
-		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID})
+		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID},
+			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls},
+			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID})
 	} else {
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
@@ -201,11 +199,23 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "MaxTime", Type: "float64", Column: "max_exec_time"}, pointer: &s.MaxTime},
 			field{info: parse.FieldInfo{Name: "MeanTime", Type: "float64", Column: "mean_exec_time"}, pointer: &s.MeanTime},
 			field{info: parse.FieldInfo{Name: "StddevTime", Type: "float64", Column: "stddev_exec_time"}, pointer: &s.StddevTime},
-			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls},
 			field{info: parse.FieldInfo{Name: "PlanTotalTime", Type: "float64", Column: "total_plan_time"}, pointer: &s.PlanTotalTime},
 			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "min_plan_time"}, pointer: &s.PlanMinTime},
 			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.PlanMaxTime},
 			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.PlanMeanTime})
+
+		if vPGSM >= pgStatMonitorVersion09 {
+			fields = append(fields,
+				field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
+				field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
+				field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
+		}
+
+		if vPGSM >= pgStatMonitorVersion20PG12 {
+			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls})
+		} else {
+			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
+		}
 	}
 
 	s.pointers = make([]interface{}, len(fields))
