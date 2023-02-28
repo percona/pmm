@@ -81,6 +81,4 @@ format:               ## Format source code.
 
 
 
-descriptors:          ## Update API compatibility descriptors.
-	#./prototool break descriptor-set . -o api/api.descriptor
-	bin/buf build -o descriptor.bin --as-file-descriptor-set api
+
