@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package run
+package upgrade
 
 import (
 	"context"
@@ -21,24 +21,16 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-//go:generate ../../../../bin/mockery -name=containerManager -case=snake -inpkg -testonly
-
-// containerManager contain methods required to interact with Docker containers.
 type containerManager interface {
 	imageManager
 
-	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
 	ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error
 	ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error)
-	FindServerContainers(ctx context.Context) ([]types.Container, error)
-	GetDockerClient() *client.Client
-	HaveDockerAccess(ctx context.Context) bool
 	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)
 	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
 }

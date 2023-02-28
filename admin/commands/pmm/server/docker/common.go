@@ -34,11 +34,11 @@ func startPMMServer(
 	env []string,
 ) (string, error) {
 	if volume == nil && volumesFromContainerID == "" {
-		logrus.Panic("Both volume and volumesFromContainer are empty")
+		logrus.Panic("Both volume and volumesFromContainerID are empty")
 	}
 
 	if volume != nil && volumesFromContainerID != "" {
-		logrus.Panic("Both volume and volumesFromContainer are defined")
+		logrus.Panic("Both volume and volumesFromContainerID are defined")
 	}
 
 	hostConfig := &container.HostConfig{

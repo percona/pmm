@@ -18,35 +18,30 @@ package run
 import (
 	"context"
 	"fmt"
-	"net"
-	"os"
-	"time"
+	"path/filepath"
+	"runtime"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	channelz "google.golang.org/grpc/channelz/service"
-	"google.golang.org/grpc/reflection"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/apiserver"
 	"github.com/percona/pmm/admin/pkg/docker"
-	"github.com/percona/pmm/admin/services/status"
-	"github.com/percona/pmm/admin/services/update"
-	"github.com/percona/pmm/api/updatepb"
+	"github.com/percona/pmm/admin/pkg/selfupdate"
+	"github.com/percona/pmm/admin/pkg/upgrade"
 )
 
-const (
-	gRPCMessageMaxSize = 100 * 1024 * 1024
-	socketPath         = "/srv/pmm-server-upgrade.sock"
-	shutdownTimeout    = 1 * time.Second
-)
+const gRPCMessageMaxSize = 100 * 1024 * 1024
 
 // RunCommand is used by Kong for CLI flags and commands.
 type RunCommand struct {
-	DockerImage string `default:"percona/pmm-server:2" help:"Docker image to use for updating to the latest version"`
+	DockerImage string `group:"PMM Server upgrade" default:"percona/pmm-server:2" help:"Docker image to use for updating PMM to the latest version"`
+
+	DisableSelfUpdate             bool   `group:"Self update" help:"Disables self-update of pmm-server-upgrade"`
+	SelfUpdateDockerImage         string `group:"Self update" default:"percona/pmm-server-upgrade:2" help:"Docker image to use for self-updating pmm-server-upgrade"`
+	SelfUpdateDisableImagePull    bool   `group:"Self update" help:"Disables pulling a new docker image of pmm-server-upgrade before self-update"`
+	SelfUpdateTriggerOnStart      bool   `group:"Self update" help:"Trigger self-update check on start" `
+	SelfUpdateContainerNamePrefix string `group:"Self update" default:"pmm-server-upgrade" help:"Container name prefix to use when creating a new container"`
 
 	docker  containerManager
 	globals *flags.GlobalFlags
@@ -70,6 +65,8 @@ func (c *RunCommand) BeforeApply() error {
 
 // RunCmdWithContext runs command
 func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
+	c.configureLogger()
+
 	logrus.Info("Starting PMM Server Upgrade")
 
 	c.globals = globals
@@ -87,74 +84,50 @@ func (c *RunCommand) RunCmdWithContext(ctx context.Context, globals *flags.Globa
 		return nil, fmt.Errorf("cannot access Docker. Make sure this container has access to the Docker socket")
 	}
 
-	c.runAPIServer(ctx)
+	upgrader := upgrade.New(c.DockerImage, gRPCMessageMaxSize)
+
+	// API server
+	server := apiserver.New(ctx, upgrader, gRPCMessageMaxSize)
+	server.EnableDebug = c.globals.EnableDebug
+	server.Start(ctx)
+
+	// Self update
+	if !c.DisableSelfUpdate {
+		updater := selfupdate.New(
+			c.docker,
+			c.SelfUpdateDockerImage,
+			c.SelfUpdateDisableImagePull,
+			server,
+			c.SelfUpdateTriggerOnStart,
+			c.SelfUpdateContainerNamePrefix,
+			upgrader)
+		updater.Start(ctx)
+	}
+
+	<-ctx.Done()
 
 	return &runResult{}, nil
 }
 
-func (c *RunCommand) runAPIServer(ctx context.Context) {
-	l := logrus.WithField("component", "local-server/gRPC")
+func (c *RunCommand) configureLogger() {
+	// Set custom logrus formatter for this command
+	logrus.SetFormatter(&logrus.TextFormatter{
+		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
+		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
-	gRPCServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_validator.UnaryServerInterceptor(),
-		)),
-	)
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			_, function = filepath.Split(f.Function)
 
-	u, err := update.New(ctx, c.DockerImage, gRPCMessageMaxSize)
-	if err != nil {
-		l.Fatal(err)
-	}
+			// keep a single directory name as a compromise between brevity and unambiguity
+			var dir string
+			dir, file = filepath.Split(f.File)
+			dir = filepath.Base(dir)
+			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
 
-	updatepb.RegisterStatusServer(gRPCServer, status.New())
-	updatepb.RegisterUpdateServer(gRPCServer, u)
-
-	if c.globals.EnableDebug {
-		l.Debug("Reflection and channelz are enabled")
-		reflection.Register(gRPCServer)
-		channelz.RegisterChannelzServiceToServer(gRPCServer)
-	}
-
-	// run server until it is stopped gracefully
-	go func() {
-		var err error
-		for {
-			l.Infof("Starting gRPC server on unix://%s", socketPath)
-			err = os.Remove(socketPath)
-			if err != nil && !errors.Is(err, os.ErrNotExist) {
-				l.Panic(err)
-			}
-
-			var listener net.Listener
-			listener, err = net.Listen("unix", socketPath)
-			if err != nil {
-				l.Panic(err)
-			}
-
-			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
-			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
-				break
-			}
-		}
-		if err != nil {
-			l.Errorf("Failed to serve: %s", err)
 			return
-		}
-		l.Debug("Server stopped")
-	}()
-
-	<-ctx.Done()
-
-	// Try to stop server gracefully or force the stop after a timeout.
-	stopped := make(chan struct{})
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	go func() {
-		<-shutdownCtx.Done()
-		gRPCServer.Stop()
-		close(stopped)
-	}()
-	gRPCServer.GracefulStop()
-	shutdownCancel()
-	<-stopped
+		},
+	})
 }
