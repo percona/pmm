@@ -107,17 +107,12 @@ func TestKubernetesServer(t *testing.T) {
 		require.Empty(t, clusters.KubernetesClusters)
 
 		kubeconfig := "preferences: {}\n"
-		dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, mock.Anything).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-			Operators: &controllerv1beta1.Operators{
-				PxcOperatorVersion:   "",
-				PsmdbOperatorVersion: onePointEight,
-			},
-			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-		}, nil)
 
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
 		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -171,6 +166,7 @@ func TestKubernetesServer(t *testing.T) {
 			},
 		}
 
+		// These 2 lines below will fail if you don't run the entire test suit since they depend on previous tests to set the values.
 		assert.Equal(t, expected[0].Operators, clusters.KubernetesClusters[0].Operators)
 		assert.Equal(t, expected[0].KubernetesClusterName, clusters.KubernetesClusters[0].KubernetesClusterName)
 		assert.True(

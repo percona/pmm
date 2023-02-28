@@ -45,8 +45,6 @@ type dbaasClient interface {
 	Connect(ctx context.Context) error
 	// Disconnect disconnects the client from dbaas-controller API.
 	Disconnect() error
-	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
-	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// GetLogs gets logs out of cluster containers and events out of pods.
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.

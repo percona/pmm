@@ -111,18 +111,6 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
-// CheckKubernetesClusterConnection checks connection with kubernetes cluster.
-func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) { //nolint:unparam
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	in := &controllerv1beta1.CheckKubernetesClusterConnectionRequest{
-		KubeAuth: &controllerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-	}
-	return c.kubernetesClient.CheckKubernetesClusterConnection(ctx, in)
-}
-
 // GetLogs gets logs out of cluster containers and events out of pods.
 func (c *Client) GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error) {
 	c.connM.RLock()

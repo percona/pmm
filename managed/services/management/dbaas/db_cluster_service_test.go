@@ -37,11 +37,9 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
-	pmmversion "github.com/percona/pmm/version"
 )
 
-const (
-	dbKubeconfigTest = `
+const dbKubeconfigTest = `
 {
 	"apiVersion": "v1",
 	"kind": "Config",
@@ -74,33 +72,24 @@ const (
 	"current-context": "svcs-acct-context"
 }
 `
-	dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
 
-	version230 = "2.30.0"
+const (
+	dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
+	version230                  = "2.30.0"
 )
 
 func TestDBClusterService(t *testing.T) {
-	if pmmversion.PMMVersion == "" {
-		pmmversion.PMMVersion = version230
-	}
-
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		kubeClient *mockKubernetesClient, teardown func(t *testing.T),
-	) {
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, kubernetesClient *mockKubernetesClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-
-		// To enable verbose queries output use:
-		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
+		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
-		kubeClient = &mockKubernetesClient{}
+		kubernetesClient = &mockKubernetesClient{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -116,43 +105,29 @@ func TestDBClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "1.11.0",
-			PsmdbOperatorVersion: "1.11.0",
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
-
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
-	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
-	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+	clients := map[string]kubernetesClient{
+		dbKubernetesClusterNameTest: kubeClient,
+	}
 
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: dbKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: dbKubeconfigTest},
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
-	clients := map[string]kubernetesClient{
-		dbKubernetesClusterNameTest: kubeClient,
-	}
-
 	t.Run("BasicListPXCClusters", func(t *testing.T) {
-		dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-			Operators: &controllerv1beta1.Operators{
-				PxcOperatorVersion:   "",
-				PsmdbOperatorVersion: "",
-			},
-			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-		}, nil)
-		// s := NewDBClusterService(db, grafanaClient, kubeClient, versionService)
 		cs := NewDBClusterService(db, grafanaClient, versionService)
 		s := cs.(*DBClusterService)
 		s.kubeStorage.clients = clients

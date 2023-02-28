@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -121,23 +120,21 @@ func TestPSMDBClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   onePointEight,
-			PsmdbOperatorVersion: "",
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
+	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
+	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
+	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
-	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
-	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
-	// dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 
+	clients := map[string]kubernetesClient{
+		psmdbKubernetesClusterNameTest: kubeClient,
+	}
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: psmdbKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: psmdbKubeconfTest},
@@ -145,9 +142,6 @@ func TestPSMDBClusterService(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 	versionService = NewVersionServiceClient(versionServiceURL)
-	clients := map[string]kubernetesClient{
-		psmdbKubernetesClusterNameTest: kubeClient,
-	}
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {

@@ -24,7 +24,6 @@ import (
 	"github.com/google/uuid"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -55,7 +54,7 @@ func TestComponentService(t *testing.T) {
 	)
 
 	setup := func(t *testing.T) (ctx context.Context, cs dbaasv1beta1.ComponentsServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient,
-		kubeStorage kubeStorageManager,
+		kubeStorage *mockKubeStorageManager,
 	) {
 		t.Helper()
 
@@ -90,12 +89,10 @@ func TestComponentService(t *testing.T) {
 
 	t.Run("PXC", func(t *testing.T) {
 		t.Run("BasicGet", func(t *testing.T) {
-			ctx, cs, dbaasClient, _, _ := setup(t)
-
-			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
-				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-			}, nil)
+			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
+			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			pxcComponents, err := cs.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -114,12 +111,10 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Change", func(t *testing.T) {
-			ctx, cs, dbaasClient, _, _ := setup(t)
-
-			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{PxcOperatorVersion: onePointSeven},
-				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-			}, nil)
+			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
+			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePXCComponents(ctx, &dbaasv1beta1.ChangePXCComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -171,6 +166,7 @@ func TestComponentService(t *testing.T) {
 				pxcComponents, err := cs.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
 					KubernetesClusterName: clusterName,
 				})
+
 				require.NoError(t, err)
 				require.NotNil(t, pxcComponents)
 
@@ -225,12 +221,10 @@ func TestComponentService(t *testing.T) {
 
 	t.Run("PSMDB", func(t *testing.T) {
 		t.Run("BasicGet", func(t *testing.T) {
-			ctx, cs, dbaasClient, _, _ := setup(t)
-
-			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{PsmdbOperatorVersion: onePointSix},
-				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-			}, nil)
+			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
+			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			psmdbComponents, err := cs.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -249,12 +243,10 @@ func TestComponentService(t *testing.T) {
 		})
 
 		t.Run("Change", func(t *testing.T) {
-			ctx, cs, dbaasClient, _, _ := setup(t)
-
-			dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-				Operators: &controllerv1beta1.Operators{PsmdbOperatorVersion: onePointSix},
-				Status:    controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-			}, nil)
+			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
+			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePSMDBComponents(ctx, &dbaasv1beta1.ChangePSMDBComponentsRequest{
 				KubernetesClusterName: clusterName,
@@ -727,13 +719,10 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
 		clusterName := "update-available"
-		_, cs, dbaasClient, kubeClient, _ := setup(t, clusterName, response, "9873")
-		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-			Operators: &controllerv1beta1.Operators{
-				PsmdbOperatorVersion: onePointSeven,
-				PxcOperatorVersion:   onePointSeven,
-			},
-		}, nil)
+		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "9873")
+		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -783,13 +772,10 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
 		clusterName := "update-not-available"
-		_, cs, dbaasClient, kubeClient, _ := setup(t, clusterName, response, "7895")
-		dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-			Operators: &controllerv1beta1.Operators{
-				PsmdbOperatorVersion: onePointEight,
-				PxcOperatorVersion:   onePointEight,
-			},
-		}, nil)
+		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "7895")
+		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -838,28 +824,56 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		assert.Equal(t, "", cluster.ComponentToUpdateInformation[psmdbOperator].AvailableVersion)
 		assert.Equal(t, "", cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
 	})
-	// t.Run("User's operators version is ahead of version service", func(t *testing.T) {
-	// 	clusterName := "update-available-pmm-update"
-	// 	_, cs, dbaasClient := setup(t, clusterName, response, "5863", defaultPXCVersion, defaultPSMDBVersion)
-	// 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, "{}").Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-	// 		Operators: &controllerv1beta1.Operators{
-	// 			PsmdbOperatorVersion: onePointNine,
-	// 			PxcOperatorVersion:   onePointNine,
-	// 		},
-	// 	}, nil)
-
-	// 	mockSubscriptions := &controllerv1beta1.ListSubscriptionsResponse{
-	// 		Items: []*controllerv1beta1.ListSubscriptionsResponse_Subscription{},
-	// 	}
-	// 	dbaasClient.On("ListSubscriptions", mock.Anything, mock.Anything).Return(mockSubscriptions, nil)
-	// 	resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
-	// 	require.NoError(t, err)
-	// 	cluster := resp.ClusterToComponents[clusterName]
-	// 	require.NotNil(t, cluster)
-	// 	require.NotNil(t, cluster.ComponentToUpdateInformation)
-	// 	require.NotNil(t, cluster.ComponentToUpdateInformation[psmdbOperator])
-	// 	require.NotNil(t, cluster.ComponentToUpdateInformation[pxcOperator])
-	// 	assert.Equal(t, "", cluster.ComponentToUpdateInformation[psmdbOperator].AvailableVersion)
-	// 	assert.Equal(t, "", cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
-	// })
+	t.Run("User's operators version is ahead of version service", func(t *testing.T) {
+		clusterName := "update-available-pmm-update"
+		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5863")
+		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+		mockSubscriptions := &v1alpha1.SubscriptionList{
+			Items: []v1alpha1.Subscription{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "space-x",
+						Name:      "psmdb-operator",
+					},
+					Spec: &v1alpha1.SubscriptionSpec{
+						Package:       "percona-server-mongodb-operator",
+						CatalogSource: "src",
+						Channel:       "nat-geo",
+					},
+					Status: v1alpha1.SubscriptionStatus{
+						CurrentCSV:   "percona-server-mongodb-operator-v1.8.0",
+						InstalledCSV: "percona-server-mongodb-operator-v1.8.0",
+					},
+				},
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "space-x",
+						Name:      "pxc-operator",
+					},
+					Spec: &v1alpha1.SubscriptionSpec{
+						Package:       "percona-xtradb-cluster-operator",
+						CatalogSource: "src",
+						Channel:       "nat-geo",
+					},
+					Status: v1alpha1.SubscriptionStatus{
+						CurrentCSV:   "percona-xtradb-cluster-operator-v1.8.0",
+						InstalledCSV: "percona-xtradb-cluster-operator-v1.8.0",
+					},
+				},
+			},
+		}
+		kubeClient.On("ListSubscriptions", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(mockSubscriptions, nil)
+		kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
+		resp, err := cs.CheckForOperatorUpdate(ctx, &dbaasv1beta1.CheckForOperatorUpdateRequest{})
+		require.NoError(t, err)
+		cluster := resp.ClusterToComponents[clusterName]
+		require.NotNil(t, cluster)
+		require.NotNil(t, cluster.ComponentToUpdateInformation)
+		require.NotNil(t, cluster.ComponentToUpdateInformation[psmdbOperator])
+		require.NotNil(t, cluster.ComponentToUpdateInformation[pxcOperator])
+		assert.Equal(t, "", cluster.ComponentToUpdateInformation[psmdbOperator].AvailableVersion)
+		assert.Equal(t, "", cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
+	})
 }

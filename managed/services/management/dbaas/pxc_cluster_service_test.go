@@ -124,17 +124,12 @@ func TestPXCClusterService(t *testing.T) {
 	versionService.On("GetVersionServiceURL", mock.Anything).Return("", nil)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", mock.Anything, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "1.11.0",
-			PsmdbOperatorVersion: onePointEight,
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
 
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -146,6 +141,12 @@ func TestPXCClusterService(t *testing.T) {
 		wg.Done()
 	})
 
+	clients := map[string]kubernetesClient{
+		pxcKubernetesClusterNameTest: kubeClient,
+	}
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: pxcKubeconfigTest},
@@ -161,9 +162,6 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
-	clients := map[string]kubernetesClient{
-		pxcKubernetesClusterNameTest: kubeClient,
-	}
 
 	//nolint:dupl
 	t.Run("BasicCreatePXCClusters", func(t *testing.T) {
