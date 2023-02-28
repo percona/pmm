@@ -1074,7 +1074,15 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 }
 
 func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillVMQueryPlaceholders(query.Query, target)
+	queryData := struct {
+		ServiceName string
+		NodeName    string
+	}{
+		ServiceName: target.ServiceName,
+		NodeName:    target.NodeName,
+	}
+
+	q, err := fillQueryPlaceholders(query.Query, queryData, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1107,7 +1115,15 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 }
 
 func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillVMQueryPlaceholders(query.Query, target)
+	queryData := struct {
+		ServiceName string
+		NodeName    string
+	}{
+		ServiceName: target.ServiceName,
+		NodeName:    target.NodeName,
+	}
+
+	q, err := fillQueryPlaceholders(query.Query, queryData, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1165,7 +1181,15 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 }
 
 func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
-	query, err := fillClickhouseQueryPlaceholders(checkQuery.Query, target)
+	queryData := struct {
+		ServiceName string
+		ServiceID   string
+	}{
+		ServiceName: target.ServiceName,
+		ServiceID:   target.ServiceID,
+	}
+
+	query, err := fillQueryPlaceholders(checkQuery.Query, queryData, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1235,41 +1259,10 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	return res, nil
 }
 
-func fillVMQueryPlaceholders(query string, target services.Target) (string, error) {
+func fillQueryPlaceholders(query string, data interface{}, target services.Target) (string, error) {
 	tm, err := template.New("query").Parse(query)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse query")
-	}
-
-	data := struct {
-		ServiceName string
-		NodeName    string
-	}{
-		ServiceName: target.ServiceName,
-		NodeName:    target.NodeName,
-	}
-
-	var b strings.Builder
-	if err = tm.Execute(&b, data); err != nil {
-		return "", errors.Wrap(err, "failed to fill query placeholders")
-	}
-
-	return b.String(), nil
-}
-
-// fillClickhouseQueryPlaceholders replace placeholders in a clickhouse query (if any) with actual values.
-func fillClickhouseQueryPlaceholders(query string, target services.Target) (string, error) {
-	tm, err := template.New("query").Parse(query)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to parse query")
-	}
-
-	data := struct {
-		ServiceName string
-		ServiceID   string
-	}{
-		ServiceName: target.ServiceName,
-		ServiceID:   target.ServiceID,
 	}
 
 	var b strings.Builder
