@@ -508,7 +508,7 @@ const (
 )
 
 func setup(t *testing.T, clusterName string, response *VersionServiceResponse, port string) (
-	*reform.Querier, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *mockKubernetesClient,
+	*reform.Querier, dbaasv1beta1.ComponentsServer, *mockKubernetesClient,
 	*mockKubeStorageManager,
 ) {
 	t.Helper()
@@ -545,7 +545,7 @@ func setup(t *testing.T, clusterName string, response *VersionServiceResponse, p
 
 	kubeStorage := &mockKubeStorageManager{}
 
-	return db.Querier, NewComponentsService(db, dbaasClient, vsc, kubeStorage), dbaasClient, kubeClient, kubeStorage
+	return db.Querier, NewComponentsService(db, dbaasClient, vsc, kubeStorage), kubeClient, kubeStorage
 }
 
 func TestInstallOperator(t *testing.T) {
@@ -607,7 +607,7 @@ func TestInstallOperator(t *testing.T) {
 	}
 
 	t.Run("Defaults not supported", func(t *testing.T) {
-		_, c, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
+		_, c, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
@@ -633,7 +633,7 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
-		db, c, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
+		db, c, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5497")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
@@ -719,7 +719,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
 		clusterName := "update-available"
-		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "9873")
+		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "9873")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
@@ -772,7 +772,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
 		clusterName := "update-not-available"
-		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "7895")
+		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "7895")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
@@ -826,7 +826,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	})
 	t.Run("User's operators version is ahead of version service", func(t *testing.T) {
 		clusterName := "update-available-pmm-update"
-		_, cs, _, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5863")
+		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5863")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
