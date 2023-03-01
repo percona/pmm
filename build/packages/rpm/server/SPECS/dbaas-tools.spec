@@ -9,6 +9,7 @@
 %global version_k8s         v1.23.7
 
 %global install_golang 1
+%global debug_package %{nil}
 
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         2
@@ -70,6 +71,9 @@ install -D -p -m 0775 _output/local/go/bin/kubectl %{buildroot}/opt/dbaas-tools/
 /opt/dbaas-tools/bin/kubectl-1.23
 
 %changelog
+* Mon Nov 21 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 0.5.7-2
+- Fix the double description warning
+
 * Wed May 04 2022 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 0.5.7-1
 - Update versions of dbaas-tools
 

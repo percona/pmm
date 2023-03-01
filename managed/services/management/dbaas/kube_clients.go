@@ -18,6 +18,7 @@ package dbaas
 import (
 	"sync"
 
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -30,6 +31,8 @@ type KubeStorage struct {
 	db      *reform.DB
 	clients map[string]kubernetesClient
 }
+
+var ErrDatabaseNotSet = errors.New("Database connection not set")
 
 // NewKubeStorage returns a created KubeStorage
 func NewKubeStorage(db *reform.DB) *KubeStorage {
@@ -47,6 +50,11 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) {
 	if ok {
 		return kubeClient, nil
 	}
+
+	if k.db == nil {
+		return nil, ErrDatabaseNotSet
+	}
+
 	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, name)
 	if err != nil {
 		return nil, err

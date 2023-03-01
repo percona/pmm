@@ -74,10 +74,10 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 	}
 	alerts, err := s.alertManager.GetAlerts(ctx, filter)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get alerts form alertmanager")
+		return nil, errors.Wrap(err, "failed to get alerts from alertmanager")
 	}
 
-	var res []*iav1beta1.Alert
+	var res []*iav1beta1.Alert //nolint:prealloc
 	for _, alert := range alerts {
 		updatedAt := timestamppb.New(time.Time(*alert.UpdatedAt))
 		if err := updatedAt.CheckValid(); err != nil {

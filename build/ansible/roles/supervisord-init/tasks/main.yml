@@ -2,7 +2,6 @@
 - name: Install supervisor         | Install supervisor 4.2.4 (3.4.0 is for CentOS 7)
   pip:
     name: supervisor==4.2.4
-
 - name: Fix supervisor      | Fix supervisor
   shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
 
