@@ -21,6 +21,7 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -100,6 +101,11 @@ func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operato
 		if version == operatorVersion {
 			return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}
+	}
+
+	allowUnsupportedOperators := os.Getenv("DBAAS_ALLOW_UNSUPPORTED_OPERATORS")
+	if boolValue, _ := strconv.ParseBool(allowUnsupportedOperators); boolValue {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 	}
 
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED
