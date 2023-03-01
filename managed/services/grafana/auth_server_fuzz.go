@@ -40,7 +40,7 @@ func Fuzz(data []byte) int {
 	var c clientStub
 	s := NewAuthServer(c, nil)
 
-	req, err := http.NewRequest("GET", string(data), nil)
+	req, err := http.NewRequest(http.MethodGet, string(data), nil)
 	if err != nil {
 		return 0
 	}
