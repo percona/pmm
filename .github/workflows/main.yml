@@ -69,7 +69,7 @@ jobs:
       - name: Generate files
         run: make gen
 
-      - name: Update API compatibility descriptors.
+      - name: Update API compatibility descriptors
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
           make -C api descriptors
