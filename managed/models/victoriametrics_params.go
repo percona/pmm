@@ -23,18 +23,28 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	// BasePrometheusConfigPath - basic path with prometheus config,
+	// that user can mount to container.
+	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
+	VMBaseURL                = "http://127.0.0.1:9090/prometheus/"
+)
+
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
 type VictoriaMetricsParams struct {
 	// VMAlertFlags additional flags for VMAlert.
 	VMAlertFlags []string
 	// BaseConfigPath defines path for basic prometheus config.
 	BaseConfigPath string
+	// URL defines URL of Victoria Metrics
+	URL string
 }
 
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
-func NewVictoriaMetricsParams(basePath string) (*VictoriaMetricsParams, error) {
+func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsParams, error) {
 	vmp := &VictoriaMetricsParams{
 		BaseConfigPath: basePath,
+		URL:            vmURL,
 	}
 	if err := vmp.UpdateParams(); err != nil {
 		return vmp, err
@@ -59,7 +69,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "cannot read baseConfigPath for VMAlertParams")
 		}
-		// fast return if users configuration doesn't exists with path
+		// fast return if users configuration doesn't exist with path
 		// /srv/prometheus/prometheus.base.yml,
 		// its maybe mounted into container by user.
 		return nil
@@ -78,4 +88,8 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	vmp.VMAlertFlags = vmalertFlags
 
 	return nil
+}
+
+func (vmp *VictoriaMetricsParams) ExternalVM() bool {
+	return vmp.URL != VMBaseURL
 }

@@ -35,11 +35,13 @@ export USER=builder
 
 make victoria-metrics-pure
 make vmalert-pure
+make vmagent-pure
 
 
 %install
 install -D -p -m 0755 ./bin/victoria-metrics-pure %{buildroot}%{_sbindir}/victoriametrics
 install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
+install -D -p -m 0755 ./bin/vmagent-pure %{buildroot}%{_sbindir}/vmagent
 
 
 %files
@@ -47,10 +49,14 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 %doc README.md
 %{_sbindir}/victoriametrics
 %{_sbindir}/vmalert
+%{_sbindir}/vmagent
 
 
 %changelog
-* Thu Oct 20 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1
+* Thu Mar 2 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 1.82.1-2
+- add vmagent to PMM Server
+
+* Thu Oct 20 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-1
 - upgrade victoriametrics to 1.82.1 release
 
 * Thu May 11 2022 Michael Okoko <michael.okoko@percona.com> - 1.77.1

@@ -428,6 +428,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
+		"VMURL":                    s.vmParams.URL,
+		"EnableVMAgent":            s.vmParams.ExternalVM(),
 		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
@@ -613,7 +615,36 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
+{{define "vmagent"}}
+{{- if .EnableVMAgent }}
+[program:vmagent]
+priority = 7
+command =
+	/usr/sbin/vmagent
+		-remoteWrite.url={{ .VMURL }}api/v1/write
+		-remoteWrite.maxDiskUsagePerURL=1073741824
+		-remoteWrite.tmpDataPath=/srv/vmagent/data
+		-promscrape.config=/etc/victoriametrics-promscrape.yml
+		-httpListenAddr=127.0.0.1:9091
+		-loggerLevel=INFO
+		-envflag.enable
+		-envflag.prefix=VMAGENT_
+user = pmm
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/vmagent.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+{{end}}
+
 {{define "victoriametrics"}}
+{{- if not .EnableVMAgent }}
 [program:victoriametrics]
 priority = 7
 command =
@@ -646,6 +677,7 @@ stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+{{end}}
 {{end}}
 
 {{define "vmalert"}}
@@ -685,7 +717,7 @@ redirect_stderr = true
 priority = 9
 command =
     /usr/sbin/vmproxy
-      --target-url=http://127.0.0.1:9090/
+      --target-url={{ .VMURL }}
       --listen-port=8430
       --listen-address=127.0.0.1
       --header-name=X-Proxy-Filter

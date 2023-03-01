@@ -16,16 +16,25 @@
 package agents
 
 import (
+	"fmt"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"os"
 	"sort"
+	"strings"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
+func vmAgentConfig(scrapeCfg string, params *models.VictoriaMetricsParams) *agentpb.SetStateRequest_AgentProcess {
+	serverURL := "{{.server_url}}/victoriametrics/"
+	if params.ExternalVM() {
+		serverURL = params.URL
+	}
 	args := []string{
-		"-remoteWrite.url={{.server_url}}/victoriametrics/api/v1/write",
+		fmt.Sprintf("-remoteWrite.url=%sapi/v1/write", serverURL),
 		"-remoteWrite.tlsInsecureSkipVerify={{.server_insecure}}",
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
@@ -35,13 +44,22 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		"-httpListenAddr=127.0.0.1:{{.listen_port}}",
 		// needed for login/password at client side.
 		"-envflag.enable=true",
+		"-envflag.prefix=VMAGENT_",
 	}
 
 	sort.Strings(args)
 
-	envs := []string{
-		"remoteWrite_basicAuth_username={{.server_username}}",
-		"remoteWrite_basicAuth_password={{.server_password}}",
+	var envs []string
+	if !params.ExternalVM() {
+		envs = []string{
+			"VMAGENT_remoteWrite_basicAuth_username={{.server_username}}",
+			"VMAGENT_remoteWrite_basicAuth_password={{.server_password}}",
+		}
+	}
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, envvars.ENVvmAgentPrefix) {
+			envs = append(envs, env)
+		}
 	}
 	sort.Strings(envs)
 

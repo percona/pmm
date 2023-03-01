@@ -43,8 +43,8 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
-	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
+	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml", URL: "http://127.0.0.1:9090/prometheus/"}
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -801,7 +801,7 @@ func TestBaseConfig(t *testing.T) {
 	db, svc, original := setup(t)
 	defer teardown(t, db, svc, original)
 
-	svc.baseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
+	svc.params.BaseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
 
 	expected := strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.

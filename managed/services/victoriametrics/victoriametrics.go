@@ -46,10 +46,7 @@ const (
 	updateBatchDelay           = time.Second
 	configurationUpdateTimeout = 3 * time.Second
 
-	// BasePrometheusConfigPath - basic path with prometheus config,
-	// that user can mount to container.
-	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
-
+	vmagentDir             = "/srv/vmagent"
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
 	dirPerm                = os.FileMode(0o775)
@@ -64,15 +61,19 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	baseConfigPath string // for testing
+	params *models.VictoriaMetricsParams
 
 	l        *logrus.Entry
 	reloadCh chan struct{}
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, params *models.VictoriaMetricsParams) (*Service, error) {
-	u, err := url.Parse(baseURL)
+func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams) (*Service, error) {
+	internalVMURL := params.URL
+	if params.ExternalVM() {
+		internalVMURL = "http://127.0.0.1:9091/"
+	}
+	u, err := url.Parse(internalVMURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -82,7 +83,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, 
 		db:               db,
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		baseConfigPath:   params.BaseConfigPath,
+		params:           params,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 	}, nil
@@ -95,12 +96,17 @@ func (svc *Service) Run(ctx context.Context) {
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
-
-	if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
-		svc.l.Error(err)
-	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
-		svc.l.Error(err)
+	if svc.params.ExternalVM() {
+		if err := dir.CreateDataDir(vmagentDir, "pmm", "pmm", dirPerm); err != nil {
+			svc.l.Error(err)
+		}
+	} else {
+		if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
+			svc.l.Error(err)
+		}
+		if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
+			svc.l.Error(err)
+		}
 	}
 
 	// reloadCh, configuration update loop, and RequestConfigurationUpdate method ensure that configuration
@@ -181,18 +187,18 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != http.StatusNoContent {
-		return errors.Errorf("expected 204, got %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
+		return errors.Errorf("expected 200 or 204, got %d", resp.StatusCode)
 	}
 	return nil
 }
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *config.Config {
-	buf, err := os.ReadFile(svc.baseConfigPath)
+	buf, err := os.ReadFile(svc.params.BaseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.baseConfigPath, err)
+			svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.params.BaseConfigPath, err)
 		}
 
 		return &config.Config{}
@@ -200,7 +206,7 @@ func (svc *Service) loadBaseConfig() *config.Config {
 
 	var cfg config.Config
 	if err := yaml.Unmarshal(buf, &cfg); err != nil {
-		svc.l.Errorf("Failed to parse base VictoriaMetrics config %s: %s.", svc.baseConfigPath, err)
+		svc.l.Errorf("Failed to parse base VictoriaMetrics config %s: %s.", svc.params.BaseConfigPath, err)
 
 		return &config.Config{}
 	}
@@ -330,7 +336,14 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR))
+		u, err := url.Parse(svc.params.URL)
+		if err != nil {
+			return err
+		}
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR, u.Host))
+		if svc.params.ExternalVM() {
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
+		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
 		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
@@ -338,7 +351,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 }
 
 // scrapeConfigForVictoriaMetrics returns scrape config for Victoria Metrics in Prometheus format.
-func scrapeConfigForVictoriaMetrics(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForVictoriaMetrics(interval time.Duration, target string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "victoriametrics",
 		ScrapeInterval: config.Duration(interval),
@@ -347,8 +360,26 @@ func scrapeConfigForVictoriaMetrics(interval time.Duration) *config.ScrapeConfig
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{"127.0.0.1:9090"},
-					Labels:  map[string]string{"instance": "pmm-server"},
+					Targets: []string{target},
+					Labels:  map[string]string{"instance": models.PMMServerAgentID},
+				},
+			},
+		},
+	}
+}
+
+// scrapeConfigForInternalVMAgent returns scrape config for internal VM Agent in Prometheus format.
+func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "vmagent",
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  ScrapeTimeout(interval),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{
+				{
+					Targets: []string{target},
+					Labels:  map[string]string{"instance": models.PMMServerAgentID},
 				},
 			},
 		},
