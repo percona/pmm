@@ -20,6 +20,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -89,6 +91,196 @@ func TestParserGolden(t *testing.T) {
 	}
 }
 
+func TestParseTime(t *testing.T) {
+	cases := []struct {
+		description string
+		input       string
+		expected    time.Time
+	}{
+		{
+			description: "Test #1",
+			input:       "Time: 180214 16:18:07",
+			expected:    time.Date(2018, time.February, 14, 16, 18, 7, 0, time.Local),
+		},
+		{
+			description: "Test #2",
+			input:       "Time: 280214 16:18:07",
+			expected:    time.Date(2028, time.February, 14, 16, 18, 7, 0, time.Local),
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.description, func(t *testing.T) {
+			p := NewSlowLogParser(nil, log.Options{})
+			p.parseTime(tc.input)
+			actual := p.event.Ts
+			if actual != tc.expected {
+				t.Fatalf("expected: %s got: %s for input: %s", tc.expected, actual, tc.input)
+			}
+		})
+	}
+}
+
+func TestParseUser(t *testing.T) {
+	type Expected struct {
+		UserName string
+		Host     string
+	}
+
+	cases := []struct {
+		description string
+		input       string
+		expected    Expected
+	}{
+		{
+			description: "Test #1",
+			input:       "User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601",
+			expected: Expected{
+				UserName: "bookblogs",
+				Host:     "localhost",
+			},
+		},
+		{
+			description: "Test #2",
+			input:       "User@Host: user[user] @ some_host []  Id: 56601",
+			expected: Expected{
+				UserName: "user",
+				Host:     "some_host",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.description, func(t *testing.T) {
+			p := NewSlowLogParser(nil, log.Options{})
+			p.parseUser(tc.input)
+			actualEvent := p.event
+			if actualEvent.User != tc.expected.UserName || actualEvent.Host != tc.expected.Host {
+				t.Fatalf("expected: %s and %s got: %s and %s for input: %s",
+					tc.expected.UserName, tc.expected.Host, actualEvent.User, actualEvent.Host, tc.input)
+			}
+		})
+	}
+}
+
+func TestParseMetrics(t *testing.T) {
+	const (
+		TimeMetrics   int = 0
+		NumberMetrics     = 1
+		BoolMetrics       = 2
+		Db                = 3
+		Rate              = 4
+	)
+
+	type Expected struct {
+		Type          int
+		TimeMetrics   map[string]float64
+		NumberMetrics map[string]uint64
+		BoolMetrics   map[string]bool
+		Db            string
+		RateType      string
+		RateLimit     uint
+	}
+
+	cases := []struct {
+		description string
+		input       string
+		expected    Expected
+	}{
+		{
+			description: "Test #1",
+			input:       "Query_time: 1.000249  Lock_time: 0.000000",
+			expected: Expected{
+				Type: TimeMetrics,
+				TimeMetrics: map[string]float64{
+					"Query_time": 1.000249,
+					"Lock_time":  0,
+				},
+			},
+		},
+		{
+			description: "Test #2",
+			input:       "Rows_sent: 1  Rows_examined: 0  Rows_affected: 0",
+			expected: Expected{
+				Type: NumberMetrics,
+				NumberMetrics: map[string]uint64{
+					"Rows_sent":     1,
+					"Rows_examined": 0,
+					"Rows_affected": 0,
+				},
+			},
+		},
+		{
+			description: "Test #3",
+			input:       "QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No",
+			expected: Expected{
+				Type: BoolMetrics,
+				BoolMetrics: map[string]bool{
+					"QC_Hit":            false,
+					"Full_scan":         true,
+					"Full_join":         false,
+					"Tmp_table":         false,
+					"Tmp_table_on_disk": false,
+				},
+			},
+		},
+		{
+			description: "Test #4",
+			input:       "Schema: maindb  Last_errno: 0  Killed: 0",
+			expected: Expected{
+				Type: Db,
+				Db:   "maindb",
+			},
+		},
+		{
+			description: "Test #5",
+			input:       "Log_slow_rate_type: query  Log_slow_rate_limit: 2",
+			expected: Expected{
+				Type:      Rate,
+				RateType:  "query",
+				RateLimit: uint(2),
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.description, func(t *testing.T) {
+			p := NewSlowLogParser(nil, log.Options{})
+			p.parseMetrics(tc.input)
+			actualEvent := p.event
+
+			switch tc.expected.Type {
+			case TimeMetrics:
+				if !reflect.DeepEqual(actualEvent.TimeMetrics, tc.expected.TimeMetrics) {
+					t.Fatalf("expected: %#v got: %#v for input: %s",
+						tc.expected.TimeMetrics, actualEvent.TimeMetrics, tc.input)
+				}
+			case NumberMetrics:
+				if !reflect.DeepEqual(actualEvent.NumberMetrics, tc.expected.NumberMetrics) {
+					t.Fatalf("expected: %#v got: %#v for input: %s",
+						tc.expected.NumberMetrics, actualEvent.NumberMetrics, tc.input)
+				}
+			case BoolMetrics:
+				if !reflect.DeepEqual(actualEvent.BoolMetrics, tc.expected.BoolMetrics) {
+					t.Fatalf("expected: %#v got: %#v for input: %s",
+						tc.expected.BoolMetrics, actualEvent.BoolMetrics, tc.input)
+				}
+			case Db:
+				if actualEvent.Db != tc.expected.Db {
+					t.Fatalf("expected: %s got: %s for input: %s",
+						tc.expected.Db, actualEvent.Db, tc.input)
+				}
+			case Rate:
+				if actualEvent.RateLimit != tc.expected.RateLimit || actualEvent.RateType != tc.expected.RateType {
+					t.Fatalf("expected %s and %s got: %s and %s for input: %s",
+						strconv.Itoa(int(tc.expected.RateLimit)), tc.expected.RateType,
+						strconv.Itoa(int(actualEvent.RateLimit)), actualEvent.RateType, tc.input)
+				}
+			}
+		})
+	}
+}
+
 func TestParserSpecial(t *testing.T) {
 	t.Parallel()
 
@@ -134,85 +326,6 @@ func TestParserSpecial(t *testing.T) {
 			},
 		}}
 		assert.Equal(t, expect, actual)
-	})
-
-	t.Run("parseTime", func(t *testing.T) {
-		t.Parallel()
-
-		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
-		require.NoError(t, err)
-		defer func() {
-			assert.NoError(t, r.Close())
-		}()
-
-		opts := log.Options{
-			DefaultLocation: time.UTC,
-		}
-		p := NewSlowLogParser(r, opts)
-
-		p.parseTime("Time: 180214 16:18:07")
-		assert.Equal(t, p.event.Ts, time.Date(2018, time.February, 14, 16, 18, 7, 0, time.UTC))
-	})
-
-	t.Run("parseUser", func(t *testing.T) {
-		t.Parallel()
-
-		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
-		require.NoError(t, err)
-		defer func() {
-			assert.NoError(t, r.Close())
-		}()
-
-		opts := log.Options{
-			DefaultLocation: time.UTC,
-		}
-		p := NewSlowLogParser(r, opts)
-		p.parseUser("User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601")
-		assert.Equal(t, p.event.User, "bookblogs")
-		assert.Equal(t, p.event.Host, "localhost")
-	})
-
-	t.Run("parseMetrics", func(t *testing.T) {
-		t.Parallel()
-
-		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
-		require.NoError(t, err)
-		defer func() {
-			assert.NoError(t, r.Close())
-		}()
-
-		opts := log.Options{
-			DefaultLocation: time.UTC,
-		}
-		p := NewSlowLogParser(r, opts)
-		p.parseMetrics("Query_time: 1.000249  Lock_time: 0.000000")
-		assert.Equal(t, p.event.TimeMetrics, map[string]float64{
-			"Query_time": 1.000249,
-			"Lock_time":  0,
-		})
-
-		p.parseMetrics("Rows_sent: 1  Rows_examined: 0  Rows_affected: 0")
-		assert.Equal(t, p.event.NumberMetrics, map[string]uint64{
-			"Rows_sent":     1,
-			"Rows_examined": 0,
-			"Rows_affected": 0,
-		})
-
-		p.parseMetrics("QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No")
-		assert.Equal(t, p.event.BoolMetrics, map[string]bool{
-			"QC_Hit":            false,
-			"Full_scan":         true,
-			"Full_join":         false,
-			"Tmp_table":         false,
-			"Tmp_table_on_disk": false,
-		})
-
-		p.parseMetrics("Schema: maindb  Last_errno: 0  Killed: 0")
-		assert.Equal(t, p.event.Db, "maindb")
-
-		p.parseMetrics("Log_slow_rate_type: query  Log_slow_rate_limit: 2")
-		assert.Equal(t, p.event.RateType, "query")
-		assert.Equal(t, p.event.RateLimit, uint(2))
 	})
 
 	t.Run("slow023", func(t *testing.T) {

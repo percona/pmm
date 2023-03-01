@@ -174,7 +174,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 		p.parseQuery(line)
 		return
 	}
-	line = line[2:] // without header prefix and space
+	line = skipPrefix(line)
 
 	if p.headerLines == 0 {
 		p.event.Offset = p.lineOffset
@@ -194,6 +194,11 @@ func (p *SlowLogParser) parseHeader(line string) {
 	default:
 		p.parseMetrics(line)
 	}
+}
+
+func skipPrefix(line string) string {
+	line = line[2:]
+	return line
 }
 
 func (p *SlowLogParser) parseTime(line string) {
