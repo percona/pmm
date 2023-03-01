@@ -17,22 +17,34 @@
 package kubernetes
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/fs"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
 )
@@ -63,13 +75,24 @@ const (
 	ContainerStateTerminated ContainerState = "terminated"
 
 	// Max size of volume for AWS Elastic Block Storage service is 16TiB.
-	maxVolumeSizeEBS uint64 = 16 * 1024 * 1024 * 1024 * 1024
+	maxVolumeSizeEBS    uint64 = 16 * 1024 * 1024 * 1024 * 1024
+	olmNamespace               = "olm"
+	useDefaultNamespace        = ""
+
+	// APIVersionCoreosV1 constant for some API requests.
+	APIVersionCoreosV1 = "operators.coreos.com/v1"
+
+	pollInterval = 1 * time.Second
+	pollDuration = 5 * time.Minute
 )
+
+// ErrEmptyVersionTag Got an empty version tag from GitHub API.
+var ErrEmptyVersionTag error = errors.New("got an empty version tag from Github")
 
 // Kubernetes is a client for Kubernetes.
 type Kubernetes struct {
 	lock       *sync.RWMutex
-	client     *client.Client
+	client     client.KubeClientConnector
 	l          *logrus.Entry
 	httpClient *http.Client
 	kubeconfig string
@@ -660,4 +683,224 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 // GetStorageClasses returns all storage classes available in the cluster.
 func (k *Kubernetes) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return k.client.GetStorageClasses(ctx)
+}
+
+// InstallOLMOperator installs the OLM in the Kubernetes cluster.
+func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
+	deployment, err := k.client.GetDeployment(ctx, "olm-operator")
+	if err == nil && deployment != nil && deployment.ObjectMeta.Name != "" {
+		return nil // already installed
+	}
+
+	var crdFile, olmFile, perconaCatalog []byte
+
+	crdFile, err = fs.ReadFile(data.OLMCRDs, "crds/olm/crds.yaml")
+	if err != nil {
+		return errors.Wrapf(err, "failed to read OLM CRDs file")
+	}
+
+	if err := k.client.ApplyFile(crdFile); err != nil {
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
+	}
+
+	olmFile, err = fs.ReadFile(data.OLMCRDs, "crds/olm/olm.yaml")
+	if err != nil {
+		return errors.Wrapf(err, "failed to read OLM file")
+	}
+
+	if err := k.client.ApplyFile(olmFile); err != nil {
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
+	}
+
+	perconaCatalog, err = fs.ReadFile(data.OLMCRDs, "crds/olm/percona-dbaas-catalog.yaml")
+	if err != nil {
+		return errors.Wrapf(err, "failed to read percona catalog yaml file")
+	}
+
+	if err := k.client.ApplyFile(perconaCatalog); err != nil {
+		return errors.Wrapf(err, "cannot apply %q file", crdFile)
+	}
+
+	if err := k.client.DoRolloutWait(ctx, types.NamespacedName{Namespace: olmNamespace, Name: "olm-operator"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
+	}
+	if err := k.client.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "catalog-operator"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
+	}
+
+	crdResources, err := decodeResources(crdFile)
+	if err != nil {
+		return errors.Wrap(err, "cannot decode crd resources")
+	}
+
+	olmResources, err := decodeResources(olmFile)
+	if err != nil {
+		return errors.Wrap(err, "cannot decode olm resources")
+	}
+
+	resources := append(crdResources, olmResources...)
+
+	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
+		return r.GroupVersionKind() == schema.GroupVersionKind{
+			Group:   v1alpha1.GroupName,
+			Version: v1alpha1.GroupVersion,
+			Kind:    v1alpha1.SubscriptionKind,
+		}
+	})
+
+	for _, sub := range subscriptions {
+		subscriptionKey := types.NamespacedName{Namespace: sub.GetNamespace(), Name: sub.GetName()}
+		log.Printf("Waiting for subscription/%s to install CSV", subscriptionKey.Name)
+		csvKey, err := k.client.GetSubscriptionCSV(ctx, subscriptionKey)
+		if err != nil {
+			return fmt.Errorf("subscription/%s failed to install CSV: %v", subscriptionKey.Name, err)
+		}
+		log.Printf("Waiting for clusterserviceversion/%s to reach 'Succeeded' phase", csvKey.Name)
+		if err := k.client.DoCSVWait(ctx, csvKey); err != nil {
+			return fmt.Errorf("clusterserviceversion/%s failed to reach 'Succeeded' phase", csvKey.Name)
+		}
+	}
+
+	if err := k.client.DoRolloutWait(ctx, types.NamespacedName{Namespace: "olm", Name: "packageserver"}); err != nil {
+		return errors.Wrap(err, "error while waiting for deployment rollout")
+	}
+
+	return nil
+}
+
+func decodeResources(f []byte) (objs []unstructured.Unstructured, err error) {
+	dec := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(f), 8)
+	for {
+		var u unstructured.Unstructured
+		err = dec.Decode(&u)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+		objs = append(objs, u)
+	}
+
+	return objs, nil
+}
+
+func filterResources(resources []unstructured.Unstructured, filter func(unstructured.
+	Unstructured) bool,
+) (filtered []unstructured.Unstructured) {
+	for _, r := range resources {
+		if filter(r) {
+			filtered = append(filtered, r)
+		}
+	}
+	return filtered
+}
+
+// InstallOperatorRequest holds the fields to make an operator install request.
+type InstallOperatorRequest struct {
+	Namespace              string
+	Name                   string
+	OperatorGroup          string
+	CatalogSource          string
+	CatalogSourceNamespace string
+	Channel                string
+	InstallPlanApproval    v1alpha1.Approval
+	StartingCSV            string
+}
+
+// InstallOperator installs an operator via OLM.
+func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorRequest) error {
+	if err := createOperatorGroupIfNeeded(ctx, k.client, req.OperatorGroup); err != nil {
+		return err
+	}
+
+	subs, err := k.client.CreateSubscriptionForCatalog(ctx, req.Namespace, req.Name, "olm", req.CatalogSource,
+		req.Name, req.Channel, req.StartingCSV, v1alpha1.ApprovalManual)
+	if err != nil {
+		return errors.Wrap(err, "cannot create a susbcription to install the operator")
+	}
+
+	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+		k.lock.Lock()
+		defer k.lock.Unlock()
+
+		subs, err = k.client.GetSubscription(ctx, req.Namespace, req.Name)
+		if err != nil || subs == nil || (subs != nil && subs.Status.Install == nil) {
+			return false, err
+		}
+
+		return true, nil
+	})
+
+	if err != nil {
+		return err
+	}
+	if subs == nil {
+		return fmt.Errorf("cannot get an install plan for the operator subscription: %q", req.Name)
+	}
+
+	ip, err := k.client.GetInstallPlan(ctx, req.Namespace, subs.Status.Install.Name)
+	if err != nil {
+		return err
+	}
+
+	ip.Spec.Approved = true
+	_, err = k.client.UpdateInstallPlan(ctx, req.Namespace, ip)
+
+	return err
+}
+
+func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientConnector, name string) error {
+	_, err := client.GetOperatorGroup(ctx, useDefaultNamespace, name)
+	if err == nil {
+		return nil
+	}
+
+	_, err = client.CreateOperatorGroup(ctx, "default", name)
+
+	return err
+}
+
+// ListSubscriptions all the subscriptions in the namespace.
+func (k *Kubernetes) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	return k.client.ListSubscriptions(ctx, namespace)
+}
+
+// UpgradeOperator upgrades an operator to the next available version.
+func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string) error {
+	var subs *v1alpha1.Subscription
+
+	// If the subscription was recently created, the install plan might not be ready yet.
+	err := wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+		var err error
+		subs, err = k.client.GetSubscription(ctx, namespace, name)
+		if err != nil {
+			return false, err
+		}
+		if subs == nil || subs.Status.Install == nil || subs.Status.Install.Name == "" {
+			return false, nil
+		}
+
+		return true, nil
+	})
+	if err != nil {
+		return err
+	}
+	if subs == nil || subs.Status.Install == nil || subs.Status.Install.Name == "" {
+		return fmt.Errorf("cannot get subscription for %q operator", name)
+	}
+
+	ip, err := k.client.GetInstallPlan(ctx, namespace, subs.Status.Install.Name)
+	if err != nil {
+		return errors.Wrapf(err, "cannot get install plan to upgrade %q", name)
+	}
+
+	if ip.Spec.Approved == true {
+		return nil // There are no upgrades.
+	}
+
+	ip.Spec.Approved = true
+
+	_, err = k.client.UpdateInstallPlan(ctx, namespace, ip)
+
+	return err
 }
