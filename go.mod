@@ -42,14 +42,16 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.18.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.1
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.49
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20221214134301-b6a331250826
+	github.com/operator-framework/api v0.17.3
+	github.com/operator-framework/operator-lifecycle-manager v0.23.1
+	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/dbaas-operator v0.1.3
 	github.com/percona/exporter_shared v0.7.4
@@ -74,7 +76,7 @@ require (
 	golang.org/x/sys v0.5.0
 	golang.org/x/text v0.7.0
 	golang.org/x/tools v0.6.0
-	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
+	google.golang.org/genproto v0.0.0-20230221151758-ace64dc21148
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
@@ -84,7 +86,9 @@ require (
 	k8s.io/apimachinery v0.26.1
 	k8s.io/cli-runtime v0.26.1
 	k8s.io/client-go v0.26.1
+	k8s.io/kubectl v0.26.1
 	modernc.org/sqlite v1.21.0
+	sigs.k8s.io/controller-runtime v0.13.0
 	vitess.io/vitess v0.15.2
 )
 
@@ -93,14 +97,17 @@ require (
 	github.com/Azure/azure-storage-blob-go v0.14.0 // indirect
 	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.4.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
+	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/glog v1.0.0 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -144,7 +151,6 @@ require (
 	modernc.org/opt v0.1.3 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
-	sigs.k8s.io/controller-runtime v0.13.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
@@ -190,7 +196,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-msgpack v1.1.5 // indirect
+	github.com/hashicorp/go-msgpack v0.5.5 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.6.0 // indirect
@@ -212,7 +218,6 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/moby/term v0.0.0-20220808134915-39b0c02b01ae // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/montanaflynn/stats v0.6.6 // indirect
@@ -248,7 +253,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.13.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/oauth2 v0.4.0 // indirect
+	golang.org/x/oauth2 v0.5.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
