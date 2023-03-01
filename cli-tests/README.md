@@ -4,7 +4,7 @@ Percona Monitoring and Management CLI automated tests.
 
 ## Getting Started
 
-* Open the _**cli**_ folder in console
+* Open the _**cli-tests**_ folder in console
 * Install Node.js 12+ version and make sure npx is included
 * Install project dependencies: `npm ci`
 * Install "playwright": `npx playwright install`
@@ -31,6 +31,6 @@ Execute command in the Project Root folder
 
 
 ## Contributing
-
+[more test examples](https://github.com/percona/pmm-ui-tests/tree/main/cli/tests)  
 _coming soon_ 
 
