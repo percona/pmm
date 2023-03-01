@@ -52,7 +52,6 @@ type PGStatMonitorQAN struct {
 	monitorCache         *statMonitorCache
 	maxQueryLength       int32
 	disableQueryExamples bool
-	waitTime             time.Duration
 }
 
 // Params represent Agent parameters.
@@ -125,8 +124,8 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
-func areSettingsTextValues(q *reform.Querier) (bool, error) {
-	pgsmVersion, prerelease, err := getPGMonitorVersion(q)
+func areSettingsTextValues(q *reform.Querier, l *logrus.Entry) (bool, error) {
+	pgsmVersion, prerelease, err := getPGMonitorVersion(q, l)
 	if err != nil {
 		return false, err
 	}
@@ -151,7 +150,7 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
+func getPGVersion(q *reform.Querier, l *logrus.Entry) (vPG pgVersion, err error) {
 	var v string
 	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
@@ -161,10 +160,12 @@ func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
 
 	parsed, err := strconv.ParseFloat(v, 64)
 
+	l.Infof("pg version is : %.2f", pgVersion(parsed))
+
 	return pgVersion(parsed), err
 }
 
-func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
+func getPGMonitorVersion(q *reform.Querier, l *logrus.Entry) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
 	if err != nil {
@@ -175,7 +176,9 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
 	}
 
-	vPG, err := getPGVersion(q)
+	l.Infof("pgsm version is : %s", vPGSM.Core().String())
+
+	vPG, err := getPGVersion(q, l)
 	if err != nil {
 		return pgStatMonitorVersion06, "", err
 	}
@@ -183,44 +186,60 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	var version pgStatMonitorVersion
 	switch {
 	case vPGSM.Core().GreaterThanOrEqual(v20):
+		l.Infof("vPGSM.Core().GreaterThanOrEqual(v20)")
 		if vPG >= 15 {
+			l.Infof("vPG >= 15")
 			version = pgStatMonitorVersion20PG15
 			break
 		}
 		if vPG >= 14 {
+			l.Infof("vPG >= 14")
 			version = pgStatMonitorVersion20PG14
 			break
 		}
 		if vPG >= 13 {
+			l.Infof("vPG >= 13")
 			version = pgStatMonitorVersion20PG13
 			break
 		}
+		l.Infof("vPG >= 12")
 		version = pgStatMonitorVersion20PG12
 	case vPGSM.Core().GreaterThanOrEqual(v11):
+		l.Infof("vPGSM.Core().GreaterThanOrEqual(v11)")
 		if vPG >= 14 {
+			l.Infof("vPG >= 14")
 			version = pgStatMonitorVersion11PG14
 			break
 		}
 		if vPG >= 13 {
+			l.Infof("vPG >= 13")
 			version = pgStatMonitorVersion11PG13
 			break
 		}
+		l.Infof("vPG >= 12")
 		version = pgStatMonitorVersion11PG12
 	case vPGSM.Core().GreaterThanOrEqual(v10):
+		l.Infof("vPGSM.Core().GreaterThanOrEqual(v10)")
 		if vPG >= 14 {
+			l.Infof("vPG >= 14")
 			version = pgStatMonitorVersion10PG14
 			break
 		}
 		if vPG >= 13 {
+			l.Infof("vPG >= 13")
 			version = pgStatMonitorVersion10PG13
 			break
 		}
+		l.Infof("vPG >= 12")
 		version = pgStatMonitorVersion10PG12
 	case vPGSM.GreaterThanOrEqual(v09):
+		l.Infof("vPGSM.GreaterThanOrEqual(v09)")
 		version = pgStatMonitorVersion09
 	case vPGSM.GreaterThanOrEqual(v08):
+		l.Infof("vPGSM.GreaterThanOrEqual(v08)")
 		version = pgStatMonitorVersion08
 	default:
+		l.Infof("vPGSM.GreaterThanOrEqual(v06)")
 		version = pgStatMonitorVersion06
 	}
 
@@ -267,8 +286,6 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 	running = running && m.checkDefaultWaitTime(waitTime)
 
-	m.waitTime = waitTime
-
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
@@ -314,8 +331,6 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				continue
 			}
 
-			m.waitTime = waitTime
-
 			lengthS := uint32(waitTime.Seconds())
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
 
@@ -358,12 +373,12 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 type settings map[string]*pgStatMonitorSettingsTextValue
 
 func (m *PGStatMonitorQAN) getSettings() (settings, error) {
-	settingsValuesAreText, err := areSettingsTextValues(m.q)
+	settingsValuesAreText, err := areSettingsTextValues(m.q, m.l)
 	if err != nil {
 		return nil, err
 	}
 
-	pgsmVersion, _, err := getPGMonitorVersion(m.q)
+	pgsmVersion, _, err := getPGMonitorVersion(m.q, m.l)
 	if err != nil {
 		return nil, err
 	}
@@ -450,11 +465,6 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 		return nil, err
 	}
 
-	err = m.checkErrorsView(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	buckets := m.makeBuckets(current, prev)
 	m.l.Debugf("Made %d buckets out of %d stat monitor in %d interval.",
 		len(buckets), len(current), periodLengthSecs)
@@ -474,63 +484,13 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 	return buckets, nil
 }
 
-func (m *PGStatMonitorQAN) checkErrorsView(ctx context.Context) error {
-	vPGSM, _, err := getPGMonitorVersion(m.q)
-	if err != nil {
-		return errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
-	}
-
-	// Errors view is supported in PGSM 2.0 and higher.
-	if vPGSM < pgStatMonitorVersion20PG12 {
-		return nil
-	}
-
-	row := &pgStatMonitorErrors{}
-	rows, err := m.q.SelectRows(pgStatMonitorErrorsView, "")
-	if err != nil {
-		return errors.Wrap(err, "failed to query pg_stat_monitor_errors view")
-	}
-
-	now := time.Now()
-	for ctx.Err() == nil {
-		if err = m.q.NextRow(row, rows); err != nil {
-			if errors.Is(err, reform.ErrNoRows) {
-				break
-			}
-
-			return errors.Wrap(err, "cannot read row from errors view")
-		}
-
-		messageTime, err := time.Parse("2006-01-02 15:04:05", row.MessageTime)
-		if err != nil {
-			return errors.Wrap(err, "cannot parse messageTime")
-		}
-
-		if now.After(messageTime.Add(m.waitTime)) {
-			continue
-		}
-
-		template := "Message: %s, Calls: %d"
-		switch row.Severity {
-		case "INFO":
-			m.l.Infof(template, row.Message, row.Calls)
-		case "WARNING":
-			m.l.Warningf(template, row.Message, row.Calls)
-		case "ERROR":
-			m.l.Errorf(template, row.Message, row.Calls)
-		}
-	}
-
-	return nil
-}
-
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
 func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
-		vPGSM, _, err := getPGMonitorVersion(m.q)
+		vPGSM, _, err := getPGMonitorVersion(m.q, m.l)
 		if err != nil {
 			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
 			continue

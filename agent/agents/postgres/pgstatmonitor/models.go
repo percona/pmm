@@ -58,16 +58,6 @@ type pgStatMonitorSettingsTextValue20 struct {
 	Setting string `reform:"setting"`
 }
 
-// pgStatMonitorErrors represents a row in pg_stat_monitor_errors view.
-//
-//reform:pg_stat_monitor_errors
-type pgStatMonitorErrors struct {
-	Severity    string `reform:"severity"`
-	Message     string `reform:"message"`
-	MessageTime string `reform:"msgtime"`
-	Calls       int64  `reform:"calls"`
-}
-
 // pgStatMonitorExtended contains pgStatMonitor data and extends it with database, username and tables data.
 // It's made for performance reason.
 type pgStatMonitorExtended struct {
