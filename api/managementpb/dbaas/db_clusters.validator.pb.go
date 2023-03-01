@@ -31,6 +31,16 @@ func (this *PSMDBCluster) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
+	if this.Restore != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Restore); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Restore", err)
+		}
+	}
 	return nil
 }
 
@@ -43,6 +53,16 @@ func (this *PXCCluster) Validate() error {
 	if this.Params != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	if this.Backup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Backup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Backup", err)
+		}
+	}
+	if this.Restore != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Restore); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Restore", err)
 		}
 	}
 	return nil
@@ -122,5 +142,46 @@ func (this *DeleteDBClusterRequest) Validate() error {
 }
 
 func (this *DeleteDBClusterResponse) Validate() error {
+	return nil
+}
+
+func (this *S3Item) Validate() error {
+	return nil
+}
+
+func (this *ListS3BackupsRequest) Validate() error {
+	return nil
+}
+
+func (this *ListS3BackupsResponse) Validate() error {
+	for _, item := range this.Backups {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Backups", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *ListSecretsRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	return nil
+}
+
+func (this *Secret) Validate() error {
+	return nil
+}
+
+func (this *ListSecretsResponse) Validate() error {
+	for _, item := range this.Secrets {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Secrets", err)
+			}
+		}
+	}
 	return nil
 }

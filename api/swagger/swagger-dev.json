@@ -2193,7 +2193,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -3082,6 +3082,16 @@
                   "description": "Disable DBaaS.",
                   "type": "boolean",
                   "x-order": 28
+                },
+                "enable_access_control": {
+                  "type": "boolean",
+                  "title": "Enable Access Control",
+                  "x-order": 29
+                },
+                "disable_access_control": {
+                  "type": "boolean",
+                  "title": "Disable Access Control",
+                  "x-order": 30
                 }
               }
             }
@@ -3317,7 +3327,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -3584,7 +3594,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -3699,7 +3709,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -3836,7 +3846,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -3910,7 +3920,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -4005,7 +4015,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -18157,6 +18167,88 @@
         }
       }
     },
+    "/v1/management/DBaaS/Backups/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListS3Backups lists backups stored on s3.",
+        "operationId": "ListS3Backups",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "location_id": {
+                  "type": "string",
+                  "title": "Backup Location ID to list backups from",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "backups": {
+                  "description": "Backup list.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "Key of a filename on s3.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/ChangePSMDB": {
       "post": {
         "tags": [
@@ -19620,6 +19712,56 @@
                             }
                           },
                           "x-order": 3
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents cron expression",
+                              "x-order": 2
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 4
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "destination": {
+                              "description": "Destination filename.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 5
                         }
                       },
                       "x-order": 3
@@ -19643,6 +19785,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -19751,6 +19943,56 @@
                           "description": "Docker image used for PSMDB.",
                           "type": "string",
                           "x-order": 2
+                        },
+                        "backup": {
+                          "type": "object",
+                          "title": "Backup configuration for a database cluster",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup Location id of stored backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "keep_copies": {
+                              "description": "Keep copies represents how many copies should retain.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            },
+                            "cron_expression": {
+                              "type": "string",
+                              "title": "Cron expression represents cron expression",
+                              "x-order": 2
+                            },
+                            "service_account": {
+                              "type": "string",
+                              "title": "Service acccount used for backups",
+                              "x-order": 3
+                            }
+                          },
+                          "x-order": 3
+                        },
+                        "restore": {
+                          "type": "object",
+                          "title": "Restore represents restoration payload to restore a database cluster from backup",
+                          "properties": {
+                            "location_id": {
+                              "description": "Backup location in PMM.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "destination": {
+                              "description": "Destination filename.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "secrets_name": {
+                              "description": "K8s Secrets name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 4
                         }
                       },
                       "x-order": 3
@@ -19774,6 +20016,56 @@
                       "description": "Is DB cluster accessible via public internet.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 9
                     }
                   },
                   "x-order": 1
@@ -20020,6 +20312,56 @@
                               }
                             },
                             "x-order": 3
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents cron expression",
+                                "x-order": 2
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 4
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "destination": {
+                                "description": "Destination filename.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 5
                           }
                         },
                         "x-order": 3
@@ -20043,6 +20385,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents cron expression",
+                            "x-order": 2
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "restore": {
+                        "type": "object",
+                        "title": "Restore represents restoration payload to restore a database cluster from backup",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "destination": {
+                            "description": "Destination filename.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -20155,6 +20547,56 @@
                             "description": "Docker image used for PSMDB.",
                             "type": "string",
                             "x-order": 2
+                          },
+                          "backup": {
+                            "type": "object",
+                            "title": "Backup configuration for a database cluster",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup Location id of stored backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "keep_copies": {
+                                "description": "Keep copies represents how many copies should retain.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 1
+                              },
+                              "cron_expression": {
+                                "type": "string",
+                                "title": "Cron expression represents cron expression",
+                                "x-order": 2
+                              },
+                              "service_account": {
+                                "type": "string",
+                                "title": "Service acccount used for backups",
+                                "x-order": 3
+                              }
+                            },
+                            "x-order": 3
+                          },
+                          "restore": {
+                            "type": "object",
+                            "title": "Restore represents restoration payload to restore a database cluster from backup",
+                            "properties": {
+                              "location_id": {
+                                "description": "Backup location in PMM.",
+                                "type": "string",
+                                "x-order": 0
+                              },
+                              "destination": {
+                                "description": "Destination filename.",
+                                "type": "string",
+                                "x-order": 1
+                              },
+                              "secrets_name": {
+                                "description": "K8s Secrets name.",
+                                "type": "string",
+                                "x-order": 2
+                              }
+                            },
+                            "x-order": 4
                           }
                         },
                         "x-order": 3
@@ -20178,6 +20620,56 @@
                         "description": "Is DB cluster accessible via public internet.",
                         "type": "boolean",
                         "x-order": 7
+                      },
+                      "backup": {
+                        "type": "object",
+                        "title": "Backup configuration for a database cluster",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup Location id of stored backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "keep_copies": {
+                            "description": "Keep copies represents how many copies should retain.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "cron_expression": {
+                            "type": "string",
+                            "title": "Cron expression represents cron expression",
+                            "x-order": 2
+                          },
+                          "service_account": {
+                            "type": "string",
+                            "title": "Service acccount used for backups",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "restore": {
+                        "type": "object",
+                        "title": "Restore represents restoration payload to restore a database cluster from backup",
+                        "properties": {
+                          "location_id": {
+                            "description": "Backup location in PMM.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "destination": {
+                            "description": "Destination filename.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "secrets_name": {
+                            "description": "K8s Secrets name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -21075,6 +21567,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -21213,6 +21755,56 @@
                       "description": "Docker image used for PSMDB.",
                       "type": "string",
                       "x-order": 2
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -21677,6 +22269,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 2
@@ -21883,6 +22525,56 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -22222,6 +22914,88 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Secrets/List": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "ListSecrets returns a list of secrets from k8s",
+        "operationId": "ListSecrets",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "secrets": {
+                  "description": "Secret list.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "Name of a secret",
+                        "x-order": 0
+                      }
                     }
                   },
                   "x-order": 0
@@ -24511,6 +25285,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "token": {
+                  "description": "Token represents token for vmagent auth config.",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -29535,7 +30314,7 @@
         "tags": [
           "Backups"
         ],
-        "summary": "GetLogs returns logs for provided artifact.",
+        "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogsMixin7",
         "parameters": [
           {
@@ -29558,6 +30337,10 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 2
+                },
+                "restore_id": {
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -33773,7 +34556,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
@@ -34127,7 +34910,7 @@
                 "details": {
                   "type": "array",
                   "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
                     "type": "object",
                     "properties": {
                       "@type": {
