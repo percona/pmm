@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -412,6 +413,10 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	catalogSource := "percona-dbaas-catalog"
 
 	if _, ok := operatorsToInstall["vm"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_VM_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
 		operatorName := "victoriametrics-operator"
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -419,7 +424,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v0",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -430,6 +435,10 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	}
 
 	if _, ok := operatorsToInstall["pxc"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_PXC_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
 		operatorName := "percona-xtradb-cluster-operator"
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -437,7 +446,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v1",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -449,15 +458,18 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	if _, ok := operatorsToInstall["psmdb"]; ok {
 		operatorName := "percona-server-mongodb-operator"
+		channel, ok := os.LookupEnv("DBAAS_PSMDB_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v1",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
@@ -468,13 +480,17 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	if _, ok := operatorsToInstall["dbaas"]; ok {
 		operatorName := "dbaas-operator"
+		channel, ok := os.LookupEnv("DBAAS_DBAAS_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          "percona-dbaas-catalog",
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v0",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
