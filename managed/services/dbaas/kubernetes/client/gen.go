@@ -13,15 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package data provides access to embedded data.
-package data
+package client
 
-import "embed"
-
-// IATemplates holds IA template files in the struct of type embed.FS which implements the io/fs package's FS interface.
-//
-//go:embed iatemplates/*
-var IATemplates embed.FS
-
-//go:embed crds/*
-var OLMCRDs embed.FS
+//go:generate ../../../../../bin/ifacemaker -f client.go -s Client -i KubeClientConnector -p client -o kubeclient_interface.go
+//go:generate ../../../../../bin/mockery -name=KubeClientConnector -case=snake -inpkg
