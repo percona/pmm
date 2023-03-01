@@ -35,11 +35,11 @@ type ConnectRequest struct {
 	ServerName string `protobuf:"bytes,1,opt,name=server_name,json=serverName,proto3" json:"server_name,omitempty"`
 	// Existing Percona Platform user's email.
 	//
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in platformpb/platform.proto.
 	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 	// Existing Percona Platform user's password.
 	//
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in platformpb/platform.proto.
 	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
 	// Personal Access Token that the user obtains from Percona Portal.
 	PersonalAccessToken string `protobuf:"bytes,4,opt,name=personal_access_token,json=personalAccessToken,proto3" json:"personal_access_token,omitempty"`
@@ -84,7 +84,7 @@ func (x *ConnectRequest) GetServerName() string {
 	return ""
 }
 
-// Deprecated: Do not use.
+// Deprecated: Marked as deprecated in platformpb/platform.proto.
 func (x *ConnectRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
@@ -92,7 +92,7 @@ func (x *ConnectRequest) GetEmail() string {
 	return ""
 }
 
-// Deprecated: Do not use.
+// Deprecated: Marked as deprecated in platformpb/platform.proto.
 func (x *ConnectRequest) GetPassword() string {
 	if x != nil {
 		return x.Password

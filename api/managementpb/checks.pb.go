@@ -579,7 +579,7 @@ func (x *ChangeSecurityCheckParams) GetInterval() SecurityCheckInterval {
 	return SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
 }
 
-// Deprecated: Do not use.
+// Deprecated: Marked as deprecated in managementpb/checks.proto.
 type GetSecurityCheckResultsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -618,7 +618,7 @@ func (*GetSecurityCheckResultsRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_checks_proto_rawDescGZIP(), []int{5}
 }
 
-// Deprecated: Do not use.
+// Deprecated: Marked as deprecated in managementpb/checks.proto.
 type GetSecurityCheckResultsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
