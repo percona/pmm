@@ -37,7 +37,7 @@ type BackupsClient interface {
 	ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
 	RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error)
-	// GetLogs returns logs for provided artifact.
+	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
 }
 
@@ -139,7 +139,7 @@ type BackupsServer interface {
 	ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error)
 	// RemoveScheduledBackup removes existing scheduled backup.
 	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
-	// GetLogs returns logs for provided artifact.
+	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
 	mustEmbedUnimplementedBackupsServer()
 }

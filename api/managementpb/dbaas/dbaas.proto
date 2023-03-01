@@ -21,6 +21,26 @@ message ComputeResources {
   // Memory in bytes.
   int64 memory_bytes = 2;
 }
+// Backup configuration for a database cluster
+message Backup {
+  // Backup Location id of stored backup location in PMM.
+  string location_id = 1;
+// Keep copies represents how many copies should retain.
+  int32 keep_copies = 2;
+  // Cron expression represents cron expression
+  string cron_expression = 3;
+  // Service acccount used for backups
+  string service_account = 4;
+}
+// Restore represents restoration payload to restore a database cluster from backup
+message Restore {
+  // Backup location in PMM.
+  string location_id = 1;
+  // Destination filename.
+  string destination = 2;
+  // K8s Secrets name.
+  string secrets_name = 3;
+}
 
 // Resources contains Kubernetes cluster resources.
 message Resources {

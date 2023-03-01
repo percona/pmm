@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package version contains functions for database versions processing.
 package version
 
 import (

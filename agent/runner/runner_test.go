@@ -102,7 +102,7 @@ func TestCapacityLimit(t *testing.T) {
 
 	time.Sleep(time.Second)
 
-	// After one more second second job terminated and third started
+	// After one more second job terminated and third started
 	assert.False(t, cr.IsRunning(j1.ID()))
 	assert.False(t, cr.IsRunning(j2.ID()))
 	assert.True(t, cr.IsRunning(j3.ID()))

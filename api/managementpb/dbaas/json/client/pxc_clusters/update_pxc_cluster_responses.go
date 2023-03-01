@@ -127,6 +127,15 @@ type UpdatePXCClusterBody struct {
 	// PXC cluster name.
 	Name string `json:"name,omitempty"`
 
+	// Make DB cluster accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *UpdatePXCClusterParamsBodyParams `json:"params,omitempty"`
 }
@@ -677,6 +686,12 @@ type UpdatePXCClusterParamsBodyParamsPXC struct {
 	// Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
 	// in given tag is triggered. If entirely different image is given, error is returned.
 	Image string `json:"image,omitempty"`
+
+	// Configuration for PXC cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PXC cluster.
+	StorageClass string `json:"storage_class,omitempty"`
 
 	// compute resources
 	ComputeResources *UpdatePXCClusterParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`

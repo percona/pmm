@@ -288,7 +288,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck
+	defer f.Close() //nolint:gosec,errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -343,7 +343,7 @@ func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
 
 // readURL reads HTTP GET url response.
 func readURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -410,7 +410,7 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return errors.WithStack(err)
 		}
 
-		if _, err = io.Copy(fw, fr); err != nil {
+		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
 			fr.Close() //nolint:errcheck
 			return errors.WithStack(err)
 		}

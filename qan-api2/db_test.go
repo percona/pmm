@@ -27,7 +27,7 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	_ "github.com/golang-migrate/migrate/database/clickhouse"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -65,7 +65,7 @@ func cleanup() {
 	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
 	for _, database := range cleanupDatabases {
 		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --query='DROP DATABASE IF EXISTS %s;'`, database)
-		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
+		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil { //nolint:gosec
 			log.Fatalf("Docker drop db: %v, %v", out, err)
 		}
 	}

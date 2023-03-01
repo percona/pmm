@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:stylecheck
 package mongo_fix
 
 import (
@@ -21,6 +22,7 @@ import (
 )
 
 // ClientOptionsForDSN applies URI to Client.
+// TODO: this fn never returns an error, so it should be refactored.
 func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
 	clientOptions := options.Client().ApplyURI(dsn)
 
@@ -29,7 +31,7 @@ func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:
 	parsedDsn, err := url.Parse(dsn)
 	if err != nil {
 		// for non-URI, do nothing (PMM-10265)
-		return clientOptions, nil
+		return clientOptions, nil //nolint:nilerr
 	}
 	username := parsedDsn.User.Username()
 	password, _ := parsedDsn.User.Password()

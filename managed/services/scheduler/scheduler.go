@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package scheduler implements scheduler.
 package scheduler
 
 import (
@@ -25,11 +26,10 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // Service is responsible for executing tasks and storing them to DB.
@@ -90,7 +90,6 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 		if err = checkPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
 			return err
 		}
-
 		scheduledTask, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
 			CronExpression: params.CronExpression,
 			StartAt:        params.StartAt,
@@ -355,48 +354,14 @@ func checkPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabl
 	switch {
 	case data.MySQLBackupTask != nil:
 	case data.MongoDBBackupTask != nil:
-		data := data.MongoDBBackupTask
 		if enabled {
-			return checkMongoDBBackupPreconditions(q, data.Mode, data.ServiceID, scheduledTaskID)
+			return services.CheckMongoDBBackupPreconditions(
+				q,
+				data.MongoDBBackupTask.Mode,
+				data.MongoDBBackupTask.ClusterName,
+				data.MongoDBBackupTask.ServiceID,
+				scheduledTaskID)
 		}
 	}
-	return nil
-}
-
-func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, serviceID, scheduleID string) error {
-	switch mode {
-	case models.PITR:
-		// PITR backup can be enabled only if there is no other scheduled backups.
-		tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-			Disabled:  pointer.ToBool(false),
-			ServiceID: serviceID,
-		})
-		if err != nil {
-			return err
-		}
-
-		for _, task := range tasks {
-			if task.ID != scheduleID {
-				return status.Error(codes.FailedPrecondition, "A scheduled PITR backup can be enabled only if there  no other scheduled backups.")
-			}
-		}
-	case models.Snapshot:
-		// Snapshot backup can be enabled it there is no enabled PITR backup.
-		tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-			Disabled:  pointer.ToBool(false),
-			ServiceID: serviceID,
-			Mode:      models.PITR,
-		})
-		if err != nil {
-			return err
-		}
-
-		if len(tasks) != 0 {
-			return status.Error(codes.FailedPrecondition, "A scheduled snapshot backup can be enabled only if there are no enabled PITR backup.")
-		}
-	case models.Incremental:
-		// nothing
-	}
-
 	return nil
 }

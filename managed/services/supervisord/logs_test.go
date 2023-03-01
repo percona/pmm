@@ -64,6 +64,7 @@ var commonExpectedFiles = []string{
 	"victoriametrics_targets.json",
 	"vmalert.ini",
 	"vmalert.log",
+	"vmproxy.log",
 }
 
 func TestReadLog(t *testing.T) {

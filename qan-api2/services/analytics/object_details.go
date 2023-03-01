@@ -90,7 +90,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		labels,
 		true) // get Totals
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot get get metrics totals")
+		return nil, errors.Wrapf(err, "cannot get metrics totals")
 	}
 
 	totalLen := len(totalsList)

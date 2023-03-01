@@ -67,6 +67,8 @@ type Command interface {
 	RunCmd() (Result, error)
 }
 
+// CommandWithContext is a new interface for commands.
+//
 // TODO remove Command above, rename CommandWithContext to Command.
 type CommandWithContext interface {
 	// TODO rename to Run

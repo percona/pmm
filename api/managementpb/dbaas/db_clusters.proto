@@ -46,6 +46,12 @@ message PSMDBCluster {
   // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
   // If it's empty, no upgrade is available.
   string available_image = 7;
+  // Is DB cluster accessible via public internet.
+  bool internet_facing = 8;
+  // Backup configuration parameters.
+  Backup backup = 9;
+  // Restore configuration parameters.
+  Restore restore = 10;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -65,6 +71,12 @@ message PXCCluster {
   // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
   // If it's empty, no upgrade is available.
   string available_image = 7;
+  // Is DB cluster accessible via public internet.
+  bool internet_facing = 8;
+  // Backup configuration parameters.
+  Backup backup = 9;
+  // Restore configuration parameters.
+  Restore restore = 10;
 }
 
 message ListDBClustersRequest {
@@ -106,6 +118,28 @@ message RestartDBClusterRequest {
 
 message RestartDBClusterResponse {}
 
+message GetDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message GetDBClusterResponse {
+  // PXC cluster information.
+  PXCCluster pxc_cluster = 1;
+  // PSMDB cluster information.
+  PSMDBCluster psmdb_cluster = 2;
+}
+
 message DeleteDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
@@ -129,12 +163,49 @@ message DeleteDBClusterRequest {
 
 message DeleteDBClusterResponse {}
 
+message S3Item {
+  // Key of a filename on s3.
+  string key = 1;
+}
+message ListS3BackupsRequest {
+  // Backup Location ID to list backups from
+  string location_id = 1;
+}
+message ListS3BackupsResponse {
+  // Backup list.
+  repeated S3Item backups = 1;
+}
+
+message ListSecretsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+message Secret {
+  // Name of a secret
+  string name = 1;
+}
+message ListSecretsResponse {
+  // Secret list.
+  repeated Secret secrets = 1;
+}
+
 // DBClusters service provides public methods for managing db clusters.
 service DBClusters {
   // ListDBClusters returns a list of DB clusters.
   rpc ListDBClusters(ListDBClustersRequest) returns (ListDBClustersResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/DBClusters/List"
+      body: "*"
+    };
+  }
+  // GetDBCluster returns parameters used to create a database cluster
+  rpc GetDBCluster(GetDBClusterRequest) returns (GetDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/DBClusters/Get"
       body: "*"
     };
   }
@@ -149,6 +220,22 @@ service DBClusters {
   rpc DeleteDBCluster(DeleteDBClusterRequest) returns (DeleteDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/DBClusters/Delete"
+      body: "*"
+    };
+  }
+
+  // ListS3Backups lists backups stored on s3.
+  rpc ListS3Backups(ListS3BackupsRequest) returns (ListS3BackupsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Backups/List"
+      body: "*"
+    };
+  }
+
+  // ListSecrets returns a list of secrets from k8s
+  rpc ListSecrets(ListSecretsRequest) returns (ListSecretsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Secrets/List"
       body: "*"
     };
   }

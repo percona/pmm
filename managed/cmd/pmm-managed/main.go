@@ -23,9 +23,10 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math/rand"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"net/url"
 	"os"
 	"os/signal"
@@ -200,31 +201,45 @@ type gRPCServerDeps struct {
 	componentsService    *managementdbaas.ComponentsService
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
-}
-
-type gRPCServerFeatures struct {
-	enableAccessControl bool
+	kubeStorage          *managementdbaas.KubeStorage
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll
-func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServerFeatures) {
+func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
+
+	grpcMetrics := grpc_prometheus.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	grpcStreamInterceptor := grpcMetrics.StreamServerInterceptor()
+	grpcUnaryInterceptor := grpcMetrics.UnaryServerInterceptor()
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			interceptors.Unary,
+			interceptors.Unary(grpcUnaryInterceptor),
 			interceptors.UnaryServiceEnabledInterceptor(),
 			grpc_validator.UnaryServerInterceptor())),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			interceptors.Stream,
+			interceptors.Stream(grpcStreamInterceptor),
 			interceptors.StreamServiceEnabledInterceptor(),
 			grpc_validator.StreamServerInterceptor())),
 	)
+
+	grpcServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpcStreamInterceptor),
+		grpc.UnaryInterceptor(grpcUnaryInterceptor))
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
+		l.Debug("Reflection and channelz are enabled.")
+		reflection.Register(gRPCServer)
+		channelz.RegisterChannelzServiceToServer(gRPCServer)
+
+		l.Debug("RPC response latency histogram enabled.")
+		grpcMetrics.EnableHandlingTimeHistogram()
+	}
+	grpcMetrics.InitializeMetrics(grpcServer)
 
 	serverpb.RegisterServerServer(gRPCServer, deps.server)
 
@@ -240,10 +255,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db)
+	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
@@ -260,9 +275,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
-	if features.enableAccessControl {
-		rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
-	}
+
+	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
@@ -277,11 +291,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
-	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
-	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.kubeStorage))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -291,17 +305,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	} else {
 		l.Fatalf("Failed to register platform service: %s", err.Error())
 	}
-
-	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		l.Debug("Reflection and channelz are enabled.")
-		reflection.Register(gRPCServer)
-		channelz.RegisterChannelzServiceToServer(gRPCServer)
-
-		l.Debug("RPC response latency histogram enabled.")
-		grpc_prometheus.EnableHandlingTimeHistogram()
-	}
-
-	grpc_prometheus.Register(gRPCServer)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -426,7 +429,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     http1Addr,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
@@ -488,7 +491,7 @@ func runDebugServer(ctx context.Context) {
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     debugAddr,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
@@ -630,6 +633,8 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -668,8 +673,6 @@ func main() {
 
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
-
-	enableAccessControl := kingpin.Flag("enable-access-control", "Enable access control").Default("false").Envar("ENABLE_RBAC").Bool()
 
 	kingpin.Parse()
 
@@ -822,7 +825,9 @@ func main() {
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
-	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
+	kubeStorage := managementdbaas.NewKubeStorage(db)
+
+	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, kubeStorage)
 
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
@@ -916,7 +921,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -1011,8 +1016,7 @@ func main() {
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
-			}, gRPCServerFeatures{
-				enableAccessControl: *enableAccessControl,
+				kubeStorage:          kubeStorage,
 			})
 	}()
 

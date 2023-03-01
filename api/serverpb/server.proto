@@ -199,6 +199,10 @@ message Settings {
   bool connected_to_platform = 19;
   // Includes list of collected telemetry
   repeated string telemetry_summaries = 20;
+  // True if Access Control is enabled.
+  bool enable_access_control = 21;
+  // Default Access Control role ID for new users.
+  uint32 default_role_id = 22;
 }
 
 message GetSettingsRequest {}
@@ -261,6 +265,10 @@ message ChangeSettingsRequest {
   bool enable_dbaas = 26;
   // Disable DBaaS.
   bool disable_dbaas = 27;
+  // Enable Access Control
+  bool enable_access_control = 30;
+  // Disable Access Control
+  bool disable_access_control = 31;
 }
 
 message ChangeSettingsResponse {

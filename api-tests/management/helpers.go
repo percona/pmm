@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package management contains management API tests.
 package management
 
 import (
@@ -151,7 +152,7 @@ func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgen
 	require.NotNil(t, listAgentsOK)
 	require.NotNil(t, listAgentsOK.Payload)
 
-	var agentIDs []string
+	var agentIDs []string //nolint:prealloc
 	for _, agent := range listAgentsOK.Payload.NodeExporter {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}

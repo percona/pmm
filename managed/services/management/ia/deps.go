@@ -37,7 +37,7 @@ type alertManager interface {
 	RequestConfigurationUpdate()
 }
 
-// vmAlert is is a subset of methods of vmalert.Service used by this package.
+// vmAlert is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type vmAlert interface {
 	RequestConfigurationUpdate()

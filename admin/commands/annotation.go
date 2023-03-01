@@ -140,7 +140,7 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	return servicesNameList, nil
 }
 
-// Run runs annotation command.
+// RunCmd runs annotation command.
 func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 	for i := range cmd.Tags {
 		cmd.Tags[i] = strings.TrimSpace(cmd.Tags[i])

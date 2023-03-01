@@ -25,10 +25,16 @@ const _ = grpc.SupportPackageIsVersion7
 type DBClustersClient interface {
 	// ListDBClusters returns a list of DB clusters.
 	ListDBClusters(ctx context.Context, in *ListDBClustersRequest, opts ...grpc.CallOption) (*ListDBClustersResponse, error)
+	// GetDBCluster returns parameters used to create a database cluster
+	GetDBCluster(ctx context.Context, in *GetDBClusterRequest, opts ...grpc.CallOption) (*GetDBClusterResponse, error)
 	// RestartDBCluster restarts DB cluster.
 	RestartDBCluster(ctx context.Context, in *RestartDBClusterRequest, opts ...grpc.CallOption) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
 	DeleteDBCluster(ctx context.Context, in *DeleteDBClusterRequest, opts ...grpc.CallOption) (*DeleteDBClusterResponse, error)
+	// ListS3Backups lists backups stored on s3.
+	ListS3Backups(ctx context.Context, in *ListS3BackupsRequest, opts ...grpc.CallOption) (*ListS3BackupsResponse, error)
+	// ListSecrets returns a list of secrets from k8s
+	ListSecrets(ctx context.Context, in *ListSecretsRequest, opts ...grpc.CallOption) (*ListSecretsResponse, error)
 }
 
 type dBClustersClient struct {
@@ -42,6 +48,15 @@ func NewDBClustersClient(cc grpc.ClientConnInterface) DBClustersClient {
 func (c *dBClustersClient) ListDBClusters(ctx context.Context, in *ListDBClustersRequest, opts ...grpc.CallOption) (*ListDBClustersResponse, error) {
 	out := new(ListDBClustersResponse)
 	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/ListDBClusters", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dBClustersClient) GetDBCluster(ctx context.Context, in *GetDBClusterRequest, opts ...grpc.CallOption) (*GetDBClusterResponse, error) {
+	out := new(GetDBClusterResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/GetDBCluster", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,16 +81,40 @@ func (c *dBClustersClient) DeleteDBCluster(ctx context.Context, in *DeleteDBClus
 	return out, nil
 }
 
+func (c *dBClustersClient) ListS3Backups(ctx context.Context, in *ListS3BackupsRequest, opts ...grpc.CallOption) (*ListS3BackupsResponse, error) {
+	out := new(ListS3BackupsResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/ListS3Backups", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dBClustersClient) ListSecrets(ctx context.Context, in *ListSecretsRequest, opts ...grpc.CallOption) (*ListSecretsResponse, error) {
+	out := new(ListSecretsResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/ListSecrets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DBClustersServer is the server API for DBClusters service.
 // All implementations must embed UnimplementedDBClustersServer
 // for forward compatibility
 type DBClustersServer interface {
 	// ListDBClusters returns a list of DB clusters.
 	ListDBClusters(context.Context, *ListDBClustersRequest) (*ListDBClustersResponse, error)
+	// GetDBCluster returns parameters used to create a database cluster
+	GetDBCluster(context.Context, *GetDBClusterRequest) (*GetDBClusterResponse, error)
 	// RestartDBCluster restarts DB cluster.
 	RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
 	DeleteDBCluster(context.Context, *DeleteDBClusterRequest) (*DeleteDBClusterResponse, error)
+	// ListS3Backups lists backups stored on s3.
+	ListS3Backups(context.Context, *ListS3BackupsRequest) (*ListS3BackupsResponse, error)
+	// ListSecrets returns a list of secrets from k8s
+	ListSecrets(context.Context, *ListSecretsRequest) (*ListSecretsResponse, error)
 	mustEmbedUnimplementedDBClustersServer()
 }
 
@@ -86,12 +125,24 @@ func (UnimplementedDBClustersServer) ListDBClusters(context.Context, *ListDBClus
 	return nil, status.Errorf(codes.Unimplemented, "method ListDBClusters not implemented")
 }
 
+func (UnimplementedDBClustersServer) GetDBCluster(context.Context, *GetDBClusterRequest) (*GetDBClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDBCluster not implemented")
+}
+
 func (UnimplementedDBClustersServer) RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestartDBCluster not implemented")
 }
 
 func (UnimplementedDBClustersServer) DeleteDBCluster(context.Context, *DeleteDBClusterRequest) (*DeleteDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDBCluster not implemented")
+}
+
+func (UnimplementedDBClustersServer) ListS3Backups(context.Context, *ListS3BackupsRequest) (*ListS3BackupsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListS3Backups not implemented")
+}
+
+func (UnimplementedDBClustersServer) ListSecrets(context.Context, *ListSecretsRequest) (*ListSecretsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSecrets not implemented")
 }
 func (UnimplementedDBClustersServer) mustEmbedUnimplementedDBClustersServer() {}
 
@@ -120,6 +171,24 @@ func _DBClusters_ListDBClusters_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DBClustersServer).ListDBClusters(ctx, req.(*ListDBClustersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DBClusters_GetDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDBClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DBClustersServer).GetDBCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.DBClusters/GetDBCluster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DBClustersServer).GetDBCluster(ctx, req.(*GetDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -160,6 +229,42 @@ func _DBClusters_DeleteDBCluster_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DBClusters_ListS3Backups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListS3BackupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DBClustersServer).ListS3Backups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.DBClusters/ListS3Backups",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DBClustersServer).ListS3Backups(ctx, req.(*ListS3BackupsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DBClusters_ListSecrets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSecretsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DBClustersServer).ListSecrets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.DBClusters/ListSecrets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DBClustersServer).ListSecrets(ctx, req.(*ListSecretsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DBClusters_ServiceDesc is the grpc.ServiceDesc for DBClusters service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,12 +277,24 @@ var DBClusters_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DBClusters_ListDBClusters_Handler,
 		},
 		{
+			MethodName: "GetDBCluster",
+			Handler:    _DBClusters_GetDBCluster_Handler,
+		},
+		{
 			MethodName: "RestartDBCluster",
 			Handler:    _DBClusters_RestartDBCluster_Handler,
 		},
 		{
 			MethodName: "DeleteDBCluster",
 			Handler:    _DBClusters_DeleteDBCluster_Handler,
+		},
+		{
+			MethodName: "ListS3Backups",
+			Handler:    _DBClusters_ListS3Backups_Handler,
+		},
+		{
+			MethodName: "ListSecrets",
+			Handler:    _DBClusters_ListSecrets_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

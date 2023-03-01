@@ -125,3 +125,23 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 	}
 	return resp, nil
 }
+
+// ListUsers lists all users and their details.
+func (s *Service) ListUsers(_ context.Context, _ *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
+	userRoles, err := models.ListUsers(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &userpb.ListUsersResponse{
+		Users: make([]*userpb.ListUsersResponse_UserDetail, 0, len(userRoles)),
+	}
+	for userID, roleIDs := range userRoles {
+		resp.Users = append(resp.Users, &userpb.ListUsersResponse_UserDetail{
+			UserId:  uint32(userID),
+			RoleIds: roleIDs,
+		})
+	}
+
+	return resp, nil
+}

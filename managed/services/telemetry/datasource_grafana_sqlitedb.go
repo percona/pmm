@@ -22,7 +22,7 @@ import (
 	"io"
 	"os"
 
-	// Events, errors and driver for for grafana sqlite database.
+	// Events, errors and driver for grafana sqlite database.
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

@@ -32,6 +32,8 @@ func (v *GRPC) V(l int) bool {
 }
 
 // override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync
+//
+//nolint:stylecheck
 func (v *GRPC) Info(args ...interface{})                 { v.Trace(args...) }
 func (v *GRPC) Infoln(args ...interface{})               { v.Traceln(args...) }
 func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }

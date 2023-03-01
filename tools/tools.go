@@ -30,14 +30,13 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/jstemmer/go-junit-report"
-	_ "github.com/kevinburke/go-bindata/go-bindata"
 	_ "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators"
 	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
+	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/cmd/mockery"
 	_ "golang.org/x/perf/cmd/benchstat"
 	_ "golang.org/x/tools/cmd/goimports"
-	_ "golang.org/x/tools/gopls"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
 	_ "gopkg.in/reform.v1/reform"
@@ -51,11 +50,9 @@ import (
 //go:generate go build -o ../bin/gci github.com/daixiang0/gci
 //go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
 //go:generate go build -o ../bin/go-junit-report github.com/jstemmer/go-junit-report
-//go:generate go build -o ../bin/go-bindata github.com/kevinburke/go-bindata/go-bindata
 //go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
 //go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
 //go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
-//go:generate go build -o ../bin/gopls golang.org/x/tools/gopls
 //go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
 //go:generate go build -o ../bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
 //go:generate go build -o ../bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
@@ -66,4 +63,5 @@ import (
 //go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 //go:generate go build -o ../bin/swagger-order github.com/Percona-Lab/swagger-order
+//go:generate go build -o ../bin/ifacemaker github.com/vburenin/ifacemaker
 //go:generate env CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye

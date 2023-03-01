@@ -8,6 +8,9 @@ release-dev-managed:              ## Build pmm-managed
 release-dev-agent:                ## Build pmm-agent
 	make -C agent release-dev
 
+release-vmproxy:                  ## Build vmproxy
+	make -C vmproxy release
+
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -25,6 +28,12 @@ run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
 
+run-vmproxy: release-vmproxy
+	supervisorctl stop vmproxy
+	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
+	supervisorctl start vmproxy
+
+
 run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 
 run:                                 ## Deprecated
@@ -38,10 +47,10 @@ run:                                 ## Deprecated
 # 			-race -c -o bin/pmm-managed.test
 # 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
-psql:                           ## Open database for the pmm-managed instance in psql shell.
+psql:                           ## Open database for the pmm-managed instance in psql shell
 	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
 
-psql-test:                      ## Open database used in unit tests in psql shell.
+psql-test:                      ## Open database used in unit tests in psql shell
 	env psql -U postgres pmm-managed-dev
 
 dlv/attach:						## Attache Delve to `pmm-managed`

@@ -239,7 +239,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id
@@ -367,7 +367,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 
 	// Last, find all pmm-agents.
 	ph := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
-	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s' ORDER BY agent_id", ph, PMMAgentType) //nolint:gosec
+	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s' ORDER BY agent_id", ph, PMMAgentType)
 	pmmAgentRecords, err := q.SelectAllFrom(AgentTable, atail, pmmAgentIDs...)
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)

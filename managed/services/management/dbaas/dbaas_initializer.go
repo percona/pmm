@@ -43,7 +43,11 @@ type Initializer struct {
 	m       sync.Mutex
 }
 
-const defaultClusterName = "default-pmm-cluster"
+const (
+	defaultClusterName  = "default-pmm-cluster"
+	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
+	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
+)
 
 var errClusterExists = errors.New("cluster already exists")
 
@@ -57,6 +61,7 @@ func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	}
 }
 
+// RegisterKubernetesServer sets the Kubernetes server instance.
 func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer) {
 	in.kubernetesServer = k
 }

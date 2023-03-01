@@ -42,6 +42,11 @@ func (this *Operators) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Psmdb", err)
 		}
 	}
+	if this.Dbaas != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Dbaas); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Dbaas", err)
+		}
+	}
 	return nil
 }
 
@@ -133,5 +138,16 @@ func (this *GetResourcesResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Available", err)
 		}
 	}
+	return nil
+}
+
+func (this *ListStorageClassesRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	return nil
+}
+
+func (this *ListStorageClassesResponse) Validate() error {
 	return nil
 }

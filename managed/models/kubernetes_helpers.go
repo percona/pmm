@@ -105,12 +105,26 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 		ID:                    id,
 		KubernetesClusterName: params.KubernetesClusterName,
 		KubeConfig:            params.KubeConfig,
+		IsReady:               false,
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return row, nil
+}
+
+// ChangeKubernetesClusterToReady changes k8s cluster to ready state once provisioning is finished
+func ChangeKubernetesClusterToReady(q *reform.Querier, name string) error {
+	c, err := FindKubernetesClusterByName(q, name)
+	if err != nil {
+		return err
+	}
+	c.IsReady = true
+	if err = q.Update(c); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
 
 // RemoveKubernetesCluster removes Kubernetes cluster with provided name.

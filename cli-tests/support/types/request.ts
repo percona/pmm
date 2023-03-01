@@ -1,4 +1,5 @@
-import { request } from '@playwright/test';
+import { APIRequest, expect, request } from '@playwright/test';
+import PromiseRetry from 'promise-retry';
 
 type PMMRequest = {
   port?: number,
@@ -30,11 +31,13 @@ class PMMRestClient {
   username: string;
   password: string;
   port: number;
+  requestOpts: Parameters<APIRequest['newContext']>[0];
 
-  constructor(username: string, password: string, port = 80) {
+  constructor(username: string, password: string, port = 80, requestOpts: Parameters<APIRequest['newContext']>[0] = {}) {
     this.username = username;
     this.password = password;
     this.port = port;
+    this.requestOpts = requestOpts
   }
 
   async context() {
@@ -43,6 +46,7 @@ class PMMRestClient {
       extraHTTPHeaders: {
         Authorization: `Basic ${encodeAuth(this.username, this.password)}`,
       },
+      ...this.requestOpts,
     });
   }
 
@@ -50,6 +54,24 @@ class PMMRestClient {
     const ctx = await this.context();
 
     return ctx.post(path, { data });
+  }
+
+  async works() {
+    await PromiseRetry(async retry => {
+      const resp = await this.doPost('/v1/Settings/Get').catch(err => retry(err))
+      const respBody = await resp.json().catch(err => retry(err))
+
+      try {
+        expect(resp.ok()).toBeTruthy()
+        expect(respBody).toHaveProperty('settings')
+      } catch(err) {
+        return retry(err)
+      }
+    }, {
+      retries: 30,
+      minTimeout: 1000,
+      maxTimeout: 1000,
+    })
   }
 }
 

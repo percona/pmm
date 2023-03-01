@@ -3,9 +3,8 @@ templates:
   - name: pmm_mysql_replication_io_running
     version: 1
     summary: MySQL replication running IO
-    tiers: [anonymous, registered]
     expr: |-
-      mysql_slave_status_master_server_id > bool 0 and ON (instance) mysql_slave_status_slave_io_running == bool 0
+      mysql_slave_status_master_server_id > 0 and ON (instance) mysql_slave_status_slave_io_running == 0
     for: 1m
     severity: critical
     annotations:

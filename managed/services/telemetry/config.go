@@ -38,7 +38,7 @@ const (
 )
 
 // ServiceConfig telemetry config.
-type ServiceConfig struct {
+type ServiceConfig struct { //nolint:musttag
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
 	telemetry    []Config `yaml:"-"`
@@ -79,7 +79,7 @@ type DSGrafanaSqliteDB struct {
 }
 
 // DSConfigPMMDB telemetry config.
-type DSConfigPMMDB struct {
+type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
@@ -210,12 +210,12 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig //nolint:prealloc
+	var fileConfigs []FileConfig
 	var fileCfg FileConfig
 
 	var config []byte
 	if configFile != "" {
-		file, err := os.ReadFile(configFile)
+		file, err := os.ReadFile(configFile) //nolint:gosec
 		if err != nil {
 			return nil, err
 		}

@@ -36,7 +36,7 @@ type ErrorResponse interface {
 	Code() int
 }
 
-// A minimal subset of *testing.T that we use that is also should be implemented by *expectedFailureTestingT.
+// TestingT contains minimal subset of *testing.T that we use that is also should be implemented by *expectedFailureTestingT.
 type TestingT interface {
 	Helper()
 	Name() string

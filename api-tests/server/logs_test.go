@@ -81,6 +81,7 @@ func TestDownloadLogs(t *testing.T) {
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.log",
 	}
 
 	if os.Getenv("PERCONA_TEST_DBAAS") == "1" {

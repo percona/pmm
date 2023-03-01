@@ -40,7 +40,7 @@ type agentsRegistry interface {
 	StartMongoDBQueryGetDiagnosticDataAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error
 }
 
-// alertmanagerService is is a subset of methods of alertmanager.Service used by this package.
+// alertmanagerService is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertmanagerService interface {
 	SendAlerts(ctx context.Context, alerts ammodels.PostableAlerts)

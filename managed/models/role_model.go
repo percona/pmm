@@ -27,8 +27,9 @@ import (
 //
 //reform:roles
 type Role struct {
-	ID    uint32 `reform:"id,pk"`
-	Title string `reform:"title"`
+	ID          uint32 `reform:"id,pk"`
+	Title       string `reform:"title"`
+	Description string `reform:"description"`
 	// Filter holds Prometheus filter to which can be applied to a query
 	Filter    string    `reform:"filter"`
 	CreatedAt time.Time `reform:"created_at"`

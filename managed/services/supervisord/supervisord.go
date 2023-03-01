@@ -362,7 +362,7 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck
+	defer f.Close() //nolint:errcheck,gosec
 
 	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
 		return nil, 0, errors.WithStack(err)
@@ -675,6 +675,28 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/vmalert.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "vmproxy"}}
+[program:vmproxy]
+priority = 9
+command =
+    /usr/sbin/vmproxy
+      --target-url=http://127.0.0.1:9090/
+      --listen-port=8430
+      --listen-address=127.0.0.1
+      --header-name=X-Proxy-Filter
+user = pmm
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/vmproxy.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true

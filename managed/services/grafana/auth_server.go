@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package grafana contains Grafana related functionality.
 package grafana
 
 import (
@@ -99,7 +100,7 @@ var vmProxyPrefixes = []string{
 	"/prometheus/api/v1/",
 }
 
-const vmProxyHeaderName = "X-Percona-Proxy-Filters"
+const vmProxyHeaderName = "X-Proxy-Filter"
 
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
@@ -145,27 +146,30 @@ type clientInterface interface {
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c             clientInterface
-	checker       awsInstanceChecker
-	db            *reform.DB
-	l             *logrus.Entry
-	accessControl bool
+	c       clientInterface
+	checker awsInstanceChecker
+	db      *reform.DB
+	l       *logrus.Entry
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
+
+	accessControl *accessControl
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB, enableAccessControl bool) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
 	return &AuthServer{
-		c:             c,
-		checker:       checker,
-		db:            db,
-		l:             logrus.WithField("component", "grafana/auth"),
-		cache:         make(map[string]cacheItem),
-		accessControl: enableAccessControl,
+		c:       c,
+		checker: checker,
+		db:      db,
+		l:       logrus.WithField("component", "grafana/auth"),
+		cache:   make(map[string]cacheItem),
+		accessControl: &accessControl{
+			db: db,
+		},
 	}
 }
 
@@ -307,10 +311,6 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 }
 
 func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
-	if !s.accessControl {
-		return false
-	}
-
 	addFilters := false
 	for _, p := range vmProxyPrefixes {
 		if strings.HasPrefix(req.URL.Path, p) {
@@ -319,7 +319,11 @@ func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
 		}
 	}
 
-	return addFilters
+	if !addFilters {
+		return false
+	}
+
+	return s.accessControl.isEnabled()
 }
 
 func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
@@ -352,9 +356,10 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 
 	filters := make([]string, 0, len(roles))
 	for _, r := range roles {
-		filters = append(filters, r.Filter)
+		if r.Filter != "" {
+			filters = append(filters, r.Filter)
+		}
 	}
-
 	return filters, nil
 }
 

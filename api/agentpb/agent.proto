@@ -45,6 +45,7 @@ message StateChangedRequest {
   inventory.AgentStatus status = 2;
   uint32 listen_port = 3;
   string process_exec_path = 4;
+  string version = 5;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
@@ -639,6 +640,12 @@ message GetVersionsRequest {
   // Qpress is used for qpress binary version retrieving.
   message Qpress {}
 
+  // MongoDB is used for mongod binary version retrieving.
+  message MongoDB {}
+
+  // PBM is used for pbm (Percona Backup for MongoDB) binary version retrieving.
+  message PBM {}
+
   // Software is used to select software for which retrieve version.
   message Software {
     oneof software {
@@ -646,6 +653,8 @@ message GetVersionsRequest {
       Xtrabackup xtrabackup = 2;
       Xbcloud xbcloud = 3;
       Qpress qpress = 4;
+      MongoDB mongod = 5;
+      PBM pbm = 6;
     }
   }
   repeated Software softwares = 1;

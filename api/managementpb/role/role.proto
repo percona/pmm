@@ -15,6 +15,7 @@ message CreateRoleRequest {
     }
   ];
   string filter = 2;
+  string description = 3;
 }
 
 message CreateRoleResponse {
@@ -33,6 +34,7 @@ message UpdateRoleRequest {
     }
   ];
   string filter = 3;
+  string description = 4;
 }
 message UpdateRoleResponse {}
 
@@ -42,6 +44,8 @@ message DeleteRoleRequest {
       int_gt: 0
     }
   ];
+  // Role ID to be used as a replacement for the role. Additional logic applies.
+  uint32 replacement_role_id = 2;
 }
 
 message DeleteRoleResponse {}
@@ -58,6 +62,7 @@ message GetRoleResponse {
   uint32 role_id = 1;
   string title = 2;
   string filter = 3;
+  string description = 4;
 }
 
 message SetDefaultRoleRequest {
@@ -88,6 +93,7 @@ message ListRolesResponse {
     uint32 role_id = 1;
     string title = 2;
     string filter = 3;
+    string description = 4;
   }
 
   repeated RoleData roles = 1;

@@ -43,7 +43,7 @@ type Config struct {
 func RunProxy(cfg Config) error {
 	logrus.Infof("Starting to proxy at http://%s to %s", cfg.ListenAddress, cfg.TargetURL.String())
 
-	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg))
+	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg)) //nolint:gosec
 	return err
 }
 

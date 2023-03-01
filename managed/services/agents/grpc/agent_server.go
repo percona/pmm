@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package grpc contains functionality for agent <-> server connection.
 package grpc
 
 import (
@@ -27,7 +28,7 @@ type agentServer struct {
 	agentpb.UnimplementedAgentServer
 }
 
-// NewAgentServer creates new agents server.
+// NewAgentServer creates new agent server.
 func NewAgentServer(r *agents.Handler) agentpb.AgentServer {
 	return &agentServer{
 		handler: r,
