@@ -1,4 +1,4 @@
-FROM oraclelinux:9
+FROM oraclelinux:9-slim
 
 ARG VERSION
 ARG BUILD_DATE
@@ -15,7 +15,7 @@ WORKDIR /opt
 
 # NOTE: Ansible should NOT be installed via yum/dnf
 # Read more: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
-RUN yum -y install python3-pip && \
+RUN microdnf -y install yum && yum -y install python3-pip && \
     python3 -m pip install ansible && \
     python3 -m pip install setuptools && \
     yum -y install epel-release

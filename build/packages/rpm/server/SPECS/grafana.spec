@@ -66,7 +66,6 @@ cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
-sed -i 's:#!/usr/bin/env python:#!/usr/bin/python3:' %{buildroot}/usr/share/grafana/scripts/build/ci-msi-build/msigenerator/generator/build.py
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
