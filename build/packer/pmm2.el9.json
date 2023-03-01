@@ -179,7 +179,7 @@
           "set -o xtrace",
           "pushd pmm2-virtualbox-ovf",
           "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
-          "    sha1sum *.ovf *.vmdk | sed -E 's/^([^ ]+)  ([^ ]+)$/SHA1(\\2)= \\1/' ${NAME}.mf",
+          "    sha256sum *.ovf *.vmdk | sed -E 's/^([^ ]+)  ([^ ]+)$/SHA256(\\2)= \\1/' ${NAME}.mf",
           "    tar -cpf ${NAME}.ova *.ovf *.mf *-disk00*.vmdk",
           "    rm -rf               *.ovf *.mf *-disk00*.vmdk",
           "popd"

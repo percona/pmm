@@ -1,4 +1,5 @@
 %undefine _missing_build_ids_terminate_build
+%define debug_package %{nil}
 
 %global commit_aws          2a9ee95fecab59fab41a0b646a63227d66113434
 %global shortcommit_aws     %(c=%{commit_aws}; echo ${c:0:7})

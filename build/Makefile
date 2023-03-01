@@ -23,8 +23,8 @@ fetch-el9:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| wget --progress=dot:giga https://app.vagrantup.com/bento/boxes/oracle-9/versions/202212.11.0/providers/virtualbox.box \
-		-O ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
+		#|| wget --progress=dot:giga  https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b407.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
 	# https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box
 	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
 	# https://yum.oracle.com/boxes/oraclelinux/ol8/OL8U7_x86_64-vagrant-virtualbox-b377.box
@@ -42,7 +42,7 @@ pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
 pmm2-ovf-el9-rc: fetch-el9
-	/usr/bin/packer build \
+	~/bin/packer build \
 			-var 'pmm_client_repos=original testing' \
 			-var 'pmm_client_repo_name=percona-testing-x86_64' \
 			-var 'pmm2_server_repo=testing' \
