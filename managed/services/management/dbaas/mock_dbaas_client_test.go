@@ -15,29 +15,6 @@ type mockDbaasClient struct {
 	mock.Mock
 }
 
-// CheckKubernetesClusterConnection provides a mock function with given fields: ctx, kubeConfig
-func (_m *mockDbaasClient) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
-	ret := _m.Called(ctx, kubeConfig)
-
-	var r0 *controllerv1beta1.CheckKubernetesClusterConnectionResponse
-	if rf, ok := ret.Get(0).(func(context.Context, string) *controllerv1beta1.CheckKubernetesClusterConnectionResponse); ok {
-		r0 = rf(ctx, kubeConfig)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*controllerv1beta1.CheckKubernetesClusterConnectionResponse)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, kubeConfig)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // Connect provides a mock function with given fields: ctx
 func (_m *mockDbaasClient) Connect(ctx context.Context) error {
 	ret := _m.Called(ctx)
