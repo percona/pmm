@@ -212,7 +212,7 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 // RegisterAgentLocalHandlerFromEndpoint is same as RegisterAgentLocalHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterAgentLocalHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.Dial(endpoint, opts...)
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
 	}
