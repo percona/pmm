@@ -36,8 +36,8 @@ import (
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/pmm/agentpb"
-	"github.com/percona/pmm/api/pmm/inventorypb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 

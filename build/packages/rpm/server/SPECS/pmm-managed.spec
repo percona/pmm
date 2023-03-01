@@ -52,7 +52,7 @@ install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
 cd src/github.com/percona/pmm
-cp -pa ./api/pmm/swagger %{buildroot}%{_datadir}/%{name}
+cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 
 
 %files

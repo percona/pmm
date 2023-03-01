@@ -27,7 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/version"

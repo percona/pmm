@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
-	"github.com/percona/pmm/api/pmm/inventorypb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // Run implements `pmm-agent run` default command.

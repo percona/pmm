@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	backuppb "github.com/percona/pmm/api/pmm/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 func TestCreateDBURL(t *testing.T) {

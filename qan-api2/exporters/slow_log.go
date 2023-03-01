@@ -36,7 +36,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/percona/pmm/api/pmm/inventorypb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 const (

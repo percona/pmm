@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	platformClient "github.com/percona/pmm/api/pmm/platformpb/json/client"
-	"github.com/percona/pmm/api/pmm/platformpb/json/client/platform"
-	serverClient "github.com/percona/pmm/api/pmm/serverpb/json/client"
-	"github.com/percona/pmm/api/pmm/serverpb/json/client/server"
+	platformClient "github.com/percona/pmm/api/platformpb/json/client"
+	"github.com/percona/pmm/api/platformpb/json/client/platform"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
 
 func TestPlatform(t *testing.T) {

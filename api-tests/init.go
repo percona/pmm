@@ -38,14 +38,14 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
-	inventoryClient "github.com/percona/pmm/api/pmm/inventorypb/json/client"
-	alertingClient "github.com/percona/pmm/api/pmm/managementpb/alerting/json/client"
-	backupsClient "github.com/percona/pmm/api/pmm/managementpb/backup/json/client"
-	dbaasClient "github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client"
-	iaClient "github.com/percona/pmm/api/pmm/managementpb/ia/json/client"
-	managementClient "github.com/percona/pmm/api/pmm/managementpb/json/client"
-	platformClient "github.com/percona/pmm/api/pmm/platformpb/json/client"
-	serverClient "github.com/percona/pmm/api/pmm/serverpb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
+	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
+	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
+	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	managementClient "github.com/percona/pmm/api/managementpb/json/client"
+	platformClient "github.com/percona/pmm/api/platformpb/json/client"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 

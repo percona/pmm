@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
 func TestAddServiceExternal(t *testing.T) {

@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 )
 
 func TestAddAgentPostgresExporter(t *testing.T) {

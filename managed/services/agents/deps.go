@@ -20,8 +20,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/pmm/agentpb"
-	qanpb "github.com/percona/pmm/api/pmm/qanpb"
+	"github.com/percona/pmm/api/agentpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.

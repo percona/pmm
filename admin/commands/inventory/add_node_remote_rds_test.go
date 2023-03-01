@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 )
 
 func TestAddNodeRemoteRDS(t *testing.T) {

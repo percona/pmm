@@ -23,9 +23,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	dbaasClient "github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client"
-	dbclusters "github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client/db_clusters"
-	pxcclusters "github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client/pxc_clusters"
+	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	dbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
+	pxcclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
 )
 
 const (

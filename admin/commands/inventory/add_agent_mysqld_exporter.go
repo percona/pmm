@@ -19,8 +19,8 @@ import (
 	"strconv"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 )
 
 var addAgentMysqldExporterResultT = commands.ParseTemplate(`

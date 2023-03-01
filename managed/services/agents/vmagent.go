@@ -18,8 +18,8 @@ package agents
 import (
 	"sort"
 
-	"github.com/percona/pmm/api/pmm/agentpb"
-	"github.com/percona/pmm/api/pmm/inventorypb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.

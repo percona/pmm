@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/stringset"
 	pmmversion "github.com/percona/pmm/version"

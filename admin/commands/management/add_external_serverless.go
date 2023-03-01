@@ -25,8 +25,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client/external"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/external"
 )
 
 var addExternalServerlessResultT = commands.ParseTemplate(`

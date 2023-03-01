@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client"
-	postgresql "github.com/percona/pmm/api/pmm/managementpb/json/client/postgre_sql"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
 )
 
 var addPostgreSQLResultT = commands.ParseTemplate(`

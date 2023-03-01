@@ -30,8 +30,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	alertingClient "github.com/percona/pmm/api/pmm/managementpb/alerting/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/alerting/json/client/alerting"
+	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
+	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results

@@ -17,7 +17,7 @@
 package analytics
 
 import (
-	qanpb "github.com/percona/pmm/api/pmm/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 )
 

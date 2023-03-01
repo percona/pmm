@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 const (

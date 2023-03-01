@@ -23,11 +23,11 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/pmm/inventorypb/json/client"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client/annotation"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 )
 
 func TestAddAnnotation(t *testing.T) {

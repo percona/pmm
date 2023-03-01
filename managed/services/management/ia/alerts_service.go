@@ -31,8 +31,8 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
-	"github.com/percona/pmm/api/pmm/managementpb"
-	iav1beta1 "github.com/percona/pmm/api/pmm/managementpb/ia"
+	"github.com/percona/pmm/api/managementpb"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )

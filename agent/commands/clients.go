@@ -34,9 +34,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
-	agentlocalpb "github.com/percona/pmm/api/pmm/agentlocalpb/json/client"
-	managementpb "github.com/percona/pmm/api/pmm/managementpb/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client/node"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
+	managementpb "github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 

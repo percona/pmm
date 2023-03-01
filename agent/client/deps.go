@@ -19,8 +19,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/percona/pmm/api/pmm/agentlocalpb"
-	"github.com/percona/pmm/api/pmm/agentpb"
+	"github.com/percona/pmm/api/agentlocalpb"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 //go:generate ../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly

@@ -23,8 +23,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	dbaasClient "github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/dbaas/json/client/kubernetes"
+	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 )
 
 func registerKubernetesCluster(t *testing.T, kubernetesClusterName string, kubeconfig string) {

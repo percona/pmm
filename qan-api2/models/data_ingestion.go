@@ -25,7 +25,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/pmm/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 const (

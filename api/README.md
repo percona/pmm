@@ -1,4 +1,4 @@
-# PMM APIs.
+# PMM 2.x APIs.
 
 All generated files (Go code, Swagger spec, documentation) are already stored in this repository.
 

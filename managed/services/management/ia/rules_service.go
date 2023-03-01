@@ -35,9 +35,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/api/pmm/managementpb"
-	alerting "github.com/percona/pmm/api/pmm/managementpb/alerting"
-	iav1beta1 "github.com/percona/pmm/api/pmm/managementpb/ia"
+	"github.com/percona/pmm/api/managementpb"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
 	"github.com/percona/pmm/managed/utils/stringset"

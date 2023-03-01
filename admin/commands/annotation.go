@@ -21,11 +21,11 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/pmm/inventorypb/json/client/services"
-	managementClient "github.com/percona/pmm/api/pmm/managementpb/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/json/client/annotation"
+	"github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	managementClient "github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 )
 
 var annotationResultT = ParseTemplate(`

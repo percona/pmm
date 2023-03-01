@@ -34,7 +34,7 @@ import (
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	pmmversion "github.com/percona/pmm/version"

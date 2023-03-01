@@ -26,7 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"k8s.io/client-go/rest"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/pmm/managementpb/dbaas"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 )
 

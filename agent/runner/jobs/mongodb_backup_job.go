@@ -26,8 +26,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/pmm/agentpb"
-	backuppb "github.com/percona/pmm/api/pmm/managementpb/backup"
+	"github.com/percona/pmm/api/agentpb"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (

@@ -21,8 +21,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/pmm/inventorypb"
-	"github.com/percona/pmm/api/pmm/managementpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )

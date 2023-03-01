@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	backupClient "github.com/percona/pmm/api/pmm/managementpb/backup/json/client"
-	"github.com/percona/pmm/api/pmm/managementpb/backup/json/client/locations"
+	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 )
 
 func TestAddLocation(t *testing.T) {
