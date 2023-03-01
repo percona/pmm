@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
@@ -363,6 +364,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	setupClients(t)
 
 	t.Run("unknown interval", func(t *testing.T) {
 		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -376,7 +378,7 @@ func TestStartChecks(t *testing.T) {
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 
 		s.localChecksFile = testChecksFile
 		s.CollectChecks(context.Background())
