@@ -1,9 +1,26 @@
 ---
-    - name: Packages                   | Add PMM2 Server YUM repository
+    - name: Install the GPG key for repo.percona.com
+      rpm_key:
+      state: present
+      key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
+
+    - name: Packages                   | Add PMM2 Server YUM repository for EL7
       yum_repository:
         name: pmm2-server
         description: PMM Server YUM repository - x86_64
         baseurl: https://repo.percona.com/pmm2-components/yum/{{ pmm2_server_repo }}/7/RPMS/x86_64/
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+
+    - name: Packages                   | Add PMM2 Server YUM repository for EL9
+      when:
+        - ansible_distribution == "OracleLinux"
+        - ansible_distribution_major_version == "9"
+      yum_repository:
+        name: pmm2-server
+        description: PMM Server YUM repository - x86_64
+        baseurl: https://repo.percona.com/pmm2-components/yum/{{ pmm2_server_repo }}/9/RPMS/x86_64/
         gpgcheck: yes
         enabled: yes
         gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
@@ -23,6 +40,7 @@
       yum:
         name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
         state: installed
+        ignore_errors: True
 
     - name: Packages                   | Update OS
       yum:
@@ -31,12 +49,30 @@
         exclude: 'ansible'
         disablerepo: percona-release-x86_64
 
-    - name: Packages                   | Install OS tools
+    - name: Packages                   | Install OS tools for EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
       yum:
         name:
           - python2-pip
           - rsync
 
+    - name: Packages                   | Install OS tools for EL9
+      when:
+        - ansible_distribution == "OracleLinux"
+        - ansible_distribution_major_version == "9"
+      yum:
+        name:
+          - python3-pip
+          - rsync
+          - libsqlite3x-devel # package does not come pre-installed on EL9
+    
+    - name: Create users for non-docker images          | Create users
+      user:
+        name: "pmm"
+      when: ansible_virtualization_type != "docker"
+    
     - name: Create users for non-docker images          | Create users
       user:
         name: "pmm"
