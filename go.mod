@@ -50,7 +50,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.49
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/operator-framework/api v0.17.3
-	github.com/operator-framework/operator-lifecycle-manager v0.23.1
+	github.com/operator-framework/operator-lifecycle-manager v3.11.0+incompatible
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/dbaas-operator v0.1.3
@@ -98,6 +98,7 @@ require (
 	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
+	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.4.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
@@ -139,6 +140,7 @@ require (
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	k8s.io/apiextensions-apiserver v0.25.2 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
