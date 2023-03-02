@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -46,14 +47,19 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
+		kubeClient *mockKubernetesClient, grafanaClient *mockGrafanaClient,
+		versionService *mockVersionService, teardown func(t *testing.T),
+	) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		// To enable verbose queries output use:
+		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 		dbaasClient = &mockDbaasClient{}
 		kubeClient = &mockKubernetesClient{}
 		grafanaClient = &mockGrafanaClient{}
@@ -63,7 +69,8 @@ func TestKubernetesServer(t *testing.T) {
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
 		}
-		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
+		// versionService = NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
+		versionService = &mockVersionService{}
 		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
 		clients := map[string]kubernetesClient{
@@ -83,30 +90,30 @@ func TestKubernetesServer(t *testing.T) {
 	//     }
 	//
 	if pmmversion.PMMVersion == "" {
-		pmmversion.PMMVersion = "2.30.0"
+		pmmversion.PMMVersion = version230
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dc, kubeClient, grafanaClient, teardown := setup(t)
+		ctx, ks, dbaasClient, kubeClient, grafanaClient, versionService, teardown := setup(t)
+		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
+		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
-		kubeconfig := "preferences: {}\n"
+
+		v1120, _ := goversion.NewVersion("1.12.0")
+		versionService.On("LatestOperatorVersion", mock.Anything, mock.Anything).Return(v1120, v1120, nil)
 
 		clusters, err := ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
-		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-		dc.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-		mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
-			Subscription: &controllerv1beta1.Subscription{
-				InstallPlanName: "mocked-install-plan",
-			},
-		}
-		dc.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
-		dc.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
-		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
-		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
+		kubeconfig := "preferences: {}\n"
+
+		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
+		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
+		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
 		clients := map[string]kubernetesClient{
@@ -115,8 +122,6 @@ func TestKubernetesServer(t *testing.T) {
 		s := ks.(*kubernetesServer)
 		s.kubeStorage.clients = clients
 		ks = s
-		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.8.0", nil)
-		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 			KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: kubeconfig},
@@ -132,6 +137,20 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NotNil(t, getClusterResponse.KubeAuth)
 		assert.Equal(t, kubeconfig, getClusterResponse.KubeAuth.Kubeconfig)
 
+		supportedOperatorVersions := map[string][]string{
+			"pxc-operator": {
+				"1.10.0",
+				"1.11.0",
+				"1.9.0",
+			},
+			"psmdb-operator": {
+				"1.11.0",
+				"1.12.0",
+				"1.10.0",
+			},
+		}
+		versionService.On("SupportedOperatorVersionsList", mock.Anything, mock.Anything).Return(supportedOperatorVersions, nil)
+
 		clusters, err = ks.ListKubernetesClusters(ctx, &dbaasv1beta1.ListKubernetesClustersRequest{})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(clusters.KubernetesClusters))
@@ -146,6 +165,8 @@ func TestKubernetesServer(t *testing.T) {
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
 		}
+
+		// These 2 lines below will fail if you don't run the entire test suit since they depend on previous tests to set the values.
 		assert.Equal(t, expected[0].Operators, clusters.KubernetesClusters[0].Operators)
 		assert.Equal(t, expected[0].KubernetesClusterName, clusters.KubernetesClusters[0].KubernetesClusterName)
 		assert.True(
@@ -183,6 +204,8 @@ func TestKubernetesServer(t *testing.T) {
 				},
 			},
 		}
+
+		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 		listDatabaseMock := kubeClient.On("ListDatabaseClusters", ctx)
 		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 
