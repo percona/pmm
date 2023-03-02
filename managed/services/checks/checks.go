@@ -114,6 +114,13 @@ type Service struct {
 	mChecksDownloaded *prom.CounterVec
 }
 
+// queryPlaceholders contain known fields that can be used as placeholders in a check's query.
+type queryPlaceholders struct {
+	ServiceID   string
+	ServiceName string
+	NodeName    string
+}
+
 // New returns Service with given PMM version.
 func New(
 	db *reform.DB,
@@ -837,7 +844,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 
 	res, err := s.processResults(ctx, c, target, resData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to process check result")
+		return nil, errors.Wrap(err, "failed to process query result")
 	}
 
 	return res, nil
@@ -1047,10 +1054,7 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 }
 
 func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	queryData := struct {
-		ServiceName string
-		NodeName    string
-	}{
+	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
 	}
@@ -1088,10 +1092,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 }
 
 func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	queryData := struct {
-		ServiceName string
-		NodeName    string
-	}{
+	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
 	}
@@ -1154,10 +1155,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 }
 
 func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
-	queryData := struct {
-		ServiceName string
-		ServiceID   string
-	}{
+	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		ServiceID:   target.ServiceID,
 	}
@@ -1210,7 +1208,7 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	return res, nil
 }
 
-func fillQueryPlaceholders(query string, data interface{}) (string, error) {
+func fillQueryPlaceholders(query string, data queryPlaceholders) (string, error) {
 	tm, err := template.New("query").Parse(query)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse query")

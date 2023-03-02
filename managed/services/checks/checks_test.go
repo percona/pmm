@@ -783,11 +783,11 @@ func TestFillQueryPlaceholders(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		name      string
-		query     string
-		queryData interface{}
-		expected  string
-		errString string
+		name         string
+		query        string
+		placeholders queryPlaceholders
+		expected     string
+		errString    string
 	}
 
 	target := services.Target{
@@ -801,10 +801,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			name:     "vm query with placeholders",
 			query:    "some query with service={{ .ServiceName }} and node={{ .NodeName }}",
 			expected: "some query with service=service_name and node=node_name",
-			queryData: struct {
-				ServiceName string
-				NodeName    string
-			}{
+			placeholders: queryPlaceholders{
 				ServiceName: target.ServiceName,
 				NodeName:    target.NodeName,
 			},
@@ -813,9 +810,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			name:     "clickhouse query with placeholders",
 			query:    "m_docs_scanned FROM metrics WHERE service_id='{{.ServiceID}}' AND period_start >= subtractHours(now(), 1) AND col1 < 10",
 			expected: "m_docs_scanned FROM metrics WHERE service_id='test_service_id' AND period_start >= subtractHours(now(), 1) AND col1 < 10",
-			queryData: struct {
-				ServiceID string
-			}{
+			placeholders: queryPlaceholders{
 				ServiceID: target.ServiceID,
 			},
 		},
@@ -823,10 +818,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			name:     "vm query without placeholders",
 			query:    "some query",
 			expected: "some query",
-			queryData: struct {
-				ServiceName string
-				NodeName    string
-			}{
+			placeholders: queryPlaceholders{
 				ServiceName: target.ServiceName,
 				NodeName:    target.NodeName,
 			},
@@ -835,21 +827,17 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			name:     "clickhouse query without placeholders",
 			query:    "fingerprint FROM metrics",
 			expected: "fingerprint FROM metrics",
-			queryData: struct {
-				ServiceID string
-			}{
+			placeholders: queryPlaceholders{
 				ServiceID: target.ServiceID,
 			},
 		},
 		{
 			name:  "unknown placeholder in query",
 			query: "some query with service={{ .ServiceName }} and os={{ .OS }}",
-			queryData: struct {
-				ServiceName string
-			}{
+			placeholders: queryPlaceholders{
 				ServiceName: target.ServiceName,
 			},
-			errString: "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type struct { ServiceName string }",
+			errString: "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type checks.queryPlaceholders",
 		},
 	}
 
@@ -858,7 +846,7 @@ func TestFillQueryPlaceholders(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			actual, err := fillQueryPlaceholders(tt.query, tt.queryData)
+			actual, err := fillQueryPlaceholders(tt.query, tt.placeholders)
 			if tt.errString == "" {
 				require.NoError(t, err)
 				assert.Equal(t, tt.expected, actual)
