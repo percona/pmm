@@ -13,7 +13,7 @@ To create a scheduled backup do the following:
 
     From the main menu, navigate to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* → *Backup  Management* to enable *Backup management*.
 
-2. Add add a backup storage location:
+2. Add a backup storage location:
 
     !!! note alert alert-primary "Note"
         Currently, only S3 is supported.
