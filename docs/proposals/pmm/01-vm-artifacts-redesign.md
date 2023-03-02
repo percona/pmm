@@ -317,6 +317,17 @@ virt-install --connect="qemu:///system" --name="${VM_NAME}" --vcpus="${VCPUS}" -
 
 Check `IP` address on a VM and got to the PMM UI in the browser using it. Validate that old and new data is present.
 
+#### Going beyond the PoC
+
+There is no need to bind volume. Persistent volume should be mounted to the correct path so docker state and volumes would be saved there automatically.
+
+Ignition has a lot of features, so there could be:
+
+- additional service to re-size volume if it is expanded
+- configuration files that change behavior of the container (envs)
+- auto-rollback
+- etc
+
 ## Drawbacks
 
 ### AWS Marketplace
