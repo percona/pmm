@@ -19,9 +19,12 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
+	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
@@ -39,6 +42,7 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	pmmversion "github.com/percona/pmm/version"
 )
 
 const pxcKubeconfigTest = `
@@ -77,8 +81,19 @@ const pxcKubeconfigTest = `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPXCClusterService(t *testing.T) {
+	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
+	// these lines in kubernetes_server.go will throw an error and tests won't finish.
+	//
+	//     pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	//     if err != nil {
+	//     	return nil, status.Error(codes.Internal, err.Error())
+	//     }
+	//
+	if pmmversion.PMMVersion == "" {
+		pmmversion.PMMVersion = "2.30.0"
+	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		kubeClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
+		componentsService *mockComponentsService, kubeClient *mockKubernetesClient, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -86,7 +101,7 @@ func TestPXCClusterService(t *testing.T) {
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
 		kubeClient = &mockKubernetesClient{}
@@ -100,24 +115,31 @@ func TestPXCClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, kubeClient, componentsClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
 	defer teardown(t)
-	versionService := NewVersionServiceClient(versionServiceURL)
+
+	versionService := &mockVersionService{}
+	v1120, _ := goversion.NewVersion("1.12.0")
+	versionService.On("LatestOperatorVersion", mock.Anything, mock.Anything).Return(v1120, v1120, nil)
+	versionService.On("GetVersionServiceURL", mock.Anything).Return("", nil)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
-	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
-	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
-		Subscription: &controllerv1beta1.Subscription{
-			InstallPlanName: "mocked-install-plan",
-		},
-	}
-	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
+
+	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(15*time.Second)).
+		Return(&controllerv1beta1.StartMonitoringResponse{}, nil).Run(func(a mock.Arguments) {
+		// StartMonitoring if being called in a go-routine. Since we cannot forsee when the runtime scheduler
+		// is going to assing some time to this go-routine, the waitgroup is being used to signal than the test
+		// can continue.
+		wg.Done()
+	})
 
 	clients := map[string]kubernetesClient{
 		pxcKubernetesClusterNameTest: kubeClient,
@@ -132,6 +154,9 @@ func TestPXCClusterService(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
+	wg.Wait()
+
+	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
