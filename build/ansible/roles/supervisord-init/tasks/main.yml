@@ -7,6 +7,7 @@
 
 - name: Configure supervisor       | Create a defult configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
+  ignore_errors: yes
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:

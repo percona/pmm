@@ -110,11 +110,23 @@
     owner: root
     group: root
 
-- name: Start clickhouse
+- name: Start clickhouse EL9
+  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
   supervisorctl:
     name: clickhouse
     state: "{{ item }}"
     supervisorctl_path: /usr/local/bin/supervisorctl
+  become: true
+  loop:
+    - present
+    - started
+
+- name: Start clickhouse EL7
+  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+  supervisorctl:
+    name: clickhouse
+    state: "{{ item }}"
+    supervisorctl_path: supervisorctl
   become: true
   loop:
     - present

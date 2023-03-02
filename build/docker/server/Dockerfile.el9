@@ -16,6 +16,7 @@ WORKDIR /opt
 # NOTE: Ansible should NOT be installed via yum/dnf
 # Read more: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
 RUN microdnf -y install yum && yum -y install python3-pip && \
+    yum -y install oracle-epel-release-el9 ansible-core && \
     python3 -m pip install ansible && \
     python3 -m pip install setuptools && \
     yum -y install epel-release

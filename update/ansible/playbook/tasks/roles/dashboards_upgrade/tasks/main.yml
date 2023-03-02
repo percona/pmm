@@ -57,12 +57,22 @@
 
 - name: Remove old dashboards from SQLite
   block:
-    - name: Restart grafana before deleting data
+    - name: Restart grafana before deleting data EL7
+      supervisorctl:
+        name: grafana
+        state: stopped
+        supervisorctl_path: supervisorctl
+      become: true
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+      ignore_errors: true
+
+    - name: Restart grafana before deleting data EL9
       supervisorctl:
         name: grafana
         state: stopped
         supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
       ignore_errors: true
       # FIXME: we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
@@ -87,18 +97,37 @@
       changed_when: true
   when: sqlite_grafana.stat.exists
 
-- name: Restart grafana with new plugins
+- name: Restart grafana with new plugins EL7
+  supervisorctl:
+    name: grafana
+    state: restarted
+    supervisorctl_path: supervisorctl
+  become: true
+  ignore_errors: true
+  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+  # TODO: fix the race condition.
+  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+
+- name: Restart grafana with new plugins EL9
   supervisorctl:
     name: grafana
     state: restarted
     supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
+  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+
+
+- name: Create Percoma_DASHBOARD_VERSION
+  command: mkdir -p /srv/grafana/ && /usr/bin/cat /usr/share/percona-dashboards/VERSION > /srv/grafana/PERCONA_DASHBOARDS_VERSION
+  ignore_errors: true
+  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
 
 - name: Copy file with image version
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     remote_src: yes
+  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'

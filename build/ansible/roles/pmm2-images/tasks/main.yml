@@ -80,15 +80,12 @@
   when: ansible_virtualization_type != "docker"
 
 - name: Create users and groups in docker container
-  run: cat /etc/passwd
-  when: ansible_virtualization_type == "docker"
-
-- name: Create users and groups in docker container
   block:
     - name: Ensure groups exist with correct gid
       group:
         name: "{{ item.name }}"
         gid: "{{ item.gid }}"
+        non_unique: true
       loop:
         - { name: pmm, gid: 1000 }
         - { name: nginx, gid: 999 }
@@ -104,6 +101,7 @@
         comment: "{{ item.comment }}"
         shell: "{{ item.shell }}"
         group: "{{ item.group }}"
+        non_unique: true
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm, }
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx, }
