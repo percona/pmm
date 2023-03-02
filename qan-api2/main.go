@@ -64,7 +64,7 @@ import (
 
 const (
 	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s"
+	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s&allow_deprecated_database_ordinary=1"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
 )
@@ -321,7 +321,7 @@ func main() {
 		dsn = *dsnF
 	}
 
-	l.Info("DNS: ", dsn)
+	l.Info("DSN: ", dsn)
 	db := NewDB(dsn, maxIdleConns, maxOpenConns)
 
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
