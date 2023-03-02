@@ -10,7 +10,7 @@ import "google/api/annotations.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
 
-// AddNodeParams is a params to add new node to inventory while adding new service.
+// AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 message AddNodeParams {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
@@ -50,7 +50,19 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-// Service service provides public methods for managing Services.
+// List
+message ListServicesRequest {
+  // Return only Services running on that Node.
+  string node_id = 1;
+  // Return only services filtered by service type.
+  inventory.ServiceType service_type = 2;
+  // Return only services in this external group.
+  string external_group = 3;
+}
+
+message ListServiceResponse {}
+
+// Service service provides public methods for managing and querying Services.
 service Service {
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
@@ -61,6 +73,17 @@ service Service {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
       description: "Removes Service with Agents."
+    };
+  }
+  // ListServices returns a list of Services filtered by type.
+  rpc ListServices(ListServicesRequest) returns (ListServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Service/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Services"
+      description: "Returns a list of Services filtered."
     };
   }
 }

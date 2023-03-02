@@ -134,6 +134,58 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	return services, nil
 }
 
+// ViewServices returns a filtered Services recordset enriched with Agents.
+func ViewServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
+	var conditions []string
+	var args []interface{}
+	idx := 1
+	if filters.NodeID != "" {
+		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.NodeID)
+		idx++
+	}
+	if filters.ExternalGroup != "" {
+		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
+		args = append(args, filters.ExternalGroup)
+		idx++
+	}
+	if filters.ServiceType != nil {
+		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
+		args = append(args, filters.ServiceType)
+		idx++
+	}
+	if filters.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		args = append(args, filters.Cluster)
+	}
+	var whereClause string
+	if len(conditions) != 0 {
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+	}
+
+	query := fmt.Sprintf("SELECT * FROM %s %s ORDER BY service_id", ServiceTable.s.SQLName, whereClause)
+	rows, err := q.Query(query)
+
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer rows.Close()
+
+	services := make([]*Service), 0, len(rows))
+	for rows.Next() {
+		s := &Service{}
+		if err = rows.Scan(s); err != nil {
+			return nil, errors.WithStack(err)
+		}
+		services = append(services, s)
+	}
+	// for i, s := range structs {
+	// 	services[i] = s.(*Service)
+	// }
+
+	return services, nil
+}
+
 // FindActiveServiceTypes returns all active Service Types.
 func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
