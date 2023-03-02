@@ -15,7 +15,7 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
-	github.com/ClickHouse/clickhouse-go/v2 v2.6.4
+	github.com/ClickHouse/clickhouse-go/v2 v2.6.5
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
@@ -63,7 +63,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.25.0
 	github.com/prometheus/client_golang v1.14.0
-	github.com/prometheus/common v0.40.0
+	github.com/prometheus/common v0.41.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0
@@ -82,11 +82,11 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.26.1
-	k8s.io/apimachinery v0.26.1
-	k8s.io/cli-runtime v0.26.1
-	k8s.io/client-go v0.26.1
-	k8s.io/kubectl v0.26.1
+	k8s.io/api v0.26.2
+	k8s.io/apimachinery v0.26.2
+	k8s.io/cli-runtime v0.26.2
+	k8s.io/client-go v0.26.2
+	k8s.io/kubectl v0.26.2
 	modernc.org/sqlite v1.21.0
 	sigs.k8s.io/controller-runtime v0.13.0
 	vitess.io/vitess v0.15.2
