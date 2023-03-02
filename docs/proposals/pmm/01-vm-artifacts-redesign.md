@@ -319,12 +319,14 @@ Check `IP` address on a VM and got to the PMM UI in the browser using it. Valida
 
 #### Going beyond the PoC
 
+Podman was used just for the demo and could also be docker.
+
 There is no need to bind volume. Persistent volume should be mounted to the correct path so docker state and volumes would be saved there automatically.
 
 Ignition has a lot of features, so there could be:
 
 - additional service to re-size volume if it is expanded
-- configuration files that change behavior of the container (envs)
+- configuration files that change the behavior of the container (envs)
 - auto-rollback
 - etc
 
