@@ -152,7 +152,7 @@ func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgen
 	require.NotNil(t, listAgentsOK)
 	require.NotNil(t, listAgentsOK.Payload)
 
-	var agentIDs []string
+	var agentIDs []string //nolint:prealloc
 	for _, agent := range listAgentsOK.Payload.NodeExporter {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}

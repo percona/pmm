@@ -18,6 +18,7 @@ package kubernetes
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -38,10 +39,6 @@ const (
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
-
-	memorySmallSize  = int64(2) * 1000 * 1000 * 1000
-	memoryMediumSize = int64(8) * 1000 * 1000 * 1000
-	memoryLargeSize  = int64(32) * 1000 * 1000 * 1000
 )
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
@@ -61,22 +58,6 @@ var exposeAnnotationsMap = map[ClusterType]map[string]string{
 	},
 	ClusterTypeGeneric: make(map[string]string),
 }
-
-const (
-	pxcDefaultConfigurationTemplate = `[mysqld]
-wsrep_provider_options="gcache.size=%s"
-wsrep_trx_fragment_unit='bytes'
-wsrep_trx_fragment_size=3670016
-`
-	haProxyDefaultConfigurationTemplate = `timeout client 28800s
-timeout connect 100500
-timeout server 28800s
-`
-	psmdbDefaultConfigurationTemplate = `
-      operationProfiling:
-        mode: slowOp
-`
-)
 
 func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.ResourceRequirements, error) {
 	req := corev1.ResourceRequirements{}
@@ -105,26 +86,12 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
 		return nil, nil, errors.New("only s3 compatible storages are supported for backup/restore")
 	}
-	memory := cluster.Params.Pxc.ComputeResources.MemoryBytes
-	gCacheSize := "600M"
 	diskSize := resource.NewQuantity(cluster.Params.Pxc.DiskSize, resource.DecimalSI)
 	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Pxc.ComputeResources.CpuM))
 	if err != nil {
 		return nil, nil, err
 	}
 	clusterMemory := resource.NewQuantity(cluster.Params.Pxc.ComputeResources.MemoryBytes, resource.DecimalSI)
-	if cluster.Params.Pxc.Configuration == "" {
-		if memory > memorySmallSize && memory <= memoryMediumSize {
-			gCacheSize = "2457M"
-		}
-		if memory > memoryMediumSize && memory <= memoryLargeSize {
-			gCacheSize = "9830M"
-		}
-		if memory > memoryLargeSize {
-			gCacheSize = "9830M"
-		}
-		cluster.Params.Pxc.Configuration = fmt.Sprintf(pxcDefaultConfigurationTemplate, gCacheSize)
-	}
 	dbCluster := &dbaasv1.DatabaseCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: cluster.Name,
@@ -163,7 +130,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
 		dbCluster.Spec.LoadBalancer.Resources = resources
 		dbCluster.Spec.LoadBalancer.Type = "haproxy"
-		dbCluster.Spec.LoadBalancer.Configuration = haProxyDefaultConfigurationTemplate
 		dbCluster.Spec.LoadBalancer.TrafficPolicy = "Cluster"
 	}
 	if cluster.Params.Proxysql != nil {
@@ -177,9 +143,10 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		dbCluster.Spec.LoadBalancer.Type = "proxysql"
 	}
 	if cluster.Params.Backup != nil {
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Enabled = true
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -196,10 +163,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 				Enabled:     true,
 				Schedule:    cluster.Params.Backup.CronExpression,
 				Keep:        int(cluster.Params.Backup.KeepCopies),
-				StorageName: backupLocation.Name,
+				StorageName: storageName,
 			},
 		}
-
 	}
 	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
@@ -215,7 +181,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -231,8 +196,9 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
 		dbCluster.Spec.Backup.Enabled = true
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -263,7 +229,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 						EndpointURL:       backupLocation.S3Config.Endpoint,
 						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
 					},
-					StorageName: backupLocation.Name,
+					StorageName: storageName,
 				},
 			},
 		}
@@ -274,9 +240,6 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 
 // DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation, backupImage string) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
-	if cluster.Params.Replicaset.Configuration == "" {
-		cluster.Params.Replicaset.Configuration = psmdbDefaultConfigurationTemplate
-	}
 	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
 		return nil, nil, errors.New("only s3 compatible storages are supported for backup/restore")
 	}
@@ -337,8 +300,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 		if backupImage != "" {
 			dbCluster.Spec.Backup.Image = backupImage
 		}
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -355,10 +319,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 				Enabled:     true,
 				Schedule:    cluster.Params.Backup.CronExpression,
 				Keep:        int(cluster.Params.Backup.KeepCopies),
-				StorageName: backupLocation.Name,
+				StorageName: storageName,
 			},
 		}
-
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -374,8 +337,9 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
 		}
 		dbCluster.Spec.Backup.Enabled = true
+		storageName := strings.ToLower(backupLocation.Name)
 		dbCluster.Spec.Backup.Storages = map[string]*dbaasv1.BackupStorageSpec{
-			backupLocation.Name: {
+			storageName: {
 				Type: dbaasv1.BackupStorageType(backupLocation.Type),
 				StorageProvider: &dbaasv1.BackupStorageProviderSpec{
 					Bucket:            backupLocation.S3Config.BucketName,
@@ -406,7 +370,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 						EndpointURL:       backupLocation.S3Config.Endpoint,
 						CredentialsSecret: fmt.Sprintf("%s-backup", dbCluster.Spec.SecretsName),
 					},
-					StorageName: backupLocation.Name,
+					StorageName: storageName,
 				},
 			},
 		}
@@ -504,7 +468,6 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 			return err
 		}
 		dbCluster.Spec.LoadBalancer.Resources = resources
-
 	}
 	if updateRequest.Params.Proxysql != nil && updateRequest.Params.Proxysql.ComputeResources != nil {
 		resources, err := convertComputeResource(updateRequest.Params.Proxysql.ComputeResources)
