@@ -12,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -46,7 +47,7 @@ type KubeClientConnector interface {
 	// GetPersistentVolumes returns Persistent Volumes available in the cluster
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
 	// GetPods returns list of pods
-	GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error)
+	GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error)
 	// GetNodes returns list of nodes
 	GetNodes(ctx context.Context) (*corev1.NodeList, error)
 	// GetLogs returns logs for pod
@@ -76,7 +77,7 @@ type KubeClientConnector interface {
 	// UpdateInstallPlan updates the existing install plan in the specified namespace.
 	UpdateInstallPlan(ctx context.Context, namespace string, installPlan *v1alpha1.InstallPlan) (*v1alpha1.InstallPlan, error)
 	// ListCRDs returns a list of CRDs.
-	ListCRDs(ctx context.Context, labelSelector string) (*apiextv1.CustomResourceDefinitionList, error)
+	ListCRDs(ctx context.Context, labelSelector *metav1.LabelSelector) (*apiextv1.CustomResourceDefinitionList, error)
 	// ListCRs returns a list of CRs.
-	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector string) (*unstructured.UnstructuredList, error)
+	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector *metav1.LabelSelector) (*unstructured.UnstructuredList, error)
 }

@@ -1615,6 +1615,22 @@
                         "DB_CLUSTER_STATE_UPGRADING"
                       ],
                       "x-order": 1
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -1914,6 +1930,22 @@
                         "DB_CLUSTER_STATE_UPGRADING"
                       ],
                       "x-order": 1
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2215,6 +2247,22 @@
                           "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -2518,6 +2566,22 @@
                           "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },

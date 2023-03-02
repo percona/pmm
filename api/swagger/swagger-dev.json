@@ -19835,6 +19835,22 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -20066,6 +20082,22 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -20435,6 +20467,22 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -20670,6 +20718,22 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
