@@ -82,14 +82,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	vPG, err := getPGVersion(q, ssc.l)
+	vPG, err := getPGVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get PG version")
 		return
 	}
 	ssc.l.Infof("pg version = %f", vPG)
 
-	vPGSM, _, err := getPGMonitorVersion(q, ssc.l)
+	vPGSM, _, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return
