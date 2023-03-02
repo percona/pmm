@@ -342,7 +342,7 @@ But updates happen less often than it is required. For example, CVE in a base im
 
 **Mitigation**
 
-AWS Marketplace supports CloudFormation, with a similar init mechanism (`cfn-init`). So there could be an AWS Marketplace presence if we change the instrument from a custom image to the CloudFormation Template.
+AWS Marketplace supports [CloudFormation](https://docs.aws.amazon.com/marketplace/latest/userguide/cloudformation.html), with a similar init mechanism (`cfn-init`). So there could be an AWS Marketplace presence if we change the instrument from a custom image to the CloudFormation Template.
 
 Deprecating AWS Marketplace presence or offloading it to the partners is another way to mitigate this problem.
 
