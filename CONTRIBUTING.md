@@ -162,7 +162,10 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md) and [Tech stack and best practices](docs/process/tech_stack.md)
+Before proceeding with your first pull request, we highly recommend you to read the following documents:
+- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](docs/process/tech_stack.md)
+- [Best practices](docs/process/)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
