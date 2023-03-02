@@ -321,7 +321,7 @@ func main() {
 		dsn = *dsnF
 	}
 
-	l.Info("DNS: ", dsn)
+	l.Info("DSN: ", dsn)
 	db := NewDB(dsn, maxIdleConns, maxOpenConns)
 
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))

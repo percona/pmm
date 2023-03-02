@@ -91,7 +91,7 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close()
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
