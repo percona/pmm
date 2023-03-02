@@ -243,46 +243,41 @@ func (p *SlowLogParser) parseMetrics(line string) {
 		return
 	}
 
-	line = strings.Replace(line, ": ", ":", -1)
+	line = strings.Replace(line, ": ", ":", -1) // we need skip redundant space for correcting split process
 	for _, kv := range strings.Split(line, " ") {
 		if len(kv) == 0 {
 			continue
 		}
-		kv2 := strings.Split(kv, ":")
-		k := strings.TrimSpace(kv2[0])
-		v := ""
-		if len(kv2) > 1 {
-			v = strings.TrimSpace(kv2[1])
+		pairsOfMetricsInfo := strings.Split(kv, ":")
+		keyOfMetric := strings.TrimSpace(pairsOfMetricsInfo[0])
+		valueOfMetric := ""
+		if len(pairsOfMetricsInfo) > 1 {
+			valueOfMetric = strings.TrimSpace(pairsOfMetricsInfo[1])
 		}
 		switch {
 		// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
-		case strings.HasSuffix(k, "_time") || strings.HasSuffix(k, "_wait"):
+		case strings.HasSuffix(keyOfMetric, "_time") || strings.HasSuffix(keyOfMetric, "_wait"):
 			// microsecond value
-			val, _ := strconv.ParseFloat(v, 64)
-			p.event.TimeMetrics[k] = val
+			parsedValueOfMetric, _ := strconv.ParseFloat(valueOfMetric, 64)
+			p.event.TimeMetrics[keyOfMetric] = parsedValueOfMetric
 
-		case v == "Yes" || v == "No":
+		case valueOfMetric == "Yes" || valueOfMetric == "No":
 			// boolean value
-			if v == "Yes" {
-				p.event.BoolMetrics[k] = true
-			} else {
-				p.event.BoolMetrics[k] = false
-			}
+			p.event.BoolMetrics[keyOfMetric] = valueOfMetric == "Yes"
+		case keyOfMetric == "Schema":
+			p.event.Db = valueOfMetric
 
-		case k == "Schema":
-			p.event.Db = v
+		case keyOfMetric == "Log_slow_rate_type":
+			p.event.RateType = valueOfMetric
 
-		case k == "Log_slow_rate_type":
-			p.event.RateType = v
-
-		case k == "Log_slow_rate_limit":
-			val, _ := strconv.ParseUint(v, 10, 64)
-			p.event.RateLimit = uint(val)
+		case keyOfMetric == "Log_slow_rate_limit":
+			parsedValueOfMetric, _ := strconv.ParseUint(valueOfMetric, 10, 64)
+			p.event.RateLimit = uint(parsedValueOfMetric)
 
 		default:
 			// integer value
-			val, _ := strconv.ParseUint(v, 10, 64)
-			p.event.NumberMetrics[k] = val
+			parsedValueOfMetric, _ := strconv.ParseUint(valueOfMetric, 10, 64)
+			p.event.NumberMetrics[keyOfMetric] = parsedValueOfMetric
 		}
 	}
 }

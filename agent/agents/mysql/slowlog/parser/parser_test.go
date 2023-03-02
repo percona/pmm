@@ -98,12 +98,12 @@ func TestParseTime(t *testing.T) {
 		expected    time.Time
 	}{
 		{
-			description: "Test #1",
+			description: "Should be parsed `Time: 180214 16:18:07`",
 			input:       "Time: 180214 16:18:07",
 			expected:    time.Date(2018, time.February, 14, 16, 18, 7, 0, time.Local),
 		},
 		{
-			description: "Test #2",
+			description: "Should be parsed `Time: 280214 16:18:07`",
 			input:       "Time: 280214 16:18:07",
 			expected:    time.Date(2028, time.February, 14, 16, 18, 7, 0, time.Local),
 		},
@@ -133,7 +133,7 @@ func TestParseUser(t *testing.T) {
 		expected    Expected
 	}{
 		{
-			description: "Test #1",
+			description: "Should be parsed `User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601`",
 			input:       "User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601",
 			expected: Expected{
 				UserName: "bookblogs",
@@ -141,7 +141,7 @@ func TestParseUser(t *testing.T) {
 			},
 		},
 		{
-			description: "Test #2",
+			description: "Should be parsed `User@Host: user[user] @ some_host []  Id: 56601`",
 			input:       "User@Host: user[user] @ some_host []  Id: 56601",
 			expected: Expected{
 				UserName: "user",
@@ -188,7 +188,7 @@ func TestParseMetrics(t *testing.T) {
 		expected    Expected
 	}{
 		{
-			description: "Test #1",
+			description: "Should be parsed `Query_time: 1.000249  Lock_time: 0.000000`",
 			input:       "Query_time: 1.000249  Lock_time: 0.000000",
 			expected: Expected{
 				Type: TimeMetrics,
@@ -199,7 +199,7 @@ func TestParseMetrics(t *testing.T) {
 			},
 		},
 		{
-			description: "Test #2",
+			description: "Should be parsed `Rows_sent: 1  Rows_examined: 0  Rows_affected: 0`",
 			input:       "Rows_sent: 1  Rows_examined: 0  Rows_affected: 0",
 			expected: Expected{
 				Type: NumberMetrics,
@@ -211,7 +211,7 @@ func TestParseMetrics(t *testing.T) {
 			},
 		},
 		{
-			description: "Test #3",
+			description: "Should be parsed `QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No`",
 			input:       "QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No",
 			expected: Expected{
 				Type: BoolMetrics,
@@ -225,7 +225,7 @@ func TestParseMetrics(t *testing.T) {
 			},
 		},
 		{
-			description: "Test #4",
+			description: "Should be parsed `Schema: maindb  Last_errno: 0  Killed: 0`",
 			input:       "Schema: maindb  Last_errno: 0  Killed: 0",
 			expected: Expected{
 				Type: Db,
@@ -233,7 +233,7 @@ func TestParseMetrics(t *testing.T) {
 			},
 		},
 		{
-			description: "Test #5",
+			description: "Should be parsed `Log_slow_rate_type: query  Log_slow_rate_limit: 2`",
 			input:       "Log_slow_rate_type: query  Log_slow_rate_limit: 2",
 			expected: Expected{
 				Type:      Rate,
