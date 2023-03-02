@@ -221,6 +221,8 @@ podman run --interactive --rm --security-opt label=disable \
        --pretty --strict pmm-server-butane.yaml > pmm-server.ign
 ```
 
+Resulting [Ignition config](pmm-server.ign).
+
 #### Public Cloud
 
 GCP:
@@ -278,7 +280,7 @@ virt-install --connect="qemu:///system" --name="${VM_NAME}" --vcpus="${VCPUS}" -
         --network bridge=virbr0 "${IGNITION_DEVICE_ARG[@]}"
 ```
 
-Check `IP` address on a VM and got to the PMM UI in the browser using it.
+Check `IP` address on a VM and go to the PMM UI in the browser using it.
 
 **Update**
 
