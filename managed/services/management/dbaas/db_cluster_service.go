@@ -38,6 +38,7 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
+// DBClusterService holds unexported field and public methods to handle DB Clusters.
 type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
@@ -68,7 +69,8 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}
 	dbClusters, err := kubeClient.ListDatabaseClusters(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed listing database clusters")
+		// return nil, errors.Wrap(err, "failed listing database clusters")
+		dbClusters = &dbaasv1.DatabaseClusterList{Items: []dbaasv1.DatabaseCluster{}}
 	}
 	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
