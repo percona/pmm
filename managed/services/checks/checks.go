@@ -101,8 +101,9 @@ type Service struct {
 	platformPublicKeys []string
 	localChecksFile    string // For testing
 
-	cm     sync.Mutex
-	checks map[string]check.Check
+	am       sync.Mutex
+	advisors []check.Advisor
+	checks   map[string]check.Check // Checks extracted from advisors and stored by name.
 
 	tm             sync.Mutex
 	rareTicker     *time.Ticker
@@ -194,7 +195,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
 
-	s.CollectChecks(ctx)
+	s.CollectAdvisors(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -260,8 +261,8 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 		switch err {
 		case nil:
 			// nothing, continue
-		case services.ErrSTTDisabled:
-			s.l.Info("STT is not enabled, doing nothing.")
+		case services.ErrAdvisorsDisabled:
+			s.l.Info("Advisor checks are not enabled, doing nothing.")
 		default:
 			s.l.Error(err)
 		}
@@ -282,7 +283,7 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetSecurityCheckResults returns the results of the STT checks that were run. It returns services.ErrSTTDisabled if STT is disabled.
+// GetSecurityCheckResults returns the results of the advisors checks that were run. It returns services.ErrAdvisorsDisabled if advisors checks are disabled.
 func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -290,7 +291,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	}
 
 	if settings.SaaS.STTDisabled {
-		return nil, services.ErrSTTDisabled
+		return nil, services.ErrAdvisorsDisabled
 	}
 
 	return s.alertsRegistry.getCheckResults(), nil
@@ -304,7 +305,7 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 	}
 
 	if settings.SaaS.STTDisabled {
-		return nil, services.ErrSTTDisabled
+		return nil, services.ErrAdvisorsDisabled
 	}
 
 	filters := &services.FilterParams{
@@ -371,14 +372,14 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 	}
 
 	if settings.SaaS.STTDisabled {
-		return services.ErrSTTDisabled
+		return services.ErrAdvisorsDisabled
 	}
 
-	s.CollectChecks(ctx)
+	s.CollectAdvisors(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
-// StartChecks downloads and executes STT checks in asynchronous way.
+// StartChecks downloads and executes advisor checks in asynchronous way.
 // If checkNames specified then only matched checks will be executed.
 func (s *Service) StartChecks(checkNames []string) error {
 	settings, err := models.GetSettings(s.db)
@@ -387,14 +388,14 @@ func (s *Service) StartChecks(checkNames []string) error {
 	}
 
 	if settings.SaaS.STTDisabled {
-		return services.ErrSTTDisabled
+		return services.ErrAdvisorsDisabled
 	}
 
 	go func() {
 		ctx := context.Background()
-		s.CollectChecks(ctx)
+		s.CollectAdvisors(ctx)
 		if err := s.run(ctx, "", checkNames); err != nil {
-			s.l.Errorf("Failed to execute STT checks: %+v.", err)
+			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
 	}()
 
@@ -420,24 +421,50 @@ func (s *Service) CleanupAlerts() {
 	s.alertsRegistry.cleanup()
 }
 
-// GetChecks returns all available checks.
+// GetAdvisors returns all available advisors.
+func (s *Service) GetAdvisors() ([]check.Advisor, error) {
+	cs, err := models.FindCheckSettings(s.db.Querier)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	s.am.Lock()
+	defer s.am.Unlock()
+
+	res := make([]check.Advisor, 0, len(s.advisors))
+	for _, a := range s.advisors {
+		checks := make([]check.Check, 0, len(a.Checks))
+		for _, c := range a.Checks {
+			if interval, ok := cs[c.Name]; ok {
+				c.Interval = check.Interval(interval)
+			}
+			checks = append(checks, c)
+		}
+		a.Checks = checks
+		res = append(res, a)
+	}
+	return res, nil
+}
+
 func (s *Service) GetChecks() (map[string]check.Check, error) {
 	cs, err := models.FindCheckSettings(s.db.Querier)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	s.cm.Lock()
-	defer s.cm.Unlock()
+	s.am.Lock()
+	defer s.am.Unlock()
 
-	r := make(map[string]check.Check, len(s.checks))
-	for n, c := range s.checks {
-		if interval, ok := cs[n]; ok {
+	res := make(map[string]check.Check, len(s.checks))
+	for _, c := range s.checks {
+		if interval, ok := cs[c.Name]; ok {
 			c.Interval = check.Interval(interval)
 		}
-		r[n] = c
+
+		res[c.Name] = c
 	}
-	return r, nil
+
+	return res, nil
 }
 
 // GetDisabledChecks returns disabled checks.
@@ -511,7 +538,7 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 		}
 
 		// since we re-run checks at regular intervals using a call
-		// to s.runChecksGroup which in turn calls s.CollectChecks
+		// to s.runChecksGroup which in turn calls s.CollectAdvisors
 		// to load/download checks, we must persist any changes
 		// to check intervals in the DB so that they can be re-applied
 		// once the checks have been re-loaded on restarts.
@@ -686,7 +713,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
 
 	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
 	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
@@ -1230,16 +1257,16 @@ type StarlarkScriptData struct {
 	QueriesResults [][]byte `json:"queries_results"`
 }
 
-func (s *Service) processResults(ctx context.Context, sttCheck check.Check, target services.Target, queryResults [][]byte) ([]services.CheckResult, error) {
+func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults [][]byte) ([]services.CheckResult, error) {
 	l := s.l.WithFields(logrus.Fields{
-		"name":       sttCheck.Name,
+		"name":       aCheck.Name,
 		"service_id": target.ServiceID,
 	})
 
 	input := &StarlarkScriptData{
-		Version:        sttCheck.Version,
-		Name:           sttCheck.Name,
-		Script:         sttCheck.Script,
+		Version:        aCheck.Version,
+		Name:           aCheck.Name,
+		Script:         aCheck.Script,
 		QueriesResults: queryResults,
 	}
 
@@ -1277,8 +1304,8 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: sttCheck.Name,
-			Interval:  sttCheck.Interval,
+			CheckName: aCheck.Name,
+			Interval:  aCheck.Interval,
 			Target:    target,
 			Result:    result,
 		}
@@ -1352,78 +1379,37 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
-func (s *Service) groupChecksByDB(checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) {
-	mySQLChecks = make(map[string]check.Check)
-	postgreSQLChecks = make(map[string]check.Check)
-	mongoDBChecks = make(map[string]check.Check)
-	for _, c := range checks {
-		switch c.Version {
-		case 1:
-			switch c.Type {
-			case check.MySQLSelect:
-				fallthrough
-			case check.MySQLShow:
-				mySQLChecks[c.Name] = c
-
-			case check.PostgreSQLSelect:
-				fallthrough
-			case check.PostgreSQLShow:
-				postgreSQLChecks[c.Name] = c
-
-			case check.MongoDBGetParameter:
-				fallthrough
-			case check.MongoDBBuildInfo:
-				fallthrough
-			case check.MongoDBGetCmdLineOpts:
-				fallthrough
-			case check.MongoDBReplSetGetStatus:
-				fallthrough
-			case check.MongoDBGetDiagnosticData:
-				mongoDBChecks[c.Name] = c
-
-			default:
-				s.l.Warnf("Unknown check type %s, skip it.", c.Type)
-			}
-		case 2:
-			switch c.Family {
-			case check.MySQL:
-				mySQLChecks[c.Name] = c
-			case check.PostgreSQL:
-				postgreSQLChecks[c.Name] = c
-			case check.MongoDB:
-				mongoDBChecks[c.Name] = c
-			default:
-				s.l.Warnf("Unknown check family %s, skip it.", c.Family)
-			}
-		}
-	}
-
-	return
-}
-
-// CollectChecks loads checks from file or SaaS, and stores versions this pmm-managed can handle.
-func (s *Service) CollectChecks(ctx context.Context) {
-	var checks []check.Check
+// CollectAdvisors loads advisors from file or SaaS, and stores versions this pmm-managed version can handle.
+func (s *Service) CollectAdvisors(ctx context.Context) {
+	var advisors []check.Advisor
 	var err error
 	if s.localChecksFile != "" {
 		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
-		checks, err = s.loadLocalChecks(s.localChecksFile)
+		checks, err := s.loadLocalChecks(s.localChecksFile)
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
-			return // keep previously loaded checks
+			return // keep previously loaded advisors
 		}
+
+		advisors = append(advisors, check.Advisor{
+			Version:     1,
+			Name:        "dev",
+			Summary:     "Dev Advisor",
+			Description: "Advisor used for developing checks",
+			Category:    "development",
+			Checks:      checks,
+		})
 	} else {
-		checks, err = s.downloadChecks(ctx)
+		advisors, err = s.downloadAdvisors(ctx)
 		if err != nil {
 			s.l.Errorf("Failed to download checks: %s.", err)
-			return // keep previously downloaded checks
+			return // keep previously downloaded advisors
 		}
-		// defer it to run after updateChecks
+		// defer it to run after updateAdvisors
 		defer s.incChecksDownload()
 	}
 
-	s.updateChecks(s.filterSupportedChecks(checks))
+	s.updateAdvisors(s.filterSupportedChecks(advisors))
 }
 
 // loadLocalCheck loads checks form local file.
@@ -1438,30 +1424,36 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 		DisallowUnknownFields: true,
 		DisallowInvalidChecks: true,
 	}
-	checks, err := check.Parse(bytes.NewReader(data), params)
+	checks, err := check.ParseChecks(bytes.NewReader(data), params)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse test checks file")
+	}
+
+	for _, c := range checks {
+		if c.Advisor != "dev" {
+			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.")
+		}
 	}
 
 	return checks, nil
 }
 
-// downloadChecks downloads checks form percona service endpoint.
-func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
+// downloadAdvisors downloads advisors form percona service endpoint.
+func (s *Service) downloadAdvisors(ctx context.Context) ([]check.Advisor, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
 	}
 
 	if settings.Telemetry.Disabled {
-		s.l.Debug("Checks downloading skipped due to disabled telemetry.")
+		s.l.Debug("Advisors downloading skipped due to disabled telemetry.")
 		return nil, nil
 	}
 
 	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)
 	defer cancel()
 
-	resp, err := s.platformClient.GetChecks(nCtx)
+	resp, err := s.platformClient.GetAdvisors(nCtx)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1476,41 +1468,49 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		DisallowInvalidChecks: false,
 	}
 
-	checks, err := check.Parse(strings.NewReader(resp.File), params)
+	advisors, err := check.ParseAdvisors(strings.NewReader(resp.File), params)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return checks, nil
+	return advisors, nil
 }
 
-// filterSupportedChecks returns supported checks and prints warning log messages about unsupported.
-func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
-	res := make([]check.Check, 0, len(checks))
+// filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.
+func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Advisor {
+	res := make([]check.Advisor, 0, len(advisors))
 
-loop:
-	for _, c := range checks {
-		if c.Version > maxSupportedVersion {
-			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
-			continue
-		}
+	for _, advisor := range advisors {
+		checks := make([]check.Check, 0, len(advisor.Checks))
 
-		switch c.Version {
-		case 1:
-			if ok := isQueryTypeSupported(c.Type); !ok {
-				s.l.Warnf("Unsupported check type: %s.", c.Type)
-				continue
+	loop:
+		for _, c := range advisor.Checks {
+			if c.Version > maxSupportedVersion {
+				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
+				continue loop
 			}
-		case 2:
-			for _, query := range c.Queries {
-				if ok := isQueryTypeSupported(query.Type); !ok {
-					s.l.Warnf("Unsupported query type: %s.", query.Type)
+
+			switch c.Version {
+			case 1:
+				if ok := isQueryTypeSupported(c.Type); !ok {
+					s.l.Warnf("Unsupported check type: %s.", c.Type)
 					continue loop
 				}
+			case 2:
+				for _, query := range c.Queries {
+					if ok := isQueryTypeSupported(query.Type); !ok {
+						s.l.Warnf("Unsupported query type: %s.", query.Type)
+						continue loop
+					}
+				}
 			}
-		}
 
-		res = append(res, c)
+			checks = append(checks, c)
+		}
+		if len(checks) != 0 {
+			advisor.Checks = checks
+			res = append(res, advisor)
+		}
 	}
 
 	return res
@@ -1537,18 +1537,24 @@ func isQueryTypeSupported(typ check.Type) bool {
 	return true
 }
 
-// updateChecks update service checks filed value under mutex.
-func (s *Service) updateChecks(checks []check.Check) {
-	s.cm.Lock()
-	defer s.cm.Unlock()
+// updateAdvisors update advisors filed value under mutex.
+func (s *Service) updateAdvisors(advisors []check.Advisor) {
+	s.am.Lock()
+	defer s.am.Unlock()
 
-	s.checks = make(map[string]check.Check)
-	for _, c := range checks {
-		s.checks[c.Name] = c
+	s.advisors = advisors
+
+	checks := make(map[string]check.Check)
+	for _, a := range s.advisors {
+		for _, c := range a.Checks {
+			checks[c.Name] = c
+		}
 	}
+
+	s.checks = checks
 }
 
-// UpdateIntervals updates STT restart timers intervals.
+// UpdateIntervals updates advisor checks restart timer intervals.
 func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 	s.tm.Lock()
 	s.rareTicker.Reset(rare)
@@ -1574,7 +1580,11 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 }
 
 func (s *Service) incChecksDownload() {
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(s.checks)
+	checks, err := s.GetChecks()
+	if err != nil {
+		s.l.Warnf("failed to get checks: %+v", err)
+	}
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
 	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
 	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
 	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
