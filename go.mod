@@ -2,6 +2,9 @@ module github.com/percona/pmm
 
 go 1.18
 
+// Update saas with
+// go get -v github.com/percona-platform/saas@latest
+
 replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
@@ -52,7 +55,7 @@ require (
 	github.com/operator-framework/api v0.17.3
 	github.com/operator-framework/operator-lifecycle-manager v0.23.1
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
-	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
+	github.com/percona-platform/saas v0.0.0-20230222152655-b70f076e0062
 	github.com/percona/dbaas-operator v0.1.3
 	github.com/percona/exporter_shared v0.7.4
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c

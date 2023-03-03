@@ -33,7 +33,7 @@ import (
 
 func TestStartChecks(t *testing.T) {
 	t.Run("with enabled STT", func(t *testing.T) {
-		toggleSTT(t, true)
+		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
@@ -42,11 +42,11 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("with disabled STT", func(t *testing.T) {
-		toggleSTT(t, false)
+		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
 }
@@ -57,16 +57,16 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	}
 
 	t.Run("with disabled STT", func(t *testing.T) {
-		toggleSTT(t, true)
+		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
 
 	t.Run("with enabled STT", func(t *testing.T) {
-		toggleSTT(t, true)
+		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
@@ -80,7 +80,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 }
 
 func TestListSecurityChecks(t *testing.T) {
-	toggleSTT(t, true)
+	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
@@ -94,8 +94,32 @@ func TestListSecurityChecks(t *testing.T) {
 	}
 }
 
+func TestListAdvisors(t *testing.T) {
+	toggleAdvisorChecks(t, true)
+	t.Cleanup(func() { restoreSettingsDefaults(t) })
+
+	resp, err := managementClient.Default.SecurityChecks.ListAdvisors(nil)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.NotEmpty(t, resp.Payload.Advisors)
+	for _, a := range resp.Payload.Advisors {
+		assert.NotEmpty(t, a.Name, "%+v", a)
+		assert.NotEmpty(t, a.Summary, "%+v", a)
+		assert.NotEmpty(t, a.Description, "%+v", a)
+		assert.NotEmpty(t, a.Category, "%+v", a)
+		assert.NotEmpty(t, a.Comment, "%+v", a)
+		assert.NotEmpty(t, a.Checks, "%+v", a)
+
+		for _, c := range a.Checks {
+			assert.NotEmpty(t, c.Name, "%+v", c)
+			assert.NotEmpty(t, c.Summary, "%+v", c)
+			assert.NotEmpty(t, c.Description, "%+v", c)
+		}
+	}
+}
+
 func TestChangeSecurityChecks(t *testing.T) {
-	toggleSTT(t, true)
+	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
 	t.Run("enable disable", func(t *testing.T) {
@@ -219,7 +243,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 	})
 }
 
-func toggleSTT(t *testing.T, enable bool) {
+func toggleAdvisorChecks(t *testing.T, enable bool) {
 	t.Helper()
 
 	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
