@@ -762,7 +762,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		case check.PostgreSQLShow:
 			eg.Go(func() error {
 				var err error
-				resData[i], err = s.executePostgreSQLShowQuery(ctx, query, target)
+				resData[i], err = s.executePostgreSQLShowQuery(ctx, target)
 				return err
 			})
 		case check.PostgreSQLSelect:
@@ -875,34 +875,7 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executePostgreSQLShowQuery(ctx context.Context, query check.Query, target services.Target) (any, error) {
-	var allDBs bool
-	var err error
-	if value, ok := query.Parameters[check.AllDBs]; ok {
-		if allDBs, err = strconv.ParseBool(value); err != nil {
-			return nil, errors.Wrap(err, "failed to parse 'all_dbs' query parameter")
-		}
-	}
-
-	if !allDBs {
-		return s.executePostgreSQLShowQueryForSingleDB(ctx, target)
-	}
-
-	targets, err := s.splitPGTargetByDB(ctx, target)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to split target by db")
-	}
-	res := make([]any, len(targets))
-	for i, t := range targets {
-		if res[i], err = s.executePostgreSQLShowQueryForSingleDB(ctx, t); err != nil {
-			return nil, errors.WithStack(err)
-		}
-	}
-
-	return res, nil
-}
-
-func (s *Service) executePostgreSQLShowQueryForSingleDB(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -940,9 +913,9 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to split target by db")
 	}
-	res := make([]any, len(targets))
-	for i, t := range targets {
-		if res[i], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
+	res := make(map[string][]map[string]any, len(targets))
+	for dbName, t := range targets {
+		if res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
 			return nil, errors.WithStack(err)
 		}
 	}
@@ -1228,7 +1201,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 	return r, nil
 }
 
-func (s *Service) splitPGTargetByDB(ctx context.Context, target services.Target) ([]services.Target, error) {
+func (s *Service) splitPGTargetByDB(ctx context.Context, target services.Target) (map[string]services.Target, error) {
 	dbNames, err := s.discoverAvailablePGDatabases(ctx, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -1239,12 +1212,12 @@ func (s *Service) splitPGTargetByDB(ctx context.Context, target services.Target)
 		return nil, errors.Wrap(err, "failed to parse postrgeSQL DSN")
 	}
 
-	res := make([]services.Target, len(dbNames))
-	for i, name := range dbNames {
+	res := make(map[string]services.Target, len(dbNames))
+	for _, name := range dbNames {
 		nt := target.Copy()
 		dsn.Path = name
 		nt.DSN = dsn.String()
-		res[i] = nt
+		res[name] = nt
 	}
 
 	return res, nil
