@@ -140,7 +140,7 @@ func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (d
 }
 
 func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PXCCluster, error) {
-	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
 	if err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing,
+		InternetFacing: internetFacing || lbType == "external",
 		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
@@ -242,7 +242,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	if err != nil {
 		return nil, err
 	}
-	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PSMDBCluster{
 		Name: cluster.Name,
 		Params: &dbaasv1beta1.PSMDBClusterParams{
@@ -258,7 +258,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing,
+		InternetFacing: internetFacing || lbType == "external",
 		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
