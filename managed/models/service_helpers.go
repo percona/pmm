@@ -134,6 +134,24 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	return services, nil
 }
 
+type ServiceRec struct {
+	ServiceID      string
+	ServiceType    ServiceType
+	ServiceName    string
+	DatabaseName   string
+	NodeID         string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   []byte
+	ExternalGroup  string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+
+	Address *string
+	Port    *uint16
+}
+
 // ViewServices returns a filtered Services recordset enriched with Agents.
 func ViewServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
 	var conditions []string
@@ -171,7 +189,7 @@ func ViewServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	}
 	defer rows.Close()
 
-	services := make([]*Service), 0, len(rows))
+	services := make([]*Service, 0)
 	for rows.Next() {
 		s := &Service{}
 		if err = rows.Scan(s); err != nil {
