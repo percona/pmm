@@ -151,12 +151,17 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 
 func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
 	if opts.JSON {
-		b, jErr := json.Marshal(res)
-		if jErr != nil {
-			logrus.Infof("Result: %#v.", res)
-			logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
+		switch res.(type) {
+		case json.Marshaler:
+			b, jErr := json.Marshal(res)
+			if jErr != nil {
+				logrus.Infof("Result: %#v.", res)
+				logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
+			}
+			fmt.Printf("%s\n", b) //nolint:forbidigo
+		case fmt.Stringer:
+			logrus.Info(res.String())
 		}
-		fmt.Printf("%s\n", b) //nolint:forbidigo
 	} else {
 		fmt.Println(res.String()) //nolint:forbidigo
 	}
