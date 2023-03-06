@@ -38,7 +38,7 @@ const (
 )
 
 // ServiceConfig telemetry config.
-type ServiceConfig struct { //nolint:musttag
+type ServiceConfig struct {
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
 	telemetry    []Config `yaml:"-"`

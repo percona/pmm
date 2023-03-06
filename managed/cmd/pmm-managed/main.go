@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/rand"
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
@@ -653,8 +652,6 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
