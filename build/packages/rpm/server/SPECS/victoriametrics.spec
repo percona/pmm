@@ -13,7 +13,7 @@
 
 Name:           percona-victoriametrics
 Version:        1.82.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
