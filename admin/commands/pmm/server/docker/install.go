@@ -16,7 +16,6 @@ package docker
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -25,6 +24,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/cli/flags"
