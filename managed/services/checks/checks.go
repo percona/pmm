@@ -789,7 +789,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		case check.PostgreSQLShow:
 			eg.Go(func() error {
 				var err error
-				resData[i], err = s.executePostgreSQLShowQuery(ctx, target)
+				resData[i], err = s.executePostgreSQLShowQuery(gCtx, target)
 				return err
 			})
 		case check.PostgreSQLSelect:
