@@ -161,6 +161,8 @@ func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
 			fmt.Printf("%s\n", b) //nolint:forbidigo
 		case fmt.Stringer:
 			logrus.Info(res.String())
+		default:
+			logrus.Infof("Result: %#v.", res)
 		}
 	} else {
 		fmt.Println(res.String()) //nolint:forbidigo
