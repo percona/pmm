@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package inventory;
 
-option go_package = "api/inventorypb;inventorypb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/inventorypb;inventorypb";
 
 // NodeType describes supported Node types.
 enum NodeType {
@@ -101,7 +101,6 @@ message RemoteRDSNode {
   // TODO https://jira.percona.com/browse/PMM-4314
   // string az = 8;
   // string node_model = 9;
-
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
@@ -142,11 +141,7 @@ message ListNodesResponse {
 
 message GetNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message GetNodeResponse {
@@ -163,17 +158,9 @@ message GetNodeResponse {
 
 message AddGenericNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validator.field) = {string_not_empty: true}];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validator.field) = {string_not_empty: true}];
   // Linux machine-id.
   string machine_id = 3;
   // Linux distribution name and version.
@@ -196,17 +183,9 @@ message AddGenericNodeResponse {
 
 message AddContainerNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validator.field) = {string_not_empty: true}];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validator.field) = {string_not_empty: true}];
   // Linux machine-id of the Generic Node where this Container Node runs.
   string machine_id = 3;
   // Container identifier. If specified, must be a unique Docker container identifier.
@@ -231,17 +210,9 @@ message AddContainerNodeResponse {
 
 message AddRemoteNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validator.field) = {string_not_empty: true}];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validator.field) = {string_not_empty: true}];
   // Node model.
   string node_model = 3;
   // Node region.
@@ -260,25 +231,13 @@ message AddRemoteNodeResponse {
 
 message AddRemoteRDSNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validator.field) = {string_not_empty: true}];
   // DB instance identifier.
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validator.field) = {string_not_empty: true}];
   // Node model.
   string node_model = 3;
   // Node region.
-  string region = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string region = 4 [(validator.field) = {string_not_empty: true}];
   // Node availability zone.
   string az = 5;
   // Custom user-assigned labels.
@@ -293,25 +252,13 @@ message AddRemoteRDSNodeResponse {
 
 message AddRemoteAzureDatabaseNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validator.field) = {string_not_empty: true}];
   // DB instance identifier.
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validator.field) = {string_not_empty: true}];
   // Node model.
   string node_model = 3;
   // Node region.
-  string region = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string region = 4 [(validator.field) = {string_not_empty: true}];
   // Node availability zone.
   string az = 5;
   // Custom user-assigned labels.
@@ -326,11 +273,7 @@ message AddRemoteAzureDatabaseNodeResponse {
 
 message RemoveNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 1 [(validator.field) = {string_not_empty: true}];
   // Remove node with all dependencies.
   bool force = 2;
 }

@@ -16,6 +16,8 @@ enum ErrorCode {
   ERROR_CODE_INCOMPATIBLE_XTRABACKUP = 3;
   // ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL is returned if target version of MySQL is not compatible for restoring selected artifact.
   ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL = 4;
+  // ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB is returned if target version of MongoDB is not compatible for restoring selected artifact.
+  ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB = 5;
 }
 
 // Error represents error message returned in the details field in the response.
