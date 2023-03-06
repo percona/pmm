@@ -17,6 +17,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,6 +35,8 @@ import (
 
 	"github.com/percona/pmm/admin/pkg/common"
 )
+
+var ErrPasswordChangeFailed = errors.New("ErrPasswordChangeFailed")
 
 // Base contains methods to interact with Docker.
 type Base struct {
@@ -163,7 +166,7 @@ func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPasswor
 	if exitCode != 0 {
 		logrus.Errorf("Password change exit code: %d", exitCode)
 		logrus.Error(`Password change failed. Use the default password "admin"`)
-		return nil
+		return ErrPasswordChangeFailed
 	}
 
 	logrus.Info("Password changed")
