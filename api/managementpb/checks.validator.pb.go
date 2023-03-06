@@ -38,6 +38,17 @@ func (this *SecurityCheck) Validate() error {
 	return nil
 }
 
+func (this *Advisor) Validate() error {
+	for _, item := range this.Checks {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Checks", err)
+			}
+		}
+	}
+	return nil
+}
+
 func (this *ChangeSecurityCheckParams) Validate() error {
 	return nil
 }
@@ -74,6 +85,21 @@ func (this *ListSecurityChecksResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Checks", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *ListAdvisorsRequest) Validate() error {
+	return nil
+}
+
+func (this *ListAdvisorsResponse) Validate() error {
+	for _, item := range this.Advisors {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Advisors", err)
 			}
 		}
 	}
