@@ -19,6 +19,7 @@ package checks
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"os"
 	"os/exec"
@@ -32,7 +33,6 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
-	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -47,6 +47,7 @@ import (
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/signatures"
 	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/utils/sqlrows"
 	"github.com/percona/pmm/version"
 )
 
@@ -92,6 +93,7 @@ type Service struct {
 	db                  *reform.DB
 	alertsRegistry      *registry
 	vmClient            v1.API
+	clickhouseDB        *sql.DB
 
 	l                  *logrus.Entry
 	startDelay         time.Duration
@@ -113,19 +115,28 @@ type Service struct {
 	mChecksDownloaded *prom.CounterVec
 }
 
+// queryPlaceholders contain known fields that can be used as placeholders in a check's query.
+type queryPlaceholders struct {
+	ServiceID   string
+	ServiceName string
+	NodeName    string
+}
+
 // New returns Service with given PMM version.
-func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string) (*Service, error) {
+func New(
+	db *reform.DB,
+	platformClient *platform.Client,
+	agentsRegistry agentsRegistry,
+	alertmanagerService alertmanagerService,
+	vmClient v1.API,
+	clickhouseDB *sql.DB,
+) *Service {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
 	if d, err := time.ParseDuration(os.Getenv(envResendInterval)); err == nil && d > 0 {
 		l.Warnf("Interval changed to %s.", d)
 		resendInterval = d
-	}
-
-	vmClient, err := metrics.NewClient(metrics.Config{Address: VMAddress})
-	if err != nil {
-		return nil, err
 	}
 
 	var platformPublicKeys []string
@@ -139,7 +150,8 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		agentsRegistry:      agentsRegistry,
 		alertmanagerService: alertmanagerService,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
-		vmClient:            v1.NewAPI(vmClient),
+		vmClient:            vmClient,
+		clickhouseDB:        clickhouseDB,
 
 		l:                  l,
 		platformClient:     platformClient,
@@ -175,7 +187,7 @@ func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRe
 		s.startDelay = 0
 	}
 
-	return s, nil
+	return s
 }
 
 // Run runs main service loops.
@@ -641,6 +653,8 @@ func (s *Service) minPMMAgentVersionForType(t check.Type) *version.Parsed {
 	case check.MetricsRange:
 		fallthrough
 	case check.MetricsInstant:
+		fallthrough
+	case check.ClickHouseSelect:
 		return nil // These types of queries don't require pmm agent at all, so any version is good.
 
 	default:
@@ -839,6 +853,12 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 				resData[i], err = s.executeMetricsRangeQuery(gCtx, query, target)
 				return err
 			})
+		case check.ClickHouseSelect:
+			eg.Go(func() error {
+				var err error
+				resData[i], err = s.executeClickhouseSelectQuery(gCtx, query, target)
+				return err
+			})
 
 		default:
 			return nil, errors.Errorf("unknown check type")
@@ -851,7 +871,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 
 	res, err := s.processResults(ctx, c, target, resData)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to process action result")
+		return nil, errors.Wrap(err, "failed to process query result")
 	}
 
 	return res, nil
@@ -1061,7 +1081,12 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 }
 
 func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillQueryPlaceholders(query.Query, target)
+	queryData := queryPlaceholders{
+		ServiceName: target.ServiceName,
+		NodeName:    target.NodeName,
+	}
+
+	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1094,7 +1119,12 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 }
 
 func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
-	q, err := fillQueryPlaceholders(query.Query, target)
+	queryData := queryPlaceholders{
+		ServiceName: target.ServiceName,
+		NodeName:    target.NodeName,
+	}
+
+	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1151,6 +1181,31 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 	return res, nil
 }
 
+func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
+	queryData := queryPlaceholders{
+		ServiceName: target.ServiceName,
+		ServiceID:   target.ServiceID,
+	}
+
+	query, err := fillQueryPlaceholders(checkQuery.Query, queryData)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	query = "SELECT " + query
+	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute query")
+	}
+
+	columns, dataRows, err := sqlrows.ReadRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+}
+
 // convertVMValue converts VM results to format applicable to check input.
 func convertVMValue(value model.Value) ([]byte, error) {
 	if value.Type() == model.ValScalar {
@@ -1180,18 +1235,10 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	return res, nil
 }
 
-func fillQueryPlaceholders(query string, target services.Target) (string, error) {
+func fillQueryPlaceholders(query string, data queryPlaceholders) (string, error) {
 	tm, err := template.New("query").Parse(query)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse query")
-	}
-
-	data := struct {
-		ServiceName string
-		NodeName    string
-	}{
-		ServiceName: target.ServiceName,
-		NodeName:    target.NodeName,
 	}
 
 	var b strings.Builder
@@ -1482,6 +1529,7 @@ func isQueryTypeSupported(typ check.Type) bool {
 	case check.MongoDBGetDiagnosticData:
 	case check.MetricsRange:
 	case check.MetricsInstant:
+	case check.ClickHouseSelect:
 	default:
 		return false
 	}
