@@ -113,7 +113,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err := s.UpdateSupervisordConfigurations(ctx); err != nil {
@@ -171,7 +171,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err = s.UpdateSupervisordConfigurations(ctx); err != nil {
