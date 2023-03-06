@@ -102,6 +102,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"NO_PROXY=localhost",
 			"HTTP_PROXY=http://localhost",
 			"HTTPS_PROXY=http://localhost",
+			"PMM_INSTALL_METHOD=Helm",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 

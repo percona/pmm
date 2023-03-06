@@ -447,6 +447,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		}
 		templateParams["PerconaSSODetails"] = ssoDetails
 		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
 	} else {
 		templateParams["PerconaSSODetails"] = nil
@@ -595,6 +596,7 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+//nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
