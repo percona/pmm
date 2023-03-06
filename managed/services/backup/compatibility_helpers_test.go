@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 type mysqlAndPXBVersions struct {
@@ -229,6 +228,7 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 		input map[models.SoftwareName]string
 		err   error
 	}{
+		// mysql cases
 		{
 			name: "successful",
 			input: map[models.SoftwareName]string{
@@ -288,7 +288,7 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			err := mySQLSoftwaresInstalledAndCompatible(test.input)
+			err := mySQLBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
 				assert.ErrorIs(t, err, test.err)
 			} else {
@@ -298,8 +298,52 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 	}
 }
 
-func TestConvertSoftwareName(t *testing.T) {
-	res, err := convertSoftwareName(&agents.Mysqld{})
-	assert.NoError(t, err)
-	assert.Equal(t, models.MysqldSoftwareName, res)
+func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
+	for _, test := range []struct {
+		name  string
+		input map[models.SoftwareName]string
+		err   error
+	}{
+		{
+			name: "successful",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mongodb"): "6.0.2",
+				models.SoftwareName("pbm"):     "2.0.1",
+			},
+			err: nil,
+		},
+		{
+			name: "incompatible pbm",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mongodb"): "6.0.2",
+				models.SoftwareName("pbm"):     "1.8.0",
+			},
+			err: ErrIncompatiblePBM,
+		},
+		{
+			name: "pbm not installed",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mongodb"): "6.0.2",
+				models.SoftwareName("pbm"):     "",
+			},
+			err: ErrIncompatibleService,
+		},
+		{
+			name: "mongod not installed",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mongodb"): "",
+				models.SoftwareName("pbm"):     "2.0.1",
+			},
+			err: ErrIncompatibleService,
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := mongoDBBackupSoftwareInstalledAndCompatible(test.input)
+			if test.err != nil {
+				assert.ErrorIs(t, err, test.err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

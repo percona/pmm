@@ -32,14 +32,16 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	vc    versionCache
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		vc:    vc,
 	}
 }
 
@@ -139,5 +141,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	s.vc.RequestSoftwareVersionsUpdate()
+
 	return res, nil
 }

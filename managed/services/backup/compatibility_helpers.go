@@ -22,7 +22,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 type compatibility struct {
@@ -37,9 +36,11 @@ var (
 	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,
 	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
 	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
-	alignedVersion = version.Must(version.NewVersion("8.0.22"))
+	alignedXtrabackupVersion = version.Must(version.NewVersion("8.0.22"))
 	// Since there is no version 9 or greater let's limit aligning rule by this number.
-	maxAlignedVersion = version.Must(version.NewVersion("9.0"))
+	maxAlignedXtrabackupVersion = version.Must(version.NewVersion("9.0"))
+
+	pbmMinSupportedVersion = version.Must(version.NewVersion("2.0.1"))
 )
 
 func init() {
@@ -121,8 +122,8 @@ func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString st
 
 	// See comment to alignedVersion.
 	// Using compatibility rule.
-	if mysqlVersion.GreaterThanOrEqual(alignedVersion) {
-		if xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(maxAlignedVersion) {
+	if mysqlVersion.GreaterThanOrEqual(alignedXtrabackupVersion) {
+		if xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(maxAlignedXtrabackupVersion) {
 			return true, nil
 		}
 	} else { // Using compatibility matrix.
@@ -163,7 +164,7 @@ func softwareVersionsToMap(svs models.SoftwareVersions) map[models.SoftwareName]
 	return m
 }
 
-func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) error {
+func mySQLBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]string) error {
 	for _, name := range []models.SoftwareName{
 		models.MysqldSoftwareName,
 		models.XtrabackupSoftwareName,
@@ -196,22 +197,27 @@ func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) er
 	return nil
 }
 
-func convertSoftwareName(s agents.Software) (models.SoftwareName, error) {
-	var softwareName models.SoftwareName
-	switch software := s.(type) {
-	case *agents.Mysqld:
-		softwareName = models.MysqldSoftwareName
-	case *agents.Xtrabackup:
-		softwareName = models.XtrabackupSoftwareName
-	case *agents.Xbcloud:
-		softwareName = models.XbcloudSoftwareName
-	case *agents.Qpress:
-		softwareName = models.QpressSoftwareName
-	default:
-		return "", errors.Errorf("invalid software type %T", software)
+func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]string) error {
+	for _, name := range []models.SoftwareName{
+		models.MongoDBSoftwareName,
+		models.PBMSoftwareName,
+	} {
+		if svm[name] == "" {
+			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
+		}
 	}
 
-	return softwareName, nil
+	pbmVersion, err := version.NewVersion(svm[models.PBMSoftwareName])
+	if err != nil {
+		return err
+	}
+	pbmVersion = pbmVersion.Core()
+
+	if pbmVersion.LessThan(pbmMinSupportedVersion) {
+		return errors.Wrapf(ErrIncompatiblePBM, "installed pbm version %q, min required pbm version %q", pbmVersion, pbmMinSupportedVersion)
+	}
+
+	return nil
 }
 
 // isOnlySameService checks if restore is only available to the same service.

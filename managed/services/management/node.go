@@ -17,6 +17,8 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -29,23 +31,31 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+//go:generate ../../../bin/mockery -name=apiKeyProvider -case=snake -inpkg -testonly
+
+type apiKeyProvider interface {
+	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+}
+
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db *reform.DB
+	db  *reform.DB
+	akp apiKeyProvider
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB) *NodeService {
+func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	return &NodeService{
-		db: db,
+		db:  db,
+		akp: akp,
 	}
 }
 
 // Register do registration of the new node.
-func (s *NodeService) Register(_ context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
+func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	res := &managementpb.RegisterNodeResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
@@ -121,7 +131,14 @@ func (s *NodeService) Register(_ context.Context, req *managementpb.RegisterNode
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
 				pointer.ToStringOrNil(req.AgentPassword), "")
 		return err
-	}); e != nil {
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
+	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+	if e != nil {
 		return nil, e
 	}
 

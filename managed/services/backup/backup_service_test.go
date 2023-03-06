@@ -96,7 +96,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	localLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
@@ -109,53 +109,67 @@ func TestPerformBackup(t *testing.T) {
 
 	t.Run("mysql", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
-		mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
-			mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		for _, tc := range []struct {
-			name          string
-			dbVersion     string
-			locationID    string
-			dataModel     models.DataModel
-			expectedError error
+			name                                        string
+			dbVersion                                   string
+			locationModel                               *models.BackupLocation
+			dataModel                                   models.DataModel
+			errFromCheckSoftwareCompatibilityForService bool
+			expectedError                               error
 		}{
 			{
 				name:          "successful",
 				dbVersion:     "8.0.25",
-				locationID:    s3Location.ID,
+				locationModel: s3Location,
 				dataModel:     models.PhysicalDataModel,
 				expectedError: nil,
 			},
 			{
 				name:          "fail",
 				dbVersion:     "",
-				locationID:    s3Location.ID,
+				locationModel: s3Location,
 				dataModel:     models.PhysicalDataModel,
+				errFromCheckSoftwareCompatibilityForService: true,
 				expectedError: ErrXtrabackupNotInstalled,
 			},
 			{
 				name:          "unsupported data model",
 				dbVersion:     "8.0.25",
-				locationID:    s3Location.ID,
+				locationModel: s3Location,
 				dataModel:     models.LogicalDataModel,
 				expectedError: ErrIncompatibleDataModel,
 			},
 			{
 				name:          "unsupported location type",
 				dbVersion:     "8.0.25",
-				locationID:    localLocation.ID,
+				locationModel: filesystemLocation,
 				dataModel:     models.PhysicalDataModel,
 				expectedError: ErrIncompatibleLocationType,
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
+				var retErr error
+				if tc.errFromCheckSoftwareCompatibilityForService {
+					retErr = tc.expectedError
+				}
 				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-					Return(tc.dbVersion, tc.expectedError).Once()
+					Return(tc.dbVersion, retErr).Once()
+
+				if tc.expectedError == nil {
+					locationConfig := &models.BackupLocationConfig{
+						FilesystemConfig: tc.locationModel.FilesystemConfig,
+						S3Config:         tc.locationModel.S3Config,
+					}
+					mockedJobsService.On("StartMySQLBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID), time.Duration(0),
+						mock.Anything, mock.Anything, locationConfig).Return(nil).Once()
+				}
+
 				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 					ServiceID:  pointer.GetString(agent.ServiceID),
-					LocationID: s3Location.ID,
-					Name:       "test_backup",
-					DataModel:  models.PhysicalDataModel,
+					LocationID: tc.locationModel.ID,
+					Name:       tc.name + "_" + "test_backup",
+					DataModel:  tc.dataModel,
 					Mode:       models.Snapshot,
 				})
 
@@ -168,7 +182,7 @@ func TestPerformBackup(t *testing.T) {
 				assert.NoError(t, err)
 				artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 				require.NoError(t, err)
-				assert.Equal(t, s3Location.ID, artifact.LocationID)
+				assert.Equal(t, tc.locationModel.ID, artifact.LocationID)
 				assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
 				assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
 			})
@@ -252,7 +266,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	localLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
@@ -288,14 +302,15 @@ func TestRestoreBackup(t *testing.T) {
 				expectedError: nil,
 			},
 			{
-				name:          "fail",
+				name:          "incompatible version",
 				dbVersion:     "",
-				expectedError: ErrXtrabackupNotInstalled,
+				expectedError: ErrIncompatibleTargetMySQL,
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-					Return(tc.dbVersion, tc.expectedError).Once()
+					Return(tc.dbVersion, nil).Once()
+				mockedCompatibilityService.On("CheckArtifactCompatibility", artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
 
 				if tc.expectedError == nil {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
@@ -327,7 +342,81 @@ func TestRestoreBackup(t *testing.T) {
 
 	t.Run("mongo", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
-		t.Run("incomplete backups won't restore", func(t *testing.T) {
+		artifactWithVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "mongodb-artifact-name-version",
+			Vendor:     string(models.MongoDBSoftwareName),
+			DBVersion:  "6.0.2-1",
+			LocationID: s3Location.ID,
+			ServiceID:  *agent.ServiceID,
+			DataModel:  models.LogicalDataModel,
+			Mode:       models.Snapshot,
+			Status:     models.SuccessBackupStatus,
+		})
+		require.NoError(t, err)
+
+		artifactNoVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "mongodb-artifact-name-no-version",
+			Vendor:     string(models.MongoDBSoftwareName),
+			LocationID: s3Location.ID,
+			ServiceID:  *agent.ServiceID,
+			DataModel:  models.LogicalDataModel,
+			Mode:       models.Snapshot,
+			Status:     models.SuccessBackupStatus,
+		})
+		require.NoError(t, err)
+
+		for _, tc := range []struct {
+			name          string
+			artifact      *models.Artifact
+			dbVersion     string
+			expectedError error
+		}{
+			{
+				name:          "successful",
+				artifact:      artifactWithVersion,
+				dbVersion:     "6.0.2-1",
+				expectedError: nil,
+			},
+			{
+				name:          "incompatible version",
+				artifact:      artifactWithVersion,
+				dbVersion:     "6.0.2-3",
+				expectedError: ErrIncompatibleTargetMongoDB,
+			},
+			{
+				name:          "empty db version",
+				artifact:      artifactWithVersion,
+				dbVersion:     "",
+				expectedError: ErrIncompatibleTargetMongoDB,
+			},
+			{
+				name:          "success if artifact has no version",
+				artifact:      artifactNoVersion,
+				dbVersion:     "6.0.2-1",
+				expectedError: nil,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+					Return(tc.dbVersion, nil).Once()
+				mockedCompatibilityService.On("CheckArtifactCompatibility", tc.artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
+
+				if tc.expectedError == nil {
+					mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
+						time.Duration(0), tc.artifact.Name, mock.Anything, tc.artifact.DataModel, mock.Anything, time.Unix(0, 0)).Return(nil).Once()
+				}
+				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), tc.artifact.ID, time.Unix(0, 0))
+				if tc.expectedError != nil {
+					assert.ErrorIs(t, err, tc.expectedError)
+					assert.Empty(t, restoreID)
+				} else {
+					assert.NoError(t, err)
+					assert.NotEmpty(t, restoreID)
+				}
+			})
+		}
+
+		t.Run("artifact not ready", func(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       "mongo-artifact-name-s3",
 				Vendor:     string(models.MongoDBServiceType),
@@ -348,16 +437,16 @@ func TestRestoreBackup(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 				Name:       "mongo-artifact-name-local",
 				Vendor:     string(models.MongoDBServiceType),
-				LocationID: localLocation.ID,
+				LocationID: filesystemLocation.ID,
 				ServiceID:  *agent.ServiceID,
 				DataModel:  models.LogicalDataModel,
-				Mode:       models.Snapshot,
-				Status:     models.PendingBackupStatus,
+				Mode:       models.PITR,
+				Status:     models.SuccessBackupStatus,
 			})
 			require.NoError(t, err)
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
-			require.ErrorIs(t, err, ErrArtifactNotReady)
+			require.ErrorIs(t, err, ErrIncompatibleLocationType)
 			assert.Empty(t, restoreID)
 		})
 	})
