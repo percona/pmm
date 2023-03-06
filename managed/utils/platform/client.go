@@ -256,7 +256,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 		return nil, err
 	}
 
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
