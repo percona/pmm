@@ -47,7 +47,9 @@ type InstallCommand struct {
 }
 
 type installResult struct {
-	adminPassword string
+	URL      string `json:"url"`
+	User     string `json:"user"`
+	Password string `json:"password"`
 }
 
 // Result is a command run result.
@@ -57,10 +59,10 @@ func (r *installResult) Result() {}
 func (r *installResult) String() string {
 	return `
 	
-PMM Server is now available at http://localhost/
+PMM Server is now available at ` + r.URL + `
 
-User: admin
-Password: ` + r.adminPassword
+User: ` + r.User + `
+Password: ` + r.Password
 }
 
 // ErrDockerNoAccess is returned when there is no access to Docker or Docker is not running.
@@ -106,7 +108,9 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	return &installResult{
-		adminPassword: c.AdminPassword,
+		URL:      "http://localhost",
+		User:     "admin",
+		Password: c.AdminPassword,
 	}, nil
 }
 
