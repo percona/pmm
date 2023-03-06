@@ -247,6 +247,10 @@ GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized proto
 //     if (any.is(Foo.class)) {
 //       foo = any.unpack(Foo.class);
 //     }
+//     // or ...
+//     if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+//       foo = any.unpack(Foo.getDefaultInstance());
+//     }
 //
 // Example 3: Pack and unpack a message in Python.
 //
@@ -276,7 +280,6 @@ GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized proto
 // methods only use the fully qualified type name after the last '/'
 // in the type URL, for example "foo.bar.com/x/y.z" will yield type
 // name "y.z".
-//
 //
 // JSON
 //
