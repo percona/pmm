@@ -45,11 +45,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: percona-platform/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 

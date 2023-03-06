@@ -2,24 +2,20 @@ syntax = "proto3";
 
 package management;
 
-option go_package = "api/managementpb;managementpb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/nodes.proto";
 import "managementpb/metrics.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/managementpb;managementpb";
 
 message RegisterNodeRequest {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
   // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 2 [(validator.field) = {string_not_empty: true}];
   // Node address (DNS name or IP).
   string address = 3;
   // Linux machine-id.
@@ -54,6 +50,8 @@ message RegisterNodeResponse {
   inventory.GenericNode generic_node = 1;
   inventory.ContainerNode container_node = 2;
   inventory.PMMAgent pmm_agent = 3;
+  // Token represents token for vmagent auth config.
+  string token = 4;
 }
 
 // Node service provides public Management API methods for Nodes.
