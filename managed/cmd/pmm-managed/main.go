@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/rand"
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
@@ -36,11 +35,14 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
+	metrics "github.com/prometheus/client_golang/api"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -120,6 +122,9 @@ const (
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
+
+	clickhouseMaxIdleConns = 5
+	clickhouseMaxOpenConns = 10
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -632,9 +637,21 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 	}
 }
 
-func main() {
-	rand.Seed(time.Now().UnixNano())
+// newClickhouseDB return a new Clickhouse db.
+func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
+	db, err := sql.Open("clickhouse", dsn)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+	}
 
+	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
+
+	return db, nil
+}
+
+func main() {
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -710,9 +727,10 @@ func main() {
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
 
-	clickhousedb := ds.QanDBSelect
+	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	qanDB := ds.QanDBSelect
+	qanDB.DSN = clickhouseDSN
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
@@ -797,10 +815,17 @@ func main() {
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
+	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
 	if err != nil {
-		l.Fatalf("Could not create checks service: %s", err)
+		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
+
+	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	if err != nil {
+		l.Fatalf("Could not create Clickhouse client: %s", err)
+	}
+
+	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
 
 	prom.MustRegister(checksService)
 

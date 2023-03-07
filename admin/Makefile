@@ -1,6 +1,6 @@
 default: help
 
-help:                           ## Display this help message.
+help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
@@ -25,20 +25,24 @@ LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
-gen:                            ## Generate files.
+gen: clean                      ## Generate files
 	go generate ./...
 
-release:                        ## Build release pmm, pmm-admin, pmm-server-upgrade binaries.
+clean:                          ## Remove generated files
+	find . -name *_reform.go -delete
+	find . -name mock_*.go -delete
+
+release:                        ## Build release pmm, pmm-admin, pmm-server-upgrade binaries
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
 
-install:                        ## Install pmm, pmm-admin, pmm-server-upgrade binaries.
+install:                        ## Install pmm, pmm-admin, pmm-server-upgrade binaries
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm ./cmd/pmm/
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
 
-install-race:                   ## Install pmm, pmm-admin, pmm-server-upgrade binaries with race detector.
+install-race:                   ## Install pmm, pmm-admin, pmm-server-upgrade binaries with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
@@ -53,15 +57,15 @@ build-docker: release			## Build docker image for pmm-server-upgrade
 
 TEST_FLAGS ?= -timeout=20s
 
-test:                           ## Run tests.
+test:                           ## Run tests
 	go test $(TEST_FLAGS) -race ./...
 
-test-cover:                     ## Run tests and collect cross-package coverage information.
+test-cover:                     ## Run tests and collect cross-package coverage information
 	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
-env-up:                         ## Start development environment.
+env-up:                         ## Start development environment
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
 
-env-down:                       ## Stop development environment.
+env-down:                       ## Stop development environment
 	docker-compose down --volumes --remove-orphans
 

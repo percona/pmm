@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-option go_package = "api/qanpb;qanpb";
-
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "qanpb/qan.proto";
 import "google/protobuf/wrappers.proto";
+import "qanpb/qan.proto";
+
+option go_package = "api/qanpb;qanpb";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
 service ObjectDetails {
@@ -205,4 +205,3 @@ message ExplainFingerprintByQueryIDReply {
   string explain_fingerprint = 1;
   uint32 placeholders_count = 2;
 }
-
