@@ -60,7 +60,15 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // GetQueryMetadataDetailsByQueryID get selected query metadata to show in details for given query ID.
+  rpc GetQueryMetadataDetailsByQueryID(GetQueryMetadataDetailsByQueryIDRequest) returns (GetQueryMetadataDetailsByQueryIDReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetQueryMetadataDetailsByQueryID"
+      body: "*"
+    };
+  }
 }
+
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsRequest {
@@ -204,4 +212,23 @@ message ExplainFingerprintByQueryIDRequest {
 message ExplainFingerprintByQueryIDReply {
   string explain_fingerprint = 1;
   uint32 placeholders_count = 2;
+}
+
+// GetQueryMetadataDetailsByQueryIDRequest get selected query metadata to show in details for given query ID.
+message GetQueryMetadataDetailsByQueryIDRequest {
+  string query_id = 1;
+}
+
+// GetQueryMetadataDetailsByQueryIDReply consists selected query metadata to show in details for given query ID.
+message GetQueryMetadataDetailsByQueryIDReply {
+  string service_name = 1;
+  string database = 2;
+  string username = 3;
+  string service_type = 4;
+  string service_id = 5;
+  string node_id = 6;
+  string node_name = 7;
+  string node_type = 8;
+  string agent_id = 9;
+  uint32 agent_type = 10;
 }
