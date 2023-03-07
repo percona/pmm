@@ -59,7 +59,7 @@ func TestAuth(t *testing.T) {
 				})
 				t.Logf("URI: %s", uri)
 
-				req, _ := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
 				defer resp.Body.Close() //nolint:errcheck
@@ -113,7 +113,7 @@ func TestSetup(t *testing.T) {
 			Path: "/setup",
 		})
 		t.Logf("URI: %s", uri)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -146,7 +146,7 @@ func TestSetup(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 				req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -172,7 +172,7 @@ func TestSetup(t *testing.T) {
 			InstanceID: "123",
 		})
 		require.NoError(t, err)
-		req, err := http.NewRequestWithContext(pmmapitests.Context, "POST", uri.String(), bytes.NewReader(b))
+		req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, uri.String(), bytes.NewReader(b))
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -206,7 +206,7 @@ func TestSwagger(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
@@ -223,7 +223,7 @@ func TestSwagger(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
@@ -283,7 +283,7 @@ func TestPermissions(t *testing.T) {
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
 			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
 		}},
-		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: "GET", userCase: []userCase{
+		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
 			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},

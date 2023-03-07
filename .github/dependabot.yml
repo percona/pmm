@@ -20,6 +20,21 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      
+  - package-ecosystem: "docker"
+    directory: "/build/docker/client"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/build/docker/rpmbuild"
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "docker"
+    directory: "/build/docker/server"
+    schedule:
+      interval: "daily"
 
   - package-ecosystem: "github-actions"
     directory: "/"
