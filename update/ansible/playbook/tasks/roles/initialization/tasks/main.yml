@@ -91,6 +91,6 @@
       when: is_database_sqlite.stat.exists
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-  # We use current_version_file['failed'] because we don't want to run this on creating container 
+  # We use current_version_file['failed'] because we don't want to run this on creating container
   when: not ui_upgrade and current_version_file['failed'] == false
 
