@@ -1,5 +1,10 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
+- name: Determine type of updgrade
+  set_fact: 
+    ui_upgrade: False
+  when: ui_upgrade is undefined
+
 
 # PMM-10858 - In certain environments, including AWS EC2, some of the
 # EPEL repository mirrors do not respond within the time limit defined
@@ -83,7 +88,7 @@
     - name: Migrate Grafana database from SQLite to Postgresql
       include_role:
         name: sqlite-to-postgres
-      when: is_database_sqlite.stat.exists
+      when: is_database_sqlite.]stat.exists
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-  when: ui_upgrade is defined
+  when: ui_upgrade is defined and ui_upgrade
