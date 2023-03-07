@@ -488,11 +488,11 @@ func FindServicesAndAgents(q *reform.Querier, filters ServiceFilters) ([]*Servic
 
 	services := make([]*ServiceRec, 0)
 	for rows.Next() {
-		s := &ServiceRec{}
-		if err = rows.Scan(s); err != nil {
+		var s ServiceRec
+		if err = rows.Scan(&s); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		services = append(services, s)
+		services = append(services, &s)
 	}
 
 	return services, nil
