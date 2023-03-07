@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
+	"github.com/percona/pmm/admin/commands/pmm_server_upgrade/health"
 	runCmd "github.com/percona/pmm/admin/commands/pmm_server_upgrade/run"
 )
 
@@ -96,8 +97,9 @@ func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 type PMMServerUpgradeCommands struct {
 	flags.GlobalFlagsBase
 
-	RunCmd     runCmd.RunCommand          `cmd:"" name:"run" help:"Run daemon"`
-	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
+	RunCmd        runCmd.RunCommand          `cmd:"" name:"run" help:"Run daemon"`
+	HealthCommand health.HealthCommand       `cmd:"" name:"health" help:"Returns exit code 0 if pmm-server-upgrade is considered healthy"`
+	Completion    commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 func (c *PMMServerUpgradeCommands) GetGlobalFlags() *flags.GlobalFlags {

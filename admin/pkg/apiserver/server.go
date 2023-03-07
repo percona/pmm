@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	socketPath      = "/srv/pmm-server-upgrade.sock"
+	SocketPath      = "/srv/pmm-server-upgrade.sock"
 	shutdownTimeout = 1 * time.Second
 )
 
@@ -101,14 +101,14 @@ func (s *Server) Start(ctx context.Context) {
 	go func() {
 		var err error
 		for {
-			s.l.Infof("Starting gRPC server on unix://%s", socketPath)
-			err = os.Remove(socketPath)
+			s.l.Infof("Starting gRPC server on unix://%s", SocketPath)
+			err = os.Remove(SocketPath)
 			if err != nil && !errors.Is(err, os.ErrNotExist) {
 				s.l.Panic(err)
 			}
 
 			var listener net.Listener
-			listener, err = net.Listen("unix", socketPath)
+			listener, err = net.Listen("unix", SocketPath)
 			if err != nil {
 				s.l.Panic(err)
 			}

@@ -1,4 +1,4 @@
-FROM oraclelinux:9
+FROM gcr.io/distroless/base-debian11
 
 ARG VERSION
 ARG BUILD_DATE
@@ -16,5 +16,5 @@ LABEL org.opencontainers.image.title Percona Monitoring and Management
 LABEL org.opencontainers.image.vendor Percona
 LABEL org.opencontainers.image.version ${VERSION}
 
-HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD bash -c "[ -S /srv/pmm-server-upgrade.sock ]"
+HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD ["pmm-server-upgrade", "health"]
 CMD ["pmm-server-upgrade", "run"]
