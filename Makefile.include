@@ -12,14 +12,15 @@ help:                 ## Display this help message
 	@echo "To test DBaaS components with minikube:"
 	@echo "Start minikube: minikube start --cpus=2 --nodes=3 --kubernetes-version=v1.20.0"
 	@echo "ENABLE_DBAAS=1 NETWORK=minikube make env-up"
-
+	@echo "DBAAS_ALLOW_UNSUPPORTED_OPERATORS=1 DBAAS_PXC_OP_CHANNEL=fast-v1 ENABLE_DBAAS=1 NETWORK=minikube make env-up"
+	@echo Check the docker-compose.yml file to see which environment variables are available. 
 
 init:                 ## Install tools
 	rm -rf bin/*
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.51.1 # Version should match specified in CI
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.51.2 # Version should match specified in CI
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
