@@ -82,7 +82,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 }
 
 // DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
-func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll,cyclop
+func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
 		return nil, nil, errors.New("pxc cluster must have one and only one proxy type defined")
 	}
@@ -409,6 +409,16 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 		APIVersion: dbaasAPI,
 		Kind:       dbaasKind,
 	}
+	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
+	} else {
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
+	}
 	if updateRequest.Params.ClusterSize > 0 {
 		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}
@@ -455,6 +465,17 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		APIVersion: dbaasAPI,
 		Kind:       dbaasKind,
 	}
+	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
+	} else {
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
+	}
+
 	if updateRequest.Params.ClusterSize > 0 {
 		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}
