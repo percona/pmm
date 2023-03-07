@@ -1,6 +1,9 @@
 module github.com/percona/pmm
 
-go 1.18
+go 1.20
+
+// Update saas with
+// go get -v github.com/percona-platform/saas@latest
 
 replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253
 
@@ -15,7 +18,7 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
-	github.com/ClickHouse/clickhouse-go/v2 v2.6.4
+	github.com/ClickHouse/clickhouse-go/v2 v2.6.5
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
@@ -42,7 +45,7 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.18.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
@@ -52,8 +55,8 @@ require (
 	github.com/operator-framework/api v0.17.3
 	github.com/operator-framework/operator-lifecycle-manager v0.23.1
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
-	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
-	github.com/percona/dbaas-operator v0.1.3
+	github.com/percona-platform/saas v0.0.0-20230306173543-c223f9a47342
+	github.com/percona/dbaas-operator v0.1.4
 	github.com/percona/exporter_shared v0.7.4
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
@@ -63,32 +66,32 @@ require (
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.25.0
 	github.com/prometheus/client_golang v1.14.0
-	github.com/prometheus/common v0.40.0
+	github.com/prometheus/common v0.41.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.5.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	go.mongodb.org/mongo-driver v1.11.2
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.6.0
 	golang.org/x/sync v0.1.0
 	golang.org/x/sys v0.5.0
-	golang.org/x/text v0.7.0
+	golang.org/x/text v0.8.0
 	golang.org/x/tools v0.6.0
-	google.golang.org/genproto v0.0.0-20230221151758-ace64dc21148
+	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
 	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.26.1
-	k8s.io/apimachinery v0.26.1
-	k8s.io/cli-runtime v0.26.1
-	k8s.io/client-go v0.26.1
-	k8s.io/kubectl v0.26.1
+	k8s.io/api v0.26.2
+	k8s.io/apimachinery v0.26.2
+	k8s.io/cli-runtime v0.26.2
+	k8s.io/client-go v0.26.2
+	k8s.io/kubectl v0.26.2
 	modernc.org/sqlite v1.21.0
-	sigs.k8s.io/controller-runtime v0.13.0
+	sigs.k8s.io/controller-runtime v0.14.5
 	vitess.io/vitess v0.15.2
 )
 
@@ -134,14 +137,14 @@ require (
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
-	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
+	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
