@@ -178,3 +178,11 @@ func (this *ExplainFingerprintByQueryIDRequest) Validate() error {
 func (this *ExplainFingerprintByQueryIDReply) Validate() error {
 	return nil
 }
+
+func (this *GetQueryMetadataDetailsByQueryIDRequest) Validate() error {
+	return nil
+}
+
+func (this *GetQueryMetadataDetailsByQueryIDReply) Validate() error {
+	return nil
+}

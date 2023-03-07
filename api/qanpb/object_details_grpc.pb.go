@@ -21,13 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ObjectDetails_GetMetrics_FullMethodName                  = "/qan.v1beta1.ObjectDetails/GetMetrics"
-	ObjectDetails_GetQueryExample_FullMethodName             = "/qan.v1beta1.ObjectDetails/GetQueryExample"
-	ObjectDetails_GetLabels_FullMethodName                   = "/qan.v1beta1.ObjectDetails/GetLabels"
-	ObjectDetails_GetQueryPlan_FullMethodName                = "/qan.v1beta1.ObjectDetails/GetQueryPlan"
-	ObjectDetails_GetHistogram_FullMethodName                = "/qan.v1beta1.ObjectDetails/GetHistogram"
-	ObjectDetails_QueryExists_FullMethodName                 = "/qan.v1beta1.ObjectDetails/QueryExists"
-	ObjectDetails_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID"
+	ObjectDetails_GetMetrics_FullMethodName                       = "/qan.v1beta1.ObjectDetails/GetMetrics"
+	ObjectDetails_GetQueryExample_FullMethodName                  = "/qan.v1beta1.ObjectDetails/GetQueryExample"
+	ObjectDetails_GetLabels_FullMethodName                        = "/qan.v1beta1.ObjectDetails/GetLabels"
+	ObjectDetails_GetQueryPlan_FullMethodName                     = "/qan.v1beta1.ObjectDetails/GetQueryPlan"
+	ObjectDetails_GetHistogram_FullMethodName                     = "/qan.v1beta1.ObjectDetails/GetHistogram"
+	ObjectDetails_QueryExists_FullMethodName                      = "/qan.v1beta1.ObjectDetails/QueryExists"
+	ObjectDetails_ExplainFingerprintByQueryID_FullMethodName      = "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID"
+	ObjectDetails_GetQueryMetadataDetailsByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetails/GetQueryMetadataDetailsByQueryID"
 )
 
 // ObjectDetailsClient is the client API for ObjectDetails service.
@@ -48,6 +49,8 @@ type ObjectDetailsClient interface {
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
+	// GetQueryMetadataDetailsByQueryID get selected query metadata to show in details for given query ID.
+	GetQueryMetadataDetailsByQueryID(ctx context.Context, in *GetQueryMetadataDetailsByQueryIDRequest, opts ...grpc.CallOption) (*GetQueryMetadataDetailsByQueryIDReply, error)
 }
 
 type objectDetailsClient struct {
@@ -121,6 +124,15 @@ func (c *objectDetailsClient) ExplainFingerprintByQueryID(ctx context.Context, i
 	return out, nil
 }
 
+func (c *objectDetailsClient) GetQueryMetadataDetailsByQueryID(ctx context.Context, in *GetQueryMetadataDetailsByQueryIDRequest, opts ...grpc.CallOption) (*GetQueryMetadataDetailsByQueryIDReply, error) {
+	out := new(GetQueryMetadataDetailsByQueryIDReply)
+	err := c.cc.Invoke(ctx, ObjectDetails_GetQueryMetadataDetailsByQueryID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -139,6 +151,8 @@ type ObjectDetailsServer interface {
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
+	// GetQueryMetadataDetailsByQueryID get selected query metadata to show in details for given query ID.
+	GetQueryMetadataDetailsByQueryID(context.Context, *GetQueryMetadataDetailsByQueryIDRequest) (*GetQueryMetadataDetailsByQueryIDReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -171,6 +185,10 @@ func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExist
 
 func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
+}
+
+func (UnimplementedObjectDetailsServer) GetQueryMetadataDetailsByQueryID(context.Context, *GetQueryMetadataDetailsByQueryIDRequest) (*GetQueryMetadataDetailsByQueryIDReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQueryMetadataDetailsByQueryID not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -311,6 +329,24 @@ func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ObjectDetails_GetQueryMetadataDetailsByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetQueryMetadataDetailsByQueryIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ObjectDetailsServer).GetQueryMetadataDetailsByQueryID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ObjectDetails_GetQueryMetadataDetailsByQueryID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ObjectDetailsServer).GetQueryMetadataDetailsByQueryID(ctx, req.(*GetQueryMetadataDetailsByQueryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -345,6 +381,10 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExplainFingerprintByQueryID",
 			Handler:    _ObjectDetails_ExplainFingerprintByQueryID_Handler,
+		},
+		{
+			MethodName: "GetQueryMetadataDetailsByQueryID",
+			Handler:    _ObjectDetails_GetQueryMetadataDetailsByQueryID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

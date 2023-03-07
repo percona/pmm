@@ -69,7 +69,6 @@ service ObjectDetails {
   }
 }
 
-
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsRequest {
   google.protobuf.Timestamp period_start_from = 1;
