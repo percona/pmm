@@ -109,9 +109,10 @@
       when: is_docker and not is_supervisor_running.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
 
-    - name: Wait until postgres socket is present before continuing
+    - name: Wait until postgres port is present before continuing
       wait_for:
-        path: /var/run/postgresql/.s.PGSQL.5432
+        host: localhost
+        port: 5432
 
     - name: Run initialization playbook
       include_role:
