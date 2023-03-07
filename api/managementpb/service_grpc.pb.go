@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Service_RemoveService_FullMethodName = "/management.Service/RemoveService"
+	Service_ListServices_FullMethodName  = "/management.Service/ListServices"
 )
 
 // ServiceClient is the client API for Service service.
@@ -29,6 +30,8 @@ const (
 type ServiceClient interface {
 	// RemoveService removes Service with Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	// ListServices returns a list of Services filtered by type.
+	ListServices(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
 }
 
 type serviceClient struct {
@@ -48,12 +51,23 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 	return out, nil
 }
 
+func (c *serviceClient) ListServices(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error) {
+	out := new(ListServiceResponse)
+	err := c.cc.Invoke(ctx, Service_ListServices_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	// ListServices returns a list of Services filtered by type.
+	ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -62,6 +76,10 @@ type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
+}
+
+func (UnimplementedServiceServer) ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 
@@ -94,6 +112,24 @@ func _Service_RemoveService_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListServices(ctx, req.(*ListServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +140,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveService",
 			Handler:    _Service_RemoveService_Handler,
+		},
+		{
+			MethodName: "ListServices",
+			Handler:    _Service_ListServices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

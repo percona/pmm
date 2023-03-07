@@ -1627,7 +1627,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -1970,7 +1970,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2298,7 +2298,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2880,7 +2880,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -3918,7 +3918,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -4567,7 +4567,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -6784,9 +6784,218 @@
         }
       }
     },
+    "/v1/management/Service/List": {
+      "post": {
+        "description": "Returns a filtered list of Services.",
+        "tags": [
+          "Service"
+        ],
+        "summary": "List Services",
+        "operationId": "ListServices",
+        "parameters": [
+          {
+            "description": "ListServicesRequest is identical to inventory.ListServicesRequest.\nIt is duplicated here to allow further modifications without touching on the low-level Inventory API.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ListServicesRequest is identical to inventory.ListServicesRequest.\nIt is duplicated here to allow further modifications without touching on the low-level Inventory API.",
+              "type": "object",
+              "properties": {
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_id": {
+                  "description": "Return only Services running on that Node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_type": {
+                  "description": "ServiceType describes supported Service types.",
+                  "type": "string",
+                  "default": "SERVICE_TYPE_INVALID",
+                  "enum": [
+                    "SERVICE_TYPE_INVALID",
+                    "MYSQL_SERVICE",
+                    "MONGODB_SERVICE",
+                    "POSTGRESQL_SERVICE",
+                    "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
+                    "EXTERNAL_SERVICE"
+                  ],
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "services": {
+                  "description": "List of Services.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "agents": {
+                        "description": "List of agents related to this service.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "agent_id": {
+                              "description": "Unique randomly generated instance identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "pmm_agent_id": {
+                              "description": "The pmm-agent identifier which runs this instance.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "status": {
+                              "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                              "type": "string",
+                              "default": "AGENT_STATUS_INVALID",
+                              "enum": [
+                                "AGENT_STATUS_INVALID",
+                                "STARTING",
+                                "RUNNING",
+                                "WAITING",
+                                "STOPPING",
+                                "DONE",
+                                "UNKNOWN"
+                              ],
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 14
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels for Service.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "database_name": {
+                        "description": "Database name.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "external_group": {
+                        "description": "External group name.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_name": {
+                        "description": "Node name where this instance runs.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 12
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "User-defined name unique across all Services.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "service_type": {
+                        "description": "Service type.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 13
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Service/Remove": {
       "post": {
-        "description": "Removes Service with Agents.",
+        "description": "Removes a Service along with Agents.",
         "tags": [
           "Service"
         ],

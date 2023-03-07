@@ -38,3 +38,34 @@ func (this *RemoveServiceRequest) Validate() error {
 func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }
+
+func (this *GenericAgent) Validate() error {
+	return nil
+}
+
+func (this *GenericService) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Agents {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Agents", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *ListServiceRequest) Validate() error {
+	return nil
+}
+
+func (this *ListServiceResponse) Validate() error {
+	for _, item := range this.Services {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Services", err)
+			}
+		}
+	}
+	return nil
+}

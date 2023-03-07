@@ -16,6 +16,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -130,76 +131,6 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	for i, s := range structs {
 		services[i] = s.(*Service)
 	}
-
-	return services, nil
-}
-
-type ServiceRec struct {
-	ServiceID      string
-	ServiceType    ServiceType
-	ServiceName    string
-	DatabaseName   string
-	NodeID         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   []byte
-	ExternalGroup  string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-
-	Address *string
-	Port    *uint16
-}
-
-// ViewServices returns a filtered Services recordset enriched with Agents.
-func ViewServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
-	var conditions []string
-	var args []interface{}
-	idx := 1
-	if filters.NodeID != "" {
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
-		args = append(args, filters.NodeID)
-		idx++
-	}
-	if filters.ExternalGroup != "" {
-		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
-		args = append(args, filters.ExternalGroup)
-		idx++
-	}
-	if filters.ServiceType != nil {
-		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
-		args = append(args, filters.ServiceType)
-		idx++
-	}
-	if filters.Cluster != "" {
-		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
-		args = append(args, filters.Cluster)
-	}
-	var whereClause string
-	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
-	}
-
-	query := fmt.Sprintf("SELECT * FROM %s %s ORDER BY service_id", ServiceTable.s.SQLName, whereClause)
-	rows, err := q.Query(query)
-
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	defer rows.Close()
-
-	services := make([]*Service, 0)
-	for rows.Next() {
-		s := &Service{}
-		if err = rows.Scan(s); err != nil {
-			return nil, errors.WithStack(err)
-		}
-		services = append(services, s)
-	}
-	// for i, s := range structs {
-	// 	services[i] = s.(*Service)
-	// }
 
 	return services, nil
 }
@@ -487,4 +418,94 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 		return nil
 	}
 	return nil
+}
+
+type ServiceRec struct {
+	ServiceID      string  `json:"service_id"`
+	ServiceType    string  `json:"service_type"`
+	ServiceName    string  `json:"service_name"`
+	DatabaseName   string  `json:"database_name"`
+	NodeID         string  `json:"node_id"`
+	NodeName       string  `json:"node_name"`
+	Environment    string  `json:"environment"`
+	Cluster        string  `json:"cluster"`
+	ReplicationSet string  `json:"replication_set"`
+	CustomLabels   *[]byte `json:"custom_labels"`
+	ExternalGroup  string  `json:"external_group"`
+	Address        string  `json:"address"`
+	Port           uint32  `json:"port"`
+	Socket         string  `json:"socket"`
+}
+
+// FindServicesAndAgents returns a filtered list of Services along with some attributes from nodes and agents.
+func FindServicesAndAgents(q *reform.Querier, filters ServiceFilters) ([]*ServiceRec, error) {
+	var conditions []string
+	var args []interface{}
+	idx := 1
+	if filters.NodeID != "" {
+		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.NodeID)
+		idx++
+	}
+	if filters.ExternalGroup != "" {
+		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
+		args = append(args, filters.ExternalGroup)
+		idx++
+	}
+	if filters.ServiceType != nil {
+		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
+		args = append(args, filters.ServiceType)
+		idx++
+	}
+	if filters.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		args = append(args, filters.Cluster)
+	}
+	var whereClause string
+	if len(conditions) != 0 {
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+	}
+
+	query := fmt.Sprintf(`
+		SELECT 
+			service_id, service_type, service_name, database_name, %[1]s.node_id, node_name, environment, 
+			cluster, replication_set, %[1]s.custom_labels, external_group, %[1]s.address, port, socket
+		FROM 
+			%[1]s
+			LEFT JOIN %[2]s ON %[1]s.node_id = %[2]s.node_id 
+			%s
+		ORDER BY service_id
+	`,
+		ServiceTable.Name(),
+		NodeTable.Name(),
+		whereClause)
+
+	rows, err := q.Query(query, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer rows.Close()
+
+	services := make([]*ServiceRec, 0)
+	for rows.Next() {
+		s := &ServiceRec{}
+		if err = rows.Scan(s); err != nil {
+			return nil, errors.WithStack(err)
+		}
+		services = append(services, s)
+	}
+
+	return services, nil
+}
+
+// GetLabels deserializes model's Prometheus labels.
+func GetLabels(b []byte) (map[string]string, error) {
+	if len(b) == 0 {
+		return nil, nil //nolint:nilnil
+	}
+	m := make(map[string]string)
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, errors.Wrap(err, "failed to decode labels")
+	}
+	return m, nil
 }

@@ -564,7 +564,6 @@ message ListAgentsRequest {
   // Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
   string service_id = 3;
   // Do not use yet.
-  // TODO https://jira.percona.com/browse/PMM-5112
   AgentType agent_type = 4;
 }
 

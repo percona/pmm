@@ -62,7 +62,7 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-8080}:80
+      - ${PMM_PORT_HTTP:-80}:80
       - ${PMM_PORT_HTTPS:-443}:443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345

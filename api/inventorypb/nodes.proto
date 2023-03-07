@@ -124,8 +124,6 @@ message RemoteAzureDatabaseNode {
 // List
 
 message ListNodesRequest {
-  // Do not use yet.
-  // TODO https://jira.percona.com/browse/PMM-5112
   NodeType node_type = 1;
 }
 

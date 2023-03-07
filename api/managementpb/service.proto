@@ -4,6 +4,7 @@ package management;
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "inventorypb/agent_status.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -46,8 +47,54 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-// List
-message ListServicesRequest {
+message GenericAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Actual Agent status.
+  inventory.AgentStatus status = 5;
+}
+
+message GenericService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Service type.
+  string service_type = 2;
+  // User-defined name unique across all Services.
+  string service_name = 3;
+  // Database name.
+  string database_name = 4;
+  // Node identifier where this instance runs.
+  string node_id = 5;
+  // Node name where this instance runs.
+  string node_name = 6;
+  // Environment name.
+  string environment = 7;
+  // Cluster name.
+  string cluster = 8;
+  // Replication set name.
+  string replication_set = 9;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 10;
+  // External group name.
+  string external_group = 11;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 12;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 13;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 14;
+  // List of agents related to this service.
+  repeated GenericAgent agents = 15;
+}
+
+// ListServicesRequest is identical to inventory.ListServicesRequest.
+// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
+message ListServiceRequest {
   // Return only Services running on that Node.
   string node_id = 1;
   // Return only services filtered by service type.
@@ -56,7 +103,10 @@ message ListServicesRequest {
   string external_group = 3;
 }
 
-message ListServiceResponse {}
+message ListServiceResponse {
+  // List of Services.
+  repeated GenericService services = 1;
+}
 
 // Service service provides public methods for managing and querying Services.
 service Service {
@@ -68,18 +118,18 @@ service Service {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
-      description: "Removes Service with Agents."
+      description: "Removes a Service along with Agents."
     };
   }
   // ListServices returns a list of Services filtered by type.
-  rpc ListServices(ListServicesRequest) returns (ListServiceResponse) {
+  rpc ListServices(ListServiceRequest) returns (ListServiceResponse) {
     option (google.api.http) = {
       post: "/v1/management/Service/List"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
-      description: "Returns a list of Services filtered."
+      description: "Returns a filtered list of Services."
     };
   }
 }

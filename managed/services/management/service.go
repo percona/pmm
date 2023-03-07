@@ -37,6 +37,14 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
+func getServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		return nil
+	}
+	result := serviceTypes[serviceType]
+	return &result
+}
+
 // ServiceService represents service for working with services.
 type ServiceService struct {
 	db    *reform.DB
@@ -161,4 +169,46 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
 	}
 	return nil
+}
+
+// ListServices returns a filtered list of Services with attributes from Agents and Nodes.
+func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.ListServiceRequest) (*managementpb.ListServiceResponse, error) {
+	filters := models.ServiceFilters{
+		NodeID:        req.GetNodeId(),
+		ServiceType:   getServiceType(req.GetServiceType()),
+		ExternalGroup: req.GetExternalGroup(),
+	}
+
+	services, err := models.FindServicesAndAgents(s.db.Querier, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &managementpb.ListServiceResponse{}
+	for _, service := range services {
+		labels, err := models.GetLabels(*service.CustomLabels)
+		if err != nil {
+			return nil, err
+		}
+
+		srv := &managementpb.GenericService{
+			ServiceId:      service.ServiceID,
+			ServiceType:    service.ServiceType,
+			ServiceName:    service.ServiceName,
+			DatabaseName:   service.DatabaseName,
+			NodeId:         service.NodeID,
+			NodeName:       service.NodeName,
+			Environment:    service.Environment,
+			Cluster:        service.Cluster,
+			ReplicationSet: service.ReplicationSet,
+			CustomLabels:   labels,
+			ExternalGroup:  service.ExternalGroup,
+			Address:        service.Address,
+			Port:           service.Port,
+			Socket:         service.Socket,
+		}
+		res.Services = append(res.Services, srv)
+	}
+
+	return res, nil
 }
