@@ -97,6 +97,8 @@ func (u *Upgrader) StartUpgrade(ctx context.Context, containerID string) (string
 		}()
 
 		logger := logrus.New()
+		logger.SetFormatter(logrus.StandardLogger().Formatter)
+		logger.SetLevel(logrus.StandardLogger().GetLevel())
 		logger.SetOutput(io.MultiWriter(logFile, os.Stdout))
 
 		newContainerNamePrefix := u.newContainerNamePrefix
