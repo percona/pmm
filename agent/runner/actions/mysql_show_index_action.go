@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowIndexAction struct {
@@ -69,7 +70,7 @@ func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}

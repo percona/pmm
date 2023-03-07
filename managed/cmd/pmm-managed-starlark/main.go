@@ -30,7 +30,6 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/version"
@@ -118,20 +117,13 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		return nil, errors.Wrap(err, "error initializing starlark env")
 	}
 
-	res := make([][]map[string]interface{}, len(data.QueriesResults))
-	for i, queryResult := range data.QueriesResults {
-		if res[i], err = agentpb.UnmarshalActionQueryResult(queryResult); err != nil {
-			return nil, err
-		}
-	}
-
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
 	switch data.Version {
 	case 1:
-		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, data.QueriesResults[0], contextFuncs, l.Debugln)
 	case 2:
-		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, data.QueriesResults, contextFuncs, l.Debugln)
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, "error running starlark env")

@@ -21,7 +21,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Target contains required info about STT check target.
+// Target contains required info about advisor check target.
 type Target struct {
 	AgentID       string
 	ServiceID     string
@@ -32,6 +32,32 @@ type Target struct {
 	Files         map[string]string
 	TDP           *models.DelimiterPair
 	TLSSkipVerify bool
+}
+
+func (t *Target) Copy() Target {
+	labels := make(map[string]string, len(t.Labels))
+	for k, v := range t.Labels {
+		labels[k] = v
+	}
+
+	files := make(map[string]string, len(t.Files))
+	for k, v := range t.Files {
+		files[k] = v
+	}
+
+	tdp := *t.TDP
+
+	return Target{
+		AgentID:       t.AgentID,
+		ServiceID:     t.ServiceID,
+		ServiceName:   t.ServiceName,
+		NodeName:      t.NodeName,
+		Labels:        labels,
+		DSN:           t.DSN,
+		Files:         files,
+		TDP:           &tdp,
+		TLSSkipVerify: t.TLSSkipVerify,
+	}
 }
 
 // CheckResult contains the output from the check file and other information.
