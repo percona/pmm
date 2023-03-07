@@ -28,6 +28,7 @@ import (
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlExplainAction struct {
@@ -132,7 +133,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +177,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// https://dev.mysql.com/doc/refman/8.0/en/explain-extended.html
 	rows, err := tx.QueryContext(ctx, "SHOW /* pmm-agent */ WARNINGS")
 	if err != nil {
-		return b, nil // ingore error, return original output
+		// ignore error, return original output
+		return b, nil //nolint:nilerr
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -205,7 +207,7 @@ func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}

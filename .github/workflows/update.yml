@@ -11,6 +11,7 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
+      - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
       - "managed/**"
@@ -33,7 +34,7 @@ jobs:
     env:
       PMM_SERVER_IMAGE: ${{ matrix.image }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     defaults:
       run:

@@ -150,7 +150,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 		c.l.Debugf("cache for %s is used", fullURL)
 		return &val.response, nil
 	}
-	req, err := http.NewRequestWithContext(ctx, "GET", fullURL, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fullURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

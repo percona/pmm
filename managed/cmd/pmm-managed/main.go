@@ -35,11 +35,14 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/pkg/errors"
+	metrics "github.com/prometheus/client_golang/api"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -75,7 +78,6 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
-	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -120,6 +122,9 @@ const (
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
+
+	clickhouseMaxIdleConns = 5
+	clickhouseMaxOpenConns = 10
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -181,7 +186,6 @@ type gRPCServerDeps struct {
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
-	kubernetesClient     *kubernetes.Kubernetes
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
@@ -202,16 +206,13 @@ type gRPCServerDeps struct {
 	componentsService    *managementdbaas.ComponentsService
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
-}
-
-type gRPCServerFeatures struct {
-	enableAccessControl bool
+	kubeStorage          *managementdbaas.KubeStorage
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll
-func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServerFeatures) {
+func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
@@ -259,10 +260,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	nodeSvc := management.NewNodeService(deps.db)
+	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
@@ -279,9 +280,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
-	if features.enableAccessControl {
-		rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
-	}
+
+	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
@@ -293,14 +293,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps, features gRPCServe
 	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.kubernetesClient, deps.versionServiceClient, deps.grafanaClient)
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
-	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.kubernetesClient, deps.versionServiceClient))
-	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.kubernetesClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.kubernetesClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.kubeStorage))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -637,6 +637,20 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 	}
 }
 
+// newClickhouseDB return a new Clickhouse db.
+func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
+	db, err := sql.Open("clickhouse", dsn)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+	}
+
+	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
+
+	return db, nil
+}
+
 func main() {
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -677,8 +691,6 @@ func main() {
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
 
-	enableAccessControl := kingpin.Flag("enable-access-control", "Enable access control").Default("false").Envar("ENABLE_RBAC").Bool()
-
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -715,9 +727,10 @@ func main() {
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
 
-	clickhousedb := ds.QanDBSelect
+	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	qanDB := ds.QanDBSelect
+	qanDB.DSN = clickhouseDSN
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
@@ -802,10 +815,17 @@ func main() {
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
+	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
 	if err != nil {
-		l.Fatalf("Could not create checks service: %s", err)
+		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
+
+	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	if err != nil {
+		l.Fatalf("Could not create Clickhouse client: %s", err)
+	}
+
+	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
 
 	prom.MustRegister(checksService)
 
@@ -824,14 +844,15 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	kubernetesClient := kubernetes.NewEmpty()
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
-	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
+	kubeStorage := managementdbaas.NewKubeStorage(db)
+
+	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, kubeStorage)
 
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
@@ -851,7 +872,6 @@ func main() {
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
-		EnableAccessControl:  *enableAccessControl,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -926,11 +946,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, *enableAccessControl)
-
-	if *enableAccessControl == true {
-		l.Info("Access control is enabled")
-	}
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -1005,7 +1021,6 @@ func main() {
 				grafanaClient:        grafanaClient,
 				checksService:        checksService,
 				dbaasClient:          dbaasClient,
-				kubernetesClient:     kubernetesClient,
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
@@ -1026,8 +1041,7 @@ func main() {
 				componentsService:    componentsService,
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
-			}, gRPCServerFeatures{
-				enableAccessControl: *enableAccessControl,
+				kubeStorage:          kubeStorage,
 			})
 	}()
 

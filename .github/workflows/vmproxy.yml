@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
+      - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
       - "managed/**"
@@ -33,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}

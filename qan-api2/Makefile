@@ -1,6 +1,6 @@
 default: help
 
-help:                           ## Display this help message.
+help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
@@ -14,7 +14,7 @@ PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 PMM_CONTAINER ?= pmm-managed-server
 
-release:                        ## Build qan-api2 release binary.
+release:                        ## Build qan-api2 release binary
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
 		-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
 		-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
@@ -24,13 +24,10 @@ release:                        ## Build qan-api2 release binary.
 		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-gen:                            ## Generate files.
-	../bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
-
-install:                        ## Install qan-api2 binary.
+install:                        ## Install qan-api2 binary
 	go install -v ./...
 
-install-race:                   ## Install qan-api2 binary with race detector.
+install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
 test-env-up:					## Start docker containers used for testing
@@ -44,22 +41,22 @@ test-env-down:					## Stop and remove docker containers used for testing
 	docker stop pmm-clickhouse-test
 	docker rm pmm-clickhouse-test
 
-test:                           ## Run tests.
+test:                           ## Run tests
 	go test ./...
 
-test-race:                      ## Run tests with race detector.
+test-race:                      ## Run tests with race detector
 	go test -race ./...
 
-test-cover:                     ## Run tests and collect coverage information.
+test-cover:                     ## Run tests and collect coverage information
 	go test -coverprofile=cover.out -covermode=count ./...
 
 RUN_FLAGS = ## -todo-use-kingpin-for-flags
 
-run: install _run               ## Run qan-api2.
+run: install _run               ## Run qan-api2
 
-run-race: install-race _run     ## Run qan-api2 with race detector.
+run-race: install-race _run     ## Run qan-api2 with race detector
 
-run-race-cover: install-race    ## Run qan-api2 with race detector and collect coverage information.
+run-race-cover: install-race    ## Run qan-api2 with race detector and collect coverage information
 	go test -coverpkg="github.com/percona/pmm/qan-api2/..." \
 			-tags maincover \
 			-race -c -o bin/qan-api2.test
@@ -68,18 +65,18 @@ run-race-cover: install-race    ## Run qan-api2 with race detector and collect c
 _run:
 	qan-api2 $(RUN_FLAGS)
 
-env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
+env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse
 	mkdir -p logs
 	docker-compose up -d $(DCFLAGS) --force-recreate --renew-anon-volumes --remove-orphans ch sysbench-ps
 	#docker-compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
 
-env-down:                       ## Remove docker containers.
+env-down:                       ## Remove docker containers
 	docker-compose down --volumes
 	rm -rf logs
 
-pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers.
+pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers
 	docker-compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
 	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse

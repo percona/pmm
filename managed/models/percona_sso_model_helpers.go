@@ -87,7 +87,7 @@ func (s *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *ref
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close() //nolint:errcheck
+	defer res.Body.Close() //nolint:gosec
 
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {

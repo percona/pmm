@@ -38,7 +38,6 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-//nolint:dupword
 var htmlTemplate = `|
             <!--
             Style and HTML derived from https://github.com/mailgun/transactional-email-templates

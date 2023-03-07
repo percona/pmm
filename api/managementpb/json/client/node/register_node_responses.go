@@ -460,6 +460,9 @@ RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
+	// Token represents token for vmagent auth config.
+	Token string `json:"token,omitempty"`
+
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 

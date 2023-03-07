@@ -149,7 +149,6 @@ func TestListBackupLocations(t *testing.T) {
 								req.S3Config.BucketName != cfg.S3Config.BucketName {
 								return false
 							}
-
 						}
 						if req.FilesystemConfig != nil {
 							cfg := loc.Config.(*backuppb.Location_FilesystemConfig)

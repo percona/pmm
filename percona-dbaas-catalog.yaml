@@ -1,0 +1,13 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: percona-dbaas-catalog
+  namespace: olm
+spec:
+  displayName: Percona DBaaS Catalog
+  publisher: Percona
+  sourceType: grpc
+  image: docker.io/percona/dbaas-catalog:latest
+  updateStrategy:
+    registryPoll:
+      interval: 45m
