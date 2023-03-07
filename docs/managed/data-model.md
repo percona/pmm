@@ -315,9 +315,6 @@ As part of thetransition to UNKNOWN and DONE state we set listen_port to 0. It g
 
 > node_cpu{node_id="machine-id:d8f061de7eb36f626b0f3aae5bddfd7e", node_name="Some Node name"}
 
-Mapping to Prometheus metrics
-node_cpu{node_id="machine-id:d8f061de7eb36f626b0f3aae5bddfd7e", node_name="Some Node name"}
-
 ## Relationship Schemas. Examples
 
 ### Case 1. Typical installation with 3 Services (2 x MySQL and MongoDB) on one node
