@@ -186,7 +186,7 @@ systemd:
                       --health-cmd=none --health-interval=disable \
                       ${PMM_IMAGE}:${PMM_TAG}
         ExecStop=/usr/bin/podman stop -t 10 %N
-        Restart=on-failure
+        Restart=always
         RestartSec=20
 
         [Install]
