@@ -88,7 +88,9 @@
     - name: Migrate Grafana database from SQLite to Postgresql
       include_role:
         name: sqlite-to-postgres
-      when: is_database_sqlite.]stat.exists
+      when: is_database_sqlite.stat.exists
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-  when: ui_upgrade is defined and ui_upgrade
+  # We use current_version_file['failed'] because we don't want to run this on creating container 
+  when: ui_upgrade and current_version_file['failed'] == false
+
