@@ -114,6 +114,7 @@ func TestDBClusterService(t *testing.T) {
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
 	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		dbKubernetesClusterNameTest: kubeClient,
 	}
