@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
@@ -125,6 +126,8 @@ type kubernetesClient interface {
 	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
+	// GetServerVersion returns server version
+	GetServerVersion() (*version.Info, error)
 }
 
 type kubeStorageManager interface {
