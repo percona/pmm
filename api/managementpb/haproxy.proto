@@ -15,10 +15,10 @@ option go_package = "api/managementpb;managementpb";
 // Add HAProxy
 
 message AddHAProxyRequest {
-  // Node identifier on which an external exporter is running.
+  // Node identifier on which an external exporter is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1;
-  // Node name on which a service and node is running.
+  // Node name on which a service and node is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_name = 18;
   // Create a new Node with those parameters.
