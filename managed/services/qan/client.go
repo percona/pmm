@@ -141,6 +141,18 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	return res, nil
 }
 
+func (c *Client) GetQueryMetadataDetailsByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+	qanReq := &qanpb.GetQueryMetadataDetailsByQueryIDRequest{
+		QueryId: queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	res, err := c.odc.GetQueryMetadataDetailsByQueryID(ctx, qanReq)
+	if err != nil {
+		return res, err
+	}
+	return res, nil
+}
+
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
 	start := time.Now()
