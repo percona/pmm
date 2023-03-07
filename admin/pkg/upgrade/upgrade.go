@@ -162,7 +162,7 @@ func (u *Upgrader) UpgradeStatus(ctx context.Context, logsToken string, offset u
 		time.Sleep(200 * time.Millisecond)
 	}
 
-	if err = ctx.Err(); !errors.Is(err, context.DeadlineExceeded) {
+	if err = ctx.Err(); err != nil && !errors.Is(err, context.DeadlineExceeded) {
 		logrus.Warnf("context error during UpgradeStatus: %s", err)
 	}
 
