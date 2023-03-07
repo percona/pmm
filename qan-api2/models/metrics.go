@@ -1026,3 +1026,51 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 
 	return res, errors.New("query_id doesnt exists")
 }
+
+const metadataByQueryIDTmpl = `SELECT placeholders_count FROM metrics
+WHERE queryid = :query_id LIMIT 1;
+`
+
+// QueryMetadataDetailsByQueryID get placeholders count for given queryid.
+func (m *Metrics) getQueryMetadataDetailsByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+	arg := map[string]interface{}{
+		"query_id": queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(metadataByQueryIDTmpl)
+
+	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		err = rows.Scan(
+			//&res.ExplainFingerprint,
+			&res.PlaceholdersCount)
+
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		return res, nil
+	}
+
+	return res, errors.New("query_id doesnt exists")
+}
