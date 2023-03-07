@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
         may-fail: [ false ]
 
     env:
@@ -103,7 +103,7 @@ jobs:
           fail_on_error: true
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.51.1 # Version should match specified in Makefile
+          golangci_lint_version: v1.51.2 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
