@@ -1,6 +1,6 @@
 # Contributing notes
 
-pmm-managed is highly integrated with PMM Server environment. As a result, development and testing is done partially inside PMM Server container which we call "devcontainer". You can take a look at the architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html)
+pmm-managed is a core component of PMM Server. As such, its development and testing is best done inside of a PMM Server container, which we call "devcontainer". You can take a look at PMM's architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/details/architecture.html)
 
 
 # Devcontainer setup
@@ -20,7 +20,7 @@ Please use `make <target>` where <target> is one of:
   help                      Display this help message.
 ```
 
-`make env-up` starts devcontainer with all tools and mounts source code from the host. You can change code with your editor/IDE of choice as usual, or run editor inside devcontainer (see below for some special support of VSCode). To run make targets inside devcontainer use `make env TARGET=target-name`. For example:
+`make env-up` starts a devcontainer with all tools and mounts the source code from the host. You can write code using your IDE of choice as usual, or run an editor inside the devcontainer (see below how you can leverage VSCode). To run make targets inside the devcontainer, use `make env TARGET=target-name`. For example:
 ```
 $ make env TARGET=help
 docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make help
@@ -31,9 +31,9 @@ Please use `make <target>` where <target> is one of:
   test                      Run tests.
 ...
 ```
-Run run tests, use `make env TARGET=test`, etc.
+To run tests, use `make env TARGET=test`, etc.
 
-Alternatively, it is possible to run `make env` to get inside devcontainer and run make targets as usual:
+Alternatively, it is possible to run `make env` to get inside the devcontainer and run make targets as usual:
 ```
 $ make env
 docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make _bash
