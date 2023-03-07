@@ -47,8 +47,7 @@ message StartMySQLExplainActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
   // Query ID of query.
   string query_id = 6;
@@ -70,8 +69,7 @@ message StartMySQLExplainJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
   // Query ID of query.
   string query_id = 6;
@@ -93,8 +91,7 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
-  // Query ID or query is required.
-  // Value of query.
+  // Deprecated: should not be used.
   string query = 3;
   // Query ID of query.
   string query_id = 6;

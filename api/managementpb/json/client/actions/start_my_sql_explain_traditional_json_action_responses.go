@@ -129,8 +129,7 @@ type StartMySQLExplainTraditionalJSONActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Query ID or query is required.
-	// Value of query.
+	// Deprecated: should not be used.
 	Query string `json:"query,omitempty"`
 
 	// Query ID of query.
