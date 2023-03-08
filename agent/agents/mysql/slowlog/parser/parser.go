@@ -226,7 +226,7 @@ func (p *SlowLogParser) parseUser(line string) {
 	p.logf("user")
 	m := userRe.FindStringSubmatch(line)
 	if len(m) < 3 {
-		p.logf("[parseUser] cannot parse", line)
+		p.logf("[parseUser] cannot be parsed", line)
 		return
 	}
 	p.event.User = m[1]
@@ -241,7 +241,7 @@ func (p *SlowLogParser) parseMetrics(line string) {
 	}
 
 	if !strings.Contains(line, ":") {
-		p.logf("[parseMetrics] cannot parse", line)
+		p.logf("[parseMetrics] cannot be parsed", line)
 		return
 	}
 
