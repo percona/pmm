@@ -1031,8 +1031,8 @@ const metadataByQueryIDTmpl = `SELECT service_name, database, username, service_
 WHERE queryid = :query_id LIMIT 1;
 `
 
-// QueryMetadataDetailsByQueryID get placeholders count for given queryid.
-func (m *Metrics) getQueryMetadataDetailsByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+// GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
+func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"query_id": queryID,
 	}
@@ -1062,8 +1062,17 @@ func (m *Metrics) getQueryMetadataDetailsByQueryID(ctx context.Context, serviceI
 
 	for rows.Next() {
 		err = rows.Scan(
-			//&res.ExplainFingerprint,
-			&res.PlaceholdersCount)
+			res.ServiceName,
+			res.Database,
+			res.Username,
+			res.ServiceType,
+			res.ServiceId,
+			res.NodeId,
+			res.NodeName,
+			res.NodeType,
+			res.AgentId,
+			res.AgentType,
+		)
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")

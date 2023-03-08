@@ -53,6 +53,11 @@ func (this *MetricsReply) Validate() error {
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Metadata != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Metadata); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Metadata", err)
+		}
+	}
 	return nil
 }
 

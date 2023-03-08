@@ -90,6 +90,7 @@ message MetricsReply {
   repeated Point sparkline = 4;
   map<string, MetricValues> totals = 5;
   string fingerprint = 6;
+  GetQueryMetadataDetailsByQueryIDReply metadata = 8;
 }
 
 // MetricValues is statistics of specific metric.

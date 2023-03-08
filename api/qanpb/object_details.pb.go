@@ -129,11 +129,12 @@ type MetricsReply struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Metrics     map[string]*MetricValues `protobuf:"bytes,3,rep,name=metrics,proto3" json:"metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	TextMetrics map[string]string        `protobuf:"bytes,7,rep,name=text_metrics,json=textMetrics,proto3" json:"text_metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Sparkline   []*Point                 `protobuf:"bytes,4,rep,name=sparkline,proto3" json:"sparkline,omitempty"`
-	Totals      map[string]*MetricValues `protobuf:"bytes,5,rep,name=totals,proto3" json:"totals,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Fingerprint string                   `protobuf:"bytes,6,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	Metrics     map[string]*MetricValues               `protobuf:"bytes,3,rep,name=metrics,proto3" json:"metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	TextMetrics map[string]string                      `protobuf:"bytes,7,rep,name=text_metrics,json=textMetrics,proto3" json:"text_metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Sparkline   []*Point                               `protobuf:"bytes,4,rep,name=sparkline,proto3" json:"sparkline,omitempty"`
+	Totals      map[string]*MetricValues               `protobuf:"bytes,5,rep,name=totals,proto3" json:"totals,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Fingerprint string                                 `protobuf:"bytes,6,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	Metadata    *GetQueryMetadataDetailsByQueryIDReply `protobuf:"bytes,8,opt,name=metadata,proto3" json:"metadata,omitempty"`
 }
 
 func (x *MetricsReply) Reset() {
@@ -201,6 +202,13 @@ func (x *MetricsReply) GetFingerprint() string {
 		return x.Fingerprint
 	}
 	return ""
+}
+
+func (x *MetricsReply) GetMetadata() *GetQueryMetadataDetailsByQueryIDReply {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
 }
 
 // MetricValues is statistics of specific metric.
@@ -1454,7 +1462,7 @@ var file_qanpb_object_details_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x6c, 0x79, 0x5f, 0x66, 0x69, 0x65, 0x6c, 0x64, 0x73, 0x18, 0x06, 0x20, 0x03, 0x28,
 	0x09, 0x52, 0x11, 0x69, 0x6e, 0x63, 0x6c, 0x75, 0x64, 0x65, 0x4f, 0x6e, 0x6c, 0x79, 0x46, 0x69,
 	0x65, 0x6c, 0x64, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x73, 0x18, 0x07,
-	0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x73, 0x22, 0x9f, 0x04, 0x0a,
+	0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x73, 0x22, 0xef, 0x04, 0x0a,
 	0x0c, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x40, 0x0a,
 	0x07, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x26,
 	0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x74,
@@ -1474,7 +1482,12 @@ var file_qanpb_object_details_proto_rawDesc = []byte{
 	0x6c, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x06, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x73, 0x12,
 	0x20, 0x0a, 0x0b, 0x66, 0x69, 0x6e, 0x67, 0x65, 0x72, 0x70, 0x72, 0x69, 0x6e, 0x74, 0x18, 0x06,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x66, 0x69, 0x6e, 0x67, 0x65, 0x72, 0x70, 0x72, 0x69, 0x6e,
-	0x74, 0x1a, 0x55, 0x0a, 0x0c, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x45, 0x6e, 0x74, 0x72,
+	0x74, 0x12, 0x4e, 0x0a, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0x18, 0x08, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x32, 0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61,
+	0x74, 0x61, 0x44, 0x65, 0x74, 0x61, 0x69, 0x6c, 0x73, 0x42, 0x79, 0x51, 0x75, 0x65, 0x72, 0x79,
+	0x49, 0x44, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x52, 0x08, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
+	0x61, 0x1a, 0x55, 0x0a, 0x0c, 0x4d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x45, 0x6e, 0x74, 0x72,
 	0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
 	0x6b, 0x65, 0x79, 0x12, 0x2f, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x0b, 0x32, 0x19, 0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
@@ -1805,43 +1818,44 @@ var file_qanpb_object_details_proto_depIdxs = []int32{
 	21, // 4: qan.v1beta1.MetricsReply.text_metrics:type_name -> qan.v1beta1.MetricsReply.TextMetricsEntry
 	26, // 5: qan.v1beta1.MetricsReply.sparkline:type_name -> qan.v1beta1.Point
 	22, // 6: qan.v1beta1.MetricsReply.totals:type_name -> qan.v1beta1.MetricsReply.TotalsEntry
-	24, // 7: qan.v1beta1.QueryExampleRequest.period_start_from:type_name -> google.protobuf.Timestamp
-	24, // 8: qan.v1beta1.QueryExampleRequest.period_start_to:type_name -> google.protobuf.Timestamp
-	25, // 9: qan.v1beta1.QueryExampleRequest.labels:type_name -> qan.v1beta1.MapFieldEntry
-	6,  // 10: qan.v1beta1.QueryExampleReply.query_examples:type_name -> qan.v1beta1.QueryExample
-	27, // 11: qan.v1beta1.QueryExample.example_format:type_name -> qan.v1beta1.ExampleFormat
-	28, // 12: qan.v1beta1.QueryExample.example_type:type_name -> qan.v1beta1.ExampleType
-	24, // 13: qan.v1beta1.ObjectDetailsLabelsRequest.period_start_from:type_name -> google.protobuf.Timestamp
-	24, // 14: qan.v1beta1.ObjectDetailsLabelsRequest.period_start_to:type_name -> google.protobuf.Timestamp
-	23, // 15: qan.v1beta1.ObjectDetailsLabelsReply.labels:type_name -> qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry
-	24, // 16: qan.v1beta1.HistogramRequest.period_start_from:type_name -> google.protobuf.Timestamp
-	24, // 17: qan.v1beta1.HistogramRequest.period_start_to:type_name -> google.protobuf.Timestamp
-	25, // 18: qan.v1beta1.HistogramRequest.labels:type_name -> qan.v1beta1.MapFieldEntry
-	14, // 19: qan.v1beta1.HistogramReply.histogram_items:type_name -> qan.v1beta1.HistogramItem
-	2,  // 20: qan.v1beta1.MetricsReply.MetricsEntry.value:type_name -> qan.v1beta1.MetricValues
-	2,  // 21: qan.v1beta1.MetricsReply.TotalsEntry.value:type_name -> qan.v1beta1.MetricValues
-	9,  // 22: qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry.value:type_name -> qan.v1beta1.ListLabelValues
-	0,  // 23: qan.v1beta1.ObjectDetails.GetMetrics:input_type -> qan.v1beta1.MetricsRequest
-	4,  // 24: qan.v1beta1.ObjectDetails.GetQueryExample:input_type -> qan.v1beta1.QueryExampleRequest
-	7,  // 25: qan.v1beta1.ObjectDetails.GetLabels:input_type -> qan.v1beta1.ObjectDetailsLabelsRequest
-	10, // 26: qan.v1beta1.ObjectDetails.GetQueryPlan:input_type -> qan.v1beta1.QueryPlanRequest
-	12, // 27: qan.v1beta1.ObjectDetails.GetHistogram:input_type -> qan.v1beta1.HistogramRequest
-	15, // 28: qan.v1beta1.ObjectDetails.QueryExists:input_type -> qan.v1beta1.QueryExistsRequest
-	16, // 29: qan.v1beta1.ObjectDetails.ExplainFingerprintByQueryID:input_type -> qan.v1beta1.ExplainFingerprintByQueryIDRequest
-	18, // 30: qan.v1beta1.ObjectDetails.GetQueryMetadataDetailsByQueryID:input_type -> qan.v1beta1.GetQueryMetadataDetailsByQueryIDRequest
-	1,  // 31: qan.v1beta1.ObjectDetails.GetMetrics:output_type -> qan.v1beta1.MetricsReply
-	5,  // 32: qan.v1beta1.ObjectDetails.GetQueryExample:output_type -> qan.v1beta1.QueryExampleReply
-	8,  // 33: qan.v1beta1.ObjectDetails.GetLabels:output_type -> qan.v1beta1.ObjectDetailsLabelsReply
-	11, // 34: qan.v1beta1.ObjectDetails.GetQueryPlan:output_type -> qan.v1beta1.QueryPlanReply
-	13, // 35: qan.v1beta1.ObjectDetails.GetHistogram:output_type -> qan.v1beta1.HistogramReply
-	29, // 36: qan.v1beta1.ObjectDetails.QueryExists:output_type -> google.protobuf.BoolValue
-	17, // 37: qan.v1beta1.ObjectDetails.ExplainFingerprintByQueryID:output_type -> qan.v1beta1.ExplainFingerprintByQueryIDReply
-	19, // 38: qan.v1beta1.ObjectDetails.GetQueryMetadataDetailsByQueryID:output_type -> qan.v1beta1.GetQueryMetadataDetailsByQueryIDReply
-	31, // [31:39] is the sub-list for method output_type
-	23, // [23:31] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	19, // 7: qan.v1beta1.MetricsReply.metadata:type_name -> qan.v1beta1.GetQueryMetadataDetailsByQueryIDReply
+	24, // 8: qan.v1beta1.QueryExampleRequest.period_start_from:type_name -> google.protobuf.Timestamp
+	24, // 9: qan.v1beta1.QueryExampleRequest.period_start_to:type_name -> google.protobuf.Timestamp
+	25, // 10: qan.v1beta1.QueryExampleRequest.labels:type_name -> qan.v1beta1.MapFieldEntry
+	6,  // 11: qan.v1beta1.QueryExampleReply.query_examples:type_name -> qan.v1beta1.QueryExample
+	27, // 12: qan.v1beta1.QueryExample.example_format:type_name -> qan.v1beta1.ExampleFormat
+	28, // 13: qan.v1beta1.QueryExample.example_type:type_name -> qan.v1beta1.ExampleType
+	24, // 14: qan.v1beta1.ObjectDetailsLabelsRequest.period_start_from:type_name -> google.protobuf.Timestamp
+	24, // 15: qan.v1beta1.ObjectDetailsLabelsRequest.period_start_to:type_name -> google.protobuf.Timestamp
+	23, // 16: qan.v1beta1.ObjectDetailsLabelsReply.labels:type_name -> qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry
+	24, // 17: qan.v1beta1.HistogramRequest.period_start_from:type_name -> google.protobuf.Timestamp
+	24, // 18: qan.v1beta1.HistogramRequest.period_start_to:type_name -> google.protobuf.Timestamp
+	25, // 19: qan.v1beta1.HistogramRequest.labels:type_name -> qan.v1beta1.MapFieldEntry
+	14, // 20: qan.v1beta1.HistogramReply.histogram_items:type_name -> qan.v1beta1.HistogramItem
+	2,  // 21: qan.v1beta1.MetricsReply.MetricsEntry.value:type_name -> qan.v1beta1.MetricValues
+	2,  // 22: qan.v1beta1.MetricsReply.TotalsEntry.value:type_name -> qan.v1beta1.MetricValues
+	9,  // 23: qan.v1beta1.ObjectDetailsLabelsReply.LabelsEntry.value:type_name -> qan.v1beta1.ListLabelValues
+	0,  // 24: qan.v1beta1.ObjectDetails.GetMetrics:input_type -> qan.v1beta1.MetricsRequest
+	4,  // 25: qan.v1beta1.ObjectDetails.GetQueryExample:input_type -> qan.v1beta1.QueryExampleRequest
+	7,  // 26: qan.v1beta1.ObjectDetails.GetLabels:input_type -> qan.v1beta1.ObjectDetailsLabelsRequest
+	10, // 27: qan.v1beta1.ObjectDetails.GetQueryPlan:input_type -> qan.v1beta1.QueryPlanRequest
+	12, // 28: qan.v1beta1.ObjectDetails.GetHistogram:input_type -> qan.v1beta1.HistogramRequest
+	15, // 29: qan.v1beta1.ObjectDetails.QueryExists:input_type -> qan.v1beta1.QueryExistsRequest
+	16, // 30: qan.v1beta1.ObjectDetails.ExplainFingerprintByQueryID:input_type -> qan.v1beta1.ExplainFingerprintByQueryIDRequest
+	18, // 31: qan.v1beta1.ObjectDetails.GetQueryMetadataDetailsByQueryID:input_type -> qan.v1beta1.GetQueryMetadataDetailsByQueryIDRequest
+	1,  // 32: qan.v1beta1.ObjectDetails.GetMetrics:output_type -> qan.v1beta1.MetricsReply
+	5,  // 33: qan.v1beta1.ObjectDetails.GetQueryExample:output_type -> qan.v1beta1.QueryExampleReply
+	8,  // 34: qan.v1beta1.ObjectDetails.GetLabels:output_type -> qan.v1beta1.ObjectDetailsLabelsReply
+	11, // 35: qan.v1beta1.ObjectDetails.GetQueryPlan:output_type -> qan.v1beta1.QueryPlanReply
+	13, // 36: qan.v1beta1.ObjectDetails.GetHistogram:output_type -> qan.v1beta1.HistogramReply
+	29, // 37: qan.v1beta1.ObjectDetails.QueryExists:output_type -> google.protobuf.BoolValue
+	17, // 38: qan.v1beta1.ObjectDetails.ExplainFingerprintByQueryID:output_type -> qan.v1beta1.ExplainFingerprintByQueryIDReply
+	19, // 39: qan.v1beta1.ObjectDetails.GetQueryMetadataDetailsByQueryID:output_type -> qan.v1beta1.GetQueryMetadataDetailsByQueryIDReply
+	32, // [32:40] is the sub-list for method output_type
+	24, // [24:32] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_qanpb_object_details_proto_init() }

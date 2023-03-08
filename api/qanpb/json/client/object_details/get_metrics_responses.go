@@ -429,6 +429,9 @@ type GetMetricsOKBody struct {
 
 	// fingerprint
 	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// metadata
+	Metadata *GetMetricsOKBodyMetadata `json:"metadata,omitempty"`
 }
 
 // Validate validates this get metrics OK body
@@ -444,6 +447,10 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateTotals(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetadata(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -531,6 +538,25 @@ func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetMetricsOKBody) validateMetadata(formats strfmt.Registry) error {
+	if swag.IsZero(o.Metadata) { // not required
+		return nil
+	}
+
+	if o.Metadata != nil {
+		if err := o.Metadata.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getMetricsOk" + "." + "metadata")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getMetricsOk" + "." + "metadata")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get metrics OK body based on the context it is used
 func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -544,6 +570,10 @@ func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateTotals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetadata(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -594,6 +624,21 @@ func (o *GetMetricsOKBody) contextValidateTotals(ctx context.Context, formats st
 	return nil
 }
 
+func (o *GetMetricsOKBody) contextValidateMetadata(ctx context.Context, formats strfmt.Registry) error {
+	if o.Metadata != nil {
+		if err := o.Metadata.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getMetricsOk" + "." + "metadata")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getMetricsOk" + "." + "metadata")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetMetricsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -605,6 +650,70 @@ func (o *GetMetricsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	var res GetMetricsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetMetricsOKBodyMetadata GetQueryMetadataDetailsByQueryIDReply consists selected query metadata to show in details for given query ID.
+swagger:model GetMetricsOKBodyMetadata
+*/
+type GetMetricsOKBodyMetadata struct {
+	// service name
+	ServiceName string `json:"service_name,omitempty"`
+
+	// database
+	Database string `json:"database,omitempty"`
+
+	// username
+	Username string `json:"username,omitempty"`
+
+	// service type
+	ServiceType string `json:"service_type,omitempty"`
+
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
+
+	// node id
+	NodeID string `json:"node_id,omitempty"`
+
+	// node name
+	NodeName string `json:"node_name,omitempty"`
+
+	// node type
+	NodeType string `json:"node_type,omitempty"`
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// agent type
+	AgentType int64 `json:"agent_type,omitempty"`
+}
+
+// Validate validates this get metrics OK body metadata
+func (o *GetMetricsOKBodyMetadata) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics OK body metadata based on context it is used
+func (o *GetMetricsOKBodyMetadata) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsOKBodyMetadata) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsOKBodyMetadata) UnmarshalBinary(b []byte) error {
+	var res GetMetricsOKBodyMetadata
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
