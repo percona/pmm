@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package management;
 
-option go_package = "api/managementpb;managementpb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/managementpb;managementpb";
 
 // Add External
 
@@ -30,11 +30,7 @@ message AddExternalRequest {
   // address always should be passed with add_node.
   string address = 20;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 2 [(validator.field) = {string_not_empty: true}];
   // HTTP basic auth username for collecting metrics.
   string username = 3;
   // HTTP basic auth password for collecting metrics.
@@ -44,12 +40,10 @@ message AddExternalRequest {
   // Path under which metrics are exposed, used to generate URI.
   string metrics_path = 6;
   // Listen port for scraping metrics.
-  uint32 listen_port = 7 [
-    (validator.field) = {
-      int_gt: 0
-      int_lt: 65536
-    }
-  ];
+  uint32 listen_port = 7 [(validator.field) = {
+    int_gt: 0
+    int_lt: 65536
+  }];
   // Node identifier on which an external service is been running.
   // node_id always should be passed with runs_on_node_id.
   string node_id = 8;

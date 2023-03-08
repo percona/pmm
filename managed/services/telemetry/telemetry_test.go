@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/sirupsen/logrus"
@@ -151,6 +152,7 @@ func TestRunTelemetryService(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
