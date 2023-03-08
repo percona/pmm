@@ -22,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -128,7 +127,6 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 //nolint:gochecknoinits
 func init() {
 	seed := time.Now().UnixNano()
-	rand.Seed(seed)
 	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")

@@ -17,13 +17,17 @@ package checks
 
 import (
 	"context"
+	"database/sql"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
+	metrics "github.com/prometheus/client_golang/api"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -44,21 +48,26 @@ const (
 	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
 	testChecksFile       = "../../testdata/checks/checks.yml"
 	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
-	vmAddress            = "http://127.0.0.1:9090/prometheus/"
 )
 
-func TestDownloadChecks(t *testing.T) {
+var (
+	vmClient     v1.API
+	clickhouseDB *sql.DB
+)
+
+func TestDownloadAdvisors(t *testing.T) {
 	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
 	if clientID == "" || clientSecret == "" {
 		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
 	}
 
+	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
-	s, err := New(db, platformClient, nil, nil, vmAddress)
+	s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
 	s.platformPublicKeys = []string{devPlatformPublicKey}
 	require.NoError(t, err)
 
@@ -72,17 +81,17 @@ func TestDownloadChecks(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadChecks(ctx)
+		dChecks, err := s.downloadAdvisors(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
-		checks, err = s.GetChecks()
+		checks, err = s.GetAdvisors()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
@@ -96,19 +105,18 @@ func TestDownloadChecks(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.downloadChecks(ctx)
+		dChecks, err := s.downloadAdvisors(ctx)
 		require.NoError(t, err)
 		assert.Empty(t, dChecks)
 
-		checks, err := s.GetChecks()
+		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
 		assert.Empty(t, checks)
 	})
 }
 
 func TestLoadLocalChecks(t *testing.T) {
-	s, err := New(nil, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
+	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 
 	checks, err := s.loadLocalChecks(testChecksFile)
 	require.NoError(t, err)
@@ -142,7 +150,7 @@ func TestLoadLocalChecks(t *testing.T) {
 	assert.Empty(t, c5.Query)
 }
 
-func TestCollectChecks(t *testing.T) {
+func TestCollectAdvisors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
@@ -150,18 +158,25 @@ func TestCollectChecks(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("collect local checks", func(t *testing.T) {
-		s, err := New(db, platformClient, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		checks, err := s.GetChecks()
+		advisors, err := s.GetAdvisors()
 		require.NoError(t, err)
-		require.Len(t, checks, 5)
+		require.Len(t, advisors, 1)
 
-		checkNames := make([]string, 0, len(checks))
-		for _, c := range checks {
+		advisor := advisors[0]
+		require.Equal(t, "dev", advisor.Name)
+		require.Equal(t, "Dev Advisor", advisor.Summary)
+		require.Equal(t, "Advisor used for developing checks", advisor.Description)
+		require.Equal(t, "development", advisor.Category)
+		require.Empty(t, advisor.Tiers)
+		require.Len(t, advisor.Checks, 5)
+
+		checkNames := make([]string, 0, len(advisor.Checks))
+		for _, c := range advisor.Checks {
 			checkNames = append(checkNames, c.Name)
 		}
 		assert.ElementsMatch(t, []string{
@@ -174,12 +189,27 @@ func TestCollectChecks(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s, err := New(db, platformClient, nil, nil, vmAddress)
+		s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
 		s.platformPublicKeys = []string{devPlatformPublicKey}
-		require.NoError(t, err)
 
-		s.CollectChecks(context.Background())
-		assert.NotEmpty(t, s.checks)
+		s.CollectAdvisors(context.Background())
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		require.NotEmpty(t, checks)
+
+		advisors, err := s.GetAdvisors()
+		require.NoError(t, err)
+		require.NotEmpty(t, s.advisors)
+
+		checksFromAdvisors := make(map[string]check.Check)
+		for _, advisor := range advisors {
+			for _, c := range advisor.Checks {
+				checksFromAdvisors[c.Name] = c
+			}
+		}
+
+		assert.Equal(t, checks, checksFromAdvisors)
 	})
 }
 
@@ -188,11 +218,10 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -214,11 +243,10 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -243,13 +271,12 @@ func TestDisableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
-		err = s.DisableChecks([]string{"unknown_check"})
+		err := s.DisableChecks([]string{"unknown_check"})
 		require.Error(t, err)
 
 		disChecks, err := s.GetDisabledChecks()
@@ -263,11 +290,10 @@ func TestEnableChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -295,11 +321,10 @@ func TestChangeInterval(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
 
 		checks, err := s.GetChecks()
 		require.NoError(t, err)
@@ -337,8 +362,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("STT enabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 
 		results, err := s.GetSecurityCheckResults()
 		assert.Empty(t, results)
@@ -346,8 +370,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -358,20 +381,20 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		results, err := s.GetSecurityCheckResults()
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	setupClients(t)
 
 	t.Run("unknown interval", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
-		err = s.runChecksGroup(context.Background(), check.Interval("unknown"))
+		err := s.runChecksGroup(context.Background(), check.Interval("unknown"))
 		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
@@ -379,20 +402,19 @@ func TestStartChecks(t *testing.T) {
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 
-		s, err := New(db, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 
 		s.localChecksFile = testChecksFile
-		s.CollectChecks(context.Background())
+		s.CollectAdvisors(context.Background())
+		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
 
-		err = s.runChecksGroup(context.Background(), "")
+		err := s.runChecksGroup(context.Background(), "")
 		require.NoError(t, err)
 	})
 
 	t.Run("stt disabled", func(t *testing.T) {
-		s, err := New(db, nil, nil, nil, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -402,88 +424,89 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		err = s.runChecksGroup(context.Background(), "")
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 
-	valid := []check.Check{
-		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
-		{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
-		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-		{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-		{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-		{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
-		{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
-		{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
-		{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
+	valid := []check.Advisor{
+		{
+			Name:        "mysql_advisor",
+			Summary:     "MySQL advisor",
+			Description: "Test mySQL advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
+			},
+		},
+		{
+			Name:        "postgresql_advisor",
+			Summary:     "PostgreSQL advisor",
+			Description: "Test postgreSQL advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous, common.Registered},
+			Checks: []check.Check{
+				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
+			},
+		},
+		{
+			Name:        "mongodb_advisor",
+			Summary:     "MongoDB advisor",
+			Description: "Test mongoDB advisor",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Paid},
+			Checks: []check.Check{
+				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+				{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
+				{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
+				{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
+				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
+			},
+		},
 	}
 
-	invalid := []check.Check{
-		{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
-		{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
-		{Name: "missing type", Version: 1},
+	invalid := []check.Advisor{
+		{
+			Name:        "completely_invalid_advisor",
+			Summary:     "Completely invalid advisor",
+			Description: "Test advisor that contains only unsupported checks",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
+				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+			},
+		},
+		{
+			Name:        "partially_invalid_advisor",
+			Summary:     "Partially invalid advisor",
+			Description: "Test advisor that contains some unsupported checks",
+			Category:    "test",
+			Tiers:       []common.Tier{common.Anonymous},
+			Checks: []check.Check{
+				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+				{Name: "missing type", Version: 1},
+			},
+		},
 	}
 
 	checks := append(valid, invalid...)
 
-	s, err := New(nil, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
+	partiallyValidAdvisor := invalid[1]
+	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
+	expected := append(valid, partiallyValidAdvisor)
+
+	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(checks)
-	assert.ElementsMatch(t, valid, actual)
-}
-
-func TestGroupChecksByDB(t *testing.T) {
-	t.Parallel()
-
-	checks := map[string]check.Check{
-		"MySQLShow":                {Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-		"MySQLSelect":              {Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
-		"PostgreSQLShow":           {Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-		"PostgreSQLSelect":         {Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
-		"MongoDBGetParameter":      {Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-		"MongoDBBuildInfo":         {Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-		"MongoDBGetCmdLineOpts":    {Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-		"MongoDBReplSetGetStatus":  {Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-		"MongoDBGetDiagnosticData": {Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
-		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
-		"missing type":             {Name: "missing type", Version: 1},
-		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
-		"PostrgeSQL family V2":     {Name: "PostrgeSQL family V2", Version: 2, Family: check.PostgreSQL},
-		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
-		"missing family":           {Name: "missing family", Version: 2},
-	}
-
-	s, err := New(nil, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
-
-	require.Len(t, mySQLChecks, 3)
-	require.Len(t, postgreSQLChecks, 3)
-	require.Len(t, mongoDBChecks, 6)
-
-	// V1 checks
-	assert.Equal(t, check.MySQLShow, mySQLChecks["MySQLShow"].Type)
-	assert.Equal(t, check.MySQLSelect, mySQLChecks["MySQLSelect"].Type)
-
-	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks["PostgreSQLShow"].Type)
-	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks["PostgreSQLSelect"].Type)
-
-	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks["MongoDBGetParameter"].Type)
-	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks["MongoDBBuildInfo"].Type)
-	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks["MongoDBGetCmdLineOpts"].Type)
-	assert.Equal(t, check.MongoDBReplSetGetStatus, mongoDBChecks["MongoDBReplSetGetStatus"].Type)
-	assert.Equal(t, check.MongoDBGetDiagnosticData, mongoDBChecks["MongoDBGetDiagnosticData"].Type)
-
-	// V2 checks
-	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
-	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostrgeSQL family V2"].Family)
-	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
+	assert.ElementsMatch(t, expected, actual)
 }
 
 func TestMinPMMAgents(t *testing.T) {
@@ -506,8 +529,7 @@ func TestMinPMMAgents(t *testing.T) {
 		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
-	s, err := New(nil, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
+	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 
 	for _, test := range tests {
 		test := test
@@ -542,12 +564,27 @@ func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion str
 	require.NoError(t, err)
 }
 
+// setupClients configures actual vm and clickhouse clients for tests that need them.
+func setupClients(t *testing.T) {
+	t.Helper()
+	vmAddr := "http://127.0.0.1:9090/prometheus/"
+	clickhouseDSN := "tcp://127.0.0.1:9000/pmm"
+
+	client, err := metrics.NewClient(metrics.Config{Address: vmAddr})
+	require.NoError(t, err)
+	vmClient = v1.NewAPI(client)
+
+	clickhouseDB, err = sql.Open("clickhouse", clickhouseDSN)
+	require.NoError(t, err)
+
+	clickhouseDB.SetConnMaxLifetime(0)
+}
+
 func TestFindTargets(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s, err := New(db, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
+	s := New(db, nil, nil, nil, vmClient, clickhouseDB)
 
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
@@ -600,8 +637,7 @@ func TestFindTargets(t *testing.T) {
 
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
-	s, err := New(nil, nil, nil, nil, vmAddress)
-	require.NoError(t, err)
+	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 
 	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
 	standardCheck := check.Check{Name: "standardCheck", Interval: check.Standard}
@@ -636,8 +672,7 @@ func TestGetFailedChecks(t *testing.T) {
 		ctx := context.Background()
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{}, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 
 		results, err := s.GetChecksResults(context.Background(), "test_svc")
 		assert.Empty(t, results)
@@ -691,8 +726,7 @@ func TestGetFailedChecks(t *testing.T) {
 		ctx := context.Background()
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{&testAlert}, nil)
 
-		s, err := New(db, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 
 		response, err := s.GetChecksResults(ctx, "test_svc")
 		require.NoError(t, err)
@@ -702,10 +736,9 @@ func TestGetFailedChecks(t *testing.T) {
 	t.Run("STT disabled", func(t *testing.T) {
 		ams := mockAlertmanagerService{}
 		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrSTTDisabled)
+		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
-		s, err := New(db, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -716,7 +749,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		results, err := s.GetChecksResults(ctx, "test_svc")
 		assert.Nil(t, results)
-		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 	})
 }
 
@@ -740,11 +773,10 @@ func TestToggleCheckAlert(t *testing.T) {
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
 		ams.On("SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
 
-		s, err := New(nil, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(nil, nil, nil, &ams, vmClient, clickhouseDB)
 
 		active := len(testAlert.Status.SilencedBy) == 0
-		err = s.ToggleCheckAlert(ctx, "test_alert_1", active)
+		err := s.ToggleCheckAlert(ctx, "test_alert_1", active)
 		require.NoError(t, err)
 		ams.AssertCalled(t, "SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
 	})
@@ -766,11 +798,10 @@ func TestToggleCheckAlert(t *testing.T) {
 		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
 		ams.On("UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
 
-		s, err := New(nil, nil, nil, &ams, vmAddress)
-		require.NoError(t, err)
+		s := New(nil, nil, nil, &ams, vmClient, clickhouseDB)
 
 		active := len(testAlert.Status.SilencedBy) == 0
-		err = s.ToggleCheckAlert(ctx, "test_alert_1", active)
+		err := s.ToggleCheckAlert(ctx, "test_alert_1", active)
 		require.NoError(t, err)
 		ams.AssertCalled(t, "UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
 	})
@@ -779,38 +810,78 @@ func TestToggleCheckAlert(t *testing.T) {
 func TestFillQueryPlaceholders(t *testing.T) {
 	t.Parallel()
 
+	type testCase struct {
+		name         string
+		query        string
+		placeholders queryPlaceholders
+		expected     string
+		errString    string
+	}
+
 	target := services.Target{
+		ServiceID:   "test_service_id",
 		ServiceName: "service_name",
 		NodeName:    "node_name",
 	}
 
-	t.Run("normal with placeholders", func(t *testing.T) {
-		t.Parallel()
+	cases := []testCase{
+		{
+			name:     "vm query with placeholders",
+			query:    "some query with service={{ .ServiceName }} and node={{ .NodeName }}",
+			expected: "some query with service=service_name and node=node_name",
+			placeholders: queryPlaceholders{
+				ServiceName: target.ServiceName,
+				NodeName:    target.NodeName,
+			},
+		},
+		{
+			name:     "clickhouse query with placeholders",
+			query:    "m_docs_scanned FROM metrics WHERE service_id='{{.ServiceID}}' AND period_start >= subtractHours(now(), 1) AND col1 < 10",
+			expected: "m_docs_scanned FROM metrics WHERE service_id='test_service_id' AND period_start >= subtractHours(now(), 1) AND col1 < 10",
+			placeholders: queryPlaceholders{
+				ServiceID: target.ServiceID,
+			},
+		},
+		{
+			name:     "vm query without placeholders",
+			query:    "some query",
+			expected: "some query",
+			placeholders: queryPlaceholders{
+				ServiceName: target.ServiceName,
+				NodeName:    target.NodeName,
+			},
+		},
+		{
+			name:     "clickhouse query without placeholders",
+			query:    "fingerprint FROM metrics",
+			expected: "fingerprint FROM metrics",
+			placeholders: queryPlaceholders{
+				ServiceID: target.ServiceID,
+			},
+		},
+		{
+			name:  "unknown placeholder in query",
+			query: "some query with service={{ .ServiceName }} and os={{ .OS }}",
+			placeholders: queryPlaceholders{
+				ServiceName: target.ServiceName,
+			},
+			errString: "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type checks.queryPlaceholders",
+		},
+	}
 
-		query := "some query with service={{ .ServiceName }} and node={{ .NodeName }}"
-		expected := "some query with service=service_name and node=node_name"
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		actual, err := fillQueryPlaceholders(query, target)
-		require.NoError(t, err)
-		assert.Equal(t, expected, actual)
-	})
-
-	t.Run("normal without placeholders", func(t *testing.T) {
-		t.Parallel()
-
-		query := "some query"
-
-		actual, err := fillQueryPlaceholders(query, target)
-		require.NoError(t, err)
-		assert.Equal(t, query, actual)
-	})
-
-	t.Run("unknown placeholder", func(t *testing.T) {
-		t.Parallel()
-
-		query := "some query with service={{ .ServiceName }} and os={{ .OS }}"
-
-		_, err := fillQueryPlaceholders(query, target)
-		require.EqualError(t, err, "failed to fill query placeholders: template: query:1:53: executing \"query\" at <.OS>: can't evaluate field OS in type struct { ServiceName string; NodeName string }")
-	})
+			actual, err := fillQueryPlaceholders(tt.query, tt.placeholders)
+			if tt.errString == "" {
+				require.NoError(t, err)
+				assert.Equal(t, tt.expected, actual)
+			} else {
+				require.Error(t, err)
+				assert.ErrorContains(t, err, tt.errString)
+			}
+		})
+	}
 }
