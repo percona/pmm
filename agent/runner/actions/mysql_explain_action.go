@@ -126,7 +126,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 func (a *mysqlExplainAction) sealed() {}
 
 func prepareValues(values []string) []any {
-	res := []any{}
+	res := make([]any, 0, len(values))
 	for _, p := range values {
 		res = append(res, p)
 	}
