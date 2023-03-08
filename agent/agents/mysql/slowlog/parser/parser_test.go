@@ -165,11 +165,11 @@ func TestParseUser(t *testing.T) {
 
 func TestParseMetrics(t *testing.T) {
 	const (
-		TimeMetrics   int = 0
-		NumberMetrics     = 1
-		BoolMetrics       = 2
-		Db                = 3
-		Rate              = 4
+		TimeMetrics int = iota
+		NumberMetrics
+		BoolMetrics
+		DB
+		Rate
 	)
 
 	type Expected struct {
@@ -177,7 +177,7 @@ func TestParseMetrics(t *testing.T) {
 		TimeMetrics   map[string]float64
 		NumberMetrics map[string]uint64
 		BoolMetrics   map[string]bool
-		Db            string
+		DB            string
 		RateType      string
 		RateLimit     uint
 	}
@@ -228,8 +228,8 @@ func TestParseMetrics(t *testing.T) {
 			description: "Should be parsed `Schema: maindb  Last_errno: 0  Killed: 0`",
 			input:       "Schema: maindb  Last_errno: 0  Killed: 0",
 			expected: Expected{
-				Type: Db,
-				Db:   "maindb",
+				Type: DB,
+				DB:   "maindb",
 			},
 		},
 		{
@@ -265,10 +265,10 @@ func TestParseMetrics(t *testing.T) {
 					t.Fatalf("expected: %#v got: %#v for input: %s",
 						tc.expected.BoolMetrics, actualEvent.BoolMetrics, tc.input)
 				}
-			case Db:
-				if actualEvent.Db != tc.expected.Db {
+			case DB:
+				if actualEvent.Db != tc.expected.DB {
 					t.Fatalf("expected: %s got: %s for input: %s",
-						tc.expected.Db, actualEvent.Db, tc.input)
+						tc.expected.DB, actualEvent.Db, tc.input)
 				}
 			case Rate:
 				if actualEvent.RateLimit != tc.expected.RateLimit || actualEvent.RateType != tc.expected.RateType {
