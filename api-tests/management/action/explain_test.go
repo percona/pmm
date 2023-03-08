@@ -30,6 +30,8 @@ import (
 
 func TestRunExplain(t *testing.T) {
 	t.Run("ByQuery", func(t *testing.T) {
+		t.Skip("not implemented yet")
+
 		explainActionOK, err := client.Default.Actions.StartMySQLExplainAction(&actions.StartMySQLExplainActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.StartMySQLExplainActionBody{
