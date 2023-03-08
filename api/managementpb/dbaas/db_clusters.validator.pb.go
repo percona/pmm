@@ -41,6 +41,11 @@ func (this *PSMDBCluster) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Restore", err)
 		}
 	}
+	if this.Template != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
+		}
+	}
 	return nil
 }
 
@@ -63,6 +68,11 @@ func (this *PXCCluster) Validate() error {
 	if this.Restore != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Restore); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Restore", err)
+		}
+	}
+	if this.Template != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
 		}
 	}
 	return nil

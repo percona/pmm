@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
 import "managementpb/dbaas/psmdb_clusters.proto";
 import "managementpb/dbaas/pxc_clusters.proto";
+import "managementpb/dbaas/templates.proto";
 
 option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
@@ -52,6 +53,8 @@ message PSMDBCluster {
   Backup backup = 9;
   // Restore configuration parameters.
   Restore restore = 10;
+  // Configuration template.
+  Template template = 11;
 }
 
 // PXCCluster represents PXC cluster information.
@@ -77,6 +80,8 @@ message PXCCluster {
   Backup backup = 9;
   // Restore configuration parameters.
   Restore restore = 10;
+  // Configuration template.
+  Template template = 11;
 }
 
 message ListDBClustersRequest {
