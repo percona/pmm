@@ -125,6 +125,7 @@ type kubernetesClient interface {
 	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
+	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
 }
 
 type kubeStorageManager interface {
