@@ -48,6 +48,7 @@ message StartMySQLExplainActionRequest {
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
+  // Will be removed in 2.42.
   string query = 3;
   // Query ID of query.
   string query_id = 6;
@@ -70,6 +71,7 @@ message StartMySQLExplainJSONActionRequest {
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
+  // Will be removed in 2.42.
   string query = 3;
   // Query ID of query.
   string query_id = 6;
@@ -92,6 +94,7 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   // Service ID for this Action. Required.
   string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
+  // Will be removed in 2.42.
   string query = 3;
   // Query ID of query.
   string query_id = 6;

@@ -243,6 +243,7 @@ type StartMySQLExplainActionRequest struct {
 	// Service ID for this Action. Required.
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Deprecated: should not be used.
+	// Will be removed in 2.42.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Query ID of query.
 	QueryId string `protobuf:"bytes,6,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
@@ -393,6 +394,7 @@ type StartMySQLExplainJSONActionRequest struct {
 	// Service ID for this Action. Required.
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Deprecated: should not be used.
+	// Will be removed in 2.42.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Query ID of query.
 	QueryId string `protobuf:"bytes,6,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
@@ -543,6 +545,7 @@ type StartMySQLExplainTraditionalJSONActionRequest struct {
 	// Service ID for this Action. Required.
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Deprecated: should not be used.
+	// Will be removed in 2.42.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Query ID of query.
 	QueryId string `protobuf:"bytes,6,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`

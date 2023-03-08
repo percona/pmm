@@ -125,13 +125,17 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 func (a *mysqlExplainAction) sealed() {}
 
-func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	inter := []any{}
-	for _, p := range a.params.Values {
-		inter = append(inter, p)
+func prepareValues(values []string) []any {
+	res := []any{}
+	for _, p := range values {
+		res = append(res, p)
 	}
 
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), inter...)
+	return res
+}
+
+func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,12 +171,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	inter := []any{}
-	for _, p := range a.params.Values {
-		inter = append(inter, p)
-	}
-
-	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), inter...).Scan(&b)
+	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		return nil, err
 	}
@@ -210,12 +209,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	inter := []any{}
-	for _, p := range a.params.Values {
-		inter = append(inter, p)
-	}
-
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), inter...)
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		return nil, err
 	}

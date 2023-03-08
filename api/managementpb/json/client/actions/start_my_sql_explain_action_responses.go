@@ -130,6 +130,7 @@ type StartMySQLExplainActionBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Deprecated: should not be used.
+	// Will be removed in 2.42.
 	Query string `json:"query,omitempty"`
 
 	// Query ID of query.
