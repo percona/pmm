@@ -668,14 +668,26 @@ type GetMetricsOKBodyMetadata struct {
 	// database
 	Database string `json:"database,omitempty"`
 
+	// schema
+	Schema string `json:"schema,omitempty"`
+
 	// username
 	Username string `json:"username,omitempty"`
+
+	// replication set
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// cluster
+	Cluster string `json:"cluster,omitempty"`
 
 	// service type
 	ServiceType string `json:"service_type,omitempty"`
 
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
+
+	// environment
+	Environment string `json:"environment,omitempty"`
 
 	// node id
 	NodeID string `json:"node_id,omitempty"`
@@ -685,12 +697,6 @@ type GetMetricsOKBodyMetadata struct {
 
 	// node type
 	NodeType string `json:"node_type,omitempty"`
-
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
-
-	// agent type
-	AgentType int64 `json:"agent_type,omitempty"`
 }
 
 // Validate validates this get metrics OK body metadata

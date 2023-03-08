@@ -223,12 +223,14 @@ message GetQueryMetadataDetailsByQueryIDRequest {
 message GetQueryMetadataDetailsByQueryIDReply {
   string service_name = 1;
   string database = 2;
-  string username = 3;
-  string service_type = 4;
-  string service_id = 5;
-  string node_id = 6;
-  string node_name = 7;
-  string node_type = 8;
-  string agent_id = 9;
-  uint32 agent_type = 10;
+  string schema = 3;
+  string username = 4;
+  string replication_set = 5;
+  string cluster = 6;
+  string service_type = 7;
+  string service_id = 8;
+  string environment = 9;
+  string node_id = 10;
+  string node_name = 11;
+  string node_type = 12;
 }

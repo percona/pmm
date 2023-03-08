@@ -141,7 +141,7 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	return res, nil
 }
 
-func (c *Client) GetQueryMetadataDetailsByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+func (c *Client) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	qanReq := &qanpb.GetQueryMetadataDetailsByQueryIDRequest{
 		QueryId: queryID,
 	}

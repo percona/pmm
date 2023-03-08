@@ -1782,38 +1782,45 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "username": {
+                    "schema": {
                       "type": "string",
                       "x-order": 2
                     },
-                    "service_type": {
+                    "username": {
                       "type": "string",
                       "x-order": 3
                     },
-                    "service_id": {
+                    "replication_set": {
                       "type": "string",
                       "x-order": 4
                     },
-                    "node_id": {
+                    "cluster": {
                       "type": "string",
                       "x-order": 5
                     },
-                    "node_name": {
+                    "service_type": {
                       "type": "string",
                       "x-order": 6
                     },
-                    "node_type": {
+                    "service_id": {
                       "type": "string",
                       "x-order": 7
                     },
-                    "agent_id": {
+                    "environment": {
                       "type": "string",
                       "x-order": 8
                     },
-                    "agent_type": {
-                      "type": "integer",
-                      "format": "int64",
+                    "node_id": {
+                      "type": "string",
                       "x-order": 9
+                    },
+                    "node_name": {
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 5
@@ -2085,38 +2092,45 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "username": {
+                "schema": {
                   "type": "string",
                   "x-order": 2
                 },
-                "service_type": {
+                "username": {
                   "type": "string",
                   "x-order": 3
                 },
-                "service_id": {
+                "replication_set": {
                   "type": "string",
                   "x-order": 4
                 },
-                "node_id": {
+                "cluster": {
                   "type": "string",
                   "x-order": 5
                 },
-                "node_name": {
+                "service_type": {
                   "type": "string",
                   "x-order": 6
                 },
-                "node_type": {
+                "service_id": {
                   "type": "string",
                   "x-order": 7
                 },
-                "agent_id": {
+                "environment": {
                   "type": "string",
                   "x-order": 8
                 },
-                "agent_type": {
-                  "type": "integer",
-                  "format": "int64",
+                "node_id": {
+                  "type": "string",
                   "x-order": 9
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 10
+                },
+                "node_type": {
+                  "type": "string",
+                  "x-order": 11
                 }
               }
             }

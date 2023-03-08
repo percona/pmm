@@ -39,7 +39,7 @@ type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
 	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
-	GetQueryMetadataDetailsByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error)
+	GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
