@@ -65,7 +65,7 @@ func TestMySQL(t *testing.T) {
 
 	for _, sql := range sqls {
 		query, placeholdersCount, err := MySQL(sql.Query)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, sql.ExpectedQuery, query)
 		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
 	}
