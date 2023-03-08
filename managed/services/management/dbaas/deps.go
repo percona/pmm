@@ -128,6 +128,7 @@ type kubernetesClient interface {
 	UpgradeOperator(ctx context.Context, namespace, name string) error
 	// GetServerVersion returns server version
 	GetServerVersion() (*version.Info, error)
+	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
 }
 
 type kubeStorageManager interface {

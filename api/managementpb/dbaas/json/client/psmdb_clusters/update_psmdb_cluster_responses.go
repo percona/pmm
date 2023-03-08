@@ -129,6 +129,9 @@ type UpdatePSMDBClusterBody struct {
 
 	// params
 	Params *UpdatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
+
+	// template
+	Template *UpdatePSMDBClusterParamsBodyTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster body
@@ -136,6 +139,10 @@ func (o *UpdatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -164,11 +171,34 @@ func (o *UpdatePSMDBClusterBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *UpdatePSMDBClusterBody) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update PSMDB cluster body based on the context it is used
 func (o *UpdatePSMDBClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -185,6 +215,21 @@ func (o *UpdatePSMDBClusterBody) contextValidateParams(ctx context.Context, form
 				return ve.ValidateName("body" + "." + "params")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePSMDBClusterBody) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
 			}
 			return err
 		}
@@ -582,6 +627,46 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) MarshalBi
 // UnmarshalBinary interface implementation
 func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
 	var res UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+UpdatePSMDBClusterParamsBodyTemplate update PSMDB cluster params body template
+swagger:model UpdatePSMDBClusterParamsBodyTemplate
+*/
+type UpdatePSMDBClusterParamsBodyTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this update PSMDB cluster params body template
+func (o *UpdatePSMDBClusterParamsBodyTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PSMDB cluster params body template based on context it is used
+func (o *UpdatePSMDBClusterParamsBodyTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePSMDBClusterParamsBodyTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePSMDBClusterParamsBodyTemplate) UnmarshalBinary(b []byte) error {
+	var res UpdatePSMDBClusterParamsBodyTemplate
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
