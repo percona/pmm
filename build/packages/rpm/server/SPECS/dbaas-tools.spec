@@ -1,6 +1,6 @@
 %undefine _missing_build_ids_terminate_build
 
-%global commit_aws          2a9ee95fecab59fab41a0b646a63227d66113434
+%global commit_aws          d72e1b46444d0efcb995a28c3846223b39bc4964
 %global shortcommit_aws     %(c=%{commit_aws}; echo ${c:0:7})
 
 %global commit_k8s          ad3338546da947756e8a88aa6822e9c11e7eac22
@@ -14,7 +14,7 @@
 %define rpm_release     %{release}.%{build_timestamp}%{?dist}
 
 Name:           dbaas-tools
-Version:        0.5.7
+Version:        0.6.2
 Release:        %{rpm_release}
 Summary:        A set of tools for Percona DBaaS
 License:        ASL 2.0
