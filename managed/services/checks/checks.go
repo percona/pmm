@@ -21,6 +21,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -782,7 +783,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	}
 
 	eg, gCtx := errgroup.WithContext(ctx)
-	resData := make([][]byte, len(queries))
+	resData := make([]any, len(queries))
 
 	for i, query := range queries {
 		i, query := i, query
@@ -808,7 +809,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		case check.PostgreSQLSelect:
 			eg.Go(func() error {
 				var err error
-				resData[i], err = s.executePostrgreSQLSelectQuery(gCtx, query, target)
+				resData[i], err = s.executePostgreSQLSelectQuery(gCtx, query, target)
 				return err
 			})
 		case check.MongoDBGetParameter:
@@ -877,7 +878,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	return res, nil
 }
 
-func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -896,10 +897,10 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -918,10 +919,10 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -939,11 +940,37 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+	return agentpb.UnmarshalActionQueryResult(res)
+}
+
+func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.Query, target services.Target) (any, error) {
+	var allDBs bool
+	var err error
+	if value, ok := query.Parameters[check.AllDBs]; ok {
+		if allDBs, err = strconv.ParseBool(value); err != nil {
+			return nil, errors.Wrap(err, "failed to parse 'all_dbs' query parameter")
+		}
+	}
+
+	if !allDBs {
+		return s.executePostgreSQLSelectQueryForSingleDB(ctx, query, target)
+	}
+
+	targets, err := s.splitPGTargetByDB(ctx, target)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to split target by db")
+	}
+	res := make(map[string][]map[string]any, len(targets))
+	for dbName, t := range targets {
+		if res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
+			return nil, errors.WithStack(err)
+		}
+	}
 
 	return res, nil
 }
 
-func (s *Service) executePostrgreSQLSelectQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -963,10 +990,10 @@ func (s *Service) executePostrgreSQLSelectQuery(ctx context.Context, query check
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -986,10 +1013,10 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -1008,10 +1035,10 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -1031,10 +1058,10 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -1054,10 +1081,10 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target services.Target) ([]byte, error) {
+func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -1077,10 +1104,10 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 		return nil, errors.WithStack(err)
 	}
 
-	return res, nil
+	return agentpb.UnmarshalActionQueryResult(res)
 }
 
-func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
@@ -1118,7 +1145,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 	return res, nil
 }
 
-func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
@@ -1207,7 +1234,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 }
 
 // convertVMValue converts VM results to format applicable to check input.
-func convertVMValue(value model.Value) ([]byte, error) {
+func convertVMValue(value model.Value) ([]map[string]any, error) {
 	if value.Type() == model.ValScalar {
 		// MetricsQL treats scalar type the same as instant vector without labels, since subtle differences between
 		// these types usually confuse users. See the corresponding Prometheus docs for details.
@@ -1222,14 +1249,57 @@ func convertVMValue(value model.Value) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	var data []map[string]interface{}
+	var data []map[string]any
 	if err = json.Unmarshal(b, &data); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	res, err := agentpb.MarshalActionQueryDocsResult(data)
+	return data, nil
+}
+
+func (s *Service) discoverAvailablePGDatabases(ctx context.Context, target services.Target) ([]string, error) {
+	query := check.Query{Query: `datname FROM pg_database  
+WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(current_user, datname, 'connect')`}
+
+	res, err := s.executePostgreSQLSelectQueryForSingleDB(ctx, query, target)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to select available databases")
+	}
+
+	r := make([]string, len(res))
+	for i, row := range res {
+		datname, ok := row["datname"]
+		if !ok {
+			return nil, errors.New("missing expected 'datname' filed in query response")
+		}
+		name, ok := datname.(string)
+		if !ok {
+			return nil, errors.Errorf("unexpected type %T instead of string", datname)
+		}
+
+		r[i] = name
+	}
+
+	return r, nil
+}
+
+func (s *Service) splitPGTargetByDB(ctx context.Context, target services.Target) (map[string]services.Target, error) {
+	dbNames, err := s.discoverAvailablePGDatabases(ctx, target)
 	if err != nil {
 		return nil, errors.WithStack(err)
+	}
+
+	dsn, err := url.Parse(target.DSN)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse postrgeSQL DSN")
+	}
+
+	res := make(map[string]services.Target, len(dbNames))
+	for _, name := range dbNames {
+		nt := target.Copy()
+		dsn.Path = name
+		nt.DSN = dsn.String()
+		res[name] = nt
 	}
 
 	return res, nil
@@ -1251,13 +1321,13 @@ func fillQueryPlaceholders(query string, data queryPlaceholders) (string, error)
 
 // StarlarkScriptData represents the data we need to pass to the binary to run starlark scripts.
 type StarlarkScriptData struct {
-	Version        uint32   `json:"version"`
-	Name           string   `json:"name"`
-	Script         string   `json:"script"`
-	QueriesResults [][]byte `json:"queries_results"`
+	Version        uint32 `json:"version"`
+	Name           string `json:"name"`
+	Script         string `json:"script"`
+	QueriesResults []any  `json:"queries_results"`
 }
 
-func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults [][]byte) ([]services.CheckResult, error) {
+func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults []any) ([]services.CheckResult, error) {
 	l := s.l.WithFields(logrus.Fields{
 		"name":       aCheck.Name,
 		"service_id": target.ServiceID,
