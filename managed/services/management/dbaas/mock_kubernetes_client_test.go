@@ -11,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	kubernetes "github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
@@ -425,6 +426,29 @@ func (_m *mockKubernetesClient) ListSubscriptions(ctx context.Context, namespace
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListTemplates provides a mock function with given fields: ctx, engine, namespace
+func (_m *mockKubernetesClient) ListTemplates(ctx context.Context, engine string, namespace string) ([]*dbaasv1beta1.Template, error) {
+	ret := _m.Called(ctx, engine, namespace)
+
+	var r0 []*dbaasv1beta1.Template
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*dbaasv1beta1.Template); ok {
+		r0 = rf(ctx, engine, namespace)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*dbaasv1beta1.Template)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, engine, namespace)
 	} else {
 		r1 = ret.Error(1)
 	}
