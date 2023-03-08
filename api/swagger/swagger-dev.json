@@ -18078,6 +18078,144 @@
         }
       }
     },
+    "/v1/management/Advisors/List": {
+      "post": {
+        "description": "Returns a list of advisors available to the user.",
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "List advisors",
+        "operationId": "ListAdvisors",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "advisors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "description": {
+                        "description": "Long human-readable description.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "comment": {
+                        "description": "Comment.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "category": {
+                        "description": "Category.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "checks": {
+                        "description": "Advisor checks.",
+                        "type": "array",
+                        "items": {
+                          "description": "SecurityCheck contains check name and status.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "disabled": {
+                              "description": "True if that check is disabled.",
+                              "type": "boolean",
+                              "x-order": 1
+                            },
+                            "description": {
+                              "description": "Long human-readable description.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "summary": {
+                              "description": "Short human-readable summary.",
+                              "type": "string",
+                              "x-order": 3
+                            },
+                            "interval": {
+                              "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                              "type": "string",
+                              "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                              "enum": [
+                                "SECURITY_CHECK_INTERVAL_INVALID",
+                                "STANDARD",
+                                "FREQUENT",
+                                "RARE"
+                              ],
+                              "x-order": 4
+                            }
+                          }
+                        },
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Annotations/Add": {
       "post": {
         "description": "Adds annotation.",
@@ -19835,6 +19973,22 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -20066,6 +20220,22 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -20435,6 +20605,22 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -20670,6 +20856,22 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -21638,6 +21840,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -21969,6 +22187,22 @@
                     }
                   },
                   "x-order": 2
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -22340,6 +22574,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -22809,6 +23059,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -22995,6 +23261,103 @@
                         "type": "string",
                         "title": "Name of a secret",
                         "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Templates/List": {
+      "post": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "ListTemplates returns a list of all registered templates.",
+        "operationId": "ListTemplates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "templates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Template CR name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "kind": {
+                        "description": "Template CR kind.",
+                        "type": "string",
+                        "x-order": 1
                       }
                     }
                   },
@@ -28385,11 +28748,11 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of available Security Thread Tool checks.",
+        "description": "Returns a list of checks available to the user.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "List Security Checks",
+        "summary": "List advisor checks",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -29158,7 +29521,7 @@
           "Alerting"
         ],
         "summary": "ListTemplates returns a list of all collected alert rule templates.",
-        "operationId": "ListTemplates",
+        "operationId": "ListTemplatesMixin6",
         "parameters": [
           {
             "name": "body",
@@ -35009,6 +35372,9 @@
     },
     {
       "name": "PXCClusters"
+    },
+    {
+      "name": "Templates"
     },
     {
       "name": "Alerts"

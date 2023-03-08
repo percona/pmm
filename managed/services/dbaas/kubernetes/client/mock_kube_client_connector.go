@@ -12,7 +12,11 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	version "k8s.io/apimachinery/pkg/version"
 )
@@ -342,11 +346,11 @@ func (_m *MockKubeClientConnector) GetPersistentVolumes(ctx context.Context) (*c
 }
 
 // GetPods provides a mock function with given fields: ctx, namespace, labelSelector
-func (_m *MockKubeClientConnector) GetPods(ctx context.Context, namespace string, labelSelector string) (*corev1.PodList, error) {
+func (_m *MockKubeClientConnector) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
 	ret := _m.Called(ctx, namespace, labelSelector)
 
 	var r0 *corev1.PodList
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *corev1.PodList); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *metav1.LabelSelector) *corev1.PodList); ok {
 		r0 = rf(ctx, namespace, labelSelector)
 	} else {
 		if ret.Get(0) != nil {
@@ -355,7 +359,7 @@ func (_m *MockKubeClientConnector) GetPods(ctx context.Context, namespace string
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, *metav1.LabelSelector) error); ok {
 		r1 = rf(ctx, namespace, labelSelector)
 	} else {
 		r1 = ret.Error(1)
@@ -493,6 +497,52 @@ func (_m *MockKubeClientConnector) GetSubscriptionCSV(ctx context.Context, subKe
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, types.NamespacedName) error); ok {
 		r1 = rf(ctx, subKey)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListCRDs provides a mock function with given fields: ctx, labelSelector
+func (_m *MockKubeClientConnector) ListCRDs(ctx context.Context, labelSelector *metav1.LabelSelector) (*apiextensionsv1.CustomResourceDefinitionList, error) {
+	ret := _m.Called(ctx, labelSelector)
+
+	var r0 *apiextensionsv1.CustomResourceDefinitionList
+	if rf, ok := ret.Get(0).(func(context.Context, *metav1.LabelSelector) *apiextensionsv1.CustomResourceDefinitionList); ok {
+		r0 = rf(ctx, labelSelector)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*apiextensionsv1.CustomResourceDefinitionList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *metav1.LabelSelector) error); ok {
+		r1 = rf(ctx, labelSelector)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListCRs provides a mock function with given fields: ctx, namespace, gvr, labelSelector
+func (_m *MockKubeClientConnector) ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector *metav1.LabelSelector) (*unstructured.UnstructuredList, error) {
+	ret := _m.Called(ctx, namespace, gvr, labelSelector)
+
+	var r0 *unstructured.UnstructuredList
+	if rf, ok := ret.Get(0).(func(context.Context, string, schema.GroupVersionResource, *metav1.LabelSelector) *unstructured.UnstructuredList); ok {
+		r0 = rf(ctx, namespace, gvr, labelSelector)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*unstructured.UnstructuredList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, schema.GroupVersionResource, *metav1.LabelSelector) error); ok {
+		r1 = rf(ctx, namespace, gvr, labelSelector)
 	} else {
 		r1 = ret.Error(1)
 	}

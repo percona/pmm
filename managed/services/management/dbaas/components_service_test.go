@@ -82,6 +82,7 @@ func TestComponentService(t *testing.T) {
 		vsc := NewVersionServiceClient(versionServiceURL)
 		kubeStorage = &mockKubeStorageManager{}
 		kubeClient = &mockKubernetesClient{}
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 		cs = NewComponentsService(db, dbaasClient, vsc, kubeStorage)
 
 		return
