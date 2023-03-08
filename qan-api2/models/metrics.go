@@ -1027,7 +1027,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	return res, errors.New("query_id doesnt exists")
 }
 
-const metadataByQueryIDTmpl = `SELECT service_name, database, username, service_type, service_id, node_id, node_name, node_type, agent_id, agent_type FROM metrics
+const metadataByQueryIDTmpl = `SELECT service_name, database, username, service_type, service_id, node_id, node_name, node_type FROM metrics
 WHERE queryid = :query_id LIMIT 1;
 `
 
@@ -1062,16 +1062,16 @@ func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID 
 
 	for rows.Next() {
 		err = rows.Scan(
-			res.ServiceName,
-			res.Database,
-			res.Username,
-			res.ServiceType,
-			res.ServiceId,
-			res.NodeId,
-			res.NodeName,
-			res.NodeType,
-			res.AgentId,
-			res.AgentType,
+			&res.ServiceName,
+			&res.Database,
+			&res.Username,
+			&res.ServiceType,
+			&res.ServiceId,
+			&res.NodeId,
+			&res.NodeName,
+			&res.NodeType,
+			// res.AgentId,
+			// res.AgentType,
 		)
 
 		if err != nil {

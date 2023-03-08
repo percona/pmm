@@ -135,7 +135,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy)
 	if err != nil {
-		return nil, err
+		return resp, err
 	}
 	resp.Metadata = metadata
 
