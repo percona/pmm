@@ -43,17 +43,22 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+// configGetter allows for getting a config.
+type configGetter interface {
+	Get() *config.Config
+}
+
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
-	l     *logrus.Entry
-	paths *config.Paths
+	l   *logrus.Entry
+	cfg configGetter
 }
 
 // New creates new ConnectionChecker.
-func New(paths *config.Paths) *ConnectionChecker {
+func New(cfg configGetter) *ConnectionChecker {
 	return &ConnectionChecker{
-		l:     logrus.WithField("component", "connectionchecker"),
-		paths: paths,
+		l:   logrus.WithField("component", "connectionchecker"),
+		cfg: cfg,
 	}
 }
 
@@ -110,7 +115,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		return &res
 	}
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
 	_, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
@@ -160,7 +165,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	var res agentpb.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Render DSN: %s", err)
@@ -203,7 +208,7 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	var res agentpb.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkPostgreSQLConnection: failed to Render DSN: %s", err)
@@ -254,7 +259,7 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
@@ -266,9 +271,9 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
 		return &res
 	}

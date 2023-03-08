@@ -2,11 +2,11 @@
 
 %global repo            alertmanager
 %global provider        github.com/prometheus/%{repo}
-%global commit          5ad7a105d7a310171d99e4cdcd418b8556401fae
+%global commit          258fab7cdd551f2cf251ed0348f0ad7289aee789
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           percona-%{repo}
-Version:        0.22.0
+Version:        0.25.0
 Release:        3%{?dist}
 Summary:        The Prometheus monitoring system and time series database
 License:        ASL 2.0
@@ -46,6 +46,9 @@ install -d %{buildroot}%{_sharedstatedir}/%{repo}
 %dir %attr(-, nobody, nobody) %{_sharedstatedir}/%{repo}
 
 %changelog
+* Wed Feb  8 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 0.25.0
+- PMM-11497 Upgrade AlertManager to 0.25
+
 * Tue May  4 2021 David Mikus <david.mikus.sde@gmail.com> - 0.21.0
 - PMM-7302 Upgrade AlertManager to 0.21
 

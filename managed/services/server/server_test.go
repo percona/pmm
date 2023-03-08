@@ -64,7 +64,7 @@ func TestServer(t *testing.T) {
 
 		var mchecksService mockChecksService
 		mchecksService.Test(t)
-		mchecksService.On("CollectChecks", context.TODO()).Return(nil)
+		mchecksService.On("CollectAdvisors", context.TODO()).Return(nil)
 
 		var par mockVmAlertExternalRules
 		par.Test(t)
