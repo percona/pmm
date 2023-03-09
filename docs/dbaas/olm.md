@@ -23,7 +23,7 @@ my-percona-xtradb-cluster-operator   percona-xtradb-cluster-operator   operatorh
 ```
 
 ### Known issue.
-If you have 2 or more operators pending for installation approval, the second subscription OLM creates
+When two or more operators are pending installation approval, OLM creates a second subscription that includes both operators. 
 will have both operators. Listing the install plans could be confusing. For example:
 ```
 kubectl get installplans
