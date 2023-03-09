@@ -81,7 +81,6 @@ func parseMySQLSinglelineComments(q, startChar string) (map[string]bool, error) 
 	}
 	for _, l := range lines {
 		for _, v := range r.FindStringSubmatch(l) {
-
 			comments[strings.TrimLeft(v, fmt.Sprintf("%s ", startChar))] = true
 		}
 	}
