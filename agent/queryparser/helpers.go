@@ -23,17 +23,10 @@ import (
 )
 
 func parseMySQLComments(q string) (map[string]bool, error) {
-	// sqlparser.ExtractMysqlComment(q) doesnt work properly
-	// input: SELECT * FROM people /*! bla */ WHERE name = 'john'
-	// output: ECT * FROM people /*! bla */ WHERE name = 'joh
 	multiline, err := regexp.Compile("(?s)\\/\\*(.*?)\\*\\/")
 	if err != nil {
 		return nil, err
 	}
-	// space := regexp.MustCompile(`\s+`)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	// comments using comment as a key to avoid duplicates
 	comments := make(map[string]bool)
