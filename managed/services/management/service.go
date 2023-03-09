@@ -172,6 +172,8 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 }
 
 // ListServices returns a filtered list of Services with attributes from Agents and Nodes.
+//
+//nolint:unparam
 func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.ListServiceRequest) (*managementpb.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.GetNodeId(),
@@ -184,9 +186,10 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, err
 	}
 
-	// agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-
 	nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+	if err != nil {
+		return nil, err
+	}
 
 	res := &managementpb.ListServiceResponse{}
 	for _, service := range services {
