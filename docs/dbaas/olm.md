@@ -109,5 +109,8 @@ spec:
   - percona-xtradb-cluster-operator.v1.12.0
 ```
 We can only determine the operators being handled by an install plan if we receive the details in YAML or JSON format.```
-The short version `kubectl get installplans` will show only the first operator in the list and this can be confusing and misleading. 
+
+## Conclusion
+The short version `kubectl get installplans` will show only the first operator in the list and this can be confusing and misleading but it is not
+a consequence of DBaaS.
 
