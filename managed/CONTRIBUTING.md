@@ -1,6 +1,6 @@
 # Contributing notes
 
-**pmm-managed** is a core component of PMM Server. As such, its development and testing is best done inside of the PMM Server container which we call "devcontainer". You can take a look at the architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html)
+**pmm-managed** is a core component of PMM Server. As such, its development and testing is best done inside of a PMM Server container, which we call "devcontainer". You can take a look at PMM's architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/details/architecture.html)
 
 # Devcontainer setup
 
@@ -20,7 +20,7 @@ Please use `make <target>` where <target> is one of:
   help                      Display this help message.
 ```
 
-`make env-up` starts devcontainer with all tools and mounts source code from the host. You can change code with your editor/IDE of choice as usual, or run editor inside devcontainer (see below for some special support of VSCode). To run make targets inside devcontainer use `make env TARGET=target-name`. For example:
+`make env-up` starts a devcontainer with all tools and mounts the source code from the host. You can write code using your IDE of choice as usual, or run an editor inside the devcontainer (see below how you can leverage VSCode). To run make targets inside the devcontainer, use `make env TARGET=target-name`. For example:
 
 ```
 $ make env TARGET=help
@@ -33,9 +33,9 @@ Please use `make <target>` where <target> is one of:
 ...
 ```
 
-Run run tests, use `make env TARGET=test`, etc.
+To run tests, use `make env TARGET=test`, etc.
 
-Alternatively, it is possible to run `make env` to get inside devcontainer and run make targets as usual:
+Alternatively, it is possible to run `make env` to get inside the devcontainer and run make targets as usual:
 
 ```
 $ make env
@@ -88,10 +88,10 @@ go test -timeout=30s -p 1 ./...
 
 ## Working with Advisors
 
-- Setup the devcontainer using `make env-up` and run your changes inside it by running `make env` and then `make run`.
+- Setup the devcontainer using `make env-up` and run your changes inside by running `make env` and then `make run`.
 - Follow the steps described in [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
-- Go to the PMM dashboard and enable STT in `PMM -> PMM Settings -> Advanced Settings` which will make managed download STT checks from Percona Platform and execute them.
-- Any failed STT checks will produce check results on the dashboard.
+- Go to the PMM dashboard and enable Advisors in `PMM -> PMM Settings -> Advanced Settings` which will make managed download Advisor checks from Percona Platform and execute them.
+- Any failed Advisor checks will produce check results on the dashboard.
 
 ## Working with Percona Alerting
 
