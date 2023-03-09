@@ -621,8 +621,14 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
+	// Agent type.
+	AgentType string `json:"agent_type,omitempty"`
+
 	// Actual Agent status.
 	Status string `json:"status,omitempty"`
+
+	// Connection status (only for type pmm-agent).
+	IsConnected bool `json:"is_connected,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0

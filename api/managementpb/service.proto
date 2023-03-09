@@ -50,8 +50,12 @@ message RemoveServiceResponse {}
 message GenericAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
+  // Agent type.
+  string agent_type = 2;
   // Actual Agent status.
-  string status = 2;
+  string status = 3;
+  // Connection status (only for type pmm-agent).
+  bool is_connected = 4;
 }
 
 message GenericService {

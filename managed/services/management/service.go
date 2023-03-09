@@ -48,6 +48,7 @@ func getServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 // ServiceService represents service for working with services.
 type ServiceService struct {
 	db    *reform.DB
+	r     agentsRegistry
 	state agentsStateUpdater
 	vmdb  prometheusService
 
@@ -55,9 +56,10 @@ type ServiceService struct {
 }
 
 // NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
+func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
 	return &ServiceService{
 		db:    db,
+		r:     r,
 		state: state,
 		vmdb:  vmdb,
 	}
@@ -181,19 +183,32 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		ExternalGroup: req.GetExternalGroup(),
 	}
 
-	services, err := models.FindServices(s.db.Querier, filters)
-	if err != nil {
-		return nil, err
-	}
+	var services []*models.Service
+	var agents []*models.Agent
+	var nodes []*models.Node
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-	if err != nil {
-		return nil, err
-	}
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		services, err = models.FindServices(tx.Querier, filters)
+		if err != nil {
+			return err
+		}
 
-	nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
-	if err != nil {
-		return nil, err
+		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodes, err = models.FindNodes(tx.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if e != nil {
+		return nil, e
 	}
 
 	res := &managementpb.ListServiceResponse{}
@@ -221,7 +236,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		}
 
 		srvAgents := []*managementpb.GenericAgent{}
-		// srvAgents := []*models.Agent{}
+		// state := s.state.RequestStateUpdate()
 
 		for _, node := range nodes {
 			if node.NodeID == service.NodeID {
@@ -233,8 +248,10 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			// case #1: agent is an exporter for this service
 			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
 				srvAgents = append(srvAgents, &managementpb.GenericAgent{
-					AgentId: agent.AgentID,
-					Status:  agent.Status,
+					AgentId:     agent.AgentID,
+					AgentType:   string(agent.AgentType),
+					Status:      agent.Status,
+					IsConnected: s.r.IsConnected(agent.AgentID),
 				})
 			}
 
@@ -243,8 +260,10 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 				// case #3: the agent runs externally, i.e. runs_on_node_id is set
 				if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
 					srvAgents = append(srvAgents, &managementpb.GenericAgent{
-						AgentId: agent.AgentID,
-						Status:  agent.Status,
+						AgentId:     agent.AgentID,
+						AgentType:   string(agent.AgentType),
+						Status:      agent.Status,
+						IsConnected: s.r.IsConnected(agent.AgentID),
 					})
 				}
 			}
