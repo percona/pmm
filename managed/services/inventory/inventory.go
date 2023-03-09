@@ -26,7 +26,6 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 const (
@@ -55,14 +54,14 @@ var (
 )
 
 type Inventory struct {
-	db             *reform.DB
-	agentsRegistry *agents.Registry
+	db *reform.DB
+	r  agentsRegistry
 }
 
-func NewInventory(db *reform.DB, agentsRegistry *agents.Registry) *Inventory {
+func NewInventory(db *reform.DB, r agentsRegistry) *Inventory {
 	i := &Inventory{
-		db:             db,
-		agentsRegistry: agentsRegistry,
+		db: db,
+		r:  r,
 	}
 	return i
 }
@@ -115,7 +114,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			disabled = 0
 		}
 
-		if i.agentsRegistry.IsConnected(pmmAgentID) {
+		if i.r.IsConnected(pmmAgentID) {
 			connected = 1
 		} else {
 			connected = 0
