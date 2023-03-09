@@ -108,6 +108,6 @@ spec:
   - percona-server-mongodb-operator.v1.13.1
   - percona-xtradb-cluster-operator.v1.12.0
 ```
-So, only when getting the install plan details in yaml or json format we can see which operators are being handled by the install plan.
+We can only determine the operators being handled by an install plan if we receive the details in YAML or JSON format.```
 The short version `kubectl get installplans` will show only the first operator in the list and this can be confusing and misleading. 
 
