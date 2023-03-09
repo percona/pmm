@@ -105,9 +105,9 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 
 	for _, agent := range resAgents {
 		disabled := 0
-		var connected float64 = 0
+		connected := float64(0)
 
-		pmmAgentId := pointer.GetString(agent.PMMAgentID)
+		pmmAgentID := pointer.GetString(agent.PMMAgentID)
 
 		if agent.Disabled {
 			disabled = 1
@@ -115,7 +115,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			disabled = 0
 		}
 
-		if i.agentsRegistry.IsConnected(pmmAgentId) {
+		if i.agentsRegistry.IsConnected(pmmAgentID) {
 			connected = 1
 		} else {
 			connected = 0
@@ -125,7 +125,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			string(agent.AgentType),
 			pointer.GetString(agent.ServiceID),
 			pointer.GetString(agent.NodeID),
-			pmmAgentId,
+			pmmAgentID,
 			strconv.Itoa(disabled),
 			pointer.GetString(agent.Version),
 		}
