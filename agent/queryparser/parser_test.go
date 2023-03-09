@@ -48,40 +48,39 @@ func TestMySQLComments(t *testing.T) {
 		},
 		{
 			Name: "Multiline comment with new line",
-			Query: `SELECT * FROM people /* multiline comment
+			Query: `SELECT * FROM people /* multiline comment 
 				with new line */`,
 			Comments: []string{"multiline comment with new line"},
 		},
 		{
 			Name: "Special multiline comment case with new line",
-			Query: `SELECT * FROM people /*! 
+			Query: `SELECT * FROM people /*!
 				special multiline comment case 
 				with new line
 				 */`,
-			Comments: []string{" special multiline comment case with new line "},
+			Comments: []string{"special multiline comment case with new line"},
 		},
 		{
 			Name: "Second special multiline comment case with new line",
-			Query: `SELECT * FROM people /*+ second special
+			Query: `SELECT * FROM people /*+ second special 
 				  multiline comment case 
-				with new line
-				 */`,
-			Comments: []string{"second special multiline comment case with new line "},
+				with new line */`,
+			Comments: []string{"second special multiline comment case with new line"},
 		},
 		{
 			Name: "Multicomment case with new line",
-			Query: `SELECT * FROM people /*+
-				 multicomment case 
-				with new line
+			Query: `SELECT * FROM people /*
+				multicomment case 
+				with new line 
 				 */ WHERE name = 'John' # John
 				 AND name != 'Doe'`,
-			Comments: []string{" multicomment case with new line ", "John"},
+			Comments: []string{"multicomment case with new line", "John"},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := MySQLCommentsWithoutFormatting(c.Query)
+			comments, err := MySQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})

@@ -26,22 +26,33 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 	// sqlparser.ExtractMysqlComment(q) doesnt work properly
 	// input: SELECT * FROM people /*! bla bla */ WHERE name = 'john'
 	// output: ECT * FROM people /*! bla bla */ WHERE name = 'joh
-	r, err := regexp.Compile("(?s)\\/\\*(.*?) \\*\\/")
+	multiline, err := regexp.Compile("(?s)\\/\\*(.*?)\\*\\/")
 	if err != nil {
 		return nil, err
 	}
+	// space := regexp.MustCompile(`\s+`)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// comments using comment as a key to avoid duplicates
 	comments := make(map[string]bool)
-	for _, v := range r.FindAllStringSubmatch(q, -1) {
-		if len(v) < 2 || len(v[1]) < 2 {
+	for _, v := range multiline.FindAllStringSubmatch(q, -1) {
+		if len(v) < 2 {
 			continue
 		}
 
-		// replace all mutations of multiline comment
-		// /*! and /*+
-		replacer := strings.NewReplacer("!", "", "+", "")
-		comments[replacer.Replace(v[1])[1:]] = true
+		value := strings.ReplaceAll(v[1], "\n", "")
+		value = strings.ReplaceAll(value, "\t", "")
+		value = strings.TrimSpace(value)
+		// handle all mutations of multiline comment
+		// // /*! and /*+
+		value = strings.TrimLeft(value, "!")
+		value = strings.TrimLeft(value, "+")
+		value = strings.TrimLeft(value, " ")
+		value = strings.TrimRight(value, " ")
+
+		comments[value] = true
 	}
 
 	hashComments, err := parseMySQLSinglelineComments(q, "#")
@@ -77,11 +88,8 @@ func parseMySQLSinglelineComments(q, startChar string) (map[string]bool, error) 
 	}
 	for _, l := range lines {
 		for _, v := range r.FindStringSubmatch(l) {
-			if len(v) < 2 {
-				continue
-			}
 
-			comments[v[(len(startChar)+1):]] = true
+			comments[strings.TrimLeft(v, fmt.Sprintf("%s ", startChar))] = true
 		}
 	}
 

@@ -16,8 +16,6 @@
 package queryparser
 
 import (
-	"regexp"
-
 	"github.com/pkg/errors"
 	"vitess.io/vitess/go/vt/proto/query"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -54,28 +52,6 @@ func MySQLComments(q string) ([]string, error) {
 	var res []string
 	for c := range comments {
 		res = append(res, c)
-	}
-
-	return res, nil
-}
-
-// MySQLCommentsWithoutFormatting parse query and return its comments without formatting.
-// Can parse multi comments. Multi comments support should be dropped in future MySQL versions.
-// Doc: https://dev.mysql.com/doc/refman/8.0/en/comments.html
-func MySQLCommentsWithoutFormatting(q string) ([]string, error) {
-	comments, err := parseMySQLComments(q)
-	if err != nil {
-		return nil, err
-	}
-
-	space := regexp.MustCompile(`\s+`)
-	if err != nil {
-		return nil, err
-	}
-
-	var res []string
-	for c := range comments {
-		res = append(res, space.ReplaceAllString(c, " "))
 	}
 
 	return res, nil
