@@ -1,6 +1,6 @@
 # Contributing notes
 
-pmm-managed is highly integrated with PMM Server environment. As a result, development and testing is done partially inside PMM Server container which we call "devcontainer". You can take a look at the architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html)
+**pmm-managed** is a core component of PMM Server. As such, its development and testing is best done inside of the PMM Server container which we call "devcontainer". You can take a look at the architecture [here](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html)
 
 # Devcontainer setup
 
@@ -47,7 +47,7 @@ go test -timeout=30s -p 1 ./...
 ...
 ```
 
-`run` and `run-race` targets replace `/usr/sbin/pmm-managed` and restart pmm-managed with `supervisorctl`. As a result, it will use normal filesystem locations (`/etc/victoriametrics-promscrape.yml`, `/etc/supervisord.d`, etc.) and `pmm-managed` PostgreSQL database. Other locations (inside `testdata`) and `pmm-managed-dev` database are used for unit tests.
+`run-managed` target replaces `/usr/sbin/pmm-managed` and restarts pmm-managed with `supervisorctl`. As a result, it will use regular filesystem locations (`/etc/victoriametrics-promscrape.yml`, `/etc/supervisord.d`, etc.) and `pmm-managed` PostgreSQL database. Other locations (inside `testdata`) and `pmm-managed-dev` database are used for unit tests.
 
 # Advanced Setup
 
@@ -86,22 +86,22 @@ go test -timeout=30s -p 1 ./...
 - In another shell use pmm-admin to add agents to the database instances and start monitoring them using `pmm-admin add mysql --username=root --password=root-password`, `pmm-admin add postgresql --username=pmm-agent --password=pmm-agent-password` and `pmm-admin add mongodb --username=root --password=root-password`.
 - Now pmm-managed has started monitoring the databases, login to the web client in your browser to verify. The number of monitored instances will have increased.
 
-## Working with STT
+## Working with Advisors
 
-- Setup the devcontainer using `make env-up` and run your changes inside it by running `make env` and then`make run`.
-- Follow the steps in the [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
+- Setup the devcontainer using `make env-up` and run your changes inside it by running `make env` and then `make run`.
+- Follow the steps described in [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
 - Go to the PMM dashboard and enable STT in `PMM -> PMM Settings -> Advanced Settings` which will make managed download STT checks from Percona Platform and execute them.
 - Any failed STT checks will produce check results on the dashboard.
 
-## Working with Integrated Alerting
+## Working with Percona Alerting
 
-Please go through the Integrated Alerting section in our [user documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html).
+Please go through the Percona Alerting section in our [user documentation](https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html).
 
 # Internals
 
-There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include` (included in both). `Makefile.devcontainer` is mounted on top of `Makefile` inside devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
+There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
 
-Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses multiprocessing to run several commands in parallel to speed-up setup.
+Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses multiprocessing to run several commands in parallel to speed-up the setup.
 
 ## Code Structure
 
