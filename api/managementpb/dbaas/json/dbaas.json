@@ -1615,6 +1615,22 @@
                         "DB_CLUSTER_STATE_UPGRADING"
                       ],
                       "x-order": 1
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -1914,6 +1930,22 @@
                         "DB_CLUSTER_STATE_UPGRADING"
                       ],
                       "x-order": 1
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2215,6 +2247,22 @@
                           "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -2518,6 +2566,22 @@
                           "DB_CLUSTER_STATE_UPGRADING"
                         ],
                         "x-order": 1
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -3486,6 +3550,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -3817,6 +3897,22 @@
                     }
                   },
                   "x-order": 2
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -4188,6 +4284,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -4657,6 +4769,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -4884,6 +5012,103 @@
           }
         }
       }
+    },
+    "/v1/management/DBaaS/Templates/List": {
+      "post": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "ListTemplates returns a list of all registered templates.",
+        "operationId": "ListTemplates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 1
+                },
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "templates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "description": "Template CR kind.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "description": "Template CR name.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "tags": [
@@ -4904,6 +5129,9 @@
     },
     {
       "name": "PXCClusters"
+    },
+    {
+      "name": "Templates"
     }
   ]
 }
