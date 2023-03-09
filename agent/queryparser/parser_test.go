@@ -31,55 +31,57 @@ func TestMySQLComments(t *testing.T) {
 	testCases := []testCase{
 		{
 			Name:     "Dash comment",
-			Query:    "SELECT * FROM people -- dash comment",
+			Query:    `SELECT * FROM people -- dash comment`,
 			Comments: []string{"dash comment"},
 		},
 		{
-			Name:     "Hash comment",
-			Query:    "SELECT * FROM people # hash comment",
+			Name: "Hash comment",
+			Query: `SELECT * FROM people # hash comment
+			WHERE name = 'John'
+			`,
 			Comments: []string{"hash comment"},
 		},
 		{
 			Name:     "Multiline comment",
-			Query:    "SELECT * FROM people /* multiline comment */",
+			Query:    `SELECT * FROM people /* multiline comment */`,
 			Comments: []string{"multiline comment"},
 		},
 		{
 			Name: "Multiline comment with new line",
-			Query: "SELECT * FROM people /* multiline comment " +
-				"with new line" +
-				" */",
+			Query: `SELECT * FROM people /* multiline comment
+				with new line */`,
 			Comments: []string{"multiline comment with new line"},
 		},
 		{
 			Name: "Special multiline comment case with new line",
-			Query: "SELECT * FROM people /*! " +
-				"special multiline comment case " +
-				"with new line" +
-				" */",
-			Comments: []string{"special multiline comment case with new line"},
+			Query: `SELECT * FROM people /*! 
+				special multiline comment case 
+				with new line
+				 */`,
+			Comments: []string{" special multiline comment case with new line "},
 		},
 		{
 			Name: "Second special multiline comment case with new line",
-			Query: "SELECT * FROM people /*+" +
-				" second special multiline comment case " +
-				"with new line" +
-				" */",
-			Comments: []string{"second special multiline comment case with new line"},
+			Query: `SELECT * FROM people /*+ second special
+				  multiline comment case 
+				with new line
+				 */`,
+			Comments: []string{"second special multiline comment case with new line "},
 		},
 		{
 			Name: "Multicomment case with new line",
-			Query: "SELECT * FROM people /*+" +
-				" multicomment case " +
-				"with new line" +
-				" */ WHERE name = 'John' # John selection",
-			Comments: []string{"multicomment case with new line", "John selection"},
+			Query: `SELECT * FROM people /*+
+				 multicomment case 
+				with new line
+				 */ WHERE name = 'John' # John
+				 AND name != 'Doe'`,
+			Comments: []string{" multicomment case with new line ", "John"},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := MySQLComments(c.Query)
+			comments, err := MySQLCommentsWithoutFormatting(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})
