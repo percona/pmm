@@ -129,6 +129,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 
+	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		psmdbKubernetesClusterNameTest: kubeClient,
 	}

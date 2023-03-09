@@ -80,6 +80,11 @@ func (this *CreatePSMDBClusterRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
+	if this.Template != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
+		}
+	}
 	return nil
 }
 
@@ -97,6 +102,11 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	if this.Params != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	if this.Template != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
 		}
 	}
 	return nil
