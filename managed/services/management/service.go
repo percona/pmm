@@ -179,34 +179,44 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		ExternalGroup: req.GetExternalGroup(),
 	}
 
-	services, err := models.FindServicesAndAgents(s.db.Querier, filters)
+	services, err := models.FindServices(s.db.Querier, filters)
 	if err != nil {
 		return nil, err
 	}
 
+	// agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+
+	nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+
 	res := &managementpb.ListServiceResponse{}
 	for _, service := range services {
-		labels, err := models.GetLabels(*service.CustomLabels)
+		labels, err := service.GetCustomLabels()
 		if err != nil {
 			return nil, err
 		}
 
 		srv := &managementpb.GenericService{
 			ServiceId:      service.ServiceID,
-			ServiceType:    service.ServiceType,
+			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
 			DatabaseName:   service.DatabaseName,
 			NodeId:         service.NodeID,
-			NodeName:       service.NodeName,
 			Environment:    service.Environment,
 			Cluster:        service.Cluster,
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
 			ExternalGroup:  service.ExternalGroup,
-			Address:        service.Address,
-			Port:           service.Port,
-			Socket:         service.Socket,
+			Address:        pointer.GetString(service.Address),
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
 		}
+
+		for _, node := range nodes {
+			if node.NodeID == service.NodeID {
+				srv.NodeName = node.NodeName
+			}
+		}
+
 		res.Services = append(res.Services, srv)
 	}
 
