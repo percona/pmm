@@ -3,13 +3,15 @@ package inventory
 import (
 	"context"
 	"fmt"
-	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
-	prom "github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/reform.v1"
 	"strconv"
 	"time"
+
+	"github.com/AlekSi/pointer"
+	prom "github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 const (
@@ -56,8 +58,6 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cancelTime)
 	defer cancelCtx()
 
-	//l := logger.Get(ctx)
-
 	var resAgents []*models.Agent
 	var resNodes []*models.Node
 	var resServices []*models.Service
@@ -84,14 +84,12 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 
 		return nil
 	})
-
 	if err != nil {
 		fmt.Println(err)
-		//l.Errorf("Failed with error %s", err)
 	}
 
 	for _, agent := range resAgents {
-		var disabled = 0
+		disabled := 0
 		var connected float64 = 0
 
 		pmmAgentId := pointer.GetString(agent.PMMAgentID)
@@ -137,6 +135,4 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 	}
 }
 
-var (
-	_ prom.Collector = (*Inventory)(nil)
-)
+var _ prom.Collector = (*Inventory)(nil)
