@@ -60,13 +60,9 @@ service ObjectDetails {
       body: "*"
     };
   }
-  // GetQueryMetadataDetailsByQueryID get selected query metadata to show in details for given query ID.
-  rpc GetQueryMetadataDetailsByQueryID(GetQueryMetadataDetailsByQueryIDRequest) returns (GetQueryMetadataDetailsByQueryIDReply) {
-    option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/GetQueryMetadataDetailsByQueryID"
-      body: "*"
-    };
-  }
+
+  //  GetQueryMetadataDetailsByQueryID get selected query metadata to show in details for given query ID.
+  rpc GetQueryMetadataDetailsByQueryID(GetQueryMetadataDetailsByQueryIDRequest) returns (GetQueryMetadataDetailsByQueryIDReply) {}
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.

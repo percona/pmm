@@ -38,8 +38,6 @@ type ClientService interface {
 
 	GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error)
 
-	GetQueryMetadataDetailsByQueryID(params *GetQueryMetadataDetailsByQueryIDParams, opts ...ClientOption) (*GetQueryMetadataDetailsByQueryIDOK, error)
-
 	GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error)
 
 	QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error)
@@ -229,43 +227,6 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetQueryExampleDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-GetQueryMetadataDetailsByQueryID gets query metadata details by query ID get selected query metadata to show in details for given query ID
-*/
-func (a *Client) GetQueryMetadataDetailsByQueryID(params *GetQueryMetadataDetailsByQueryIDParams, opts ...ClientOption) (*GetQueryMetadataDetailsByQueryIDOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewGetQueryMetadataDetailsByQueryIDParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "GetQueryMetadataDetailsByQueryID",
-		Method:             "POST",
-		PathPattern:        "/v0/qan/ObjectDetails/GetQueryMetadataDetailsByQueryID",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetQueryMetadataDetailsByQueryIDReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*GetQueryMetadataDetailsByQueryIDOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*GetQueryMetadataDetailsByQueryIDDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
