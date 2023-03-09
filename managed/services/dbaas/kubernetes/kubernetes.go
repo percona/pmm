@@ -41,6 +41,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -906,6 +907,11 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	_, err = k.client.UpdateInstallPlan(ctx, namespace, ip)
 
 	return err
+}
+
+// GetServerVersion returns server version
+func (k *Kubernetes) GetServerVersion() (*version.Info, error) {
+	return k.client.GetServerVersion()
 }
 
 // ListTemplates returns a list of templates.
