@@ -22,7 +22,7 @@ my-percona-server-mongodb-operator   percona-server-mongodb-operator   operatorh
 my-percona-xtradb-cluster-operator   percona-xtradb-cluster-operator   operatorhubio-catalog   stable
 ```
 
-### Known issue.
+### Known issue
 When two or more operators are pending installation approval, OLM creates a second subscription that includes both operators. 
 will have both operators. Listing the install plans could be confusing. For example:
 ```
