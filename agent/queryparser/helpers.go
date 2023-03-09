@@ -24,8 +24,8 @@ import (
 
 func parseMySQLComments(q string) (map[string]bool, error) {
 	// sqlparser.ExtractMysqlComment(q) doesnt work properly
-	// input: SELECT * FROM people /*! bla bla */ WHERE name = 'john'
-	// output: ECT * FROM people /*! bla bla */ WHERE name = 'joh
+	// input: SELECT * FROM people /*! bla */ WHERE name = 'john'
+	// output: ECT * FROM people /*! bla */ WHERE name = 'joh
 	multiline, err := regexp.Compile("(?s)\\/\\*(.*?)\\*\\/")
 	if err != nil {
 		return nil, err
