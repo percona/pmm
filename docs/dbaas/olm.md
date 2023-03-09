@@ -6,7 +6,7 @@ slug: 'dbaas'
 
 DBaaS levearge the installation and upgrade of operators on OLM.
 To install an operator, we need to create an operator group and a subscription.
-The official documentation withe detailed examples can be found [here](https://olm.operatorframework.io/docs/tasks/install-operator-with-olm/).
+The official documentation with detailed examples can be found [here](https://olm.operatorframework.io/docs/tasks/install-operator-with-olm/).
 
 DBaaS installs several operators by default:
 - OLM 
