@@ -99,7 +99,7 @@ spec:
   - percona-xtradb-cluster-operator.v1.12.0
   generation: 2
 ```
-The second install plan shows in the spec section it will handle the installation of both operators:
+Spec section of the second install plan indicates it will handle the installation of both operators:
 ```
 spec:
   approval: Manual
