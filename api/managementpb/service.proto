@@ -50,10 +50,8 @@ message RemoveServiceResponse {}
 message GenericAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
   // Actual Agent status.
-  inventory.AgentStatus status = 5;
+  string status = 2;
 }
 
 message GenericService {

@@ -186,6 +186,11 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, err
 	}
 
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+	if err != nil {
+		return nil, err
+	}
+
 	nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
 	if err != nil {
 		return nil, err
@@ -212,12 +217,39 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Address:        pointer.GetString(service.Address),
 			Port:           uint32(pointer.GetUint16(service.Port)),
 			Socket:         pointer.GetString(service.Socket),
+			Agents:         []*managementpb.GenericAgent{},
 		}
+
+		srvAgents := []*managementpb.GenericAgent{}
+		// srvAgents := []*models.Agent{}
 
 		for _, node := range nodes {
 			if node.NodeID == service.NodeID {
 				srv.NodeName = node.NodeName
 			}
+		}
+
+		for _, agent := range agents {
+			// case #1: agent is an exporter for this service
+			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
+				srvAgents = append(srvAgents, &managementpb.GenericAgent{
+					AgentId: agent.AgentID,
+					Status:  agent.Status,
+				})
+			}
+
+			for _, node := range nodes {
+				// case #2: the agent runs on the same node as the service
+				// case #3: the agent runs externally, i.e. runs_on_node_id is set
+				if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
+					srvAgents = append(srvAgents, &managementpb.GenericAgent{
+						AgentId: agent.AgentID,
+						Status:  agent.Status,
+					})
+				}
+			}
+
+			srv.Agents = srvAgents
 		}
 
 		res.Services = append(res.Services, srv)

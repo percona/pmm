@@ -621,89 +621,12 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
-	Status *string `json:"status,omitempty"`
+	// Actual Agent status.
+	Status string `json:"status,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listServicesOkBodyServicesItems0AgentsItems0TypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listServicesOkBodyServicesItems0AgentsItems0TypeStatusPropEnum = append(listServicesOkBodyServicesItems0AgentsItems0TypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusSTARTING captures enum value "STARTING"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusSTARTING string = "STARTING"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusRUNNING captures enum value "RUNNING"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusRUNNING string = "RUNNING"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusWAITING captures enum value "WAITING"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusWAITING string = "WAITING"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusSTOPPING captures enum value "STOPPING"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusSTOPPING string = "STOPPING"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusDONE captures enum value "DONE"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusDONE string = "DONE"
-
-	// ListServicesOKBodyServicesItems0AgentsItems0StatusUNKNOWN captures enum value "UNKNOWN"
-	ListServicesOKBodyServicesItems0AgentsItems0StatusUNKNOWN string = "UNKNOWN"
-)
-
-// prop value enum
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listServicesOkBodyServicesItems0AgentsItems0TypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
-		return err
-	}
-
 	return nil
 }
 

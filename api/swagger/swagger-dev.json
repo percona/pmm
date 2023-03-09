@@ -29035,25 +29035,10 @@
                               "type": "string",
                               "x-order": 0
                             },
-                            "pmm_agent_id": {
-                              "description": "The pmm-agent identifier which runs this instance.",
+                            "status": {
+                              "description": "Actual Agent status.",
                               "type": "string",
                               "x-order": 1
-                            },
-                            "status": {
-                              "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                              "type": "string",
-                              "default": "AGENT_STATUS_INVALID",
-                              "enum": [
-                                "AGENT_STATUS_INVALID",
-                                "STARTING",
-                                "RUNNING",
-                                "WAITING",
-                                "STOPPING",
-                                "DONE",
-                                "UNKNOWN"
-                              ],
-                              "x-order": 2
                             }
                           }
                         },
