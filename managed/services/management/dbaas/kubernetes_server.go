@@ -512,10 +512,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
-		if err != nil {
-			return err
-		}
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
@@ -532,6 +528,11 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		}
 		if req.Force {
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		}
+
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return err
 		}
 
 		out, err := kubeClient.ListDatabaseClusters(ctx)
