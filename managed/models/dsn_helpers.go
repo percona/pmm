@@ -39,6 +39,10 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", nil, err
 	}
 
+	if db == "" {
+		db = svc.DatabaseName
+	}
+
 	var agentTypes []AgentType
 	switch svc.ServiceType {
 	case MySQLServiceType:
