@@ -257,7 +257,6 @@ func (p *SlowLogParser) parseMetrics(line string) {
 			valueOfMetric = strings.TrimSpace(pairsOfMetricsInfo[1])
 		}
 		switch {
-		// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
 		case strings.HasSuffix(keyOfMetric, "_time") || strings.HasSuffix(keyOfMetric, "_wait"):
 			// microsecond value
 			parsedValueOfMetric, _ := strconv.ParseFloat(valueOfMetric, 64)
