@@ -40,7 +40,7 @@ require (
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/grafana/grafana-api-golang-client v0.18.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
