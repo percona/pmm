@@ -488,7 +488,7 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 }
 
 // UpdatePatchForPXC returns a patch to update a database cluster
-func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest, clusterType ClusterType) error {
+func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest, clusterType ClusterType) error { //nolint:cyclop
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
 	}
