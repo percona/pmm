@@ -84,7 +84,7 @@ exit 0
 
 %changelog
 * Fri Mar 10 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.13-1
-- PMM-10881 Grafana 9.2.13
+- PMM-11762 Grafana 9.2.13
 
 * Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.2.5-1
 - PMM-10881 Grafana 9.2.5
