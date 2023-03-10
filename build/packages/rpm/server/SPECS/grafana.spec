@@ -62,7 +62,8 @@ install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
-install -d -p %{buildroot}%{_sharedstatedir}/grafana
+install -d -p %{buildroot}%{_sharedstatedir}/grafana/bin
+cp tmp/bin/linux-amd64/grafana %{buildroot}%{_sharedstatedir}/grafana/bin/
 
 %files
 %defattr(-, grafana, grafana, -)
