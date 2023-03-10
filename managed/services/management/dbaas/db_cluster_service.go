@@ -38,6 +38,11 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
+const (
+	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
+	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
+)
+
 // DBClusterService holds unexported field and public methods to handle DB Clusters.
 type DBClusterService struct {
 	db                   *reform.DB
@@ -203,6 +208,18 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	}
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
+
+	if cluster.ObjectMeta.Annotations != nil {
+		templateName, templateNameExists := cluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey]
+		templateKind, templateKindExists := cluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey]
+		if templateNameExists && templateKindExists {
+			c.Template = &dbaasv1beta1.Template{
+				Name: templateName,
+				Kind: templateKind,
+			}
+		}
+	}
+
 	return c, nil
 }
 
@@ -282,6 +299,18 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	}
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
+
+	if cluster.ObjectMeta.Annotations != nil {
+		templateName, templateNameExists := cluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey]
+		templateKind, templateKindExists := cluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey]
+		if templateNameExists && templateKindExists {
+			c.Template = &dbaasv1beta1.Template{
+				Name: templateName,
+				Kind: templateKind,
+			}
+		}
+	}
+
 	return c, nil
 }
 

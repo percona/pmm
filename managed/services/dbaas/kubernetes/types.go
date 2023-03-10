@@ -40,6 +40,9 @@ const (
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
 	externalNLB       string             = "external"
+
+	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
+	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
 )
 
 var errSimultaneous = errors.New("field suspend and resume cannot be true simultaneously")
@@ -192,6 +195,15 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
+
+	if cluster.Template != nil && cluster.Template.Name != "" && cluster.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = cluster.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = cluster.Template.Kind
+	}
+
 	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
@@ -333,6 +345,15 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
+
+	if cluster.Template != nil && cluster.Template.Name != "" && cluster.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = cluster.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = cluster.Template.Kind
+	}
+
 	if cluster.Params.Restore != nil && cluster.Params.Restore.Destination != "" {
 		if cluster.Params.Restore.SecretsName != "" {
 			dbCluster.Spec.SecretsName = cluster.Params.Restore.SecretsName
@@ -388,6 +409,16 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	dbCluster.TypeMeta = metav1.TypeMeta{
 		APIVersion: dbaasAPI,
 		Kind:       dbaasKind,
+	}
+	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
+	} else {
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
 	}
 	if updateRequest.Params.ClusterSize > 0 {
 		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
@@ -465,6 +496,17 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		APIVersion: dbaasAPI,
 		Kind:       dbaasKind,
 	}
+	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
+	} else {
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
+	}
+
 	if updateRequest.Params.ClusterSize > 0 {
 		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
 	}

@@ -483,6 +483,9 @@ type GetDBClusterOKBodyPSMDBCluster struct {
 
 	// restore
 	Restore *GetDBClusterOKBodyPSMDBClusterRestore `json:"restore,omitempty"`
+
+	// template
+	Template *GetDBClusterOKBodyPSMDBClusterTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this get DB cluster OK body PSMDB cluster
@@ -506,6 +509,10 @@ func (o *GetDBClusterOKBodyPSMDBCluster) Validate(formats strfmt.Registry) error
 	}
 
 	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -648,6 +655,25 @@ func (o *GetDBClusterOKBodyPSMDBCluster) validateRestore(formats strfmt.Registry
 	return nil
 }
 
+func (o *GetDBClusterOKBodyPSMDBCluster) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get DB cluster OK body PSMDB cluster based on the context it is used
 func (o *GetDBClusterOKBodyPSMDBCluster) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -665,6 +691,10 @@ func (o *GetDBClusterOKBodyPSMDBCluster) ContextValidate(ctx context.Context, fo
 	}
 
 	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -726,6 +756,21 @@ func (o *GetDBClusterOKBodyPSMDBCluster) contextValidateRestore(ctx context.Cont
 				return ve.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "restore")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetDBClusterOKBodyPSMDBCluster) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getDbClusterOk" + "." + "psmdb_cluster" + "." + "template")
 			}
 			return err
 		}
@@ -1298,6 +1343,46 @@ func (o *GetDBClusterOKBodyPSMDBClusterRestore) UnmarshalBinary(b []byte) error 
 }
 
 /*
+GetDBClusterOKBodyPSMDBClusterTemplate get DB cluster OK body PSMDB cluster template
+swagger:model GetDBClusterOKBodyPSMDBClusterTemplate
+*/
+type GetDBClusterOKBodyPSMDBClusterTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this get DB cluster OK body PSMDB cluster template
+func (o *GetDBClusterOKBodyPSMDBClusterTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get DB cluster OK body PSMDB cluster template based on context it is used
+func (o *GetDBClusterOKBodyPSMDBClusterTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetDBClusterOKBodyPSMDBClusterTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetDBClusterOKBodyPSMDBClusterTemplate) UnmarshalBinary(b []byte) error {
+	var res GetDBClusterOKBodyPSMDBClusterTemplate
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 GetDBClusterOKBodyPXCCluster PXCCluster represents PXC cluster information.
 swagger:model GetDBClusterOKBodyPXCCluster
 */
@@ -1345,6 +1430,9 @@ type GetDBClusterOKBodyPXCCluster struct {
 
 	// restore
 	Restore *GetDBClusterOKBodyPXCClusterRestore `json:"restore,omitempty"`
+
+	// template
+	Template *GetDBClusterOKBodyPXCClusterTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this get DB cluster OK body PXC cluster
@@ -1368,6 +1456,10 @@ func (o *GetDBClusterOKBodyPXCCluster) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1510,6 +1602,25 @@ func (o *GetDBClusterOKBodyPXCCluster) validateRestore(formats strfmt.Registry) 
 	return nil
 }
 
+func (o *GetDBClusterOKBodyPXCCluster) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get DB cluster OK body PXC cluster based on the context it is used
 func (o *GetDBClusterOKBodyPXCCluster) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1527,6 +1638,10 @@ func (o *GetDBClusterOKBodyPXCCluster) ContextValidate(ctx context.Context, form
 	}
 
 	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1588,6 +1703,21 @@ func (o *GetDBClusterOKBodyPXCCluster) contextValidateRestore(ctx context.Contex
 				return ve.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "restore")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetDBClusterOKBodyPXCCluster) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getDbClusterOk" + "." + "pxc_cluster" + "." + "template")
 			}
 			return err
 		}
@@ -2511,6 +2641,46 @@ func (o *GetDBClusterOKBodyPXCClusterRestore) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetDBClusterOKBodyPXCClusterRestore) UnmarshalBinary(b []byte) error {
 	var res GetDBClusterOKBodyPXCClusterRestore
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetDBClusterOKBodyPXCClusterTemplate get DB cluster OK body PXC cluster template
+swagger:model GetDBClusterOKBodyPXCClusterTemplate
+*/
+type GetDBClusterOKBodyPXCClusterTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this get DB cluster OK body PXC cluster template
+func (o *GetDBClusterOKBodyPXCClusterTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get DB cluster OK body PXC cluster template based on context it is used
+func (o *GetDBClusterOKBodyPXCClusterTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetDBClusterOKBodyPXCClusterTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetDBClusterOKBodyPXCClusterTemplate) UnmarshalBinary(b []byte) error {
+	var res GetDBClusterOKBodyPXCClusterTemplate
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
