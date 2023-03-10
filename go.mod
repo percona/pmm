@@ -32,6 +32,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/envoyproxy/protoc-gen-validate v0.9.1
 	github.com/go-co-op/gocron v1.18.1
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.25.0
@@ -51,7 +52,6 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.49
-	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/operator-framework/api v0.17.3
 	github.com/operator-framework/operator-lifecycle-manager v0.23.1
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
@@ -124,6 +124,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/opentracing-contrib/go-grpc v0.0.0-20180928155321-4b5a12d3ff02 // indirect
 	github.com/percona/percona-backup-mongodb v1.8.1 // indirect
 	github.com/philhofer/fwd v1.0.0 // indirect
@@ -139,7 +140,7 @@ require (
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
