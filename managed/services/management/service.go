@@ -218,7 +218,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			return nil, err
 		}
 
-		srv := &managementpb.GenericService{
+		svc := &managementpb.GenericService{
 			ServiceId:      service.ServiceID,
 			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
@@ -235,19 +235,18 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Agents:         []*managementpb.GenericAgent{},
 		}
 
-		srvAgents := []*managementpb.GenericAgent{}
-		// state := s.state.RequestStateUpdate()
+		svcAgents := []*managementpb.GenericAgent{}
 
 		for _, node := range nodes {
 			if node.NodeID == service.NodeID {
-				srv.NodeName = node.NodeName
+				svc.NodeName = node.NodeName
 			}
 		}
 
 		for _, agent := range agents {
 			// case #1: agent is an exporter for this service
 			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
-				srvAgents = append(srvAgents, &managementpb.GenericAgent{
+				svcAgents = append(svcAgents, &managementpb.GenericAgent{
 					AgentId:     agent.AgentID,
 					AgentType:   string(agent.AgentType),
 					Status:      agent.Status,
@@ -259,7 +258,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 				// case #2: the agent runs on the same node as the service
 				// case #3: the agent runs externally, i.e. runs_on_node_id is set
 				if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
-					srvAgents = append(srvAgents, &managementpb.GenericAgent{
+					svcAgents = append(svcAgents, &managementpb.GenericAgent{
 						AgentId:     agent.AgentID,
 						AgentType:   string(agent.AgentType),
 						Status:      agent.Status,
@@ -268,10 +267,10 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 				}
 			}
 
-			srv.Agents = srvAgents
+			svc.Agents = svcAgents
 		}
 
-		res.Services = append(res.Services, srv)
+		res.Services = append(res.Services, svc)
 	}
 
 	return res, nil

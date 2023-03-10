@@ -53,6 +53,9 @@ func TestServiceService(t *testing.T) {
 		state := &mockAgentsStateUpdater{}
 		state.Test(t)
 
+		ar := &mockAgentsRegistry{}
+		ar.Test(t)
+
 		teardown := func(t *testing.T) {
 			uuid.SetRand(nil)
 
@@ -60,7 +63,7 @@ func TestServiceService(t *testing.T) {
 			vmdb.AssertExpectations(t)
 			state.AssertExpectations(t)
 		}
-		s := NewServiceService(db, state, vmdb)
+		s := NewServiceService(db, ar, state, vmdb)
 
 		return ctx, s, teardown, vmdb
 	}
