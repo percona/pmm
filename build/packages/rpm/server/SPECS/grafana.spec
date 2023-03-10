@@ -49,14 +49,11 @@ cp -rpav tools %{buildroot}%{_datadir}/grafana
 # save 34 MB worth of disk space
 rm -rf %{buildroot}%{_datadir}/grafana/public/{app,sass,test,testdata}
 
-mkdir -p tmp/bin
-cp -rpav bin/* tmp/bin/
-
 install -d -p %{buildroot}%{_sbindir}
-cp tmp/bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
-cp tmp/bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
