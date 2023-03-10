@@ -450,6 +450,9 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
 	return nil
 }
 
@@ -535,6 +538,9 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 		}
 	}
 	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
 	return nil
