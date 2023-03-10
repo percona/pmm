@@ -45,7 +45,6 @@ make build-js
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
-cp -rpav scripts %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 if [ ! -d tmp/bin ]; then
@@ -55,6 +54,7 @@ cp -rpav bin/* tmp/bin/
 
 install -d -p %{buildroot}%{_sbindir}
 cp tmp/bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp tmp/bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
 cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 
@@ -62,14 +62,14 @@ install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
-install -d -p %{buildroot}%{_sharedstatedir}/grafana/bin
-cp tmp/bin/linux-amd64/grafana %{buildroot}%{_sharedstatedir}/grafana/bin/
+install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
 %doc *.md
 %license LICENSE
+%attr(0755, root, root) %{_sbindir}/grafana
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
