@@ -46,10 +46,10 @@ install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
+# save 34 MB worth of disk space
+rm -rf %{buildroot}%{_datadir}/grafana/public/{app,sass,test,testdata}
 
-if [ ! -d tmp/bin ]; then
-    mkdir -p tmp/bin
-fi
+mkdir -p tmp/bin
 cp -rpav bin/* tmp/bin/
 
 install -d -p %{buildroot}%{_sbindir}
