@@ -77,8 +77,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 
 	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
 		args = append(args,
-			"--collect.plugins",
-		)
+			"--collect.plugins")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
