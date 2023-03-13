@@ -16,19 +16,28 @@
 package agents
 
 import (
+	"os"
 	"sort"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+var maxScrapeSizeEnv = "PMM_PROMSCRAPE_MAX_SCRAPE_SIZE"
+
 // vmAgentConfig returns desired configuration of vmagent process.
 func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
+	maxScrapeSize := "64MiB"
+	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
+		maxScrapeSize = space
+	}
+
 	args := []string{
 		"-remoteWrite.url={{.server_url}}/victoriametrics/api/v1/write",
 		"-remoteWrite.tlsInsecureSkipVerify={{.server_insecure}}",
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+		"-promscrape.maxScrapeSize=" + maxScrapeSize,
 		// 1GB disk queue size.
 		"-remoteWrite.maxDiskUsagePerURL=1073741824",
 		"-loggerLevel=INFO",
