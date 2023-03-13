@@ -29,7 +29,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0")
+var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
