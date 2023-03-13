@@ -15,7 +15,7 @@ If you need custom expressions on which to base your alert rules, you can also c
 - **Grafana managed alerts**: alerts that handle complex conditions and can span multiple different data sources like SQL, Prometheus, InfluxDB, etc. These alerts are stored and executed by Grafana.
 - **Mimir or Loki alerts**: alerts that consist of one single query, written in PromQL or LogQL. The alert rules are stored and executed on the Mimir or Loki ruler and are completely decoupled from the PMM and Grafana runtime.
 - **Mimir or Loki recording rules**: precompute the result of expensive queries and execute alerts faster. 
-With Mimir and Loki alert rules, you can run alert expressions closer to your data and at massive scale, managed by the Grafana. 
+With Mimir and Loki alert rules, you can run alert expressions closer to your data and at massive scale, managed by Grafana. 
 
 ## Alerting components
 Alerts are split into four key components: alert rules, contact points, notification policies, and silences. 
