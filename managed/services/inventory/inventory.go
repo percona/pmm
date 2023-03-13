@@ -35,38 +35,42 @@ const (
 	prometheusSubsystem         = "inventory"
 )
 
-var (
-	mAgentsDesc = prom.NewDesc(
-		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
-		"The current information about agent",
-		[]string{"agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
-		nil)
-	mNodesDesc = prom.NewDesc(
-		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
-		"The current information about node",
-		[]string{"node_type", "node_name", "container_name"},
-		nil)
-	mServicesDesc = prom.NewDesc(
-		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
-		"The current information about service",
-		[]string{"service_type", "node_id"},
-		nil)
-)
-
 type Inventory struct {
+	mAgentsDesc   *prom.Desc
+	mNodesDesc    *prom.Desc
+	mServicesDesc *prom.Desc
+
 	db *reform.DB
 	r  agentsRegistry
 }
 
 func NewInventory(db *reform.DB, r agentsRegistry) *Inventory {
 	i := &Inventory{
+		mAgentsDesc: prom.NewDesc(
+			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
+			"The current information about agent",
+			[]string{"agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
+			nil),
+		mNodesDesc: prom.NewDesc(
+			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
+			"The current information about node",
+			[]string{"node_type", "node_name", "container_name"},
+			nil),
+		mServicesDesc: prom.NewDesc(
+			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
+			"The current information about service",
+			[]string{"service_type", "node_id"},
+			nil),
+
 		db: db,
 		r:  r,
 	}
 	return i
 }
 
-func (i *Inventory) Describe(chan<- *prom.Desc) {}
+func (i *Inventory) Describe(ch chan<- *prom.Desc) {
+	prom.DescribeByCollect(i, ch)
+}
 
 func (i *Inventory) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cancelTime)
@@ -128,7 +132,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			strconv.Itoa(disabled),
 			pointer.GetString(agent.Version),
 		}
-		ch <- prom.MustNewConstMetric(mAgentsDesc, prom.GaugeValue, connected, agentMetricLabels...)
+		ch <- prom.MustNewConstMetric(i.mAgentsDesc, prom.GaugeValue, connected, agentMetricLabels...)
 	}
 
 	for _, node := range resNodes {
@@ -137,7 +141,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			node.NodeName,
 			pointer.GetString(node.ContainerName),
 		}
-		ch <- prom.MustNewConstMetric(mNodesDesc, prom.GaugeValue, serviceEnabled, nodeMetricLabels...)
+		ch <- prom.MustNewConstMetric(i.mNodesDesc, prom.GaugeValue, serviceEnabled, nodeMetricLabels...)
 	}
 
 	for _, service := range resServices {
@@ -145,7 +149,7 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 			string(service.ServiceType),
 			service.NodeID,
 		}
-		ch <- prom.MustNewConstMetric(mServicesDesc, prom.GaugeValue, serviceEnabled, serviceMetricLabels...)
+		ch <- prom.MustNewConstMetric(i.mServicesDesc, prom.GaugeValue, serviceEnabled, serviceMetricLabels...)
 	}
 }
 
