@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,10 +28,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	})
 	t.Run("overridden with ENV", func(t *testing.T) {
 		newValue := "16MiB"
-		err := os.Setenv(maxScrapeSizeEnv, newValue)
-		if err != nil {
-			panic(err)
-		}
+		t.Setenv(maxScrapeSizeEnv, newValue)
 		actual := vmAgentConfig("")
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+newValue)
 	})
