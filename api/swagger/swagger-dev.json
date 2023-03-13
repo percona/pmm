@@ -17039,7 +17039,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17145,7 +17145,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17251,7 +17251,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
