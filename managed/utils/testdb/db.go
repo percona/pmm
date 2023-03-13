@@ -83,11 +83,11 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 }
 
 func newName(length int) string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	const alp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, length)
 	for i := range b {
-		b[i] = alp[r.Intn(len(alp))] //nolint:gosec
+		b[i] = alp[r.Intn(len(alp))]
 	}
 	return string(b)
 }
