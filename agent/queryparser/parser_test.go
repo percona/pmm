@@ -12,23 +12,74 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package queryparser provides functionality for queries parsing.
 package queryparser
 
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type testCase struct {
+type testCaseMySQL struct {
+	Query                     string
+	ExpectedQuery             string
+	ExpectedPlaceHoldersCount uint32
+}
+
+func TestMySQL(t *testing.T) {
+	sqls := []testCaseMySQL{
+		{
+			Query:                     "SELECT name FROM people where city = 'Paris'",
+			ExpectedQuery:             "select `name` from people where city = :1",
+			ExpectedPlaceHoldersCount: 1,
+		},
+		{
+			Query:                     "SELECT name FROM people where city = ?",
+			ExpectedQuery:             "select `name` from people where city = :v1",
+			ExpectedPlaceHoldersCount: 1,
+		},
+		{
+			Query:                     "INSERT INTO people VALUES('John', 'Paris', 70010)",
+			ExpectedQuery:             "insert into people values (:1, :2, :3)",
+			ExpectedPlaceHoldersCount: 3,
+		},
+		{
+			Query:                     "INSERT INTO people VALUES(?, ?, ?)",
+			ExpectedQuery:             "insert into people values (:v1, :v2, :v3)",
+			ExpectedPlaceHoldersCount: 3,
+		},
+		{
+			Query: `SELECT t.table_schema, t.table_name, column_name, auto_increment, pow(2, case data_type when
+				'tinyint' then 7 when 'smallint' then 15 when 'mediumint' then 23 when 'int' then 31 when 'bigint' then 63 
+				end +(column_type like '% unsigned')) -1 as max_int FROM information_schema.columns c STRAIGHT_JOIN 
+				information_schema.tables t ON BINARY t.table_schema = c.table_schema AND BINARY t.table_name = c.table_name
+		  		WHERE c.extra = 'auto_increment' AND t.auto_increment IS NOT NULL`,
+			ExpectedQuery: "select t.table_schema, t.table_name, column_name, `auto_increment`, pow(:1, case " +
+				"data_type when :2 then :3 when :4 then :5 when :6 then :7 when :8 then :9 when :10 then :11 end + " +
+				"(column_type like :12)) - :13 as max_int from information_schema.`columns` as c straight_join information_schema.`tables` " +
+				"as t on convert(t.table_schema, BINARY) = c.table_schema and convert(t.table_name, BINARY) = c.table_name where c.extra = :14 " +
+				"and t.`auto_increment` is not null",
+			ExpectedPlaceHoldersCount: 14,
+		},
+	}
+
+	for _, sql := range sqls {
+		query, placeholdersCount, err := MySQL(sql.Query)
+		require.NoError(t, err)
+		assert.Equal(t, sql.ExpectedQuery, query)
+		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
+	}
+}
+
+type testCaseMySQLComments struct {
 	Name     string
 	Query    string
 	Comments []string
 }
 
 func TestMySQLComments(t *testing.T) {
-	testCases := []testCase{
+	testCases := []testCaseMySQLComments{
 		{
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
@@ -77,7 +128,7 @@ func TestMySQLComments(t *testing.T) {
 			Name: "Multicomment case with new line",
 			Query: `SELECT * FROM people /*
 				multicomment case 
-				with new line 
+				  with new line 
 				 */ WHERE name = 'John' # John
 				 AND name != 'Doe'`,
 			Comments: []string{"multicomment case with new line", "John"},

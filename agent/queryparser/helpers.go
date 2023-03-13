@@ -27,6 +27,10 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 	if err != nil {
 		return nil, err
 	}
+	space := regexp.MustCompile(`\s+`)
+	if err != nil {
+		return nil, err
+	}
 
 	// comments using comment as a key to avoid duplicates
 	comments := make(map[string]bool)
@@ -37,11 +41,13 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 
 		value := strings.ReplaceAll(v[1], "\n", "")
 		value = strings.ReplaceAll(value, "\t", "")
-		value = strings.TrimSpace(value)
-		// handle all mutations of multiline comment
-		// // /*! and /*+
+
+		// handle all mutations of multiline comment (/*! and /*+)
 		value = strings.TrimLeft(value, "!")
 		value = strings.TrimLeft(value, "+")
+
+		// remove spaces
+		value = space.ReplaceAllString(value, " ")
 		value = strings.TrimLeft(value, " ")
 		value = strings.TrimRight(value, " ")
 
