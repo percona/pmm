@@ -6,6 +6,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
+import "managementpb/agent.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/managementpb;managementpb";
@@ -45,17 +46,6 @@ message RemoveServiceRequest {
 }
 
 message RemoveServiceResponse {}
-
-message GenericAgent {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // Agent type.
-  string agent_type = 2;
-  // Actual Agent status.
-  string status = 3;
-  // Connection status (only for type pmm-agent).
-  bool is_connected = 4;
-}
 
 message GenericService {
   // Unique randomly generated instance identifier.

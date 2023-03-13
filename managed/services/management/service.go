@@ -235,13 +235,13 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Agents:         []*managementpb.GenericAgent{},
 		}
 
-		svcAgents := []*managementpb.GenericAgent{}
-
 		for _, node := range nodes {
 			if node.NodeID == service.NodeID {
 				svc.NodeName = node.NodeName
 			}
 		}
+
+		svcAgents := []*managementpb.GenericAgent{}
 
 		for _, agent := range agents {
 			// case #1: agent is an exporter for this service

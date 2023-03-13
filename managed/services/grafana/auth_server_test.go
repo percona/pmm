@@ -212,6 +212,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/management/Actions/StartMySQLShowTableStatus": viewer,
 		"/v1/management/Service/Remove":                    admin,
 		"/v1/management/Service/List":                      admin,
+		"/v1/management/Agent/List":                        admin,
 		"/v1/Updates/Check":                                viewer,
 		"/v1/Updates/Start":                                admin,
 		"/v1/Updates/Status":                               none,

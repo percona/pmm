@@ -53,9 +53,9 @@ psql:                           ## Open database for the pmm-managed instance in
 psql-test:                      ## Open database used in unit tests in psql shell
 	env psql -U postgres pmm-managed-dev
 
-dlv/attach:						## Attache Delve to `pmm-managed`
+dlv/attach:											## Attache Delve to `pmm-managed`
 	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
 
-refresh-swagger:      ## Refresh swagger files
+refresh-swagger:      					## Refresh swagger files
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger-dev.json /usr/share/pmm-managed/swagger/swagger-dev.json

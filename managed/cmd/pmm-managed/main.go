@@ -261,6 +261,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
+	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
@@ -268,6 +269,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	managementpb.RegisterAgentServer(gRPCServer, agentSvc)
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))

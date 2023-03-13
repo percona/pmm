@@ -418,20 +418,3 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 	}
 	return nil
 }
-
-type ServiceRec struct {
-	ServiceID      string  `json:"service_id"`
-	ServiceType    string  `json:"service_type"`
-	ServiceName    string  `json:"service_name"`
-	DatabaseName   string  `json:"database_name"`
-	NodeID         string  `json:"node_id"`
-	NodeName       string  `json:"node_name"`
-	Environment    string  `json:"environment"`
-	Cluster        string  `json:"cluster"`
-	ReplicationSet string  `json:"replication_set"`
-	CustomLabels   *[]byte `json:"custom_labels"`
-	ExternalGroup  string  `json:"external_group"`
-	Address        string  `json:"address"`
-	Port           uint32  `json:"port"`
-	Socket         string  `json:"socket"`
-}

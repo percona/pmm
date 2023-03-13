@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/percona/pmm/api/managementpb/json/client/agent"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 	"github.com/percona/pmm/api/managementpb/json/client/external"
 	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
@@ -67,6 +68,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli := new(PMMManagementAPI)
 	cli.Transport = transport
 	cli.Actions = actions.New(transport, formats)
+	cli.Agent = agent.New(transport, formats)
 	cli.Annotation = annotation.New(transport, formats)
 	cli.External = external.New(transport, formats)
 	cli.HAProxy = ha_proxy.New(transport, formats)
@@ -124,6 +126,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMManagementAPI struct {
 	Actions actions.ClientService
 
+	Agent agent.ClientService
+
 	Annotation annotation.ClientService
 
 	External external.ClientService
@@ -153,6 +157,7 @@ type PMMManagementAPI struct {
 func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Actions.SetTransport(transport)
+	c.Agent.SetTransport(transport)
 	c.Annotation.SetTransport(transport)
 	c.External.SetTransport(transport)
 	c.HAProxy.SetTransport(transport)

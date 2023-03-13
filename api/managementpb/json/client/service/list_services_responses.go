@@ -121,8 +121,7 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 }
 
 /*
-ListServicesBody ListServicesRequest is identical to inventory.ListServicesRequest.
-// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
+ListServicesBody list services body
 swagger:model ListServicesBody
 */
 type ListServicesBody struct {
@@ -624,11 +623,35 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Agent type.
 	AgentType string `json:"agent_type,omitempty"`
 
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
 	// Actual Agent status.
 	Status string `json:"status,omitempty"`
 
-	// Connection status (only for type pmm-agent).
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Log level for exporter.
+	LogLevel string `json:"log_level,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0
