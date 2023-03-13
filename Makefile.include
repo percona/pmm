@@ -139,8 +139,8 @@ api-test:             ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 check:                ## Run required checkers and linters
-	LOG_LEVEL=error bin/golangci-lint run
-	bin/go-sumtype ./...
+	LOG_LEVEL=error bin/golangci-lint run ; \
+	bin/go-sumtype ./... ; \
 	bin/go-consistent -pedantic ./...
 
 check-license:          ## Run license header checks against source files
