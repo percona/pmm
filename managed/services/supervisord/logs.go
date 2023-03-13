@@ -25,6 +25,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -37,6 +38,7 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v3"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -59,14 +61,16 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
+	vmParams *models.VictoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
+		vmParams: 		  vmParams,
 	}
 }
 
@@ -213,7 +217,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		Data: b,
 		Err:  err,
 	})
-
+	url.Parse(l.vmParams.URL)
 	// add VictoriaMetrics targets
 	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
 	files = append(files, fileContent{

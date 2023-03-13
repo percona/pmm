@@ -104,7 +104,6 @@ services:
       - "--opentsdbListenAddr=:4242"
       - "--httpListenAddr=:8428"
       - "--influxListenAddr=:8089"
-      - "--vmalert.proxyURL=http://vmalert:8880"
     networks:
       - ${NETWORK:-default}
   pmm-managed-server-ch:
