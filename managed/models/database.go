@@ -20,10 +20,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -39,6 +41,8 @@ const (
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
+	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
+	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
 	// DisableSSLMode represent disable PostgreSQL ssl mode
 	DisableSSLMode string = "disable"
@@ -1057,7 +1061,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params.Username, params.Password); err != nil {
+		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
 		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
@@ -1067,7 +1071,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-func setupFixture1(q *reform.Querier, username, password string) error {
+func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -1086,36 +1090,64 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+	address, port, err := parsePGAddress(params.Address)
+	if err != nil {
+		return err
+	}
+	if params.Address != DefaultPostgreSQLAddr {
+		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+			NodeName: PMMServerPostgreSQLNodeName,
+			Address:  address,
+		}); err != nil {
+			return err
+		}
+	}
 
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(5432),
-	})
-	if err != nil {
-		return err
-	}
-	_, err = CreateAgent(q, PostgresExporterType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
-	})
-	if err != nil {
-		return err
-	}
-	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
+		Database:    params.Name,
+		Address:     &node.Address,
+		Port:        &port,
 	})
 	if err != nil {
 		return err
 	}
 
+	ap := &CreateAgentParams{
+		PMMAgentID:    PMMServerAgentID,
+		ServiceID:     service.ServiceID,
+		TLS:           params.SSLMode != DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		Username:      params.Username,
+		Password:      params.Password,
+	}
+	if ap.TLS {
+		ap.PostgreSQLOptions = &PostgreSQLOptions{}
+		for path, field := range map[string]*string{
+			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
+			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
+			params.SSLKeyPath:  &ap.PostgreSQLOptions.SSLKey,
+		} {
+			if path == "" {
+				continue
+			}
+			content, err := os.ReadFile(path) //nolint:gosec
+			if err != nil {
+				return err
+			}
+			*field = string(content)
+		}
+	}
+	_, err = CreateAgent(q, PostgresExporterType, ap)
+	if err != nil {
+		return err
+	}
+	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -1123,4 +1155,20 @@ func setupFixture2(q *reform.Querier, username, password string) error {
 	// TODO add clickhouse_exporter
 
 	return nil
+}
+
+// parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
+func parsePGAddress(address string) (string, uint16, error) {
+	if !strings.Contains(address, ":") {
+		return address, 5432, nil
+	}
+	address, portStr, err := net.SplitHostPort(address)
+	if err != nil {
+		return "", 0, err
+	}
+	parsedPort, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return "", 0, err
+	}
+	return address, uint16(parsedPort), nil
 }
