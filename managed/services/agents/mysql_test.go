@@ -78,7 +78,6 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"--collect.perf_schema.indexiowaits",
 			"--collect.perf_schema.tableiowaits",
 			"--collect.perf_schema.tablelocks",
-			"--collect.plugins",
 			"--collect.slave_status",
 			"--collect.standard.go",
 			"--collect.standard.process",
@@ -178,7 +177,6 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--collect.perf_schema.eventsstatements",
 			"--collect.perf_schema.eventswaits",
 			"--collect.perf_schema.file_events",
-			"--collect.plugins",
 			"--collect.slave_status",
 			"--collect.standard.go",
 			"--collect.standard.process",
@@ -217,6 +215,18 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		exporter.Username = nil
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+	})
+
+	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.36.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.Contains(t, actual.Args, "--collect.plugins")
+	})
+
+	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.35.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.NotContains(t, actual.Args, "--collect.plugins")
 	})
 }
 
@@ -266,7 +276,6 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 			"--collect.perf_schema.indexiowaits",
 			"--collect.perf_schema.tableiowaits",
 			"--collect.perf_schema.tablelocks",
-			"--collect.plugins",
 			"--collect.slave_status",
 			"--collect.standard.go",
 			"--collect.standard.process",
