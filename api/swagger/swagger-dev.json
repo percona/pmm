@@ -19974,6 +19974,14 @@
                       },
                       "x-order": 9
                     },
+                    "source_ranges": {
+                      "description": "Apply IP source ranges against the cluster.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "template": {
                       "type": "object",
                       "properties": {
@@ -19988,7 +19996,7 @@
                           "x-order": 1
                         }
                       },
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -20221,6 +20229,14 @@
                       },
                       "x-order": 9
                     },
+                    "source_ranges": {
+                      "description": "Apply IP source ranges against the cluster.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "template": {
                       "type": "object",
                       "properties": {
@@ -20235,7 +20251,7 @@
                           "x-order": 1
                         }
                       },
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -20606,6 +20622,14 @@
                         },
                         "x-order": 9
                       },
+                      "source_ranges": {
+                        "description": "Apply IP source ranges against the cluster.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "template": {
                         "type": "object",
                         "properties": {
@@ -20620,7 +20644,7 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -20857,6 +20881,14 @@
                         },
                         "x-order": 9
                       },
+                      "source_ranges": {
+                        "description": "Apply IP source ranges against the cluster.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "template": {
                         "type": "object",
                         "properties": {
@@ -20871,7 +20903,7 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -22188,6 +22220,24 @@
                   },
                   "x-order": 2
                 },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
                 "template": {
                   "type": "object",
                   "properties": {
@@ -22202,7 +22252,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 6
                 }
               }
             }
