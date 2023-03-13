@@ -193,6 +193,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case "PMM_DISABLE_BUILTIN_POSTGRES":
+			continue
+
 		default:
 			// handle prefixes
 

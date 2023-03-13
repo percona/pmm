@@ -79,6 +79,7 @@ type sub struct {
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
+	pmmConfig               = "/etc/supervisord.d/pmm.ini"
 )
 
 // New creates new service.

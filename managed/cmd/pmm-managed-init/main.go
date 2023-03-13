@@ -22,6 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/logger"
 )
@@ -34,7 +35,6 @@ func main() {
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
-
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s.", warn)
@@ -51,4 +51,20 @@ func main() {
 		logrus.Errorf("Configuration error: %s.", err)
 		os.Exit(1)
 	}
+
+	pmmConfigParams := make(map[string]any, 2)
+	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
+	pmmConfigParams["DisableSupervisor"] = !isDocker()
+	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+		logrus.Errorf("PMM Server configuration error: %s.", err)
+		os.Exit(1)
+	}
+}
+
+// isDocker reports that pmm distribution is docker.
+func isDocker() bool {
+	if content, _ := os.ReadFile("/srv/pmm-distribution"); string(content) == "docker" {
+		return true
+	}
+	return false
 }

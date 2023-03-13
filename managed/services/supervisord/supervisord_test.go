@@ -154,3 +154,43 @@ func TestAddAlertManagerParam(t *testing.T) {
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
 	})
 }
+
+func TestSavePMMConfig(t *testing.T) {
+	t.Parallel()
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	tests := []struct {
+		description string
+		params      map[string]any
+		file        string
+	}{
+		{
+			description: "disable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false},
+			file:        "pmm-db_disabled",
+		},
+		{
+			description: "enable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false},
+			file:        "pmm-db_enabled",
+		},
+		{
+			description: "disable supervisord",
+			params:      map[string]any{"DisableSupervisor": true, "DisableInternalDB": false},
+			file:        "pmm-supervisord_disabled",
+		},
+		{
+			description: "enable supervisord",
+			params:      map[string]any{"DisableSupervisor": false, "DisableInternalDB": false},
+			file:        "pmm-supervisord_enabled",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.description, func(t *testing.T) {
+			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := marshalConfig(test.params)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
+	}
+}
