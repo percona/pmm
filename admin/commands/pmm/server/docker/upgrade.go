@@ -40,6 +40,7 @@ type UpgradeCommand struct {
 	ContainerID            string `default:"pmm-server" help:"Container ID of the PMM Server to upgrade"`
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
+	DisableBackup          bool   `help:"Disable backup of data from Docker volumes before a PMM Server upgrade"`
 
 	AssumeYes               bool `name:"yes" short:"y" help:"Assume yes for all prompts"`
 	docker                  containerManager
@@ -166,18 +167,23 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 }
 
 func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
+	actions := make([]string, 0, 4)
+	actions = append(actions, fmt.Sprintf("- Stop the container %q", containerID))
+	if !c.DisableBackup {
+		actions = append(actions, fmt.Sprintf("- Back up all volumes in %q", containerID))
+	}
+	actions = append(actions, fmt.Sprintf("- Mount all volumes from %q in the new container", containerID))
+	actions = append(actions, fmt.Sprintf("- Share the same network ports as in %q", containerID))
+
 	fmt.Printf(`
 PMM Server in the container %[1]q was not installed via pmm cli.
 We will attempt to upgrade the container and perform the following actions:
 
-- Stop the container %[1]q
-- Back up all volumes in %[1]q
-- Mount all volumes from %[1]q in the new container
-- Share the same network ports as in %[1]q
+%s
 
 The container %[1]q will NOT be removed. You can remove it manually later, if needed.
 
-`, containerID)
+`, containerID, strings.Join(actions, "\n"))
 
 	if c.AssumeYes {
 		return true
@@ -193,6 +199,11 @@ The container %[1]q will NOT be removed. You can remove it manually later, if ne
 }
 
 func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.ContainerJSON) error {
+	if c.DisableBackup {
+		c.l.Info("Backup of volumes is disabled. Skipping backup.")
+		return nil
+	}
+
 	c.l.Info("Starting backup of volumes")
 
 	c.l.Infof("Downloading %q", volumeCopyImage)

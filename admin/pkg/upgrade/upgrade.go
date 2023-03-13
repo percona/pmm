@@ -47,6 +47,7 @@ type StatusResponse struct {
 
 // Upgrader manages PMM Server upgrades.
 type Upgrader struct {
+	disableBackup          bool
 	docker                 containerManager
 	dockerImage            string
 	newContainerNamePrefix string
@@ -58,8 +59,9 @@ type Upgrader struct {
 }
 
 // New returns new Upgrader.
-func New(docker containerManager, dockerImage, newContainerNamePrefix string, gRPCMessageMaxSize uint32) *Upgrader {
+func New(docker containerManager, dockerImage, newContainerNamePrefix string, disableBackup bool, gRPCMessageMaxSize uint32) *Upgrader {
 	return &Upgrader{
+		disableBackup:          disableBackup,
 		docker:                 docker,
 		dockerImage:            dockerImage,
 		gRPCMessageMaxSize:     gRPCMessageMaxSize,
@@ -113,6 +115,7 @@ func (u *Upgrader) StartUpgrade(ctx context.Context, containerID string) (string
 		cmd.DockerImage = u.dockerImage
 		cmd.NewContainerNamePrefix = newContainerNamePrefix
 		cmd.AssumeYes = true
+		cmd.DisableBackup = u.disableBackup
 
 		// Store upgrade in progress info.
 		u.upgradeMu.Lock()
