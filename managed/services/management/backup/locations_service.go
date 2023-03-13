@@ -54,7 +54,7 @@ func (s *LocationsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.BackupManagement.Enabled
+	return !settings.BackupManagement.Disabled
 }
 
 // ListLocations returns list of all available backup locations.
