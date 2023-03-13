@@ -25,7 +25,7 @@ import (
 func TestMaxScrapeSize(t *testing.T) {
 	t.Run("by default 64MiB", func(t *testing.T) {
 		actual := vmAgentConfig("")
-		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize=64MiB")
+		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+maxScrapeSizeDefault)
 	})
 	t.Run("overridden with ENV", func(t *testing.T) {
 		newValue := "16MiB"

@@ -23,11 +23,14 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-var maxScrapeSizeEnv = "PMM_PROMSCRAPE_MAX_SCRAPE_SIZE"
+var (
+	maxScrapeSizeEnv     = "PMM_PROMSCRAPE_MAX_SCRAPE_SIZE"
+	maxScrapeSizeDefault = "64MiB"
+)
 
 // vmAgentConfig returns desired configuration of vmagent process.
 func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
-	maxScrapeSize := "64MiB"
+	maxScrapeSize := maxScrapeSizeDefault
 	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
 		maxScrapeSize = space
 	}
