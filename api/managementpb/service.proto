@@ -4,7 +4,6 @@ package management;
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "inventorypb/agent_status.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -94,8 +93,6 @@ message GenericService {
   repeated GenericAgent agents = 15;
 }
 
-// ListServicesRequest is identical to inventory.ListServicesRequest.
-// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
 message ListServiceRequest {
   // Return only Services running on that Node.
   string node_id = 1;
