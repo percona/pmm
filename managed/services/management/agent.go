@@ -51,9 +51,8 @@ func NewAgentService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, 
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAgentRequest) (*managementpb.ListAgentResponse, error) {
-	err := s.validateRequest(req)
-	if err != nil {
-		return nil, err
+	if req.ServiceId == "" {
+		return nil, status.Error(codes.InvalidArgument, "service_id is required")
 	}
 
 	serviceID := req.GetServiceId()
@@ -86,24 +85,23 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	for _, agent := range agents {
 		// case #1: agent is an exporter for this service
 		if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == serviceID {
-			svcAgents = append(svcAgents, &managementpb.GenericAgent{
-				AgentId:     agent.AgentID,
-				AgentType:   string(agent.AgentType),
-				Status:      agent.Status,
-				IsConnected: s.r.IsConnected(agent.AgentID),
-			})
+			ag, err := s.toAPIAgent(agent)
+			if err != nil {
+				return nil, err
+			}
+			svcAgents = append(svcAgents, ag)
 		}
 
 		for _, node := range nodes {
 			// case #2: the agent runs on the same node as the service
 			// case #3: the agent runs externally, i.e. runs_on_node_id is set
+			// NOTE: conditions 1 and 2-3 are mutually exclusive
 			if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
-				svcAgents = append(svcAgents, &managementpb.GenericAgent{
-					AgentId:     agent.AgentID,
-					AgentType:   string(agent.AgentType),
-					Status:      agent.Status,
-					IsConnected: s.r.IsConnected(agent.AgentID),
-				})
+				ag, err := s.toAPIAgent(agent)
+				if err != nil {
+					return nil, err
+				}
+				svcAgents = append(svcAgents, ag)
 			}
 		}
 	}
@@ -115,9 +113,30 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	return res, nil
 }
 
-func (s *AgentService) validateRequest(request *managementpb.ListAgentRequest) error {
-	if request.ServiceId == "" {
-		return status.Error(codes.InvalidArgument, "service_id expected")
+func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAgent, error) {
+	labels, err := agent.GetCustomLabels()
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	return &managementpb.GenericAgent{
+		AgentId:                   agent.AgentID,
+		AgentType:                 string(agent.AgentType),
+		CustomLabels:              labels,
+		Disabled:                  agent.Disabled,
+		DisabledCollectors:        agent.DisabledCollectors,
+		IsConnected:               s.r.IsConnected(agent.AgentID),
+		LogLevel:                  pointer.GetString(agent.LogLevel),
+		ListenPort:                uint32(pointer.GetUint16(agent.ListenPort)),
+		PmmAgentId:                pointer.GetString(agent.PMMAgentID),
+		ProcessExecPath:           pointer.GetString(agent.ProcessExecPath),
+		PushMetricsEnabled:        agent.PushMetrics,
+		RunsOnNodeId:              pointer.GetString(agent.RunsOnNodeID),
+		Status:                    agent.Status,
+		Tls:                       agent.TLS,
+		TlsSkipVerify:             agent.TLSSkipVerify,
+		TablestatsGroupTableLimit: agent.TableCountTablestatsGroupLimit,
+		Username:                  pointer.GetString(agent.Username),
+		Version:                   pointer.GetString(agent.Version),
+	}, nil
 }

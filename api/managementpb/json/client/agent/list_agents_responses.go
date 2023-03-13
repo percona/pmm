@@ -407,23 +407,51 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// Agent type.
 	AgentType string `json:"agent_type,omitempty"`
 
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
+
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Actual Agent status.
-	Status string `json:"status,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
+	// Actual Agent status.
+	Status string `json:"status,omitempty"`
+
+	// Agent version.
+	Version string `json:"version,omitempty"`
+
+	// HTTP basic auth username for collecting metrics.
+	Username string `json:"username,omitempty"`
+
+	// Scheme to generate URI to exporter metrics endpoints.
+	Scheme string `json:"scheme,omitempty"`
+
+	// Path under which metrics are exposed, used to generate URI.
+	MetricsPath string `json:"metrics_path,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
-
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// List of colletions to get stats from. Can use *
+	StatsCollections []string `json:"stats_collections"`
+
+	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
+	// is less than this value. 0: no limit
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+
+	// Enable All collectors.
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
@@ -436,6 +464,44 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// Log level for exporter.
 	LogLevel string `json:"log_level,omitempty"`
+
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// Password for decrypting tls_cert.
+	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0
