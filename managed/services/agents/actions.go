@@ -17,8 +17,6 @@ package agents
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -80,12 +78,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
-		parsed := res.ExplainFingerprint
-		for k, v := range placeholders {
-			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
-		}
-
-		q = parsed
+		q = res.ExplainFingerprint
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -105,6 +98,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        q,
+				Values:       placeholders,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
