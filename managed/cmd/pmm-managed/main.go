@@ -392,6 +392,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
+		managementpb.RegisterAgentHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
