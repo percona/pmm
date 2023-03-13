@@ -469,7 +469,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -502,7 +502,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -541,7 +541,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -575,7 +575,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -617,7 +617,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -650,7 +650,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -691,7 +691,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -725,7 +725,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
 						Configuration:            "",
@@ -765,7 +765,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 
 	for _, testCase := range testCases {
 		tt := testCase
-		err := UpdatePatchForPXC(tt.cluster, tt.updateRequest)
+		err := UpdatePatchForPXC(tt.cluster, tt.updateRequest, ClusterTypeGeneric)
 		assert.NoError(t, err)
 		assert.Equal(t, tt.expected, tt.cluster)
 	}

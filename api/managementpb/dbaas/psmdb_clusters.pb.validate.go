@@ -841,6 +841,10 @@ func (m *UpdatePSMDBClusterRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Expose
+
+	// no validation rules for InternetFacing
+
 	if all {
 		switch v := interface{}(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
