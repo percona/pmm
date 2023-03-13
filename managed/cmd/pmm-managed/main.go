@@ -718,26 +718,30 @@ func main() {
 	if err := cfg.Load(); err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
+	// in order to reproduce postgres behaviour.
+	if *postgresSSLModeF == models.RequireSSLMode && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = models.VerifyCaSSLMode
+	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 	pmmdb := ds.PmmDBSelect
-
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
 	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
-	q.Set("sslmode", "disable")
+	q.Set("sslmode", *postgresSSLModeF)
+	if *postgresSSLModeF != models.DisableSSLMode {
+		q.Set("sslrootcert", *postgresSSLCAPathF)
+		q.Set("sslcert", *postgresSSLCertPathF)
+		q.Set("sslkey", *postgresSSLKeyPathF)
+	}
 	pmmdb.DSN.Params = q.Encode()
 
 	clickhousedb := ds.QanDBSelect
 
 	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
-	// in order to reproduce postgres behaviour.
-	if *postgresSSLModeF == "require" && *postgresSSLCAPathF != "" {
-		*postgresSSLModeF = "verify-ca"
-	}
 	setupParams := models.SetupDBParams{
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
