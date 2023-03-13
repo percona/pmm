@@ -31,13 +31,19 @@ var (
 	timeNewRe = regexp.MustCompile(`Time:\s+(\d{4}-\d{2}-\d{2}\S+)`)
 	userRe    = regexp.MustCompile(`User@Host: ([^\[]+|\[[^[]+\]).*?@ (\S*) \[(.*)\]`)
 	schema    = regexp.MustCompile(`Schema: +(.*?) +Last_errno:`)
-	isHeader  = func(s string) bool {
-		return len(s) > 1 && s[0:2] == "# "
-	}
-	adminRe = regexp.MustCompile(`command: (.+)`)
-	setRe   = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
-	useRe   = regexp.MustCompile(`^(?i)use `)
+	adminRe   = regexp.MustCompile(`command: (.+)`)
+	setRe     = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
+	useRe     = regexp.MustCompile(`^(?i)use `)
 )
+
+func skipPrefix(line string) string {
+	line = line[2:]
+	return line
+}
+
+func isHeader(s string) bool {
+	return len(s) > 1 && s[0:2] == "# "
+}
 
 // A SlowLogParser parses a MySQL slow log.
 type SlowLogParser struct {
@@ -194,11 +200,6 @@ func (p *SlowLogParser) parseHeader(line string) {
 	default:
 		p.parseMetrics(line)
 	}
-}
-
-func skipPrefix(line string) string {
-	line = line[2:]
-	return line
 }
 
 func (p *SlowLogParser) parseTime(line string) {
