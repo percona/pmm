@@ -299,6 +299,7 @@ func main() {
 		},
 	})
 
+	// Testing our builds.
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
