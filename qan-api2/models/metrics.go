@@ -1028,18 +1028,49 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const metadataByQueryIDTmpl = `SELECT service_name, database, schema, username, replication_set, cluster, service_type, service_id, environment, node_id, node_name, node_type FROM metrics
-{{ if not .Totals }} WHERE queryid = :query_id{{ end }} LIMIT 1;
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+{{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+{{ if .Dimensions }}
+    {{range $key, $vals := .Dimensions }}
+        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+    {{ end }}
+{{ end }}
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    {{ end }})
+{{ end }}
+{{ if not .Totals }} GROUP BY {{ .Group }} {{ end }}
+	WITH TOTALS;;
 `
 
-// GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string, totals bool) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+// TODO GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
+func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
+	dimensions, labels map[string][]string, totals bool,
+) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	arg := map[string]interface{}{
-		"query_id": queryID,
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
 	}
+
 	tmplArgs := struct {
-		Totals bool
+		PeriodStartFrom int64
+		PeriodStartTo   int64
+		PeriodDuration  int64
+		Dimensions      map[string][]string
+		Labels          map[string][]string
+		DimensionVal    string
+		Group           string
+		Totals          bool
 	}{
-		Totals: totals,
+		PeriodStartFrom: periodStartFromSec,
+		PeriodStartTo:   periodStartToSec,
+		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		Dimensions:      escapeColonsInMap(dimensions),
+		Labels:          escapeColonsInMap(labels),
+		DimensionVal:    escapeColons(filter),
+		Group:           group,
+		Totals:          totals,
 	}
 
 	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}

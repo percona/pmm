@@ -133,7 +133,13 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		resp.Fingerprint = fp
 	}
 
-	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy, in.Totals)
+	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy, // filter by queryid, or other.
+		in.GroupBy,
+		dimensions,
+		labels,
+		in.Totals)
 	if err != nil {
 		return resp, err
 	}
@@ -363,20 +369,6 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 		ctx,
 		in.Serviceid,
 		in.QueryId)
-	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
-	}
-
-	return res, nil
-}
-
-// GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (s *Service) GetQueryMetadataDetailsByQueryID(ctx context.Context, in *qanpb.GetQueryMetadataDetailsByQueryIDRequest) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
-	res, err := s.mm.GetQueryMetadataDetailsByQueryID(
-		ctx,
-		in.QueryId,
-		in.Totals,
-	)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query:%v", err)
 	}
