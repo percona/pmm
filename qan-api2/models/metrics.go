@@ -1027,21 +1027,23 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	return res, errors.New("query_id doesnt exists")
 }
 
-const metadataByQueryIDTmpl = `SELECT any(service_name), any(database), any(schema), any(username), any(replication_set), any(cluster), any(service_type), any(service_id), any(environment), any(node_id), any(node_name), any(node_type) FROM metrics
-WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
-{{ if .Dimensions }}
-    {{range $key, $vals := .Dimensions }}
-        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
-    {{ end }}
-{{ end }}
-{{ if .Labels }}{{$i := 0}}
-    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-    {{ end }})
-{{ end }}
-{{ if not .Totals }} GROUP BY {{ .Group }} {{ end }}
-	WITH TOTALS;
+const selectedQueryMetadataTmpl = `
+SELECT 	any(service_name), any(database), any(schema), any(username), 
+		any(replication_set), any(cluster), any(service_type), any(service_id), 
+		any(environment), any(node_id), any(node_name), any(node_type) 
+FROM 	metrics
+WHERE 	period_start >= :period_start_from 
+	AND period_start <= :period_start_to {{ if not .Totals }} 
+	AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+		{{ if .Dimensions }} {{range $key, $vals := .Dimensions }}
+    AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+        {{ end }} {{ end }} {{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} {{ if gt $i 1}} 
+	OR  {{ end }} 	has(['{{ StringsJoin $vals "', '" }}'], 
+						labels.value[indexOf(labels.key, '{{ $key }}')])
+    	{{ end }}) {{ end }} {{ if not .Totals }} 
+GROUP BY {{ .Group }} {{ end }}
+WITH TOTALS;
 `
 
 // GetSelectedQueryMetadata returns metadata for given query ID.
@@ -1075,7 +1077,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	res := &qanpb.GetSelectedQueryMetadataReply{}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("metadataByQueryIDTmpl").Funcs(funcMap).Parse(metadataByQueryIDTmpl); err != nil {
+	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
 	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
 		return res, errors.Wrap(err, cannotExecute)
