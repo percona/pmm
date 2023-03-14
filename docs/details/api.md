@@ -1,5 +1,12 @@
 # API
 
+## Interactive API documentation 
+To integrate your applications or CI/CD, you can use our [online interactive documentation](https://percona-pmm.readme.io/reference/introduction).
+
+
+## Swagger API documentation
+
+
 PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the [Swagger](https://swagger.io/tools/swagger-ui/) UI, accessible at the `/swagger/` endpoint URL:
 
 ![!image](../_images/PMM_Swagger_API_Get_Logs_View.jpg)
@@ -21,11 +28,11 @@ Nodes, Services, and Agents have **Types** which define specific their propertie
 Nodes and Services are external by nature – we do not manage them (create, destroy), but merely maintain a list of them (add to inventory, remove from inventory) in `pmm-managed`. Most Agents are started and stopped by `pmm-agent`. One exception is the External Exporter Type which is started externally.
 
 
-## API Keys and authentication
+### API Keys and authentication
 
 API keys are used to control access to the PMM server components and resources. With an API key, you are authenticated to the PMM server, have access to PMM server components and resources, and perform various actions on them. You can use API keys as a replacement for basic authentication.
 
-### Generate API keys
+#### Generate API keys
 
 PMM uses the Grafana API keys for authentication. Following are the steps to generate the API keys:
 
@@ -41,7 +48,7 @@ PMM uses the Grafana API keys for authentication. Following are the steps to gen
 
 6. *API Key Created* window displays your newly created key. Make sure to copy your key and keep it secure. 
 
-### Authenticate
+#### Authenticate
 
 You can authenticate your request using the HTTPS header.
 
@@ -52,7 +59,7 @@ You can authenticate your request using the HTTPS header.
 curl -H "Authorization: Bearer <api_key>" https://127.0.0.1/v1/version
 ```
 
-### Use an API key in basic auth
+#### Use an API key in basic auth
 
 You can pass the API key into a REST API call as a query parameter in the following format. Replace `API_KEY` with your API key.
 
