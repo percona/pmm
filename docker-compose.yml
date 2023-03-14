@@ -77,7 +77,7 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
-      - ../grafana-dashboards/dist:/srv/grafana/plugins/pmm-app/dist
+
   # PMM with external ClickHouse DB
   ch:
     profiles:
