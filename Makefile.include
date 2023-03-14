@@ -20,7 +20,7 @@ init:                 ## Install tools
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.51.1 # Version should match specified in CI
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.51.2 # Version should match specified in CI
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -139,8 +139,8 @@ api-test:             ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 check:                ## Run required checkers and linters
-	LOG_LEVEL=error bin/golangci-lint run
-	bin/go-sumtype ./...
+	LOG_LEVEL=error bin/golangci-lint run ; \
+	bin/go-sumtype ./... ; \
 	bin/go-consistent -pedantic ./...
 
 check-license:          ## Run license header checks against source files

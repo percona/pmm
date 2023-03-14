@@ -91,7 +91,7 @@ type Settings struct {
 	} `json:"azure"`
 
 	BackupManagement struct {
-		Enabled bool `json:"enabled"`
+		Disabled bool `json:"disabled"`
 	} `json:"backup_management"`
 
 	// PMMServerID is generated on the first start of PMM server.
