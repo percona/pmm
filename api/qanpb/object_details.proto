@@ -213,6 +213,7 @@ message ExplainFingerprintByQueryIDReply {
 // GetQueryMetadataDetailsByQueryIDRequest get selected query metadata to show in details for given query ID.
 message GetQueryMetadataDetailsByQueryIDRequest {
   string query_id = 1;
+  bool totals = 2;
 }
 
 // GetQueryMetadataDetailsByQueryIDReply consists selected query metadata to show in details for given query ID.

@@ -1032,14 +1032,14 @@ const metadataByQueryIDTmpl = `SELECT service_name, database, schema, username, 
 `
 
 // GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string, totals bool) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"query_id": queryID,
 	}
 	tmplArgs := struct {
 		Totals bool
 	}{
-		Totals: true,
+		Totals: totals,
 	}
 
 	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}

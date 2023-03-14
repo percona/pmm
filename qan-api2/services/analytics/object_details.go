@@ -133,7 +133,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		resp.Fingerprint = fp
 	}
 
-	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy)
+	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy, in.Totals)
 	if err != nil {
 		return resp, err
 	}
@@ -375,6 +375,7 @@ func (s *Service) GetQueryMetadataDetailsByQueryID(ctx context.Context, in *qanp
 	res, err := s.mm.GetQueryMetadataDetailsByQueryID(
 		ctx,
 		in.QueryId,
+		in.Totals,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query:%v", err)
