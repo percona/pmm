@@ -797,6 +797,7 @@ func main() {
 		l.Fatal(err)
 	}
 
+	// Test of build.
 	platformClient, err := platformClient.NewClient(db, platformAddress)
 	if err != nil {
 		l.Fatalf("Could not create Percona Portal client: %s", err)
