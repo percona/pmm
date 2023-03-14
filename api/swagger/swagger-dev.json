@@ -1771,7 +1771,7 @@
                   "x-order": 4
                 },
                 "metadata": {
-                  "description": "GetQueryMetadataDetailsByQueryIDReply consists selected query metadata to show in details for given query ID.",
+                  "description": "GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.",
                   "type": "object",
                   "properties": {
                     "service_name": {

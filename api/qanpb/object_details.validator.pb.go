@@ -184,6 +184,6 @@ func (this *ExplainFingerprintByQueryIDReply) Validate() error {
 	return nil
 }
 
-func (this *GetQueryMetadataDetailsByQueryIDReply) Validate() error {
+func (this *GetSelectedQueryMetadataReply) Validate() error {
 	return nil
 }

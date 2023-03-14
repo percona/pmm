@@ -658,7 +658,7 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetMetricsOKBodyMetadata GetQueryMetadataDetailsByQueryIDReply consists selected query metadata to show in details for given query ID.
+GetMetricsOKBodyMetadata GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.
 swagger:model GetMetricsOKBodyMetadata
 */
 type GetMetricsOKBodyMetadata struct {

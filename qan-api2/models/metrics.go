@@ -1044,10 +1044,10 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 	WITH TOTALS;;
 `
 
-// TODO GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
+// GetSelectedQueryMetadata returns metadata for given query ID.
+func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
-) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+) (*qanpb.GetSelectedQueryMetadataReply, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -1073,7 +1073,7 @@ func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, periodSt
 		Totals:          totals,
 	}
 
-	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}
+	res := &qanpb.GetSelectedQueryMetadataReply{}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("metadataByQueryIDTmpl").Funcs(funcMap).Parse(metadataByQueryIDTmpl); err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
