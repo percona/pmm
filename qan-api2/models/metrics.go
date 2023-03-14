@@ -1115,9 +1115,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 			&res.Environment,
 			&res.NodeId,
 			&res.NodeName,
-			&res.NodeType,
-		)
-
+			&res.NodeType)
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
 		} else {
