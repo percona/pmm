@@ -119,15 +119,8 @@
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
 
-
-- name: Create Percoma_DASHBOARD_VERSION
-  command: mkdir -p /srv/grafana/ && /usr/bin/cat /usr/share/percona-dashboards/VERSION > /srv/grafana/PERCONA_DASHBOARDS_VERSION
-  ignore_errors: true
-  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
-
 - name: Copy file with image version
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     remote_src: yes
-  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
