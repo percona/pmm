@@ -1120,9 +1120,9 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
+		} else {
+			return res, nil
 		}
-
-		return res, nil
 	}
 
 	return res, errors.New("query_id doesnt exists")
