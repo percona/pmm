@@ -1028,19 +1028,28 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const metadataByQueryIDTmpl = `SELECT service_name, database, schema, username, replication_set, cluster, service_type, service_id, environment, node_id, node_name, node_type FROM metrics
-WHERE queryid = :query_id LIMIT 1;
+{{ if .totals }} WHERE queryid = :query_id{{ end }} LIMIT 1;
 `
 
 // GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string, totals bool) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"query_id": queryID,
 	}
-
-	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(metadataByQueryIDTmpl)
+	tmplArgs := struct {
+		Totals bool
+	}{
+		Totals: totals,
+	}
 
 	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}
+	var queryBuffer bytes.Buffer
+	if tmpl, err := template.New("metadataByQueryIDTmpl").Funcs(funcMap).Parse(metadataByQueryIDTmpl); err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)

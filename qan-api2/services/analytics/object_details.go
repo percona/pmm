@@ -133,7 +133,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		resp.Fingerprint = fp
 	}
 
-	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy)
+	metadata, err := s.mm.GetQueryMetadataDetailsByQueryID(ctx, in.FilterBy, in.Totals)
 	if err != nil {
 		return resp, err
 	}
