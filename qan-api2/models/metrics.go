@@ -1028,18 +1028,18 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const metadataByQueryIDTmpl = `SELECT service_name, database, schema, username, replication_set, cluster, service_type, service_id, environment, node_id, node_name, node_type FROM metrics
-{{ if .totals }} WHERE queryid = :query_id{{ end }} LIMIT 1;
+{{ if not .Totals }} WHERE queryid = :query_id{{ end }} LIMIT 1;
 `
 
 // GetQueryMetadataDetailsByQueryID returns metadata for given query ID.
-func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string, totals bool) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
+func (m *Metrics) GetQueryMetadataDetailsByQueryID(ctx context.Context, queryID string) (*qanpb.GetQueryMetadataDetailsByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"query_id": queryID,
 	}
 	tmplArgs := struct {
 		Totals bool
 	}{
-		Totals: totals,
+		Totals: true,
 	}
 
 	res := &qanpb.GetQueryMetadataDetailsByQueryIDReply{}
