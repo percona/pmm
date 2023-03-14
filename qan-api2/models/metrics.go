@@ -1041,7 +1041,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }})
 {{ end }}
 {{ if not .Totals }} GROUP BY {{ .Group }} {{ end }}
-	WITH TOTALS;;
+	WITH TOTALS;
 `
 
 // GetSelectedQueryMetadata returns metadata for given query ID.
