@@ -1437,9 +1437,9 @@
 	},
 	"fingerprint": "select @@global.slow_query_log_file",
 	"metadata": {
-		"serviceName": "server0",
-		"schema": "schema12",
-		"username": "user25",
+		"serviceName": "server2",
+		"schema": "schema81",
+		"username": "user38",
 		"replicationSet": "replication_set1",
 		"cluster": "cluster1",
 		"serviceType": "service_type1",

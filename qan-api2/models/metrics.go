@@ -1027,7 +1027,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	return res, errors.New("query_id doesnt exists")
 }
 
-const metadataByQueryIDTmpl = `SELECT service_name, database, schema, username, replication_set, cluster, service_type, service_id, environment, node_id, node_name, node_type FROM metrics
+const metadataByQueryIDTmpl = `SELECT any(service_name), any(database), any(schema), any(username), any(replication_set), any(cluster), any(service_type), any(service_id), any(environment), any(node_id), any(node_name), any(node_type) FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
 {{ if .Dimensions }}
