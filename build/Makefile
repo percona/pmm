@@ -82,6 +82,8 @@ pmm2-ami-rc:
 
 
 pmm2-ami-el9-rc:
+	mkdir -p build/update && \
+	cp -r update/ansible/playbook/* build/update/ && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
