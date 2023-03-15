@@ -73,8 +73,6 @@ pmm2-ami:
 				  	packer/pmm2.json
 
 pmm2-ami-rc:
-	ls -la && \
-	pwd && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
@@ -84,6 +82,8 @@ pmm2-ami-rc:
 
 
 pmm2-ami-el9-rc:
+	ls -la && \
+	pwd && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
