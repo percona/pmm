@@ -18,7 +18,7 @@ PMM Client runs on every database host or node you want to monitor. The client c
 
 ## Percona Platform
 
-[Percona Platform](../how-to/integrate-patform.md) provides value-added services for PMM.
+[Percona Platform](../how-to/integrate-platform.md) provides value-added services for PMM.
 
 ## PMM context
 
