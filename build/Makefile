@@ -42,6 +42,7 @@ pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
 
 pmm2-ovf-el9-rc: fetch-el9
+	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	~/bin/packer build \
 			-var 'pmm_client_repos=original testing' \
 			-var 'pmm_client_repo_name=percona-testing-x86_64' \
