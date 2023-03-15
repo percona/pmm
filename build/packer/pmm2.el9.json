@@ -29,7 +29,7 @@
       "source_ami": "ami-04745ee7d4c0fb5fd",
       "ssh_pty": "true",
       "ena_support": "true",
-      "ssh_username": "centos",
+      "ssh_username": "ec2-user",
       "subnet_id": "subnet-ee06e8e1",
       "run_tags": {
         "iit-billing-tag": "pmm-ami"
