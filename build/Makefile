@@ -80,4 +80,13 @@ pmm2-ami-rc:
 				  	-only amazon-ebs '-color=false' \
 				  	packer/pmm2.json
 
+
+pmm2-ami-el9-rc:
+	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
+			build -var 'pmm_client_repos=original testing' \
+				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
+				  	-var 'pmm2_server_repo=testing' \
+				  	-only amazon-ebs '-color=false' \
+				  	packer/pmm2.el9.json
+
 ## ----------------- PACKER ------------------
