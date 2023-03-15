@@ -82,6 +82,9 @@ pmm2-ami-rc:
 
 
 pmm2-ami-el9-rc:
+	cd ../ && \
+	for file in $(grep -r OracleLinux * | awk -F':' '{print $1}' | sort | uniq); do sed -i 's:OracleLinux:AlmaLinux:g' ${file}; done && \
+	cd build && \
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
