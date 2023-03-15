@@ -93,6 +93,7 @@ pmm2-ami-el9-rc:
 	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/update.yml && \
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
+	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
