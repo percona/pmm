@@ -26,7 +26,7 @@
       ],
       "region": "us-east-1",
       "security_group_id": "sg-688c2b1c",
-      "source_ami": "ami-00e87074e52e6c9f9",
+      "source_ami": "ami-04745ee7d4c0fb5fd",
       "ssh_pty": "true",
       "ena_support": "true",
       "ssh_username": "centos",
