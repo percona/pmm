@@ -83,6 +83,7 @@ pmm2-ami-rc:
 
 pmm2-ami-el9-rc:
 	cd ../ && \
+	bash -xe && \
         for file in $$(grep -r "OracleLinux" * | awk -F':' '{print $$1}' | sort | uniq); do \
             sed -i 's/OracleLinux/AlmaLinux/g' $${file}; \
         done && \
