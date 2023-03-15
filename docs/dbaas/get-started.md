@@ -1,7 +1,7 @@
 # Getting started with DBaaS
 
 !!! caution alert alert-warning "Caution"
-    DBaaS functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+    DBaaS functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change. Only AWS EKS, Minikube and CIVO clusters are supported.
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
