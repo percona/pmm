@@ -82,6 +82,15 @@ pmm2-ami-rc:
 
 
 pmm2-ami-el9-rc:
+	sed -i 's:OracleLinux:AlmaLinux:g' ../build/ansible/pmm2/post-build-actions.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../build/ansible/roles/ami-ovf/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../build/ansible/roles/cloud-node/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../build/ansible/roles/pmm2-images/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/roles/clickhouse/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/roles/dashboards_upgrade/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/roles/nginx/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/roles/postgres/tasks/main.yml && \
+	sed -i 's:OracleLinux:AlmaLinux:g' ../update/ansible/playbook/tasks/update.yml && \
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
