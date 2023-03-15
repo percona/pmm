@@ -21,7 +21,10 @@ URL:            https://github.com/percona-platform/grafana
 Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-BuildRequires: nodejs-grunt-cli fontconfig
+BuildRequires: fontconfig
+%if 0%{?rhel} < 9
+BuildRequires: nodejs-grunt-cli
+%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -31,6 +34,9 @@ Graphite, InfluxDB & OpenTSDB.
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
+%if 0%{?rhel} >= 9
+    sudo npm install -g grunt-cli
+%endif
 
 %build
 mkdir -p _build/src
@@ -45,7 +51,6 @@ make build-js
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
-cp -rpav scripts %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 if [ ! -d tmp/bin ]; then
@@ -61,13 +66,12 @@ cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
-
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
-%doc *.md
+%doc CHANGELOG.md README.md
 %license LICENSE
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
@@ -79,7 +83,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 getent group grafana >/dev/null || groupadd -r grafana
 getent passwd grafana >/dev/null || \
     useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Dashboard" grafana
+    -c "Grafana Server" grafana
 exit 0
 
 %changelog

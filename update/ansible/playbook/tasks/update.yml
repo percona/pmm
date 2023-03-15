@@ -1,8 +1,13 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: true
+  remote_user: root
+  gather_facts: true
+
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -46,12 +51,12 @@
           - percona-grafana
         state: latest
 
-    - name: Create supervisor dir
+    - name: Create supervisord dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Upgrade supervisor config
+    - name: Copy supervisord config
       copy:
         src: pmm.ini
         dest: /etc/supervisord.d/pmm.ini
@@ -104,9 +109,13 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Supervisord start         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists
+    - name: Supervisord start EL7         | Start supervisord for docker
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       shell: supervisord -c /etc/supervisord.conf &
+
+    - name: Supervisord start EL9        | Start supervisord for docker
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
       include_role:
@@ -130,8 +139,17 @@
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
 
-    - name: Reread supervisord configuration
+    - name: Reread supervisord configuration EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl reread
+      become: true
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Reread supervisord configuration EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
+      become: true
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -167,9 +185,18 @@
         state: latest
 
     # restart pmm-managed first as it may update supervisord configuration on start
-    - name: Restart pmm-managed
+    - name: Restart pmm-managed EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl {{ item }} pmm-managed
-      changed_when: True
+      become: true
+      changed_when: true
+      with_items: ["stop", "remove", "add"]
+
+    - name: Restart pmm-managed EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl {{ item }} pmm-managed
+      become: true
+      changed_when: true
       with_items: ["stop", "remove", "add"]
 
     # give pmm-managed time to update supervisord configuration,
@@ -185,12 +212,15 @@
         exclude:
           - nginx*
 
-    - name: Updating vulnerable packages
+    - name: Updating only select packages
       yum:
         name: "{{ item }}"
         state: latest
       loop:
         - nss
+        - tzdata
+        - libssh2
+        - sshpass
 
     - name: Install nginx
       include_role:
@@ -209,7 +239,7 @@
         enabled: no
       when: not is_docker
 
-    - name: Remove old packages
+    - name: Remove old or redundant packages
       yum:
         state: absent
         name:
@@ -235,7 +265,7 @@
         mode: 0755
 
     # https://jira.percona.com/browse/PMM-5271
-    - name: Check volume size
+    - name: Patch volume size script
       when: not is_docker
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
@@ -255,19 +285,42 @@
     - name: Create empty configuration file for VictoriaMetrics
       file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-    - name: Reread supervisord configuration again
+    - name: Reread supervisord configuration again EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Reread supervisord configuration again EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    - name: Restart services
+    - name: Restart services EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl {{ item.1 }} {{ item.0 }}
-      changed_when: True
+      become: true
+      changed_when: true
       with_nested:
         - - alertmanager
+          - nginx
+          - grafana
+          - qan-api2
+          - pmm-agent
+        - ["stop", "remove", "add"]
+
+    - name: Restart services EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
+      become: true
+      changed_when: true
+      with_nested:
+        - - alertmanager
+          - nginx
           - grafana
           - qan-api2
           - pmm-agent
@@ -290,30 +343,51 @@
         option: autostart
         value: "true"
 
-    - name: Reread pmm-update-perform-init supervisor config
+    - name: Reread pmm-update-perform-init supervisor config EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl reread
       register: reread_init__result
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
-    - name: Update/restart other services
+    - name: Reread pmm-update-perform-init supervisor config EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
+      register: reread_init__result
+      changed_when: "'No config updates to processes' not in reread_init__result.stdout"
+
+    - name: Update/restart other services EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       command: supervisorctl update
       register: update_result
       changed_when: "'updated' in update_result.stdout"
 
-    - name: Check other services
+    - name: Update/restart other services EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl update
+      register: update_result
+      changed_when: "'updated' in update_result.stdout"
+
+    - name: Print other services's logs
       debug: var=update_result.stdout_lines
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
-    - name: Get supervisord log
+    - name: Get supervisord logs EL7
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       register: maintail_result
       changed_when: False
 
-    - name: Check supervisord log
+    - name: Get supervisord logs EL9
+      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+      register: maintail_result
+      changed_when: False
+
+    - name: Print supervisord logs
       debug: var=maintail_result.stdout_lines
 
-    - name: Delete content & directory
+    - name: Cleanup yum cache
       file:
         state: absent
         path: /var/cache/yum

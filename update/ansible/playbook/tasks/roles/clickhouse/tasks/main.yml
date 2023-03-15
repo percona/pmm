@@ -1,10 +1,16 @@
 ---
-- name: Stop clickhouse before update
-  command: supervisorctl {{ item }} clickhouse
-  changed_when: True
+- name: Find supervisord's socket
+  stat:
+    path: /var/run/supervisor/supervisor.sock
+  register: supervisord_socket
+
+- name: Stop and remove clickhouse before update
+  when: supervisord_socket.stat.exists
+  command: /usr/local/bin/supervisorctl {{ item }} clickhouse
+  become: true
   loop:
-    - "stop"
-    - "remove"
+    - stop
+    - remove
 
 - name: Remove old clickhouse packages
   yum:
@@ -21,6 +27,7 @@
     name: clickhouse-server
     state: stopped
     enabled: no
+  ignore_errors: true
 
 - name: Create clickhouse data directory
   file:
@@ -29,20 +36,40 @@
     owner: root
     group: pmm
 
+# RHEL9 dropped support for SHA1 gpg keys
 - name: Import clickhouse repo GPG key
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
   rpm_key:
     state: present
     key: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
 
-- name: Install clickhouse repo
+- name: Install clickhouse repo | EL7
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
   yum_repository:
     name: clickhouse
     file: clickhouse
     description: "Clickhouse repo"
-    baseurl: "https://packages.clickhouse.com/rpm/stable/"
+    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
     enabled: no
     gpgcheck: 1
     gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
+
+# RHEL9 dropped support for SHA1 gpg keys, so we disable gpgcheck :(
+- name: Install clickhouse repo | EL9
+  when:
+    - ansible_distribution == "OracleLinux"
+    - ansible_distribution_major_version == "9"
+  yum_repository:
+    name: clickhouse
+    file: clickhouse
+    description: "Clickhouse repo"
+    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    enabled: no
+    gpgcheck: 0
 
 - name: Install clickhouse package
   yum:
@@ -52,7 +79,7 @@
       - clickhouse-common-static-{{ clickhouse_version}}
     state: installed
     enablerepo: clickhouse
-  ignore_errors: '{{ ansible_check_mode }}' # We don't have clickhouse repo when we run ansible with --check
+  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
 - name: Copy clickhouse config to image
   copy:
@@ -60,8 +87,8 @@
     dest: /etc/clickhouse-server/config.xml
     mode: 0600
 
-# We need to remove capabilities because we run PMM in unprivileged container and we can't use it
-# But we run clickhouse under root user
+# We need to remove capabilities because we run PMM in an unprivileged container
+# But we run clickhouse as root user
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:
     path: /usr/bin/clickhouse
@@ -83,6 +110,24 @@
     owner: root
     group: root
 
-- name: Start clickhouse
-  command: supervisorctl add clickhouse
-  changed_when: True
+- name: Start clickhouse EL9
+  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+  supervisorctl:
+    name: clickhouse
+    state: "{{ item }}"
+    supervisorctl_path: /usr/local/bin/supervisorctl
+  become: true
+  loop:
+    - present
+    - started
+
+- name: Start clickhouse EL7
+  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+  supervisorctl:
+    name: clickhouse
+    state: "{{ item }}"
+    supervisorctl_path: supervisorctl
+  become: true
+  loop:
+    - present
+    - started
