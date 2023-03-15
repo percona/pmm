@@ -24,7 +24,10 @@
 
     # TODO https://jira.percona.com/browse/PMM-4991
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for AMI
-      when: ansible_system_vendor == "Amazon EC2"
+      when: >
+        ( ansible_virtualization_type == "xen"
+        or ansible_virtualization_type == "kvm" )
+        and ansible_system_vendor != "DigitalOcean"
       copy:
         content: "ami"
         dest: /srv/pmm-distribution
