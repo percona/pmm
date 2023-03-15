@@ -757,7 +757,7 @@ func main() {
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db)
+	agentsRegistry := agents.NewRegistry(db, vmParams.ExternalVM())
 	backupRemovalService := backup.NewRemovalService(db, minioClient)
 	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
@@ -772,7 +772,7 @@ func main() {
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
+	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()

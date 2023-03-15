@@ -217,9 +217,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		Data: b,
 		Err:  err,
 	})
-	url.Parse(l.vmParams.URL)
+
 	// add VictoriaMetrics targets
-	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
+	b, err = l.victoriaMetricsTargets(ctx)
 	files = append(files, fileContent{
 		Name: "victoriametrics_targets.json",
 		Data: b,
@@ -282,6 +282,18 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 
 	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
 	return files
+}
+
+func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
+	vmURL, err := url.Parse(l.vmParams.URL)
+	if err != nil {
+		return nil, err
+	}
+	targetsURL, err := vmURL.Parse("api/v1/targets")
+	if err != nil {
+		return nil, err
+	}
+	return readURL(ctx, targetsURL.String())
 }
 
 // readLog reads last lines (up to given number of lines and bytes) from given file,

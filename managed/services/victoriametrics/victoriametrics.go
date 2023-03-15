@@ -46,7 +46,6 @@ const (
 	updateBatchDelay           = time.Second
 	configurationUpdateTimeout = 3 * time.Second
 
-	vmagentDir             = "/srv/vmagent"
 	victoriametricsDir     = "/srv/victoriametrics"
 	victoriametricsDataDir = "/srv/victoriametrics/data"
 	dirPerm                = os.FileMode(0o775)
@@ -69,11 +68,7 @@ type Service struct {
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
 func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams) (*Service, error) {
-	internalVMURL := params.URL
-	if params.ExternalVM() {
-		internalVMURL = "http://127.0.0.1:9091/"
-	}
-	u, err := url.Parse(internalVMURL)
+	u, err := url.Parse(params.URL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -96,17 +91,12 @@ func (svc *Service) Run(ctx context.Context) {
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
-	if svc.params.ExternalVM() {
-		if err := dir.CreateDataDir(vmagentDir, "pmm", "pmm", dirPerm); err != nil {
-			svc.l.Error(err)
-		}
-	} else {
-		if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
-			svc.l.Error(err)
-		}
-		if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
-			svc.l.Error(err)
-		}
+
+	if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
+		svc.l.Error(err)
+	}
+	if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
+		svc.l.Error(err)
 	}
 
 	// reloadCh, configuration update loop, and RequestConfigurationUpdate method ensure that configuration
@@ -151,6 +141,9 @@ func (svc *Service) RequestConfigurationUpdate() {
 
 // updateConfiguration updates VictoriaMetrics configuration.
 func (svc *Service) updateConfiguration(ctx context.Context) error {
+	if svc.params.ExternalVM() {
+		return nil
+	}
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -158,13 +151,17 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 		}
 	}()
 
-	base := svc.loadBaseConfig()
-	cfg, err := svc.marshalConfig(base)
+	cfg, err := svc.buildVMConfig()
 	if err != nil {
 		return err
 	}
 
 	return svc.configAndReload(ctx, cfg)
+}
+
+func (svc *Service) buildVMConfig() ([]byte, error) {
+	base := svc.loadBaseConfig()
+	return svc.marshalConfig(base)
 }
 
 // reload asks VictoriaMetrics to reload configuration.
@@ -340,7 +337,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR, u.Host))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR, u))
 		if svc.params.ExternalVM() {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
@@ -351,16 +348,18 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 }
 
 // scrapeConfigForVictoriaMetrics returns scrape config for Victoria Metrics in Prometheus format.
-func scrapeConfigForVictoriaMetrics(interval time.Duration, target string) *config.ScrapeConfig {
+func scrapeConfigForVictoriaMetrics(interval time.Duration, target *url.URL) *config.ScrapeConfig {
+	target, _ = target.Parse("metrics")
+
 	return &config.ScrapeConfig{
 		JobName:        "victoriametrics",
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  ScrapeTimeout(interval),
-		MetricsPath:    "/prometheus/metrics",
+		MetricsPath:    target.Path,
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
 				{
-					Targets: []string{target},
+					Targets: []string{target.Host},
 					Labels:  map[string]string{"instance": models.PMMServerAgentID},
 				},
 			},
@@ -406,6 +405,9 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 
 // BuildScrapeConfigForVMAgent builds scrape configuration for given pmm-agent.
 func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, error) {
+	if pmmAgentID == models.PMMServerAgentID {
+		return svc.buildVMConfig()
+	}
 	var cfg config.Config
 	e := svc.db.InTransaction(func(tx *reform.TX) error {
 		settings, err := models.GetSettings(tx)
@@ -424,6 +426,10 @@ func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, erro
 
 // IsReady verifies that VictoriaMetrics works.
 func (svc *Service) IsReady(ctx context.Context) error {
+	if svc.params.ExternalVM() {
+		svc.l.Debugf("External VM is used, VM healthcheck is skipped")
+		return nil
+	}
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "health")
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)

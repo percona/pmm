@@ -615,34 +615,6 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
-{{define "vmagent"}}
-{{- if .EnableVMAgent }}
-[program:vmagent]
-priority = 7
-command =
-	/usr/sbin/vmagent
-		-remoteWrite.url={{ .VMURL }}api/v1/write
-		-remoteWrite.maxDiskUsagePerURL=1073741824
-		-remoteWrite.tmpDataPath=/srv/vmagent/data
-		-promscrape.config=/etc/victoriametrics-promscrape.yml
-		-httpListenAddr=127.0.0.1:9091
-		-loggerLevel=INFO
-		-envflag.enable
-		-envflag.prefix=VMAGENT_
-user = pmm
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/vmagent.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-{{end}}
-
 {{define "victoriametrics"}}
 {{- if not .EnableVMAgent }}
 [program:victoriametrics]

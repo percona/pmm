@@ -13,7 +13,7 @@
 
 Name:           percona-victoriametrics
 Version:        1.82.1
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
@@ -35,13 +35,11 @@ export USER=builder
 
 make victoria-metrics-pure
 make vmalert-pure
-make vmagent-pure
 
 
 %install
 install -D -p -m 0755 ./bin/victoria-metrics-pure %{buildroot}%{_sbindir}/victoriametrics
 install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
-install -D -p -m 0755 ./bin/vmagent-pure %{buildroot}%{_sbindir}/vmagent
 
 
 %files
@@ -49,14 +47,10 @@ install -D -p -m 0755 ./bin/vmagent-pure %{buildroot}%{_sbindir}/vmagent
 %doc README.md
 %{_sbindir}/victoriametrics
 %{_sbindir}/vmalert
-%{_sbindir}/vmagent
 
 
 %changelog
-* Thu Mar 2 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 1.82.1-2
-- add vmagent to PMM Server
-
-* Thu Oct 20 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-1
+* Thu Oct 20 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1
 - upgrade victoriametrics to 1.82.1 release
 
 * Thu May 11 2022 Michael Okoko <michael.okoko@percona.com> - 1.77.1
