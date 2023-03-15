@@ -26,7 +26,7 @@
       ],
       "region": "us-east-1",
       "security_group_id": "sg-688c2b1c",
-      "source_ami": "ami-0929a5e57ae28dbf5",
+      "source_ami": "ami-0845395779540e3cb",
       "ssh_pty": "true",
       "ena_support": "true",
       "ssh_username": "ec2-user",
