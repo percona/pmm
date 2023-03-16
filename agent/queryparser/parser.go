@@ -21,7 +21,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-// MySQL parse query and return fingeprint and placeholders.
+// MySQL parse query and return fingerprint and placeholders.
 func MySQL(q string) (string, uint32, error) {
 	normalizedQuery, _, err := sqlparser.Parse2(q)
 	if err != nil {
@@ -45,6 +45,22 @@ func MySQL(q string) (string, uint32, error) {
 // Doc: https://dev.mysql.com/doc/refman/8.0/en/comments.html
 func MySQLComments(q string) ([]string, error) {
 	comments, err := parseMySQLComments(q)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []string
+	for c := range comments {
+		res = append(res, c)
+	}
+
+	return res, nil
+}
+
+// PostgreSQLComments parse query and return its comments. Can parse multi comments.
+// Doc: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-COMMENTS
+func PostgreSQLComments(q string) ([]string, error) {
+	comments, err := parsePostgreSQLComments(q)
 	if err != nil {
 		return nil, err
 	}

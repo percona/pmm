@@ -21,14 +21,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testCaseMySQL struct {
+type testCase struct {
 	Query                     string
 	ExpectedQuery             string
 	ExpectedPlaceHoldersCount uint32
 }
 
 func TestMySQL(t *testing.T) {
-	sqls := []testCaseMySQL{
+	sqls := []testCase{
 		{
 			Query:                     "SELECT name FROM people where city = 'Paris'",
 			ExpectedQuery:             "select `name` from people where city = :1",
@@ -72,14 +72,14 @@ func TestMySQL(t *testing.T) {
 	}
 }
 
-type testCaseMySQLComments struct {
+type testCaseComments struct {
 	Name     string
 	Query    string
 	Comments []string
 }
 
 func TestMySQLComments(t *testing.T) {
-	testCases := []testCaseMySQLComments{
+	testCases := []testCaseComments{
 		{
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
@@ -131,7 +131,7 @@ func TestMySQLComments(t *testing.T) {
 				  with new line 
 				 */ WHERE name = 'John' # John
 				 AND name != 'Doe'`,
-			Comments: []string{"multicomment case with new line", "John"},
+			Comments: []string{"John", "multicomment case with new line"},
 		},
 	}
 

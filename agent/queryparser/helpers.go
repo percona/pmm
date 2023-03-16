@@ -20,41 +20,48 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
+)
+
+var (
+	spaceRegexp *regexp.Regexp
+	spaceError  error
+	spaceOnce   sync.Once
+
+	multilineRegexp *regexp.Regexp
+	multilineError  error
+	multilineOnce   sync.Once
 )
 
 func parseMySQLComments(q string) (map[string]bool, error) {
-	multiline, err := regexp.Compile("(?s)\\/\\*(.*?)\\*\\/")
-	if err != nil {
-		return nil, err
-	}
-	space := regexp.MustCompile(`\s+`)
-	if err != nil {
-		return nil, err
+	prepareMultilineRegexp()
+	if multilineError != nil {
+		return nil, multilineError
 	}
 
 	// comments using comment as a key to avoid duplicates
 	comments := make(map[string]bool)
-	for _, v := range multiline.FindAllStringSubmatch(q, -1) {
+	for _, v := range multilineRegexp.FindAllStringSubmatch(q, -1) {
 		if len(v) < 2 {
 			continue
 		}
 
-		value := strings.ReplaceAll(v[1], "\n", "")
-		value = strings.ReplaceAll(value, "\t", "")
+		value := removeFormatting(v[1])
 
 		// handle all mutations of multiline comment (/*! and /*+)
 		value = strings.TrimLeft(value, "!")
 		value = strings.TrimLeft(value, "+")
 
-		// remove spaces
-		value = space.ReplaceAllString(value, " ")
-		value = strings.TrimLeft(value, " ")
-		value = strings.TrimRight(value, " ")
+		var err error
+		value, err = removeSpaces(value)
+		if err != nil {
+			return nil, err
+		}
 
 		comments[value] = true
 	}
 
-	hashComments, err := parseMySQLSinglelineComments(q, "#")
+	hashComments, err := parseSinglelineComments(q, "#")
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +69,7 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 		comments[c] = true
 	}
 
-	dashComments, err := parseMySQLSinglelineComments(q, "--")
+	dashComments, err := parseSinglelineComments(q, "--")
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +80,46 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 	return comments, nil
 }
 
-func parseMySQLSinglelineComments(q, startChar string) (map[string]bool, error) {
+func parsePostgreSQLComments(q string) (map[string]bool, error) {
+	prepareMultilineRegexp()
+	if multilineError != nil {
+		return nil, multilineError
+	}
+
+	// comments using comment as a key to avoid duplicates
+	comments := make(map[string]bool)
+	for _, v := range multilineRegexp.FindAllStringSubmatch(q, -1) {
+		if len(v) < 2 {
+			continue
+		}
+
+		value := removeFormatting(v[1])
+
+		// handle all mutations of multiline comment (/*! and /*+)
+		value = strings.TrimLeft(value, "!")
+		value = strings.TrimLeft(value, "+")
+
+		var err error
+		value, err = removeSpaces(value)
+		if err != nil {
+			return nil, err
+		}
+
+		comments[value] = true
+	}
+
+	dashComments, err := parseSinglelineComments(q, "--")
+	if err != nil {
+		return nil, err
+	}
+	for c := range dashComments {
+		comments[c] = true
+	}
+
+	return comments, nil
+}
+
+func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
 	r, err := regexp.Compile(fmt.Sprintf("%s.*", startChar))
 	if err != nil {
 		return nil, err
@@ -92,6 +138,37 @@ func parseMySQLSinglelineComments(q, startChar string) (map[string]bool, error) 
 	}
 
 	return comments, nil
+}
+
+func prepareMultilineRegexp() error {
+	// To compile regexp only once.
+	multilineOnce.Do(func() {
+		multilineRegexp, multilineError = regexp.Compile(`(?s)\/\*(.*?)\*\/`)
+	})
+	if multilineError != nil {
+		return multilineError
+	}
+
+	return nil
+}
+
+func removeFormatting(s string) string {
+	value := strings.ReplaceAll(s, "\n", "")
+	return strings.ReplaceAll(value, "\t", "")
+}
+
+func removeSpaces(s string) (string, error) {
+	// To compile regexp only once.
+	spaceOnce.Do(func() {
+		spaceRegexp, spaceError = regexp.Compile(`\s+`)
+	})
+	if spaceError != nil {
+		return "", spaceError
+	}
+
+	value := spaceRegexp.ReplaceAllString(s, " ")
+	value = strings.TrimLeft(value, " ")
+	return strings.TrimRight(value, " "), nil
 }
 
 func stringToLines(s string) (lines []string, err error) {
