@@ -1211,7 +1211,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) (string, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		ServiceID:   target.ServiceID,
@@ -1219,21 +1219,26 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 
 	query, err := fillQueryPlaceholders(checkQuery.Query, queryData)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
 	query = "SELECT " + query
 	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute query")
+		return "", errors.Wrap(err, "failed to execute query")
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, err
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows) // TODO
+	b, err := agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return b64.EncodeToString(b), nil
 }
 
 // convertVMValue converts VM results to format applicable to check input.
