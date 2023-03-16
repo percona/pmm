@@ -20,9 +20,9 @@
     group: grafana
     mode: '0700'
 
-  - name: Remove all ` symbols in grafana dashboard description
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "UPDATE dashboard SET data = REPLACE(data, '`', '');"
-    changed_when: True
+- name: Remove all ` symbols in grafana dashboard description
+  command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "UPDATE dashboard SET data = REPLACE(data, '`', '');"
+  changed_when: True
 
 - name: Disable provisioning before change database
   ini_file:
