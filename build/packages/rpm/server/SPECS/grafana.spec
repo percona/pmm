@@ -2,8 +2,8 @@
 %global commit          33423d34f211ce1ce5ce0a265a38f0709ec44360
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         97
-%define grafana_version 9.2.5
+%define release         98
+%define grafana_version 9.2.13
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -53,15 +53,11 @@ cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
-if [ ! -d tmp/bin ]; then
-    mkdir -p tmp/bin
-fi
-cp -rpav bin/* tmp/bin/
-
 install -d -p %{buildroot}%{_sbindir}
-cp tmp/bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
@@ -73,6 +69,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
+%attr(0755, root, root) %{_sbindir}/grafana
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
@@ -87,6 +84,9 @@ getent passwd grafana >/dev/null || \
 exit 0
 
 %changelog
+* Fri Mar 10 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.13-1
+- PMM-11762 Grafana 9.2.13
+
 * Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.2.5-1
 - PMM-10881 Grafana 9.2.5
 
