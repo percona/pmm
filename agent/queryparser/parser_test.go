@@ -111,18 +111,18 @@ func TestMySQLComments(t *testing.T) {
 		},
 		{
 			Name: "Special multiline comment case with new line",
-			Query: `SELECT * FROM people /*!
+			Query: `SELECT * FROM people /*!80000 
 				special multiline comment case 
 				with new line
 				 */`,
-			Comments: []string{"special multiline comment case with new line"},
+			Comments: []string{"!80000 special multiline comment case with new line"},
 		},
 		{
 			Name: "Second special multiline comment case with new line",
-			Query: `SELECT * FROM people /*+ second special 
-				multiline comment case 
+			Query: `SELECT * FROM people /*+ BKA(t1) 
+				second special multiline comment case 
 				with new line */`,
-			Comments: []string{"second special multiline comment case with new line"},
+			Comments: []string{"+ BKA(t1) second special multiline comment case with new line"},
 		},
 		{
 			Name: "Multicomment case with new line",
@@ -131,7 +131,7 @@ func TestMySQLComments(t *testing.T) {
 				  with new line 
 				 */ WHERE name = 'John' # John
 				 AND name != 'Doe'`,
-			Comments: []string{"John", "multicomment case with new line"},
+			Comments: []string{"multicomment case with new line", "John"},
 		},
 	}
 
