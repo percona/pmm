@@ -16,6 +16,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"os"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/starlark"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
@@ -117,17 +119,52 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		return nil, errors.Wrap(err, "error initializing starlark env")
 	}
 
+	res := make([]any, len(data.QueriesResults))
+	for i, queryResult := range data.QueriesResults {
+		switch qr := queryResult.(type) {
+		case map[string]string: // used for PG multidb results where key is database name and value is rows
+			dbRes := make(map[string][]map[string]any, len(qr))
+			for dbName, dbQr := range qr {
+				if dbRes[dbName], err = unmarshallQueryResult(dbQr); err != nil {
+					return nil, err
+				}
+			}
+			res[i] = dbRes
+		case string: // used for all other databases
+			if res[i], err = unmarshallQueryResult(qr); err != nil {
+				return nil, err
+			}
+		default:
+			l.Errorf("unknown query result type %T", qr)
+		}
+
+	}
+
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
 	switch data.Version {
 	case 1:
-		results, err = env.Run(data.Name, data.QueriesResults[0], contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
 	case 2:
-		results, err = env.Run(data.Name, data.QueriesResults, contextFuncs, l.Debugln)
+		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, "error running starlark env")
 	}
 
 	return results, nil
+}
+
+func unmarshallQueryResult(qr string) ([]map[string]any, error) {
+	b, err := base64.StdEncoding.DecodeString(qr)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
+	}
+
+	res, err := agentpb.UnmarshalActionQueryResult(b)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshall query result")
+	}
+
+	return res, nil
 }
