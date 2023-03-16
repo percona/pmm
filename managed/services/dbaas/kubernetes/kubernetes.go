@@ -19,6 +19,7 @@ package kubernetes
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,14 +30,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/v1beta1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -222,6 +227,19 @@ func (k *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.Databas
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.ListDatabaseClusters(ctx)
+}
+
+// Get
+func (k *Kubernetes) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.Get(ctx, key, obj)
+}
+
+func (k *Kubernetes) DeleteObject(obj runtime.Object) error {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.DeleteObject(obj)
 }
 
 // GetDatabaseCluster returns PXC clusters by provided name.
@@ -684,6 +702,132 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 	return k.client.GetPersistentVolumes(ctx)
 }
 
+func (k *Kubernetes) ProvisionMonitoring(ctx context.Context, login, password string) error {
+	files := []string{
+		"crds/victoriametrics/crs/vmagent_rbac.yaml",
+		"crds/victoriametrics/crs/vmnodescrape.yaml",
+		"crds/victoriametrics/crs/vmpodscrape.yaml",
+		"crds/victoriametrics/kube-state-metrics/service-account.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
+		"crds/victoriametrics/kube-state-metrics/deployment.yaml",
+		"crds/victoriametrics/kube-state-metrics/service.yaml",
+		"crds/victoriametrics/kube-state-metrics.yaml",
+	}
+	for _, path := range files {
+		file, err := data.OLMCRDs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		err = k.client.ApplyFile(file)
+		if err != nil {
+			return errors.Wrapf(err, "cannot apply file: %q", path)
+		}
+	}
+
+	randomCrypto, err := rand.Prime(rand.Reader, 64)
+	if err != nil {
+		return err
+	}
+
+	secretName := fmt.Sprintf("vm-operator-%d", randomCrypto)
+	err = k.CreatePMMSecret(secretName, map[string][]byte{
+		"username": []byte(login),
+		"password": []byte(password),
+	})
+	if err != nil {
+		return err
+	}
+
+	vmagent := vmAgentSpec(secretName, login)
+	return k.client.ApplyObject(vmagent)
+}
+
+func (k *Kubernetes) CleanupMonitoring(ctx context.Context) error {
+	files := []string{
+		"crds/victoriametrics/kube-state-metrics.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
+		"crds/victoriametrics/kube-state-metrics/cluster-role.yaml",
+		"crds/victoriametrics/kube-state-metrics/deployment.yaml",
+		"crds/victoriametrics/kube-state-metrics/service-account.yaml",
+		"crds/victoriametrics/kube-state-metrics/service.yaml",
+		"crds/victoriametrics/crs/vmagent_rbac.yaml",
+		"crds/victoriametrics/crs/vmnodescrape.yaml",
+		"crds/victoriametrics/crs/vmpodscrape.yaml",
+	}
+	for _, path := range files {
+		file, err := data.OLMCRDs.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		err = k.client.DeleteFile(ctx, file)
+		if err != nil {
+			return errors.Wrapf(err, "cannot apply file: %q", path)
+		}
+	}
+
+	return nil
+}
+
+func vmAgentSpec(secretName, address string) *victoriametricsv1beta1.VMAgent {
+	return &victoriametricsv1beta1.VMAgent{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "VMAgent",
+			APIVersion: "operator.victoriametrics.com/v1beta1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "pmm-vmagent-" + secretName,
+		},
+		Spec: victoriametricsv1beta1.VMAgentSpec{
+			ServiceScrapeNamespaceSelector: new(metav1.LabelSelector),
+			ServiceScrapeSelector:          new(metav1.LabelSelector),
+			PodScrapeNamespaceSelector:     new(metav1.LabelSelector),
+			PodScrapeSelector:              new(metav1.LabelSelector),
+			ProbeSelector:                  new(metav1.LabelSelector),
+			ProbeNamespaceSelector:         new(metav1.LabelSelector),
+			StaticScrapeSelector:           new(metav1.LabelSelector),
+			StaticScrapeNamespaceSelector:  new(metav1.LabelSelector),
+			ReplicaCount:                   pointer.ToInt32(1),
+			SelectAllByDefault:             true,
+			Resources: corev1.ResourceRequirements{
+				Requests: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("250m"),
+					corev1.ResourceMemory: resource.MustParse("350Mi"),
+				},
+				Limits: corev1.ResourceList{
+					corev1.ResourceCPU:    resource.MustParse("500m"),
+					corev1.ResourceMemory: resource.MustParse("850Mi"),
+				},
+			},
+			ExtraArgs: map[string]string{
+				"memory.allowedPercent": "40",
+			},
+			RemoteWrite: []victoriametricsv1beta1.VMAgentRemoteWriteSpec{
+				{
+					URL: fmt.Sprintf("%s/victoriametrics/api/v1/write", address),
+					TLSConfig: &victoriametricsv1beta1.TLSConfig{
+						InsecureSkipVerify: true,
+					},
+					BasicAuth: &victoriametricsv1beta1.BasicAuth{
+						Username: corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secretName,
+							},
+							Key: "username",
+						},
+						Password: corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secretName,
+							},
+							Key: "password",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 // GetStorageClasses returns all storage classes available in the cluster.
 func (k *Kubernetes) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return k.client.GetStorageClasses(ctx)
@@ -851,6 +995,10 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 	_, err = k.client.UpdateInstallPlan(ctx, req.Namespace, ip)
 
 	return err
+}
+
+func (k *Kubernetes) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
+	return k.client.GetSubscription(ctx, namespace, name)
 }
 
 func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientConnector, name string) error {

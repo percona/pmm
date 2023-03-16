@@ -100,6 +100,20 @@ func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Cont
 	return r0, r1
 }
 
+// DeleteFile provides a mock function with given fields: ctx, fileBytes
+func (_m *MockKubeClientConnector) DeleteFile(ctx context.Context, fileBytes []byte) error {
+	ret := _m.Called(ctx, fileBytes)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []byte) error); ok {
+		r0 = rf(ctx, fileBytes)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteObject provides a mock function with given fields: obj
 func (_m *MockKubeClientConnector) DeleteObject(obj runtime.Object) error {
 	ret := _m.Called(obj)
@@ -163,6 +177,20 @@ func (_m *MockKubeClientConnector) GenerateKubeConfig(secret *corev1.Secret) ([]
 	}
 
 	return r0, r1
+}
+
+// Get provides a mock function with given fields: ctx, key, obj
+func (_m *MockKubeClientConnector) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
+	ret := _m.Called(ctx, key, obj)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName, interface{}) error); ok {
+		r0 = rf(ctx, key, obj)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // GetDatabaseCluster provides a mock function with given fields: ctx, name

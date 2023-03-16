@@ -22,12 +22,15 @@ import (
 	"context"
 
 	goversion "github.com/hashicorp/go-version"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -118,6 +121,13 @@ type kubernetesClient interface {
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
 	ListSecrets(context.Context) (*corev1.SecretList, error)
+
+	DeleteObject(obj runtime.Object) error
+
+	// Get a Kubernetes object by namespaced name.
+	Get(context.Context, types.NamespacedName, interface{}) error
+	// GetSubscription retrieves a subscription by namespace and name.
+	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
 	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
 	InstallOLMOperator(ctx context.Context) error
 	// InstallOperator installs an operator via OLM.
@@ -129,6 +139,8 @@ type kubernetesClient interface {
 	// GetServerVersion returns server version
 	GetServerVersion() (*version.Info, error)
 	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
+	// ProvisionMonitoring configure and start Victoria Metrics to monitor the cluster.
+	ProvisionMonitoring(ctx context.Context, login, password string) error
 }
 
 type kubeStorageManager interface {

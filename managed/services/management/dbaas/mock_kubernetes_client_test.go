@@ -10,6 +10,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	types "k8s.io/apimachinery/pkg/types"
 	version "k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -70,6 +72,34 @@ func (_m *mockKubernetesClient) DeleteDatabaseCluster(_a0 context.Context, _a1 s
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteObject provides a mock function with given fields: obj
+func (_m *mockKubernetesClient) DeleteObject(obj runtime.Object) error {
+	ret := _m.Called(obj)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(runtime.Object) error); ok {
+		r0 = rf(obj)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Get provides a mock function with given fields: _a0, _a1, _a2
+func (_m *mockKubernetesClient) Get(_a0 context.Context, _a1 types.NamespacedName, _a2 interface{}) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName, interface{}) error); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -360,6 +390,29 @@ func (_m *mockKubernetesClient) GetStorageClasses(ctx context.Context) (*storage
 	return r0, r1
 }
 
+// GetSubscription provides a mock function with given fields: ctx, namespace, name
+func (_m *mockKubernetesClient) GetSubscription(ctx context.Context, namespace string, name string) (*v1alpha1.Subscription, error) {
+	ret := _m.Called(ctx, namespace, name)
+
+	var r0 *v1alpha1.Subscription
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *v1alpha1.Subscription); ok {
+		r0 = rf(ctx, namespace, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.Subscription)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, namespace, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // InstallOLMOperator provides a mock function with given fields: ctx
 func (_m *mockKubernetesClient) InstallOLMOperator(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -487,6 +540,20 @@ func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 *v1.DatabaseCluster) er
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*v1.DatabaseCluster) error); ok {
 		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ProvisionMonitoring provides a mock function with given fields: ctx, login, password
+func (_m *mockKubernetesClient) ProvisionMonitoring(ctx context.Context, login string, password string) error {
+	ret := _m.Called(ctx, login, password)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, login, password)
 	} else {
 		r0 = ret.Error(0)
 	}

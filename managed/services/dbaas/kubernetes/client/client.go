@@ -685,6 +685,26 @@ func (c *Client) ApplyFile(fileBytes []byte) error {
 	return nil
 }
 
+func (c *Client) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
+	return c.Get(ctx, key, obj)
+}
+
+// DeleteFile accepts manifest file contents parses into []runtime.Object
+// and deletes them from the cluster
+func (c *Client) DeleteFile(ctx context.Context, fileBytes []byte) error {
+	objs, err := c.getObjects(fileBytes)
+	if err != nil {
+		return err
+	}
+	for i := range objs {
+		err := c.DeleteObject(objs[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 	objs := []runtime.Object{}
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(f), 100)

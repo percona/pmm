@@ -1,0 +1,16 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: kube-state-metrics
+  namespace: default
+spec:
+  jobLabel: app.kubernetes.io/name
+  namespaceSelector: {}
+  endpoints:
+    - scheme: http
+      port: http-metrics
+      honorLabels: true
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
