@@ -136,6 +136,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 			}
 		default:
 			l.Errorf("unknown query result type %T", qr)
+			os.Exit(1)
 		}
 	}
 
