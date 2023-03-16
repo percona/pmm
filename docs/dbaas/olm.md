@@ -31,8 +31,9 @@ NAME            CSV                                       APPROVAL   APPROVED
 install-9rxvz   percona-server-mongodb-operator.v1.13.1   Manual     false
 install-mghbh   percona-server-mongodb-operator.v1.13.1   Manual     false
 ```
-It seems like both install plans are for PSMDB but examining the install plans individually can shed some light on the matter:
-First install plan:
+Although both install plans seem to be for PSMDB, it's worth examining each separately:
+
+**First install plan**
 
 ```
 kubectl get installplan install-9rxvz -oyaml
@@ -63,7 +64,8 @@ spec:
   generation: 1
 ```
 
-Second install plan:
+**Second install plan**
+
 ```
 kubectl get installplan install-mghbh -oyaml
 apiVersion: operators.coreos.com/v1alpha1
