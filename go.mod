@@ -23,16 +23,16 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.211
+	github.com/aws/aws-sdk-go v1.44.220
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/brianvoe/gofakeit/v6 v6.20.1
+	github.com/brianvoe/gofakeit/v6 v6.20.2
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/go-co-op/gocron v1.18.0
+	github.com/go-co-op/gocron v1.18.1
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/strfmt v0.21.3
@@ -40,9 +40,9 @@ require (
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
-	github.com/grafana/grafana-api-golang-client v0.18.3
+	github.com/grafana/grafana-api-golang-client v0.18.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
@@ -76,16 +76,17 @@ require (
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.6.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.5.0
+	golang.org/x/sys v0.6.0
 	golang.org/x/text v0.8.0
 	golang.org/x/tools v0.6.0
 	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.29.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.2
+	k8s.io/apiextensions-apiserver v0.26.2
 	k8s.io/apimachinery v0.26.2
 	k8s.io/cli-runtime v0.26.2
 	k8s.io/client-go v0.26.2
@@ -162,11 +163,11 @@ require (
 )
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.1.4 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.1
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.1 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.4.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.2
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.2.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.6.0
-	github.com/AzureAD/microsoft-authentication-library-for-go v0.8.1 // indirect
+	github.com/AzureAD/microsoft-authentication-library-for-go v0.9.0 // indirect
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
 	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
@@ -193,7 +194,7 @@ require (
 	github.com/go-openapi/spec v0.20.7 // indirect
 	github.com/gofrs/uuid v4.3.1+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -223,7 +224,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/montanaflynn/stats v0.6.6 // indirect
+	github.com/montanaflynn/stats v0.7.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect

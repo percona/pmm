@@ -302,11 +302,11 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableBackupManagement {
-		settings.BackupManagement.Enabled = false
+		settings.BackupManagement.Disabled = true
 	}
 
 	if params.EnableBackupManagement {
-		settings.BackupManagement.Enabled = true
+		settings.BackupManagement.Disabled = false
 	}
 
 	if params.DefaultRoleID != 0 {
