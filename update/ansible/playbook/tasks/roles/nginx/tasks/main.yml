@@ -13,7 +13,7 @@
 
 - name: Add Nginx repository for RHEL9
   when:
-    - ansible_distribution == 'OracleLinux'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux')
     - ansible_distribution_major_version == '9'
   yum_repository:
     name: nginx

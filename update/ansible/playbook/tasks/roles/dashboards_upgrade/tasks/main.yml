@@ -72,7 +72,7 @@
         state: stopped
         supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
-      when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       ignore_errors: true
       # FIXME: we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
@@ -114,7 +114,7 @@
     state: restarted
     supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
-  when: ansible_distribution == 'OracleLinux' and ansible_distribution_major_version == '9'
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
