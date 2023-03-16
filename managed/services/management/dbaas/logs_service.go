@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -73,7 +74,13 @@ func (s LogsService) GetLogs(ctx context.Context, in *dbaasv1beta1.GetLogsReques
 		return nil, err
 	}
 
-	pods, err := kClient.GetPods(ctx, "", "app.kubernetes.io/instance="+in.ClusterName)
+	labelSelector := &metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			"app.kubernetes.io/instance": in.ClusterName,
+		},
+	}
+
+	pods, err := kClient.GetPods(ctx, "", labelSelector)
 	if err != nil {
 		return nil, err
 	}
