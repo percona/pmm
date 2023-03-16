@@ -77,10 +77,10 @@ You can base multiple alert rules on the same template. For example, you can cre
 #### Template format
 When creating custom templates, make sure to use the required template format below:
 
-- **name** (required field): uniquely identifies template. Spaces and special characters are not allowed.
+- **name** (required): uniquely identifies template. Spaces and special characters are not allowed.
 - **version** (required): defines the template format version.
-- **summary** (required field): a template description.
-- **expr** (required field): a MetricsQL query string with parameter placeholders.
+- **summary** (required): a template description.
+- **expr** (required): a MetricsQL query string with parameter placeholders.
 - **params**: contains parameter definitions required for the query. Each parameter has a name, type, and summary. It also may have a unit, available range, and default value.
     - **name** (required): the name of the parameter. Spaces and special characters are not allowed.
     - **summary** (required): a short description of what this parameter represents.
