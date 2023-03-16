@@ -283,6 +283,9 @@ Add instance to connect with a UNIX socket.
 pmm-admin add postgresql --socket=/var/run/postgresql
 ```
 
+where:
+- `SOCKET`: directory containing the socket
+
 #### Connecting via SSL/TLS
 
 ```sh
