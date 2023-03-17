@@ -187,6 +187,15 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 	var agents []*models.Agent
 	var nodes []*models.Node
 
+	toAgentAPI := func(agent *models.Agent) *managementpb.GenericAgent {
+		return &managementpb.GenericAgent{
+			AgentId:     agent.AgentID,
+			AgentType:   string(agent.AgentType),
+			Status:      agent.Status,
+			IsConnected: s.r.IsConnected(agent.AgentID),
+		}
+	}
+
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, filters)
@@ -238,6 +247,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		for _, node := range nodes {
 			if node.NodeID == service.NodeID {
 				svc.NodeName = node.NodeName
+				break
 			}
 		}
 
@@ -246,25 +256,17 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		for _, agent := range agents {
 			// case #1: agent is an exporter for this service
 			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
-				svcAgents = append(svcAgents, &managementpb.GenericAgent{
-					AgentId:     agent.AgentID,
-					AgentType:   string(agent.AgentType),
-					Status:      agent.Status,
-					IsConnected: s.r.IsConnected(agent.AgentID),
-				})
+				svcAgents = append(svcAgents, toAgentAPI(agent))
 			}
 
-			for _, node := range nodes {
-				// case #2: the agent runs on the same node as the service
-				// case #3: the agent runs externally, i.e. runs_on_node_id is set
-				if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
-					svcAgents = append(svcAgents, &managementpb.GenericAgent{
-						AgentId:     agent.AgentID,
-						AgentType:   string(agent.AgentType),
-						Status:      agent.Status,
-						IsConnected: s.r.IsConnected(agent.AgentID),
-					})
-				}
+			// case #2: it's not an exporter, but the agent runs on the same node as the service (p.e. pmm-agent)
+			if agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID {
+				svcAgents = append(svcAgents, toAgentAPI(agent))
+			}
+
+			// case #3: it's a vmagent that runs on the same node as the service
+			if pointer.GetString(agent.NodeID) == service.NodeID && agent.AgentType == models.VMAgentType {
+				svcAgents = append(svcAgents, toAgentAPI(agent))
 			}
 
 			svc.Agents = svcAgents
