@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package onboardingpb;
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "inventorypb/nodes.proto";
+import "inventorypb/services.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/onboardingpb;onboardingpb";
+
+enum TipType {
+  SYSTEM = 0;
+  USER = 1;
+}
+
+// Request message for GetTipStatus method.
+message GetTipfRequest {
+  // The ID of the tip to retrieve.
+  int32 tipId = 1;
+  // Tip Type (system or user)
+  TipType tipType = 2;
+  // The User ID.
+  int32 userId = 3;
+}
+
+// Response message for GetTipResponse method.
+message GetTipResponse {
+  // The ID of the tip to retrieve.
+  int32 tipId = 1;
+  // show whether t ip is completed or not
+  bool isCompleted = 2;
+  // contains error code. it's 0 if there is no error
+  int32 errorCode = 3;
+  // container error message. it's empty if there is no error
+  string errorMessage = 4;
+}
+
+// Request message for CompleteUserTip method.
+message CompleteUserTipRequest {
+  // The ID of the tip to retrieve.
+  int32 tipId = 1;
+  // user id which completes user tip.
+  int32 userId = 2;
+}
+
+// Response message for CompleteUserTip method.
+message CompleteUserTipResponse {
+  // contains error code. it's 0 if there is no error
+  int32 errorCode = 1;
+  // container error message. it's empty if there is no error
+  string errorMessage = 2;
+}
+
+// Service service provides public methods for managing Services.
+service TipService {
+  // GetTipStatus returns info about tip status
+  rpc GetTipStatus(GetTipfRequest) returns (GetTipResponse) {
+    option (google.api.http) = {get: "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get tip details"
+      description: "Retrieve tip details from PMM server"
+    };
+  }
+  // CompleteUserTip completes user tip
+  rpc CompleteUserTip(CompleteUserTipRequest) returns (CompleteUserTipResponse) {
+    option (google.api.http) = {
+      post: "/v1/onboarding/tips"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Complete user tip"
+      description: "Method marks user tip is done. Only works for user tip, not for system tips."
+    };
+  }
+}

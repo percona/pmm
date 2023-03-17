@@ -838,6 +838,25 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`CREATE TABLE system_tip (
+		   id SERIAL PRIMARY KEY,
+		   is_completed BOOLEAN NOT NULL,
+
+		   created_at TIMESTAMP NOT NULL,
+		   updated_at TIMESTAMP NOT NULL
+		);
+
+		CREATE TABLE user_tip (
+		    id SERIAL PRIMARY KEY,
+			user_id INTEGER NOT NULL,
+			user_tip_id INTEGER NOT NULL,
+			is_completed BOOLEAN NOT NULL,
+	
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

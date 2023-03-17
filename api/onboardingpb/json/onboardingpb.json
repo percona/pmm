@@ -1,0 +1,216 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Platform API",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1/onboarding/tips": {
+      "post": {
+        "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Complete user tip",
+        "operationId": "CompleteUserTip",
+        "parameters": [
+          {
+            "description": "Request message for CompleteUserTip method.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Request message for CompleteUserTip method.",
+              "type": "object",
+              "properties": {
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "userId": {
+                  "description": "user id which completes user tip.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for CompleteUserTip method.",
+              "type": "object",
+              "properties": {
+                "errorCode": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "contains error code. it's 0 if there is no error",
+                  "x-order": 0
+                },
+                "errorMessage": {
+                  "type": "string",
+                  "title": "container error message. it's empty if there is no error",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}": {
+      "get": {
+        "description": "Retrieve tip details from PMM server",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Get tip details",
+        "operationId": "GetTipStatus",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the tip to retrieve.",
+            "name": "tipId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "enum": [
+              "SYSTEM",
+              "USER"
+            ],
+            "type": "string",
+            "description": "Tip Type (system or user)",
+            "name": "tipType",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "The User ID.",
+            "name": "userId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for GetTipResponse method.",
+              "type": "object",
+              "properties": {
+                "errorCode": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "contains error code. it's 0 if there is no error",
+                  "x-order": 2
+                },
+                "errorMessage": {
+                  "type": "string",
+                  "title": "container error message. it's empty if there is no error",
+                  "x-order": 3
+                },
+                "isCompleted": {
+                  "type": "boolean",
+                  "title": "show whether t ip is completed or not",
+                  "x-order": 1
+                },
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "TipService"
+    }
+  ]
+}
