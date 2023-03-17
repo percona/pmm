@@ -189,8 +189,10 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			c.l.Error(err)
 			continue
 		}
+
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
+			Comments:             m.Common.Comments,
 			ExplainFingerprint:   m.Common.ExplainFingerprint,
 			PlaceholdersCount:    m.Common.PlaceholdersCount,
 			Fingerprint:          m.Common.Fingerprint,

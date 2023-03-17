@@ -437,7 +437,7 @@ ORDER BY
 
 type customLabel struct {
 	key              string
-	value            string
+	value            any
 	mainMetricPerSec float32
 }
 
@@ -511,8 +511,18 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 			if mainMetricPerSec == 0 {
 				total = totals[label.key]
 			}
+
+			// TODO Handle array of string properly
+			var value string
+			switch v := label.value.(type) {
+			case string:
+				value = v
+			case []string:
+				value = strings.Join(v, "----")
+			}
+
 			val := qanpb.Values{
-				Value:             label.value,
+				Value:             value,
 				MainMetricPerSec:  label.mainMetricPerSec,
 				MainMetricPercent: label.mainMetricPerSec / total,
 			}
