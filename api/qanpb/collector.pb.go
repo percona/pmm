@@ -141,7 +141,7 @@ type MetricsBucket struct {
 	Example string `protobuf:"bytes,13,opt,name=example,proto3" json:"example,omitempty"`
 	// Deprecated: should not be used, should be removed.
 	//
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in qanpb/collector.proto.
 	ExampleFormat ExampleFormat `protobuf:"varint,14,opt,name=example_format,json=exampleFormat,proto3,enum=qan.v1beta1.ExampleFormat" json:"example_format,omitempty"`
 	// Indicates if the query example is truncated.
 	IsTruncated bool        `protobuf:"varint,15,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
@@ -655,7 +655,7 @@ func (x *MetricsBucket) GetExample() string {
 	return ""
 }
 
-// Deprecated: Do not use.
+// Deprecated: Marked as deprecated in qanpb/collector.proto.
 func (x *MetricsBucket) GetExampleFormat() ExampleFormat {
 	if x != nil {
 		return x.ExampleFormat

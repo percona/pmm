@@ -93,20 +93,6 @@ func (_m *mockKubernetesClient) DeleteObject(obj runtime.Object) error {
 	return r0
 }
 
-// Get provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockKubernetesClient) Get(_a0 context.Context, _a1 types.NamespacedName, _a2 interface{}) error {
-	ret := _m.Called(_a0, _a1, _a2)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName, interface{}) error); ok {
-		r0 = rf(_a0, _a1, _a2)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // GetAllClusterResources provides a mock function with given fields: _a0, _a1, _a2
 func (_m *mockKubernetesClient) GetAllClusterResources(_a0 context.Context, _a1 kubernetes.ClusterType, _a2 *corev1.PersistentVolumeList) (uint64, uint64, uint64, error) {
 	ret := _m.Called(_a0, _a1, _a2)
@@ -140,6 +126,29 @@ func (_m *mockKubernetesClient) GetAllClusterResources(_a0 context.Context, _a1 
 	}
 
 	return r0, r1, r2, r3
+}
+
+// GetClusterServiceVersion provides a mock function with given fields: _a0, _a1
+func (_m *mockKubernetesClient) GetClusterServiceVersion(_a0 context.Context, _a1 types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *v1alpha1.ClusterServiceVersion
+	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName) *v1alpha1.ClusterServiceVersion); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.ClusterServiceVersion)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, types.NamespacedName) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetClusterType provides a mock function with given fields: _a0

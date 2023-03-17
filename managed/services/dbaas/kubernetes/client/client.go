@@ -685,8 +685,13 @@ func (c *Client) ApplyFile(fileBytes []byte) error {
 	return nil
 }
 
-func (c *Client) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
-	return c.Get(ctx, key, obj)
+func (c *Client) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().ClusterServiceVersions(key.Namespace).Get(ctx, key.Name, metav1.GetOptions{})
 }
 
 // DeleteFile accepts manifest file contents parses into []runtime.Object

@@ -229,11 +229,11 @@ func (k *Kubernetes) ListDatabaseClusters(ctx context.Context) (*dbaasv1.Databas
 	return k.client.ListDatabaseClusters(ctx)
 }
 
-// Get
-func (k *Kubernetes) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
+// GetClusterServiceVersion retrieves a ClusterServiceVersion by namespaced name.
+func (k *Kubernetes) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
-	return k.client.Get(ctx, key, obj)
+	return k.client.GetClusterServiceVersion(ctx, key)
 }
 
 func (k *Kubernetes) DeleteObject(obj runtime.Object) error {

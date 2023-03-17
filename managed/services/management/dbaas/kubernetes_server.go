@@ -544,12 +544,11 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 //  1. Delete the subscription.
 //  2. Delete the CSV.
 func uninstallVM(ctx context.Context, kubeClient kubernetesClient, subscription *v1alpha1.Subscription) error {
-	csv := v1alpha1.ClusterServiceVersion{}
 	key := types.NamespacedName{
 		Namespace: subscription.Namespace,
 		Name:      subscription.Status.CurrentCSV,
 	}
-	err := kubeClient.Get(ctx, key, &csv)
+	csv, err := kubeClient.GetClusterServiceVersion(ctx, key)
 	if err != nil {
 		return errors.Wrap(err, "cannot get the CSV to uninstall the vm operator")
 	}
@@ -559,7 +558,7 @@ func uninstallVM(ctx context.Context, kubeClient kubernetesClient, subscription 
 		return errors.Wrapf(err, "cannot delete VM subscription %s for reinstallation", subscription.Name)
 	}
 
-	err = kubeClient.DeleteObject(&csv)
+	err = kubeClient.DeleteObject(csv)
 	if err != nil {
 		return errors.Wrapf(err, "cannot delete VM clusterserviceversion %s for reinstallation", subscription.Status.CurrentCSV)
 	}

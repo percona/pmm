@@ -27,11 +27,11 @@ const (
 type ExampleFormat int32
 
 const (
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in qanpb/qan.proto.
 	ExampleFormat_EXAMPLE_FORMAT_INVALID ExampleFormat = 0
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in qanpb/qan.proto.
 	ExampleFormat_EXAMPLE ExampleFormat = 1
-	// Deprecated: Do not use.
+	// Deprecated: Marked as deprecated in qanpb/qan.proto.
 	ExampleFormat_FINGERPRINT ExampleFormat = 2
 )
 

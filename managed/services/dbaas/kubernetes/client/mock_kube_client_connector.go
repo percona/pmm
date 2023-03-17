@@ -179,18 +179,27 @@ func (_m *MockKubeClientConnector) GenerateKubeConfig(secret *corev1.Secret) ([]
 	return r0, r1
 }
 
-// Get provides a mock function with given fields: ctx, key, obj
-func (_m *MockKubeClientConnector) Get(ctx context.Context, key types.NamespacedName, obj interface{}) error {
-	ret := _m.Called(ctx, key, obj)
+// GetClusterServiceVersion provides a mock function with given fields: ctx, key
+func (_m *MockKubeClientConnector) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
+	ret := _m.Called(ctx, key)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName, interface{}) error); ok {
-		r0 = rf(ctx, key, obj)
+	var r0 *v1alpha1.ClusterServiceVersion
+	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName) *v1alpha1.ClusterServiceVersion); ok {
+		r0 = rf(ctx, key)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.ClusterServiceVersion)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, types.NamespacedName) error); ok {
+		r1 = rf(ctx, key)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetDatabaseCluster provides a mock function with given fields: ctx, name

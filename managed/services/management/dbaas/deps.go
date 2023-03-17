@@ -124,8 +124,8 @@ type kubernetesClient interface {
 
 	DeleteObject(obj runtime.Object) error
 
-	// Get a Kubernetes object by namespaced name.
-	Get(context.Context, types.NamespacedName, interface{}) error
+	// GetClusterServiceVersion retrieves a CSV by namespaced name.
+	GetClusterServiceVersion(context.Context, types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
 	// GetSubscription retrieves a subscription by namespace and name.
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
 	// InstallOLMOperator installs the OLM in the Kubernetes cluster.

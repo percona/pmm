@@ -56,7 +56,7 @@ type KubeClientConnector interface {
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
 	// and applies them against the cluster
 	ApplyFile(fileBytes []byte) error
-	Get(ctx context.Context, key types.NamespacedName, obj interface{}) error
+	GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
 	// DeleteFile accepts manifest file contents parses into []runtime.Object
 	// and deletes them from the cluster
 	DeleteFile(ctx context.Context, fileBytes []byte) error
