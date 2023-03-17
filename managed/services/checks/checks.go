@@ -1286,7 +1286,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 
 	data, err := agentpb.UnmarshalActionQueryResult(dec)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshall database discovery results")
+		return nil, errors.Wrap(err, "failed to unmarshal database discovery results")
 	}
 
 	r := make([]string, len(data))
