@@ -467,6 +467,7 @@ var (
 		"top_queryid":      queryDimensionTmpl,
 		"application_name": queryDimensionTmpl,
 		"planid":           queryDimensionTmpl,
+		"comments":         queryDimensionTmpl,
 	}
 )
 

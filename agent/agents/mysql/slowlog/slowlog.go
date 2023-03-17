@@ -373,7 +373,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
