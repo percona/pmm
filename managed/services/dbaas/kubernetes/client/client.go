@@ -1014,6 +1014,7 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      name,
+			Labels:    map[string]string{"app.kubernetes.io/part-of": "pmm"},
 		},
 		Spec: &v1alpha1.SubscriptionSpec{
 			CatalogSource:          catalog,

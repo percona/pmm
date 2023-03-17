@@ -553,9 +553,22 @@ func uninstallVM(ctx context.Context, kubeClient kubernetesClient, subscription 
 		return errors.Wrap(err, "cannot get the CSV to uninstall the vm operator")
 	}
 
+	// The getter is not setting these values so, when we want to delete the object we will get an error
+	// because Kind is empty.
+	if subscription.TypeMeta.Kind == "" {
+		subscription.TypeMeta.Kind = v1alpha1.SubscriptionKind
+		subscription.TypeMeta.APIVersion = v1alpha1.SubscriptionCRDAPIVersion
+	}
 	err = kubeClient.DeleteObject(subscription)
 	if err != nil {
 		return errors.Wrapf(err, "cannot delete VM subscription %s for reinstallation", subscription.Name)
+	}
+
+	// The getter is not setting these values so, when we want to delete the object we will get an error
+	// because Kind is empty.
+	if csv.TypeMeta.Kind == "" {
+		csv.TypeMeta.Kind = v1alpha1.ClusterServiceVersionKind
+		csv.TypeMeta.APIVersion = v1alpha1.ClusterServiceVersionAPIVersion
 	}
 
 	err = kubeClient.DeleteObject(csv)
