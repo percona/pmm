@@ -166,7 +166,7 @@ func unmarshallQueryResult(qr string) ([]map[string]any, error) {
 
 	res, err := agentpb.UnmarshalActionQueryResult(b)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshall query result")
+		return nil, errors.Wrap(err, "failed to unmarshal query result")
 	}
 
 	return res, nil
