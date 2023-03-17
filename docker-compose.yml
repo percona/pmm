@@ -45,10 +45,10 @@ services:
 
     extra_hosts:
       - host.docker.internal:host-gateway
-      #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-      #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-      #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-      #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+      # - portal.localhost:${PORTAL_HOST:-host-gateway}
+      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
