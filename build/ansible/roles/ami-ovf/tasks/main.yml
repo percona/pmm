@@ -23,7 +23,7 @@
 
 - name: Packages                   | Add PMM2 Server release repository for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux')
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm2-server
