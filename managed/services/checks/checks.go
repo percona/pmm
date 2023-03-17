@@ -1289,7 +1289,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 		return nil, errors.Wrap(err, "failed to unmarshall database discovery results")
 	}
 
-	r := make([]string, len(res))
+	r := make([]string, len(data))
 	for i, row := range data {
 		datname, ok := row["datname"]
 		if !ok {

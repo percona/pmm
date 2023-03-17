@@ -122,10 +122,14 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	res := make([]any, len(data.QueriesResults))
 	for i, queryResult := range data.QueriesResults {
 		switch qr := queryResult.(type) {
-		case map[string]string: // used for PG multidb results where key is database name and value is rows
-			dbRes := make(map[string][]map[string]any, len(qr))
+		case map[string]any: // used for PG multidb results where key is database name and value is rows
+			dbRes := make(map[string]any, len(qr))
 			for dbName, dbQr := range qr {
-				if dbRes[dbName], err = unmarshallQueryResult(dbQr); err != nil {
+				s, ok := dbQr.(string)
+				if !ok {
+					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
+				}
+				if dbRes[dbName], err = unmarshallQueryResult(s); err != nil {
 					return nil, err
 				}
 			}
@@ -135,8 +139,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 				return nil, err
 			}
 		default:
-			l.Errorf("unknown query result type %T", qr)
-			os.Exit(1)
+			return nil, errors.Errorf("unknown query result type %T", qr)
 		}
 	}
 
