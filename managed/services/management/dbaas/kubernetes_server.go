@@ -541,8 +541,8 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 // uninstallVM unistalls Victoria Metrics Operator.
 // To delete the vm operator we must:
-//   1. Delete the subscription.
-//   2. Delete the CSV.
+//  1. Delete the subscription.
+//  2. Delete the CSV.
 func uninstallVM(ctx context.Context, kubeClient kubernetesClient, subscription *v1alpha1.Subscription) error {
 	csv := v1alpha1.ClusterServiceVersion{}
 	key := types.NamespacedName{
