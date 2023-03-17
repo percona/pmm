@@ -61,8 +61,7 @@
 # RHEL9 dropped support for SHA1 gpg keys, so we disable gpgcheck :(
 - name: Install clickhouse repo | EL9
   when:
-    - ansible_distribution == "OracleLinux"
-    - ansible_distribution_major_version == "9"
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
   yum_repository:
     name: clickhouse
     file: clickhouse

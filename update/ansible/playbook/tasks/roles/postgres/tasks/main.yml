@@ -57,8 +57,7 @@
           - python-psycopg2 # Python PostgreSQL database adapter
         state: installed
   when:
-    - ansible_distribution == "OracleLinux"
-    - ansible_distribution_major_version == "9"
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
 - name: Create Postgres log file
   file:
