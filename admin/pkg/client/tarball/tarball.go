@@ -16,7 +16,9 @@
 package tarball
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -191,12 +193,55 @@ func (b *Base) extractTarball(tarPath string) error {
 		return err
 	}
 
-	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxvf", tarPath) //nolint:gosec
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
+	err := os.Chdir(os.TempDir())
+	if err != nil {
 		return err
+	}
+
+	readFile, err := os.Open(tarPath)
+	if err != nil {
+		return err
+	}
+
+	reader, err := gzip.NewReader(readFile)
+	if err != nil {
+		return err
+	}
+
+	tarReader := tar.NewReader(reader)
+
+	for {
+		hdr, err := tarReader.Next()
+		if err == io.EOF {
+			// end of tar archive
+			break
+		}
+		if err != nil {
+			return err
+		}
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			logrus.Infof("Creating dir:    %s", hdr.Name)
+
+			err = os.MkdirAll(hdr.Name, 0777)
+			if err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			logrus.Infof("Extracting file: %s", hdr.Name)
+
+			w, err := os.Create(hdr.Name)
+			if err != nil {
+				return err
+			}
+
+			_, err = io.Copy(w, tarReader)
+			if err != nil {
+				return err
+			}
+
+			w.Close()
+		}
 	}
 
 	return nil
