@@ -111,6 +111,7 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	DisableCommentsParsing bool              `help:"Disable parsing comments from queries and showing them in QAN"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
@@ -215,9 +216,11 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
-			SkipConnectionCheck:       cmd.SkipConnectionCheck,
-			MaxQueryLength:            cmd.MaxQueryLength,
-			DisableQueryExamples:      cmd.DisableQueryExamples,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: cmd.DisableCommentsParsing,
+			MaxQueryLength:         cmd.MaxQueryLength,
+			DisableQueryExamples:   cmd.DisableQueryExamples,
+
 			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
 			TLS:                       cmd.TLS,
 			TLSSkipVerify:             cmd.TLSSkipVerify,

@@ -2434,6 +2434,9 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	//
 	// True if query examples are disabled.
@@ -2650,6 +2653,9 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -2868,6 +2874,9 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit)
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -3072,6 +3081,9 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -3283,6 +3295,9 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`

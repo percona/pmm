@@ -91,10 +91,6 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 
 		value := removeFormatting(v[1])
 
-		// handle all mutations of multiline comment (/*! and /*+)
-		value = strings.TrimLeft(value, "!")
-		value = strings.TrimLeft(value, "+")
-
 		var err error
 		value, err = removeSpaces(value)
 		if err != nil {

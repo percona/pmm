@@ -56,6 +56,8 @@ message AddMySQLRequest {
   map<string, string> custom_labels = 15;
   // Skip connection check.
   bool skip_connection_check = 16;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 31;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 30;
   // Disable query examples.

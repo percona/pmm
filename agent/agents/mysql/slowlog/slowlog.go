@@ -60,15 +60,16 @@ type SlowLog struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   int64
-	SlowLogFilePrefix    string // for development and testing
-	TextFiles            *agentpb.TextFiles
-	TLS                  bool
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	MaxSlowlogFileSize     int64
+	SlowLogFilePrefix      string // for development and testing
+	TextFiles              *agentpb.TextFiles
+	TLS                    bool
+	TLSSkipVerify          bool
 }
 
 const queryTag = "pmm-agent:slowlog"
@@ -395,6 +396,7 @@ func makeBuckets(
 	res event.Result,
 	periodStart time.Time,
 	periodLengthSecs uint32,
+	disableCommentsParsing bool,
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
@@ -436,7 +438,7 @@ func makeBuckets(
 		if q != "" {
 			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
 			if err != nil {
-				l.Debugf("cannot parse query: %s", v.Example.Query)
+				l.Infof("cannot parse query: %s", v.Example.Query)
 			} else {
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
 				if truncated {
@@ -445,17 +447,23 @@ func makeBuckets(
 				mb.Common.ExplainFingerprint = explainFingerprint
 				mb.Common.PlaceholdersCount = placeholdersCount
 			}
+
+			if !disableCommentsParsing {
+				comments, err := queryparser.MySQLComments(q)
+				if err != nil {
+					l.Infof("cannot parse comments from query: %s", q)
+				}
+				mb.Common.Comments = comments
+			}
 		}
 
-		if v.Example != nil {
-			if !disableQueryExamples {
-				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.Example = example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+		if v.Example != nil && !disableQueryExamples {
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
 			}
+			mb.Common.Example = example
+			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
