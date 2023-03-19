@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
@@ -99,6 +99,7 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/logger"
@@ -108,13 +109,16 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var (
+	interfaceToBind = env.GetEnv("PMM_DEV_BIND_INTERFACE", "127.0.0.1")
+	gRPCAddr        = interfaceToBind + ":7771"
+	http1Addr       = interfaceToBind + ":7772"
+	debugAddr       = interfaceToBind + ":7773"
+)
+
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
-
-	gRPCAddr  = "127.0.0.1:7771"
-	http1Addr = "127.0.0.1:7772"
-	debugAddr = "127.0.0.1:7773"
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
