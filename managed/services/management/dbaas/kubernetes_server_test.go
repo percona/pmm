@@ -34,8 +34,10 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -109,12 +111,14 @@ func TestKubernetesServer(t *testing.T) {
 		kubeconfig := "preferences: {}\n"
 
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
-		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+		k8NotFoundError := apierrors.NewNotFound(schema.GroupResource{Group: "a-group", Resource: "a-resource"}, "zapp")
+		kubeClient.On("GetSubscription", mock.Anything, mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil, k8NotFoundError)
+		kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
 		kubeClient.On("GetServerVersion").Return(nil, nil)
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
 		clients := map[string]kubernetesClient{
