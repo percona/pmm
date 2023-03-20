@@ -7340,12 +7340,18 @@
                             }
                           }
                         },
-                        "x-order": 14
+                        "x-order": 16
                       },
                       "cluster": {
                         "description": "Cluster name.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 14
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels for Service.",
@@ -7410,6 +7416,12 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 13
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 15
                       }
                     }
                   },

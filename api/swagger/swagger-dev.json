@@ -29580,6 +29580,18 @@
                         "type": "string",
                         "x-order": 13
                       },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 14
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 15
+                      },
                       "agents": {
                         "description": "List of agents related to this service.",
                         "type": "array",
@@ -29791,7 +29803,7 @@
                             }
                           }
                         },
-                        "x-order": 14
+                        "x-order": 16
                       }
                     }
                   },

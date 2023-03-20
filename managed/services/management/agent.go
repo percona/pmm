@@ -37,7 +37,7 @@ type AgentService struct {
 	managementpb.UnimplementedAgentServer
 }
 
-// NewServiceService creates ServiceService instance.
+// NewServiceService creates AgentService instance.
 func NewAgentService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *AgentService {
 	return &AgentService{
 		db:    db,
@@ -83,16 +83,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	svcAgents := []*managementpb.GenericAgent{}
 
 	for _, agent := range agents {
-		// case #1: agent is an exporter for this service
-		if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == serviceID {
-			ag, err := s.toAPIAgent(agent)
-			if err != nil {
-				return nil, err
-			}
-			svcAgents = append(svcAgents, ag)
-		}
-
-		// case #2: it's not an exporter, but the agent runs on the same node as the service (p.e. pmm-agent)
+		// agent is not an exporter, but it runs on the same node as the service (p.e. pmm-agent)
 		if agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID {
 			ag, err := s.toAPIAgent(agent)
 			if err != nil {
@@ -101,7 +92,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 			svcAgents = append(svcAgents, ag)
 		}
 
-		// case #3: it's a vmagent that runs on the same node as the service
+		// vmagent that runs on the same node as the service
 		if pointer.GetString(agent.NodeID) == service.NodeID && agent.AgentType == models.VMAgentType {
 			ag, err := s.toAPIAgent(agent)
 			if err != nil {
@@ -110,6 +101,14 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 			svcAgents = append(svcAgents, ag)
 		}
 
+		// agent is an exporter for this service
+		if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == serviceID {
+			ag, err := s.toAPIAgent(agent)
+			if err != nil {
+				return nil, err
+			}
+			svcAgents = append(svcAgents, ag)
+		}
 	}
 
 	res := &managementpb.ListAgentResponse{
@@ -127,7 +126,7 @@ func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAge
 		return nil, err
 	}
 
-	ag := &managementpb.GenericAgent{
+	ga := &managementpb.GenericAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
@@ -161,15 +160,16 @@ func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAge
 		Version:                        pointer.GetString(agent.Version),
 	}
 
+	// Indicate that there is actually a secret, but don't show it.
 	if agent.AgentPassword != nil {
-		ag.AgentPassword = pass
+		ga.AgentPassword = pass
 	}
 	if agent.AWSSecretKey != nil {
-		ag.AwsSecretKey = pass
+		ga.AwsSecretKey = pass
 	}
 	if agent.Password != nil {
-		ag.Password = pass
+		ga.Password = pass
 	}
 
-	return ag, nil
+	return ga, nil
 }

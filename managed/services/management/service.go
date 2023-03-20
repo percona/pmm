@@ -228,20 +228,22 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		}
 
 		svc := &managementpb.GenericService{
+			Address:        pointer.GetString(service.Address),
+			Agents:         []*managementpb.GenericAgent{},
+			Cluster:        service.Cluster,
+			CreatedAt:      service.CreatedAt.Unix(),
+			CustomLabels:   labels,
+			DatabaseName:   service.DatabaseName,
+			Environment:    service.Environment,
+			ExternalGroup:  service.ExternalGroup,
+			NodeId:         service.NodeID,
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			ReplicationSet: service.ReplicationSet,
 			ServiceId:      service.ServiceID,
 			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
-			DatabaseName:   service.DatabaseName,
-			NodeId:         service.NodeID,
-			Environment:    service.Environment,
-			Cluster:        service.Cluster,
-			ReplicationSet: service.ReplicationSet,
-			CustomLabels:   labels,
-			ExternalGroup:  service.ExternalGroup,
-			Address:        pointer.GetString(service.Address),
-			Port:           uint32(pointer.GetUint16(service.Port)),
 			Socket:         pointer.GetString(service.Socket),
-			Agents:         []*managementpb.GenericAgent{},
+			UpdatedAt:      service.UpdatedAt.Unix(),
 		}
 
 		for _, node := range nodes {
@@ -254,18 +256,18 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		svcAgents := []*managementpb.GenericAgent{}
 
 		for _, agent := range agents {
-			// case #1: agent is an exporter for this service
-			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
-				svcAgents = append(svcAgents, toAgentAPI(agent))
-			}
-
-			// case #2: it's not an exporter, but the agent runs on the same node as the service (p.e. pmm-agent)
+			// agent is not an exporter, but it runs on the same node as the service (p.e. pmm-agent)
 			if agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID {
 				svcAgents = append(svcAgents, toAgentAPI(agent))
 			}
 
-			// case #3: it's a vmagent that runs on the same node as the service
+			// vmagent that runs on the same node as the service
 			if pointer.GetString(agent.NodeID) == service.NodeID && agent.AgentType == models.VMAgentType {
+				svcAgents = append(svcAgents, toAgentAPI(agent))
+			}
+
+			// agent is an exporter for this service
+			if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID {
 				svcAgents = append(svcAgents, toAgentAPI(agent))
 			}
 

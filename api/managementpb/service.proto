@@ -79,8 +79,12 @@ message GenericService {
   // Access unix socket.
   // Address (and port) or socket is required.
   string socket = 14;
+  // Creation timestamp.
+  int64 created_at = 15;
+  // Last update timestamp.
+  int64 updated_at = 16;
   // List of agents related to this service.
-  repeated GenericAgent agents = 15;
+  repeated GenericAgent agents = 17;
 }
 
 message ListServiceRequest {

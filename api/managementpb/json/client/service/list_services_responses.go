@@ -519,6 +519,12 @@ type ListServicesOKBodyServicesItems0 struct {
 	// Address (and port) or socket is required.
 	Socket string `json:"socket,omitempty"`
 
+	// Creation timestamp.
+	CreatedAt string `json:"created_at,omitempty"`
+
+	// Last update timestamp.
+	UpdatedAt string `json:"updated_at,omitempty"`
+
 	// List of agents related to this service.
 	Agents []*ListServicesOKBodyServicesItems0AgentsItems0 `json:"agents"`
 }

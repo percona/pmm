@@ -62,6 +62,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 			vmdb.AssertExpectations(t)
 			state.AssertExpectations(t)
+			ar.AssertExpectations(t)
 		}
 		s := NewServiceService(db, ar, state, vmdb)
 
@@ -257,6 +258,22 @@ func TestServiceService(t *testing.T) {
 
 			_, err = models.FindNodeByID(s.db.Querier, node.NodeID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
+		})
+	})
+
+	t.Run("List", func(t *testing.T) {
+		t.Run("Basic", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			defer teardown(t)
+
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
+			response, err := s.ListServices(ctx, &managementpb.ListServiceRequest{})
+
+			require.NoError(t, err)
+			assert.Len(t, response.Services, 1) // PMM Server PostgreSQL service
+			assert.Len(t, response.Services[0].Agents, 3)
 		})
 	})
 }
