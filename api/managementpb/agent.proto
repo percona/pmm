@@ -88,16 +88,13 @@ message GenericAgent {
   bool is_connected = 38;
 }
 
-// ListAgentRequest is identical to inventory.ListServicesRequest.
-// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
 message ListAgentRequest {
-  // Return only Agents that provide insights for that Service.
-  // Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+  // Return only Agents that provide insights for that ServiceID.
   string service_id = 1;
 }
 
 message ListAgentResponse {
-  // List of Services.
+  // List of Agent.
   repeated GenericAgent agents = 1;
 }
 
