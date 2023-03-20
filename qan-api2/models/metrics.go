@@ -1028,21 +1028,34 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const selectedQueryMetadataTmpl = `
-SELECT 	any(service_name), any(database), any(schema), any(username), 
-		any(replication_set), any(cluster), any(service_type), any(service_id), 
-		any(environment), any(node_id), any(node_name), any(node_type) 
-FROM 	metrics
-WHERE 	period_start >= :period_start_from 
-	AND period_start <= :period_start_to {{ if not .Totals }} 
-	AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
-		{{ if .Dimensions }} {{range $key, $vals := .Dimensions }}
-    AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
-        {{ end }} {{ end }} {{ if .Labels }}{{$i := 0}}
-    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} {{ if gt $i 1}} 
-	OR  {{ end }} 	has(['{{ StringsJoin $vals "', '" }}'], 
-						labels.value[indexOf(labels.key, '{{ $key }}')])
-    	{{ end }}) {{ end }} {{ if not .Totals }} 
-GROUP BY {{ .Group }} {{ end }}
+SELECT any(service_name),
+         any(database),
+         any(schema),
+         any(username),
+         any(replication_set),
+         any(cluster),
+         any(service_type),
+         any(service_id),
+         any(environment),
+         any(node_id),
+         any(node_name),
+         any(node_type)
+FROM metrics
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to 
+{{ if NOT .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' 
+{{ end }} 
+{{ if .Dimensions }} 
+	{{range $key, $vals := .Dimensions }}
+    	AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ) 
+	{{ end }} 
+{{ end }} 
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} 
+		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')]) 
+	{{ end }}) 
+{{ end }} 
+{{ if NOT .Totals }} GROUP BY {{ .Group }} 
+{{ end }}
 WITH TOTALS;
 `
 
