@@ -37,7 +37,7 @@ type AgentService struct {
 	managementpb.UnimplementedAgentServer
 }
 
-// NewServiceService creates AgentService instance.
+// NewAgentService creates AgentService instance.
 func NewAgentService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *AgentService {
 	return &AgentService{
 		db:    db,
