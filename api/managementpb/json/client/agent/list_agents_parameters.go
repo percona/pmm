@@ -60,11 +60,7 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
-	/* Body.
-
-	     ListAgentRequest is identical to inventory.ListServicesRequest.
-	It is duplicated here to allow further modifications without touching on the low-level Inventory API.
-	*/
+	// Body.
 	Body ListAgentsBody
 
 	timeout    time.Duration

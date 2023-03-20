@@ -406,15 +406,12 @@ func (x *GenericAgent) GetIsConnected() bool {
 	return false
 }
 
-// ListAgentRequest is identical to inventory.ListServicesRequest.
-// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
 type ListAgentRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Return only Agents that provide insights for that Service.
-	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+	// Return only Agents that provide insights for that ServiceID.
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 }
 
@@ -462,7 +459,7 @@ type ListAgentResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// List of Services.
+	// List of Agent.
 	Agents []*GenericAgent `protobuf:"bytes,1,rep,name=agents,proto3" json:"agents,omitempty"`
 }
 

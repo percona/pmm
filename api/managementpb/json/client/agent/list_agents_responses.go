@@ -119,13 +119,11 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 }
 
 /*
-ListAgentsBody ListAgentRequest is identical to inventory.ListServicesRequest.
-// It is duplicated here to allow further modifications without touching on the low-level Inventory API.
+ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
-	// Return only Agents that provide insights for that Service.
-	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+	// Return only Agents that provide insights for that ServiceID.
 	ServiceID string `json:"service_id,omitempty"`
 }
 
@@ -303,7 +301,7 @@ ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
-	// List of Services.
+	// List of Agent.
 	Agents []*ListAgentsOKBodyAgentsItems0 `json:"agents"`
 }
 

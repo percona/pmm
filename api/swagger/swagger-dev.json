@@ -18226,16 +18226,14 @@
         "operationId": "ListAgentsMixin3",
         "parameters": [
           {
-            "description": "ListAgentRequest is identical to inventory.ListServicesRequest.\nIt is duplicated here to allow further modifications without touching on the low-level Inventory API.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "ListAgentRequest is identical to inventory.ListServicesRequest.\nIt is duplicated here to allow further modifications without touching on the low-level Inventory API.",
               "type": "object",
               "properties": {
                 "service_id": {
-                  "description": "Return only Agents that provide insights for that Service.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
+                  "description": "Return only Agents that provide insights for that ServiceID.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -18250,7 +18248,7 @@
               "type": "object",
               "properties": {
                 "agents": {
-                  "description": "List of Services.",
+                  "description": "List of Agent.",
                   "type": "array",
                   "items": {
                     "type": "object",
