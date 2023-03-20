@@ -1055,6 +1055,8 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 13;
   // TLS CA certificate.
@@ -1103,6 +1105,8 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 15;
   // TLS CA certificate.
   string tls_ca = 10;
   // TLS Certifcate.

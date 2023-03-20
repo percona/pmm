@@ -187,6 +187,9 @@ type AddPostgreSQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 

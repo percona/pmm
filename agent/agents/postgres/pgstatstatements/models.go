@@ -72,9 +72,10 @@ type pgStatStatementsExtended struct {
 	Username         string
 	Tables           []string
 	IsQueryTruncated bool
+	Comments         []string
 }
 
 func (e *pgStatStatementsExtended) String() string {
-	return fmt.Sprintf("%q %q %v: %d: %s (truncated = %t)",
-		e.Database, e.Username, e.Tables, e.QueryID, e.Query, e.IsQueryTruncated)
+	return fmt.Sprintf("%q %q %v: %d: %s (truncated = %t) %v",
+		e.Database, e.Username, e.Tables, e.QueryID, e.Query, e.IsQueryTruncated, e.Comments)
 }

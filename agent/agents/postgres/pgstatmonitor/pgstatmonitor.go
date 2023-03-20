@@ -44,23 +44,25 @@ const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatMonitorQAN struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	monitorCache         *statMonitorCache
-	maxQueryLength       int32
-	disableQueryExamples bool
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	monitorCache           *statMonitorCache
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	disableCommentsParsing bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	AgentID              string
+	DSN                    string
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
+	AgentID                string
 }
 
 type (
@@ -121,7 +123,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableCommentsParsing, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
@@ -137,16 +139,17 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
 	return &PGStatMonitorQAN{
-		q:                    q,
-		dbCloser:             dbCloser,
-		agentID:              agentID,
-		l:                    l,
-		changes:              make(chan agents.Change, 10),
-		monitorCache:         newStatMonitorCache(l),
-		maxQueryLength:       maxQueryLength,
-		disableQueryExamples: disableQueryExamples,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		monitorCache:           newStatMonitorCache(l),
+		maxQueryLength:         maxQueryLength,
+		disableQueryExamples:   disableQueryExamples,
+		disableCommentsParsing: disableCommentsParsing,
 	}, nil
 }
 
@@ -546,6 +549,10 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			}
+
+			if !m.disableCommentsParsing {
+				mb.Common.Comments = []string{*currentPSM.Comments}
 			}
 
 			var cpuSysTime, cpuUserTime float64

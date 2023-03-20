@@ -155,6 +155,9 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// TLS CA certificate.
 	TLSCa string `json:"tls_ca,omitempty"`
 

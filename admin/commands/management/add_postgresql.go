@@ -57,21 +57,22 @@ type AddPostgreSQLCommand struct {
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
-	QuerySource          string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
-	Environment          string            `help:"Environment name"`
-	Cluster              string            `help:"Cluster name"`
-	ReplicationSet       string            `help:"Replication set name"`
-	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck  bool              `help:"Skip connection check"`
-	TLS                  bool              `help:"Use TLS to connect to the database"`
-	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
-	TLSCertFile          string            `help:"TLS certificate file"`
-	TLSKeyFile           string            `help:"TLS certificate key file"`
-	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
-	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
-	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	QuerySource            string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
+	Environment            string            `help:"Environment name"`
+	Cluster                string            `help:"Cluster name"`
+	ReplicationSet         string            `help:"Replication set name"`
+	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	DisableCommentsParsing bool              `help:"Disable parsing comments from queries and showing them in QAN"`
+	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLSCAFile              string            `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile            string            `help:"TLS certificate file"`
+	TLSKeyFile             string            `help:"TLS certificate key file"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
@@ -168,14 +169,15 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			NodeID:      cmd.NodeID,
 			ServiceName: serviceName,
 
-			Address:             host,
-			Port:                int64(port),
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Database:            cmd.Database,
-			AgentPassword:       cmd.AgentPassword,
-			Socket:              socket,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			Address:                host,
+			Port:                   int64(port),
+			Username:               cmd.Username,
+			Password:               cmd.Password,
+			Database:               cmd.Database,
+			AgentPassword:          cmd.AgentPassword,
+			Socket:                 socket,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: cmd.DisableCommentsParsing,
 
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,

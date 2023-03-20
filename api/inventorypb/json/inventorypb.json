@@ -2619,6 +2619,11 @@
                   },
                   "x-order": 8
                 },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 10
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
@@ -2636,7 +2641,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
@@ -2672,17 +2677,17 @@
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -2865,6 +2870,11 @@
                   },
                   "x-order": 6
                 },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -2877,13 +2887,13 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat statements data.",
@@ -2913,17 +2923,17 @@
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
