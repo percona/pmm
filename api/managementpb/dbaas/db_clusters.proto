@@ -106,7 +106,7 @@ message RestartDBClusterRequest {
   // PXC cluster name.
   string name = 2 [(validate.rules).string.min_len = 1];
   // DB cluster type.
-  DBClusterType cluster_type = 3;
+  DBClusterType cluster_type = 3 [(validate.rules).enum.defined_only = true];
 }
 
 message RestartDBClusterResponse {}
@@ -131,7 +131,7 @@ message DeleteDBClusterRequest {
   // DB cluster name.
   string name = 2 [(validate.rules).string.min_len = 1];
   // DB cluster type.
-  DBClusterType cluster_type = 3;
+  DBClusterType cluster_type = 3 [(validate.rules).enum.defined_only = true];
 }
 
 message DeleteDBClusterResponse {}

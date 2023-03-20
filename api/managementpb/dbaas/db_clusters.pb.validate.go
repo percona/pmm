@@ -874,7 +874,16 @@ func (m *RestartDBClusterRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for ClusterType
+	if _, ok := DBClusterType_name[int32(m.GetClusterType())]; !ok {
+		err := RestartDBClusterRequestValidationError{
+			field:  "ClusterType",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return RestartDBClusterRequestMultiError(errors)
@@ -1386,7 +1395,16 @@ func (m *DeleteDBClusterRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for ClusterType
+	if _, ok := DBClusterType_name[int32(m.GetClusterType())]; !ok {
+		err := DeleteDBClusterRequestValidationError{
+			field:  "ClusterType",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return DeleteDBClusterRequestMultiError(errors)

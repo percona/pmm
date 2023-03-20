@@ -19,7 +19,7 @@ message ListTemplatesRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // DB cluster type.
-  DBClusterType cluster_type = 2;
+  DBClusterType cluster_type = 2 [(validate.rules).enum.defined_only = true];
 }
 
 message ListTemplatesResponse {
