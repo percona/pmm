@@ -119,7 +119,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 }
 
 func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAgent, error) {
-	const pass string = "**********"
+	const pass = "**********"
 
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
