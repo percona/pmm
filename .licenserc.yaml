@@ -39,6 +39,7 @@ header:
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
+      - "**/json/client/**"
     license:
       content: |
         // Copyright (C) 2019 Percona LLC
