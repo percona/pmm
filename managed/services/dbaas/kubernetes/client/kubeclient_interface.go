@@ -59,7 +59,7 @@ type KubeClientConnector interface {
 	GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
 	// DeleteFile accepts manifest file contents parses into []runtime.Object
 	// and deletes them from the cluster
-	DeleteFile(ctx context.Context, fileBytes []byte) error
+	DeleteFile(fileBytes []byte) error
 	// DoCSVWait waits until for a CSV to be applied.
 	DoCSVWait(ctx context.Context, key types.NamespacedName) error
 	// GetSubscriptionCSV retrieves a subscription CSV.

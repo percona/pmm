@@ -696,7 +696,7 @@ func (c *Client) GetClusterServiceVersion(ctx context.Context, key types.Namespa
 
 // DeleteFile accepts manifest file contents parses into []runtime.Object
 // and deletes them from the cluster
-func (c *Client) DeleteFile(ctx context.Context, fileBytes []byte) error {
+func (c *Client) DeleteFile(fileBytes []byte) error {
 	objs, err := c.getObjects(fileBytes)
 	if err != nil {
 		return err

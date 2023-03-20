@@ -370,7 +370,7 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
 
-	if err := kubeClient.ProvisionMonitoring(ctx, "api_key", apiKey); err != nil {
+	if err := kubeClient.ProvisionMonitoring("api_key", apiKey); err != nil {
 		e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
 		if e != nil {
 			k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)

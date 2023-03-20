@@ -556,13 +556,13 @@ func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 *v1.DatabaseCluster) er
 	return r0
 }
 
-// ProvisionMonitoring provides a mock function with given fields: ctx, login, password
-func (_m *mockKubernetesClient) ProvisionMonitoring(ctx context.Context, login string, password string) error {
-	ret := _m.Called(ctx, login, password)
+// ProvisionMonitoring provides a mock function with given fields: login, password
+func (_m *mockKubernetesClient) ProvisionMonitoring(login string, password string) error {
+	ret := _m.Called(login, password)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(ctx, login, password)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(login, password)
 	} else {
 		r0 = ret.Error(0)
 	}

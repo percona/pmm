@@ -702,7 +702,7 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 	return k.client.GetPersistentVolumes(ctx)
 }
 
-func (k *Kubernetes) ProvisionMonitoring(ctx context.Context, login, password string) error {
+func (k *Kubernetes) ProvisionMonitoring(login, password string) error {
 	files := []string{
 		"crds/victoriametrics/crs/vmagent_rbac.yaml",
 		"crds/victoriametrics/crs/vmnodescrape.yaml",
@@ -743,7 +743,7 @@ func (k *Kubernetes) ProvisionMonitoring(ctx context.Context, login, password st
 	return k.client.ApplyObject(vmagent)
 }
 
-func (k *Kubernetes) CleanupMonitoring(ctx context.Context) error {
+func (k *Kubernetes) CleanupMonitoring() error {
 	files := []string{
 		"crds/victoriametrics/kube-state-metrics.yaml",
 		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
@@ -760,7 +760,7 @@ func (k *Kubernetes) CleanupMonitoring(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		err = k.client.DeleteFile(ctx, file)
+		err = k.client.DeleteFile(file)
 		if err != nil {
 			return errors.Wrapf(err, "cannot apply file: %q", path)
 		}
@@ -779,14 +779,14 @@ func vmAgentSpec(secretName, address string) *victoriametricsv1beta1.VMAgent {
 			Name: "pmm-vmagent-" + secretName,
 		},
 		Spec: victoriametricsv1beta1.VMAgentSpec{
-			ServiceScrapeNamespaceSelector: new(metav1.LabelSelector),
-			ServiceScrapeSelector:          new(metav1.LabelSelector),
-			PodScrapeNamespaceSelector:     new(metav1.LabelSelector),
-			PodScrapeSelector:              new(metav1.LabelSelector),
-			ProbeSelector:                  new(metav1.LabelSelector),
-			ProbeNamespaceSelector:         new(metav1.LabelSelector),
-			StaticScrapeSelector:           new(metav1.LabelSelector),
-			StaticScrapeNamespaceSelector:  new(metav1.LabelSelector),
+			ServiceScrapeNamespaceSelector: &metav1.LabelSelector{},
+			ServiceScrapeSelector:          &metav1.LabelSelector{},
+			PodScrapeNamespaceSelector:     &metav1.LabelSelector{},
+			PodScrapeSelector:              &metav1.LabelSelector{},
+			ProbeSelector:                  &metav1.LabelSelector{},
+			ProbeNamespaceSelector:         &metav1.LabelSelector{},
+			StaticScrapeSelector:           &metav1.LabelSelector{},
+			StaticScrapeNamespaceSelector:  &metav1.LabelSelector{},
 			ReplicaCount:                   pointer.ToInt32(1),
 			SelectAllByDefault:             true,
 			Resources: corev1.ResourceRequirements{

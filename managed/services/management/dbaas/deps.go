@@ -23,7 +23,6 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
@@ -133,14 +132,14 @@ type kubernetesClient interface {
 	// InstallOperator installs an operator via OLM.
 	InstallOperator(ctx context.Context, req kubernetes.InstallOperatorRequest) error
 	// ListSubscriptions all the subscriptions in the namespace.
-	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
+	ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
 	// GetServerVersion returns server version
 	GetServerVersion() (*version.Info, error)
 	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
 	// ProvisionMonitoring configure and start Victoria Metrics to monitor the cluster.
-	ProvisionMonitoring(ctx context.Context, login, password string) error
+	ProvisionMonitoring(login, password string) error
 }
 
 type kubeStorageManager interface {

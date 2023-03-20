@@ -100,13 +100,13 @@ func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Cont
 	return r0, r1
 }
 
-// DeleteFile provides a mock function with given fields: ctx, fileBytes
-func (_m *MockKubeClientConnector) DeleteFile(ctx context.Context, fileBytes []byte) error {
-	ret := _m.Called(ctx, fileBytes)
+// DeleteFile provides a mock function with given fields: fileBytes
+func (_m *MockKubeClientConnector) DeleteFile(fileBytes []byte) error {
+	ret := _m.Called(fileBytes)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []byte) error); ok {
-		r0 = rf(ctx, fileBytes)
+	if rf, ok := ret.Get(0).(func([]byte) error); ok {
+		r0 = rf(fileBytes)
 	} else {
 		r0 = ret.Error(0)
 	}
