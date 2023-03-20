@@ -231,7 +231,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Address:        pointer.GetString(service.Address),
 			Agents:         []*managementpb.GenericAgent{},
 			Cluster:        service.Cluster,
-			CreatedAt:      service.CreatedAt.Unix(),
+			CreatedAt:      service.CreatedAt.Unix() * 1000,
 			CustomLabels:   labels,
 			DatabaseName:   service.DatabaseName,
 			Environment:    service.Environment,
@@ -243,7 +243,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
-			UpdatedAt:      service.UpdatedAt.Unix(),
+			UpdatedAt:      service.UpdatedAt.Unix() * 1000,
 		}
 
 		for _, node := range nodes {
