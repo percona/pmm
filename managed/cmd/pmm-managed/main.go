@@ -780,7 +780,8 @@ func main() {
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
-	ansInventory := inventory.NewInventory(db, agentsRegistry)
+	iapi := inventory.NewInventoryAPI(db, agentsRegistry)
+	ansInventory := inventory.NewInventory(iapi)
 	prom.MustRegister(ansInventory)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)

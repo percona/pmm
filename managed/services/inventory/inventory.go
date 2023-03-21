@@ -18,14 +18,10 @@ package inventory
 import (
 	"context"
 	"fmt"
-	"strconv"
+	"sync"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/managed/models"
 )
 
 const (
@@ -35,36 +31,40 @@ const (
 	prometheusSubsystem         = "inventory"
 )
 
+type Metric struct {
+	labels []string
+	value  float64
+}
+
 type Inventory struct {
 	mAgentsDesc   *prom.Desc
 	mNodesDesc    *prom.Desc
 	mServicesDesc *prom.Desc
 
-	db *reform.DB
-	r  agentsRegistry
+	api   inventoryAPI
+	mutex sync.Mutex
 }
 
-func NewInventory(db *reform.DB, r agentsRegistry) *Inventory {
+func NewInventory(api inventoryAPI) *Inventory {
 	i := &Inventory{
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"The current information about agent",
-			[]string{"agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
 			"The current information about node",
-			[]string{"node_type", "node_name", "container_name"},
+			[]string{"node_id", "node_type", "node_name", "container_name"},
 			nil),
 		mServicesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
 			"The current information about service",
-			[]string{"service_type", "node_id"},
+			[]string{"service_id", "service_type", "node_id"},
 			nil),
-
-		db: db,
-		r:  r,
+		api: api,
 	}
+
 	return i
 }
 
@@ -76,80 +76,40 @@ func (i *Inventory) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cancelTime)
 	defer cancelCtx()
 
-	var resAgents []*models.Agent
-	var resNodes []*models.Node
-	var resServices []*models.Service
-	err := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		dbAgents, dbAgentsError := models.FindAgents(tx.Querier, models.AgentFilters{})
-		dbNodes, dbNodesError := models.FindNodes(tx.Querier, models.NodeFilters{})
-		dbServices, dbServicesError := models.FindServices(tx.Querier, models.ServiceFilters{})
+	i.mutex.Lock()
+	defer i.mutex.Unlock()
 
-		if dbAgentsError != nil {
-			return dbAgentsError
-		}
+	agentMetrics, agentError := i.api.GetAgentDataForMetrics(ctx)
 
-		if dbNodesError != nil {
-			return dbNodesError
-		}
-
-		if dbServicesError != nil {
-			return dbServicesError
-		}
-
-		resAgents = dbAgents
-		resNodes = dbNodes
-		resServices = dbServices
-
-		return nil
-	})
-	if err != nil {
-		fmt.Println(err)
+	if agentError != nil {
+		fmt.Println(agentError)
+		return
 	}
 
-	for _, agent := range resAgents {
-		disabled := 0
-		connected := float64(0)
-
-		pmmAgentID := pointer.GetString(agent.PMMAgentID)
-
-		if agent.Disabled {
-			disabled = 1
-		} else {
-			disabled = 0
-		}
-
-		if i.r.IsConnected(pmmAgentID) {
-			connected = 1
-		} else {
-			connected = 0
-		}
-
-		agentMetricLabels := []string{
-			string(agent.AgentType),
-			pointer.GetString(agent.ServiceID),
-			pointer.GetString(agent.NodeID),
-			pmmAgentID,
-			strconv.Itoa(disabled),
-			pointer.GetString(agent.Version),
-		}
-		ch <- prom.MustNewConstMetric(i.mAgentsDesc, prom.GaugeValue, connected, agentMetricLabels...)
+	for _, agentMetric := range agentMetrics {
+		ch <- prom.MustNewConstMetric(i.mAgentsDesc, prom.GaugeValue, agentMetric.value, agentMetric.labels...)
 	}
 
-	for _, node := range resNodes {
-		nodeMetricLabels := []string{
-			string(node.NodeType),
-			node.NodeName,
-			pointer.GetString(node.ContainerName),
-		}
-		ch <- prom.MustNewConstMetric(i.mNodesDesc, prom.GaugeValue, serviceEnabled, nodeMetricLabels...)
+	nodeMetrics, nodeError := i.api.GetNodeDataForMetrics(ctx)
+
+	if nodeError != nil {
+		fmt.Println(nodeError)
+		return
 	}
 
-	for _, service := range resServices {
-		serviceMetricLabels := []string{
-			string(service.ServiceType),
-			service.NodeID,
-		}
-		ch <- prom.MustNewConstMetric(i.mServicesDesc, prom.GaugeValue, serviceEnabled, serviceMetricLabels...)
+	for _, nodeMetric := range nodeMetrics {
+		ch <- prom.MustNewConstMetric(i.mNodesDesc, prom.GaugeValue, nodeMetric.value, nodeMetric.labels...)
+	}
+
+	serviceMetrics, serviceError := i.api.GetServiceDataForMetrics(ctx)
+
+	if serviceError != nil {
+		fmt.Println(serviceError)
+		return
+	}
+
+	for _, serviceMetric := range serviceMetrics {
+		ch <- prom.MustNewConstMetric(i.mServicesDesc, prom.GaugeValue, serviceMetric.value, serviceMetric.labels...)
 	}
 }
 
