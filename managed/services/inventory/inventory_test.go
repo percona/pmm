@@ -18,7 +18,6 @@ package inventory
 import (
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
@@ -57,17 +56,18 @@ func TestInventory(t *testing.T) {
 	}
 
 	t.Run("Check real metrics", func(t *testing.T) {
-		_, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:7773/debug/metrics", nil)
+		resp, err := http.Get("http://localhost:7773/debug/metrics")
 
 		require.NoError(t, err)
-		rw := httptest.NewRecorder()
-
-		resp := rw.Result()
 		defer resp.Body.Close() //nolint:gosec
 		b, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.Empty(t, b)
+		assert.NotEmpty(t, b)
+
+		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_agents gauge")
+		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_nodes gauge")
+		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_services gauge")
 	})
 
 	t.Run("Check mocked metrics", func(t *testing.T) {
