@@ -19,12 +19,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/percona/pmm/agent/queryparser"
 	"io"
 	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/percona/pmm/agent/queryparser"
 
 	"github.com/blang/semver"
 	_ "github.com/lib/pq" // register SQL driver
@@ -355,6 +356,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 				Tables:      currentPSS.Tables,
 				Username:    currentPSS.Username,
 				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
+				Comments:    currentPSS.Comments,
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
 				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
