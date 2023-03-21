@@ -100,7 +100,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                              "description": "Channel represents a single Notification Channel.",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -1276,7 +1276,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                    "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -1903,7 +1903,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                          "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
                             "channel_id": {
