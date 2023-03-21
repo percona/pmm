@@ -26,8 +26,8 @@ Other ports:
 
 !!! caution alert alert-warning "Important"
     Depending on your architecture other ports may also need to be exposed.
-    - For `pmm-agent`, the default listen port is 7777.
-    - The default range for agents ports can be changed with the flag `--ports-min` and  `--ports-max`, or in the configuration file.
+    - For `pmm-agent`, the default listen port is 7777.  
+    - The default port range for `pmm-agent` is large by default to accomodate any architecture size but it can be modified using the `--ports-min` and `--ports-max` flags, or modifying the configuration file. In network constraint environments, the range can be reduced to a minimum by allocating at least one port per agent monitored. Learn more about available settings for `pmm-agent` in [Percona PMM-Agent documentation](https://docs.percona.com/percona-monitoring-and-management/details/commands/pmm-agent.html).
 
 ## Network configuration for locked-down environments
 For computers in a locked-down corporate environment without direct access to the Internet, make sure to enable access to Percona Platform services following the instructions in the [Percona Platform documentation](https://docs.percona.com/percona-platform/network.html).
