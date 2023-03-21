@@ -609,6 +609,9 @@ In low resolution we collect metrics from collectors which could take some time:
     `--query-source=<query source>`
     : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
 
+    `--disable-queryexamples`
+    : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`.
+    
     `--environment=<environment>`
     : Environment name.
 
