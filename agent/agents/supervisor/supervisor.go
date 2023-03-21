@@ -506,12 +506,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	switch builtinAgent.Type {
 	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
 		}
 		agent, err = perfschema.New(params, l)
 
@@ -525,34 +526,37 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			SlowLogFilePrefix:    cfg.Paths.SlowLogFilePrefix,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
-			TLS:                  false,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			SlowLogFilePrefix:      cfg.Paths.SlowLogFilePrefix,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			MaxSlowlogFileSize:     builtinAgent.MaxQueryLogSize,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			TLS:                    false,
 		}
 		agent, err = slowlog.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:            dsn,
-			AgentID:        agentID,
-			MaxQueryLength: builtinAgent.MaxQueryLength,
-			TextFiles:      builtinAgent.GetTextFiles(),
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			TextFiles:              builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
 		params := &pgstatmonitor.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 		}
 		agent, err = pgstatmonitor.New(params, l)
 
