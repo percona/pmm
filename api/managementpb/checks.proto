@@ -85,6 +85,21 @@ message SecurityCheck {
   SecurityCheckInterval interval = 5;
 }
 
+message Advisor {
+  // Machine-readable name (ID) that is used in expression.
+  string name = 1;
+  // Long human-readable description.
+  string description = 2;
+  // Short human-readable summary.
+  string summary = 3;
+  // Comment.
+  string comment = 4;
+  // Category.
+  string category = 5;
+  // Advisor checks.
+  repeated SecurityCheck checks = 6;
+}
+
 // ChangeSecurityCheckParams specifies a single check parameters.
 message ChangeSecurityCheckParams {
   // The name of the check to change.
@@ -115,6 +130,12 @@ message ListSecurityChecksRequest {}
 
 message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
+}
+
+message ListAdvisorsRequest {}
+
+message ListAdvisorsResponse {
+  repeated Advisor advisors = 1;
 }
 
 message ChangeSecurityChecksRequest {
@@ -206,15 +227,26 @@ service SecurityChecks {
       description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
-  // ListSecurityChecks returns a list of available Security Thread Tool checks.
+  // ListSecurityChecks returns a list of advisor checks available to the user..
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/List"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Security Checks"
-      description: "Returns a list of available Security Thread Tool checks."
+      summary: "List advisor checks"
+      description: "Returns a list of checks available to the user."
+    };
+  }
+  // ListAdvisors returns a list of advisors available for the user.
+  rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Advisors/List"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List advisors"
+      description: "Returns a list of advisors available to the user."
     };
   }
   // ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.

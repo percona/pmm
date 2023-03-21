@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type postgresqlQuerySelectAction struct {
@@ -89,7 +90,7 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

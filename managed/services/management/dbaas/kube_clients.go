@@ -48,7 +48,8 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) {
 	defer k.mu.Unlock()
 	kubeClient, ok := k.clients[name]
 	if ok {
-		return kubeClient, nil
+		_, err := kubeClient.GetServerVersion()
+		return kubeClient, err
 	}
 
 	if k.db == nil {
