@@ -56,7 +56,8 @@ func TestInventory(t *testing.T) {
 	}
 
 	t.Run("Check real metrics", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:7773/debug/metrics")
+		client := http.Client{}
+		resp, err := client.Get("http://localhost:7773/debug/metrics")
 
 		require.NoError(t, err)
 		defer resp.Body.Close() //nolint:gosec
