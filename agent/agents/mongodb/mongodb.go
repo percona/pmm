@@ -34,15 +34,17 @@ type MongoDB struct {
 	l       *logrus.Entry
 	changes chan agents.Change
 
-	mongoDSN       string
-	maxQueryLength int32
+	mongoDSN               string
+	maxQueryLength         int32
+	disableCommentsParsing bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN            string
-	AgentID        string
-	MaxQueryLength int32
+	DSN                    string
+	AgentID                string
+	MaxQueryLength         int32
+	DisableCommentsParsing bool
 }
 
 // New creates new MongoDB QAN service.
@@ -80,7 +82,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 
-	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
+	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength, m.disableCommentsParsing)
 	if err := prof.Start(); err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}

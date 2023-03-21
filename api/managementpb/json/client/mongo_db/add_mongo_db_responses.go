@@ -173,10 +173,13 @@ type AddMongoDBBody struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
 	//
 	// Disable query examples.
 	//  bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
