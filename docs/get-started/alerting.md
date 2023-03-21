@@ -38,7 +38,7 @@ You can check the  alert templates available for your account under **Alerting >
 3. Custom template files available in your  ``yaml srv/alerting/templates`` directory. PMM loads them during startup.
 
 ### Silences
-Silences specify periods of time to suppress notifications. During a silence, PMM continues to track metrics and trigger alerts but does not send notifications to the specified contact points. Once the specified silence expires, notifications are resumed.
+Silences specify periods of time to suppress notifications. During a silence, PMM continues to track metrics but does not send notifications to the specified contact points. Once the specified silence expires, notifications are resumed.
 
 For example, you can create a silence to suppress trivial notifications during weekends.
 
