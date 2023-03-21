@@ -140,8 +140,8 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
-		case "ENABLE_BACKUP_MANAGEMENT":
-			envSettings.EnableBackupManagement, err = strconv.ParseBool(v)
+		case "DISABLE_BACKUP_MANAGEMENT":
+			envSettings.DisableBackupManagement, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}

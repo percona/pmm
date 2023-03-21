@@ -29,6 +29,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
 	tdp := exporter.TemplateDelimiters(service)
@@ -65,13 +67,17 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/low-resolution",
 		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/medium-resolution",
 		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/high-resolution",
-		"--collect.plugins",
 
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
 		"--exporter.global-conn-pool",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+	}
+
+	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
+		args = append(args,
+			"--collect.plugins")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
