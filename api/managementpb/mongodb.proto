@@ -54,8 +54,6 @@ message AddMongoDBRequest {
   map<string, string> custom_labels = 14;
   // Skip connection check.
   bool skip_connection_check = 15;
-  // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 33;
   // Disable query examples.
   // bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
 

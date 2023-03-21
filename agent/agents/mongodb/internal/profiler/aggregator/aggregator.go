@@ -38,12 +38,11 @@ var DefaultInterval = time.Duration(time.Minute)
 const reportChanBuffer = 1000
 
 // New returns configured *Aggregator
-func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32, disableCommentsParsing bool) *Aggregator {
+func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
 	aggregator := &Aggregator{
-		agentID:                agentID,
-		logger:                 logger,
-		maxQueryLength:         maxQueryLength,
-		disableCommentsParsing: disableCommentsParsing,
+		agentID:        agentID,
+		logger:         logger,
+		maxQueryLength: maxQueryLength,
 	}
 
 	// create duration from interval
@@ -61,10 +60,9 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLeng
 
 // Aggregator aggregates system.profile document
 type Aggregator struct {
-	agentID                string
-	maxQueryLength         int32
-	disableCommentsParsing bool
-	logger                 *logrus.Entry
+	agentID        string
+	maxQueryLength int32
+	logger         *logrus.Entry
 
 	// provides
 	reportChan chan *report.Report
@@ -276,10 +274,6 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				IsTruncated:         truncated,
 			},
 			Mongodb: &agentpb.MetricsBucket_MongoDB{},
-		}
-
-		if !a.disableCommentsParsing {
-			bucket.Common.Comments = []string{"comment from mongo TODO add parser"}
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
