@@ -16,6 +16,7 @@
 package inventory
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"strconv"
@@ -31,7 +32,7 @@ import (
 )
 
 func TestInventory(t *testing.T) {
-	iapi := new(mockInventoryAPI)
+	iapi := &mockInventoryAPI{}
 	inventoryCollector := NewInventory(iapi)
 
 	agentMetrics := []Metric{
@@ -57,10 +58,16 @@ func TestInventory(t *testing.T) {
 
 	t.Run("Check real metrics", func(t *testing.T) {
 		client := http.Client{}
-		resp, err := client.Get("http://localhost:7773/debug/metrics")
+
+		ctx, cancelCtx := context.WithTimeout(context.Background(), cancelTime)
+		defer cancelCtx()
+
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:7773/debug/metrics", nil)
+		resp, err := client.Do(req)
 
 		require.NoError(t, err)
 		defer resp.Body.Close() //nolint:gosec
+
 		b, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
