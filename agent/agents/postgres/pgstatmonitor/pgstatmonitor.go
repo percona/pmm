@@ -551,8 +551,11 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 
-			if !m.disableCommentsParsing && currentPSM.Comments != nil && vPGSM >= pgStatMonitorVersion20PG12 {
-				mb.Common.Comments = []string{*currentPSM.Comments}
+			if !m.disableCommentsParsing && currentPSM.Comments != nil {
+				value := strings.ReplaceAll(*currentPSM.Comments, "/*", "")
+				value = strings.ReplaceAll(value, "*/", "")
+				value = strings.TrimSpace(value)
+				mb.Common.Comments = []string{value}
 			}
 
 			var cpuSysTime, cpuUserTime float64
