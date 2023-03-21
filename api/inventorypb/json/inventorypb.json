@@ -1934,12 +1934,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
-                    },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1958,13 +1953,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1974,7 +1969,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1994,7 +1989,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4837,12 +4832,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
-                    },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4861,13 +4851,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4877,7 +4867,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4897,7 +4887,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6792,12 +6782,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
-                    },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -6816,13 +6801,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6832,7 +6817,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -6852,7 +6837,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -8401,12 +8386,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 9
-                      },
-                      "disable_comments_parsing": {
-                        "description": "Disable parsing comments from queries and showing them in QAN.",
-                        "type": "boolean",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -8425,13 +8405,13 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "max_query_length": {
                         "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -8441,7 +8421,7 @@
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -8461,7 +8441,7 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",

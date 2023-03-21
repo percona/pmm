@@ -5977,16 +5977,11 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -5994,7 +5989,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6009,12 +6004,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -6028,7 +6023,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -8880,16 +8875,11 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -8897,7 +8887,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8912,12 +8902,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -8931,7 +8921,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -10958,16 +10948,11 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -10975,7 +10960,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10990,12 +10975,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -11009,7 +10994,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 9
@@ -12570,16 +12555,11 @@
                         "type": "boolean",
                         "x-order": 6
                       },
-                      "disable_comments_parsing": {
-                        "description": "Disable parsing comments from queries and showing them in QAN.",
-                        "type": "boolean",
-                        "x-order": 7
-                      },
                       "max_query_length": {
                         "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -12587,7 +12567,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12602,12 +12582,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "log_level": {
                         "type": "string",
@@ -12621,7 +12601,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 12
+                        "x-order": 11
                       }
                     }
                   },
@@ -24735,16 +24715,11 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "disable_comments_parsing": {
-                      "description": "Disable parsing comments from queries and showing them in QAN.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.\n\nStatus fields below.",
@@ -24752,7 +24727,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -24767,12 +24742,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -24786,7 +24761,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 12
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
