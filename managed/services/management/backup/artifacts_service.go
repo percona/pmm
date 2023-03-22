@@ -33,21 +33,21 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	removalSVC       removalService
-	pitrTimerangeSVC pitrTimerangeService
+	l              *logrus.Entry
+	db             *reform.DB
+	removalSVC     removalService
+	pbmPITRService pbmPITRService
 
 	backuppb.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, pbmPITRService pbmPITRService) *ArtifactsService {
 	return &ArtifactsService{
-		l:                logrus.WithField("component", "management/backup/artifacts"),
-		db:               db,
-		removalSVC:       removalSVC,
-		pitrTimerangeSVC: storage,
+		l:              logrus.WithField("component", "management/backup/artifacts"),
+		db:             db,
+		removalSVC:     removalSVC,
+		pbmPITRService: pbmPITRService,
 	}
 }
 
@@ -104,15 +104,36 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifact
 	}, nil
 }
 
-// DeleteArtifact deletes specified artifact.
+// DeleteArtifact deletes specified artifact and its files.
 func (s *ArtifactsService) DeleteArtifact(
 	ctx context.Context,
 	req *backuppb.DeleteArtifactRequest,
 ) (*backuppb.DeleteArtifactResponse, error) {
+	if req.RemoveFiles {
+		artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+		if err != nil {
+			return nil, err
+		}
+
+		service, err := models.FindServiceByID(s.db.Querier, artifact.ServiceID)
+		if err != nil {
+			return nil, err
+		}
+
+		if service.ServiceType == models.MongoDBServiceType && artifact.Mode == models.PITR {
+			location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+			if err != nil {
+				return nil, err
+			}
+			if err = s.pbmPITRService.DeletePITRChunks(ctx, location, artifact, nil); err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	if err := s.removalSVC.DeleteArtifact(ctx, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}
-
 	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
@@ -141,7 +162,7 @@ func (s *ArtifactsService) ListPitrTimeranges(
 		return nil, err
 	}
 
-	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	timelines, err := s.pbmPITRService.ListPITRTimeranges(ctx, location, artifact)
 	if err != nil {
 		return nil, err
 	}
@@ -237,6 +258,8 @@ func convertArtifact(
 		Mode:         backupMode,
 		Status:       backupStatus,
 		CreatedAt:    createdAt,
+		Folder:       a.Folder,
+		// ReprList:     a.ReprListProto(),
 	}, nil
 }
 

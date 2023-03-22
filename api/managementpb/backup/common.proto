@@ -4,6 +4,8 @@ package backup.v1;
 
 option go_package = "api/managementpb/backup;backupv1";
 
+import "google/protobuf/timestamp.proto";
+
 // DataModel is a model used for performing a backup.
 enum DataModel {
   DATA_MODEL_INVALID = 0;
@@ -17,4 +19,26 @@ enum BackupMode {
   SNAPSHOT = 1;
   INCREMENTAL = 2;
   PITR = 3;
+}
+
+// File represents file or folder on a storage.
+message File {
+  string name = 1;
+  bool is_directory = 2;
+}
+
+// ReprBackup contains additional data for backup tools.
+message ReprBackup {
+  // Name of backup in backup tool representation.
+  string name = 1;
+}
+
+// Repr represents artifact on a storage.
+message Repr {
+  // List of files backup consists of.
+  repeated File file_list = 1;
+  // Exact time DB can be restored to.
+  google.protobuf.Timestamp restore_to = 2;
+  // Extra data for backup tools.
+  ReprBackup repr_backup = 3;
 }

@@ -21,17 +21,13 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
-	"github.com/percona/pmm/managed/services/minio"
 )
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -44,6 +40,7 @@ type jobsService interface {
 		name string,
 		dbConfig *models.DBConfig,
 		locationConfig *models.BackupLocationConfig,
+		folder *string,
 	) error
 	StartMySQLRestoreBackupJob(
 		jobID string,
@@ -52,6 +49,7 @@ type jobsService interface {
 		timeout time.Duration,
 		name string,
 		locationConfig *models.BackupLocationConfig,
+		folder *string,
 	) error
 	StartMongoDBBackupJob(
 		jobID string,
@@ -62,25 +60,30 @@ type jobsService interface {
 		mode models.BackupMode,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
+		folder *string,
 	) error
 	StartMongoDBRestoreBackupJob(
 		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,
+		sysName string,
 		dbConfig *models.DBConfig,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
 		pitrTimestamp time.Time,
+		folder *string,
 	) error
 }
 
-type s3 interface {
-	RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) error
-}
-
 type removalService interface {
+	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+	// DeleteArtifactFiles deletes artifact files.
+	// If artifact represents a single snapshot, there is only one record representing artifact files.
+	// If artifact represents continuous backup (PITR), artifact may contain several records,
+	// and it's possible to delete only first N of them to implement retention policy.
+	DeleteArtifactFiles(ctx context.Context, artifact *models.Artifact, firstN int) error
 }
 
 // agentService is a subset of methods of agents.AgentService used by this package.
@@ -103,17 +106,10 @@ type compatibilityService interface {
 	CheckArtifactCompatibility(artifactID, targetDBVersion string) error
 }
 
-type pitrLocationClient interface {
-	// FileStat returns file info. It returns error if file is empty or not exists.
-	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
-
-	// List scans path with prefix and returns all files with given suffix.
-	// Both prefix and suffix can be omitted.
-	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
-}
-
-// pitrTimerangeService provides methods that help us inspect PITR artifacts
-type pitrTimerangeService interface {
+// pbmPITRService provides methods that help us inspect and manage PITR oplog slices.
+type pbmPITRService interface {
 	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error)
+	ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error)
+	// DeletePITRChunks deletes PBM PITR chunks. If 'until' specified, deletes only chunks before (excluding) that date.
+	DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error
 }

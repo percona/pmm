@@ -18,7 +18,6 @@ package backup
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -27,29 +26,67 @@ import (
 
 // RetentionService handles retention for artifacts.
 type RetentionService struct {
-	db         *reform.DB
-	l          *logrus.Entry
-	removalSVC removalService
+	db             *reform.DB
+	l              *logrus.Entry
+	removalSVC     removalService
+	pbmPITRService pbmPITRService
 }
 
 // NewRetentionService creates new retention service for artifacts.
-func NewRetentionService(db *reform.DB, removalSVC removalService) *RetentionService {
+func NewRetentionService(db *reform.DB, removalSVC removalService, pbmPITRService pbmPITRService) *RetentionService {
 	return &RetentionService{
-		l:          logrus.WithField("component", "management/backup/retention"),
-		db:         db,
-		removalSVC: removalSVC,
+		l:              logrus.WithField("component", "management/backup/retention"),
+		db:             db,
+		removalSVC:     removalSVC,
+		pbmPITRService: pbmPITRService,
 	}
 }
 
 // EnforceRetention enforce retention on provided scheduled backup task
 // it removes any old successful artifacts below retention threshold.
 func (s *RetentionService) EnforceRetention(ctx context.Context, scheduleID string) error {
-	artifacts, retention, err := s.findArtifacts(s.db.Querier, scheduleID)
+	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduleID)
 	if err != nil {
 		return err
 	}
 
-	if retention == 0 || int(retention) > len(artifacts) {
+	retention, err := task.Retention()
+	if err != nil {
+		return err
+	}
+
+	if retention == 0 {
+		return nil
+	}
+
+	mode, err := task.Mode()
+	if err != nil {
+		return err
+	}
+
+	switch mode {
+	case models.Snapshot:
+		err = s.retentionSnapshot(ctx, scheduleID, retention)
+	case models.PITR:
+		err = s.retentionPITR(ctx, scheduleID, retention)
+	default:
+		s.l.Warnf("Retantion policy is not implemented for backup mode %s", mode)
+		return nil
+	}
+
+	return err
+}
+
+func (s *RetentionService) retentionSnapshot(ctx context.Context, scheduleID string, retention uint32) error {
+	artifacts, err := models.FindArtifacts(s.db.Querier, models.ArtifactFilters{
+		ScheduleID: scheduleID,
+		Status:     models.SuccessBackupStatus,
+	})
+	if err != nil {
+		return err
+	}
+
+	if int(retention) >= len(artifacts) {
 		return nil
 	}
 
@@ -62,35 +99,40 @@ func (s *RetentionService) EnforceRetention(ctx context.Context, scheduleID stri
 	return nil
 }
 
-// findArtifacts returns successful artifacts belong to scheduled task and it's retention.
-func (s *RetentionService) findArtifacts(q *reform.Querier, scheduleID string) ([]*models.Artifact, uint32, error) {
-	var retention uint32
-
-	task, err := models.FindScheduledTaskByID(q, scheduleID)
-	if err != nil {
-		return nil, retention, err
-	}
-
-	switch task.Type {
-	case models.ScheduledMySQLBackupTask:
-		retention = task.Data.MySQLBackupTask.Retention
-	case models.ScheduledMongoDBBackupTask:
-		retention = task.Data.MongoDBBackupTask.Retention
-	default:
-		return nil, retention, errors.Errorf("invalid backup type %s", task.Type)
-	}
-
-	if retention == 0 {
-		return nil, retention, nil
-	}
-
-	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{
+func (s *RetentionService) retentionPITR(ctx context.Context, scheduleID string, retention uint32) error {
+	artifacts, err := models.FindArtifacts(s.db.Querier, models.ArtifactFilters{
 		ScheduleID: scheduleID,
 		Status:     models.SuccessBackupStatus,
 	})
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
-	return artifacts, retention, nil
+	if len(artifacts) != 1 {
+		s.l.Errorf("Should be only one artifact entity for PITR in the database but found %d", len(artifacts))
+		return nil
+	}
+
+	artifact := artifacts[0]
+
+	filesToRemove := len(artifact.ReprList) - int(retention)
+
+	if filesToRemove <= 0 {
+		return nil
+	}
+
+	if err := s.removalSVC.DeleteArtifactFiles(ctx, artifact, filesToRemove); err != nil {
+		return err
+	}
+
+	if err := artifact.ReprRemoveFirstN(s.db.Querier, uint32(filesToRemove)); err != nil {
+		return err
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
+
+	return s.pbmPITRService.DeletePITRChunks(ctx, location, artifact, artifact.ReprList[0].RestoreTo)
 }

@@ -46,6 +46,11 @@ func (rs RestoreStatus) Validate() error {
 	return nil
 }
 
+// RestoreStatusPointer returns a pointer of restore status.
+func RestoreStatusPointer(status RestoreStatus) *RestoreStatus {
+	return &status
+}
+
 // RestoreHistoryItem represents a restore backup history.
 //
 //reform:restore_history

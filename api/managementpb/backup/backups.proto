@@ -36,6 +36,8 @@ message StartBackupRequest {
   uint32 retries = 6;
   // DataModel represents the data model used for the backup.
   DataModel data_model = 7;
+  // Folder on storage for artifact.
+  optional string folder = 8;
 }
 
 message StartBackupResponse {
@@ -117,6 +119,8 @@ message ScheduledBackup {
   uint32 retention = 18;
   // Backup mode.
   BackupMode mode = 19;
+  // Folder on storage for artifact.
+  optional string folder = 20;
 }
 
 message ScheduleBackupRequest {
@@ -154,9 +158,10 @@ message ScheduleBackupRequest {
   uint32 retention = 10;
   // Backup mode.
   BackupMode mode = 11;
-
   // Backup data model (physical or logical).
   DataModel data_model = 12;
+  // Folder on storage for artifact.
+  optional string folder = 13;
 }
 
 message ScheduleBackupResponse {

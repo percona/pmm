@@ -28,7 +28,7 @@ import (
 //go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -60,7 +60,8 @@ type removalService interface {
 }
 
 // pitrTimerangeService provides methods that help us inspect PITR artifacts
-type pitrTimerangeService interface {
+type pbmPITRService interface {
 	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]backup.Timeline, error)
+	ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)
+	DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error
 }

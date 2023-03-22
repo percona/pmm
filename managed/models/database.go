@@ -838,6 +838,11 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`ALTER TABLE artifacts
+    		ADD COLUMN folder VARCHAR,
+			ADD COLUMN repr_list JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

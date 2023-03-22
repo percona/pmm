@@ -17,58 +17,61 @@ package backup
 
 import (
 	"context"
+	"database/sql"
+	"path"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // RemovalService manage removing of backup artifacts.
 type RemovalService struct {
 	l  *logrus.Entry
 	db *reform.DB
-	s3 s3
 }
 
 // NewRemovalService creates new backup removal service.
-func NewRemovalService(db *reform.DB, s3 s3) *RemovalService {
+func NewRemovalService(db *reform.DB) *RemovalService {
 	return &RemovalService{
 		l:  logrus.WithField("component", "services/backup/removal"),
 		db: db,
-		s3: s3,
 	}
 }
 
 // DeleteArtifact deletes specified artifact.
 func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error {
-	artifactName, s3Config, err := s.beginDeletingArtifact(artifactID)
-	if err != nil {
-		return err
+	var artifact *models.Artifact
+	var err error
+
+	if txErr := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		artifact, err = models.FindArtifactByID(s.db.Querier, artifactID)
+		if err != nil {
+			return err
+		}
+
+		err = artifact.CanDelete()
+		if err != nil {
+			return err
+		}
+
+		err := s.beginDeletingArtifact(artifact)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}); txErr != nil {
+		return txErr
 	}
 
-	if s3Config != nil && removeFiles {
-		if err := s.s3.RemoveRecursive(
-			ctx,
-			s3Config.Endpoint,
-			s3Config.AccessKey,
-			s3Config.SecretKey,
-			s3Config.BucketName,
-			// Recursive listing finds all the objects with the specified prefix.
-			// There could be a problem e.g. when we have artifacts `backup-daily` and `backup-daily-1`, so
-			// listing by prefix `backup-daily` gives us both artifacts.
-			// To avoid such a situation we need to append a slash.
-			artifactName+"/"); err != nil {
-			if _, updateErr := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
-			}); updateErr != nil {
-				s.l.WithError(updateErr).
-					Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, artifactID)
-			}
-
+	if removeFiles {
+		err = s.DeleteArtifactFiles(ctx, artifact, len(artifact.ReprList))
+		if err != nil {
 			return err
 		}
 	}
@@ -87,82 +90,91 @@ func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, 
 			}
 		}
 
-		return models.DeleteArtifact(tx.Querier, artifactID)
+		err = models.DeleteArtifact(tx.Querier, artifactID)
+		if err != nil {
+			if _, updateErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
+			}); updateErr != nil {
+				s.l.WithError(updateErr).Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, artifact.ID)
+			}
+		}
+		return nil
 	})
 }
 
 // beginDeletingArtifact checks if the artifact isn't in use at the moment and sets deleting status,
 // so it will not be used to restore backup.
-func (s *RemovalService) beginDeletingArtifact(
-	artifactID string,
-) (string, *models.S3LocationConfig, error) {
-	var s3Config *models.S3LocationConfig
-	var artifactName string
-	if err := s.db.InTransaction(func(tx *reform.TX) error {
-		artifact, err := s.canDeleteArtifact(tx.Querier, artifactID)
-		if err != nil {
-			return err
-		}
+func (s *RemovalService) beginDeletingArtifact(artifact *models.Artifact) error {
+	restoreItems, err := models.FindRestoreHistoryItems(s.db.Querier, models.RestoreHistoryItemFilters{
+		ArtifactID: artifact.ID,
+		Status:     models.RestoreStatusPointer(models.InProgressRestoreStatus),
+	})
+	if err != nil {
+		return err
+	}
 
-		artifactName = artifact.Name
+	if len(restoreItems) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "Cannot delete artifact with ID %q: "+
+			"artifact is used by currently running restore operation.", artifact.ID)
+	}
 
-		inProgressStatus := models.InProgressRestoreStatus
-		restoreItems, err := models.FindRestoreHistoryItems(tx.Querier, models.RestoreHistoryItemFilters{
-			ArtifactID: artifactID,
-			Status:     &inProgressStatus,
-		})
-		if err != nil {
-			return err
-		}
+	if _, err := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Status: models.BackupStatusPointer(models.DeletingBackupStatus),
+	}); err != nil {
+		return err
+	}
 
-		if len(restoreItems) != 0 {
-			return status.Errorf(codes.FailedPrecondition, "Cannot delete artifact with ID %q: "+
-				"artifact is used by currently running restore operation.", artifactID)
-		}
+	return nil
+}
 
-		location, err := models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
-		if err != nil {
-			return err
-		}
+// DeleteArtifactFiles deletes artifact files.
+// If artifact represents a single snapshot, there is only one record representing artifact files.
+// If artifact represents continuous backup (PITR), artifact may contain several records,
+// and it's possible to delete only first N of them to implement retention policy.
+func (s *RemovalService) DeleteArtifactFiles(ctx context.Context, artifact *models.Artifact, firstN int) error {
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
 
-		s3Config = location.S3Config
+	storage := services.Location2Storage(location)
+	s3Config := location.S3Config
 
-		if _, err := models.UpdateArtifact(tx.Querier, artifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.DeletingBackupStatus),
-		}); err != nil {
-			return err
+	if storage == nil || s3Config == nil {
+		return nil
+	}
+
+	// Old artifact records don't contain representation file list.
+	if len(artifact.ReprList) == 0 {
+		folderName := artifact.Name + "/"
+
+		if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
+			s.l.WithError(err).Errorf("failed to remove folder %s of artifact %s", folderName, artifact.ID)
 		}
 
 		return nil
-	}); err != nil {
-		return "", nil, err
 	}
 
-	return artifactName, s3Config, nil
-}
+	for _, artifactRepr := range artifact.ReprList[:firstN] {
+		for _, file := range artifactRepr.FileList {
+			if file.IsDirectory {
+				// Recursive listing finds all the objects with the specified prefix.
+				// There could be a problem e.g. when we have artifacts `backup-daily` and `backup-daily-1`, so
+				// listing by prefix `backup-daily` gives us both artifacts.
+				// To avoid such a situation we need to append a slash.
+				folderName := path.Join(*artifact.Folder, file.Name) + "/"
 
-func (s *RemovalService) canDeleteArtifact(q *reform.Querier, artifactID string) (*models.Artifact, error) {
-	artifact, err := models.FindArtifactByID(q, artifactID)
-	switch {
-	case err == nil:
-	case errors.Is(err, models.ErrNotFound):
-		return nil, status.Errorf(codes.NotFound, "Artifact with ID %q not found.", artifactID)
-	default:
-		return nil, err
+				if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
+					s.l.WithError(err).Errorf("failed to remove folder %s of artifact %s", folderName, artifact.ID)
+				}
+			} else {
+				fileName := path.Join(*artifact.Folder, file.Name)
+				if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName); err != nil {
+					s.l.WithError(err).Errorf("failed to remove file %s of artifact %s", file.Name, artifact.ID)
+				}
+			}
+		}
 	}
 
-	switch artifact.Status {
-	case models.SuccessBackupStatus,
-		models.ErrorBackupStatus,
-		models.FailedToDeleteBackupStatus:
-	case models.DeletingBackupStatus,
-		models.InProgressBackupStatus,
-		models.PausedBackupStatus,
-		models.PendingBackupStatus:
-		return nil, status.Errorf(codes.FailedPrecondition, "Artifact with ID %q isn't in the final state.", artifactID)
-	default:
-		return nil, status.Errorf(codes.Internal, "Unhandled status %q", artifact.Status)
-	}
-
-	return artifact, nil
+	return nil
 }

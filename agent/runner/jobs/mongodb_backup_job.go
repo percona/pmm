@@ -35,6 +35,8 @@ const (
 
 	logsCheckInterval = 3 * time.Second
 	waitForLogs       = 2 * logsCheckInterval
+
+	pbmArtifactJsonPostfix = ".pbm.json"
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -48,6 +50,7 @@ type MongoDBBackupJob struct {
 	pitr           bool
 	dataModel      backuppb.DataModel
 	jobLogger      *pbmJobLogger
+	folder         *string
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -59,6 +62,7 @@ func NewMongoDBBackupJob(
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
+	folder *string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -78,6 +82,7 @@ func NewMongoDBBackupJob(
 		pitr:           pitr,
 		dataModel:      dataModel,
 		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
+		folder:         folder,
 	}, nil
 }
 
@@ -104,7 +109,12 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	var artifactFolder string
+	if j.folder != nil {
+		artifactFolder = *j.folder
+	}
+
+	conf, err := createPBMConfig(&j.locationConfig, artifactFolder, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -149,11 +159,25 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
+
+	backupTimestamp, err := pbmBackupTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	if err != nil {
+		return err
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{},
+			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				Repr: &backuppb.Repr{
+					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
+					RestoreTo: timestamppb.New(backupTimestamp),
+					ReprBackup: &backuppb.ReprBackup{
+						Name: pbmBackupOut.Name,
+					},
+				},
+			},
 		},
 	})
 
@@ -184,4 +208,21 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	}
 
 	return &result, nil
+}
+
+// mongoArtifactFiles returns list of files and folders the backup consists of.
+func mongoArtifactFiles(pbmBackupName string) []*backuppb.File {
+	res := []*backuppb.File{
+		{Name: pbmBackupName + pbmArtifactJsonPostfix},
+		{Name: pbmBackupName, IsDirectory: true},
+	}
+	return res
+}
+
+func pbmBackupTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (time.Time, error) {
+	timestamp, err := pbmGetSnapshotTimestamp(ctx, dbURL, backupName)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Unix(timestamp, 0), nil
 }

@@ -26,6 +26,13 @@ func (this *Artifact) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("CreatedAt", err)
 		}
 	}
+	for _, item := range this.ReprList {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ReprList", err)
+			}
+		}
+	}
 	return nil
 }
 

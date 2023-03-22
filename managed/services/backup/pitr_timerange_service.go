@@ -23,11 +23,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/percona/percona-backup-mongodb/pbm/storage"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 const (
@@ -37,17 +39,15 @@ const (
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PITRTimerangeService helps perform file lookups in a backup locationClient location
-type PITRTimerangeService struct {
-	l              *logrus.Entry
-	locationClient pitrLocationClient
+// PbmPITRService helps perform file lookups in a backup locationClient location
+type PbmPITRService struct {
+	l *logrus.Entry
 }
 
-// NewPITRTimerangeService creates new backup locationClient service.
-func NewPITRTimerangeService(pitrLocationClient pitrLocationClient) *PITRTimerangeService {
-	return &PITRTimerangeService{
-		l:              logrus.WithField("component", "services/backup/pitr_storage"),
-		locationClient: pitrLocationClient,
+// NewPbmPITRService creates new backup locationClient service.
+func NewPbmPITRService() *PbmPITRService {
+	return &PbmPITRService{
+		l: logrus.WithField("component", "services/backup/pitr_storage"),
 	}
 }
 
@@ -111,7 +111,7 @@ func file(ext string) compressionType {
 	}
 }
 
-func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *models.BackupLocation, artifactName string) ([]*oplogChunk, error) {
+func (s *PbmPITRService) getPITROplogs(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
 	if location.S3Config == nil {
 		return nil, errUnsupportedLocation
 	}
@@ -119,8 +119,22 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	var err error
 	var oplogChunks []*oplogChunk
 
-	prefix := path.Join(artifactName, pitrFSPrefix)
-	pitrFiles, err := ss.locationClient.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "") //nolint:lll
+	var prefix string
+
+	// Only artifacts taken with new agents can be restored from artifact folder.
+	if len(artifact.ReprList) == 0 {
+		prefix = path.Join(artifact.Name, pitrFSPrefix)
+	} else {
+		prefix = path.Join(*artifact.Folder, pitrFSPrefix)
+	}
+
+	locationClient := services.Location2Storage(location)
+	if locationClient == nil {
+		return []*oplogChunk{}, nil
+	}
+
+	s3Config := location.S3Config
+	pitrFiles, err := locationClient.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "") //nolint:lll
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -130,7 +144,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 
 	for _, f := range pitrFiles {
 		if f.IsDeleteMarker {
-			ss.l.Debugf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
+			s.l.Debugf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
 			continue
 		}
 		chunk := pitrMetaFromFileName(prefix, f.Name)
@@ -143,10 +157,10 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	return oplogChunks, nil
 }
 
-func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error) {
+func (s *PbmPITRService) ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error) {
 	var timelines [][]Timeline
 
-	oplogs, err := ss.getPITROplogs(ctx, location, artifactName)
+	oplogs, err := s.getPITROplogs(ctx, location, artifact)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
 	}
@@ -154,9 +168,9 @@ func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifact
 		return nil, nil
 	}
 
-	t, err := gettimelines(oplogs), nil
+	t, err := getTimelines(oplogs), nil
 	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
+		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifact.Name)
 	}
 	if len(t) != 0 {
 		timelines = append(timelines, t)
@@ -226,7 +240,7 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	return &ts
 }
 
-func gettimelines(slices []*oplogChunk) []Timeline {
+func getTimelines(slices []*oplogChunk) []Timeline {
 	var tl Timeline
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp
@@ -354,4 +368,56 @@ func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	}
 
 	return ret
+}
+
+// DeletePITRChunks deletes PBM PITR chunks. If 'until' specified, deletes only chunks before (excluding) that date.
+func (s *PbmPITRService) DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error {
+	chunks, err := s.pitrGetChunksSlice(ctx, location, artifact, until)
+	if err != nil {
+		return errors.Wrap(err, "failed to get pitr chunks")
+	}
+
+	if len(chunks) == 0 {
+		s.l.Debug("no chunks to delete")
+		return nil
+	}
+
+	locationClient := services.Location2Storage(location)
+	if locationClient == nil {
+		return nil
+	}
+
+	for _, chunk := range chunks {
+		s3Config := location.S3Config
+		err = locationClient.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName)
+		if err != nil && err != storage.ErrNotExist {
+			return errors.Wrapf(err, "failed to delete pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
+		}
+
+		s.l.Debug("deleted %s", chunk.FName)
+	}
+
+	return nil
+}
+
+// pitrGetChunksSlice returns list of PITR chunks. If 'until' specified, returns only chunks created before that date.
+func (s *PbmPITRService) pitrGetChunksSlice(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
+	opLogs, err := s.getPITROplogs(ctx, location, artifact)
+	if err != nil {
+		return nil, err
+	}
+
+	if until != nil {
+		var res []*oplogChunk
+		for _, chunk := range opLogs {
+			chunkStartTime := time.Unix(int64(chunk.StartTS.T), 0)
+			// We're checking only start time because when pbm takes snapshot, chunk is being finalizing automatically.
+			if chunkStartTime.Before(*until) {
+				res = append(res, chunk)
+			}
+		}
+		return res, nil
+	}
+
+	return opLogs, nil
 }

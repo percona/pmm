@@ -88,28 +88,28 @@ func (c ScheduledTaskData) Value() (driver.Value, error) { return jsonValue(c) }
 func (c *ScheduledTaskData) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (r *ScheduledTask) BeforeInsert() error {
+func (s *ScheduledTask) BeforeInsert() error {
 	now := Now()
-	r.CreatedAt = now
-	r.UpdatedAt = now
+	s.CreatedAt = now
+	s.UpdatedAt = now
 
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (r *ScheduledTask) BeforeUpdate() error {
-	r.UpdatedAt = Now()
+func (s *ScheduledTask) BeforeUpdate() error {
+	s.UpdatedAt = Now()
 
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
-func (r *ScheduledTask) AfterFind() error {
-	r.CreatedAt = r.CreatedAt.UTC()
-	r.UpdatedAt = r.UpdatedAt.UTC()
-	r.StartAt = r.StartAt.UTC()
-	r.NextRun = r.NextRun.UTC()
-	r.LastRun = r.LastRun.UTC()
+func (s *ScheduledTask) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
+	s.UpdatedAt = s.UpdatedAt.UTC()
+	s.StartAt = s.StartAt.UTC()
+	s.NextRun = s.NextRun.UTC()
+	s.LastRun = s.LastRun.UTC()
 
 	return nil
 }

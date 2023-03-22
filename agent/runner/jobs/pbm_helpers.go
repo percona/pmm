@@ -491,3 +491,22 @@ func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr b
 	}
 	return conf, nil
 }
+
+func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (int64, error) {
+	var list pbmList
+	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
+		return 0, err
+	}
+
+	if len(list.Snapshots) == 0 {
+		return 0, errors.Wrapf(ErrNotFound, "got no one snapshot")
+	}
+
+	for _, snapshot := range list.Snapshots {
+		if snapshot.Name == backupName {
+			return snapshot.RestoreTo, nil
+		}
+	}
+
+	return 0, errors.Wrapf(ErrNotFound, "couldn't get specified snapshot")
+}

@@ -35,8 +35,7 @@ func TestDeleteArtifact(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	mockedS3 := &mockS3{}
-	removalService := NewRemovalService(db, mockedS3)
+	removalService := NewRemovalService(db)
 
 	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"

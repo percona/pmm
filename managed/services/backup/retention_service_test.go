@@ -21,7 +21,6 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -35,11 +34,9 @@ func TestEnsureRetention(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	mockedS3 := &mockS3{}
-	removalService := NewRemovalService(db, mockedS3)
-	retentionService := NewRetentionService(db, removalService)
-	mockedS3.On("RemoveRecursive", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything).Return(nil)
+	removalService := NewRemovalService(db)
+	pbmPITRService := NewPbmPITRService()
+	retentionService := NewRetentionService(db, removalService, pbmPITRService)
 
 	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"

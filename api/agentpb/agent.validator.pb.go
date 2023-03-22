@@ -660,6 +660,11 @@ func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
 			}
 		}
 	}
+	if this.ReprBackup != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ReprBackup); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ReprBackup", err)
+		}
+	}
 	return nil
 }
 
@@ -724,10 +729,20 @@ func (this *JobResult_Error) Validate() error {
 }
 
 func (this *JobResult_MongoDBBackup) Validate() error {
+	if this.Repr != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Repr); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Repr", err)
+		}
+	}
 	return nil
 }
 
 func (this *JobResult_MySQLBackup) Validate() error {
+	if this.Repr != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Repr); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Repr", err)
+		}
+	}
 	return nil
 }
 

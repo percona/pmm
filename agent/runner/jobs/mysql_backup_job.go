@@ -19,6 +19,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -43,10 +45,11 @@ type MySQLBackupJob struct {
 	name           string
 	connConf       DBConnConfig
 	locationConfig BackupLocationConfig
+	folder         *string
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig) *MySQLBackupJob {
+func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder *string) *MySQLBackupJob {
 	return &MySQLBackupJob{
 		id:             id,
 		timeout:        timeout,
@@ -54,6 +57,7 @@ func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf D
 		name:           name,
 		connConf:       connConf,
 		locationConfig: locationConfig,
+		folder:         folder,
 	}
 }
 
@@ -86,7 +90,11 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
-			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
+			MysqlBackup: &agentpb.JobResult_MySQLBackup{
+				Repr: &backuppb.Repr{
+					FileList: mysqlArtifactFiles(j.name),
+				},
+			},
 		},
 	})
 
@@ -153,6 +161,16 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	switch {
 	case j.locationConfig.Type == S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
+
+		var artifactFolder string
+		if j.folder != nil {
+			artifactFolder = path.Join(*j.folder, j.name)
+		} else {
+			artifactFolder = j.name
+		}
+
+		j.l.Debugf("Artifact folder is: %s", artifactFolder)
+
 		xbcloudCmd = exec.CommandContext(pipeCtx, xbcloudBin,
 			"put",
 			"--storage=s3",
@@ -162,7 +180,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 			"--s3-bucket="+j.locationConfig.S3Config.BucketName,
 			"--s3-region="+j.locationConfig.S3Config.BucketRegion,
 			"--parallel=10",
-			j.name) // #nosec G204
+			artifactFolder) // #nosec G204
 	default:
 		return errors.Errorf("unknown location config")
 	}
@@ -222,4 +240,12 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}()
 
 	return nil
+}
+
+// mysqlArtifactFiles returns list of files and folders the backup consists of.
+func mysqlArtifactFiles(backupFolder string) []*backuppb.File {
+	res := []*backuppb.File{
+		{Name: backupFolder, IsDirectory: true},
+	}
+	return res
 }

@@ -105,6 +105,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		Mode:          models.Snapshot,
 		Retries:       req.Retries,
 		RetryInterval: req.RetryInterval.AsDuration(),
+		Folder:        req.Folder,
 	})
 	if err != nil {
 		return nil, convertBackupError(err)

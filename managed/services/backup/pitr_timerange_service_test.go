@@ -139,7 +139,7 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
 
-		ss := NewPITRTimerangeService(mockedStorage)
+		ss := NewPbmPITRService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
@@ -149,7 +149,7 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage := &mockPitrLocationClient{}
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
 
-		ss := NewPITRTimerangeService(mockedStorage)
+		ss := NewPbmPITRService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
@@ -167,7 +167,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 
-		ss := NewPITRTimerangeService(mockedStorage)
+		ss := NewPbmPITRService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)

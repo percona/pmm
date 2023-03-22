@@ -193,7 +193,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
-	pitrTimerangeService *backup.PITRTimerangeService
+	pbmPITRService       *backup.PbmPITRService
 	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
@@ -284,7 +284,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
+	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
@@ -754,9 +754,9 @@ func main() {
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db)
-	backupRemovalService := backup.NewRemovalService(db, minioClient)
-	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
-	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
+	pbmPITRService := backup.NewPbmPITRService()
+	backupRemovalService := backup.NewRemovalService(db)
+	backupRetentionService := backup.NewRetentionService(db, backupRemovalService, pbmPITRService)
 	prom.MustRegister(agentsRegistry)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
@@ -819,7 +819,7 @@ func main() {
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -1005,7 +1005,7 @@ func main() {
 				backupService:        backupService,
 				compatibilityService: compatibilityService,
 				backupRemovalService: backupRemovalService,
-				pitrTimerangeService: pitrTimerangeService,
+				pbmPITRService:       pbmPITRService,
 				minioClient:          minioClient,
 				versionCache:         versionCache,
 				supervisord:          supervisord,

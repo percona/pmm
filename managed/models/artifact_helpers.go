@@ -24,6 +24,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 // ArtifactFilters represents filters for artifacts list.
@@ -38,7 +40,7 @@ type ArtifactFilters struct {
 	Status BackupStatus
 }
 
-// FindArtifacts returns artifacts list.
+// FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
 func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
 	var args []interface{}
@@ -173,6 +175,7 @@ type CreateArtifactParams struct {
 	Mode       BackupMode
 	Status     BackupStatus
 	ScheduleID string
+	Folder     *string
 }
 
 // Validate validates params used for creating an artifact entry.
@@ -233,6 +236,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		Status:     params.Status,
 		Type:       OnDemandArtifactType,
 		ScheduleID: params.ScheduleID,
+		Folder:     params.Folder,
 	}
 
 	if params.ScheduleID != "" {
@@ -251,6 +255,7 @@ type UpdateArtifactParams struct {
 	ServiceID  *string
 	Status     *BackupStatus
 	ScheduleID *string
+	Repr       *Repr
 }
 
 // UpdateArtifact updates existing artifact.
@@ -269,6 +274,11 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.ScheduleID = *params.ScheduleID
 	}
 
+	if params.Repr != nil {
+		// We're appending to existing list to cover PITR mode cases.
+		row.ReprList = append(row.ReprList, *params.Repr)
+	}
+
 	if err := q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update backup artifact")
 	}
@@ -285,5 +295,83 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 	if err := q.Delete(&Artifact{ID: id}); err != nil {
 		return errors.Wrapf(err, "failed to delete artifact by id '%s'", id)
 	}
+	return nil
+}
+
+// ReprListProto returns artifact representation list in protobuf format.
+//func (s *Artifact) ReprListProto() []*backuppb.Repr {
+//	res := make([]*backuppb.Repr, len(s.ReprList))
+//	for i, repr := range s.ReprList {
+//		res[i] = &backuppb.Repr{}
+//		res[i].FileList = make([]*backuppb.File, len(repr.FileList))
+//
+//		for j, file := range repr.FileList {
+//			res[i].FileList[j] = &backuppb.File{}
+//			res[i].FileList[j].Name = file.Name
+//			res[i].FileList[j].IsDirectory = file.IsDirectory
+//		}
+//		if repr.RestoreTo != nil {
+//			res[i].RestoreTo = timestamppb.New(*repr.RestoreTo)
+//		}
+//		if repr.ReprBackup != nil {
+//			res[i].ReprBackup = &backuppb.ReprBackup{
+//				Name: repr.ReprBackup.Name,
+//			}
+//		}
+//	}
+//	return res
+//}
+
+// ArtifactReprFromProto returns artifact protobuf representation converted to Go model format.
+func ArtifactReprFromProto(artifactRepr *backuppb.Repr) *Repr {
+	if artifactRepr == nil {
+		return nil
+	}
+
+	artifactReprFiles := make([]File, len(artifactRepr.FileList))
+	for i, file := range artifactRepr.FileList {
+		artifactReprFiles[i] = File{Name: file.Name, IsDirectory: file.IsDirectory}
+	}
+
+	var res Repr
+
+	res.FileList = artifactReprFiles
+
+	if artifactRepr.RestoreTo != nil {
+		t := artifactRepr.RestoreTo.AsTime()
+		res.RestoreTo = &t
+	}
+
+	if artifactRepr.ReprBackup != nil {
+		res.ReprBackup = &ReprBackup{Name: artifactRepr.ReprBackup.Name}
+	}
+
+	return &res
+}
+
+// ReprRemoveFirstN removes first N records from artifact representation list.
+func (s *Artifact) ReprRemoveFirstN(q *reform.Querier, n uint32) error {
+	s.ReprList = s.ReprList[n:]
+	if err := q.Update(s); err != nil {
+		return errors.Wrap(err, "failed to update backup artifact")
+	}
+	return nil
+}
+
+// CanDelete returns error in case artifact not status from which it can be deleted.
+func (s *Artifact) CanDelete() error {
+	switch s.Status {
+	case SuccessBackupStatus,
+		ErrorBackupStatus,
+		FailedToDeleteBackupStatus:
+	case DeletingBackupStatus,
+		InProgressBackupStatus,
+		PausedBackupStatus,
+		PendingBackupStatus:
+		return status.Errorf(codes.FailedPrecondition, "Artifact with ID %q isn't in the final state.", s.ID)
+	default:
+		return status.Errorf(codes.Internal, "Unhandled status %q", s.Status)
+	}
+
 	return nil
 }

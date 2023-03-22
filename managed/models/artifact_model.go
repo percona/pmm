@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -116,6 +117,33 @@ func (m BackupMode) Validate() error {
 	return nil
 }
 
+// File represents file or directory.
+type File struct {
+	Name        string `json:"name"`
+	IsDirectory bool   `json:"is_directory"`
+}
+
+// ReprBackup contains extra data for backup tools.
+type ReprBackup struct {
+	// Name of backup in backup tool representation.
+	Name string `json:"name"`
+}
+
+// Repr contains artifact representation in storage.
+type Repr struct {
+	FileList   []File      `json:"file_list"`
+	RestoreTo  *time.Time  `json:"restore_to"`
+	ReprBackup *ReprBackup `json:"repr_backup"`
+}
+
+type ReprList []Repr
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (p ReprList) Value() (driver.Value, error) { return jsonValue(p) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (p *ReprList) Scan(src interface{}) error { return jsonScan(p, src) }
+
 // Artifact represents result of a backup.
 //
 //reform:artifacts
@@ -131,6 +159,8 @@ type Artifact struct {
 	Status     BackupStatus `reform:"status"`
 	Type       ArtifactType `reform:"type"`
 	ScheduleID string       `reform:"schedule_id"`
+	Folder     *string      `reform:"folder"`
+	ReprList   ReprList     `reform:"repr_list"`
 	CreatedAt  time.Time    `reform:"created_at"`
 	UpdatedAt  time.Time    `reform:"updated_at"`
 }

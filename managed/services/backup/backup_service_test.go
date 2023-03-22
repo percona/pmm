@@ -463,8 +463,8 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	mockedPitrTimerangeService := &mockPitrTimerangeService{}
-	backupService := NewService(db, nil, nil, nil, mockedPitrTimerangeService)
+	mockedPbmPITRService := &mockPbmPITRService{}
+	backupService := NewService(db, nil, nil, nil, mockedPbmPITRService)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -663,7 +663,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				require.NoError(t, err)
 
 				if tc.prepareMock {
-					mockedPitrTimerangeService.On("ListPITRTimeranges", ctx, artifact.Name, locationRes).Return(timelineList, nil).Once()
+					mockedPbmPITRService.On("ListPITRTimeranges", ctx, artifact.Name, locationRes).Return(timelineList, nil).Once()
 				}
 
 				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)
@@ -676,7 +676,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 		}
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedPitrTimerangeService)
+	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
 }
 
 func TestInTimeSpan(t *testing.T) {

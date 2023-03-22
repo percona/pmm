@@ -149,12 +149,12 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	switch job.Type {
 	case models.MySQLBackupJob:
-		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig); err != nil {
+		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
 		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig); err != nil {
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -188,6 +188,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				job.Data.MySQLBackup.ArtifactID,
 				models.UpdateArtifactParams{
 					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+					Repr:   models.ArtifactReprFromProto(result.MysqlBackup.Repr),
 				})
 			if err != nil {
 				return err
@@ -206,6 +207,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
 					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+					Repr:   models.ArtifactReprFromProto(result.MongodbBackup.Repr),
 				})
 			if err != nil {
 				return err
@@ -339,7 +341,7 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder *string) error { //nolint:lll
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
@@ -352,6 +354,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		Address:  dbConfig.Address,
 		Port:     int32(dbConfig.Port),
 		Socket:   dbConfig.Socket,
+		Folder:   folder,
 	}
 
 	switch {
@@ -396,6 +399,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	mode models.BackupMode,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
+	folder *string,
 ) error {
 	var err error
 	switch dataModel {
@@ -420,6 +424,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 		Port:       int32(dbConfig.Port),
 		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
+		Folder:     folder,
 	}
 	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
 		return err
@@ -474,6 +479,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	locationConfig *models.BackupLocationConfig,
+	folder *string,
 ) error {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
@@ -491,6 +497,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 			MysqlRestoreBackup: &agentpb.StartJobRequest_MySQLRestoreBackup{
 				ServiceId: serviceID,
 				Name:      name,
+				Folder:    folder,
 				LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
 					S3Config: convertS3ConfigModel(locationConfig.S3Config),
 				},
@@ -520,10 +527,12 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	pmmAgentID string,
 	timeout time.Duration,
 	name string,
+	sysName string,
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
+	folder *string,
 ) error {
 	var err error
 	switch dataModel {
@@ -557,6 +566,8 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Port:          int32(dbConfig.Port),
 		Socket:        dbConfig.Socket,
 		PitrTimestamp: timestamppb.New(pitrTimestamp),
+		Folder:        folder,
+		ReprBackup:    &backuppb.ReprBackup{Name: sysName},
 	}
 
 	switch {

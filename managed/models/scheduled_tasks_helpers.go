@@ -209,7 +209,7 @@ type ChangeScheduledTaskParams struct {
 }
 
 // Validate checks if params for scheduled tasks are valid.
-func (p ChangeScheduledTaskParams) Validate() error {
+func (p *ChangeScheduledTaskParams) Validate() error {
 	if p.CronExpression != nil {
 		_, err := cron.ParseStandard(*p.CronExpression)
 		if err != nil {
@@ -336,4 +336,36 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 		}
 	}
 	return "", nil
+}
+
+// Retention returns how many backup artifacts should be stored for the task.
+func (s *ScheduledTask) Retention() (uint32, error) {
+	var retention uint32
+
+	switch s.Type {
+	case ScheduledMySQLBackupTask:
+		retention = s.Data.MySQLBackupTask.Retention
+	case ScheduledMongoDBBackupTask:
+		retention = s.Data.MongoDBBackupTask.Retention
+	default:
+		return retention, errors.Errorf("invalid backup type %s", s.Type)
+	}
+
+	return retention, nil
+}
+
+// Mode returns task backup mode.
+func (s *ScheduledTask) Mode() (BackupMode, error) {
+	var mode BackupMode
+
+	switch s.Type {
+	case ScheduledMySQLBackupTask:
+		mode = s.Data.MySQLBackupTask.Mode
+	case ScheduledMongoDBBackupTask:
+		mode = s.Data.MongoDBBackupTask.Mode
+	default:
+		return mode, errors.Errorf("invalid backup type %s", s.Type)
+	}
+
+	return mode, nil
 }
