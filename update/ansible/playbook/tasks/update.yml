@@ -15,24 +15,11 @@
       - pmm2-client
       - pmm-dump
       - vmproxy
-  pre_tasks:
-    - name: detect /srv/pmm-distribution
-      stat:
-        path: /srv/pmm-distribution
-      no_log: yes
-      register: srv_pmm_distribution
-
-    - name: detect containers
-      set_fact:
-        is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: yes
-      when: srv_pmm_distribution.stat.exists
-
-    - name: force container
-      set_fact:
-        is_docker: True
-      when: is_docker is undefined
   tasks:
+    - name: Print virtualization type
+      debug:
+        var: ansible_virtualization_type
+
     # we need install this package here because it contain VERSION file
     - name: Remove percona-dashboard without architecture
       yum:
@@ -61,7 +48,7 @@
         path: /etc/supervisord.d/pmm.ini
         section: supervisord
         state: absent
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
 
     - name: Create grafana config
       include_role:
@@ -73,27 +60,27 @@
 
     # Set forking type to 'simple'
     - name: Configure systemd
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       copy:
         src: supervisord.service
         dest: /usr/lib/systemd/system/supervisord.service
         mode: 0644
 
     - name: Remove old supervisord service configuration
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       file:
         path: /etc/systemd/system/supervisord.service
         state: absent
 
     # Start the services
     - name: Enable supervisord        | Make the service persist between reboots
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       systemd:
         name: supervisord
         enabled: yes
 
     - name: Supervisord start        | Start supervisord service for AMI/OVF
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       systemd:
         name: supervisord
         state: started # supervisord may already be running
@@ -105,7 +92,7 @@
       register: is_supervisor_running
 
     - name: Supervisord start         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists
+      when: ansible_virtualization_type == "docker" and not is_supervisor_running.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
@@ -113,14 +100,14 @@
         name: initialization
 
     - name: Enable crond service
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       service:
         name: crond
         state: started
         enabled: yes
 
     - name: Increase number of open files for jobs
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       ini_file:
         dest: /etc/supervisord.conf
         section: supervisord
@@ -207,7 +194,7 @@
         name: pmm-agent
         state: stopped
         enabled: no
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
 
     - name: Remove old packages
       yum:
@@ -226,7 +213,7 @@
         src: resize-xfs-lvm
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
 
     - name: Create change-admin-password command
       copy:
@@ -236,7 +223,7 @@
 
     # https://jira.percona.com/browse/PMM-5271
     - name: Check volume size
-      when: not is_docker
+      when: ansible_virtualization_type != "docker"
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"

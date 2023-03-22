@@ -16,7 +16,7 @@
       - percona-clickhouse-server-common
 
 - name: Disable clickhouse-server in systemd
-  when: not is_docker
+  when: ansible_virtualization_type != "docker"
   service:
     name: clickhouse-server
     state: stopped
