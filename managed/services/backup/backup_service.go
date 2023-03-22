@@ -22,8 +22,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/lib/pq"
 	"github.com/AlekSi/pointer"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -100,12 +100,12 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			// TODO remove before merging or after FE is ready.
-		params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
+			params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
 
-		locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
-		if err != nil {
-			return err
-		}
+			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
+			if err != nil {
+				return err
+			}
 
 			var jobType models.JobType
 			switch svc.ServiceType {
@@ -155,28 +155,28 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 			}
 
-		if artifact == nil {
-			if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
-				Name:       name,
-				Vendor:     string(svc.ServiceType),
-				DBVersion:  dbVersion,
-				LocationID: locationModel.ID,
-				ServiceID:  svc.ServiceID,
-				DataModel:  params.DataModel,
-				Mode:       params.Mode,
-				Status:     models.PendingBackupStatus,
-				ScheduleID: params.ScheduleID,
-				Folder:     params.Folder,
-			}); err != nil {
-				return err
+			if artifact == nil {
+				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+					Name:       name,
+					Vendor:     string(svc.ServiceType),
+					DBVersion:  dbVersion,
+					LocationID: locationModel.ID,
+					ServiceID:  svc.ServiceID,
+					DataModel:  params.DataModel,
+					Mode:       params.Mode,
+					Status:     models.PendingBackupStatus,
+					ScheduleID: params.ScheduleID,
+					Folder:     params.Folder,
+				}); err != nil {
+					return err
+				}
+			} else {
+				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.PendingBackupStatus),
+				}); err != nil {
+					return err
+				}
 			}
-		} else {
-			if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
-			}); err != nil {
-				return err
-			}
-		}
 
 			if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
 				return err
