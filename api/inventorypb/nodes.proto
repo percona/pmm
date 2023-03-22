@@ -124,6 +124,7 @@ message RemoteAzureDatabaseNode {
 // List
 
 message ListNodesRequest {
+  // Return only Nodes with matching Node type.
   NodeType node_type = 1;
 }
 
