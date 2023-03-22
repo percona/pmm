@@ -54,22 +54,20 @@ CompleteUserTipOK describes a response with status code 200, with default header
 A successful response.
 */
 type CompleteUserTipOK struct {
-	Payload *CompleteUserTipOKBody
+	Payload interface{}
 }
 
 func (o *CompleteUserTipOK) Error() string {
 	return fmt.Sprintf("[POST /v1/onboarding/tips][%d] completeUserTipOk  %+v", 200, o.Payload)
 }
 
-func (o *CompleteUserTipOK) GetPayload() *CompleteUserTipOKBody {
+func (o *CompleteUserTipOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *CompleteUserTipOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(CompleteUserTipOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -292,46 +290,6 @@ func (o *CompleteUserTipDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error
 // UnmarshalBinary interface implementation
 func (o *CompleteUserTipDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res CompleteUserTipDefaultBodyDetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-CompleteUserTipOKBody Response message for CompleteUserTip method.
-swagger:model CompleteUserTipOKBody
-*/
-type CompleteUserTipOKBody struct {
-	// contains error code. it's 0 if there is no error
-	ErrorCode int32 `json:"errorCode,omitempty"`
-
-	// container error message. it's empty if there is no error
-	ErrorMessage string `json:"errorMessage,omitempty"`
-}
-
-// Validate validates this complete user tip OK body
-func (o *CompleteUserTipOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this complete user tip OK body based on context it is used
-func (o *CompleteUserTipOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CompleteUserTipOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CompleteUserTipOKBody) UnmarshalBinary(b []byte) error {
-	var res CompleteUserTipOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

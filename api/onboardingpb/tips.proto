@@ -46,12 +46,7 @@ message CompleteUserTipRequest {
 }
 
 // Response message for CompleteUserTip method.
-message CompleteUserTipResponse {
-  // contains error code. it's 0 if there is no error
-  int32 errorCode = 1;
-  // container error message. it's empty if there is no error
-  string errorMessage = 2;
-}
+message CompleteUserTipResponse {}
 
 // Service service provides public methods for managing Services.
 service TipService {

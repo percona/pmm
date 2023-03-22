@@ -34975,20 +34975,7 @@
             "description": "A successful response.",
             "schema": {
               "description": "Response message for CompleteUserTip method.",
-              "type": "object",
-              "properties": {
-                "errorCode": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "contains error code. it's 0 if there is no error",
-                  "x-order": 0
-                },
-                "errorMessage": {
-                  "type": "string",
-                  "title": "container error message. it's empty if there is no error",
-                  "x-order": 1
-                }
-              }
+              "type": "object"
             }
           },
           "default": {

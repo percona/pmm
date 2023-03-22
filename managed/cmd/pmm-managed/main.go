@@ -283,7 +283,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	onboardingpb.RegisterTipServiceServer(gRPCServer, onboarding.NewTipService(deps.db, servicesSvc, nodeSvc))
+	onboardingpb.RegisterTipServiceServer(gRPCServer, onboarding.NewTipService(deps.db, servicesSvc))
 
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package onboarding provides functionality for user onboarding features.
 package onboarding
 
 import (
@@ -24,17 +25,17 @@ import (
 
 	"github.com/percona/pmm/api/onboardingpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/inventory"
-	"github.com/percona/pmm/managed/services/management"
 )
 
-// from 1 to 1000 will be ids for system tips
-// from 1001 will be ids for user tips
-// todo: add error codes and error messages
+const (
+	InstallPMMServerTipID    = 1
+	InstallPMMClientTipID    = 2
+	ConnectServiceToPMMTipID = 3
+)
+
 type TipsService struct {
 	db               *reform.DB
-	inventoryService *inventory.ServicesService
-	nodeService      *management.NodeService
+	inventoryService inventoryService
 
 	systemTipIDs map[int32]struct{}
 
@@ -43,22 +44,21 @@ type TipsService struct {
 
 var _ onboardingpb.TipServiceServer = (*TipsService)(nil)
 
-func NewTipService(db *reform.DB, inventoryService *inventory.ServicesService, nodeService *management.NodeService) *TipsService {
+func NewTipService(db *reform.DB, inventoryService inventoryService) *TipsService {
 	return &TipsService{
 		db:               db,
 		inventoryService: inventoryService,
-		nodeService:      nodeService,
 		systemTipIDs: map[int32]struct{}{
-			1: {},
-			2: {},
-			3: {},
+			InstallPMMServerTipID:    {},
+			InstallPMMClientTipID:    {},
+			ConnectServiceToPMMTipID: {},
 		},
 	}
 }
 
 func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb.GetTipfRequest) (*onboardingpb.GetTipResponse, error) {
-	switch tipRequest.TipType.String() {
-	case "SYSTEM":
+	switch tipRequest.TipType {
+	case onboardingpb.TipType_SYSTEM:
 		tip, err := t.retrieveSystemTip(tipRequest.TipId)
 		if err != nil {
 			return nil, err
@@ -67,25 +67,29 @@ func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb
 			TipId:       tip.ID,
 			IsCompleted: tip.IsCompleted,
 		}, nil
-	case "USER":
-		tip, err := t.retrieveUserTip(tipRequest.TipId, tipRequest.UserId)
-		if err != nil {
-			if err == reform.ErrNoRows {
-				tip, err = t.createUserTip(tipRequest.TipId, tipRequest.UserId)
-				if err != nil {
-					return nil, errors.Wrap(err, fmt.Sprintf("cannot create user tip by id: %d", tipRequest.TipId))
-				}
-			} else {
-				return nil, errors.Wrap(err, fmt.Sprintf("cannot retrieve user tip by id: %d", tipRequest.TipId))
-			}
-		}
-		return &onboardingpb.GetTipResponse{
-			TipId:       tip.UserTipID,
-			IsCompleted: tip.IsCompleted,
-		}, nil
+	case onboardingpb.TipType_USER:
+		return t.retrieveOrCreateUserTip(tipRequest)
 	default:
 		return nil, errors.New("Tip type is not correct")
 	}
+}
+
+func (t *TipsService) retrieveOrCreateUserTip(tipRequest *onboardingpb.GetTipfRequest) (*onboardingpb.GetTipResponse, error) {
+	tip, err := t.retrieveUserTip(tipRequest.TipId, tipRequest.UserId)
+	if err != nil {
+		if err == reform.ErrNoRows {
+			tip, err = t.createUserTip(tipRequest.TipId, tipRequest.UserId)
+			if err != nil {
+				return nil, errors.Wrap(err, fmt.Sprintf("cannot create user tip by id: %d", tipRequest.TipId))
+			}
+		} else {
+			return nil, errors.Wrap(err, fmt.Sprintf("cannot retrieve user tip by id: %d", tipRequest.TipId))
+		}
+	}
+	return &onboardingpb.GetTipResponse{
+		TipId:       tip.UserTipID,
+		IsCompleted: tip.IsCompleted,
+	}, nil
 }
 
 func (t *TipsService) retrieveSystemTip(tipID int32) (models.SystemTip, error) {
@@ -102,29 +106,39 @@ func (t *TipsService) retrieveSystemTip(tipID int32) (models.SystemTip, error) {
 	}
 
 	if !tip.IsCompleted {
-		switch tip.ID {
-		case 1:
-			tip.IsCompleted = true
-		case 2:
-			tip.IsCompleted, err = t.isAnyExternalClientConnected()
-			if err != nil {
-				return models.SystemTip{}, errors.Wrap(err, "Cannot retrieve list of agents to check the status of tip")
-			}
-		case 3:
-			tip.IsCompleted, err = t.isAnyServiceConnected()
-			if err != nil {
-				return models.SystemTip{}, errors.Wrap(err, "Cannot retrieve list of services to check the status of tip")
-			}
-		default:
-			return models.SystemTip{}, errors.Errorf("system tip doesn't exist: %d", tip.ID)
+		isCompleted, err := t.isSystemTipCompleted(tip.ID)
+		if err != nil {
+			return models.SystemTip{}, err
 		}
+		tip.IsCompleted = isCompleted
 
-		err := t.db.Save(tip)
+		err = t.db.Save(tip)
 		if err != nil {
 			return models.SystemTip{}, errors.Wrap(err, "cannot save tip info")
 		}
 	}
 	return *tip, nil
+}
+
+func (t *TipsService) isSystemTipCompleted(tipID int32) (bool, error) {
+	switch tipID {
+	case InstallPMMServerTipID:
+		return true, nil
+	case InstallPMMClientTipID:
+		isCompleted, err := t.isAnyExternalClientConnected()
+		if err != nil {
+			return false, errors.Wrap(err, "Cannot retrieve list of agents to check the status of tip")
+		}
+		return isCompleted, nil
+	case ConnectServiceToPMMTipID:
+		isCompleted, err := t.isAnyServiceConnected()
+		if err != nil {
+			return false, errors.Wrap(err, "Cannot retrieve list of services to check the status of tip")
+		}
+		return isCompleted, nil
+	default:
+		return false, errors.Errorf("system tip doesn't exist: %d", tipID)
+	}
 }
 
 func (t *TipsService) isAnyExternalClientConnected() (bool, error) {
@@ -160,8 +174,8 @@ func (t *TipsService) isAnyServiceConnected() (bool, error) {
 	return len(list) >= 2, nil
 }
 
-func (t *TipsService) retrieveUserTip(tipId int32, userId int32) (models.UserTip, error) {
-	res, err := t.db.Querier.SelectOneFrom(models.UserTipTable, "WHERE user_id = $1 AND user_tip_id = $2", userId, tipId)
+func (t *TipsService) retrieveUserTip(tipID int32, userID int32) (models.UserTip, error) {
+	res, err := t.db.Querier.SelectOneFrom(models.UserTipTable, "WHERE user_id = $1 AND user_tip_id = $2", userID, tipID)
 	if err != nil {
 		if err == reform.ErrNoRows {
 			return models.UserTip{}, err
@@ -180,17 +194,14 @@ func (t *TipsService) createUserTip(tipId int32, userId int32) (models.UserTip, 
 	}
 	err := t.db.Save(&tip)
 	if err != nil {
-		return models.UserTip{}, nil
+		return models.UserTip{}, err
 	}
 	return tip, nil
 }
 
 func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboardingpb.CompleteUserTipRequest) (*onboardingpb.CompleteUserTipResponse, error) {
 	if err := t.isSystemTip(userTipRequest.TipId); err != nil {
-		return &onboardingpb.CompleteUserTipResponse{
-			ErrorCode:    1, // todo: move error code to constant
-			ErrorMessage: "This tip id belongs to system tip, which can't be modified",
-		}, nil
+		return nil, errors.New("Tip ID is not correct, it's system tip")
 	}
 	tip, err := t.retrieveUserTip(userTipRequest.TipId, userTipRequest.UserId)
 	if err != nil {
