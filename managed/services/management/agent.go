@@ -80,7 +80,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		return nil, e
 	}
 
-	svcAgents := []*managementpb.GenericAgent{}
+	var svcAgents []*managementpb.GenericAgent
 
 	for _, agent := range agents {
 		// agent is not an exporter, but it runs on the same node as the service (p.e. pmm-agent)
@@ -111,11 +111,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		}
 	}
 
-	res := &managementpb.ListAgentResponse{
-		Agents: svcAgents,
-	}
-
-	return res, nil
+	return &managementpb.ListAgentResponse{Agents: svcAgents}, nil
 }
 
 func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAgent, error) {

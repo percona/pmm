@@ -37,7 +37,7 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
-func getServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+func convertServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
 		return nil
 	}
@@ -173,13 +173,13 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 	return nil
 }
 
-// ListServices returns a filtered list of Services with attributes from Agents and Nodes.
+// ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
 //
 //nolint:unparam
 func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.ListServiceRequest) (*managementpb.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.GetNodeId(),
-		ServiceType:   getServiceType(req.GetServiceType()),
+		ServiceType:   convertServiceType(req.GetServiceType()),
 		ExternalGroup: req.GetExternalGroup(),
 	}
 
@@ -220,7 +220,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, e
 	}
 
-	res := &managementpb.ListServiceResponse{}
+	var resultSvc []*managementpb.GenericService
 	for _, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
@@ -253,7 +253,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			}
 		}
 
-		svcAgents := []*managementpb.GenericAgent{}
+		var svcAgents []*managementpb.GenericAgent
 
 		for _, agent := range agents {
 			// agent is not an exporter, but it runs on the same node as the service (p.e. pmm-agent)
@@ -274,8 +274,8 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			svc.Agents = svcAgents
 		}
 
-		res.Services = append(res.Services, svc)
+		resultSvc = append(resultSvc, svc)
 	}
 
-	return res, nil
+	return &managementpb.ListServiceResponse{Services: resultSvc}, nil
 }

@@ -48,7 +48,7 @@ message RemoveServiceRequest {
 message RemoveServiceResponse {}
 
 message GenericService {
-  // Unique randomly generated instance identifier.
+  // Unique service identifier.
   string service_id = 1;
   // Service type.
   string service_type = 2;
@@ -114,7 +114,7 @@ service Service {
       description: "Removes a Service along with Agents."
     };
   }
-  // ListServices returns a list of Services filtered by type.
+  // ListServices returns a list of Services with a rich set of properties.
   rpc ListServices(ListServiceRequest) returns (ListServiceResponse) {
     option (google.api.http) = {
       post: "/v1/management/Service/List"
