@@ -25,7 +25,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"net/url"
 	"os"
 	"os/signal"
