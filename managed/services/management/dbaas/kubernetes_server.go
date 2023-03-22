@@ -68,6 +68,15 @@ type kubernetesServer struct {
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
+type setupMonitoringParams struct {
+	kubeClient         kubernetesClient
+	operatorsToInstall map[string]bool
+	pmmPublicAddress   string
+	kubeConfig         string
+	apiKey             string
+	apiKeyID           int64
+}
+
 // NewKubernetesServer creates Kubernetes Server.
 func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService,
 	grafanaClient grafanaClient,
@@ -346,18 +355,20 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	go k.setupMonitoring(context.TODO(), operatorsToInstall, req.KubernetesClusterName, req.KubeAuth.Kubeconfig, settings.PMMPublicAddress, apiKey, apiKeyID)
+	params := setupMonitoringParams{
+		kubeClient:         kubeClient,
+		operatorsToInstall: operatorsToInstall,
+		kubeConfig:         req.KubeAuth.Kubeconfig,
+		pmmPublicAddress:   settings.PMMPublicAddress,
+		apiKey:             apiKey,
+		apiKeyID:           apiKeyID,
+	}
+	go k.setupMonitoring(context.TODO(), params)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, clusterName, kubeConfig, pmmPublicAddress string,
-	apiKey string, apiKeyID int64,
-) {
-	kubeClient, err := k.kubeStorage.GetOrSetClient(clusterName)
-	if err != nil {
-		return
-	}
+func (k kubernetesServer) setupMonitoring(ctx context.Context, params setupMonitoringParams) {
 
 	errs := k.installDefaultOperators(operatorsToInstall, kubeClient)
 	if errs["vm"] != nil {
