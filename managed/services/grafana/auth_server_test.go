@@ -64,7 +64,7 @@ func TestNextPrefix(t *testing.T) {
 
 func TestAuthServerMustSetup(t *testing.T) {
 	t.Run("MustCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -79,7 +79,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -96,7 +96,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
@@ -107,7 +107,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("MustNotCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -122,7 +122,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -133,7 +133,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("SkipNonUI", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/dummy", nil)
+		req, err := http.NewRequest(http.MethodGet, "/dummy", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -147,7 +147,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -169,7 +169,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, checker, nil)
 
-	req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
 	req.SetBasicAuth("admin", "admin")
 	authHeaders := req.Header
@@ -177,7 +177,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("GrafanaAdminFallback", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
@@ -188,7 +188,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("NoAnonymousAccess", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
 		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
@@ -249,7 +249,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 

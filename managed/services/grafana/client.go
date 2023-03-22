@@ -132,7 +132,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -200,7 +200,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	}
 
 	var m map[string]interface{}
-	err = c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 
 	if err != nil {
 		return 0, err
@@ -229,7 +229,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
-	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return authUser{
 			role:   none,
@@ -248,7 +248,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 
 	// works only with Basic auth
 	var s []interface{}
-	if err := c.do(ctx, "GET", "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
 		return authUser{
 			role:   none,
 			userID: userID,
@@ -315,7 +315,7 @@ type apiKey struct {
 
 func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
-	if err := c.do(ctx, "GET", "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
 		return none, err
 	}
 
@@ -383,7 +383,7 @@ func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) err
 		return err
 	}
 	var keys []apiKey
-	if err := c.do(ctx, "GET", "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
 		return err
 	}
 
@@ -422,7 +422,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, "GET", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
 		return err
 	}
 
@@ -565,7 +565,7 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))
 
 	var k apiKey
-	if err := c.do(ctx, "GET", "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
 		return 0, "", err
 	}
 	apiKeyID := k.ID
@@ -647,7 +647,7 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 	}.Encode()
 
 	var response []annotation
-	if err := c.do(ctx, "GET", "/api/annotations", params, headers, nil, &response); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response); err != nil {
 		return nil, err
 	}
 
@@ -667,7 +667,7 @@ type grafanaHealthResponse struct {
 // IsReady calls Grafana API to check its status.
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
-	if err := c.do(ctx, "GET", "/api/health", "", nil, nil, &status); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
 		// since we don't return the error to the user, log it to help debugging
 		logrus.Errorf("grafana status check failed: %s", err)
 		return fmt.Errorf("cannot reach Grafana API")

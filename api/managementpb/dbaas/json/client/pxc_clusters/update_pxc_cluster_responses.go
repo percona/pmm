@@ -138,6 +138,9 @@ type UpdatePXCClusterBody struct {
 
 	// params
 	Params *UpdatePXCClusterParamsBodyParams `json:"params,omitempty"`
+
+	// template
+	Template *UpdatePXCClusterParamsBodyTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this update PXC cluster body
@@ -145,6 +148,10 @@ func (o *UpdatePXCClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -173,11 +180,34 @@ func (o *UpdatePXCClusterBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *UpdatePXCClusterBody) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update PXC cluster body based on the context it is used
 func (o *UpdatePXCClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -194,6 +224,21 @@ func (o *UpdatePXCClusterBody) contextValidateParams(ctx context.Context, format
 				return ve.ValidateName("body" + "." + "params")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePXCClusterBody) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
 			}
 			return err
 		}
@@ -939,6 +984,46 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) MarshalBinary
 // UnmarshalBinary interface implementation
 func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res UpdatePXCClusterParamsBodyParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+UpdatePXCClusterParamsBodyTemplate update PXC cluster params body template
+swagger:model UpdatePXCClusterParamsBodyTemplate
+*/
+type UpdatePXCClusterParamsBodyTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this update PXC cluster params body template
+func (o *UpdatePXCClusterParamsBodyTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster params body template based on context it is used
+func (o *UpdatePXCClusterParamsBodyTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePXCClusterParamsBodyTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePXCClusterParamsBodyTemplate) UnmarshalBinary(b []byte) error {
+	var res UpdatePXCClusterParamsBodyTemplate
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

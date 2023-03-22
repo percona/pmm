@@ -75,8 +75,8 @@ func extract(query, pre, post string) ([]string, error) {
 		return nil, err
 	}
 
-	var tables []string
 	match := re.FindAll([]byte(query), -1)
+	tables := make([]string, 0, len(match))
 	for _, v := range match {
 		tables = append(tables, parseValue(string(v), pre, post))
 	}

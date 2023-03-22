@@ -259,7 +259,7 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
@@ -271,9 +271,9 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
 		return &res
 	}

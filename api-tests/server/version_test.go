@@ -46,10 +46,10 @@ func TestVersion(t *testing.T) {
 			})
 
 			t.Logf("URI: %s", uri)
-			req, _ := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
+			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 
 			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)

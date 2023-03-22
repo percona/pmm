@@ -108,7 +108,6 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 			assert.Nil(t, param.String)
 		default:
 		}
-
 	}
 
 	assert.Equal(t, expectedTemplate.Labels, tmpl.Labels)

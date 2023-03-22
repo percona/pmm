@@ -328,7 +328,6 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterN
 				req.Name = req.Name[:21]
 			}
 		}
-
 	}
 
 	return nil
@@ -349,7 +348,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
@@ -404,5 +407,5 @@ func (s PXCClustersService) getBackupLocation(req *dbaasv1beta1.CreatePXCCluster
 	if req.Params != nil && req.Params.Restore != nil && req.Params.Restore.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
 	}
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }

@@ -123,7 +123,7 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	var agentsList []listResultAgent
+	var agentsList []listResultAgent //nolint:prealloc
 	for _, a := range agentsRes.Payload.PMMAgent {
 		status := "disconnected"
 		if a.Connected {

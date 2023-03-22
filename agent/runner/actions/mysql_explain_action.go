@@ -28,13 +28,13 @@ import (
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlExplainAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_MySQLExplainParams
-	query   string
 }
 
 type explainResponse struct {
@@ -53,7 +53,6 @@ func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.Sta
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		query:   params.Query,
 	}
 }
 
@@ -76,7 +75,7 @@ func (a *mysqlExplainAction) Type() string {
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
-	query := a.query
+	query := a.params.Query
 	isDMLQuery := isDMLQuery(query)
 	if isDMLQuery {
 		query = dmlToSelect(query)
@@ -126,13 +125,22 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 func (a *mysqlExplainAction) sealed() {}
 
+func prepareValues(values []string) []any {
+	res := make([]any, 0, len(values))
+	for _, p := range values {
+		res = append(res, p)
+	}
+
+	return res
+}
+
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +171,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.query)).Scan(&b)
+	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +184,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// https://dev.mysql.com/doc/refman/8.0/en/explain-extended.html
 	rows, err := tx.QueryContext(ctx, "SHOW /* pmm-agent */ WARNINGS")
 	if err != nil {
-		return b, nil // ingore error, return original output
+		// ignore error, return original output
+		return b, nil //nolint:nilerr
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -200,12 +209,12 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}
