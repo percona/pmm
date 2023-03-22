@@ -37,8 +37,6 @@ type UserTip struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//
-//nolint:unparam
 func (t *UserTip) BeforeInsert() error {
 	now := Now()
 	t.CreatedAt = now
@@ -48,8 +46,6 @@ func (t *UserTip) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//
-//nolint:unparam
 func (t *UserTip) BeforeUpdate() error {
 	t.UpdatedAt = Now()
 
