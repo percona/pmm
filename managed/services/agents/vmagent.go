@@ -16,12 +16,12 @@
 package agents
 
 import (
-	"github.com/percona/pmm/managed/utils/envvars"
 	"os"
 	"sort"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 var (

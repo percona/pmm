@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/percona/pmm/managed/utils/envvars"
 	"io"
 	"net/url"
 	"os"
@@ -42,6 +41,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 )
