@@ -213,7 +213,10 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	}
 	v := tableNamesRegexp.FindStringSubmatch(a.params.Query)
 	if len(v) >= 2 {
-		m["real_table_name"] = v[1]
+		name := strings.Trim(v[1], "'")
+		name = strings.Trim(name, "\"")
+		name = strings.Trim(name, "`")
+		m["real_table_name"] = name
 	}
 
 	return json.Marshal(m)
