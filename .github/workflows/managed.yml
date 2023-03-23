@@ -91,9 +91,6 @@ jobs:
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
-      - name: Update binaries
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make run-all
-
       - name: Run tests
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-cover
 
