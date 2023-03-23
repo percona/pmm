@@ -186,10 +186,10 @@ func (t *TipsService) retrieveUserTip(tipID int32, userID int32) (models.UserTip
 	return *res.(*models.UserTip), nil
 }
 
-func (t *TipsService) createUserTip(tipId int32, userId int32) (models.UserTip, error) {
+func (t *TipsService) createUserTip(tipID int32, userID int32) (models.UserTip, error) {
 	tip := models.UserTip{
-		UserID:      userId,
-		UserTipID:   tipId,
+		UserID:      userID,
+		UserTipID:   tipID,
 		IsCompleted: false,
 	}
 	err := t.db.Save(&tip)
