@@ -1,16 +1,17 @@
-# Advisors 
-Percona Advisors provide automated insights and recommendations within Percona Monitoring and Management. These proactive insights help you uncover problems before they become larger issues (e.g., security posture, configuration, performance).
+# Advisors
+Percona Advisors provide automated insights and recommendations within Percona Monitoring and Management. These proactive insights help you uncover problems before they become larger issues: security risks, misconfigurations, poor performance, etc.
 
-Advisors offer a set of automated checks to investigate a broad range of possible issues. Previously, Advisors focused only on Security, Configuration, and Performance issues. 
+Advisors are grouped by category: Security, Configuration, Performance and Query. Each Advisor category offers a set of automated checks, which investigate a specific range of possible issues. The list of Advisor checks available for your instance depends on whether your instance is connected to Percona Platform, and on your current subscription plan.
 
 ## Prerequisites for accessing Advisor checks
 All checks are hosted on Percona Platform. PMM Server automatically downloads them from here when the **Advisors** and **Telemetry** options are enabled in PMM under **Configuration > Settings > Advanced Settings**. Both these options are enabled by default.
 
 ### Advisor check tiers and Platform entitlements
-Depending on the entitlements available for your Percona Account, the set of advisor checks that PMM can download from the Percona Platform differs in terms of complexity and functionality.
+Depending on the entitlements available for your Percona Account, the set of Advisor checks that PMM can download from the Percona Platform differs in terms of complexity and functionality.
+As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances.
 
 If your PMM instance is not connected to Percona Platform, PMM can only download the basic set of Anonymous Advisor checks.
-As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances.
+As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances. If you are a Percona customer with a Percona Customer Portal account, you also get access to Paid Advisor checks, which offer more advanced database health information.
 
 If you are a Percona customer with a Percona Customer Portal account, you also get access to Paid Advisor checks, which offer more advanced database health information.
 
@@ -19,50 +20,54 @@ To see the complete list of available checks, see the [Advisor Checks for PMM](h
 ## Enable/Disable
 To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under <i class="uil uil-cog"></i> **Configuration <i class="uil uil-setting"></i> > Settings > Advanced Settings**.
 
-These options are enabled by default so that PMM can run automatic advisor checks in the background. However, you can disable them at any time if you do not need to check the health and performance of your connected databases.
+These options are enabled by default so that PMM can run automatic Advisor checks in the background. However, you can disable them at any time if you do not need to check the health and performance of your connected databases.
 
 ## Automatic checks
 Advisor checks can be executed manually or automatically.
 By default, PMM runs all the checks available for your PMM instances every 24 hours.
+
 ### Change run interval for automatic advisors
- You can change the standard 24 hours interval to a custom frequency for each advisor:
+You can change the standard 24-hour interval to a custom frequency for each Advisor check:
+ - *Rare interval* - 78 hours
+ - *Standard interval* (default) - 24 hours
+ - *Frequent interval* - 4 hours
 
- - *Rare interval*   -  78 hours
- - *Standard interval* (default) -  24 hours
- - *Frequent interval*   - 4   hours
-
-To change the frequency of an automatic advisor:
+To change the frequency of an automatic check:
 
 1. Click **{{icon.checks}} Advisors**.
-2. Select the **All** tab.
-3. Scroll through the list to find a specific check. In PMM 2.29 and later, you can also use the **Filter** section to search by Name, Description, Status, or Interval.
+2. Select the Advisor tab that contains the check for which you want to change the frequency.
+3. Expand the relevant Advisor and scroll through the list to find your check. Alternatively, use the **Filter** section at the top of the table to search checks by Name, Description, Status, or Interval.
 
     !!! hint alert alert-success "Tip"
-        If you need to share filtered advisors results with your team members, send them the PMM URL. This saves your search criteria and results. 
-
-4. Select the check and click the ![Edit](..//_images/edit.png) **Interval** icon in the **Actions** column. 
+        If you need to share filtered Advisor results with your team members, send them the PMM URL. This saves your search criteria and results.
+4. Click the ![Edit](..//_images/edit.png) **Interval** icon in the **Actions** column, next to the check you want to update.
 5. Chose an interval and click **Save**.
 
 ## Manual checks
 In addition to the automatic checks that run every 24 hours, you can also run checks manually, for ad-hoc assessments of your database health and performance.
 
-To manually run all checks or individual ones:
+To run checks manually:
 
 1. Click **{{icon.checks}} Advisors** on the main menu.
-2. Select the **All** tab.
-3. Click **Run checks** to run all the available advisors at once, or click **Run** next to each check that you want to run individually.
+2. Select the Advisor tab that contains the checks which you want to run manually.
+3. Click **Run checks** to run all the available checks for this Advisor group, or expand an Advisor and click **Run** next to each check that you want to run individually.
 ![!Actions options](../_images/PMM_Checks_Actions.png)
 
-## Checks results
-The results are sent to PMM Server where you can review any failed checks on the **Home Dashboard > Failed Advisors Checks** panel. The summary count of failed checks is classified as:
+## Advisor checks results
+The results are sent to PMM Server where you can review any failed checks on the Home dashboard. The summary count of failed checks is classified as:
 
-- <b style="color:#e02f44;">Critical</b>, which also includes checks tagged as **Alert** and **Emergency** 
-- <b style="color:#e36526;">Error</b> 
+- <b style="color:#e02f44;">Critical</b>, which also includes checks tagged as **Alert** and **Emergency**
+- <b style="color:#e36526;">Error</b>
 - <b style="color:#5794f2;">Warning</b>
-- <b style="color:#3274d9;">Notice</b>, which also includes checks tagges as **Info** and **Debug** 
-  
-![!Failed Advisors Checks panel](../_images/HomeDashboard.png)
+- <b style="color:#3274d9;">Notice</b>, which also includes checks tagged as **Info** and **Debug**
+
+![!Failed Advisor Checks panel](../_images/HomeDashboard.png)
 
 To see more details about the available checks and any checks that failed, click the *{{icon.checks}} Advisors* icon on the main menu.
 
 **Check results data *always* remains on the PMM Server.** This is not related to anonymous data sent for Telemetry purposes.
+
+## Create your own Advisors
+PMM Advisors offer a set of checks that can detect common security threats, performance degradation, data loss and data corruption.
+
+Developers can create custom checks to cover additional use cases, relevant to specific database infrastructure. For more information, see [Develop Advisor checks](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html).

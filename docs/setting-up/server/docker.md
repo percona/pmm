@@ -358,9 +358,9 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `METRICS_RESOLUTION_LR`                                         | Low metrics resolution in seconds.
 | `DATA_RETENTION`                                                | The number of days to keep time-series data. <br />**N.B.** This must be set in a format supported by `time.ParseDuration` <br /> and represent the complete number of days. <br /> The supported units are `ns`, `us` (or `µs`), `ms`, `s`, `m`, and `h`. <br /> The value must be a multiple of 24, e.g., for 90 days 2160h (90 * 24).
 | `ENABLE_VM_CACHE`                                               | Enable cache in VM.
-| `ENABLE_ALERTING`                                               | Enable integrated alerting.
+| `DISABLE_ALERTING`                           | Disables built-in Percona Alerting, which is enabled by default.
 | `ENABLE_AZUREDISCOVER`                                          | Enable support for discovery of Azure databases.
-| `ENABLE_BACKUP_MANAGEMENT`                                      | Enable integrated backup tools.
+| `DISABLE_BACKUP_MANAGEMENT`                                     | Disables Backup Management, which is enabled by default.
 | `ENABLE_DBAAS`                                                  | Enable DBaaS features.
 | `PMM_DEBUG`                                                     | Enables a more verbose log level.
 | `PMM_TRACE`                                                     | Enables a more verbose log level including trace-back information.

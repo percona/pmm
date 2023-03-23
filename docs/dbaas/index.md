@@ -16,3 +16,4 @@ It allows you to utilize the benefits of Kubernetes and Percona's operators to r
 - [Getting started with DBaaS](get-started.html)
 - [Registering and managing Kubernetes clusters](get-started.html)
 - [Creating and managing database clusters](get-started.html)
+- [Creating or updating a database cluster from a DBaaS template](DBaaS_tepmplate.html)

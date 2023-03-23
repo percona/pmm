@@ -44,8 +44,12 @@ To remove access roles, do the following:
 
     ![!](../../_images/PMM_access_control_delete_role.png)
 
+3. Starting with **PMM 2.36.0**, if the role that you want to delete is already assigned to a user, you will see a drop-down with replacement roles. Select the replacement role and the selected role will be assigned to the user.
 
-3. Click *Confirm* and delete the role.
+
+    ![!](../../_images/PMM_access_control_delete_replace_role.png)
+
+4. Click *Confirm* and delete the role.
 
 
 
