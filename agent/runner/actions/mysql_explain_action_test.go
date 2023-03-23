@@ -288,15 +288,15 @@ func TestMySQLExplain(t *testing.T) {
 
 func TestParseRealTableNameMySQL(t *testing.T) {
 	tests := []string{
-		"SELECT name FROM people where city = 'Paris'",
-		"SELECT name FROM world.people where city = 'Paris'",
-		"SELECT name FROM `world`.`people` where city = 'Paris'",
-		"SELECT name FROM `world` . `people` where city = 'Paris'",
-		"SELECT name FROM \"world\".\"people\" where city = 'Paris'",
-		"SELECT name FROM \"world\" . \"people\" where city = 'Paris'",
-		"SELECT name FROM 'world'.'people' where city = 'Paris'",
-		"SELECT name FROM 'world' . 'people' where city = 'Paris'",
-		"SELECT name FROM 'world' . \"people\" where city = `Paris`",
+		"SELECT name FROM people WHERE city = 'Paris'",
+		"SELECT name FROM world.people WHERE city = 'Paris'",
+		"SELECT name FROM `world`.`people` WHERE city = 'Paris'",
+		"SELECT name FROM `world` . `people` WHERE city = 'Paris'",
+		"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'",
+		"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'",
+		"SELECT name FROM 'world'.'people' WHERE city = 'Paris'",
+		"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'",
+		"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`",
 	}
 
 	for _, test := range tests {
