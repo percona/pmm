@@ -5,6 +5,7 @@ package ia.v1beta1;
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/pagination.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
@@ -197,7 +198,7 @@ service Channels {
   // ListChannels returns a list of all notifation channels.
   rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
     option deprecated = true;
-
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/List"
       body: "*"
@@ -206,7 +207,7 @@ service Channels {
   // AddChannel adds notification channel.
   rpc AddChannel(AddChannelRequest) returns (AddChannelResponse) {
     option deprecated = true;
-
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Add"
       body: "*"
@@ -215,7 +216,7 @@ service Channels {
   // ChangeChannel changes notification channel.
   rpc ChangeChannel(ChangeChannelRequest) returns (ChangeChannelResponse) {
     option deprecated = true;
-
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Change"
       body: "*"
@@ -224,7 +225,7 @@ service Channels {
   // RemoveChannel removes notification channel.
   rpc RemoveChannel(RemoveChannelRequest) returns (RemoveChannelResponse) {
     option deprecated = true;
-
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Remove"
       body: "*"

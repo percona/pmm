@@ -65,6 +65,7 @@ service Alerts {
   // ListAlerts returns a list of all Alerts.
   rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse) {
     option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/List"
       body: "*"
@@ -73,10 +74,13 @@ service Alerts {
   // ToggleAlerts allows to switch alerts state between silenced and unsilenced.
   rpc ToggleAlerts(ToggleAlertsRequest) returns (ToggleAlertsResponse) {
     option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
+      description: "Pass empty list to apply toggle action to all existing alerts"
+    };
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Toggle"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {description: "Pass empty list to apply toggle action to all existing alerts"};
   }
 }
