@@ -99,7 +99,6 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
-	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/logger"
@@ -110,10 +109,10 @@ import (
 )
 
 var (
-	interfaceToBind = env.GetEnv("PMM_DEV_BIND_INTERFACE", "127.0.0.1")
-	gRPCAddr        = interfaceToBind + ":7771"
-	http1Addr       = interfaceToBind + ":7772"
-	debugAddr       = interfaceToBind + ":7773"
+	interfaceToBind = envvars.GetInterfaceToBind()
+	gRPCAddr        = net.JoinHostPort(interfaceToBind, ":7771")
+	http1Addr       = net.JoinHostPort(interfaceToBind, ":7772")
+	debugAddr       = net.JoinHostPort(interfaceToBind, ":7773")
 )
 
 const (

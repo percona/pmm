@@ -16,12 +16,12 @@
 package agents
 
 import (
+	"github.com/percona/pmm/managed/utils/envvars"
 	"os"
 	"sort"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/managed/utils/env"
 )
 
 var (
@@ -36,7 +36,7 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		maxScrapeSize = space
 	}
 
-	interfaceToBind := env.GetEnv("PMM_DEV_BIND_INTERFACE", "127.0.0.1")
+	interfaceToBind := envvars.GetInterfaceToBind()
 
 	args := []string{
 		"-remoteWrite.url={{.server_url}}/victoriametrics/api/v1/write",

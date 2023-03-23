@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"io"
 	"net/url"
 	"os"
@@ -41,7 +42,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 )
@@ -581,7 +581,7 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
-var interfaceToBind = env.GetEnv("PMM_DEV_BIND_INTERFACE", "127.0.0.1")
+var interfaceToBind = envvars.GetInterfaceToBind()
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
