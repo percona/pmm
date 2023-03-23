@@ -217,13 +217,12 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func parseRealTableName(query string) (string, error) {
-	query = strings.ReplaceAll(query, " . ", ".")
-
 	tableNamesRegexp, err := regexp.Compile(`(?i)FROM (.*?) `)
 	if err != nil {
 		return "", err
 	}
 
+	query = strings.ReplaceAll(query, " . ", ".")
 	v := tableNamesRegexp.FindStringSubmatch(query)
 	if len(v) < 2 {
 		return "", fmt.Errorf("problem during parsing %+q", v)
