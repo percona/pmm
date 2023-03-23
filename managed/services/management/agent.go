@@ -27,10 +27,8 @@ import (
 
 // AgentService represents service for working with agents.
 type AgentService struct {
-	db    *reform.DB
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
+	db *reform.DB
+	r  agentsRegistry
 
 	managementpb.UnimplementedAgentServer
 }

@@ -60,7 +60,7 @@ func TestAgentService(t *testing.T) {
 			state.AssertExpectations(t)
 			ar.AssertExpectations(t)
 		}
-		s := NewAgentService(db, ar, state, vmdb)
+		s := NewAgentService(db, ar)
 
 		return ctx, s, teardown, vmdb
 	}
