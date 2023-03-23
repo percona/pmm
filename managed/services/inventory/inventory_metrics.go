@@ -18,12 +18,12 @@ package inventory
 import (
 	"context"
 	"fmt"
-	prom "github.com/prometheus/client_golang/prometheus"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -71,17 +71,17 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 	return &InventoryMetricsCollector{
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
-			"The current information about agent",
+			"Inventory Agent",
 			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
-			"The current information about node",
+			"Inventory Node",
 			[]string{"node_id", "node_type", "node_name", "container_name"},
 			nil),
 		mServicesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "services"),
-			"The current information about service",
+			"Inventory Service",
 			[]string{"service_id", "service_type", "node_id"},
 			nil),
 
