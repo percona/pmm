@@ -69,7 +69,6 @@ var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"aurora":       managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.6-compatible Aurora
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
 		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
