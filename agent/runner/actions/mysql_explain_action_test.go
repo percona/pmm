@@ -21,14 +21,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
+
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 func TestMySQLExplain(t *testing.T) {
