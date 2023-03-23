@@ -221,6 +221,8 @@ func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter
 	return true, nil
 }
 
+// getAlertID returns the alert's ID.
+// Deprecated. Do not use.
 func getAlertID(alert *ammodels.GettableAlert) string {
 	return *alert.Fingerprint
 }

@@ -115,6 +115,7 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 	return res, nil
 }
 
+// Deprecated. Do not use.
 func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *managementpb.PageTotals, error) {
 	var channels []*models.Channel
 	var totalItems int
@@ -273,6 +274,8 @@ func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.Remo
 	return &iav1beta1.RemoveChannelResponse{}, nil
 }
 
+// convertChannel converts a channel model to its protobuf representation.
+// Deprecated. Do not use.
 func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	c := &iav1beta1.Channel{
 		ChannelId: channel.ID,
@@ -323,6 +326,8 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	return c, nil
 }
 
+// convertHTTPConfigToModel converts a protobuf HTTPConfig to its model representation.
+// Deprecated. Do not use.
 func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 	if config == nil {
 		return nil
@@ -358,6 +363,8 @@ func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 	return res
 }
 
+// convertModelToHTTPConfig converts a HTTPConfig model to its protobuf representation.
+// Deprecated. Do not use.
 func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig {
 	if config == nil {
 		return nil

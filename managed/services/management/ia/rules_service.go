@@ -529,6 +529,8 @@ func (s *RulesService) updateConfigurations() {
 	s.alertManager.RequestConfigurationUpdate()
 }
 
+// convertParamType converts an alert type to its alerting API equivalent.
+// Deprecated. Do not use.
 func convertParamType(t alert.Type) alerting.ParamType {
 	// TODO: add another types.
 	switch t {
@@ -539,6 +541,8 @@ func convertParamType(t alert.Type) alerting.ParamType {
 	}
 }
 
+// convertModelToParamsDefinitions converts a parameter definition model to its alerting API equivalent.
+// Deprecated. Do not use.
 func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*alerting.ParamDefinition, error) {
 	res := make([]*alerting.ParamDefinition, 0, len(definitions))
 	for _, definition := range definitions {
@@ -581,6 +585,8 @@ func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitio
 	return res, nil
 }
 
+// convertModelToParamValues converts a parameter value to its protobuf representation.
+// Deprecated. Do not use.
 func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta1.ParamValue, error) {
 	res := make([]*iav1beta1.ParamValue, len(values))
 	for i, param := range values {
@@ -604,6 +610,8 @@ func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta
 	return res, nil
 }
 
+// convertParamsValuesToModel converts a parameter value to its model equivalent.
+// Deprecated. Do not use.
 func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExprParamsValues, error) {
 	ruleParams := make(models.AlertExprParamsValues, len(params))
 	for i, param := range params {
@@ -630,6 +638,8 @@ func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExp
 	return ruleParams, nil
 }
 
+// parseBooleanFlag converts a protobuf boolean value to a boolean pointer.
+// Deprecated. Do not use.
 func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 	switch bf {
 	case managementpb.BooleanFlag_TRUE:
@@ -643,6 +653,8 @@ func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 	}
 }
 
+// convertModelToFilterType converts a filter type model to its protobuf representation.
+// Deprecated. Do not use.
 func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
 	switch filterType {
 	case models.Equal:
@@ -654,6 +666,8 @@ func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType
 	}
 }
 
+// convertFiltersToModel converts an IA filter to its model representation.
+// Deprecated. Do not use.
 func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) {
 	res := make(models.Filters, len(filters))
 	for i, filter := range filters {
