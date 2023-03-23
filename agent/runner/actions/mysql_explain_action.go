@@ -20,6 +20,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -205,6 +206,16 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// ignore rows.Err()
 
 	m["warnings"] = warnings
+
+	tableNamesRegexp, err := regexp.Compile(`(?i)FROM (.*?) `)
+	if err != nil {
+		return []byte(""), err
+	}
+	v := tableNamesRegexp.FindStringSubmatch(a.params.Query)
+	if len(v) >= 2 {
+		m["realTable"] = v[1]
+	}
+
 	return json.Marshal(m)
 }
 
