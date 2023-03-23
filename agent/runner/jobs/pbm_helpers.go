@@ -265,7 +265,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 				return nil
 			case "canceled":
 				return errors.New("backup was canceled")
-			case "error":
+			case "error": //nolint:goconst
 				return errors.New(info.Error)
 			}
 

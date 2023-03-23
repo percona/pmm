@@ -34,7 +34,7 @@ telemetry:
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"

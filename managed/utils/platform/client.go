@@ -63,6 +63,9 @@ func NewClient(db *reform.DB, address string) (*Client, error) { //nolint:unpara
 			Timeout: envvars.GetPlatformAPITimeout(l),
 			Transport: &http.Transport{
 				TLSClientConfig: tlsConfig,
+				// Go respects proxy configuration by default, setting a transport
+				// without proxy would make the requests ignore proxy settings.
+				Proxy: http.ProxyFromEnvironment,
 			},
 		},
 	}, nil
@@ -256,7 +259,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 		return nil, err
 	}
 
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {

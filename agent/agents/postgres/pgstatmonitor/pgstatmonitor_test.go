@@ -165,7 +165,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			selectAllCountriesLong: "7FE44699CA927E67",
 		}
 
-	case "14":
+	case "14", "15":
 		digests = map[string]string{
 			selectAllCountries:     "1172613B04E8CEC0",
 			selectAllCountriesLong: "EB821DA6C4030A4F",
@@ -195,7 +195,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		insertCMDType = commandTypeInsert
 	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14,
 		pgStatMonitorVersion11PG13, pgStatMonitorVersion11PG14,
-		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14:
+		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14, pgStatMonitorVersion20PG15:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1
@@ -234,6 +234,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
 				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -289,6 +290,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
+				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -359,6 +362,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -417,6 +422,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -513,6 +520,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         expectedFingerprint,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
