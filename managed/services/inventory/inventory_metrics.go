@@ -17,7 +17,7 @@ package inventory
 
 import (
 	"context"
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 
@@ -44,8 +44,6 @@ type Metric struct {
 type InventoryMetrics struct {
 	db       *reform.DB
 	registry agentsRegistry
-
-	mutex sync.Mutex
 }
 
 //goland:noinspection GoNameStartsWithPackageName
@@ -100,7 +98,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 
 		for _, agent := range dbAgents {
 			disabled := "0"
-			connected := float64(0)
+			var connected = float64(0)
 
 			pmmAgentID := pointer.GetString(agent.PMMAgentID)
 
@@ -199,7 +197,7 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	agentMetrics, agentError := i.metrics.GetAgentMetrics(ctx)
 
 	if agentError != nil {
-		fmt.Println(agentError)
+		logrus.Error(agentError)
 		return
 	}
 
@@ -210,7 +208,7 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	nodeMetrics, nodeError := i.metrics.GetNodeMetrics(ctx)
 
 	if nodeError != nil {
-		fmt.Println(nodeError)
+		logrus.Error(nodeError)
 		return
 	}
 
@@ -221,7 +219,7 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	serviceMetrics, serviceError := i.metrics.GetServiceMetrics(ctx)
 
 	if serviceError != nil {
-		fmt.Println(serviceError)
+		logrus.Error(serviceError)
 		return
 	}
 
