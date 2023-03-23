@@ -35,7 +35,7 @@ const (
 	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
 	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
 	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind     = "PMM_TEST_INTERFACE_TO_BIND"
+	evnInterfaceToBind     = "PERCONA_TEST_INTERFACE_TO_BIND"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
