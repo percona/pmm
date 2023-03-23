@@ -207,24 +207,37 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 
 	m["warnings"] = warnings
 
-	tableNamesRegexp, err := regexp.Compile(`(?i)FROM (.*?) `)
+	realTableName, err := parseRealTableName(a.params.Query)
 	if err != nil {
-		return []byte(""), err
+		return nil, err
 	}
-	v := tableNamesRegexp.FindStringSubmatch(a.params.Query)
-	if len(v) >= 2 {
-		name := strings.Trim(v[1], "'")
-		name = strings.Trim(name, "\"")
-		name = strings.Trim(name, "`")
-
-		if index := strings.Index(name, "."); index != -1 {
-			name = name[index:]
-		}
-
-		m["real_table_name"] = name
-	}
+	m["real_table_name"] = realTableName
 
 	return json.Marshal(m)
+}
+
+func parseRealTableName(query string) (string, error) {
+	query = strings.ReplaceAll(query, " . ", ".")
+
+	tableNamesRegexp, err := regexp.Compile(`(?i)FROM (.*?) `)
+	if err != nil {
+		return "", err
+	}
+
+	v := tableNamesRegexp.FindStringSubmatch(query)
+	if len(v) < 2 {
+		return "", fmt.Errorf("problem during parsing %+q", v)
+	}
+
+	name := strings.ReplaceAll(v[1], "'", "")
+	name = strings.ReplaceAll(name, "\"", "")
+	name = strings.ReplaceAll(name, "`", "")
+
+	if index := strings.Index(name, "."); index != -1 {
+		name = name[index+1:]
+	}
+
+	return name, nil
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {

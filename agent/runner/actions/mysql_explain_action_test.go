@@ -21,15 +21,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
-
-	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
 )
 
 func TestMySQLExplain(t *testing.T) {
@@ -284,4 +283,24 @@ func TestMySQLExplain(t *testing.T) {
 			check(t)
 		})
 	})
+}
+
+func TestParseRealTableNameMySQL(t *testing.T) {
+	tests := []string{
+		"SELECT name FROM people where city = 'Paris'",
+		"SELECT name FROM world.people where city = 'Paris'",
+		"SELECT name FROM `world`.`people` where city = 'Paris'",
+		"SELECT name FROM `world` . `people` where city = 'Paris'",
+		"SELECT name FROM \"world\".\"people\" where city = 'Paris'",
+		"SELECT name FROM \"world\" . \"people\" where city = 'Paris'",
+		"SELECT name FROM 'world'.'people' where city = 'Paris'",
+		"SELECT name FROM 'world' . 'people' where city = 'Paris'",
+		"SELECT name FROM 'world' . \"people\" where city = `Paris`",
+	}
+
+	for _, test := range tests {
+		realTableName, err := parseRealTableName(test)
+		require.NoError(t, err)
+		assert.Equal(t, "people", realTableName)
+	}
 }
