@@ -99,7 +99,7 @@ func (t *TipsService) retrieveSystemTip(tipID int32) (models.SystemTip, error) {
 	}
 	var tip *models.SystemTip
 	if err == reform.ErrNoRows {
-		tip = new(models.SystemTip)
+		tip = &models.SystemTip{}
 		tip.ID = tipID
 	} else {
 		tip = res.(*models.SystemTip)
