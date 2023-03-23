@@ -77,7 +77,6 @@ var (
 		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
 	}
 	rdsEnginesKeys = []*string{
-		pointer.ToString("aurora"),
 		pointer.ToString("aurora-mysql"),
 		pointer.ToString("mariadb"),
 		pointer.ToString("mysql"),
