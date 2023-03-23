@@ -89,8 +89,8 @@ message GenericAgent {
 }
 
 message ListAgentRequest {
-  // Return only Agents that provide insights for that ServiceID.
-  string service_id = 1;
+  // Return only Agents that relate to a specific ServiceID.
+  string service_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message ListAgentResponse {
@@ -100,7 +100,7 @@ message ListAgentResponse {
 
 // Agent service provides public methods for managing and querying Agents.
 service Agent {
-  // ListAgents returns a list of Agents filtered by type.
+  // ListAgents returns a list of Agents filtered by service_id.
   rpc ListAgents(ListAgentRequest) returns (ListAgentResponse) {
     option (google.api.http) = {
       post: "/v1/management/Agent/List"

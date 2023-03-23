@@ -19,8 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/managementpb"
@@ -51,10 +49,6 @@ func NewAgentService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, 
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAgentRequest) (*managementpb.ListAgentResponse, error) {
-	if req.ServiceId == "" {
-		return nil, status.Error(codes.InvalidArgument, "service_id is required")
-	}
-
 	serviceID := req.GetServiceId()
 
 	var agents []*models.Agent
@@ -156,7 +150,7 @@ func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAge
 		Version:                        pointer.GetString(agent.Version),
 	}
 
-	// Indicate that there is actually a secret, but don't show it.
+	// Indicate that there is actually a secret, but don't disclose it.
 	if agent.AgentPassword != nil {
 		ga.AgentPassword = pass
 	}
