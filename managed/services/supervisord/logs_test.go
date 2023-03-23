@@ -96,8 +96,6 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestAddAdminSummary(t *testing.T) {
-	t.Skip("FIXME")
-
 	zipfile, err := os.CreateTemp("", "*-test.zip")
 	assert.NoError(t, err)
 
@@ -157,8 +155,6 @@ func TestFiles(t *testing.T) {
 }
 
 func TestZip(t *testing.T) {
-	t.Skip("FIXME")
-
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 	l := NewLogs("2.4.5", checker)
 	ctx := logger.Set(context.Background(), t.Name())
