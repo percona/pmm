@@ -14,7 +14,7 @@
   "dependencies": {
     "@playwright/test": "^1.31.2",
     "dotenv": "^16.0.3",
-    "playwright": "^1.31.2",
+    "playwright": "^1.32.0",
     "promise-retry": "^2.0.1",
     "shelljs": "^0.8.5",
     "typescript": "^5.0.2"
