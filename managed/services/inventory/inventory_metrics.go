@@ -18,7 +18,6 @@ package inventory
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"sync"
 	"time"
 
@@ -100,15 +99,13 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 		}
 
 		for _, agent := range dbAgents {
-			disabled := 0
+			disabled := "0"
 			connected := float64(0)
 
 			pmmAgentID := pointer.GetString(agent.PMMAgentID)
 
 			if agent.Disabled {
-				disabled = 1
-			} else {
-				disabled = 0
+				disabled = "1"
 			}
 
 			if i.registry.IsConnected(pmmAgentID) {
@@ -123,7 +120,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				pointer.GetString(agent.ServiceID),
 				pointer.GetString(agent.NodeID),
 				pmmAgentID,
-				strconv.Itoa(disabled),
+				disabled,
 				pointer.GetString(agent.Version),
 			}
 
