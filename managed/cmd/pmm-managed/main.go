@@ -672,11 +672,11 @@ func main() {
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
-	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
-	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
-	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
+	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP InventoryMetrics address").Default("127.0.0.1:3000").String()
+	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN InventoryMetrics gRPC InventoryMetrics address").Default("127.0.0.1:9911").String()
+	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC InventoryMetrics address").Default("127.0.0.1:20201").String()
 
-	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
+	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service InventoryMetrics URL").
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
@@ -780,9 +780,9 @@ func main() {
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
-	iapi := inventory.NewInventoryAPI(db, agentsRegistry)
-	ansInventory := inventory.NewInventory(iapi)
-	prom.MustRegister(ansInventory)
+	inventoryMetrics := inventory.NewInventoryMetrics(db, agentsRegistry)
+	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
+	prom.MustRegister(inventoryMetricsCollector)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 

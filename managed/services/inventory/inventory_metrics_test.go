@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
@@ -31,9 +32,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestInventory(t *testing.T) {
-	iapi := &mockInventoryAPI{}
-	inventoryCollector := NewInventory(iapi)
+func TestNewInventoryMetricsCollector(t *testing.T) {
+	metricsMock := &mockInventoryMetrics{}
+	inventoryCollector := NewInventoryMetricsCollector(metricsMock)
 
 	agentMetrics := []Metric{
 		{
@@ -56,72 +57,72 @@ func TestInventory(t *testing.T) {
 		},
 	}
 
-	t.Run("Check real metrics", func(t *testing.T) {
+	t.Run("Metrics returns inventory metrics", func(t *testing.T) {
 		client := http.Client{}
 
-		ctx, cancelCtx := context.WithTimeout(context.Background(), cancelTime)
+		ctx, cancelCtx := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancelCtx()
 
-		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:7773/debug/metrics", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://localhost:7773/debug/metrics", nil)
+		require.NoError(t, err)
 		resp, err := client.Do(req)
-
 		require.NoError(t, err)
 		defer resp.Body.Close() //nolint:gosec
 
-		b, err := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.NotEmpty(t, b)
+		assert.NotEmpty(t, body)
 
-		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_agents gauge")
-		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_nodes gauge")
-		assert.Contains(t, string(b), "TYPE pmm_managed_inventory_services gauge")
+		assert.Contains(t, string(body), "TYPE pmm_managed_inventory_agents gauge")
+		assert.Contains(t, string(body), "TYPE pmm_managed_inventory_nodes gauge")
+		assert.Contains(t, string(body), "TYPE pmm_managed_inventory_services gauge")
 	})
 
-	t.Run("Check mocked metrics", func(t *testing.T) {
-		iapi.On("GetAgentDataForMetrics", mock.Anything).Return(agentMetrics, nil)
-		iapi.On("GetNodeDataForMetrics", mock.Anything).Return(nodeMetrics, nil)
-		iapi.On("GetServiceDataForMetrics", mock.Anything).Return(serviceMetrics, nil)
+	t.Run("Collector", func(t *testing.T) {
+		metricsMock.On("GetAgentMetrics", mock.Anything).Return(agentMetrics, nil)
+		metricsMock.On("GetNodeMetrics", mock.Anything).Return(nodeMetrics, nil)
+		metricsMock.On("GetServiceMetrics", mock.Anything).Return(serviceMetrics, nil)
 
-		const aMetadata = `
+		const expectedAgentMetrics = `
 			# HELP pmm_managed_inventory_agents The current information about agent
 			# TYPE pmm_managed_inventory_agents gauge
-		`
-
-		aExpected := `
 			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
 		`
 
-		const nMetadata = `
+		const expectedNodeMetrics = `
 			# HELP pmm_managed_inventory_nodes The current information about node
         	# TYPE pmm_managed_inventory_nodes gauge
-		`
-
-		nExpected := `
         	pmm_managed_inventory_nodes{container_name="C1",node_id="N1",node_name="N1",node_type="generic"} 1
 		`
 
-		const sMetadata = `
+		const expectedServiceMetrics = `
 			# HELP pmm_managed_inventory_services The current information about service
 			# TYPE pmm_managed_inventory_services gauge
-		`
-
-		sExpected := `
 			pmm_managed_inventory_services{node_id="N1",service_id="C1",service_type="proxysql"} 1
 		`
 
-		if err := testutil.CollectAndCompare(inventoryCollector, strings.NewReader(aMetadata+aExpected), "pmm_managed_inventory_agents"); err != nil {
+		if err := testutil.CollectAndCompare(
+			inventoryCollector,
+			strings.NewReader(expectedAgentMetrics),
+			"pmm_managed_inventory_agents"); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
-		if err := testutil.CollectAndCompare(inventoryCollector, strings.NewReader(nMetadata+nExpected), "pmm_managed_inventory_nodes"); err != nil {
+		if err := testutil.CollectAndCompare(
+			inventoryCollector,
+			strings.NewReader(expectedNodeMetrics),
+			"pmm_managed_inventory_nodes"); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
-		if err := testutil.CollectAndCompare(inventoryCollector, strings.NewReader(sMetadata+sExpected), "pmm_managed_inventory_services"); err != nil {
+		if err := testutil.CollectAndCompare(
+			inventoryCollector,
+			strings.NewReader(expectedServiceMetrics),
+			"pmm_managed_inventory_services"); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 
-		iapi.AssertExpectations(t)
+		metricsMock.AssertExpectations(t)
 	})
 }

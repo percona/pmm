@@ -29,7 +29,7 @@ import (
 //go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=inventoryAPI -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=inventoryMetrics -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -70,8 +70,8 @@ type versionCache interface {
 	RequestSoftwareVersionsUpdate()
 }
 
-type inventoryAPI interface {
-	GetAgentDataForMetrics(ctx context.Context) (metrics []Metric, err error)
-	GetNodeDataForMetrics(ctx context.Context) (metrics []Metric, err error)
-	GetServiceDataForMetrics(ctx context.Context) (metrics []Metric, err error)
+type inventoryMetrics interface {
+	GetAgentMetrics(ctx context.Context) (metrics []Metric, err error)
+	GetNodeMetrics(ctx context.Context) (metrics []Metric, err error)
+	GetServiceMetrics(ctx context.Context) (metrics []Metric, err error)
 }
