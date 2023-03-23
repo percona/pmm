@@ -17,12 +17,12 @@ package inventory
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -98,7 +98,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 
 		for _, agent := range dbAgents {
 			disabled := "0"
-			var connected = float64(0)
+			connected := float64(0)
 
 			pmmAgentID := pointer.GetString(agent.PMMAgentID)
 
