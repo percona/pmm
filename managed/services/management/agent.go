@@ -36,12 +36,10 @@ type AgentService struct {
 }
 
 // NewAgentService creates AgentService instance.
-func NewAgentService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *AgentService {
+func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 	return &AgentService{
-		db:    db,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
+		db: db,
+		r:  r,
 	}
 }
 
