@@ -216,6 +216,11 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 		name := strings.Trim(v[1], "'")
 		name = strings.Trim(name, "\"")
 		name = strings.Trim(name, "`")
+
+		if index := strings.Index(name, "."); index != -1 {
+			name = name[index:]
+		}
+
 		m["real_table_name"] = name
 	}
 
