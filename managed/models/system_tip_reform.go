@@ -20,7 +20,7 @@ func (v *systemTipTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("system_tip").
+// Name returns a view or table name in SQL database ("system_tips").
 func (v *systemTipTableType) Name() string {
 	return v.s.SQLName
 }
@@ -50,11 +50,11 @@ func (v *systemTipTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// SystemTipTable represents system_tip view or table in SQL database.
+// SystemTipTable represents system_tips view or table in SQL database.
 var SystemTipTable = &systemTipTableType{
 	s: parse.StructInfo{
 		Type:    "SystemTip",
-		SQLName: "system_tip",
+		SQLName: "system_tips",
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "int32", Column: "id"},
 			{Name: "IsCompleted", Type: "bool", Column: "is_completed"},

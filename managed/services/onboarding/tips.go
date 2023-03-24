@@ -56,7 +56,7 @@ func NewTipService(db *reform.DB, inventoryService inventoryService) *TipsServic
 	}
 }
 
-func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb.GetTipfRequest) (*onboardingpb.GetTipResponse, error) {
+func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb.GetTipRequest) (*onboardingpb.GetTipResponse, error) {
 	switch tipRequest.TipType {
 	case onboardingpb.TipType_SYSTEM:
 		tip, err := t.retrieveSystemTip(tipRequest.TipId)
@@ -74,7 +74,7 @@ func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb
 	}
 }
 
-func (t *TipsService) retrieveOrCreateUserTip(tipRequest *onboardingpb.GetTipfRequest) (*onboardingpb.GetTipResponse, error) {
+func (t *TipsService) retrieveOrCreateUserTip(tipRequest *onboardingpb.GetTipRequest) (*onboardingpb.GetTipResponse, error) {
 	tip, err := t.retrieveUserTip(tipRequest.TipId, tipRequest.UserId)
 	if err != nil {
 		if err == reform.ErrNoRows {
@@ -93,6 +93,10 @@ func (t *TipsService) retrieveOrCreateUserTip(tipRequest *onboardingpb.GetTipfRe
 }
 
 func (t *TipsService) retrieveSystemTip(tipID int32) (models.SystemTip, error) {
+	if ok := t.isSystemTip(tipID); !ok {
+		return models.SystemTip{}, errors.New(fmt.Sprintf("system tip doesn't exist: %d", tipID))
+	}
+
 	res, err := t.db.Querier.FindOneFrom(models.SystemTipTable, "id", tipID)
 	if err != nil && err != reform.ErrNoRows {
 		return models.SystemTip{}, errors.Wrap(err, "failed to retrieve system tip by id")
@@ -200,7 +204,7 @@ func (t *TipsService) createUserTip(tipID int32, userID int32) (models.UserTip, 
 }
 
 func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboardingpb.CompleteUserTipRequest) (*onboardingpb.CompleteUserTipResponse, error) {
-	if err := t.isSystemTip(userTipRequest.TipId); err != nil {
+	if ok := t.isSystemTip(userTipRequest.TipId); ok {
 		return nil, errors.New("Tip ID is not correct, it's system tip")
 	}
 	tip, err := t.retrieveUserTip(userTipRequest.TipId, userTipRequest.UserId)
@@ -224,9 +228,7 @@ func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboa
 	return &onboardingpb.CompleteUserTipResponse{}, nil
 }
 
-func (t *TipsService) isSystemTip(tipID int32) error {
-	if _, ok := t.systemTipIDs[tipID]; ok {
-		return errors.New("it's a system tip")
-	}
-	return nil
+func (t *TipsService) isSystemTip(tipID int32) bool {
+	_, ok := t.systemTipIDs[tipID]
+	return ok
 }

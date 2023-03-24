@@ -22,7 +22,7 @@ var (
 	_ = math.Inf
 )
 
-func (this *GetTipfRequest) Validate() error {
+func (this *GetTipRequest) Validate() error {
 	return nil
 }
 

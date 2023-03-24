@@ -267,14 +267,8 @@ type GetTipStatusOKBody struct {
 	// The ID of the tip to retrieve.
 	TipID int32 `json:"tipId,omitempty"`
 
-	// show whether t ip is completed or not
+	// Show whether tip is completed or not.
 	IsCompleted bool `json:"isCompleted,omitempty"`
-
-	// contains error code. it's 0 if there is no error
-	ErrorCode int32 `json:"errorCode,omitempty"`
-
-	// container error message. it's empty if there is no error
-	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
 // Validate validates this get tip status OK body

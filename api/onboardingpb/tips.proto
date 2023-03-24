@@ -16,7 +16,7 @@ enum TipType {
 }
 
 // Request message for GetTipStatus method.
-message GetTipfRequest {
+message GetTipRequest {
   // The ID of the tip to retrieve.
   int32 tipId = 1;
   // Tip Type (system or user)
@@ -29,12 +29,8 @@ message GetTipfRequest {
 message GetTipResponse {
   // The ID of the tip to retrieve.
   int32 tipId = 1;
-  // show whether t ip is completed or not
+  // Show whether tip is completed or not.
   bool isCompleted = 2;
-  // contains error code. it's 0 if there is no error
-  int32 errorCode = 3;
-  // container error message. it's empty if there is no error
-  string errorMessage = 4;
 }
 
 // Request message for CompleteUserTip method.
@@ -51,7 +47,7 @@ message CompleteUserTipResponse {}
 // Service service provides public methods for managing Services.
 service TipService {
   // GetTipStatus returns info about tip status
-  rpc GetTipStatus(GetTipfRequest) returns (GetTipResponse) {
+  rpc GetTipStatus(GetTipRequest) returns (GetTipResponse) {
     option (google.api.http) = {get: "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get tip details"

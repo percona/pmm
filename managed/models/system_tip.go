@@ -26,7 +26,7 @@ import (
 // SystemTip represents tip for user which can be completed once
 // time per system.
 //
-//reform:system_tip
+//reform:system_tips
 type SystemTip struct {
 	ID          int32 `reform:"id,pk"`
 	IsCompleted bool  `reform:"is_completed"`

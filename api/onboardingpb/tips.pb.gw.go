@@ -34,7 +34,7 @@ var (
 )
 
 func request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Marshaler, client TipServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTipfRequest
+	var protoReq GetTipRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -82,7 +82,7 @@ func request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Ma
 }
 
 func local_request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Marshaler, server TipServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTipfRequest
+	var protoReq GetTipRequest
 	var metadata runtime.ServerMetadata
 
 	var (

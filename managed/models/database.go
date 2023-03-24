@@ -839,7 +839,7 @@ var databaseSchema = [][]string{
         WHERE service_type = 'mongodb';`,
 	},
 	79: {
-		`CREATE TABLE system_tip (
+		`CREATE TABLE system_tips (
 		   id SERIAL PRIMARY KEY,
 		   is_completed BOOLEAN NOT NULL,
 
@@ -847,7 +847,7 @@ var databaseSchema = [][]string{
 		   updated_at TIMESTAMP NOT NULL
 		);
 
-		CREATE TABLE user_tip (
+		CREATE TABLE user_tips (
 		    id SERIAL PRIMARY KEY,
 			user_id INTEGER NOT NULL,
 			user_tip_id INTEGER NOT NULL,

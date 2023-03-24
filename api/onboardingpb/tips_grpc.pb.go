@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TipServiceClient interface {
 	// GetTipStatus returns info about tip status
-	GetTipStatus(ctx context.Context, in *GetTipfRequest, opts ...grpc.CallOption) (*GetTipResponse, error)
+	GetTipStatus(ctx context.Context, in *GetTipRequest, opts ...grpc.CallOption) (*GetTipResponse, error)
 	// CompleteUserTip completes user tip
 	CompleteUserTip(ctx context.Context, in *CompleteUserTipRequest, opts ...grpc.CallOption) (*CompleteUserTipResponse, error)
 }
@@ -42,7 +42,7 @@ func NewTipServiceClient(cc grpc.ClientConnInterface) TipServiceClient {
 	return &tipServiceClient{cc}
 }
 
-func (c *tipServiceClient) GetTipStatus(ctx context.Context, in *GetTipfRequest, opts ...grpc.CallOption) (*GetTipResponse, error) {
+func (c *tipServiceClient) GetTipStatus(ctx context.Context, in *GetTipRequest, opts ...grpc.CallOption) (*GetTipResponse, error) {
 	out := new(GetTipResponse)
 	err := c.cc.Invoke(ctx, TipService_GetTipStatus_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -65,7 +65,7 @@ func (c *tipServiceClient) CompleteUserTip(ctx context.Context, in *CompleteUser
 // for forward compatibility
 type TipServiceServer interface {
 	// GetTipStatus returns info about tip status
-	GetTipStatus(context.Context, *GetTipfRequest) (*GetTipResponse, error)
+	GetTipStatus(context.Context, *GetTipRequest) (*GetTipResponse, error)
 	// CompleteUserTip completes user tip
 	CompleteUserTip(context.Context, *CompleteUserTipRequest) (*CompleteUserTipResponse, error)
 	mustEmbedUnimplementedTipServiceServer()
@@ -74,7 +74,7 @@ type TipServiceServer interface {
 // UnimplementedTipServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedTipServiceServer struct{}
 
-func (UnimplementedTipServiceServer) GetTipStatus(context.Context, *GetTipfRequest) (*GetTipResponse, error) {
+func (UnimplementedTipServiceServer) GetTipStatus(context.Context, *GetTipRequest) (*GetTipResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTipStatus not implemented")
 }
 
@@ -95,7 +95,7 @@ func RegisterTipServiceServer(s grpc.ServiceRegistrar, srv TipServiceServer) {
 }
 
 func _TipService_GetTipStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTipfRequest)
+	in := new(GetTipRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func _TipService_GetTipStatus_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: TipService_GetTipStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).GetTipStatus(ctx, req.(*GetTipfRequest))
+		return srv.(TipServiceServer).GetTipStatus(ctx, req.(*GetTipRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

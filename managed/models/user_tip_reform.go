@@ -20,7 +20,7 @@ func (v *userTipTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("user_tip").
+// Name returns a view or table name in SQL database ("user_tips").
 func (v *userTipTableType) Name() string {
 	return v.s.SQLName
 }
@@ -52,11 +52,11 @@ func (v *userTipTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// UserTipTable represents user_tip view or table in SQL database.
+// UserTipTable represents user_tips view or table in SQL database.
 var UserTipTable = &userTipTableType{
 	s: parse.StructInfo{
 		Type:    "UserTip",
-		SQLName: "user_tip",
+		SQLName: "user_tips",
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "int32", Column: "id"},
 			{Name: "UserID", Type: "int32", Column: "user_id"},

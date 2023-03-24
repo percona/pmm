@@ -25,7 +25,7 @@ import (
 
 // UserTip represents tip for user.
 //
-//reform:user_tip
+//reform:user_tips
 type UserTip struct {
 	ID          int32 `reform:"id,pk"`
 	UserID      int32 `reform:"user_id"`

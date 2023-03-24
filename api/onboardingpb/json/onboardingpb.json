@@ -135,20 +135,9 @@
               "description": "Response message for GetTipResponse method.",
               "type": "object",
               "properties": {
-                "errorCode": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "contains error code. it's 0 if there is no error",
-                  "x-order": 2
-                },
-                "errorMessage": {
-                  "type": "string",
-                  "title": "container error message. it's empty if there is no error",
-                  "x-order": 3
-                },
                 "isCompleted": {
+                  "description": "Show whether tip is completed or not.",
                   "type": "boolean",
-                  "title": "show whether t ip is completed or not",
                   "x-order": 1
                 },
                 "tipId": {
