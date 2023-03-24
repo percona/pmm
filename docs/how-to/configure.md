@@ -19,7 +19,7 @@ On the left are the selector tabs:
     - [DBaaS](#dbaas)
     - [Alerting](#alerting)
     - [Microsoft Azure Monitoring](#microsoft-azure-monitoring)
-    - [Public Address](#public-address)
+    - [Public Address {: #public-address-1 }](#public-address--public-address-1-)
   - [SSH Key](#ssh-key)
   - [Alertmanager integration](#alertmanager-integration)
   - [Percona Platform](#percona-platform)
@@ -113,15 +113,15 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ### Advisors
 
-Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered instance.
+Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered PMM instance.
 
-The findings are reported on the **Advisors > Failed Checks** page, and an overview is displayed on the Dashboard in the Failed Advisor Checks panel.
+The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
 The Advisors option is enabled by default.
 
 Checks are re-fetched and rerun at intervals.
 
-See [Working with Advisor checks](advisors.md).
+See [Working with Advisor checks](../get-started/advisors.md).
 
 ## Public address
 

@@ -1,4 +1,6 @@
-# Advisors
+
+# Working with Advisors
+
 Percona Advisors provide automated insights and recommendations within Percona Monitoring and Management. These proactive insights help you uncover problems before they become larger issues: security risks, misconfigurations, poor performance, etc.
 
 Advisors are grouped by category: Security, Configuration, Performance and Query. Each Advisor category offers a set of automated checks, which investigate a specific range of possible issues. The list of Advisor checks available for your instance depends on whether your instance is connected to Percona Platform, and on your current subscription plan.
@@ -10,12 +12,12 @@ All checks are hosted on Percona Platform. PMM Server automatically downloads th
 Depending on the entitlements available for your Percona Account, the set of Advisor checks that PMM can download from the Percona Platform differs in terms of complexity and functionality.
 As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances.
 
-If your PMM instance is not connected to Percona Platform, PMM can only download the basic set of Anonymous Advisor checks.
-As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances. If you are a Percona customer with a Percona Customer Portal account, you also get access to Paid Advisor checks, which offer more advanced database health information.
+If your PMM instance is not connected to Percona Platform, PMM can only use its built-in Advisor checks.
+As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for registered PMM instances.
 
-If you are a Percona customer with a Percona Customer Portal account, you also get access to Paid Advisor checks, which offer more advanced database health information.
+If you are a Percona customer with a Percona Customer Portal account, you also get access to Standard/Premium Advisor checks, which offer more advanced database health information.
 
-To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/checks.html) topic in the Percona Platform documentation.
+To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/advisors.html) topic in the Percona Platform documentation.
 
 ## Enable/Disable
 To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under <i class="uil uil-cog"></i> **Configuration <i class="uil uil-setting"></i> > Settings > Advanced Settings**.

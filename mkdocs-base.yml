@@ -193,7 +193,7 @@ nav:
       - details/architecture.md
       - details/interface.md
       - details/pmm_components_and_versions.md
-      - Develop checks:
+      - Develop Advisor checks:
           - details/develop-checks/index.md
           - details/develop-checks/checks-v1.md
           - details/develop-checks/checks-v2.md

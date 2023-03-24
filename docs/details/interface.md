@@ -133,7 +133,7 @@ This item lists shortcuts to utility pages.
 |------|---------------------
 | PMM  |
 |      | PMM Add Instance
-|      | PMM Database Checks
+|      | PMM Advisor Checks
 |      | PMM Inventory
 |      | PMM Settings
 

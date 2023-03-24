@@ -49,7 +49,7 @@ To connect your PMM server to Percona Platform:
 To confirm that you have successfully connected the server and check the list of all servers currently connected to an organization, go to [Percona Platform](https://portal.percona.com) > **Dashboard** tab and click **View Instances** next to the **Connect your PMM** step.
 
 ## Check Percona Portal entitlements
-After connecting to the Percona Platform, PMM has access to additional alert templates, Advisors checks, and account information. See [Check Percona Portal account information](../how-to/account-info.md).
+After connecting to the Percona Platform, PMM has access to additional alert templates, Advisor checks, and account information. See [Check Percona Portal account information](../how-to/account-info.md).
 
 ### Disconnect a PMM instance
 Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
