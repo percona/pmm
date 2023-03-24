@@ -228,7 +228,7 @@ func parseRealTableName(query string) (string, error) {
 	var name string
 	for _, v := range res {
 		// in case of subquery it continue to root query
-		if len(v) < 2 || len(v[1]) < 2 || v[1][:1] == "(" {
+		if len(v) < 2 || v[1][:1] == "(" {
 			continue
 		}
 
