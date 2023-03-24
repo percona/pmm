@@ -854,7 +854,8 @@ var databaseSchema = [][]string{
 			is_completed BOOLEAN NOT NULL,
 	
 			created_at TIMESTAMP NOT NULL,
-			updated_at TIMESTAMP NOT NULL
+			updated_at TIMESTAMP NOT NULL,
+			UNIQUE (user_id, user_tip_id)
 		);`,
 	},
 }
