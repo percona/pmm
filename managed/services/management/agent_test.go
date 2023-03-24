@@ -33,38 +33,38 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func TestAgentService(t *testing.T) {
-	setup := func(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
-		t.Helper()
+func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+	t.Helper()
 
-		ctx := logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
+	ctx := logger.Set(context.Background(), t.Name())
+	uuid.SetRand(&tests.IDReader{})
 
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		vmdb := &mockPrometheusService{}
-		vmdb.Test(t)
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
 
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
+	state := &mockAgentsStateUpdater{}
+	state.Test(t)
 
-		ar := &mockAgentsRegistry{}
-		ar.Test(t)
+	ar := &mockAgentsRegistry{}
+	ar.Test(t)
 
-		teardown := func(t *testing.T) {
-			uuid.SetRand(nil)
+	teardown := func(t *testing.T) {
+		uuid.SetRand(nil)
 
-			require.NoError(t, sqlDB.Close())
-			vmdb.AssertExpectations(t)
-			state.AssertExpectations(t)
-			ar.AssertExpectations(t)
-		}
-		s := NewAgentService(db, ar)
-
-		return ctx, s, teardown, vmdb
+		require.NoError(t, sqlDB.Close())
+		vmdb.AssertExpectations(t)
+		state.AssertExpectations(t)
+		ar.AssertExpectations(t)
 	}
+	s := NewAgentService(db, ar)
 
+	return ctx, s, teardown, vmdb
+}
+
+func TestAgentService(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
 		t.Run("Basic", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)

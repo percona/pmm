@@ -123,7 +123,7 @@ ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
-	// Return only Agents that provide insights for that ServiceID.
+	// Return only Agents that relate to a specific ServiceID.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

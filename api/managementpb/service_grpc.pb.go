@@ -30,7 +30,7 @@ const (
 type ServiceClient interface {
 	// RemoveService removes Service with Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
-	// ListServices returns a list of Services filtered by type.
+	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
 }
 
@@ -66,7 +66,7 @@ func (c *serviceClient) ListServices(ctx context.Context, in *ListServiceRequest
 type ServiceServer interface {
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
-	// ListServices returns a list of Services filtered by type.
+	// ListServices returns a list of Services with a rich set of properties.
 	ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }

@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentClient interface {
-	// ListAgents returns a list of Agents filtered by type.
+	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(ctx context.Context, in *ListAgentRequest, opts ...grpc.CallOption) (*ListAgentResponse, error)
 }
 
@@ -52,7 +52,7 @@ func (c *agentClient) ListAgents(ctx context.Context, in *ListAgentRequest, opts
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
 type AgentServer interface {
-	// ListAgents returns a list of Agents filtered by type.
+	// ListAgents returns a list of Agents filtered by service_id.
 	ListAgents(context.Context, *ListAgentRequest) (*ListAgentResponse, error)
 	mustEmbedUnimplementedAgentServer()
 }

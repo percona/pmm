@@ -15521,7 +15521,7 @@
               "type": "object",
               "properties": {
                 "service_id": {
-                  "description": "Return only Agents that provide insights for that ServiceID.",
+                  "description": "Return only Agents that relate to a specific ServiceID.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -21106,7 +21106,7 @@
                     "type": "object",
                     "properties": {
                       "service_id": {
-                        "description": "Unique randomly generated instance identifier.",
+                        "description": "Unique service identifier.",
                         "type": "string",
                         "x-order": 0
                       },

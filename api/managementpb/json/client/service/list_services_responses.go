@@ -474,7 +474,7 @@ ListServicesOKBodyServicesItems0 list services OK body services items0
 swagger:model ListServicesOKBodyServicesItems0
 */
 type ListServicesOKBodyServicesItems0 struct {
-	// Unique randomly generated instance identifier.
+	// Unique service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Service type.
