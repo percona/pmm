@@ -223,12 +223,22 @@ func parseRealTableName(query string) (string, error) {
 	}
 
 	query = strings.ReplaceAll(query, " . ", ".")
-	v := tableNamesRegexp.FindStringSubmatch(query)
-	if len(v) < 2 {
-		return "", fmt.Errorf("problem during parsing %+q", v)
+	res := tableNamesRegexp.FindAllStringSubmatch(query, -1)
+	// due to historical reasons we parsing only one table name
+	var name string
+	for _, v := range res {
+		// in case of subquery it continue to root query
+		if len(v) < 2 || len(v[1]) < 2 || v[1][:1] == "(" {
+			continue
+		}
+
+		name = v[1]
+	}
+	if name == "" {
+		return "", fmt.Errorf("problem during parsing %+q", res)
 	}
 
-	name := strings.ReplaceAll(v[1], "'", "")
+	name = strings.ReplaceAll(name, "'", "")
 	name = strings.ReplaceAll(name, "\"", "")
 	name = strings.ReplaceAll(name, "`", "")
 

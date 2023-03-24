@@ -297,6 +297,7 @@ func TestParseRealTableNameMySQL(t *testing.T) {
 		"SELECT name FROM 'world'.'people' WHERE city = 'Paris'",
 		"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'",
 		"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`",
+		"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);",
 	}
 
 	for _, test := range tests {
