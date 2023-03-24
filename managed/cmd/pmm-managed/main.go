@@ -110,9 +110,9 @@ import (
 
 var (
 	interfaceToBind = envvars.GetInterfaceToBind()
-	gRPCAddr        = net.JoinHostPort(interfaceToBind, ":7771")
-	http1Addr       = net.JoinHostPort(interfaceToBind, ":7772")
-	debugAddr       = net.JoinHostPort(interfaceToBind, ":7773")
+	gRPCAddr        = net.JoinHostPort(interfaceToBind, "7771")
+	http1Addr       = net.JoinHostPort(interfaceToBind, "7772")
+	debugAddr       = net.JoinHostPort(interfaceToBind, "7773")
 )
 
 const (
