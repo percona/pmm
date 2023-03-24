@@ -512,13 +512,12 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 				total = totals[label.key]
 			}
 
-			// TODO Handle array of string properly
 			var value string
 			switch v := label.value.(type) {
 			case string:
 				value = v
 			case []string:
-				value = strings.Join(v, "----")
+				value = strings.Join(v, ",")
 			}
 
 			val := qanpb.Values{
