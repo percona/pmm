@@ -220,7 +220,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, e
 	}
 
-	var resultSvc []*managementpb.GenericService
+	resultSvc := make([]*managementpb.GenericService, len(services))
 	for _, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
