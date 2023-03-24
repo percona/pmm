@@ -193,20 +193,19 @@ func (b *Base) extractTarball(tarPath string) error {
 		return err
 	}
 
-	err := os.Chdir(os.TempDir())
-	if err != nil {
-		return err
-	}
-
 	readFile, err := os.Open(tarPath)
 	if err != nil {
 		return err
 	}
 
+	defer readFile.Close()
+
 	reader, err := gzip.NewReader(readFile)
 	if err != nil {
 		return err
 	}
+
+	defer reader.Close()
 
 	tarReader := tar.NewReader(reader)
 
@@ -219,18 +218,21 @@ func (b *Base) extractTarball(tarPath string) error {
 		if err != nil {
 			return err
 		}
+
+		hrdPath := path.Join(os.TempDir(), hdr.Name)
+
 		switch hdr.Typeflag {
 		case tar.TypeDir:
 			logrus.Infof("Creating dir:    %s", hdr.Name)
 
-			err = os.MkdirAll(hdr.Name, 0777)
+			err = os.MkdirAll(hrdPath, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
 		case tar.TypeReg:
 			logrus.Infof("Extracting file: %s", hdr.Name)
 
-			w, err := os.Create(hdr.Name)
+			w, err := os.OpenFile(hrdPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
