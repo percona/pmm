@@ -39,6 +39,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextv1clientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,6 +54,7 @@ import (
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/cli-runtime/pkg/resource"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -93,20 +96,15 @@ const (
 	LEVEL_4
 )
 
-var (
-	inClusterConfig = rest.InClusterConfig
-	newForConfig    = func(c *rest.Config) (kubernetes.Interface, error) {
-		return kubernetes.NewForConfig(c)
-	}
-)
-
 // Client is the internal client for Kubernetes.
 type Client struct {
-	clientset       kubernetes.Interface
-	dbClusterClient *database.DatabaseClusterClient
-	rcLock          *sync.Mutex
-	restConfig      *rest.Config
-	namespace       string
+	clientset        kubernetes.Interface
+	apiextClientset  apiextv1clientset.Interface
+	dynamicClientset dynamic.Interface
+	dbClusterClient  *database.DatabaseClusterClient
+	rcLock           *sync.Mutex
+	restConfig       *rest.Config
+	namespace        string
 }
 
 // SortableEvents implements sort.Interface for []api.Event based on the Timestamp field
@@ -164,20 +162,30 @@ func (e podErrors) Error() string {
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
 func NewFromInCluster() (*Client, error) {
-	config, err := inClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := newForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	apiextClientset, err := apiextv1clientset.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	dynamicClientset, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
 	c := &Client{
-		clientset:  clientset,
-		restConfig: config,
-		rcLock:     &sync.Mutex{},
+		clientset:        clientset,
+		apiextClientset:  apiextClientset,
+		dynamicClientset: dynamicClientset,
+		restConfig:       config,
+		rcLock:           &sync.Mutex{},
 	}
 	err = c.setup()
 	return c, err
@@ -192,14 +200,24 @@ func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	}
 	config.QPS = defaultQPSLimit
 	config.Burst = defaultBurstLimit
-	clientset, err := newForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	apiextClientset, err := apiextv1clientset.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	dynamicClientset, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}
 	c := &Client{
-		clientset:  clientset,
-		restConfig: config,
-		rcLock:     &sync.Mutex{},
+		clientset:        clientset,
+		apiextClientset:  apiextClientset,
+		dynamicClientset: dynamicClientset,
+		restConfig:       config,
+		rcLock:           &sync.Mutex{},
 	}
 	err = c.setup()
 	return c, err
@@ -447,21 +465,10 @@ func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVo
 }
 
 // GetPods returns list of pods
-func (c *Client) GetPods(ctx context.Context, namespace, labelSelector string) (*corev1.PodList, error) {
+func (c *Client) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
 	options := metav1.ListOptions{}
-	if labelSelector != "" {
-		parsed, err := metav1.ParseToLabelSelector(labelSelector)
-		if err != nil {
-			return nil, err
-		}
-
-		selector, err := parsed.Marshal()
-		if err != nil {
-			return nil, err
-		}
-
-		options.LabelSelector = string(selector)
-		options.LabelSelector = labelSelector
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
 	}
 
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
@@ -1053,4 +1060,29 @@ func (c *Client) UpdateInstallPlan(ctx context.Context, namespace string, instal
 	}
 
 	return operatorClient.OperatorsV1alpha1().InstallPlans(namespace).Update(ctx, installPlan, metav1.UpdateOptions{})
+}
+
+// ListCRDs returns a list of CRDs.
+func (c *Client) ListCRDs(ctx context.Context, labelSelector *metav1.LabelSelector) (*apiextv1.CustomResourceDefinitionList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
+	}
+
+	return c.apiextClientset.ApiextensionsV1().CustomResourceDefinitions().List(ctx, options)
+}
+
+// ListCRs returns a list of CRs.
+func (c *Client) ListCRs(
+	ctx context.Context,
+	namespace string,
+	gvr schema.GroupVersionResource,
+	labelSelector *metav1.LabelSelector,
+) (*unstructured.UnstructuredList, error) {
+	options := metav1.ListOptions{}
+	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
+		options.LabelSelector = metav1.FormatLabelSelector(labelSelector)
+	}
+
+	return c.dynamicClientset.Resource(gvr).Namespace(namespace).List(ctx, options)
 }
