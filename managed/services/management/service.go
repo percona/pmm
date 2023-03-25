@@ -220,7 +220,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, e
 	}
 
-	resultSvc := make([]*managementpb.GenericService, len(services))
+	resultSvc := make([]*managementpb.GenericService, 0, len(services))
 	for _, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
@@ -231,7 +231,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Address:        pointer.GetString(service.Address),
 			Agents:         []*managementpb.GenericAgent{},
 			Cluster:        service.Cluster,
-			CreatedAt:      service.CreatedAt.Unix() * 1000,
+			CreatedAt:      service.CreatedAt.UnixMilli(),
 			CustomLabels:   labels,
 			DatabaseName:   service.DatabaseName,
 			Environment:    service.Environment,
@@ -243,7 +243,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
-			UpdatedAt:      service.UpdatedAt.Unix() * 1000,
+			UpdatedAt:      service.UpdatedAt.UnixMilli(),
 		}
 
 		for _, node := range nodes {

@@ -116,7 +116,7 @@ func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAge
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
-		CreatedAt:                      agent.CreatedAt.Unix() * 1000,
+		CreatedAt:                      agent.CreatedAt.UnixMilli(),
 		CustomLabels:                   labels,
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
@@ -142,7 +142,7 @@ func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAge
 		Tls:                            agent.TLS,
 		TlsSkipVerify:                  agent.TLSSkipVerify,
 		Username:                       pointer.GetString(agent.Username),
-		UpdatedAt:                      agent.UpdatedAt.Unix() * 1000,
+		UpdatedAt:                      agent.UpdatedAt.UnixMilli(),
 		Version:                        pointer.GetString(agent.Version),
 	}
 
