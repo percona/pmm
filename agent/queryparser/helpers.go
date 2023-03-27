@@ -25,18 +25,18 @@ import (
 
 var (
 	spaceRegexp *regexp.Regexp
-	spaceError  error
 	spaceOnce   sync.Once
+	errSpace    error
 
 	multilineRegexp *regexp.Regexp
-	multilineError  error
 	multilineOnce   sync.Once
+	errMultiline    error
 )
 
 func parseMySQLComments(q string) (map[string]bool, error) {
 	prepareMultilineRegexp()
-	if multilineError != nil {
-		return nil, multilineError
+	if errMultiline != nil {
+		return nil, errMultiline
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -78,8 +78,8 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 
 func parsePostgreSQLComments(q string) (map[string]bool, error) {
 	prepareMultilineRegexp()
-	if multilineError != nil {
-		return nil, multilineError
+	if errMultiline != nil {
+		return nil, errMultiline
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -135,10 +135,10 @@ func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
 func prepareMultilineRegexp() error {
 	// to compile regexp only once
 	multilineOnce.Do(func() {
-		multilineRegexp, multilineError = regexp.Compile(`(?s)\/\*(.*?)\*\/`)
+		multilineRegexp, errMultiline = regexp.Compile(`(?s)\/\*(.*?)\*\/`)
 	})
-	if multilineError != nil {
-		return multilineError
+	if errMultiline != nil {
+		return errMultiline
 	}
 
 	return nil
@@ -152,10 +152,10 @@ func removeFormatting(s string) string {
 func removeSpaces(s string) (string, error) {
 	// to compile regexp only once
 	spaceOnce.Do(func() {
-		spaceRegexp, spaceError = regexp.Compile(`\s+`)
+		spaceRegexp, errSpace = regexp.Compile(`\s+`)
 	})
-	if spaceError != nil {
-		return "", spaceError
+	if errSpace != nil {
+		return "", errSpace
 	}
 
 	value := spaceRegexp.ReplaceAllString(s, " ")

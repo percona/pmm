@@ -91,7 +91,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")

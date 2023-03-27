@@ -49,7 +49,7 @@ func MySQLComments(q string) ([]string, error) {
 		return nil, err
 	}
 
-	var res []string
+	var res []string //nolint:prealloc
 	for c := range comments {
 		res = append(res, c)
 	}
@@ -65,7 +65,7 @@ func PostgreSQLComments(q string) ([]string, error) {
 		return nil, err
 	}
 
-	var res []string
+	var res []string //nolint:prealloc
 	for c := range comments {
 		res = append(res, c)
 	}
