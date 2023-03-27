@@ -83,6 +83,7 @@
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become_method: su
       become_user: postgres
+      when: ansible_virtualization_type != "docker"
 
     - name: Remove pmm-managed database
       postgresql_db:
@@ -105,6 +106,7 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become_method: su
       become_user: postgres
+      when: ansible_virtualization_type != "docker"
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all
