@@ -35,6 +35,7 @@ const (
 	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
 	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
 	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
+	evnInterfaceToBind     = "PERCONA_TEST_INTERFACE_TO_BIND"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
@@ -306,6 +307,18 @@ func GetPlatformPublicKeys() []string {
 	}
 
 	return nil
+}
+
+func GetInterfaceToBind() string {
+	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+}
+
+// GetEnv returns env with fallback option.
+func GetEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
 
 func formatEnvVariableError(err error, env, value string) error {

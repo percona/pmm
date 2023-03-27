@@ -114,6 +114,7 @@ build() {
 
             /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
 
+            sudo sed -i -e 's/^#baseurl=/baseurl=/' -e 's/^metalink=/#metalink=/' /etc/yum.repos.d/epel.repo
             sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec

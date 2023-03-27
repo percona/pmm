@@ -23,19 +23,19 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.217
+	github.com/aws/aws-sdk-go v1.44.220
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.20.2
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.2
-	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/go-co-op/gocron v1.18.1
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.25.0
-	github.com/go-openapi/strfmt v0.21.3
+	github.com/go-openapi/strfmt v0.21.5
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.0
@@ -43,7 +43,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/grafana/grafana-api-golang-client v0.18.4
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
 	github.com/hashicorp/go-version v1.6.0
@@ -56,7 +56,7 @@ require (
 	github.com/operator-framework/operator-lifecycle-manager v0.23.1
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
 	github.com/percona-platform/saas v0.0.0-20230306173543-c223f9a47342
-	github.com/percona/dbaas-operator v0.1.4
+	github.com/percona/dbaas-operator v0.1.6
 	github.com/percona/exporter_shared v0.7.4
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
@@ -66,7 +66,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.25.0
 	github.com/prometheus/client_golang v1.14.0
-	github.com/prometheus/common v0.41.0
+	github.com/prometheus/common v0.42.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0
@@ -81,16 +81,16 @@ require (
 	golang.org/x/tools v0.6.0
 	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
 	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.29.0
+	google.golang.org/protobuf v1.30.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.26.2
+	k8s.io/api v0.26.3
 	k8s.io/apiextensions-apiserver v0.26.2
-	k8s.io/apimachinery v0.26.2
-	k8s.io/cli-runtime v0.26.2
-	k8s.io/client-go v0.26.2
-	k8s.io/kubectl v0.26.2
+	k8s.io/apimachinery v0.26.3
+	k8s.io/cli-runtime v0.26.3
+	k8s.io/client-go v0.26.3
+	k8s.io/kubectl v0.26.3
 	modernc.org/sqlite v1.21.0
 	sigs.k8s.io/controller-runtime v0.14.5
 	vitess.io/vitess v0.15.2
@@ -99,7 +99,7 @@ require (
 require (
 	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
 	github.com/Azure/azure-storage-blob-go v0.14.0 // indirect
-	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.4.0 // indirect
@@ -228,7 +228,7 @@ require (
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
-	github.com/muesli/termenv v0.14.0 // indirect
+	github.com/muesli/termenv v0.15.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
