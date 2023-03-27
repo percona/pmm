@@ -38,14 +38,14 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
+func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
-	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
+	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableCommentsParsing, disableQueryExamples, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return pgStatMonitorQAN
@@ -203,7 +203,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	}
 
 	t.Run("AllCountries", func(t *testing.T) {
-		m := setup(t, db, false)
+		m := setup(t, db, false, false)
 
 		_, err := db.Exec(selectAllCountries)
 		require.NoError(t, err)
@@ -237,6 +237,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
+				Comments:            []string{"AllCountries:PGStatMonitor"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -294,6 +295,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
+				Comments:            []string{"AllCountries:PGStatMonitor"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -331,7 +333,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("AllCountriesTruncated", func(t *testing.T) {
-		m := setup(t, db, false)
+		m := setup(t, db, false, false)
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
@@ -366,6 +368,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
+				Comments:            []string{"AllCountriesTruncated:PGStatMonitor"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -426,6 +429,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
+				Comments:            []string{"AllCountriesTruncated:PGStatMonitor"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -478,7 +482,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
 			require.NoError(t, err)
 		}()
-		m := setup(t, db, false)
+		m := setup(t, db, false, false)
 
 		var waitGroup sync.WaitGroup
 		n := 1000
@@ -522,6 +526,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				Fingerprint:         expectedFingerprint,
 				Example:             actual.Common.Example,
 				ExampleType:         agentpb.ExampleType_RANDOM,
+				Comments:            []string{"CheckMBlkReadTime"},
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
