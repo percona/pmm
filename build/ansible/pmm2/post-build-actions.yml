@@ -81,7 +81,6 @@
       # necessary for a permanent fix.
     - name: Start PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-      become_method: su
       become_user: postgres
       when: ansible_virtualization_type != "docker"
 
@@ -104,7 +103,6 @@
 
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become_method: su
       become_user: postgres
       when: ansible_virtualization_type != "docker"
 
