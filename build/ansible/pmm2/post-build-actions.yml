@@ -92,7 +92,7 @@
 
     - name: Output db_check_result
       debug:
-        msg: "pmm-managed database does not exist"
+        msg: "pmm-managed database was removed"
       when: db_check_result.changed == True
 
     - name: Remove pmm-managed role from postgres
