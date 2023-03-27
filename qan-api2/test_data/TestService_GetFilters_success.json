@@ -238,6 +238,14 @@
 				}
 			]
 		},
+		"comments": {
+			"name": [
+				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
 		"container_id": {
 			"name": [
 				{
