@@ -92,7 +92,7 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 		value := removeFormatting(v[1])
 
 		var err error
-		value, err = removeSpaces(value)
+		value, err = removeSpaces(strings.ReplaceAll(value, "*", ""))
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +133,7 @@ func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
 }
 
 func prepareMultilineRegexp() error {
-	// To compile regexp only once.
+	// to compile regexp only once
 	multilineOnce.Do(func() {
 		multilineRegexp, multilineError = regexp.Compile(`(?s)\/\*(.*?)\*\/`)
 	})
@@ -150,7 +150,7 @@ func removeFormatting(s string) string {
 }
 
 func removeSpaces(s string) (string, error) {
-	// To compile regexp only once.
+	// to compile regexp only once
 	spaceOnce.Do(func() {
 		spaceRegexp, spaceError = regexp.Compile(`\s+`)
 	})

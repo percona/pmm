@@ -143,3 +143,41 @@ func TestMySQLComments(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgreSQLComments(t *testing.T) {
+	testCases := []testCaseComments{
+		{
+			Name: "No comment",
+			Query: `SELECT * FROM people WHERE name = 'John'
+				 AND name != 'Doe'`,
+			Comments: nil,
+		},
+		{
+			Name:     "Dash comment",
+			Query:    `SELECT * FROM people -- dash comment`,
+			Comments: []string{"dash comment"},
+		},
+		{
+			Name: "Multiline comment case with new line",
+			Query: `SELECT * FROM people /* new
+				* multiline comment case 
+				* with new line
+				 */`,
+			Comments: []string{"new multiline comment case with new line"},
+		},
+		{
+			Name: "Second multiline comment case with new line",
+			Query: `SELECT * FROM people /* test 
+				with new line */`,
+			Comments: []string{"test with new line"},
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.Name, func(t *testing.T) {
+			comments, err := PostgreSQLComments(c.Query)
+			require.NoError(t, err)
+			require.Equal(t, c.Comments, comments)
+		})
+	}
+}
