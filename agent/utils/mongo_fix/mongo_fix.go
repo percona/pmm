@@ -22,9 +22,11 @@ import (
 )
 
 // ClientOptionsForDSN applies URI to Client.
-// TODO: this fn never returns an error, so it should be refactored.
 func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
 	clientOptions := options.Client().ApplyURI(dsn)
+	if e := clientOptions.Validate(); e != nil {
+		return nil, e
+	}
 
 	// Workaround for PMM-9320
 	// if username or password is set, need to replace it with correctly parsed credentials.
