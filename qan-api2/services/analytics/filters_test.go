@@ -122,6 +122,7 @@ func TestService_GetFilters(t *testing.T) {
 					{Key: "top_queryid", Value: []string{"top_queryid1"}},
 					{Key: "application_name", Value: []string{"psql"}},
 					{Key: "planid", Value: []string{"planid1"}},
+					{Key: "comments", Value: []string{"comment1"}},
 				},
 			},
 			&want,
