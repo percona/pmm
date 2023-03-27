@@ -34,7 +34,7 @@ telemetry:
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
@@ -822,3 +822,11 @@ telemetry:
         column: "bm_location_type"
       - metric_name: "7"
         column: "count"
+
+  - id: PXCClusterNodesCount
+    source: VM
+    query: (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))
+    summary: "Number of nodes for PXC cluster"
+    data:
+      - metric_name: "pxc_cluster_nodes_count"
+        value: 1

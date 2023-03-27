@@ -39,6 +39,7 @@ const (
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
+	externalNLB       string             = "external"
 
 	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
 	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
@@ -182,7 +183,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
 	}
 	var sourceRanges []string
@@ -304,7 +305,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
 		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = "external"
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
 	}
 	if cluster.Params.Backup != nil {
@@ -401,7 +402,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 }
 
 // UpdatePatchForPSMDB returns a patch to update a database cluster
-func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest) error {
+func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest, clusterType ClusterType) error {
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
 	}
@@ -453,11 +454,41 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	if updateRequest.Params.Resume {
 		dbCluster.Spec.Pause = false
 	}
+	if !updateRequest.Expose {
+		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+	}
+	if updateRequest.Expose {
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
+		}
+	}
+	var sourceRanges []string
+	for _, sourceRange := range updateRequest.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
 	return nil
 }
 
 // UpdatePatchForPXC returns a patch to update a database cluster
-func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest) error {
+func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest, clusterType ClusterType) error { //nolint:cyclop
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
 	}
@@ -523,6 +554,36 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	}
 	if updateRequest.Params.Resume {
 		dbCluster.Spec.Pause = false
+	}
+	if !updateRequest.Expose {
+		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+	}
+	if updateRequest.Expose {
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
+		}
+	}
+	var sourceRanges []string
+	for _, sourceRange := range updateRequest.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
 	return nil
 }
