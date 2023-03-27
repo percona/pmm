@@ -21,4 +21,6 @@
 
 - [ClickHouse](clickhouse.md):  A third-party column-oriented database management system (DBMS) that facilitates the Query Analytics functionality.
 
+- [PostgreSQL](postgresql.md):  An open source object-relational database management system used as the primary data store.
+
 - [Glossary](glossary.md): A list of obscure terms and definitions.
