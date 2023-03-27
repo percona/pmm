@@ -22,10 +22,10 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 const (
@@ -191,13 +191,16 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancelCtx()
 
+	ctx = logger.Set(ctx, "inventoryMetrics")
+	l := logger.Get(ctx)
+
 	i.mutex.Lock()
 	defer i.mutex.Unlock()
 
 	agentMetrics, agentError := i.metrics.GetAgentMetrics(ctx)
 
 	if agentError != nil {
-		logrus.Error(agentError)
+		l.Error(agentError)
 		return
 	}
 
@@ -208,7 +211,7 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	nodeMetrics, nodeError := i.metrics.GetNodeMetrics(ctx)
 
 	if nodeError != nil {
-		logrus.Error(nodeError)
+		l.Error(nodeError)
 		return
 	}
 
@@ -219,7 +222,7 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	serviceMetrics, serviceError := i.metrics.GetServiceMetrics(ctx)
 
 	if serviceError != nil {
-		logrus.Error(serviceError)
+		l.Error(serviceError)
 		return
 	}
 
