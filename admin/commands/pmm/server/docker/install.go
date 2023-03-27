@@ -119,7 +119,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	return &installResult{
 		URL:      "http://localhost",
 		User:     "admin",
-		Password: c.AdminPassword,
+		Password: finalPassword,
 	}, nil
 }
 
