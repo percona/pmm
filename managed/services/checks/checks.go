@@ -67,14 +67,9 @@ const (
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
 
-	// Sync with API tests.
-	resolveTimeoutFactor  = 3
-	defaultResendInterval = 2 * time.Second
-
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "checks"
 
-	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
 )
 
@@ -264,11 +259,11 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	return s.alertsRegistry.getCheckResults(), nil
+	return s.alertsRegistry.getCheckResults(""), nil
 }
 
 // GetChecksResults returns the failed checks for a given service from AlertManager.
-func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
+func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -278,7 +273,7 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	return s.alertsRegistry.getCheckResults(), nil
+	return s.alertsRegistry.getCheckResults(serviceID), nil
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.

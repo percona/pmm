@@ -83,14 +83,19 @@ func (r *registry) cleanup() {
 	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
 }
 
-func (r *registry) getCheckResults() []services.CheckResult {
+// getCheckResults returns checks results for the given service. If serviceID is empty it returns results for all services.
+func (r *registry) getCheckResults(serviceID string) []services.CheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
 	var results []services.CheckResult
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
-			results = append(results, checkNameGroup...)
+			for _, checkResult := range checkNameGroup {
+				if serviceID == "" || checkResult.Target.ServiceID == serviceID {
+					results = append(results, checkResult)
+				}
+			}
 		}
 	}
 
