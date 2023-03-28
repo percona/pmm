@@ -830,3 +830,11 @@ telemetry:
     data:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
+
+  - id: AdvisorsChecksDisabledCount
+    source: PMMDB_SELECT
+    query: jsonb_array_length(settings->'sass'->'disabled_stt_checks') as disabled_checks_count from settings
+    summary: "Number of disabled Advisors checks on PMM instance"
+    data:
+      - metric_name: "advisor_checks_disabled"
+        column: "disabled_checks_count"
