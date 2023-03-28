@@ -1072,8 +1072,6 @@ func main() {
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
 				uieventsService:      uieventsService,
-			}, gRPCServerFeatures{
-				enableAccessControl: *enableAccessControl,
 			})
 	}()
 
