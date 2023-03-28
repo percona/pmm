@@ -222,23 +222,23 @@ func prepareRealTableName(name string) string {
 	return strings.TrimSpace(name)
 }
 
-func parseRealTableName(query string) (string, error) {
+func parseRealTableName(query string) string {
 	keyword := "FROM "
 
 	query = strings.ReplaceAll(query, " . ", ".")
 	index := strings.LastIndex(query, keyword)
 	if index == -1 {
-		return "", nil
+		return ""
 	}
 
 	parsed := query[index+len(keyword):]
 	parsed = strings.ReplaceAll(parsed, ";", "")
 	index = strings.Index(parsed, " ")
 	if index == -1 {
-		return prepareRealTableName(parsed), nil
+		return prepareRealTableName(parsed)
 	}
 
-	return prepareRealTableName(parsed[:index+1]), nil
+	return prepareRealTableName(parsed[:index+1])
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
