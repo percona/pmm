@@ -311,9 +311,7 @@ func TestParseRealTableNameMySQL(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Query, func(t *testing.T) {
-			realTableName, err := parseRealTableName(test.Query)
-			require.NoError(t, err)
-			assert.Equal(t, test.Expected, realTableName)
+			assert.Equal(t, test.Expected, parseRealTableName(test.Query))
 		})
 	}
 }

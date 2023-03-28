@@ -205,12 +205,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// ignore rows.Err()
 
 	m["warnings"] = warnings
-
-	realTableName, err := parseRealTableName(a.params.Query)
-	if err != nil {
-		return nil, err
-	}
-	m["real_table_name"] = realTableName
+	m["real_table_name"] = parseRealTableName(a.params.Query)
 
 	return json.Marshal(m)
 }
