@@ -73,8 +73,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	var svcAgents []*managementpb.GenericAgent
 
 	for _, agent := range agents {
-		// agent is not an exporter, but it runs on the same node as the service (p.e. pmm-agent)
-		if agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID {
+		if IsNonExporterAgent(agent, service) {
 			ag, err := s.toAPIAgent(agent)
 			if err != nil {
 				return nil, err
@@ -82,8 +81,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 			svcAgents = append(svcAgents, ag)
 		}
 
-		// vmagent that runs on the same node as the service
-		if pointer.GetString(agent.NodeID) == service.NodeID && agent.AgentType == models.VMAgentType {
+		if IsVMAgent(agent, service) {
 			ag, err := s.toAPIAgent(agent)
 			if err != nil {
 				return nil, err
@@ -91,8 +89,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 			svcAgents = append(svcAgents, ag)
 		}
 
-		// agent is an exporter for this service
-		if agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == serviceID {
+		if IsExporterAgent(agent, service) {
 			ag, err := s.toAPIAgent(agent)
 			if err != nil {
 				return nil, err
