@@ -275,6 +275,7 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 		kubeClient, err := c.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
 		if err != nil {
 			c.l.Errorf("Cannot list the subscriptions for the cluster %q: %s", cluster.KubernetesClusterName, err)
+			continue
 		}
 
 		subscriptions, err := kubeClient.ListSubscriptions(ctx, "default")

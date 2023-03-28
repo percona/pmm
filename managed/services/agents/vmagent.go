@@ -25,6 +25,12 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+)
+
+var (
+	maxScrapeSizeEnv     = "PMM_PROMSCRAPE_MAX_SCRAPE_SIZE"
+	maxScrapeSizeDefault = "64MiB"
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.
@@ -33,15 +39,23 @@ func vmAgentConfig(scrapeCfg string, params *models.VictoriaMetricsParams) *agen
 	if params.ExternalVM() {
 		serverURL = params.URL
 	}
+	maxScrapeSize := maxScrapeSizeDefault
+	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
+		maxScrapeSize = space
+	}
+
+	interfaceToBind := envvars.GetInterfaceToBind()
+
 	args := []string{
 		fmt.Sprintf("-remoteWrite.url=%sapi/v1/write", serverURL),
 		"-remoteWrite.tlsInsecureSkipVerify={{.server_insecure}}",
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+		"-promscrape.maxScrapeSize=" + maxScrapeSize,
 		// 1GB disk queue size.
 		"-remoteWrite.maxDiskUsagePerURL=1073741824",
 		"-loggerLevel=INFO",
-		"-httpListenAddr=127.0.0.1:{{.listen_port}}",
+		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
 		// needed for login/password at client side.
 		"-envflag.enable=true",
 		"-envflag.prefix=VMAGENT_",
