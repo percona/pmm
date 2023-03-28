@@ -16,17 +16,10 @@
 package checks
 
 import (
-	"crypto/sha1" //nolint:gosec
-	"encoding/hex"
-	"fmt"
 	"sync"
-	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/prometheus/common/model"
 
-	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -35,17 +28,12 @@ type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
 	checkResults map[check.Interval]map[string][]services.CheckResult
-
-	alertTTL time.Duration
-	nowF     func() time.Time // for tests
 }
 
 // newRegistry creates a new registry.
-func newRegistry(alertTTL time.Duration) *registry {
+func newRegistry() *registry {
 	return &registry{
 		checkResults: make(map[check.Interval]map[string][]services.CheckResult),
-		alertTTL:     alertTTL,
-		nowF:         time.Now,
 	}
 }
 
@@ -95,23 +83,6 @@ func (r *registry) cleanup() {
 	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
 }
 
-// collect returns a slice of alerts created from the stored check results.
-func (r *registry) collect() ammodels.PostableAlerts {
-	r.rw.RLock()
-	defer r.rw.RUnlock()
-
-	var alerts ammodels.PostableAlerts
-	for _, intervalGroup := range r.checkResults {
-		for _, checkNameGroup := range intervalGroup {
-			for _, checkResult := range checkNameGroup {
-				checkResult := checkResult
-				alerts = append(alerts, r.createAlert(&checkResult))
-			}
-		}
-	}
-	return alerts
-}
-
 func (r *registry) getCheckResults() []services.CheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
@@ -124,49 +95,4 @@ func (r *registry) getCheckResults() []services.CheckResult {
 	}
 
 	return results
-}
-
-func (r *registry) createAlert(checkResult *services.CheckResult) *ammodels.PostableAlert {
-	name, target, result, alertTTL := checkResult.CheckName, &checkResult.Target, &checkResult.Result, r.alertTTL
-	labels := make(map[string]string, len(target.Labels)+len(result.Labels)+4)
-	annotations := make(map[string]string, 2)
-	for k, v := range result.Labels {
-		labels[k] = v
-	}
-	for k, v := range target.Labels {
-		labels[k] = v
-	}
-
-	labels[model.AlertNameLabel] = name
-	checkResult.AlertID = makeID(target, result)
-	labels["severity"] = result.Severity.String()
-	labels["stt_check"] = "1"
-	labels["alert_id"] = checkResult.AlertID
-	labels["interval_group"] = string(checkResult.Interval)
-
-	annotations["summary"] = result.Summary
-	annotations["description"] = result.Description
-	annotations["read_more_url"] = result.ReadMoreURL
-
-	endsAt := r.nowF().Add(alertTTL).UTC().Round(0) // strip a monotonic clock reading
-	return &ammodels.PostableAlert{
-		Alert: ammodels.Alert{
-			// GeneratorURL: "TODO",
-			Labels: labels,
-		},
-		EndsAt:      strfmt.DateTime(endsAt),
-		Annotations: annotations,
-	}
-}
-
-// makeID creates an ID for STT check alert.
-func makeID(target *services.Target, result *check.Result) string {
-	s := sha1.New() //nolint:gosec
-	fmt.Fprintf(s, "%s\n", target.AgentID)
-	fmt.Fprintf(s, "%s\n", target.ServiceID)
-	fmt.Fprintf(s, "%s\n", result.Summary)
-	fmt.Fprintf(s, "%s\n", result.Description)
-	fmt.Fprintf(s, "%s\n", result.ReadMoreURL)
-	fmt.Fprintf(s, "%v\n", result.Severity)
-	return alertsPrefix + hex.EncodeToString(s.Sum(nil))
 }

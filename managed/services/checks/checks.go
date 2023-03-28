@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -33,14 +34,13 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -59,7 +59,6 @@ const (
 
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
-	envResendInterval    = "PERCONA_TEST_CHECKS_RESEND_INTERVAL"
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -101,7 +100,6 @@ type Service struct {
 
 	l                  *logrus.Entry
 	startDelay         time.Duration
-	resendInterval     time.Duration
 	platformPublicKeys []string
 	localChecksFile    string // For testing
 
@@ -136,12 +134,6 @@ func New(
 ) *Service {
 	l := logrus.WithField("component", "checks")
 
-	resendInterval := defaultResendInterval
-	if d, err := time.ParseDuration(os.Getenv(envResendInterval)); err == nil && d > 0 {
-		l.Warnf("Interval changed to %s.", d)
-		resendInterval = d
-	}
-
 	var platformPublicKeys []string
 	if k := envvars.GetPlatformPublicKeys(); k != nil {
 		l.Warnf("Percona Platform public keys changed to %q.", k)
@@ -151,14 +143,13 @@ func New(
 	s := &Service{
 		db:             db,
 		agentsRegistry: agentsRegistry,
-		alertsRegistry: newRegistry(resolveTimeoutFactor * resendInterval),
+		alertsRegistry: newRegistry(),
 		vmClient:       vmClient,
 		clickhouseDB:   clickhouseDB,
 
 		l:                  l,
 		platformClient:     platformClient,
 		startDelay:         defaultStartDelay,
-		resendInterval:     resendInterval,
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
@@ -288,11 +279,6 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 	}
 
 	return s.alertsRegistry.getCheckResults(), nil
-}
-
-// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *Service) ToggleCheckAlert(ctx context.Context, alertID string, silence bool) error {
-	return status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
@@ -693,7 +679,20 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				continue
 			}
-			res = append(res, results...)
+			if len(results) != 0 {
+				res = append(res, results...)
+			} else {
+				res = append(res,
+					services.CheckResult{
+						CheckName: c.Name,
+						Interval:  c.Interval,
+						Target:    target,
+						Result: check.Result{
+							Summary:  fmt.Sprintf("Check '%s' didn't find any problems on %s service", c.Summary, target.ServiceName),
+							Severity: common.Info,
+						},
+					})
+			}
 
 			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
 			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
