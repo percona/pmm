@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1";
-
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/backup/common.proto";
+
+option go_package = "api/managementpb/backup;backupv1";
 
 // RestoreStatus shows the current status of execution of restore.
 enum RestoreStatus {

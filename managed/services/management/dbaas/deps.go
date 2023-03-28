@@ -22,11 +22,13 @@ import (
 	"context"
 
 	goversion "github.com/hashicorp/go-version"
+	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
@@ -37,23 +39,17 @@ import (
 //go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=kubeStorageManager -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
 	Connect(ctx context.Context) error
 	// Disconnect disconnects the client from dbaas-controller API.
 	Disconnect() error
-	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
-	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// GetLogs gets logs out of cluster containers and events out of pods.
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error)
-	// InstallOLMOperator installs the OLM operator.
-	InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error)
-	// InstallOperator installs an operator via OLM.
-	InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error)
-	// InstallPXCOperator installs kubernetes pxc operator.
 	InstallPXCOperator(ctx context.Context, in *controllerv1beta1.InstallPXCOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPXCOperatorResponse, error)
 	// InstallPSMDBOperator installs kubernetes psmdb operator.
 	InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error)
@@ -63,15 +59,6 @@ type dbaasClient interface {
 	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
 	// GetKubeConfig gets inluster config and converts it to kubeConfig
 	GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error)
-	// ListInstallPlans list all available install plans.
-	ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error)
-	// ApproveInstallPlan approves an install plan.
-	ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error)
-	// ListSubscriptions list all available subscriptions. Used to check if there are updates. If installed crv is different than current csv (latest)
-	// there is an update available.
-	ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error)
-	// GetSubscription retrieves a subscription by namespace and name.
-	GetSubscription(ctx context.Context, in *controllerv1beta1.GetSubscriptionRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetSubscriptionResponse, error)
 }
 
 type versionService interface {
@@ -109,6 +96,7 @@ type componentsService interface {
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
+
 type kubernetesClient interface {
 	SetKubeconfig(string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
@@ -130,4 +118,20 @@ type kubernetesClient interface {
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
 	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
 	ListSecrets(context.Context) (*corev1.SecretList, error)
+	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
+	InstallOLMOperator(ctx context.Context) error
+	// InstallOperator installs an operator via OLM.
+	InstallOperator(ctx context.Context, req kubernetes.InstallOperatorRequest) error
+	// ListSubscriptions all the subscriptions in the namespace.
+	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
+	// UpgradeOperator upgrades an operator to the next available version.
+	UpgradeOperator(ctx context.Context, namespace, name string) error
+	// GetServerVersion returns server version
+	GetServerVersion() (*version.Info, error)
+	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
+}
+
+type kubeStorageManager interface {
+	GetOrSetClient(name string) (kubernetesClient, error)
+	DeleteClient(name string) error
 }

@@ -104,6 +104,10 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		conditions += " AND (state_code = 3 OR state_code = 4)"
 		ssc.l.Debug("PGSM version with state and state_code")
 	}
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		// since version above we should scrape only buckets where bucket_done = true
+		conditions += " AND bucket_done"
+	}
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
 		err = errors.Wrap(e, "failed to query pg_stat_monitor")
@@ -127,11 +131,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			c.Database = databases[row.DBID]
 			c.Username = usernames[row.UserID]
 		default:
-			row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
-			if e != nil {
-				err = e
-				break
+			if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
+				row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
+				if e != nil {
+					err = e
+					break
+				}
 			}
+
 			c.pgStatMonitor = *row
 			c.Database = row.DatName
 			c.Username = row.UserName

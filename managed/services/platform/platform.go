@@ -19,6 +19,7 @@ package platform
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -38,6 +39,7 @@ import (
 const rollbackFailed = "Failed to rollback:"
 
 var (
+	errProxyNotSupported         = status.Error(codes.Aborted, "PMM Platform connection does not support proxy.")
 	errGetSSODetailsFailed       = status.Error(codes.Aborted, "Failed to fetch SSO details.")
 	errGrafanaAccessTokenFailed  = status.Error(codes.Unauthenticated, "Failed to get user access token. Please sign in using your Percona Portal account.")
 	errPMMServerAlreadyConnected = status.Error(codes.AlreadyExists, "PMM server is already connected to Portal")
@@ -95,6 +97,9 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 
 	resp, err := s.client.Connect(ctx, req.PersonalAccessToken, settings.PMMServerID, req.ServerName, pmmServerURL, pmmServerOAuthCallbackURL)
 	if err != nil {
+		if strings.Contains(err.Error(), "proxyconnect tcp") {
+			return nil, errProxyNotSupported
+		}
 		return nil, err
 	}
 
@@ -113,7 +118,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err := s.UpdateSupervisordConfigurations(ctx); err != nil {
@@ -171,7 +176,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err = s.UpdateSupervisordConfigurations(ctx); err != nil {

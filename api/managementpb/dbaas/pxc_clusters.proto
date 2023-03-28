@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-option go_package = "api/managementpb/dbaas;dbaasv1beta1";
-
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/templates.proto";
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // PXCBackupState represents PXC backup CR state.
 enum PXCBackupState {
@@ -71,17 +72,9 @@ message PXCClusterParams {
 
 message GetPXCClusterCredentialsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
   // PXC cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validator.field) = {string_not_empty: true}];
 }
 
 // PXCClusterConnectionCredentials is cluster connection credentials.
@@ -103,11 +96,7 @@ message GetPXCClusterCredentialsResponse {
 
 message CreatePXCClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
   // PXC cluster name.
   // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
   // start with an alphabetic character, and end with an alphanumeric character
@@ -121,23 +110,17 @@ message CreatePXCClusterRequest {
   bool internet_facing = 5;
   // Apply IP source ranges against the cluster.
   repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message CreatePXCClusterResponse {}
 
 message UpdatePXCClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
   // PXC cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validator.field) = {string_not_empty: true}];
   // UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
   message UpdatePXCClusterParams {
     // PXC container parameters.
@@ -183,17 +166,15 @@ message UpdatePXCClusterRequest {
   bool internet_facing = 5;
   // Apply IP source ranges against the cluster.
   repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message UpdatePXCClusterResponse {}
 
 message GetPXCClusterResourcesRequest {
   // Cluster parameters.
-  PXCClusterParams params = 1 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  PXCClusterParams params = 1 [(validator.field) = {msg_exists: true}];
 }
 
 message GetPXCClusterResourcesResponse {
