@@ -133,7 +133,7 @@ func (s *PbmPITRService) getPITROplogs(ctx context.Context, location *models.Bac
 	}
 
 	s3Config := location.S3Config
-	pitrFiles, err := locationClient.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "") //nolint:lll
+	pitrFiles, err := locationClient.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}

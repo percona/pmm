@@ -36,7 +36,7 @@ const (
 	logsCheckInterval = 3 * time.Second
 	waitForLogs       = 2 * logsCheckInterval
 
-	pbmArtifactJsonPostfix = ".pbm.json"
+	pbmArtifactJSONPostfix = ".pbm.json"
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -213,7 +213,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 // mongoArtifactFiles returns list of files and folders the backup consists of.
 func mongoArtifactFiles(pbmBackupName string) []*backuppb.File {
 	res := []*backuppb.File{
-		{Name: pbmBackupName + pbmArtifactJsonPostfix},
+		{Name: pbmBackupName + pbmArtifactJSONPostfix},
 		{Name: pbmBackupName, IsDirectory: true},
 	}
 	return res
