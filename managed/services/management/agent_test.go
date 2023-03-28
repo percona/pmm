@@ -75,9 +75,9 @@ func TestAgentService(t *testing.T) {
 			assert.Len(t, services, 1)
 			service := services[0]
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
-			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()                           // PMM Server Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false).Once() // PMM Server PostgreSQL exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false).Once() // PMM Server PG Stat Statements agent
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
