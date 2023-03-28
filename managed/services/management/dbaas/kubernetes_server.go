@@ -167,7 +167,6 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			clusters[i].Operators.Pxc.Version = pxcVersion
 			clusters[i].Operators.Psmdb.Version = psmdbVersion
 
-			// FIXME: Uncomment it when FE will be ready
 			kubeClient, err := kubernetes.New(cluster.KubeConfig)
 			if err != nil {
 				return
