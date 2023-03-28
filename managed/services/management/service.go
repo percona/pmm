@@ -178,9 +178,9 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 //nolint:unparam
 func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.ListServiceRequest) (*managementpb.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
-		NodeID:        req.GetNodeId(),
-		ServiceType:   convertServiceType(req.GetServiceType()),
-		ExternalGroup: req.GetExternalGroup(),
+		NodeID:        req.NodeId,
+		ServiceType:   convertServiceType(req.ServiceType),
+		ExternalGroup: req.ExternalGroup,
 	}
 
 	var services []*models.Service

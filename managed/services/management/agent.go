@@ -45,7 +45,7 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAgentRequest) (*managementpb.ListAgentResponse, error) {
-	serviceID := req.GetServiceId()
+	serviceID := req.ServiceId
 
 	var agents []*models.Agent
 	var service *models.Service
