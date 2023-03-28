@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -216,37 +215,30 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	return json.Marshal(m)
 }
 
-func parseRealTableName(query string) (string, error) {
-	tableNamesRegexp, err := regexp.Compile(`(?i)FROM (.*?) `)
-	if err != nil {
-		return "", err
-	}
-
-	query = strings.ReplaceAll(query, " . ", ".")
-	res := tableNamesRegexp.FindAllStringSubmatch(query, -1)
-	// due to historical reasons we parsing only one table name
-	var name string
-	for _, v := range res {
-		// in case of subquery it continue to root query
-		if len(v) < 2 || len(v[1]) == 0 || v[1][:1] == "(" {
-			continue
-		}
-
-		name = v[1]
-	}
-	if name == "" {
-		return "", fmt.Errorf("problem during parsing %+q", res)
-	}
-
+func prepareRealTableName(name string) string {
 	name = strings.ReplaceAll(name, "'", "")
 	name = strings.ReplaceAll(name, "\"", "")
 	name = strings.ReplaceAll(name, "`", "")
+	return strings.TrimSpace(name)
+}
 
-	if index := strings.Index(name, "."); index != -1 {
-		name = name[index+1:]
+func parseRealTableName(query string) (string, error) {
+	keyword := "FROM "
+
+	query = strings.ReplaceAll(query, " . ", ".")
+	index := strings.LastIndex(query, keyword)
+	if index == -1 {
+		return "", nil
 	}
 
-	return name, nil
+	parsed := query[index+len(keyword):]
+	parsed = strings.ReplaceAll(parsed, ";", "")
+	index = strings.Index(parsed, " ")
+	if index == -1 {
+		return prepareRealTableName(parsed), nil
+	}
+
+	return prepareRealTableName(parsed[:index+1]), nil
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {

@@ -287,22 +287,33 @@ func TestMySQLExplain(t *testing.T) {
 }
 
 func TestParseRealTableNameMySQL(t *testing.T) {
-	tests := []string{
-		"SELECT name FROM people WHERE city = 'Paris'",
-		"SELECT name FROM world.people WHERE city = 'Paris'",
-		"SELECT name FROM `world`.`people` WHERE city = 'Paris'",
-		"SELECT name FROM `world` . `people` WHERE city = 'Paris'",
-		"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'",
-		"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'",
-		"SELECT name FROM 'world'.'people' WHERE city = 'Paris'",
-		"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'",
-		"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`",
-		"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);",
+	type testCase struct {
+		Query    string
+		Expected string
+	}
+
+	tests := []testCase{
+		{"SELECT;", ""},
+		{"SELECT `district` FROM `people`;", "people"},
+		{"SELECT `district` FROM `people`", "people"},
+		{"SELECT `district` FROM people", "people"},
+		{"SELECT name FROM people WHERE city = 'Paris'", "people"},
+		{"SELECT name FROM world.people WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "world.people"},
+		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "people"},
 	}
 
 	for _, test := range tests {
-		realTableName, err := parseRealTableName(test)
-		require.NoError(t, err)
-		assert.Equal(t, "people", realTableName)
+		t.Run(test.Query, func(t *testing.T) {
+			realTableName, err := parseRealTableName(test.Query)
+			require.NoError(t, err)
+			assert.Equal(t, test.Expected, realTableName)
+		})
 	}
 }
