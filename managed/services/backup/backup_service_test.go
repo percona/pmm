@@ -422,7 +422,7 @@ func TestRestoreBackup(t *testing.T) {
 				mockedCompatibilityService.On("CheckArtifactCompatibility", tc.artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
 
 				if tc.expectedError == nil {
-					if len(tc.artifact.StorageRecList) > 0 && tc.artifact.StorageRecList[0].BackupRec != nil {
+					if len(tc.artifact.StorageRecList) != 0 && tc.artifact.StorageRecList[0].BackupRec != nil {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 							time.Duration(0), tc.artifact.Name, tc.artifact.StorageRecList[0].BackupRec.Name, mock.Anything, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()

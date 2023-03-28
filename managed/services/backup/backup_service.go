@@ -376,7 +376,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			Folder:        artifactFolder,
 		}
 
-		if len(artifact.StorageRecList) > 0 && artifact.StorageRecList[0].BackupRec != nil {
+		if len(artifact.StorageRecList) != 0 && artifact.StorageRecList[0].BackupRec != nil {
 			params.ArtifactSysName = artifact.StorageRecList[0].BackupRec.Name
 		}
 
