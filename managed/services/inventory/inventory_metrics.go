@@ -24,6 +24,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 )
@@ -69,7 +70,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "status", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
@@ -98,7 +99,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 
 		for _, agent := range dbAgents {
 			disabled := "0"
-			connected := float64(0)
+			metricValue := float64(0)
 
 			pmmAgentID := pointer.GetString(agent.PMMAgentID)
 
@@ -106,10 +107,14 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				disabled = "1"
 			}
 
-			if i.registry.IsConnected(agent.AgentID) {
-				connected = 1
+			if agent.AgentType == models.PMMAgentType {
+				if i.registry.IsConnected(agent.AgentID) {
+					metricValue = 1
+				} else {
+					metricValue = 0
+				}
 			} else {
-				connected = 0
+				metricValue = float64(inventorypb.AgentStatus_value[agent.Status])
 			}
 
 			agentMetricLabels := []string{
@@ -118,12 +123,11 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				pointer.GetString(agent.ServiceID),
 				pointer.GetString(agent.NodeID),
 				pmmAgentID,
-				agent.Status,
 				disabled,
 				pointer.GetString(agent.Version),
 			}
 
-			metrics = append(metrics, Metric{labels: agentMetricLabels, value: connected})
+			metrics = append(metrics, Metric{labels: agentMetricLabels, value: metricValue})
 		}
 		return nil
 	})

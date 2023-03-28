@@ -38,7 +38,7 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 
 	agentMetrics := []Metric{
 		{
-			labels: []string{"A1", string(models.PMMAgentType), "S1", "N1", "PA1", "UNKNOWN", strconv.Itoa(1), "V1"},
+			labels: []string{"A1", string(models.PMMAgentType), "S1", "N1", "PA1", strconv.Itoa(1), "V1"},
 			value:  float64(1),
 		},
 	}
@@ -87,7 +87,7 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		const expectedAgentMetrics = `
 			# HELP pmm_managed_inventory_agents Inventory Agent
 			# TYPE pmm_managed_inventory_agents gauge
-			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",pmm_agent_id="PA1",service_id="S1",status="UNKNOWN",version="V1"} 1
+			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
 		`
 
 		const expectedNodeMetrics = `
