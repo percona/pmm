@@ -338,6 +338,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "select /* Sleep */ sleep(:1) from dual",
 				PlaceholdersCount:   1,
+				Comments:            []string{"Sleep"},
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -384,6 +385,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "select /* AllCities */ * from city",
 				Fingerprint:         "SELECT * FROM `city`",
+				Comments:            []string{"AllCities"},
 				Schema:              "world",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -454,6 +456,7 @@ func TestPerfSchema(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
+				Comments:               []string{"t1"},
 				Schema:                 "world",
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,
