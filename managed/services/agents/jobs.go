@@ -187,8 +187,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MySQLBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-					Repr:   models.ArtifactReprFromProto(result.MysqlBackup.Repr),
+					Status:     models.BackupStatusPointer(models.SuccessBackupStatus),
+					StorageRec: ArtifactReprFromProto(result.MysqlBackup.Repr),
 				})
 			if err != nil {
 				return err
@@ -206,8 +206,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-					Repr:   models.ArtifactReprFromProto(result.MongodbBackup.Repr),
+					Status:     models.BackupStatusPointer(models.SuccessBackupStatus),
+					StorageRec: ArtifactReprFromProto(result.MongodbBackup.Repr),
 				})
 			if err != nil {
 				return err
@@ -567,7 +567,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Socket:        dbConfig.Socket,
 		PitrTimestamp: timestamppb.New(pitrTimestamp),
 		Folder:        folder,
-		ReprBackup:    &backuppb.ReprBackup{Name: sysName},
+		ReprBackup:    &backuppb.BackupRec{Name: sysName},
 	}
 
 	switch {
@@ -750,4 +750,31 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 			LastChunk: lastChunk,
 		})
 	return err
+}
+
+// ArtifactReprFromProto returns artifact protobuf representation converted to Go model format.
+func ArtifactReprFromProto(artifactRepr *backuppb.StorageRec) *models.StorageRec {
+	if artifactRepr == nil {
+		return nil
+	}
+
+	artifactReprFiles := make([]models.File, len(artifactRepr.FileList))
+	for i, file := range artifactRepr.FileList {
+		artifactReprFiles[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
+	}
+
+	var res models.StorageRec
+
+	res.FileList = artifactReprFiles
+
+	if artifactRepr.RestoreTo != nil {
+		t := artifactRepr.RestoreTo.AsTime()
+		res.RestoreTo = &t
+	}
+
+	if artifactRepr.ReprBackup != nil {
+		res.BackupRec = &models.BackupRec{Name: artifactRepr.ReprBackup.Name}
+	}
+
+	return &res
 }

@@ -91,7 +91,7 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
 			MysqlBackup: &agentpb.JobResult_MySQLBackup{
-				Repr: &backuppb.Repr{
+				Repr: &backuppb.StorageRec{
 					FileList: mysqlArtifactFiles(j.name),
 				},
 			},

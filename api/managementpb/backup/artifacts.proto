@@ -47,7 +47,7 @@ message Artifact {
   // Folder to store artifact on a storage.
   optional string folder = 12;
   // List of artifact representations on a storage.
-  repeated backup.v1.Repr repr_list = 13;
+  repeated backup.v1.StorageRec repr_list = 13;
 }
 
 message ListArtifactsRequest {}

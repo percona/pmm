@@ -170,10 +170,10 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
 			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
-				Repr: &backuppb.Repr{
+				Repr: &backuppb.StorageRec{
 					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
 					RestoreTo: timestamppb.New(backupTimestamp),
-					ReprBackup: &backuppb.ReprBackup{
+					ReprBackup: &backuppb.BackupRec{
 						Name: pbmBackupOut.Name,
 					},
 				},

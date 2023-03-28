@@ -563,7 +563,7 @@ message StartJobRequest {
     // Folder to store artifact on a storage.
     optional string folder = 12;
     // Extra data for backup tools.
-    backup.v1.ReprBackup repr_backup = 13;
+    backup.v1.BackupRec repr_backup = 13;
   }
 
   string job_id = 1;
@@ -599,13 +599,13 @@ message JobResult {
   // MongoDBBackup contains result for MongoDB backup job.
   message MongoDBBackup {
     // Representation of backup artifact.
-    backup.v1.Repr repr = 1;
+    backup.v1.StorageRec repr = 1;
   }
 
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {
     // Representation of backup artifact.
-    backup.v1.Repr repr = 1;
+    backup.v1.StorageRec repr = 1;
   }
 
   // MySQLRestoreBackup contains result for MySQL restore backup job.

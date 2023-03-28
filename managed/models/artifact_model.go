@@ -123,46 +123,46 @@ type File struct {
 	IsDirectory bool   `json:"is_directory"`
 }
 
-// ReprBackup contains extra data for backup tools.
-type ReprBackup struct {
+// BackupRec contains extra data for backup tools.
+type BackupRec struct {
 	// Name of backup in backup tool representation.
 	Name string `json:"name"`
 }
 
-// Repr contains artifact representation in storage.
-type Repr struct {
-	FileList   []File      `json:"file_list"`
-	RestoreTo  *time.Time  `json:"restore_to"`
-	ReprBackup *ReprBackup `json:"repr_backup"`
+// StorageRec contains artifact representation in storage.
+type StorageRec struct {
+	FileList  []File     `json:"file_list"`
+	RestoreTo *time.Time `json:"restore_to"`
+	BackupRec *BackupRec `json:"repr_backup"`
 }
 
-type ReprList []Repr
+type StorageRecList []StorageRec
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (p ReprList) Value() (driver.Value, error) { return jsonValue(p) }
+func (p StorageRecList) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *ReprList) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *StorageRecList) Scan(src interface{}) error { return jsonScan(p, src) }
 
 // Artifact represents result of a backup.
 //
 //reform:artifacts
 type Artifact struct {
-	ID         string       `reform:"id,pk"`
-	Name       string       `reform:"name"`
-	Vendor     string       `reform:"vendor"`
-	DBVersion  string       `reform:"db_version"`
-	LocationID string       `reform:"location_id"`
-	ServiceID  string       `reform:"service_id"`
-	DataModel  DataModel    `reform:"data_model"`
-	Mode       BackupMode   `reform:"mode"`
-	Status     BackupStatus `reform:"status"`
-	Type       ArtifactType `reform:"type"`
-	ScheduleID string       `reform:"schedule_id"`
-	Folder     *string      `reform:"folder"`
-	ReprList   ReprList     `reform:"repr_list"`
-	CreatedAt  time.Time    `reform:"created_at"`
-	UpdatedAt  time.Time    `reform:"updated_at"`
+	ID             string         `reform:"id,pk"`
+	Name           string         `reform:"name"`
+	Vendor         string         `reform:"vendor"`
+	DBVersion      string         `reform:"db_version"`
+	LocationID     string         `reform:"location_id"`
+	ServiceID      string         `reform:"service_id"`
+	DataModel      DataModel      `reform:"data_model"`
+	Mode           BackupMode     `reform:"mode"`
+	Status         BackupStatus   `reform:"status"`
+	Type           ArtifactType   `reform:"type"`
+	ScheduleID     string         `reform:"schedule_id"`
+	Folder         *string        `reform:"folder"`
+	StorageRecList StorageRecList `reform:"storage_rec_list"`
+	CreatedAt      time.Time      `reform:"created_at"`
+	UpdatedAt      time.Time      `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

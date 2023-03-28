@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
@@ -118,7 +119,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), tc.dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel)
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), tc.dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, pointer.ToString("artifact_folder"))
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

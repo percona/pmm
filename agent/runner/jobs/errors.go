@@ -17,4 +17,4 @@ package jobs
 import "github.com/pkg/errors"
 
 // ErrNotFound returned when backup entity is not found.
-var ErrNotFound = errors.New("backup entity not found")
+var ErrNotFound = errors.New("backup record not found by backup tool")

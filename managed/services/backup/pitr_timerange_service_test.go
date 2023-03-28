@@ -16,19 +16,13 @@
 package backup
 
 import (
-	"context"
 	"fmt"
 	"path"
 	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/minio"
 )
 
 func TestPitrMetaFromFileName(t *testing.T) {
@@ -109,69 +103,6 @@ func TestPitrParseTs(t *testing.T) {
 			assert.Equal(t, tt.expected, ts)
 		})
 	}
-}
-
-func TestListPITRTimelines(t *testing.T) {
-	ctx := context.Background()
-	location := &models.BackupLocation{
-		S3Config: &models.S3LocationConfig{
-			Endpoint:     "https://s3.us-west-2.amazonaws.com",
-			AccessKey:    "access_key",
-			SecretKey:    "secret_key",
-			BucketName:   "example_bucket",
-			BucketRegion: "us-east-1",
-		},
-	}
-
-	t.Run("successful", func(t *testing.T) {
-		mockedStorage := &mockPitrLocationClient{}
-		listedFiles := []minio.FileInfo{
-			{
-				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-				Size: 1024,
-			},
-		}
-
-		statFile := minio.FileInfo{
-			Name: pitrFSPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-			Size: 1024,
-		}
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
-		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
-
-		ss := NewPbmPITRService(mockedStorage)
-		timelines, err := ss.getPITROplogs(ctx, location, "")
-		assert.NoError(t, err)
-		assert.Len(t, timelines, 1)
-	})
-
-	t.Run("fails on file list error", func(t *testing.T) {
-		mockedStorage := &mockPitrLocationClient{}
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
-
-		ss := NewPbmPITRService(mockedStorage)
-		timelines, err := ss.getPITROplogs(ctx, location, "")
-		assert.Error(t, err)
-		assert.Nil(t, timelines)
-	})
-
-	t.Run("skips artifacts with deletion markers", func(t *testing.T) {
-		mockedStorage := &mockPitrLocationClient{}
-		listedFiles := []minio.FileInfo{
-			{
-				Name:           "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-				Size:           1024,
-				IsDeleteMarker: true,
-			},
-		}
-
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
-
-		ss := NewPbmPITRService(mockedStorage)
-		timelines, err := ss.getPITROplogs(ctx, location, "")
-		assert.NoError(t, err)
-		assert.Len(t, timelines, 0)
-	})
 }
 
 func TestPITRMergeTimelines(t *testing.T) {

@@ -24,8 +24,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 // ArtifactFilters represents filters for artifacts list.
@@ -255,7 +253,7 @@ type UpdateArtifactParams struct {
 	ServiceID  *string
 	Status     *BackupStatus
 	ScheduleID *string
-	Repr       *Repr
+	StorageRec *StorageRec
 }
 
 // UpdateArtifact updates existing artifact.
@@ -274,9 +272,9 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.ScheduleID = *params.ScheduleID
 	}
 
-	if params.Repr != nil {
+	if params.StorageRec != nil {
 		// We're appending to existing list to cover PITR mode cases.
-		row.ReprList = append(row.ReprList, *params.Repr)
+		row.StorageRecList = append(row.StorageRecList, *params.StorageRec)
 	}
 
 	if err := q.Update(row); err != nil {
@@ -322,36 +320,9 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 //	return res
 //}
 
-// ArtifactReprFromProto returns artifact protobuf representation converted to Go model format.
-func ArtifactReprFromProto(artifactRepr *backuppb.Repr) *Repr {
-	if artifactRepr == nil {
-		return nil
-	}
-
-	artifactReprFiles := make([]File, len(artifactRepr.FileList))
-	for i, file := range artifactRepr.FileList {
-		artifactReprFiles[i] = File{Name: file.Name, IsDirectory: file.IsDirectory}
-	}
-
-	var res Repr
-
-	res.FileList = artifactReprFiles
-
-	if artifactRepr.RestoreTo != nil {
-		t := artifactRepr.RestoreTo.AsTime()
-		res.RestoreTo = &t
-	}
-
-	if artifactRepr.ReprBackup != nil {
-		res.ReprBackup = &ReprBackup{Name: artifactRepr.ReprBackup.Name}
-	}
-
-	return &res
-}
-
 // ReprRemoveFirstN removes first N records from artifact representation list.
 func (s *Artifact) ReprRemoveFirstN(q *reform.Querier, n uint32) error {
-	s.ReprList = s.ReprList[n:]
+	s.StorageRecList = s.StorageRecList[n:]
 	if err := q.Update(s); err != nil {
 		return errors.Wrap(err, "failed to update backup artifact")
 	}

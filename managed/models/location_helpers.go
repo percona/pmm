@@ -160,7 +160,7 @@ func FindBackupLocationByID(q *reform.Querier, id string) (*BackupLocation, erro
 	case nil:
 		return location, nil
 	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Backup location with ID %q not found.", id)
+		return nil, errors.Wrapf(ErrNotFound, "backup location with ID %q", id)
 	default:
 		return nil, errors.WithStack(err)
 	}

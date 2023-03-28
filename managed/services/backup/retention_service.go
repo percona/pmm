@@ -115,7 +115,7 @@ func (s *RetentionService) retentionPITR(ctx context.Context, scheduleID string,
 
 	artifact := artifacts[0]
 
-	filesToRemove := len(artifact.ReprList) - int(retention)
+	filesToRemove := len(artifact.StorageRecList) - int(retention)
 
 	if filesToRemove <= 0 {
 		return nil
@@ -134,5 +134,5 @@ func (s *RetentionService) retentionPITR(ctx context.Context, scheduleID string,
 		return err
 	}
 
-	return s.pbmPITRService.DeletePITRChunks(ctx, location, artifact, artifact.ReprList[0].RestoreTo)
+	return s.pbmPITRService.DeletePITRChunks(ctx, location, artifact, artifact.StorageRecList[0].RestoreTo)
 }

@@ -100,7 +100,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			// TODO remove before merging or after FE is ready.
-			params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
+			if params.Folder == nil {
+				params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
+			}
 
 			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
 			if err != nil {
@@ -357,7 +359,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		var artifactFolder *string
 
 		// Only artifacts taken with new agents can be restored from a folder.
-		if len(artifact.ReprList) != 0 {
+		if len(artifact.StorageRecList) != 0 {
 			artifactFolder = artifact.Folder
 		}
 
@@ -374,8 +376,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			Folder:        artifactFolder,
 		}
 
-		if len(artifact.ReprList) > 0 && artifact.ReprList[0].ReprBackup != nil {
-			params.ArtifactSysName = artifact.ReprList[0].ReprBackup.Name
+		if len(artifact.StorageRecList) > 0 && artifact.StorageRecList[0].BackupRec != nil {
+			params.ArtifactSysName = artifact.StorageRecList[0].BackupRec.Name
 		}
 
 		return nil

@@ -29,7 +29,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 )
 
 const (
@@ -122,13 +121,13 @@ func (s *PbmPITRService) getPITROplogs(ctx context.Context, location *models.Bac
 	var prefix string
 
 	// Only artifacts taken with new agents can be restored from artifact folder.
-	if len(artifact.ReprList) == 0 {
+	if len(artifact.StorageRecList) == 0 {
 		prefix = path.Join(artifact.Name, pitrFSPrefix)
 	} else {
 		prefix = path.Join(*artifact.Folder, pitrFSPrefix)
 	}
 
-	locationClient := services.Location2Storage(location)
+	locationClient := Location2Storage(location)
 	if locationClient == nil {
 		return []*oplogChunk{}, nil
 	}
@@ -382,7 +381,7 @@ func (s *PbmPITRService) DeletePITRChunks(ctx context.Context, location *models.
 		return nil
 	}
 
-	locationClient := services.Location2Storage(location)
+	locationClient := Location2Storage(location)
 	if locationClient == nil {
 		return nil
 	}
@@ -394,7 +393,7 @@ func (s *PbmPITRService) DeletePITRChunks(ctx context.Context, location *models.
 			return errors.Wrapf(err, "failed to delete pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
 		}
 
-		s.l.Debug("deleted %s", chunk.FName)
+		s.l.Debugf("deleted %s", chunk.FName)
 	}
 
 	return nil

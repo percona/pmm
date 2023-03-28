@@ -8,6 +8,7 @@ import (
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -20,14 +21,17 @@ var (
 )
 
 func (this *File) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	return nil
 }
 
-func (this *ReprBackup) Validate() error {
+func (this *BackupRec) Validate() error {
 	return nil
 }
 
-func (this *Repr) Validate() error {
+func (this *StorageRec) Validate() error {
 	for _, item := range this.FileList {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {

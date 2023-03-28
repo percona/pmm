@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package backup.v1;
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "api/managementpb/backup;backupv1";
@@ -23,22 +24,22 @@ enum BackupMode {
 
 // File represents file or folder on a storage.
 message File {
-  string name = 1;
+  string name = 1 [(validator.field) = {string_not_empty: true}];
   bool is_directory = 2;
 }
 
 // ReprBackup contains additional data for backup tools.
-message ReprBackup {
+message BackupRec {
   // Name of backup in backup tool representation.
   string name = 1;
 }
 
 // Repr represents artifact on a storage.
-message Repr {
+message StorageRec {
   // List of files backup consists of.
   repeated File file_list = 1;
   // Exact time DB can be restored to.
   google.protobuf.Timestamp restore_to = 2;
   // Extra data for backup tools.
-  ReprBackup repr_backup = 3;
+  BackupRec repr_backup = 3;
 }

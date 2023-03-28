@@ -26,7 +26,6 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 )
 
 // RemovalService manage removing of backup artifacts.
@@ -59,7 +58,7 @@ func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, 
 			return err
 		}
 
-		err := s.beginDeletingArtifact(artifact)
+		err = s.beginDeletingArtifact(artifact)
 		if err != nil {
 			return err
 		}
@@ -70,8 +69,9 @@ func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, 
 	}
 
 	if removeFiles {
-		err = s.DeleteArtifactFiles(ctx, artifact, len(artifact.ReprList))
+		err := s.DeleteArtifactFiles(ctx, artifact, len(artifact.StorageRecList))
 		if err != nil {
+			s.setFailedToDeleteBackupStatus(artifactID)
 			return err
 		}
 	}
@@ -81,22 +81,20 @@ func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, 
 			ArtifactID: artifactID,
 		})
 		if err != nil {
+			s.setFailedToDeleteBackupStatus(artifactID)
 			return err
 		}
 
 		for _, ri := range restoreItems {
 			if err := models.RemoveRestoreHistoryItem(tx.Querier, ri.ID); err != nil {
+				s.setFailedToDeleteBackupStatus(artifactID)
 				return err
 			}
 		}
 
 		err = models.DeleteArtifact(tx.Querier, artifactID)
 		if err != nil {
-			if _, updateErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
-			}); updateErr != nil {
-				s.l.WithError(updateErr).Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, artifact.ID)
-			}
+			s.setFailedToDeleteBackupStatus(artifactID)
 		}
 		return nil
 	})
@@ -127,6 +125,14 @@ func (s *RemovalService) beginDeletingArtifact(artifact *models.Artifact) error 
 	return nil
 }
 
+func (s *RemovalService) setFailedToDeleteBackupStatus(id string) {
+	if _, updateErr := models.UpdateArtifact(s.db.Querier, id, models.UpdateArtifactParams{
+		Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
+	}); updateErr != nil {
+		s.l.WithError(updateErr).Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, id)
+	}
+}
+
 // DeleteArtifactFiles deletes artifact files.
 // If artifact represents a single snapshot, there is only one record representing artifact files.
 // If artifact represents continuous backup (PITR), artifact may contain several records,
@@ -137,7 +143,7 @@ func (s *RemovalService) DeleteArtifactFiles(ctx context.Context, artifact *mode
 		return err
 	}
 
-	storage := services.Location2Storage(location)
+	storage := Location2Storage(location)
 	s3Config := location.S3Config
 
 	if storage == nil || s3Config == nil {
@@ -145,7 +151,7 @@ func (s *RemovalService) DeleteArtifactFiles(ctx context.Context, artifact *mode
 	}
 
 	// Old artifact records don't contain representation file list.
-	if len(artifact.ReprList) == 0 {
+	if len(artifact.StorageRecList) == 0 {
 		folderName := artifact.Name + "/"
 
 		if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
@@ -155,7 +161,7 @@ func (s *RemovalService) DeleteArtifactFiles(ctx context.Context, artifact *mode
 		return nil
 	}
 
-	for _, artifactRepr := range artifact.ReprList[:firstN] {
+	for _, artifactRepr := range artifact.StorageRecList[:firstN] {
 		for _, file := range artifactRepr.FileList {
 			if file.IsDirectory {
 				// Recursive listing finds all the objects with the specified prefix.

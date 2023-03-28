@@ -19,9 +19,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -63,39 +61,26 @@ func TestDeleteArtifact(t *testing.T) {
 		ServiceID:  *agent.ServiceID,
 		DataModel:  models.PhysicalDataModel,
 		Mode:       models.Snapshot,
-		Status:     models.SuccessBackupStatus,
+		Status:     models.PendingBackupStatus,
 	})
 	require.NoError(t, err)
 
-	t.Run("failed to delete from s3", func(t *testing.T) {
-		mockedS3.On("RemoveRecursive", mock.Anything, endpoint, accessKey, secretKey, bucketName, artifact.Name+"/").
-			Return(errors.Errorf("failed to remove")).
-			Run(func(args mock.Arguments) {
-				artifact, err := models.FindArtifactByID(db.Querier, artifact.ID)
-				require.NoError(t, err)
-				require.NotNil(t, artifact)
-				assert.Equal(t, artifact.Status, models.DeletingBackupStatus)
-			}).Once()
-
-		err := removalService.DeleteArtifact(ctx, artifact.ID, true)
-		require.EqualError(t, err, "failed to remove")
+	t.Run("artifact not in final status", func(t *testing.T) {
+		err := removalService.DeleteArtifact(ctx, artifact.ID, false)
+		require.Contains(t, err.Error(), "isn't in the final state")
 
 		artifact, err := models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
 		require.NotNil(t, artifact)
-		assert.Equal(t, artifact.Status, models.FailedToDeleteBackupStatus)
+		assert.Equal(t, artifact.Status, models.PendingBackupStatus)
 	})
 
 	t.Run("successful delete", func(t *testing.T) {
-		mockedS3.On("RemoveRecursive", mock.Anything, endpoint, accessKey, secretKey, bucketName,
-			artifact.Name+"/").Return(nil).Once()
-
-		err = removalService.DeleteArtifact(ctx, artifact.ID, true)
+		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Status: models.BackupStatusPointer(models.SuccessBackupStatus)})
+		err = removalService.DeleteArtifact(ctx, artifact.ID, false)
 		assert.NoError(t, err)
 
 		_, err := models.FindArtifactByID(db.Querier, artifact.ID)
-		assert.True(t, errors.Is(err, models.ErrNotFound))
+		assert.ErrorIs(t, err, models.ErrNotFound)
 	})
-
-	mock.AssertExpectationsForObjects(t, mockedS3)
 }
