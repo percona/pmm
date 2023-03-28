@@ -21,7 +21,7 @@ var (
 	_ = math.Inf
 )
 
-func (this *GenericAgent) Validate() error {
+func (this *UniversalAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

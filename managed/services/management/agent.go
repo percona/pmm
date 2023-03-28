@@ -70,7 +70,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		return nil, errTX
 	}
 
-	var svcAgents []*managementpb.GenericAgent
+	var svcAgents []*managementpb.UniversalAgent
 
 	for _, agent := range agents {
 		if IsNonExporterAgent(agent, service) {
@@ -101,7 +101,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	return &managementpb.ListAgentResponse{Agents: svcAgents}, nil
 }
 
-func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.GenericAgent, error) {
+func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.UniversalAgent, error) {
 	const pass = "**********"
 
 	labels, err := agent.GetCustomLabels()
@@ -109,7 +109,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.GenericAge
 		return nil, err
 	}
 
-	ga := &managementpb.GenericAgent{
+	ga := &managementpb.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),

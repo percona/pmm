@@ -18248,7 +18248,7 @@
               "type": "object",
               "properties": {
                 "agents": {
-                  "description": "List of Agent.",
+                  "description": "List of Agents.",
                   "type": "array",
                   "items": {
                     "type": "object",

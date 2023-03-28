@@ -301,7 +301,7 @@ ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
-	// List of Agent.
+	// List of Agents.
 	Agents []*ListAgentsOKBodyAgentsItems0 `json:"agents"`
 }
 

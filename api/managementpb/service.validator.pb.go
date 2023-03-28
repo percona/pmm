@@ -39,7 +39,7 @@ func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }
 
-func (this *GenericService) Validate() error {
+func (this *UniversalService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.Agents {
 		if item != nil {

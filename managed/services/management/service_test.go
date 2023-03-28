@@ -38,7 +38,7 @@ import (
 )
 
 func TestServiceService(t *testing.T) {
-	setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+	setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) {
 		t.Helper()
 
 		ctx := logger.Set(context.Background(), t.Name())

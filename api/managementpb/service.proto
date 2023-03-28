@@ -47,7 +47,7 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-message GenericService {
+message UniversalService {
   // Unique service identifier.
   string service_id = 1;
   // Service type.
@@ -84,7 +84,7 @@ message GenericService {
   // Last update timestamp.
   int64 updated_at = 16;
   // List of agents related to this service.
-  repeated GenericAgent agents = 17;
+  repeated UniversalAgent agents = 17;
 }
 
 message ListServiceRequest {
@@ -98,7 +98,7 @@ message ListServiceRequest {
 
 message ListServiceResponse {
   // List of Services.
-  repeated GenericService services = 1;
+  repeated UniversalService services = 1;
 }
 
 // Service service provides public methods for managing and querying Services.

@@ -187,8 +187,8 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 	var agents []*models.Agent
 	var nodes []*models.Node
 
-	agentToAPI := func(agent *models.Agent) *managementpb.GenericAgent {
-		return &managementpb.GenericAgent{
+	agentToAPI := func(agent *models.Agent) *managementpb.UniversalAgent {
+		return &managementpb.UniversalAgent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
 			Status:      agent.Status,
@@ -225,16 +225,16 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		nodeMap[node.NodeID] = node
 	}
 
-	resultSvc := make([]*managementpb.GenericService, 0, len(services))
+	resultSvc := make([]*managementpb.UniversalService, 0, len(services))
 	for _, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
 			return nil, err
 		}
 
-		svc := &managementpb.GenericService{
+		svc := &managementpb.UniversalService{
 			Address:        pointer.GetString(service.Address),
-			Agents:         []*managementpb.GenericAgent{},
+			Agents:         []*managementpb.UniversalAgent{},
 			Cluster:        service.Cluster,
 			CreatedAt:      service.CreatedAt.UnixMilli(),
 			CustomLabels:   labels,
@@ -256,7 +256,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			svc.NodeName = node.NodeName
 		}
 
-		var svcAgents []*managementpb.GenericAgent
+		var svcAgents []*managementpb.UniversalAgent
 
 		for _, agent := range agents {
 			if IsNonExporterAgent(agent, service) {
