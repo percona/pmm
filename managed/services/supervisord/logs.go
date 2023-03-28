@@ -343,7 +343,7 @@ func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
 
 // readURL reads HTTP GET url response.
 func readURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -353,7 +353,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

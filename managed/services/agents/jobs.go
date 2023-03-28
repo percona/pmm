@@ -235,34 +235,13 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			logChunkID := 0
-			var logParams models.CreateJobLogParams
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
-				logParams = models.CreateJobLogParams{
-					JobID:     job.ID,
-					ChunkID:   logChunkID,
-					LastChunk: false,
-					Data:      "restore successfully completed, PMM will restart mongod and pbm-agent.",
-				}
-			} else {
-				logParams = models.CreateJobLogParams{
-					JobID:     job.ID,
-					ChunkID:   logChunkID,
-					LastChunk: true,
-					Data:      "restore successfully completed.",
-				}
-			}
-			if err := createJobLog(t.Querier, logParams.JobID, logParams.Data, logParams.ChunkID, logParams.LastChunk); err != nil {
-				s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-			}
-
-			logChunkID++
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+			if job.Data.MongoDBRestoreBackup.DataModel == models.LogicalDataModel {
+				s.l.Info("restore successfully completed")
+			} else if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
 				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
-					if logErr := createJobLog(t.Querier, job.ID, err.Error(), logChunkID, true); logErr != nil {
-						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-					}
+
 					_, err = models.ChangeRestoreHistoryItem(
 						t.Querier,
 						job.Data.MongoDBRestoreBackup.RestoreID,
@@ -272,9 +251,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 						})
 					return err
 				} else {
-					if logErr := createJobLog(t.Querier, job.ID, "successfully restarted mongod and pbm-agent", logChunkID, true); logErr != nil {
-						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-					}
+					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 				}
 			}
 

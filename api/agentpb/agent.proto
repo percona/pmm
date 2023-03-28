@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package agent;
 
-option go_package = "api/agentpb;agentpb";
-
 import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -12,6 +10,8 @@ import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/backup/common.proto";
+
+option go_package = "api/agentpb;agentpb";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -87,7 +87,6 @@ message SetStateRequest {
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
 message SetStateResponse {
   // TODO https://jira.percona.com/browse/PMM-4691
-
 }
 
 // MysqlExplainOutputFormat output formats supported by MySQL Explain action.
@@ -155,6 +154,7 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+    repeated string values = 6;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
@@ -640,6 +640,12 @@ message GetVersionsRequest {
   // Qpress is used for qpress binary version retrieving.
   message Qpress {}
 
+  // MongoDB is used for mongod binary version retrieving.
+  message MongoDB {}
+
+  // PBM is used for pbm (Percona Backup for MongoDB) binary version retrieving.
+  message PBM {}
+
   // Software is used to select software for which retrieve version.
   message Software {
     oneof software {
@@ -647,6 +653,8 @@ message GetVersionsRequest {
       Xtrabackup xtrabackup = 2;
       Xbcloud xbcloud = 3;
       Qpress qpress = 4;
+      MongoDB mongod = 5;
+      PBM pbm = 6;
     }
   }
   repeated Software softwares = 1;
