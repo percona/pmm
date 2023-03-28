@@ -51,6 +51,17 @@
         path: /etc/supervisord.d/
         state: directory
 
+    - name: Upgrade supervisord config
+      copy:
+        src: supervisord.ini
+        dest: /etc/supervisord.d/supervisord.ini
+
+    - name: Remove supervisord
+      file:
+        state: absent
+        path: /etc/supervisord.d/supervisord.ini
+      when: not is_docker
+
     - name: Create grafana config
       include_role:
         name: grafana
@@ -270,6 +281,13 @@
         - /usr/share/grafana/data/grafana.db
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
+
+    - name: Enable pmm-update-perform-init after build
+      ini_file:
+        path: /etc/supervisord.d/pmm.ini
+        section: program:pmm-update-perform-init
+        option: autostart
+        value: "true"
 
     - name: Reread pmm-update-perform-init supervisor config
       command: supervisorctl reread
