@@ -87,9 +87,9 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 	}
 }
 
-func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, PMMAgentID *string) string {
+func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
 	for _, agent := range agents {
-		if agent.AgentID == pointer.GetString(PMMAgentID) {
+		if agent.AgentID == pmmAgentID {
 			return pointer.GetString(agent.RunsOnNodeID)
 		}
 	}
@@ -126,7 +126,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
 				metricValue = float64(inventorypb.AgentStatus_value[agent.Status])
-				runsOnNodeID = GetRunsOnNodeIDByPMMAgentID(dbAgents, agent.PMMAgentID)
+				runsOnNodeID = GetRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
 			}
 
 			agentMetricLabels := []string{
