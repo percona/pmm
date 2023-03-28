@@ -2,13 +2,13 @@ syntax = "proto3";
 
 package uievents;
 
-option go_package = "api/uieventspb;uieventspb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/uieventspb;uieventspb";
 
 message NotificationEvent {
   string title = 1;
@@ -39,8 +39,7 @@ message StoreRequest {
   repeated DashboardUsageEvent dashboard_usage = 3;
 }
 
-message StoreResponse {
-}
+message StoreResponse {}
 
 // UIEvents collects UI related events.
 service UIEvents {
