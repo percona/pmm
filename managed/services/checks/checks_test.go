@@ -28,14 +28,11 @@ import (
 	"github.com/percona-platform/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
-	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/platform"
@@ -316,8 +313,6 @@ func TestEnableChecks(t *testing.T) {
 
 func TestChangeInterval(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		var ams mockAlertmanagerService
-		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
@@ -673,55 +668,35 @@ func TestGetFailedChecks(t *testing.T) {
 	})
 
 	t.Run("non empty failed checks", func(t *testing.T) {
-		alertLabels := map[string]string{
-			model.AlertNameLabel: "test_check",
-			"alert_id":           "test_alert",
-			"service_name":       "test_svc",
-			"service_id":         "/service_id/test_svc1",
-			"interval_group":     "frequent",
-			"severity":           common.Severity(4).String(),
-		}
-
-		testAlert := ammodels.GettableAlert{
-			Annotations: map[string]string{
-				"summary":       "Check summary",
-				"description":   "Check description",
-				"read_more_url": "https://www.example.com",
-			},
-			Alert: ammodels.Alert{
-				Labels: alertLabels,
-			},
-			Status: &ammodels.AlertStatus{},
-		}
-
-		results := []services.CheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "test_check",
 				Interval:  check.Frequent,
 				Target: services.Target{
 					ServiceName: "test_svc",
 					ServiceID:   "/service_id/test_svc1",
-					Labels:      alertLabels,
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
 				},
 				Result: check.Result{
 					Summary:     "Check summary",
 					Description: "Check description",
 					ReadMoreURL: "https://www.example.com",
 					Severity:    common.Error,
-					Labels:      alertLabels,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
 				},
 			},
 		}
 
-		ams := mockAlertmanagerService{}
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{&testAlert}, nil)
-
 		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s.alertsRegistry.set(checkResults)
 
-		response, err := s.GetChecksResults(ctx, "test_svc")
+		response, err := s.GetChecksResults(context.Background(), "test_svc")
 		require.NoError(t, err)
-		assert.Equal(t, results, response)
+		assert.Equal(t, checkResults, response)
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
