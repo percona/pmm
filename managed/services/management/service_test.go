@@ -275,109 +275,109 @@ func TestServiceService(t *testing.T) {
 			assert.Len(t, response.Services, 1) // PMM Server PostgreSQL service
 			assert.Len(t, response.Services[0].Agents, 3)
 		})
-	})
 
-	t.Run("RDS", func(t *testing.T) {
-		ctx, s, teardown, _ := setup(t)
-		defer teardown(t)
+		t.Run("RDS", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			defer teardown(t)
 
-		node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-			NodeName: "test",
-			Address:  "test-address",
-			Region:   pointer.ToString("test-region"),
+			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   pointer.ToString("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Password:   "password",
+				Username:   "username",
+			})
+			require.NoError(t, err)
+
+			rdsExporter, err := models.CreateAgent(s.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true)                                  // PMM Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000007").Return(false) // PMM Agent 2
+			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false)                           // MySQLd exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false)                              // RDS exporter
+
+			response, err := s.ListServices(ctx, &managementpb.ListServiceRequest{})
+
+			require.NoError(t, err)
+			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
+			assert.Len(t, response.Services[0].Agents, 4)
+			assert.Len(t, response.Services[1].Agents, 2)
 		})
-		require.NoError(t, err)
 
-		service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "test-mysql",
-			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+		t.Run("Azure", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			defer teardown(t)
+
+			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   pointer.ToString("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      node.NodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Password:   "password",
+				Username:   "username",
+			})
+			require.NoError(t, err)
+
+			azureExporter, err := models.CreateAgent(s.db.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true)                                  // PMM Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000007").Return(false) // PMM Agent 2
+			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false)                           // MySQLd exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false)                            // Azure exporter
+
+			response, err := s.ListServices(ctx, &managementpb.ListServiceRequest{})
+
+			require.NoError(t, err)
+			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
+			assert.Len(t, response.Services[0].Agents, 4)
+			assert.Len(t, response.Services[1].Agents, 2)
 		})
-		require.NoError(t, err)
-
-		pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
-		require.NoError(t, err)
-
-		mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-			PMMAgentID: pmmAgent.AgentID,
-			ServiceID:  service.ServiceID,
-			Password:   "password",
-			Username:   "username",
-		})
-		require.NoError(t, err)
-
-		rdsExporter, err := models.CreateAgent(s.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
-			PMMAgentID: pmmAgent.AgentID,
-			ServiceID:  service.ServiceID,
-		})
-		require.NoError(t, err)
-
-		s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true)                                  // PMM Agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000007").Return(false) // PMM Agent 2
-		s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false)                           // MySQLd exporter
-		s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false)                              // RDS exporter
-
-		response, err := s.ListServices(ctx, &managementpb.ListServiceRequest{})
-
-		require.NoError(t, err)
-		assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
-		assert.Len(t, response.Services[0].Agents, 4)
-		assert.Len(t, response.Services[1].Agents, 2)
-	})
-
-	t.Run("Azure", func(t *testing.T) {
-		ctx, s, teardown, _ := setup(t)
-		defer teardown(t)
-
-		node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
-			NodeName: "test",
-			Address:  "test-address",
-			Region:   pointer.ToString("test-region"),
-		})
-		require.NoError(t, err)
-
-		service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "test-mysql",
-			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
-		})
-		require.NoError(t, err)
-
-		pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
-		require.NoError(t, err)
-
-		mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-			PMMAgentID: pmmAgent.AgentID,
-			ServiceID:  service.ServiceID,
-			Password:   "password",
-			Username:   "username",
-		})
-		require.NoError(t, err)
-
-		azureExporter, err := models.CreateAgent(s.db.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
-			PMMAgentID: pmmAgent.AgentID,
-			ServiceID:  service.ServiceID,
-		})
-		require.NoError(t, err)
-
-		s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)                           // PMM Server Agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true)                                  // PMM Agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false) // PMM Server PostgreSQL exporter
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false) // PMM Server PG Stat Statements agent
-		s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000007").Return(false) // PMM Agent 2
-		s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false)                           // MySQLd exporter
-		s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false)                            // Azure exporter
-
-		response, err := s.ListServices(ctx, &managementpb.ListServiceRequest{})
-
-		require.NoError(t, err)
-		assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
-		assert.Len(t, response.Services[0].Agents, 4)
-		assert.Len(t, response.Services[1].Agents, 2)
 	})
 }
