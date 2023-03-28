@@ -69,7 +69,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "status", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
@@ -106,7 +106,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				disabled = "1"
 			}
 
-			if i.registry.IsConnected(pmmAgentID) {
+			if i.registry.IsConnected(agent.AgentID) {
 				connected = 1
 			} else {
 				connected = 0
@@ -118,6 +118,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 				pointer.GetString(agent.ServiceID),
 				pointer.GetString(agent.NodeID),
 				pmmAgentID,
+				agent.Status,
 				disabled,
 				pointer.GetString(agent.Version),
 			}
