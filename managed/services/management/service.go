@@ -187,7 +187,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 	var agents []*models.Agent
 	var nodes []*models.Node
 
-	toAgentAPI := func(agent *models.Agent) *managementpb.GenericAgent {
+	agentToAPI := func(agent *models.Agent) *managementpb.GenericAgent {
 		return &managementpb.GenericAgent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
@@ -196,7 +196,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		}
 	}
 
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, filters)
 		if err != nil {
@@ -216,8 +216,8 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil
 	})
 
-	if e != nil {
-		return nil, e
+	if errTX != nil {
+		return nil, errTX
 	}
 
 	resultSvc := make([]*managementpb.GenericService, 0, len(services))
@@ -257,15 +257,15 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 
 		for _, agent := range agents {
 			if IsNonExporterAgent(agent, service) {
-				svcAgents = append(svcAgents, toAgentAPI(agent))
+				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
 			if IsVMAgent(agent, service) {
-				svcAgents = append(svcAgents, toAgentAPI(agent))
+				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
 			if IsExporterAgent(agent, service) {
-				svcAgents = append(svcAgents, toAgentAPI(agent))
+				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
 			svc.Agents = svcAgents

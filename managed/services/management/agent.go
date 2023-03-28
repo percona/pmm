@@ -50,7 +50,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	var agents []*models.Agent
 	var service *models.Service
 
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 
 		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
@@ -66,15 +66,15 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		return nil
 	})
 
-	if e != nil {
-		return nil, e
+	if errTX != nil {
+		return nil, errTX
 	}
 
 	var svcAgents []*managementpb.GenericAgent
 
 	for _, agent := range agents {
 		if IsNonExporterAgent(agent, service) {
-			ag, err := s.toAPIAgent(agent)
+			ag, err := s.agentToAPI(agent)
 			if err != nil {
 				return nil, err
 			}
@@ -82,7 +82,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		}
 
 		if IsVMAgent(agent, service) {
-			ag, err := s.toAPIAgent(agent)
+			ag, err := s.agentToAPI(agent)
 			if err != nil {
 				return nil, err
 			}
@@ -90,7 +90,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		}
 
 		if IsExporterAgent(agent, service) {
-			ag, err := s.toAPIAgent(agent)
+			ag, err := s.agentToAPI(agent)
 			if err != nil {
 				return nil, err
 			}
@@ -101,7 +101,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	return &managementpb.ListAgentResponse{Agents: svcAgents}, nil
 }
 
-func (s *AgentService) toAPIAgent(agent *models.Agent) (*managementpb.GenericAgent, error) {
+func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.GenericAgent, error) {
 	const pass = "**********"
 
 	labels, err := agent.GetCustomLabels()
