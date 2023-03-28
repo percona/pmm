@@ -108,13 +108,16 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var (
+	interfaceToBind = envvars.GetInterfaceToBind()
+	gRPCAddr        = net.JoinHostPort(interfaceToBind, "7771")
+	http1Addr       = net.JoinHostPort(interfaceToBind, "7772")
+	debugAddr       = net.JoinHostPort(interfaceToBind, "7773")
+)
+
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
-
-	gRPCAddr  = "127.0.0.1:7771"
-	http1Addr = "127.0.0.1:7772"
-	debugAddr = "127.0.0.1:7773"
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
