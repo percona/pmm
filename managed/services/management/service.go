@@ -220,7 +220,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, errTX
 	}
 
-	nodeMap := make(map[string]*models.Node)
+	nodeMap := map[string]*models.Node{}
 	for _, node := range nodes {
 		nodeMap[node.NodeID] = node
 	}
