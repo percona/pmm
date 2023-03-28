@@ -82,19 +82,6 @@ var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Pars
 chmod = 0700
 username = dummy
 password = dummy
-{{- if not .DisableSupervisor }}
-
-[supervisord]
-logfile = /srv/logs/supervisord.log
-logfile_maxbytes = 5MB
-logfile_backups = 1
-loglevel = info
-pidfile = /tmp/supervisord.pid
-nodaemon = true
-nocleanup = false
-user = root
-strip_ansi = false
-{{- end }}
 
 [supervisorctl]
 username = dummy

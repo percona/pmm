@@ -52,19 +52,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	pmmConfigParams := make(map[string]any, 2)
+	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
-	pmmConfigParams["DisableSupervisor"] = !isDocker()
 	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
-}
-
-// isDocker reports that pmm distribution is docker.
-func isDocker() bool {
-	if content, _ := os.ReadFile("/srv/pmm-distribution"); string(content) == "docker" {
-		return true
-	}
-	return false
 }
