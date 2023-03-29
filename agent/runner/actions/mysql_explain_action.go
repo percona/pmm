@@ -218,9 +218,11 @@ func prepareRealTableName(name string) string {
 }
 
 func parseRealTableName(query string) string {
+	// due to historical reasons we parsing only one table name
 	keyword := "FROM "
 
 	query = strings.ReplaceAll(query, " . ", ".")
+	// in case of subquery it will choose root query
 	index := strings.LastIndex(query, keyword)
 	if index == -1 {
 		return ""
