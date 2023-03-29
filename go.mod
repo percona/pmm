@@ -18,7 +18,7 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
-	github.com/ClickHouse/clickhouse-go/v2 v2.6.5
+	github.com/ClickHouse/clickhouse-go/v2 v2.8.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
@@ -172,7 +172,7 @@ require (
 	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
-	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
@@ -235,7 +235,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/paulmach/orb v0.8.0 // indirect
+	github.com/paulmach/orb v0.9.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
