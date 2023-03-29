@@ -99,7 +99,7 @@ func TestUser(t *testing.T) {
 			require.NoError(t, u.AssignRoles(tx, userID, []int{int(role.ID)}))
 			require.NoError(t, u.BeforeDeleteRole(tx, int(role.ID), 0))
 
-			roles, err := u.GetEntityRoles(tx.Querier, userID)
+			roles, err := u.GetEntityRoles(tx.Querier, []int{userID})
 			require.NoError(t, err)
 			require.Equal(t, len(roles), 0)
 		})
@@ -117,7 +117,7 @@ func TestUser(t *testing.T) {
 			require.NoError(t, u.AssignRoles(tx, userID, []int{int(roleA.ID)}))
 			require.NoError(t, u.BeforeDeleteRole(tx, int(roleA.ID), int(roleB.ID)))
 
-			roles, err := u.GetEntityRoles(tx.Querier, userID)
+			roles, err := u.GetEntityRoles(tx.Querier, []int{userID})
 			require.NoError(t, err)
 			require.Equal(t, 1, len(roles))
 			require.Equal(t, roles[0].ID, roleB.ID)
@@ -139,7 +139,7 @@ func TestUser(t *testing.T) {
 			require.NoError(t, u.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
 			require.NoError(t, u.BeforeDeleteRole(tx, int(roleA.ID), 0))
 
-			roles, err := u.GetEntityRoles(tx.Querier, userID)
+			roles, err := u.GetEntityRoles(tx.Querier, []int{userID})
 			require.NoError(t, err)
 			require.Equal(t, len(roles), 1)
 			require.Equal(t, roles[0].ID, roleB.ID)
@@ -158,7 +158,7 @@ func TestUser(t *testing.T) {
 			require.NoError(t, u.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
 			require.NoError(t, models.DeleteRole(tx, &noOpBeforeDelete{}, int(roleA.ID), int(roleB.ID)))
 
-			roles, err := u.GetEntityRoles(tx.Querier, userID)
+			roles, err := u.GetEntityRoles(tx.Querier, []int{userID})
 			require.NoError(t, err)
 			require.Equal(t, len(roles), 1)
 			require.Equal(t, roles[0].ID, roleB.ID)
@@ -178,7 +178,7 @@ func TestUser(t *testing.T) {
 		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 		require.NoError(t, u.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
 
-		roles, err := u.GetEntityRoles(tx.Querier, userID)
+		roles, err := u.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, len(roles), 2)
 		require.Equal(t, roles[0].ID, roleA.ID)

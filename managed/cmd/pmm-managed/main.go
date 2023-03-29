@@ -69,6 +69,7 @@ import (
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/teampb"
 	"github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -94,6 +95,7 @@ import (
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/services/team"
 	"github.com/percona/pmm/managed/services/telemetry"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
@@ -309,6 +311,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterTemplatesServer(gRPCServer, managementdbaas.NewTemplateService(deps.db))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
+	teampb.RegisterTeamServer(gRPCServer, team.NewTeamService(deps.db))
 
 	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	if err == nil {
@@ -430,6 +433,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		platformpb.RegisterPlatformHandlerFromEndpoint,
 
 		userpb.RegisterUserHandlerFromEndpoint,
+		teampb.RegisterTeamHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -866,6 +870,9 @@ func main() {
 		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
 			return &models.UserRoles{}
 		}, models.UserRolesView),
+		roles.EntityTeam: roles.NewGeneric("team_id", func() roles.EntityModel {
+			return &models.TeamRoles{}
+		}, models.TeamRolesView),
 	})
 
 	serverParams := &server.Params{

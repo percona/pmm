@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package team;
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "api/teampb;teampb";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {title: "Team API"}
+};
+
+message ListTeamsRequest {}
+
+message ListTeamsResponse {
+  message TeamDetail {
+    uint32 team_id = 1;
+    // List of role IDs assigned to the team.
+    repeated uint32 role_ids = 2;
+  }
+
+  repeated TeamDetail teams = 1;
+}
+
+// TeamService contains rpcs related to team data
+service Team {
+  rpc ListTeams(ListTeamsRequest) returns (ListTeamsResponse) {
+    option (google.api.http) = {post: "/v1/team/list"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List all teams with details"
+      description: "Retrieve team details for all teams from PMM server"
+    };
+  }
+}

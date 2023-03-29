@@ -54,6 +54,7 @@ message SetDefaultRoleResponse {}
 enum EntityType {
   INVALID = 0;
   USER = 1;
+  TEAM = 2;
 }
 
 message AssignRolesRequest {
@@ -141,7 +142,7 @@ service Role {
     };
   }
 
-  // AssignRoles replaces all assigned roles for a user.
+  // AssignRoles replaces all roles assigned to an entity for the given entity type.
   rpc AssignRoles(AssignRolesRequest) returns (AssignRolesResponse) {
     option (google.api.http) = {
       post: "/v1/management/Role/Assign"
@@ -149,7 +150,7 @@ service Role {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Assign Roles"
-      description: "Assigns Roles replaces all existing Roles for a User."
+      description: "Assigns Roles replaces all Roles assigned to an entity for the given entity type."
     };
   }
 

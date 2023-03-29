@@ -142,6 +142,7 @@ type cacheItem struct {
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
 	getAuthUser(context.Context, http.Header) (authUser, error)
+	getUserTeams(ctx context.Context, authHeaders http.Header) ([]int, error)
 }
 
 type defaultRoleAssigner interface {
@@ -149,7 +150,7 @@ type defaultRoleAssigner interface {
 }
 
 type userRolesGetter interface {
-	GetUserRoles(q *reform.Querier, userID int) ([]models.Role, error)
+	GetUserRoles(q *reform.Querier, userID int, teamIDs []int) ([]models.Role, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -285,9 +286,11 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		return nil
 	}
 
+	var authUser *authUser
 	if userID == 0 {
 		l.Debugf("Getting authenticated user info")
-		authUser, err := s.getAuthUser(ctx, req, l)
+		var err *authError
+		authUser, err = s.getAuthUser(ctx, req, l, true)
 		if err != nil {
 			return ErrCannotGetUserID
 		}
@@ -299,16 +302,16 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		userID = authUser.userID
 	}
 
-	if userID <= 0 {
+	if authUser == nil || userID <= 0 {
 		return ErrInvalidUserID
 	}
 
-	filters, err := s.getFiltersForVMProxy(userID)
+	filters, err := s.getFiltersForVMProxy(userID, authUser.teamIDs)
 	if err != nil {
 		return err
 	}
 
-	if filters == nil || len(filters) == 0 {
+	if len(filters) == 0 {
 		return nil
 	}
 
@@ -338,8 +341,8 @@ func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
 	return s.accessControl.isEnabled()
 }
 
-func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
-	roles, err := s.userRolesGetter.GetUserRoles(s.db.Querier, userID)
+func (s *AuthServer) getFiltersForVMProxy(userID int, teamIDs []int) ([]string, error) {
+	roles, err := s.userRolesGetter.GetUserRoles(s.db.Querier, userID, teamIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -356,7 +359,7 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 		}
 
 		// Reload roles
-		roles, err = s.userRolesGetter.GetUserRoles(s.db.Querier, userID)
+		roles, err = s.userRolesGetter.GetUserRoles(s.db.Querier, userID, teamIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -368,9 +371,14 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 
 	filters := make([]string, 0, len(roles))
 	for _, r := range roles {
-		if r.Filter != "" {
-			filters = append(filters, r.Filter)
+		if r.Filter == "" {
+			// Special case when a user has assigned a role with no filters.
+			// In this case it's irrelevant what other roles are assigned to the user.
+			// The user shall have full access.
+			return []string{}, nil
 		}
+
+		filters = append(filters, r.Filter)
 	}
 	return filters, nil
 }
@@ -495,7 +503,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	// Get authenticated user from Grafana
-	authUser, err := s.getAuthUser(ctx, req, l)
+	authUser, err := s.getAuthUser(ctx, req, l, false)
 	if err != nil {
 		return nil, err
 	}
@@ -516,7 +524,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
 }
 
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry, withTeams bool) (*authUser, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := make(http.Header)
 	for _, k := range []string{
@@ -537,25 +545,28 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	item, ok := s.cache[hash]
 	s.rw.RUnlock()
 	if ok {
-		return &item.u, nil
+		if !withTeams || item.u.teamIDs != nil {
+			return &item.u, nil
+		}
 	}
 
-	return s.retrieveRole(ctx, hash, authHeaders, l)
+	return s.retrieveRole(ctx, hash, authHeaders, l, withTeams)
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry, withTeams bool) (*authUser, *authError) {
 	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err != nil {
-		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return nil, &authError{code: code, message: cErr.ErrorMessage}
-		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, s.processClientError(err, l)
 	}
+
+	if withTeams {
+		teamIDs, err := s.c.getUserTeams(ctx, authHeaders)
+		if err != nil {
+			return nil, s.processClientError(err, l)
+		}
+		authUser.teamIDs = teamIDs
+	}
+
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
 		u:       authUser,
@@ -564,4 +575,16 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	s.rw.Unlock()
 
 	return &authUser, nil
+}
+
+func (s *AuthServer) processClientError(err error, l *logrus.Entry) *authError {
+	l.Warnf("%s", err)
+	if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+		code := codes.Internal
+		if cErr.Code == 401 || cErr.Code == 403 {
+			code = codes.Unauthenticated
+		}
+		return &authError{code: code, message: cErr.ErrorMessage}
+	}
+	return &authError{code: codes.Internal, message: "Internal server error."}
 }

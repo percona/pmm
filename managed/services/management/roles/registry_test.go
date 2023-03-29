@@ -18,12 +18,13 @@ package roles
 import (
 	"testing"
 
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestRegistry(t *testing.T) {
@@ -121,11 +122,35 @@ func TestRegistry(t *testing.T) {
 			t.Parallel()
 
 			r, user, _ := setup(t)
-			user.Mock.On("GetEntityRoles", mock.Anything, 5).Return([]models.Role{{}}, nil)
+			user.Mock.On("GetEntityRoles", mock.Anything, []int{5}, mock.Anything).Return([]models.Role{{}}, nil)
 
-			roles, err := r.GetUserRoles(nil, 5)
+			roles, err := r.GetUserRoles(nil, 5, nil)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(roles))
+		})
+
+		t.Run("shall be retrieved from user and team service", func(t *testing.T) {
+			t.Parallel()
+
+			r, user, team := setup(t)
+			user.Mock.On("GetEntityRoles", mock.Anything, []int{5}, mock.Anything).Return([]models.Role{{ID: 1}}, nil)
+			team.Mock.On("GetEntityRoles", mock.Anything, []int{7, 9}, mock.Anything).Return([]models.Role{{ID: 2}, {ID: 3}}, nil)
+
+			roles, err := r.GetUserRoles(nil, 5, []int{7, 9})
+			require.NoError(t, err)
+			require.Equal(t, 3, len(roles))
+		})
+
+		t.Run("shall return distinct roles based on ID", func(t *testing.T) {
+			t.Parallel()
+
+			r, user, team := setup(t)
+			user.Mock.On("GetEntityRoles", mock.Anything, []int{5}, mock.Anything).Return([]models.Role{{ID: 1}}, nil)
+			team.Mock.On("GetEntityRoles", mock.Anything, []int{7, 9}, mock.Anything).Return([]models.Role{{ID: 2}, {ID: 2}}, nil)
+
+			roles, err := r.GetUserRoles(nil, 5, []int{7, 9})
+			require.NoError(t, err)
+			require.Equal(t, 2, len(roles))
 		})
 	})
 }

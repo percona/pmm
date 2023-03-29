@@ -160,6 +160,9 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
+	// teamIDs is a list of teams a user is assigned to.
+	// nil value means the list of teams has not been retrieved yet.
+	teamIDs []int
 }
 
 // role defines Grafana user role within the organization
@@ -275,6 +278,34 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 		role:   none,
 		userID: userID,
 	}, nil
+}
+
+func (c *Client) getUserTeams(ctx context.Context, authHeaders http.Header) ([]int, error) {
+	// Check if it's API Key
+	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
+		return []int{}, nil
+	}
+
+	var teams []interface{}
+	err := c.do(ctx, http.MethodGet, "/api/user/teams", "", authHeaders, nil, &teams)
+	if err != nil {
+		return nil, err
+	}
+
+	teamIDs := make([]int, 0, len(teams))
+	for _, t := range teams {
+		team, ok := t.(map[string]interface{})
+		if !ok {
+			return nil, errors.New("Could not assert teams JSON response")
+		}
+
+		teamID, _ := team["id"].(float64)
+		if teamID > 0 {
+			teamIDs = append(teamIDs, int(teamID))
+		}
+	}
+
+	return teamIDs, nil
 }
 
 func (c *Client) isAPIKeyAuth(authHeader string) bool {

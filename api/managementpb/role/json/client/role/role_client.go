@@ -48,7 +48,7 @@ type ClientService interface {
 /*
 AssignRoles assigns roles
 
-Assigns Roles replaces all existing Roles for a User.
+Assigns Roles replaces all Roles assigned to an entity for the given entity type.
 */
 func (a *Client) AssignRoles(params *AssignRolesParams, opts ...ClientOption) (*AssignRolesOK, error) {
 	// TODO: Validate the params before sending

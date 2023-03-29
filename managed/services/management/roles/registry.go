@@ -86,17 +86,37 @@ func (r *Registry) BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error 
 	return nil
 }
 
-// GetUserRoles retrieves all roles assigned to a user across all entities in the registry.
-func (r *Registry) GetUserRoles(q *reform.Querier, userID int) ([]models.Role, error) {
+// GetUserRoles retrieves all roles assigned to a user across user and team entities in the registry.
+func (r *Registry) GetUserRoles(q *reform.Querier, userID int, teamIDs []int) ([]models.Role, error) {
+	foundRoles := make(map[uint32]struct{})
 	var roles []models.Role
 
 	srv, ok := r.services[EntityUser]
 	if ok {
-		r, err := srv.GetEntityRoles(q, userID)
+		r, err := srv.GetEntityRoles(q, []int{userID})
 		if err != nil {
 			return nil, err
 		}
-		roles = append(roles, r...)
+		for _, role := range r {
+			if _, ok := foundRoles[role.ID]; !ok {
+				foundRoles[role.ID] = struct{}{}
+				roles = append(roles, role)
+			}
+		}
+	}
+
+	srv, ok = r.services[EntityTeam]
+	if ok && len(teamIDs) > 0 {
+		r, err := srv.GetEntityRoles(q, teamIDs)
+		if err != nil {
+			return nil, err
+		}
+		for _, role := range r {
+			if _, ok := foundRoles[role.ID]; !ok {
+				foundRoles[role.ID] = struct{}{}
+				roles = append(roles, role)
+			}
+		}
 	}
 
 	return roles, nil

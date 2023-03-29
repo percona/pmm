@@ -27870,7 +27870,7 @@
     },
     "/v1/management/Role/Assign": {
       "post": {
-        "description": "Assigns Roles replaces all existing Roles for a User.",
+        "description": "Assigns Roles replaces all Roles assigned to an entity for the given entity type.",
         "tags": [
           "Role"
         ],
@@ -27908,7 +27908,8 @@
                   "default": "INVALID",
                   "enum": [
                     "INVALID",
-                    "USER"
+                    "USER",
+                    "TEAM"
                   ],
                   "x-order": 3
                 }
@@ -29188,7 +29189,7 @@
           "Service"
         ],
         "summary": "Remove Service",
-        "operationId": "RemoveServiceMixin3",
+        "operationId": "RemoveServiceMixin4",
         "parameters": [
           {
             "name": "body",
@@ -29586,7 +29587,7 @@
           "Alerting"
         ],
         "summary": "ListTemplates returns a list of all collected alert rule templates.",
-        "operationId": "ListTemplatesMixin6",
+        "operationId": "ListTemplatesMixin7",
         "parameters": [
           {
             "name": "body",
@@ -30743,7 +30744,7 @@
           "Backups"
         ],
         "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
-        "operationId": "GetLogsMixin7",
+        "operationId": "GetLogsMixin8",
         "parameters": [
           {
             "name": "body",
@@ -35003,6 +35004,80 @@
         }
       }
     },
+    "/v1/team/list": {
+      "post": {
+        "description": "Retrieve team details for all teams from PMM server",
+        "tags": [
+          "Team"
+        ],
+        "summary": "List all teams with details",
+        "operationId": "ListTeams",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "teams": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "team_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "role_ids": {
+                        "description": "List of role IDs assigned to the team.",
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/user": {
       "get": {
         "description": "Retrieve user details from PMM server",
@@ -35374,6 +35449,9 @@
     },
     {
       "name": "User"
+    },
+    {
+      "name": "Team"
     },
     {
       "name": "Agents"

@@ -1,0 +1,98 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Team API",
+    "version": "v0"
+  },
+  "paths": {
+    "/v1/team/list": {
+      "post": {
+        "description": "Retrieve team details for all teams from PMM server",
+        "tags": [
+          "Team"
+        ],
+        "summary": "List all teams with details",
+        "operationId": "ListTeams",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "teams": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "role_ids": {
+                        "description": "List of role IDs assigned to the team.",
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "x-order": 1
+                      },
+                      "team_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Team"
+    }
+  ]
+}

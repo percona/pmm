@@ -838,6 +838,18 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`CREATE TABLE team_roles (
+			team_id INTEGER NOT NULL,
+			role_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (team_id, role_id)
+		);
+
+		CREATE INDEX team_roles_role_id_index ON team_roles (role_id);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

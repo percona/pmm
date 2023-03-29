@@ -80,7 +80,7 @@ func TestGeneric(t *testing.T) {
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
 		require.NoError(t, g.AssignRoles(tx, userID, []int{int(role.ID)}))
 
-		roles, err := g.GetEntityRoles(tx.Querier, userID)
+		roles, err := g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, roles[0].ID, role.ID)
 	})
@@ -116,12 +116,12 @@ func TestGeneric(t *testing.T) {
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
 		require.NoError(t, g.AssignRoles(tx, userID, []int{int(role.ID)}))
 
-		r, err := g.GetEntityRoles(tx.Querier, userID)
+		r, err := g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, 1, len(r))
 
 		require.NoError(t, g.BeforeDeleteRole(tx, int(role.ID), 0))
-		r, err = g.GetEntityRoles(tx.Querier, userID)
+		r, err = g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, 0, len(r))
 	})
@@ -139,12 +139,12 @@ func TestGeneric(t *testing.T) {
 		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 		require.NoError(t, g.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
 
-		r, err := g.GetEntityRoles(tx.Querier, userID)
+		r, err := g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, 2, len(r))
 
 		require.NoError(t, g.RemoveEntityRoles(tx, userID))
-		r, err = g.GetEntityRoles(tx.Querier, userID)
+		r, err = g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, 0, len(r))
 	})
@@ -162,7 +162,7 @@ func TestGeneric(t *testing.T) {
 		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
 		require.NoError(t, g.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
 
-		roles, err := g.GetEntityRoles(tx.Querier, userID)
+		roles, err := g.GetEntityRoles(tx.Querier, []int{userID})
 		require.NoError(t, err)
 		require.Equal(t, len(roles), 2)
 		require.Equal(t, roles[0].ID, roleA.ID)

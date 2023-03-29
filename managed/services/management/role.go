@@ -184,6 +184,8 @@ func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRole
 		switch req.EntityType {
 		case rolev1beta1.EntityType_USER:
 			entityType = roles.EntityUser
+		case rolev1beta1.EntityType_TEAM:
+			entityType = roles.EntityTeam
 		default:
 			return status.Errorf(codes.NotFound, "Entity type invalid")
 		}

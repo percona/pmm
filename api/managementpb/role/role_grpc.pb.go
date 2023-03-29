@@ -43,7 +43,7 @@ type RoleClient interface {
 	GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
-	// AssignRoles replaces all assigned roles for a user.
+	// AssignRoles replaces all roles assigned to an entity for the given entity type.
 	AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
 	SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error)
@@ -134,7 +134,7 @@ type RoleServer interface {
 	GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error)
-	// AssignRoles replaces all assigned roles for a user.
+	// AssignRoles replaces all roles assigned to an entity for the given entity type.
 	AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
 	SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error)

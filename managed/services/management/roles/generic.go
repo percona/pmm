@@ -74,8 +74,8 @@ func (g *Generic) AssignRoles(tx *reform.TX, entityID int, roleIDs []int) error 
 	return q.InsertMulti(s...)
 }
 
-// GetEntityRoles returns roles assigned to the entity.
-func (g *Generic) GetEntityRoles(q *reform.Querier, entityID int) ([]models.Role, error) {
+// GetEntityRoles returns roles assigned to the entities.
+func (g *Generic) GetEntityRoles(q *reform.Querier, entityIDs []int) ([]models.Role, error) {
 	query := fmt.Sprintf(`
 		SELECT 
 			%s
@@ -83,13 +83,19 @@ func (g *Generic) GetEntityRoles(q *reform.Querier, entityID int) ([]models.Role
 			%[2]s
 			INNER JOIN %[3]s ON (%[2]s.role_id = %[3]s.id)
 		WHERE
-			%[2]s.%[4]s = $1`,
+			%[2]s.%[4]s IN (%[5]s)`,
 		strings.Join(q.QualifiedColumns(models.RoleTable), ","),
 		g.view.Name(),
 		models.RoleTable.Name(),
-		g.entityIDColumnName)
+		g.entityIDColumnName,
+		strings.Join(q.Placeholders(1, len(entityIDs)), ","))
 
-	rows, err := q.Query(query, entityID)
+	params := make([]interface{}, 0, len(entityIDs))
+	for _, e := range entityIDs {
+		params = append(params, e)
+	}
+
+	rows, err := q.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +119,7 @@ func (g *Generic) GetEntityRoles(q *reform.Querier, entityID int) ([]models.Role
 }
 
 // BeforeDeleteRole makes changes to the role assignments before the role is deleted.
-func (g *Generic) BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error {
+func (g *Generic) BeforeDeleteRole(tx *reform.TX, roleID, _ int) error {
 	_, err := tx.Querier.DeleteFrom(g.view, "WHERE role_id = $1", roleID)
 	return err
 }

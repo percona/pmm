@@ -133,7 +133,7 @@ type AssignRolesBody struct {
 	EntityID int64 `json:"entity_id,omitempty"`
 
 	// entity type
-	// Enum: [INVALID USER]
+	// Enum: [INVALID USER TEAM]
 	EntityType *string `json:"entity_type,omitempty"`
 }
 
@@ -155,7 +155,7 @@ var assignRolesBodyTypeEntityTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["INVALID","USER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["INVALID","USER","TEAM"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -170,6 +170,9 @@ const (
 
 	// AssignRolesBodyEntityTypeUSER captures enum value "USER"
 	AssignRolesBodyEntityTypeUSER string = "USER"
+
+	// AssignRolesBodyEntityTypeTEAM captures enum value "TEAM"
+	AssignRolesBodyEntityTypeTEAM string = "TEAM"
 )
 
 // prop value enum

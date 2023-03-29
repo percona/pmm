@@ -16,8 +16,9 @@
 package roles
 
 import (
-	"github.com/percona/pmm/managed/models"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 //go:generate ../../../../bin/mockery -name=EntityService -case=snake -inpkg -testonly
@@ -26,6 +27,6 @@ import (
 type EntityService interface {
 	AssignRoles(tx *reform.TX, entityID int, roleIDs []int) error
 	BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error
-	GetEntityRoles(q *reform.Querier, entityID int) ([]models.Role, error)
+	GetEntityRoles(q *reform.Querier, entityID []int) ([]models.Role, error)
 	RemoveEntityRoles(tx *reform.TX, entityID int) error
 }

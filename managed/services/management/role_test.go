@@ -54,6 +54,9 @@ func TestRoleService(t *testing.T) {
 		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
 			return &models.UserRoles{}
 		}, models.UserRolesView),
+		roles.EntityTeam: roles.NewGeneric("team_id", func() roles.EntityModel {
+			return &models.TeamRoles{}
+		}, models.TeamRolesView),
 	})
 	s := NewRoleService(db, roleRegistry)
 	teardown := func(t *testing.T) {
@@ -176,48 +179,96 @@ func TestRoleService(t *testing.T) {
 
 	//nolint:paralleltest
 	t.Run("Assign role", func(t *testing.T) {
-		t.Run("Shall assign role to the correct user", func(t *testing.T) {
-			defer teardown(t)
+		t.Run("User", func(t *testing.T) {
+			t.Run("Shall assign one role", func(t *testing.T) {
+				defer teardown(t)
 
-			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
-			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds:    []uint32{roleIDA},
-				EntityId:   1337,
-				EntityType: rolev1beta1.EntityType_USER,
+				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDA},
+					EntityId:   1337,
+					EntityType: rolev1beta1.EntityType_USER,
+				})
+				require.NoError(t, err)
+
+				_, err = s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDB},
+					EntityId:   1338,
+					EntityType: rolev1beta1.EntityType_USER,
+				})
+				require.NoError(t, err)
+
+				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337, nil)
+				require.NoError(t, err)
+				assert.Equal(t, len(roles), 1)
+				assert.Equal(t, roles[0].ID, roleIDA)
 			})
-			require.NoError(t, err)
 
-			_, err = s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds:    []uint32{roleIDB},
-				EntityId:   1338,
-				EntityType: rolev1beta1.EntityType_USER,
+			t.Run("Shall assign multiple roles", func(t *testing.T) {
+				defer teardown(t)
+
+				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDA, roleIDB},
+					EntityId:   1337,
+					EntityType: rolev1beta1.EntityType_USER,
+				})
+				require.NoError(t, err)
+
+				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337, nil)
+				require.NoError(t, err)
+				assert.Equal(t, len(roles), 2)
+				assert.Equal(t, roles[0].ID, roleIDA)
+				assert.Equal(t, roles[1].ID, roleIDB)
 			})
-			require.NoError(t, err)
-
-			roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337)
-			require.NoError(t, err)
-			assert.Equal(t, len(roles), 1)
-			assert.Equal(t, roles[0].ID, roleIDA)
 		})
 
-		t.Run("Shall assign multiple roles", func(t *testing.T) {
-			defer teardown(t)
+		t.Run("Team", func(t *testing.T) {
+			t.Run("Shall assign one role", func(t *testing.T) {
+				defer teardown(t)
 
-			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
-			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds:    []uint32{roleIDA, roleIDB},
-				EntityId:   1337,
-				EntityType: rolev1beta1.EntityType_USER,
+				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDA},
+					EntityId:   1337,
+					EntityType: rolev1beta1.EntityType_TEAM,
+				})
+				require.NoError(t, err)
+
+				_, err = s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDB},
+					EntityId:   1338,
+					EntityType: rolev1beta1.EntityType_TEAM,
+				})
+				require.NoError(t, err)
+
+				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 0, []int{1337})
+				require.NoError(t, err)
+				assert.Equal(t, len(roles), 1)
+				assert.Equal(t, roles[0].ID, roleIDA)
 			})
-			require.NoError(t, err)
 
-			roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337)
-			require.NoError(t, err)
-			assert.Equal(t, len(roles), 2)
-			assert.Equal(t, roles[0].ID, roleIDA)
-			assert.Equal(t, roles[1].ID, roleIDB)
+			t.Run("Shall assign multiple roles", func(t *testing.T) {
+				defer teardown(t)
+
+				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
+					RoleIds:    []uint32{roleIDA, roleIDB},
+					EntityId:   1337,
+					EntityType: rolev1beta1.EntityType_TEAM,
+				})
+				require.NoError(t, err)
+
+				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 0, []int{1337})
+				require.NoError(t, err)
+				assert.Equal(t, len(roles), 2)
+				assert.Equal(t, roles[0].ID, roleIDA)
+				assert.Equal(t, roles[1].ID, roleIDB)
+			})
 		})
 
 		t.Run("Shall return not found for non-existent role", func(t *testing.T) {
