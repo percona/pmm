@@ -61,7 +61,7 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
-	vmParams *models.VictoriaMetricsParams
+	vmParams         *models.VictoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
@@ -70,7 +70,7 @@ func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams *mo
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
-		vmParams: 		  vmParams,
+		vmParams:         vmParams,
 	}
 }
 

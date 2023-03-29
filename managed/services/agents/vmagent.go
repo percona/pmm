@@ -17,7 +17,6 @@ package agents
 
 import (
 	"fmt"
-	"github.com/percona/pmm/managed/utils/envvars"
 	"os"
 	"sort"
 	"strings"
