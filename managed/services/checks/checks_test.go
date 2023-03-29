@@ -673,8 +673,28 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check",
 				Interval:  check.Frequent,
 				Target: services.Target{
-					ServiceName: "test_svc",
+					ServiceName: "test_svc1",
 					ServiceID:   "/service_id/test_svc1",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+			{
+				CheckName: "test_check2",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc2",
+					ServiceID:   "/service_id/test_svc2",
 					Labels: map[string]string{
 						"targetLabel": "targetLabelValue",
 					},
@@ -694,9 +714,62 @@ func TestGetFailedChecks(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
-		response, err := s.GetChecksResults(context.Background(), "test_svc")
+		response, err := s.GetChecksResults(context.Background(), "")
 		require.NoError(t, err)
-		assert.Equal(t, checkResults, response)
+		assert.ElementsMatch(t, checkResults, response)
+	})
+
+	t.Run("non empty failed checks for specific service", func(t *testing.T) {
+		checkResults := []services.CheckResult{
+			{
+				CheckName: "test_check",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc1",
+					ServiceID:   "/service_id/test_svc1",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+			{
+				CheckName: "test_check2",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc2",
+					ServiceID:   "/service_id/test_svc2",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+		}
+
+		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s.alertsRegistry.set(checkResults)
+
+		response, err := s.GetChecksResults(context.Background(), "/service_id/test_svc1")
+		require.NoError(t, err)
+		require.Len(t, response, 1)
+		assert.Equal(t, checkResults[0], response[0])
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
