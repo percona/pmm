@@ -75,6 +75,9 @@ func (a *mysqlExplainAction) Type() string {
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
+	fmt.Printf("\n\n\n\n\n\n %s \n\n\n\n\n\n", a.params.Query)
+	fmt.Printf("\n\n\n\n\n\n %+v \n\n\n\n\n\n", a.params.Values)
+	a.params.Query = strings.ReplaceAll(a.params.Query, "...", a.params.Values[0])
 	if !isDMLQuery(a.params.Query) {
 		return nil, fmt.Errorf("EXPLAIN functionality is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE")
 	}
@@ -173,7 +176,6 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 }
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-
 	var b []byte
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
