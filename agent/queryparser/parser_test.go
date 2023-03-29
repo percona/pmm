@@ -84,7 +84,7 @@ func TestParseMySQLComments(t *testing.T) {
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
 				 AND name != 'Doe'`,
-			Comments: map[string]bool{},
+			Comments: make(map[string]bool),
 		},
 		{
 			Name:     "Dash comment",
@@ -150,7 +150,7 @@ func TestParsePostgreSQLComments(t *testing.T) {
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
 				 AND name != 'Doe'`,
-			Comments: map[string]bool{},
+			Comments: make(map[string]bool),
 		},
 		{
 			Name:     "Dash comment",
