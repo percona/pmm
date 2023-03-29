@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/percona/pmm/managed/models"
 	"os"
 	"path/filepath"
 	"sort"
@@ -32,6 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
@@ -163,7 +163,7 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "")
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
 	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())

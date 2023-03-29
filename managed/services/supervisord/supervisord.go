@@ -654,7 +654,7 @@ stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
-{{end}}
+{{end -}}
 {{end}}
 
 {{define "vmalert"}}
