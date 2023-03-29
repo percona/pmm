@@ -34,7 +34,7 @@ import (
 func TestTipsServiceGetUserTip(t *testing.T) {
 	tests := []struct {
 		name           string
-		tipRequest     *onboardingpb.GetTipfRequest
+		tipRequest     *onboardingpb.GetTipRequest
 		mockInvService func() *mockInventoryService
 
 		expectedTipResponse *onboardingpb.GetTipResponse
@@ -42,7 +42,7 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 	}{
 		{
 			name: "retrieve system tip status of valid tip of install pmm server",
-			tipRequest: &onboardingpb.GetTipfRequest{
+			tipRequest: &onboardingpb.GetTipRequest{
 				TipId:   1,
 				TipType: onboardingpb.TipType_SYSTEM,
 				UserId:  1,
@@ -57,7 +57,7 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 		},
 		{
 			name: "retrieve system tip status of valid tip of connected service to pmm (only one service is connected)",
-			tipRequest: &onboardingpb.GetTipfRequest{
+			tipRequest: &onboardingpb.GetTipRequest{
 				TipId:   3,
 				TipType: onboardingpb.TipType_SYSTEM,
 				UserId:  1,
@@ -77,7 +77,7 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 		},
 		{
 			name: "retrieve system tip status of valid tip of connected service to pmm (only two services are connected)",
-			tipRequest: &onboardingpb.GetTipfRequest{
+			tipRequest: &onboardingpb.GetTipRequest{
 				TipId:   3,
 				TipType: onboardingpb.TipType_SYSTEM,
 				UserId:  1,
@@ -98,7 +98,7 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 		},
 		{
 			name: "retrieve system tip status of not valid tip",
-			tipRequest: &onboardingpb.GetTipfRequest{
+			tipRequest: &onboardingpb.GetTipRequest{
 				TipId:   20,
 				TipType: onboardingpb.TipType_SYSTEM,
 				UserId:  1,
@@ -111,7 +111,7 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 		},
 		{
 			name: "retrieve user tip status which doesn't exist, it should be not completed by default",
-			tipRequest: &onboardingpb.GetTipfRequest{
+			tipRequest: &onboardingpb.GetTipRequest{
 				TipId:   2000,
 				TipType: onboardingpb.TipType_USER,
 				UserId:  1,
