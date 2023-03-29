@@ -220,9 +220,9 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		return nil, errTX
 	}
 
-	nodeMap := make(map[string]*models.Node, len(nodes))
+	nodeMap := make(map[string]string, len(nodes))
 	for _, node := range nodes {
-		nodeMap[node.NodeID] = node
+		nodeMap[node.NodeID] = node.NodeName
 	}
 
 	resultSvc := make([]*managementpb.UniversalService, 0, len(services))
@@ -251,9 +251,9 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			UpdatedAt:      service.UpdatedAt.UnixMilli(),
 		}
 
-		node, ok := nodeMap[service.NodeID]
+		nodeName, ok := nodeMap[service.NodeID]
 		if ok {
-			svc.NodeName = node.NodeName
+			svc.NodeName = nodeName
 		}
 
 		var svcAgents []*managementpb.UniversalAgent
