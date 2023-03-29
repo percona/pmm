@@ -73,13 +73,15 @@ func (a *mysqlExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+	// Explain is supported only for DML queries.
+	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
+	if !isDMLQuery(a.params.Query) {
+		return nil, fmt.Errorf("EXPLAIN functionality is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE")
+	}
+
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
-	query := a.params.Query
-	isDMLQuery := isDMLQuery(query)
-	if isDMLQuery {
-		query = dmlToSelect(query)
-	}
+	query, changedToSelect := dmlToSelect(a.params.Query)
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
 	if err != nil {
 		return nil, err
@@ -97,7 +99,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	response := explainResponse{
 		Query:      query,
-		IsDMLQuery: isDMLQuery,
+		IsDMLQuery: changedToSelect,
 	}
 
 	switch a.params.OutputFormat {
@@ -166,10 +168,12 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 	if err = w.Flush(); err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
+
 	var b []byte
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
