@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"github.com/percona/pmm/managed/models"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,13 +25,17 @@ import (
 
 func TestMaxScrapeSize(t *testing.T) {
 	t.Run("by default 64MiB", func(t *testing.T) {
-		actual := vmAgentConfig("")
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "")
+		require.NoError(t, err)
+		actual := vmAgentConfig("", params)
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+maxScrapeSizeDefault)
 	})
 	t.Run("overridden with ENV", func(t *testing.T) {
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "")
+		require.NoError(t, err)
 		newValue := "16MiB"
 		t.Setenv(maxScrapeSizeEnv, newValue)
-		actual := vmAgentConfig("")
+		actual := vmAgentConfig("", params)
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+newValue)
 	})
 }

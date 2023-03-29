@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/percona/pmm/managed/models"
 	"os"
 	"path/filepath"
 	"sort"
@@ -122,7 +123,9 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "")
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -160,7 +163,9 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "")
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
