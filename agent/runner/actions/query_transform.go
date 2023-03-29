@@ -23,7 +23,7 @@ import (
 //nolint:lll
 var (
 	dmlVerbs         = []string{"select", "insert", "update", "delete", "replace"}
-	selectRe         = regexp.MustCompile(`(?i)^select\s+(?:low_priority|ignore)?\s*(.*?)\s+set\s+(.*?)(?:\s+where\s+(.*?))?(?:\s+limit\s*[0-9]+(?:\s*,\s*[0-9]+)?)?$`)
+	selectRe         = regexp.MustCompile(`(?i)^select\s+(.*?)\bfrom\s+(.*?)$`)
 	updateRe         = regexp.MustCompile(`(?i)^update\s+(?:low_priority|ignore)?\s*(.*?)\s+set\s+(.*?)(?:\s+where\s+(.*?))?(?:\s+limit\s*[0-9]+(?:\s*,\s*[0-9]+)?)?$`)
 	deleteRe         = regexp.MustCompile(`(?i)^delete\s+(.*?)\bfrom\s+(.*?)$`)
 	insertRe         = regexp.MustCompile(`(?i)^(?:insert(?:\s+ignore)?|replace)\s+.*?\binto\s+(.*?)\(([^\)]+)\)\s*values?\s*\((.*?)\)\s*(?:\slimit\s|on\s+duplicate\s+key.*)?\s*$`)

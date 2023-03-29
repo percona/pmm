@@ -21,7 +21,11 @@ import (
 )
 
 func TestDMLToSelect(t *testing.T) {
-	q, c := dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0 limit 2`)
+	q, c := dmlToSelect(`SELECT nombre FROM tabla WHERE id = 0`)
+	assert.False(t, c)
+	assert.Equal(t, `SELECT nombre FROM tabla WHERE id = 0`, q)
+
+	q, c = dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0 limit 2`)
 	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla WHERE id = 0`, q)
 
@@ -74,14 +78,14 @@ func TestDMLToSelect(t *testing.T) {
 	assert.Equal(t, "SELECT * FROM `tabla-1` LIMIT 1", q)
 
 	q, c = dmlToSelect(`UPDATE
-  employees2
+employees2
 SET
-  first_name = 'Joe',
-  emp_no = 10
+first_name = 'Joe',
+emp_no = 10
 WHERE
-  emp_no = 3`)
+emp_no = 3`)
 	assert.True(t, c)
-	assert.Equal(t, "SELECT first_name = 'Joe',   emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
+	assert.Equal(t, "SELECT first_name = 'Joe', emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
 
 	q, c = dmlToSelect(`UPDATE employees2 SET first_name = 'Joe', emp_no = 10 WHERE emp_no = 3`)
 	assert.True(t, c)
