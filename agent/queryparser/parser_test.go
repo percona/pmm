@@ -75,10 +75,10 @@ func TestMySQL(t *testing.T) {
 type testCaseComments struct {
 	Name     string
 	Query    string
-	Comments []string
+	Comments map[string]bool
 }
 
-func TestMySQLComments(t *testing.T) {
+func TestParseMySQLComments(t *testing.T) {
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
@@ -89,25 +89,25 @@ func TestMySQLComments(t *testing.T) {
 		{
 			Name:     "Dash comment",
 			Query:    `SELECT * FROM people -- dash comment`,
-			Comments: []string{"dash comment"},
+			Comments: map[string]bool{"dash comment": true},
 		},
 		{
 			Name: "Hash comment",
 			Query: `SELECT * FROM people # hash comment
 			WHERE name = 'John'
 			`,
-			Comments: []string{"hash comment"},
+			Comments: map[string]bool{"hash comment": true},
 		},
 		{
 			Name:     "Multiline comment",
 			Query:    `SELECT * FROM people /* multiline comment */`,
-			Comments: []string{"multiline comment"},
+			Comments: map[string]bool{"multiline comment": true},
 		},
 		{
 			Name: "Multiline comment with new line",
 			Query: `SELECT * FROM people /* multiline comment 
 				with new line */`,
-			Comments: []string{"multiline comment with new line"},
+			Comments: map[string]bool{"multiline comment with new line": true},
 		},
 		{
 			Name: "Special multiline comment case with new line",
@@ -115,14 +115,14 @@ func TestMySQLComments(t *testing.T) {
 				special multiline comment case 
 				with new line
 				 */`,
-			Comments: []string{"!80000 special multiline comment case with new line"},
+			Comments: map[string]bool{"!80000 special multiline comment case with new line": true},
 		},
 		{
 			Name: "Second special multiline comment case with new line",
 			Query: `SELECT * FROM people /*+ BKA(t1) 
 				second special multiline comment case 
 				with new line */`,
-			Comments: []string{"+ BKA(t1) second special multiline comment case with new line"},
+			Comments: map[string]bool{"+ BKA(t1) second special multiline comment case with new line": true},
 		},
 		{
 			Name: "Multicomment case with new line",
@@ -131,20 +131,20 @@ func TestMySQLComments(t *testing.T) {
 				  with new line 
 				 */ WHERE name = 'John' # John
 				 AND name != 'Doe'`,
-			Comments: []string{"multicomment case with new line", "John"},
+			Comments: map[string]bool{"multicomment case with new line": true, "John": true},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := MySQLComments(c.Query)
+			comments, err := parseMySQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})
 	}
 }
 
-func TestPostgreSQLComments(t *testing.T) {
+func TestParsePostgreSQLComments(t *testing.T) {
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
@@ -155,7 +155,7 @@ func TestPostgreSQLComments(t *testing.T) {
 		{
 			Name:     "Dash comment",
 			Query:    `SELECT * FROM people -- dash comment`,
-			Comments: []string{"dash comment"},
+			Comments: map[string]bool{"dash comment": true},
 		},
 		{
 			Name: "Multiline comment case with new line",
@@ -163,19 +163,19 @@ func TestPostgreSQLComments(t *testing.T) {
 				* multiline comment case 
 				* with new line
 				 */`,
-			Comments: []string{"new multiline comment case with new line"},
+			Comments: map[string]bool{"new multiline comment case with new line": true},
 		},
 		{
 			Name: "Second multiline comment case with new line",
 			Query: `SELECT * FROM people /* test 
 				with new line */`,
-			Comments: []string{"test with new line"},
+			Comments: map[string]bool{"test with new line": true},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := PostgreSQLComments(c.Query)
+			comments, err := parsePostgreSQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})
