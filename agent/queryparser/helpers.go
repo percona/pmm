@@ -73,10 +73,6 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 		comments[c] = true
 	}
 
-	if len(comments) == 0 {
-		return nil, nil
-	}
-
 	return comments, nil
 }
 
@@ -110,10 +106,6 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 	}
 	for c := range dashComments {
 		comments[c] = true
-	}
-
-	if len(comments) == 0 {
-		return nil, nil
 	}
 
 	return comments, nil
