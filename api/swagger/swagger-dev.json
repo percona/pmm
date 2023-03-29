@@ -27895,7 +27895,22 @@
                 "user_id": {
                   "type": "integer",
                   "format": "int64",
+                  "title": "Deprecated: do not use",
                   "x-order": 1
+                },
+                "entity_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                },
+                "entity_type": {
+                  "type": "string",
+                  "default": "INVALID",
+                  "enum": [
+                    "INVALID",
+                    "USER"
+                  ],
+                  "x-order": 3
                 }
               }
             }

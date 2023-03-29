@@ -87,6 +87,7 @@ import (
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
+	"github.com/percona/pmm/managed/services/management/roles"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
@@ -210,6 +211,7 @@ type gRPCServerDeps struct {
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
+	roleRegistry         *roles.Registry
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -284,7 +286,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
+	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db, deps.roleRegistry))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
@@ -860,6 +862,11 @@ func main() {
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, kubeStorage)
 
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
+	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+			return &models.UserRoles{}
+		}, models.UserRolesView),
+	})
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -951,7 +958,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db, roleRegistry, roleRegistry)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -1047,6 +1054,7 @@ func main() {
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
+				roleRegistry:         roleRegistry,
 			})
 	}()
 

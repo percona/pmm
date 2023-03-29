@@ -31,6 +31,20 @@
             "schema": {
               "type": "object",
               "properties": {
+                "entity_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                },
+                "entity_type": {
+                  "type": "string",
+                  "default": "INVALID",
+                  "enum": [
+                    "INVALID",
+                    "USER"
+                  ],
+                  "x-order": 3
+                },
                 "role_ids": {
                   "type": "array",
                   "items": {
@@ -42,6 +56,7 @@
                 "user_id": {
                   "type": "integer",
                   "format": "int64",
+                  "title": "Deprecated: do not use",
                   "x-order": 1
                 }
               }

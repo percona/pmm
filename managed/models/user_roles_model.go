@@ -34,6 +34,16 @@ type UserRoles struct {
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
+// SetEntityID sets user ID
+func (t *UserRoles) SetEntityID(userID int) {
+	t.UserID = userID
+}
+
+// SetRoleID sets role ID
+func (t *UserRoles) SetRoleID(roleID uint32) {
+	t.RoleID = roleID
+}
+
 // BeforeInsert implements reform.BeforeInserter interface.
 //
 //nolint:unparam

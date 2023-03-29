@@ -144,6 +144,14 @@ type clientInterface interface {
 	getAuthUser(context.Context, http.Header) (authUser, error)
 }
 
+type defaultRoleAssigner interface {
+	AssignDefaultRole(tx *reform.TX, userID int) error
+}
+
+type userRolesGetter interface {
+	GetUserRoles(q *reform.Querier, userID int) ([]models.Role, error)
+}
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	c       clientInterface
@@ -154,13 +162,15 @@ type AuthServer struct {
 	cache map[string]cacheItem
 	rw    sync.RWMutex
 
-	accessControl *accessControl
+	accessControl       *accessControl
+	defaultRoleAssigner defaultRoleAssigner
+	userRolesGetter     userRolesGetter
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB, defaultRoleAssigner defaultRoleAssigner, userRolesGetter userRolesGetter) *AuthServer {
 	return &AuthServer{
 		c:       c,
 		checker: checker,
@@ -170,6 +180,8 @@ func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB)
 		accessControl: &accessControl{
 			db: db,
 		},
+		defaultRoleAssigner: defaultRoleAssigner,
+		userRolesGetter:     userRolesGetter,
 	}
 }
 
@@ -327,7 +339,7 @@ func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
 }
 
 func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
-	roles, err := models.GetUserRoles(s.db.Querier, userID)
+	roles, err := s.userRolesGetter.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -337,14 +349,14 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 	if len(roles) == 0 {
 		err := s.db.InTransaction(func(tx *reform.TX) error {
 			s.l.Infof("Assigning default role to user ID %d", userID)
-			return models.AssignDefaultRole(tx, userID)
+			return s.defaultRoleAssigner.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
 			return nil, err
 		}
 
 		// Reload roles
-		roles, err = models.GetUserRoles(s.db.Querier, userID)
+		roles, err = s.userRolesGetter.GetUserRoles(s.db.Querier, userID)
 		if err != nil {
 			return nil, err
 		}

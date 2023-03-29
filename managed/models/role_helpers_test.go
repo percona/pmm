@@ -18,7 +18,6 @@ package models_test
 import (
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -27,10 +26,11 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-const (
-	roleATitle = "Role A"
-	roleBTitle = "Role B"
-)
+type noOpBeforeDelete struct{}
+
+func (n *noOpBeforeDelete) BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error {
+	return nil
+}
 
 //nolint:paralleltest
 func TestRoleHelpers(t *testing.T) {
@@ -63,145 +63,31 @@ func TestRoleHelpers(t *testing.T) {
 	}
 
 	//nolint:paralleltest
-	t.Run("shall assign role", func(t *testing.T) {
+	t.Run("shall create role", func(t *testing.T) {
 		tx, teardown := setup(t)
 		defer teardown(t)
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRoles(tx, userID, []int{int(role.ID)}))
 
-		roles, err := models.GetUserRoles(tx.Querier, userID)
-		require.NoError(t, err)
-		require.Equal(t, roles[0].ID, role.ID)
+		var r models.Role
+		require.NoError(t, models.FindAndLockRole(tx, int(role.ID), &r))
+
+		require.Equal(t, role.ID, r.ID)
 	})
 
 	//nolint:paralleltest
-	t.Run("shall throw on assigning non-existent role", func(t *testing.T) {
-		tx, teardown := setup(t)
-		defer teardown(t)
-
-		err := models.AssignRoles(tx, userID, []int{0})
-		require.True(t, errors.Is(err, models.ErrRoleNotFound))
-	})
-
-	//nolint:paralleltest
-	t.Run("shall create a new user on role assign", func(t *testing.T) {
+	t.Run("shall delete role", func(t *testing.T) {
 		tx, teardown := setup(t)
 		defer teardown(t)
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRoles(tx, 24, []int{int(role.ID)}))
+		require.NoError(t, models.DeleteRole(tx, &noOpBeforeDelete{}, int(role.ID), 0))
 
-		_, err := models.FindUser(tx.Querier, userID)
-		require.NoError(t, err)
-	})
-
-	//nolint:paralleltest
-	t.Run("unassigned role", func(t *testing.T) {
-		//nolint:paralleltest
-		t.Run("shall delete role with no replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var role models.Role
-			role.Title = roleATitle
-			require.NoError(t, models.CreateRole(tx.Querier, &role))
-			require.NoError(t, models.DeleteRole(tx, int(role.ID), 0))
-		})
-
-		//nolint:paralleltest
-		t.Run("shall delete role with replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var roleA, roleB models.Role
-			roleA.Title = roleATitle
-			roleB.Title = roleBTitle
-			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
-			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
-			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), int(roleB.ID)))
-		})
-	})
-
-	//nolint:paralleltest
-	t.Run("single role assigned", func(t *testing.T) {
-		//nolint:paralleltest
-		t.Run("shall delete role with no replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var role models.Role
-			role.Title = roleATitle
-			require.NoError(t, models.CreateRole(tx.Querier, &role))
-			require.NoError(t, models.AssignRoles(tx, userID, []int{int(role.ID)}))
-			require.NoError(t, models.DeleteRole(tx, int(role.ID), 0))
-
-			roles, err := models.GetUserRoles(tx.Querier, userID)
-			require.NoError(t, err)
-			require.Equal(t, len(roles), 0)
-		})
-
-		//nolint:paralleltest
-		t.Run("shall delete role with replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var roleA, roleB models.Role
-			roleA.Title = roleATitle
-			roleB.Title = roleBTitle
-			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
-			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
-			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID)}))
-			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), int(roleB.ID)))
-
-			roles, err := models.GetUserRoles(tx.Querier, userID)
-			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
-			require.Equal(t, roles[0].ID, roleB.ID)
-		})
-	})
-
-	//nolint:paralleltest
-	t.Run("multiple roles assigned", func(t *testing.T) {
-		//nolint:paralleltest
-		t.Run("shall delete role with no replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var roleA, roleB models.Role
-			roleA.Title = roleATitle
-			roleB.Title = roleBTitle
-			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
-			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
-			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
-			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), 0))
-
-			roles, err := models.GetUserRoles(tx.Querier, userID)
-			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
-			require.Equal(t, roles[0].ID, roleB.ID)
-		})
-
-		//nolint:paralleltest
-		t.Run("shall delete role with replacement", func(t *testing.T) {
-			tx, teardown := setup(t)
-			defer teardown(t)
-
-			var roleA, roleB models.Role
-			roleA.Title = roleATitle
-			roleB.Title = roleBTitle
-			require.NoError(t, models.CreateRole(tx.Querier, &roleA))
-			require.NoError(t, models.CreateRole(tx.Querier, &roleB))
-			require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
-			require.NoError(t, models.DeleteRole(tx, int(roleA.ID), int(roleB.ID)))
-
-			roles, err := models.GetUserRoles(tx.Querier, userID)
-			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
-			require.Equal(t, roles[0].ID, roleB.ID)
-		})
+		var r models.Role
+		require.NoError(t, models.FindAndLockRole(tx, int(role.ID), &r))
+		require.Equal(t, 0, r.ID)
 	})
 
 	//nolint:paralleltest
@@ -211,30 +97,22 @@ func TestRoleHelpers(t *testing.T) {
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRoles(tx, 24, []int{int(role.ID)}))
 		require.NoError(t, models.ChangeDefaultRole(tx, int(role.ID)))
 
-		err := models.DeleteRole(tx, int(role.ID), 0)
+		err := models.DeleteRole(tx, &noOpBeforeDelete{}, int(role.ID), 0)
 		require.Equal(t, err, models.ErrRoleIsDefaultRole)
 	})
 
-	//nolint:paralleltest
-	t.Run("shall return roles for a user", func(t *testing.T) {
+	t.Run("shall change default role", func(t *testing.T) {
 		tx, teardown := setup(t)
 		defer teardown(t)
 
-		var roleA, roleB models.Role
-		roleA.Title = roleATitle
-		roleB.Title = roleBTitle
+		var role models.Role
+		require.NoError(t, models.CreateRole(tx.Querier, &role))
+		require.NoError(t, models.ChangeDefaultRole(tx, int(role.ID)))
 
-		require.NoError(t, models.CreateRole(tx.Querier, &roleA))
-		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
-		require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
-
-		roles, err := models.GetUserRoles(tx.Querier, userID)
+		s, err := models.GetSettings(tx.Querier)
 		require.NoError(t, err)
-		require.Equal(t, len(roles), 2)
-		require.Equal(t, roles[0].ID, roleA.ID)
-		require.Equal(t, roles[1].ID, roleB.ID)
+		require.Equal(t, s.DefaultRoleID, int(role.ID))
 	})
 }

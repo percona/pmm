@@ -27,6 +27,7 @@ import (
 
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/management/roles"
 )
 
 // ErrInvalidRoleData is returned when a row cannot be asserted to role.
@@ -34,16 +35,18 @@ var ErrInvalidRoleData = errors.New("InvalidRoleData")
 
 // RoleService represents service for working with roles.
 type RoleService struct {
-	db *reform.DB
+	db           *reform.DB
+	roleRegistry *roles.Registry
 
 	rolev1beta1.UnimplementedRoleServer
 }
 
 // NewRoleService creates a RoleService instance.
-func NewRoleService(db *reform.DB) *RoleService {
+func NewRoleService(db *reform.DB, roleRegistry *roles.Registry) *RoleService {
 	//nolint:exhaustruct
 	return &RoleService{
-		db: db,
+		db:           db,
+		roleRegistry: roleRegistry,
 	}
 }
 
@@ -102,7 +105,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 //nolint:unparam
 func (r *RoleService) DeleteRole(_ context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
 	errTx := r.db.InTransaction(func(tx *reform.TX) error {
-		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
+		if err := models.DeleteRole(tx, r.roleRegistry, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
@@ -176,7 +179,15 @@ func (r *RoleService) AssignRoles(_ context.Context, req *rolev1beta1.AssignRole
 		for _, id := range req.RoleIds {
 			roleIDs = append(roleIDs, int(id))
 		}
-		return models.AssignRoles(tx, int(req.UserId), roleIDs)
+
+		var entityType roles.EntityType
+		switch req.EntityType {
+		case rolev1beta1.EntityType_USER:
+			entityType = roles.EntityUser
+		default:
+			return status.Errorf(codes.NotFound, "Entity type invalid")
+		}
+		return r.roleRegistry.AssignRoles(tx, entityType, int(req.EntityId), roleIDs)
 	})
 	if err != nil {
 		if errors.Is(err, models.ErrRoleNotFound) {

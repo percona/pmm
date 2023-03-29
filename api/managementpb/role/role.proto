@@ -51,9 +51,17 @@ message SetDefaultRoleRequest {
 
 message SetDefaultRoleResponse {}
 
+enum EntityType {
+  INVALID = 0;
+  USER = 1;
+}
+
 message AssignRolesRequest {
   repeated uint32 role_ids = 1;
-  uint32 user_id = 2 [(validator.field) = {int_gt: 0}];
+  // Deprecated: do not use
+  uint32 user_id = 2 [deprecated = true];
+  uint32 entity_id = 3 [(validator.field) = {int_gt: 0}];
+  EntityType entity_type = 4 [(validator.field) = {int_gt: 0}];
 }
 
 message AssignRolesResponse {}

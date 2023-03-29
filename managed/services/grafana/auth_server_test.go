@@ -35,6 +35,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/management/roles"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -71,7 +72,12 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+				return &models.UserRoles{}
+			}, models.UserRolesView),
+		})
+		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -114,7 +120,12 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+				return &models.UserRoles{}
+			}, models.UserRolesView),
+		})
+		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -140,7 +151,12 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+				return &models.UserRoles{}
+			}, models.UserRolesView),
+		})
+		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -167,7 +183,13 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, nil)
+
+	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+			return &models.UserRoles{}
+		}, models.UserRolesView),
+	})
+	s := NewAuthServer(c, checker, nil, roleRegistry, roleRegistry)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
@@ -284,7 +306,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	defer checker.AssertExpectations(t)
 
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, &checker, db)
+	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+			return &models.UserRoles{}
+		}, models.UserRolesView),
+	})
+	s := NewAuthServer(c, &checker, db, roleRegistry, roleRegistry)
 
 	var roleA models.Role
 	roleA.Title = "Role A"
@@ -310,7 +337,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		1:    {int(roleA.ID)},
 	} {
 		err := db.InTransaction(func(tx *reform.TX) error {
-			return models.AssignRoles(tx, userID, roleIDs)
+			return roleRegistry.AssignRoles(tx, roles.EntityUser, userID, roleIDs)
 		})
 		require.NoError(t, err)
 	}

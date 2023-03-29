@@ -7,6 +7,7 @@ package role
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // AssignRolesReader is a Reader for the AssignRoles structure.
@@ -124,12 +126,70 @@ type AssignRolesBody struct {
 	// role ids
 	RoleIds []int64 `json:"role_ids"`
 
-	// user id
+	// Deprecated: do not use
 	UserID int64 `json:"user_id,omitempty"`
+
+	// entity id
+	EntityID int64 `json:"entity_id,omitempty"`
+
+	// entity type
+	// Enum: [INVALID USER]
+	EntityType *string `json:"entity_type,omitempty"`
 }
 
 // Validate validates this assign roles body
 func (o *AssignRolesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEntityType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var assignRolesBodyTypeEntityTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["INVALID","USER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		assignRolesBodyTypeEntityTypePropEnum = append(assignRolesBodyTypeEntityTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AssignRolesBodyEntityTypeINVALID captures enum value "INVALID"
+	AssignRolesBodyEntityTypeINVALID string = "INVALID"
+
+	// AssignRolesBodyEntityTypeUSER captures enum value "USER"
+	AssignRolesBodyEntityTypeUSER string = "USER"
+)
+
+// prop value enum
+func (o *AssignRolesBody) validateEntityTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, assignRolesBodyTypeEntityTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AssignRolesBody) validateEntityType(formats strfmt.Registry) error {
+	if swag.IsZero(o.EntityType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateEntityTypeEnum("body"+"."+"entity_type", "body", *o.EntityType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

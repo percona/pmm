@@ -80,8 +80,8 @@ func (this *SetDefaultRoleResponse) Validate() error {
 }
 
 func (this *AssignRolesRequest) Validate() error {
-	if !(this.UserId > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("UserId", fmt.Errorf(`value '%v' must be greater than '0'`, this.UserId))
+	if !(this.EntityId > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("EntityId", fmt.Errorf(`value '%v' must be greater than '0'`, this.EntityId))
 	}
 	return nil
 }

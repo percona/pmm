@@ -28,6 +28,7 @@ import (
 
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/management/roles"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -49,7 +50,12 @@ func TestRoleService(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}(t)
 
-	s := NewRoleService(db)
+	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
+		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
+			return &models.UserRoles{}
+		}, models.UserRolesView),
+	})
+	s := NewRoleService(db, roleRegistry)
 	teardown := func(t *testing.T) {
 		t.Helper()
 
@@ -176,18 +182,20 @@ func TestRoleService(t *testing.T) {
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
 			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds: []uint32{roleIDA},
-				UserId:  1337,
+				RoleIds:    []uint32{roleIDA},
+				EntityId:   1337,
+				EntityType: rolev1beta1.EntityType_USER,
 			})
 			require.NoError(t, err)
 
 			_, err = s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds: []uint32{roleIDB},
-				UserId:  1338,
+				RoleIds:    []uint32{roleIDB},
+				EntityId:   1338,
+				EntityType: rolev1beta1.EntityType_USER,
 			})
 			require.NoError(t, err)
 
-			roles, err := models.GetUserRoles(db.Querier, 1337)
+			roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337)
 			require.NoError(t, err)
 			assert.Equal(t, len(roles), 1)
 			assert.Equal(t, roles[0].ID, roleIDA)
@@ -199,12 +207,13 @@ func TestRoleService(t *testing.T) {
 			roleIDA, roleIDB := createDummyRoles(ctx, t, s)
 
 			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds: []uint32{roleIDA, roleIDB},
-				UserId:  1337,
+				RoleIds:    []uint32{roleIDA, roleIDB},
+				EntityId:   1337,
+				EntityType: rolev1beta1.EntityType_USER,
 			})
 			require.NoError(t, err)
 
-			roles, err := models.GetUserRoles(db.Querier, 1337)
+			roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337)
 			require.NoError(t, err)
 			assert.Equal(t, len(roles), 2)
 			assert.Equal(t, roles[0].ID, roleIDA)
@@ -217,8 +226,9 @@ func TestRoleService(t *testing.T) {
 			createDummyRoles(ctx, t, s)
 
 			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
-				RoleIds: []uint32{0},
-				UserId:  1337,
+				RoleIds:    []uint32{0},
+				EntityId:   1337,
+				EntityType: rolev1beta1.EntityType_USER,
 			})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
