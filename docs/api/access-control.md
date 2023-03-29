@@ -37,7 +37,8 @@ curl -X POST "http://localhost/v1/management/Role/Assign" \
      -H "Authorization: Basic xxx" \
      -H "Content-Type: application/json" \ 
      -d '{
-        "user_id": 1,
+        "entity_type": "USER",
+        "entity_id": 1,
         "role_ids": [2, 3, 4]
       }'
 ```
