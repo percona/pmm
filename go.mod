@@ -32,7 +32,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/go-co-op/gocron v1.18.1
+	github.com/go-co-op/gocron v1.19.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/strfmt v0.21.5
@@ -72,7 +72,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.2
-	go.mongodb.org/mongo-driver v1.11.2
+	go.mongodb.org/mongo-driver v1.11.3
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.6.0
 	golang.org/x/sync v0.1.0
