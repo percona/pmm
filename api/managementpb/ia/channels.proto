@@ -5,11 +5,14 @@ package ia.v1beta1;
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/pagination.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
 // BasicAuth represents basic HTTP auth configuration.
 message BasicAuth {
+  option deprecated = true;
+
   string username = 1;
   string password = 2;
   string password_file = 3;
@@ -18,6 +21,8 @@ message BasicAuth {
 // TLSConfig represents TLS configuration for alertmanager
 // https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 message TLSConfig {
+  option deprecated = true;
+
   // A path to the CA certificate file to validate the server certificate with.
   // ca_file and ca_file_content should not be set at the same time.
   string ca_file = 1;
@@ -44,6 +49,8 @@ message TLSConfig {
 
 // HTTPConfig represents HTTP client configuration.
 message HTTPConfig {
+  option deprecated = true;
+
   // Basic HTTP auth configuration. Zero value will remove it.
   BasicAuth basic_auth = 1;
   string bearer_token = 2;
@@ -55,12 +62,16 @@ message HTTPConfig {
 
 // EmailConfig represents email configuration.
 message EmailConfig {
+  option deprecated = true;
+
   bool send_resolved = 1;
   repeated string to = 2 [(validator.field) = {repeated_count_min: 1}];
 }
 
 // PagerDutyConfig represents PagerDuty configuration.
 message PagerDutyConfig {
+  option deprecated = true;
+
   bool send_resolved = 1;
   // The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
   string routing_key = 2;
@@ -70,12 +81,16 @@ message PagerDutyConfig {
 
 // SlackConfig represents Slack configuration.
 message SlackConfig {
+  option deprecated = true;
+
   bool send_resolved = 1;
   string channel = 2 [(validator.field) = {string_not_empty: true}];
 }
 
 // WebhookConfig represents webhook configuration.
 message WebhookConfig {
+  option deprecated = true;
+
   bool send_resolved = 1;
   string url = 2 [(validator.field) = {string_not_empty: true}];
   HTTPConfig http_config = 3;
@@ -84,6 +99,8 @@ message WebhookConfig {
 
 // Channel represents a single Notification Channel.
 message Channel {
+  option deprecated = true;
+
   // reserved channels
   // pushover_config = 5;
   // opsgenie_config = 7;
@@ -105,17 +122,23 @@ message Channel {
 }
 
 message ListChannelsRequest {
+  option deprecated = true;
+
   // Page request.
   management.PageParams page_params = 1;
 }
 
 message ListChannelsResponse {
+  option deprecated = true;
+
   repeated Channel channels = 1;
   // Total items and pages.
   management.PageTotals totals = 2;
 }
 
 message AddChannelRequest {
+  option deprecated = true;
+
   // Short human-readable summary.
   string summary = 2 [(validator.field) = {string_not_empty: true}];
   // Email configuration. Exactly one config should be set.
@@ -131,11 +154,15 @@ message AddChannelRequest {
 }
 
 message AddChannelResponse {
+  option deprecated = true;
+
   // Machine-readable ID.
   string channel_id = 1;
 }
 
 message ChangeChannelRequest {
+  option deprecated = true;
+
   // Machine-readable ID.
   string channel_id = 1 [(validator.field) = {string_not_empty: true}];
   // Short human-readable summary. Empty value will not change it.
@@ -152,18 +179,26 @@ message ChangeChannelRequest {
   bool disabled = 11;
 }
 
-message ChangeChannelResponse {}
+message ChangeChannelResponse {
+  option deprecated = true;
+}
 
 message RemoveChannelRequest {
+  option deprecated = true;
+
   string channel_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
-message RemoveChannelResponse {}
+message RemoveChannelResponse {
+  option deprecated = true;
+}
 
 // Channels service provides access to Notification Channels.
 service Channels {
   // ListChannels returns a list of all notifation channels.
   rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
+    option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/List"
       body: "*"
@@ -171,6 +206,8 @@ service Channels {
   }
   // AddChannel adds notification channel.
   rpc AddChannel(AddChannelRequest) returns (AddChannelResponse) {
+    option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Add"
       body: "*"
@@ -178,6 +215,8 @@ service Channels {
   }
   // ChangeChannel changes notification channel.
   rpc ChangeChannel(ChangeChannelRequest) returns (ChangeChannelResponse) {
+    option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Change"
       body: "*"
@@ -185,6 +224,8 @@ service Channels {
   }
   // RemoveChannel removes notification channel.
   rpc RemoveChannel(RemoveChannelRequest) returns (RemoveChannelResponse) {
+    option deprecated = true;
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {deprecated: true};
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/Remove"
       body: "*"
