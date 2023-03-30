@@ -167,7 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		require.Error(t, err)
-		assert.Regexp(t, `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
+		assert.Regexp(t, `query to EXPLAIN is empty`, err.Error())
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {

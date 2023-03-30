@@ -73,6 +73,10 @@ func (a *mysqlExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+	if a.params.Query == "" {
+		return nil, fmt.Errorf("query to EXPLAIN is empty")
+	}
+
 	// Workaround for bug in our MySQL parser if there is keyword "IN" in query.
 	// TODO In future it should be fixed on parser side.
 	a.params.Query = strings.ReplaceAll(a.params.Query, "...", "?")
@@ -80,7 +84,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(a.params.Query) {
-		return nil, fmt.Errorf("EXPLAIN functionality is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE")
+		return nil, fmt.Errorf("functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE")
 	}
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
