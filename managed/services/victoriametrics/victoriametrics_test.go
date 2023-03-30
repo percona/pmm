@@ -905,7 +905,11 @@ func Test_relativePath(t *testing.T) {
 			"metrics",
 			"http://127.0.0.1:9090/prometheus/metrics",
 		},
-		// TODO: Add test cases.
+		{
+			"http://127.0.0.1:9090/prometheus/",
+			"metrics",
+			"http://127.0.0.1:9090/prometheus/metrics",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s", tt.want), func(t *testing.T) {
