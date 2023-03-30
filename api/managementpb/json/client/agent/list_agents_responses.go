@@ -15,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListAgentsReader is a Reader for the ListAgents structure.
@@ -418,7 +419,8 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	AzureOptions string `json:"azure_options,omitempty"`
 
 	// Creation timestamp.
-	CreatedAt string `json:"created_at,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -507,7 +509,8 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	Username string `json:"username,omitempty"`
 
 	// Last update timestamp.
-	UpdatedAt string `json:"updated_at,omitempty"`
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
 
 	// Agent version.
 	Version string `json:"version,omitempty"`
@@ -518,6 +521,43 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 // Validate validates this list agents OK body agents items0
 func (o *ListAgentsOKBodyAgentsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateUpdatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

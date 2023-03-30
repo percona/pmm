@@ -15574,7 +15574,7 @@
                       "created_at": {
                         "description": "Creation timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -15731,7 +15731,7 @@
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 35
                       },
                       "version": {
@@ -21182,13 +21182,13 @@
                       "created_at": {
                         "description": "Creation timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 14
                       },
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 15
                       },
                       "agents": {
@@ -21230,7 +21230,7 @@
                             "created_at": {
                               "description": "Creation timestamp.",
                               "type": "string",
-                              "format": "int64",
+                              "format": "date-time",
                               "x-order": 6
                             },
                             "custom_labels": {
@@ -21387,7 +21387,7 @@
                             "updated_at": {
                               "description": "Last update timestamp.",
                               "type": "string",
-                              "format": "int64",
+                              "format": "date-time",
                               "x-order": 35
                             },
                             "version": {

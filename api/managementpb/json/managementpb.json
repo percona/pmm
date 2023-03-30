@@ -1591,7 +1591,7 @@
                       "created_at": {
                         "description": "Creation timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -1748,7 +1748,7 @@
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 35
                       },
                       "username": {
@@ -7166,7 +7166,7 @@
                             "created_at": {
                               "description": "Creation timestamp.",
                               "type": "string",
-                              "format": "int64",
+                              "format": "date-time",
                               "x-order": 6
                             },
                             "custom_labels": {
@@ -7323,7 +7323,7 @@
                             "updated_at": {
                               "description": "Last update timestamp.",
                               "type": "string",
-                              "format": "int64",
+                              "format": "date-time",
                               "x-order": 35
                             },
                             "username": {
@@ -7348,7 +7348,7 @@
                       "created_at": {
                         "description": "Creation timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 14
                       },
                       "custom_labels": {
@@ -7418,7 +7418,7 @@
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
-                        "format": "int64",
+                        "format": "date-time",
                         "x-order": 15
                       }
                     }

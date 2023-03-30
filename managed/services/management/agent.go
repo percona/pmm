@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/managementpb"
@@ -50,6 +51,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	var agents []*models.Agent
 	var service *models.Service
 
+	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
 	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 
@@ -113,7 +115,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.UniversalA
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
-		CreatedAt:                      agent.CreatedAt.UnixMilli(),
+		CreatedAt:                      timestamppb.New(agent.CreatedAt),
 		CustomLabels:                   labels,
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
@@ -139,7 +141,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.UniversalA
 		Tls:                            agent.TLS,
 		TlsSkipVerify:                  agent.TLSSkipVerify,
 		Username:                       pointer.GetString(agent.Username),
-		UpdatedAt:                      agent.UpdatedAt.UnixMilli(),
+		UpdatedAt:                      timestamppb.New(agent.UpdatedAt),
 		Version:                        pointer.GetString(agent.Version),
 	}
 

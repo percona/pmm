@@ -21,6 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -196,6 +197,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		}
 	}
 
+	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
 	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, filters)
@@ -236,7 +238,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			Address:        pointer.GetString(service.Address),
 			Agents:         []*managementpb.UniversalAgent{},
 			Cluster:        service.Cluster,
-			CreatedAt:      service.CreatedAt.UnixMilli(),
+			CreatedAt:      timestamppb.New(service.CreatedAt),
 			CustomLabels:   labels,
 			DatabaseName:   service.DatabaseName,
 			Environment:    service.Environment,
@@ -248,7 +250,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			ServiceType:    string(service.ServiceType),
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
-			UpdatedAt:      service.UpdatedAt.UnixMilli(),
+			UpdatedAt:      timestamppb.New(service.UpdatedAt),
 		}
 
 		nodeName, ok := nodeMap[service.NodeID]

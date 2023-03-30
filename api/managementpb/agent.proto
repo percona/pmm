@@ -4,6 +4,7 @@ package management;
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/managementpb;managementpb";
@@ -22,7 +23,7 @@ message UniversalAgent {
   // Options used when adding an Azure exporter.
   string azure_options = 6;
   // Creation timestamp.
-  int64 created_at = 7;
+  google.protobuf.Timestamp created_at = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // Desired Agent status: enabled (false) or disabled (true).
@@ -82,7 +83,7 @@ message UniversalAgent {
   // HTTP basic auth username for collecting metrics.
   string username = 35;
   // Last update timestamp.
-  int64 updated_at = 36;
+  google.protobuf.Timestamp updated_at = 36;
   // Agent version.
   string version = 37;
   // True if Agent is running and connected to pmm-managed.
