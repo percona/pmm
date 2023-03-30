@@ -106,7 +106,7 @@ func (r *Registry) GetUserRoles(q *reform.Querier, userID int, teamIDs []int) ([
 	}
 
 	srv, ok = r.services[EntityTeam]
-	if ok && len(teamIDs) > 0 {
+	if ok && len(teamIDs) != 0 {
 		r, err := srv.GetEntityRoles(q, teamIDs)
 		if err != nil {
 			return nil, err
