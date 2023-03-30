@@ -17,6 +17,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -65,7 +66,11 @@ func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	defer tlshelpers.DeregisterMySQLCerts()
 
 	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table))
+	query := fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table)
+	// handle case when there is table name together with database name
+	query = strings.ReplaceAll(query, ".", "`.`")
+
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
