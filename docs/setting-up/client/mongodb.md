@@ -24,88 +24,110 @@ Run the example codes below in a `mongo` session to:
 !!! caution alert alert-warning ""
     Values for username (`user`) and password (`pwd`) are examples. Replace them before using these code snippets.
 
-=== "Create roles with privileges for backups and QAN"
-        db.getSiblingDB("admin").createRole({
-            role: "explainRole",
-            privileges: [{
-                resource: {
-                    db: "",
-                    collection: ""
-                    },
-                actions: [
-                    "listIndexes",
-                    "listCollections",
-                    "dbStats",
-                    "dbHash",
-                    "collStats",
-                    "find"
-                    ]
-                }],
-            roles:[]
-        })
+### Create roles with privileges for backups and QAN
 
-        db.getSiblingDB("admin").createRole({ "role": "pbmAnyAction",
-            "privileges": [
-            { "resource": { "anyResource": true },
-                "actions": [ "anyAction" ]
-            }
-            ],
-            "roles": []
-         });
-
-=== "Ceate/update user and assign created roles"
-        db.getSiblingDB("admin").createUser({
-            user: "pmm",
-            pwd: "pmm",
-            roles: [
-                { role: "explainRole", db: "admin" },
-                { role: "clusterMonitor", db: "admin" },
-                { role: "read", db: "local" },
-                { "db" : "admin", "role" : "readWrite", "collection": "" },
-                { "db" : "admin", "role" : "backup" },
-                { "db" : "admin", "role" : "clusterMonitor" },
-                { "db" : "admin", "role" : "restore" },
-                { "db" : "admin", "role" : "pbmAnyAction" }
-            ]
-        })
-        db.getSiblingDB("admin").updateUser("pmm", {
-        roles: [
-            { role: "explainRole", db: "admin" },
-            { role: "clusterMonitor", db: "admin" },
-            { role: "read", db: "local" },
-            { "db" : "admin", "role" : "readWrite", "collection": "" },
-            { "db" : "admin", "role" : "backup" },
-            { "db" : "admin", "role" : "clusterMonitor" },
-            { "db" : "admin", "role" : "restore" },
-            { "db" : "admin", "role" : "pbmAnyAction" }
+```{.javascript data-prompt=">"}
+> db.getSiblingDB("admin").createRole({
+    role: "explainRole",
+    privileges: [{
+        resource: {
+            db: "",
+            collection: ""
+        },
+        actions: [
+            "listIndexes",
+            "listCollections",
+            "dbStats",
+            "dbHash",
+            "collStats",
+            "find"
         ]
-        })
+    }],
+    roles: []
+})
+```    
+
+```{.javascript data-prompt=">"}
+> db.getSiblingDB("admin").createRole({
+    "role": "pbmAnyAction",
+    "privileges": [{
+        "resource": {
+            "anyResource": true
+        },
+        "actions": [
+            "anyAction"
+        ]
+    }],
+    "roles": []
+});
+```
+
+### Ceate/update user and assign created roles
+
+```{.javascript data-prompt=">"}
+> db.getSiblingDB("admin").createUser({
+    user: "pmm",
+    pwd: "pmm",
+    roles: [
+        { role: "explainRole", db: "admin" },
+        { role: "clusterMonitor", db: "admin" },
+        { role: "read", db: "local" },
+        { "db" : "admin", "role" : "readWrite", "collection": "" },
+        { "db" : "admin", "role" : "backup" },
+        { "db" : "admin", "role" : "clusterMonitor" },
+        { "db" : "admin", "role" : "restore" },
+        { "db" : "admin", "role" : "pbmAnyAction" }
+    ]
+})
+> db.getSiblingDB("admin").updateUser("pmm", {
+    roles: [
+        { role: "explainRole", db: "admin" },
+        { role: "clusterMonitor", db: "admin" },
+        { role: "read", db: "local" },
+        { "db" : "admin", "role" : "readWrite", "collection": "" },
+        { "db" : "admin", "role" : "backup" },
+        { "db" : "admin", "role" : "clusterMonitor" },
+        { "db" : "admin", "role" : "restore" },
+        { "db" : "admin", "role" : "pbmAnyAction" }
+    ]
+})
+```
 
 ### Permissions for advanced metrics
 
 To fetch advanced metrics, use the following to provide additional privileges to an existing PMM user:
 
 ```json
-   {
-       resource : {
-            db : "",
-            collection : "system.profile"
-            },
-       actions : [
-            "collStats",
-            "dbStats",
-           "indexStats"
-           ]
-       }
+{
+resource : {
+    db : "",
+    collection : "system.profile"
+    },
+actions : [
+    "collStats",
+    "dbStats",
+    "indexStats"
+   ]
+}
 ```
 
 If the role `explainRole` already exists, then you can use the following command to provide additional privileges:
 
-```json
- {
-       db.runCommand(    {      
-           grantPrivilegesToRole: "explainRole",      
-           privileges: [          { "resource" : { "db" : "", "collection" : "system.profile" }, "actions" : [ "indexStats", "dbStats", "collStats" ] } ] } )
+```{.javascript data-prompt=">"}
+> db.runCommand({
+    grantPrivilegesToRole: "explainRole",
+    privileges: [{
+        "resource": {
+            "db": "",
+            "collection": "system.profile"
+        },
+        "actions": [
+            "indexStats",
+            "dbStats",
+            "collStats"
+        ]
+    }]
+})
 ```
 
 ## Profiling
@@ -162,9 +184,9 @@ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 In a `mongo` session, the profiler should be enabled **per** database.
 For example, to enable the profiler in the `testdb`, run this:
 
-```json
-use testdb
-db.setProfilingLevel(2, {slowms: 0})
+```{.javascript data-prompt=">"}
+> use testdb
+> db.setProfilingLevel(2, {slowms: 0})
 ```
 
 !!! note alert alert-primary ""
