@@ -28,8 +28,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AlertsClient interface {
+	// Deprecated: Do not use.
 	// ListAlerts returns a list of all Alerts.
 	ListAlerts(ctx context.Context, in *ListAlertsRequest, opts ...grpc.CallOption) (*ListAlertsResponse, error)
+	// Deprecated: Do not use.
 	// ToggleAlerts allows to switch alerts state between silenced and unsilenced.
 	ToggleAlerts(ctx context.Context, in *ToggleAlertsRequest, opts ...grpc.CallOption) (*ToggleAlertsResponse, error)
 }
@@ -42,6 +44,7 @@ func NewAlertsClient(cc grpc.ClientConnInterface) AlertsClient {
 	return &alertsClient{cc}
 }
 
+// Deprecated: Do not use.
 func (c *alertsClient) ListAlerts(ctx context.Context, in *ListAlertsRequest, opts ...grpc.CallOption) (*ListAlertsResponse, error) {
 	out := new(ListAlertsResponse)
 	err := c.cc.Invoke(ctx, Alerts_ListAlerts_FullMethodName, in, out, opts...)
@@ -51,6 +54,7 @@ func (c *alertsClient) ListAlerts(ctx context.Context, in *ListAlertsRequest, op
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *alertsClient) ToggleAlerts(ctx context.Context, in *ToggleAlertsRequest, opts ...grpc.CallOption) (*ToggleAlertsResponse, error) {
 	out := new(ToggleAlertsResponse)
 	err := c.cc.Invoke(ctx, Alerts_ToggleAlerts_FullMethodName, in, out, opts...)
@@ -64,8 +68,10 @@ func (c *alertsClient) ToggleAlerts(ctx context.Context, in *ToggleAlertsRequest
 // All implementations must embed UnimplementedAlertsServer
 // for forward compatibility
 type AlertsServer interface {
+	// Deprecated: Do not use.
 	// ListAlerts returns a list of all Alerts.
 	ListAlerts(context.Context, *ListAlertsRequest) (*ListAlertsResponse, error)
+	// Deprecated: Do not use.
 	// ToggleAlerts allows to switch alerts state between silenced and unsilenced.
 	ToggleAlerts(context.Context, *ToggleAlertsRequest) (*ToggleAlertsResponse, error)
 	mustEmbedUnimplementedAlertsServer()
