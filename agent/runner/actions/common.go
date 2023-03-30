@@ -18,6 +18,8 @@ package actions
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -72,4 +74,43 @@ func mysqlOpen(dsn string, tlsFiles *agentpb.TextFiles) (*sql.DB, error) {
 	}
 
 	return sql.OpenDB(connector), nil
+}
+
+func prepareRealTableName(name string) string {
+	name = strings.ReplaceAll(name, "'", "")
+	name = strings.ReplaceAll(name, "\"", "")
+	name = strings.ReplaceAll(name, "`", "")
+	return strings.TrimSpace(name)
+}
+
+func parseRealTableName(query string) string {
+	// due to historical reasons we parsing only one table name
+	keyword := "FROM "
+
+	query = strings.ReplaceAll(query, " . ", ".")
+	// in case of subquery it will choose root query
+	index := strings.LastIndex(query, keyword)
+	if index == -1 {
+		return ""
+	}
+
+	parsed := query[index+len(keyword):]
+	parsed = strings.ReplaceAll(parsed, ";", "")
+	index = strings.Index(parsed, " ")
+	if index == -1 {
+		return prepareRealTableName(parsed)
+	}
+
+	return prepareRealTableName(parsed[:index+1])
+}
+
+func prepareQueryWithDatabaseTableName(query, name string) string {
+	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
+	q := fmt.Sprintf("%s %#q", query, name)
+
+	if strings.Index(q, "`.`") > -1 {
+		return q
+	}
+	// handle case when there is table name together with database name
+	return strings.ReplaceAll(q, ".", "`.`")
 }

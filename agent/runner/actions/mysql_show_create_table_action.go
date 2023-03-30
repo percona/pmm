@@ -16,8 +16,6 @@ package actions
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -64,13 +62,8 @@ func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	query := fmt.Sprintf("SHOW /* pmm-agent */ CREATE TABLE %#q", a.params.Table)
-	// handle case when there is table name together with database name
-	query = strings.ReplaceAll(query, ".", "`.`")
-
 	var tableName, tableDef string
-	row := db.QueryRowContext(ctx, query)
+	row := db.QueryRowContext(ctx, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ CREATE TABLE", a.params.Table))
 	if err = row.Scan(&tableName, &tableDef); err != nil {
 		return nil, err
 	}

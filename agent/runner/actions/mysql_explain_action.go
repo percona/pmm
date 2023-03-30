@@ -221,34 +221,6 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	return json.Marshal(m)
 }
 
-func prepareRealTableName(name string) string {
-	name = strings.ReplaceAll(name, "'", "")
-	name = strings.ReplaceAll(name, "\"", "")
-	name = strings.ReplaceAll(name, "`", "")
-	return strings.TrimSpace(name)
-}
-
-func parseRealTableName(query string) string {
-	// due to historical reasons we parsing only one table name
-	keyword := "FROM "
-
-	query = strings.ReplaceAll(query, " . ", ".")
-	// in case of subquery it will choose root query
-	index := strings.LastIndex(query, keyword)
-	if index == -1 {
-		return ""
-	}
-
-	parsed := query[index+len(keyword):]
-	parsed = strings.ReplaceAll(parsed, ";", "")
-	index = strings.Index(parsed, " ")
-	if index == -1 {
-		return prepareRealTableName(parsed)
-	}
-
-	return prepareRealTableName(parsed[:index+1])
-}
-
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
