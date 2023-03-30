@@ -28,6 +28,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -193,7 +194,7 @@ func (b *Base) extractTarball(tarPath string) error {
 		return err
 	}
 
-	readFile, err := os.Open(tarPath)
+	readFile, err := os.Open(filepath.Clean(tarPath))
 	if err != nil {
 		return err
 	}
@@ -232,13 +233,16 @@ func (b *Base) extractTarball(tarPath string) error {
 		case tar.TypeReg:
 			logrus.Infof("Extracting file: %s", hdr.Name)
 
-			w, err := os.OpenFile(hrdPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
+			w, err := os.OpenFile(filepath.Clean(hrdPath), os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
 
-			_, err = io.Copy(w, tarReader)
+			_, err = io.CopyN(w, tarReader, 1024)
 			if err != nil {
+				if err == io.EOF {
+					break
+				}
 				return err
 			}
 
