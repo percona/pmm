@@ -30,6 +30,7 @@ By default, PMM runs all the checks available for your PMM instances every 24 ho
 
 ### Change run interval for automatic advisors
 You can change the standard 24-hour interval to a custom frequency for each Advisor check:
+
  - *Rare interval* - 78 hours
  - *Standard interval* (default) - 24 hours
  - *Frequent interval* - 4 hours

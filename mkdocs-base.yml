@@ -160,6 +160,7 @@ nav:
                 - get-started/backup/mongodb_limitations.md
           - MySQL backups:
                 - get-started/backup/backup_mysql.md
+                - get-started/backup/mysql_prerequisites.md
                 - get-started/backup/create_mysql_backup.md
                 - get-started/backup/restore_mysql_backup.md
           - get-started/backup/edit_scheduled.md
