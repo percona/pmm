@@ -190,6 +190,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			Retention:     req.Retention,
 			Retries:       req.Retries,
 			RetryInterval: req.RetryInterval.AsDuration(),
+			Folder:        req.Folder,
 		}
 
 		var task scheduler.Task
@@ -560,6 +561,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Description = commonBackupData.Description
 	scheduledBackup.Retention = commonBackupData.Retention
 	scheduledBackup.Retries = commonBackupData.Retries
+	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
 	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {

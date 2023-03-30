@@ -54,6 +54,7 @@ type BackupTaskParams struct {
 	Retention     uint32
 	Retries       uint32
 	RetryInterval time.Duration
+	Folder        *string
 }
 
 // Validate checks backup task parameters for correctness.
@@ -111,6 +112,7 @@ func (t *mySQLBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -133,6 +135,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 				Mode:          t.Mode,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}
@@ -172,6 +175,7 @@ func (t *mongoDBBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -194,6 +198,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 				Retention:     t.Retention,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}
