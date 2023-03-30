@@ -18,10 +18,7 @@ package victoriametrics
 import (
 	"context"
 	"database/sql"
-	"os"
-	"strings"
-	"testing"
-
+	"fmt"
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -29,6 +26,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+	"os"
+	"strings"
+	"testing"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -892,4 +892,26 @@ scrape_configs:
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	assert.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
+}
+
+func Test_relativePath(t *testing.T) {
+	tests := []struct {
+		baseURL string
+		path    string
+		want    string
+	}{
+		{
+			"http://127.0.0.1:9090/prometheus",
+			"metrics",
+			"http://127.0.0.1:9090/prometheus/metrics",
+		},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%s", tt.want), func(t *testing.T) {
+			got, err := relativePath(tt.baseURL, tt.path)
+			assert.NoError(t, err)
+			assert.Equalf(t, tt.want, got.String(), "relativePath(%v, %v)", tt.baseURL, tt.path)
+		})
+	}
 }

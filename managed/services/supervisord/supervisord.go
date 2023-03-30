@@ -430,8 +430,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
 		"VMURL":                    s.vmParams.URL,
-		"EnableVMAgent":            s.vmParams.ExternalVM(),
+		"ExternalVM":               s.vmParams.ExternalVM(),
 		"PerconaTestDbaas":         settings.DBaaS.Enabled,
+		"InterfaceToBind":          envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
 		"ClickhouseDatabase":       clickhouseDatabase,
@@ -583,8 +584,6 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
-var interfaceToBind = envvars.GetInterfaceToBind()
-
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
@@ -621,7 +620,7 @@ redirect_stderr = true
 {{end}}
 
 {{define "victoriametrics"}}
-{{- if not .EnableVMAgent }}
+{{- if not .ExternalVM }}
 [program:victoriametrics]
 priority = 7
 command =
@@ -629,7 +628,7 @@ command =
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr=` + interfaceToBind + `:9090
+		--httpListenAddr={{ .InterfaceToBind }}:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=1MB
 		--search.latencyOffset=5s
@@ -672,7 +671,7 @@ command =
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
 		--rule=/etc/ia/rules/*.yml
-		--httpListenAddr=` + interfaceToBind + `:8880
+		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
@@ -696,7 +695,7 @@ command =
     /usr/sbin/vmproxy
       --target-url={{ .VMURL }}
       --listen-port=8430
-      --listen-address=` + interfaceToBind + `
+      --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
 user = pmm
 autorestart = true
@@ -720,7 +719,7 @@ command =
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address=` + interfaceToBind + `:9093
+		--web.listen-address={{ .InterfaceToBind }}:9093
 		--cluster.listen-address=""
 user = pmm
 autorestart = true

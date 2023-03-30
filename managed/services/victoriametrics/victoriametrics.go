@@ -25,6 +25,7 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -184,8 +185,8 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
-		return errors.Errorf("expected 200 or 204, got %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusNoContent {
+		return errors.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil
 }
@@ -333,11 +334,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
 		}
-		u, err := url.Parse(svc.params.URL)
-		if err != nil {
-			return err
-		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR, u))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, s.HR, svc.params.URL))
 		if svc.params.ExternalVM() {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
@@ -348,8 +345,12 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 }
 
 // scrapeConfigForVictoriaMetrics returns scrape config for Victoria Metrics in Prometheus format.
-func scrapeConfigForVictoriaMetrics(interval time.Duration, target *url.URL) *config.ScrapeConfig {
-	target, _ = target.Parse("metrics")
+func scrapeConfigForVictoriaMetrics(l *logrus.Entry, interval time.Duration, baseURL string) *config.ScrapeConfig {
+	target, err := relativePath(baseURL, "metrics")
+	if err != nil {
+		l.Errorf("couldn't parse relative path to victoria metrics: %q", err)
+		return nil
+	}
 
 	return &config.ScrapeConfig{
 		JobName:        "victoriametrics",
@@ -365,6 +366,17 @@ func scrapeConfigForVictoriaMetrics(interval time.Duration, target *url.URL) *co
 			},
 		},
 	}
+}
+
+func relativePath(baseURL string, path string) (*url.URL, error) {
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL = baseURL + "/"
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, err
+	}
+	return u.Parse(path)
 }
 
 // scrapeConfigForInternalVMAgent returns scrape config for internal VM Agent in Prometheus format.

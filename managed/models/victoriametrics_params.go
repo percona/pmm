@@ -17,6 +17,7 @@ package models
 
 import (
 	"os"
+	"strings"
 
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -91,5 +92,5 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 }
 
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.URL != VMBaseURL
+	return !strings.HasPrefix(vmp.URL, "http://127.0.0.1")
 }
