@@ -18,7 +18,6 @@ package victoriametrics
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -893,30 +892,4 @@ scrape_configs:
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	assert.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
-}
-
-func Test_relativePath(t *testing.T) {
-	tests := []struct {
-		baseURL string
-		path    string
-		want    string
-	}{
-		{
-			"http://127.0.0.1:9090/prometheus",
-			"metrics",
-			"http://127.0.0.1:9090/prometheus/metrics",
-		},
-		{
-			"http://127.0.0.1:9090/prometheus/",
-			"metrics",
-			"http://127.0.0.1:9090/prometheus/metrics",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%s", tt.want), func(t *testing.T) {
-			got, err := relativePath(tt.baseURL, tt.path)
-			assert.NoError(t, err)
-			assert.Equalf(t, tt.want, got.String(), "relativePath(%v, %v)", tt.baseURL, tt.path)
-		})
-	}
 }

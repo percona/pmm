@@ -25,7 +25,6 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -369,9 +368,6 @@ func scrapeConfigForVictoriaMetrics(l *logrus.Entry, interval time.Duration, bas
 }
 
 func relativePath(baseURL string, path string) (*url.URL, error) {
-	if !strings.HasSuffix(baseURL, "/") {
-		baseURL = baseURL + "/"
-	}
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, err

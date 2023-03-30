@@ -39,4 +39,23 @@ func TestMaxScrapeSize(t *testing.T) {
 		actual := vmAgentConfig("", params)
 		assert.Contains(t, actual.Args, "-promscrape.maxScrapeSize="+newValue)
 	})
+	t.Run("VMAGENT_ ENV variables", func(t *testing.T) {
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		require.NoError(t, err)
+		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
+		t.Setenv("VM_remoteWrite_basicAuth_password", "password")
+		actual := vmAgentConfig("", params)
+		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+		assert.NotContains(t, actual.Env, "VM_remoteWrite_basicAuth_password=password")
+	})
+	t.Run("External Victoria Metrics ENV variables", func(t *testing.T) {
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics:8428")
+		require.NoError(t, err)
+		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
+		actual := vmAgentConfig("", params)
+		assert.Contains(t, actual.Args, "-remoteWrite.url=http://victoriametrics:8428/api/v1/write")
+		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+	})
 }
