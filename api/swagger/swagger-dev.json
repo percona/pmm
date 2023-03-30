@@ -34936,7 +34936,7 @@
         }
       }
     },
-    "/v1/onboarding/tips": {
+    "/v1/onboarding/tips/{tipId}/complete": {
       "post": {
         "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
         "tags": [
@@ -34946,7 +34946,14 @@
         "operationId": "CompleteUserTip",
         "parameters": [
           {
-            "description": "Request message for CompleteUserTip method.",
+            "type": "integer",
+            "format": "int32",
+            "description": "The ID of the tip to retrieve.",
+            "name": "tipId",
+            "in": "path",
+            "required": true
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -34954,17 +34961,10 @@
               "description": "Request message for CompleteUserTip method.",
               "type": "object",
               "properties": {
-                "tipId": {
-                  "description": "The ID of the tip to retrieve.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
                 "userId": {
                   "description": "user id which completes user tip.",
                   "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
+                  "format": "int32"
                 }
               }
             }
@@ -35012,34 +35012,15 @@
         }
       }
     },
-    "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}": {
+    "/v1/onboarding/{userId}": {
       "get": {
         "description": "Retrieve tip details from PMM server",
         "tags": [
           "TipService"
         ],
         "summary": "Get tip details",
-        "operationId": "GetTipStatus",
+        "operationId": "GetOnboardingStatus",
         "parameters": [
-          {
-            "type": "integer",
-            "format": "int32",
-            "description": "The ID of the tip to retrieve.",
-            "name": "tipId",
-            "in": "path",
-            "required": true
-          },
-          {
-            "enum": [
-              "SYSTEM",
-              "USER"
-            ],
-            "type": "string",
-            "description": "Tip Type (system or user)",
-            "name": "tipType",
-            "in": "path",
-            "required": true
-          },
           {
             "type": "integer",
             "format": "int32",
@@ -35053,18 +35034,49 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "Response message for GetTipResponse method.",
+              "description": "Response message for GetOnboardingStatusResponse method.",
               "type": "object",
               "properties": {
-                "tipId": {
-                  "description": "The ID of the tip to retrieve.",
-                  "type": "integer",
-                  "format": "int32",
+                "systemTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per PMM instance",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
                   "x-order": 0
                 },
-                "isCompleted": {
-                  "description": "Show whether tip is completed or not.",
-                  "type": "boolean",
+                "userTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per user",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
                   "x-order": 1
                 }
               }

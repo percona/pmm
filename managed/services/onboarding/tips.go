@@ -56,77 +56,56 @@ func NewTipService(db *reform.DB, inventoryService inventoryService) *TipsServic
 	}
 }
 
-func (t *TipsService) GetTipStatus(ctx context.Context, tipRequest *onboardingpb.GetTipRequest) (*onboardingpb.GetTipResponse, error) {
-	switch tipRequest.TipType {
-	case onboardingpb.TipType_SYSTEM:
-		return t.retrieveSystemTip(tipRequest.TipId)
-	case onboardingpb.TipType_USER:
-		return t.retrieveOrCreateUserTip(tipRequest)
-	default:
-		return nil, errors.New("Tip type is not correct")
-	}
-}
-
-func (t *TipsService) retrieveOrCreateUserTip(tipRequest *onboardingpb.GetTipRequest) (*onboardingpb.GetTipResponse, error) {
-	var tip models.UserTip
-	err := t.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		tip, err = t.retrieveUserTip(tx, tipRequest.TipId, tipRequest.UserId)
-		if err != nil {
-			if err == reform.ErrNoRows {
-				tip, err = t.createUserTip(tx, tipRequest.TipId, tipRequest.UserId)
-				if err != nil {
-					return errors.Wrap(err, fmt.Sprintf("cannot create user tip by id: %d", tipRequest.TipId))
-				}
-			} else {
-				return errors.Wrap(err, fmt.Sprintf("cannot retrieve user tip by id: %d", tipRequest.TipId))
-			}
-		}
-		return nil
-	})
+func (t *TipsService) GetOnboardingStatus(ctx context.Context, tipRequest *onboardingpb.GetOnboardingStatusRequest) (*onboardingpb.GetOnboardingStatusResponse, error) {
+	systemTips, err := t.retrieveSystemTips()
 	if err != nil {
 		return nil, err
 	}
 
-	return &onboardingpb.GetTipResponse{
-		TipId:       tip.UserTipID,
-		IsCompleted: tip.IsCompleted,
+	userTips, err := t.retrieveUserTips(tipRequest.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &onboardingpb.GetOnboardingStatusResponse{
+		SystemTips: systemTips,
+		UserTips:   userTips,
 	}, nil
 }
 
-func (t *TipsService) retrieveSystemTip(tipID int32) (*onboardingpb.GetTipResponse, error) {
-	if ok := t.isSystemTip(tipID); !ok {
-		return nil, errors.New(fmt.Sprintf("system tip doesn't exist: %d", tipID))
-	}
-
-	res, err := t.db.Querier.FindOneFrom(models.SystemTipTable, "id", tipID)
-	if err != nil && err != reform.ErrNoRows {
+func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
+	structs, err := t.db.Querier.SelectAllFrom(models.SystemTipTable, "")
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to retrieve system tip by id")
 	}
-	var tip *models.SystemTip
-	if err == reform.ErrNoRows {
-		tip = &models.SystemTip{}
-		tip.ID = tipID
-	} else {
-		tip = res.(*models.SystemTip)
+	tips := make([]*models.SystemTip, len(structs))
+	for i, s := range structs {
+		tips[i] = s.(*models.SystemTip)
 	}
 
-	if !tip.IsCompleted {
-		isCompleted, err := t.isSystemTipCompleted(tip.ID)
-		if err != nil {
-			return nil, err
-		}
-		tip.IsCompleted = isCompleted
+	for _, tip := range tips {
+		if !tip.IsCompleted {
+			isCompleted, err := t.isSystemTipCompleted(tip.ID)
+			if err != nil {
+				return nil, err
+			}
+			tip.IsCompleted = isCompleted
 
-		err = t.db.Save(tip)
-		if err != nil {
-			return nil, errors.Wrap(err, "cannot save tip info")
+			err = t.db.Save(tip)
+			if err != nil {
+				return nil, errors.Wrap(err, "cannot save tip info")
+			}
 		}
 	}
-	return &onboardingpb.GetTipResponse{
-		TipId:       tip.ID,
-		IsCompleted: tip.IsCompleted,
-	}, nil
+
+	var res []*onboardingpb.TipModel
+	for _, tip := range tips {
+		res = append(res, &onboardingpb.TipModel{
+			TipId:       tip.ID,
+			IsCompleted: tip.IsCompleted,
+		})
+	}
+	return res, nil
 }
 
 func (t *TipsService) isSystemTipCompleted(tipID int32) (bool, error) {
@@ -183,27 +162,69 @@ func (t *TipsService) isAnyServiceConnected() (bool, error) {
 	return len(list) >= 2, nil
 }
 
-func (t *TipsService) retrieveUserTip(tx *reform.TX, tipID int32, userID int32) (models.UserTip, error) {
-	res, err := tx.Querier.SelectOneFrom(models.UserTipTable, "WHERE user_id = $1 AND user_tip_id = $2", userID, tipID)
-	if err != nil {
-		if err == reform.ErrNoRows {
-			return models.UserTip{}, err
+func (t *TipsService) retrieveUserTips(userID int32) ([]*onboardingpb.TipModel, error) {
+	var res []*onboardingpb.TipModel
+	err := t.db.InTransaction(func(tx *reform.TX) error {
+		structs, err := tx.Querier.FindAllFrom(models.AvailableTipTable, "type", "user")
+		if err != nil {
+			return err
 		}
-		return models.UserTip{}, errors.Wrap(err, "failed to retrieve system tip by id")
-	}
 
-	return *res.(*models.UserTip), nil
+		var userTips []models.UserTip
+		for _, s := range structs {
+			userTips = append(userTips, models.UserTip{
+				TipID:  (s.(*models.AvailableTip)).ID,
+				UserID: userID,
+			})
+		}
+
+		for _, userTip := range userTips {
+			retrievedUser, err := t.retrieveUserTip(tx, userTip.TipID, userID)
+			if err != nil {
+				if err == reform.ErrNoRows {
+					retrievedUser, err = t.createUserTip(tx, userTip.TipID, userID)
+					if err != nil {
+						return err
+					}
+				} else {
+					return errors.Wrap(err, "failed to retrieve system tip by id")
+				}
+			}
+			res = append(res, &onboardingpb.TipModel{
+				TipId:       retrievedUser.TipID,
+				IsCompleted: retrievedUser.IsCompleted,
+			})
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
-func (t *TipsService) createUserTip(tx *reform.TX, tipID int32, userID int32) (models.UserTip, error) {
-	tip := models.UserTip{
+func (t *TipsService) retrieveUserTip(tx *reform.TX, tipID int32, userID int32) (*models.UserTip, error) {
+	res, err := tx.Querier.SelectOneFrom(models.UserTipTable, "WHERE user_id = $1 AND tip_id = $2", userID, tipID)
+	if err != nil {
+		if err == reform.ErrNoRows {
+			return nil, err
+		}
+		return nil, errors.Wrap(err, "failed to retrieve system tip by id")
+	}
+
+	return res.(*models.UserTip), nil
+}
+
+func (t *TipsService) createUserTip(tx *reform.TX, tipID int32, userID int32) (*models.UserTip, error) {
+	tip := &models.UserTip{
 		UserID:      userID,
-		UserTipID:   tipID,
+		TipID:       tipID,
 		IsCompleted: false,
 	}
-	err := tx.Save(&tip)
+	err := tx.Save(tip)
 	if err != nil {
-		return models.UserTip{}, err
+		return nil, err
 	}
 	return tip, nil
 }
@@ -216,20 +237,19 @@ func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboa
 		tip, err := t.retrieveUserTip(tx, userTipRequest.TipId, userTipRequest.UserId)
 		if err != nil {
 			if err == reform.ErrNoRows {
-				tip, err = t.createUserTip(tx, userTipRequest.TipId, userTipRequest.UserId)
-				if err != nil {
-					return errors.Wrap(err, fmt.Sprintf("cannot create user tip by id: %d", userTipRequest.TipId))
-				}
-			} else {
-				return errors.Wrap(err, fmt.Sprintf("cannot retrieve user tip by id: %d", userTipRequest.TipId))
+				return errors.Wrap(err, "cannot complete because tip is not found")
 			}
+			return errors.Wrap(err, "cannot complete user tip")
+		}
+
+		if tip.IsCompleted {
+			return errors.New("cannot complete tip because it's already completed!")
 		}
 
 		tip.IsCompleted = true
-
-		err = tx.Save(&tip)
+		err = tx.Save(tip)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("cannot save user tip by id: %v", tip))
+			return errors.Wrap(err, fmt.Sprintf("cannot save user tip by id: %v", *tip))
 		}
 		return nil
 	})

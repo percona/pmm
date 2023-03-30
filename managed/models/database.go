@@ -839,24 +839,48 @@ var databaseSchema = [][]string{
         WHERE service_type = 'mongodb';`,
 	},
 	79: {
-		`CREATE TABLE system_tips (
-		   id SERIAL PRIMARY KEY,
-		   is_completed BOOLEAN NOT NULL,
-
-		   created_at TIMESTAMP NOT NULL,
-		   updated_at TIMESTAMP NOT NULL
-		);
-
-		CREATE TABLE user_tips (
-		    id SERIAL PRIMARY KEY,
-			user_id INTEGER NOT NULL,
-			user_tip_id INTEGER NOT NULL,
-			is_completed BOOLEAN NOT NULL,
-	
+		`CREATE TABLE available_tips (
+			id SERIAL PRIMARY KEY,
+			type VARCHAR NOT NULL,
+		
 			created_at TIMESTAMP NOT NULL,
-			updated_at TIMESTAMP NOT NULL,
-			UNIQUE (user_id, user_tip_id)
-		);`,
+			updated_at TIMESTAMP NOT NULL
+		);
+		
+		CREATE TABLE system_tips (
+			 id SERIAL PRIMARY KEY,
+			 is_completed BOOLEAN NOT NULL,
+		
+			 created_at TIMESTAMP NOT NULL,
+			 updated_at TIMESTAMP NOT NULL
+		);
+		
+		CREATE TABLE user_tips (
+		   id SERIAL PRIMARY KEY,
+		   tip_id INTEGER NOT NULL,
+		   user_id INTEGER NOT NULL,
+		   is_completed BOOLEAN NOT NULL,
+		
+		   created_at TIMESTAMP NOT NULL,
+		   updated_at TIMESTAMP NOT NULL,
+		   UNIQUE (user_id, tip_id)
+		);
+		
+		INSERT INTO available_tips (
+			id, type, created_at, updated_at
+		) VALUES
+			(1, 'system', current_timestamp, current_timestamp),
+			(2, 'system', current_timestamp, current_timestamp),
+			(3, 'system', current_timestamp, current_timestamp),
+			(1000, 'user', current_timestamp, current_timestamp);
+		
+		INSERT INTO system_tips(
+			id, is_completed, created_at, updated_at
+		) VALUES
+			(1, false, current_timestamp, current_timestamp),
+			(2, false, current_timestamp, current_timestamp),
+			(3, false, current_timestamp, current_timestamp);
+		`,
 	},
 }
 

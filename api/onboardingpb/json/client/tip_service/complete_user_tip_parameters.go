@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewCompleteUserTipParams creates a new CompleteUserTipParams object,
@@ -60,11 +61,16 @@ CompleteUserTipParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CompleteUserTipParams struct {
-	/* Body.
-
-	   Request message for CompleteUserTip method.
-	*/
+	// Body.
 	Body CompleteUserTipBody
+
+	/* TipID.
+
+	   The ID of the tip to retrieve.
+
+	   Format: int32
+	*/
+	TipID int32
 
 	timeout    time.Duration
 	Context    context.Context
@@ -130,6 +136,17 @@ func (o *CompleteUserTipParams) SetBody(body CompleteUserTipBody) {
 	o.Body = body
 }
 
+// WithTipID adds the tipID to the complete user tip params
+func (o *CompleteUserTipParams) WithTipID(tipID int32) *CompleteUserTipParams {
+	o.SetTipID(tipID)
+	return o
+}
+
+// SetTipID adds the tipId to the complete user tip params
+func (o *CompleteUserTipParams) SetTipID(tipID int32) {
+	o.TipID = tipID
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *CompleteUserTipParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -137,6 +154,11 @@ func (o *CompleteUserTipParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	}
 	var res []error
 	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
+	}
+
+	// path param tipId
+	if err := r.SetPathParam("tipId", swag.FormatInt32(o.TipID)); err != nil {
 		return err
 	}
 

@@ -58,7 +58,7 @@ type CompleteUserTipOK struct {
 }
 
 func (o *CompleteUserTipOK) Error() string {
-	return fmt.Sprintf("[POST /v1/onboarding/tips][%d] completeUserTipOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/onboarding/tips/{tipId}/complete][%d] completeUserTipOk  %+v", 200, o.Payload)
 }
 
 func (o *CompleteUserTipOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *CompleteUserTipDefault) Code() int {
 }
 
 func (o *CompleteUserTipDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/onboarding/tips][%d] CompleteUserTip default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/onboarding/tips/{tipId}/complete][%d] CompleteUserTip default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CompleteUserTipDefault) GetPayload() *CompleteUserTipDefaultBody {
@@ -121,9 +121,6 @@ CompleteUserTipBody Request message for CompleteUserTip method.
 swagger:model CompleteUserTipBody
 */
 type CompleteUserTipBody struct {
-	// The ID of the tip to retrieve.
-	TipID int32 `json:"tipId,omitempty"`
-
 	// user id which completes user tip.
 	UserID int32 `json:"userId,omitempty"`
 }

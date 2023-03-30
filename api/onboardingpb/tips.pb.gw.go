@@ -33,39 +33,16 @@ var (
 	_ = metadata.Join
 )
 
-func request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Marshaler, client TipServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTipRequest
+func request_TipService_GetOnboardingStatus_0(ctx context.Context, marshaler runtime.Marshaler, client TipServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetOnboardingStatusRequest
 	var metadata runtime.ServerMetadata
 
 	var (
 		val string
-		e   int32
 		ok  bool
 		err error
 		_   = err
 	)
-
-	val, ok = pathParams["tipId"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
-	}
-
-	protoReq.TipId, err = runtime.Int32(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
-	}
-
-	val, ok = pathParams["tipType"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipType")
-	}
-
-	e, err = runtime.Enum(val, TipType_value)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipType", err)
-	}
-
-	protoReq.TipType = TipType(e)
 
 	val, ok = pathParams["userId"]
 	if !ok {
@@ -77,43 +54,20 @@ func request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "userId", err)
 	}
 
-	msg, err := client.GetTipStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetOnboardingStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_TipService_GetTipStatus_0(ctx context.Context, marshaler runtime.Marshaler, server TipServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetTipRequest
+func local_request_TipService_GetOnboardingStatus_0(ctx context.Context, marshaler runtime.Marshaler, server TipServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetOnboardingStatusRequest
 	var metadata runtime.ServerMetadata
 
 	var (
 		val string
-		e   int32
 		ok  bool
 		err error
 		_   = err
 	)
-
-	val, ok = pathParams["tipId"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
-	}
-
-	protoReq.TipId, err = runtime.Int32(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
-	}
-
-	val, ok = pathParams["tipType"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipType")
-	}
-
-	e, err = runtime.Enum(val, TipType_value)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipType", err)
-	}
-
-	protoReq.TipType = TipType(e)
 
 	val, ok = pathParams["userId"]
 	if !ok {
@@ -125,7 +79,7 @@ func local_request_TipService_GetTipStatus_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "userId", err)
 	}
 
-	msg, err := server.GetTipStatus(ctx, &protoReq)
+	msg, err := server.GetOnboardingStatus(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -139,6 +93,23 @@ func request_TipService_CompleteUserTip_0(ctx context.Context, marshaler runtime
 	}
 	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["tipId"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
+	}
+
+	protoReq.TipId, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
 	}
 
 	msg, err := client.CompleteUserTip(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -157,6 +128,23 @@ func local_request_TipService_CompleteUserTip_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["tipId"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
+	}
+
+	protoReq.TipId, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
+	}
+
 	msg, err := server.CompleteUserTip(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -166,7 +154,7 @@ func local_request_TipService_CompleteUserTip_0(ctx context.Context, marshaler r
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterTipServiceHandlerFromEndpoint instead.
 func RegisterTipServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TipServiceServer) error {
-	mux.Handle("GET", pattern_TipService_GetTipStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_TipService_GetOnboardingStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -174,12 +162,12 @@ func RegisterTipServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/GetTipStatus", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/GetOnboardingStatus", runtime.WithHTTPPathPattern("/v1/onboarding/{userId}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_TipService_GetTipStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_TipService_GetOnboardingStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -187,7 +175,7 @@ func RegisterTipServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_TipService_GetTipStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TipService_GetOnboardingStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_TipService_CompleteUserTip_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -198,7 +186,7 @@ func RegisterTipServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/complete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -254,25 +242,25 @@ func RegisterTipServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "TipServiceClient" to call the correct interceptors.
 func RegisterTipServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TipServiceClient) error {
-	mux.Handle("GET", pattern_TipService_GetTipStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_TipService_GetOnboardingStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/GetTipStatus", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/GetOnboardingStatus", runtime.WithHTTPPathPattern("/v1/onboarding/{userId}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_TipService_GetTipStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_TipService_GetOnboardingStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_TipService_GetTipStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_TipService_GetOnboardingStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_TipService_CompleteUserTip_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -281,7 +269,7 @@ func RegisterTipServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/complete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -300,13 +288,13 @@ func RegisterTipServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_TipService_GetTipStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"v1", "onboarding", "tips", "tipId", "type", "tipType", "user", "userId"}, ""))
+	pattern_TipService_GetOnboardingStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "onboarding", "userId"}, ""))
 
-	pattern_TipService_CompleteUserTip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "onboarding", "tips"}, ""))
+	pattern_TipService_CompleteUserTip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "onboarding", "tips", "tipId", "complete"}, ""))
 )
 
 var (
-	forward_TipService_GetTipStatus_0 = runtime.ForwardResponseMessage
+	forward_TipService_GetOnboardingStatus_0 = runtime.ForwardResponseMessage
 
 	forward_TipService_CompleteUserTip_0 = runtime.ForwardResponseMessage
 )

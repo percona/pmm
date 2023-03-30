@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	TipService_GetTipStatus_FullMethodName    = "/onboardingpb.TipService/GetTipStatus"
-	TipService_CompleteUserTip_FullMethodName = "/onboardingpb.TipService/CompleteUserTip"
+	TipService_GetOnboardingStatus_FullMethodName = "/onboardingpb.TipService/GetOnboardingStatus"
+	TipService_CompleteUserTip_FullMethodName     = "/onboardingpb.TipService/CompleteUserTip"
 )
 
 // TipServiceClient is the client API for TipService service.
@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TipServiceClient interface {
 	// GetTipStatus returns info about tip status
-	GetTipStatus(ctx context.Context, in *GetTipRequest, opts ...grpc.CallOption) (*GetTipResponse, error)
+	GetOnboardingStatus(ctx context.Context, in *GetOnboardingStatusRequest, opts ...grpc.CallOption) (*GetOnboardingStatusResponse, error)
 	// CompleteUserTip completes user tip
 	CompleteUserTip(ctx context.Context, in *CompleteUserTipRequest, opts ...grpc.CallOption) (*CompleteUserTipResponse, error)
 }
@@ -42,9 +42,9 @@ func NewTipServiceClient(cc grpc.ClientConnInterface) TipServiceClient {
 	return &tipServiceClient{cc}
 }
 
-func (c *tipServiceClient) GetTipStatus(ctx context.Context, in *GetTipRequest, opts ...grpc.CallOption) (*GetTipResponse, error) {
-	out := new(GetTipResponse)
-	err := c.cc.Invoke(ctx, TipService_GetTipStatus_FullMethodName, in, out, opts...)
+func (c *tipServiceClient) GetOnboardingStatus(ctx context.Context, in *GetOnboardingStatusRequest, opts ...grpc.CallOption) (*GetOnboardingStatusResponse, error) {
+	out := new(GetOnboardingStatusResponse)
+	err := c.cc.Invoke(ctx, TipService_GetOnboardingStatus_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *tipServiceClient) CompleteUserTip(ctx context.Context, in *CompleteUser
 // for forward compatibility
 type TipServiceServer interface {
 	// GetTipStatus returns info about tip status
-	GetTipStatus(context.Context, *GetTipRequest) (*GetTipResponse, error)
+	GetOnboardingStatus(context.Context, *GetOnboardingStatusRequest) (*GetOnboardingStatusResponse, error)
 	// CompleteUserTip completes user tip
 	CompleteUserTip(context.Context, *CompleteUserTipRequest) (*CompleteUserTipResponse, error)
 	mustEmbedUnimplementedTipServiceServer()
@@ -74,8 +74,8 @@ type TipServiceServer interface {
 // UnimplementedTipServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedTipServiceServer struct{}
 
-func (UnimplementedTipServiceServer) GetTipStatus(context.Context, *GetTipRequest) (*GetTipResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTipStatus not implemented")
+func (UnimplementedTipServiceServer) GetOnboardingStatus(context.Context, *GetOnboardingStatusRequest) (*GetOnboardingStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOnboardingStatus not implemented")
 }
 
 func (UnimplementedTipServiceServer) CompleteUserTip(context.Context, *CompleteUserTipRequest) (*CompleteUserTipResponse, error) {
@@ -94,20 +94,20 @@ func RegisterTipServiceServer(s grpc.ServiceRegistrar, srv TipServiceServer) {
 	s.RegisterService(&TipService_ServiceDesc, srv)
 }
 
-func _TipService_GetTipStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTipRequest)
+func _TipService_GetOnboardingStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOnboardingStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TipServiceServer).GetTipStatus(ctx, in)
+		return srv.(TipServiceServer).GetOnboardingStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TipService_GetTipStatus_FullMethodName,
+		FullMethod: TipService_GetOnboardingStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TipServiceServer).GetTipStatus(ctx, req.(*GetTipRequest))
+		return srv.(TipServiceServer).GetOnboardingStatus(ctx, req.(*GetOnboardingStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -138,8 +138,8 @@ var TipService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*TipServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetTipStatus",
-			Handler:    _TipService_GetTipStatus_Handler,
+			MethodName: "GetOnboardingStatus",
+			Handler:    _TipService_GetOnboardingStatus_Handler,
 		},
 		{
 			MethodName: "CompleteUserTip",

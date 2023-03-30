@@ -23,21 +23,19 @@ import (
 
 //go:generate ../../bin/reform
 
-// UserTip represents tip for user.
+// AvailableTip list of tips which ids are valid for the PMM
 //
-//reform:user_tips
-type UserTip struct {
-	ID          int32 `reform:"id,pk"`
-	UserID      int32 `reform:"user_id"`
-	TipID       int32 `reform:"tip_id"`
-	IsCompleted bool  `reform:"is_completed"`
+//reform:available_tips
+type AvailableTip struct {
+	ID   int32  `reform:"id,pk"`
+	Type string `reform:"type"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (t *UserTip) BeforeInsert() error {
+func (t *AvailableTip) BeforeInsert() error {
 	now := Now()
 	t.CreatedAt = now
 	t.UpdatedAt = now
@@ -46,7 +44,7 @@ func (t *UserTip) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (t *UserTip) BeforeUpdate() error {
+func (t *AvailableTip) BeforeUpdate() error {
 	t.UpdatedAt = Now()
 
 	return nil
@@ -54,6 +52,6 @@ func (t *UserTip) BeforeUpdate() error {
 
 // check interfaces.
 var (
-	_ reform.BeforeInserter = (*UserTip)(nil)
-	_ reform.BeforeUpdater  = (*UserTip)(nil)
+	_ reform.BeforeInserter = (*AvailableTip)(nil)
+	_ reform.BeforeUpdater  = (*AvailableTip)(nil)
 )

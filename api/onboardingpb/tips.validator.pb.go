@@ -10,6 +10,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 
 	_ "github.com/percona/pmm/api/inventorypb"
@@ -22,11 +23,29 @@ var (
 	_ = math.Inf
 )
 
-func (this *GetTipRequest) Validate() error {
+func (this *GetOnboardingStatusRequest) Validate() error {
 	return nil
 }
 
-func (this *GetTipResponse) Validate() error {
+func (this *TipModel) Validate() error {
+	return nil
+}
+
+func (this *GetOnboardingStatusResponse) Validate() error {
+	for _, item := range this.SystemTips {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SystemTips", err)
+			}
+		}
+	}
+	for _, item := range this.UserTips {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("UserTips", err)
+			}
+		}
+	}
 	return nil
 }
 

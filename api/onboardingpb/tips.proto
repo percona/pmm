@@ -15,22 +15,25 @@ enum TipType {
   USER = 1;
 }
 
-// Request message for GetTipStatus method.
-message GetTipRequest {
-  // The ID of the tip to retrieve.
-  int32 tipId = 1;
-  // Tip Type (system or user)
-  TipType tipType = 2;
+// Request message for GetOnboardingStatus method.
+message GetOnboardingStatusRequest {
   // The User ID.
-  int32 userId = 3;
+  int32 userId = 1;
 }
 
-// Response message for GetTipResponse method.
-message GetTipResponse {
+message TipModel {
   // The ID of the tip to retrieve.
   int32 tipId = 1;
   // Show whether tip is completed or not.
   bool isCompleted = 2;
+}
+
+// Response message for GetOnboardingStatusResponse method.
+message GetOnboardingStatusResponse {
+  // shows system tips which can be completed once per PMM instance
+  repeated TipModel systemTips = 1;
+  // shows system tips which can be completed once per user
+  repeated TipModel userTips = 2;
 }
 
 // Request message for CompleteUserTip method.
@@ -47,8 +50,8 @@ message CompleteUserTipResponse {}
 // Service service provides public methods for managing Services.
 service TipService {
   // GetTipStatus returns info about tip status
-  rpc GetTipStatus(GetTipRequest) returns (GetTipResponse) {
-    option (google.api.http) = {get: "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}"};
+  rpc GetOnboardingStatus(GetOnboardingStatusRequest) returns (GetOnboardingStatusResponse) {
+    option (google.api.http) = {get: "/v1/onboarding/{userId}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get tip details"
       description: "Retrieve tip details from PMM server"
@@ -57,7 +60,7 @@ service TipService {
   // CompleteUserTip completes user tip
   rpc CompleteUserTip(CompleteUserTipRequest) returns (CompleteUserTipResponse) {
     option (google.api.http) = {
-      post: "/v1/onboarding/tips"
+      post: "/v1/onboarding/tips/{tipId}/complete"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

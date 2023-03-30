@@ -31,98 +31,27 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestTipsServiceGetUserTip(t *testing.T) {
+func TestGetOnboardingStatus(t *testing.T) {
+
 	tests := []struct {
 		name           string
-		tipRequest     *onboardingpb.GetTipRequest
+		tipRequest     *onboardingpb.GetOnboardingStatusRequest
 		mockInvService func() *mockInventoryService
 
-		expectedTipResponse *onboardingpb.GetTipResponse
-		expectedError       error
+		tipResponse   func(*onboardingpb.GetOnboardingStatusResponse)
+		expectedError error
 	}{
 		{
-			name: "retrieve system tip status of valid tip of install pmm server",
-			tipRequest: &onboardingpb.GetTipRequest{
-				TipId:   1,
-				TipType: onboardingpb.TipType_SYSTEM,
-				UserId:  1,
-			},
-			mockInvService: func() *mockInventoryService {
-				return &mockInventoryService{}
-			},
-			expectedTipResponse: &onboardingpb.GetTipResponse{
-				TipId:       1,
-				IsCompleted: true,
-			},
+			name:           "retrieve system tip status of valid tip of install pmm server",
+			tipRequest:     getDefaultOnboardingStateRequest(),
+			mockInvService: getDefaultMockService(),
 		},
 		{
-			name: "retrieve system tip status of valid tip of connected service to pmm (only one service is connected)",
-			tipRequest: &onboardingpb.GetTipRequest{
-				TipId:   3,
-				TipType: onboardingpb.TipType_SYSTEM,
-				UserId:  1,
-			},
-			mockInvService: func() *mockInventoryService {
-				service := &mockInventoryService{}
-				service.On("List", mock.Anything, models.ServiceFilters{}).
-					Return([]inventorypb.Service{
-						&inventorypb.ExternalService{},
-					}, nil)
-				return service
-			},
-			expectedTipResponse: &onboardingpb.GetTipResponse{
-				TipId:       3,
-				IsCompleted: false,
-			},
-		},
-		{
-			name: "retrieve system tip status of valid tip of connected service to pmm (only two services are connected)",
-			tipRequest: &onboardingpb.GetTipRequest{
-				TipId:   3,
-				TipType: onboardingpb.TipType_SYSTEM,
-				UserId:  1,
-			},
-			mockInvService: func() *mockInventoryService {
-				service := &mockInventoryService{}
-				service.On("List", mock.Anything, models.ServiceFilters{}).
-					Return([]inventorypb.Service{
-						&inventorypb.ExternalService{},
-						&inventorypb.ExternalService{},
-					}, nil)
-				return service
-			},
-			expectedTipResponse: &onboardingpb.GetTipResponse{
-				TipId:       3,
-				IsCompleted: true,
-			},
-		},
-		{
-			name: "retrieve system tip status of not valid tip",
-			tipRequest: &onboardingpb.GetTipRequest{
-				TipId:   20,
-				TipType: onboardingpb.TipType_SYSTEM,
-				UserId:  1,
-			},
-			mockInvService: func() *mockInventoryService {
-				service := &mockInventoryService{}
-				return service
-			},
-			expectedError: errors.New("system tip doesn't exist: 20"),
-		},
-		{
-			name: "retrieve user tip status which doesn't exist, it should be not completed by default",
-			tipRequest: &onboardingpb.GetTipRequest{
-				TipId:   2000,
-				TipType: onboardingpb.TipType_USER,
-				UserId:  1,
-			},
-			mockInvService: func() *mockInventoryService {
-				service := &mockInventoryService{}
-				return service
-			},
-			expectedTipResponse: &onboardingpb.GetTipResponse{
-				TipId:       2000,
-				IsCompleted: false,
+			name:           "retrieve system tip status of valid tip of install pmm server and connected service",
+			tipRequest:     getDefaultOnboardingStateRequest(),
+			mockInvService: getDefaultMockServiceWithConnectedTwoServices(),
+			tipResponse: func(resp *onboardingpb.GetOnboardingStatusResponse) {
+				resp.SystemTips[2].IsCompleted = true // third system tip should be completed
 			},
 		},
 	}
@@ -141,13 +70,18 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 
 			is := tt.mockInvService()
 			tipService := NewTipService(db, is)
-			status, err := tipService.GetTipStatus(ctx, tt.tipRequest)
+
+			expectedTipResponse := getDefaultResponse()
+			if tt.tipResponse != nil {
+				tt.tipResponse(expectedTipResponse)
+			}
+			status, err := tipService.GetOnboardingStatus(ctx, tt.tipRequest)
 
 			if tt.expectedError == nil {
 				require.NoError(t, err)
 
-				require.Equal(t, tt.expectedTipResponse.TipId, status.TipId)
-				require.Equal(t, tt.expectedTipResponse.IsCompleted, status.IsCompleted)
+				require.Equal(t, expectedTipResponse.UserTips, status.UserTips)
+				require.Equal(t, expectedTipResponse.SystemTips, status.SystemTips)
 			} else {
 				require.Error(t, err, tt.expectedError.Error())
 			}
@@ -155,8 +89,64 @@ func TestTipsServiceGetUserTip(t *testing.T) {
 	}
 }
 
+func getDefaultMockService() func() *mockInventoryService {
+	return func() *mockInventoryService {
+		service := &mockInventoryService{}
+		service.On("List", mock.Anything, models.ServiceFilters{}).
+			Return([]inventorypb.Service{
+				&inventorypb.ExternalService{},
+			}, nil)
+
+		return service
+	}
+}
+
+func getDefaultMockServiceWithConnectedTwoServices() func() *mockInventoryService {
+	return func() *mockInventoryService {
+		service := &mockInventoryService{}
+		service.On("List", mock.Anything, models.ServiceFilters{}).
+			Return([]inventorypb.Service{
+				&inventorypb.ExternalService{},
+				&inventorypb.ExternalService{},
+			}, nil)
+
+		return service
+	}
+}
+
+func getDefaultResponse() *onboardingpb.GetOnboardingStatusResponse {
+	return &onboardingpb.GetOnboardingStatusResponse{
+		SystemTips: []*onboardingpb.TipModel{
+			{
+				TipId:       1,
+				IsCompleted: true,
+			},
+			{
+				TipId:       2,
+				IsCompleted: false,
+			},
+			{
+				TipId:       3,
+				IsCompleted: false,
+			},
+		},
+		UserTips: []*onboardingpb.TipModel{
+			{
+				TipId:       1000,
+				IsCompleted: false,
+			},
+		},
+	}
+}
+
+func getDefaultOnboardingStateRequest() *onboardingpb.GetOnboardingStatusRequest {
+	return &onboardingpb.GetOnboardingStatusRequest{
+		UserId: 1,
+	}
+}
+
 func TestTipsServiceCompleteUserTip(t *testing.T) {
-	t.Run("complete user tip when it doesn't exist", func(t *testing.T) {
+	t.Run("return error when user tip doesn't exist", func(t *testing.T) {
 		t.Helper()
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -174,10 +164,10 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			UserId: 2,
 		})
 
-		require.NoError(t, err)
+		require.Error(t, err, "should not complete tip")
 	})
 
-	t.Run("complete user tip when it's already completed", func(t *testing.T) {
+	t.Run("should complete user tip successfully", func(t *testing.T) {
 		t.Helper()
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -186,23 +176,28 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}()
 
-		ctx := context.Background()
+		db.InTransaction(func(tx *reform.TX) error {
+			ctx := context.Background()
 
-		is := &mockInventoryService{}
-		tipService := NewTipService(db, is)
-		_, err := tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-			TipId:  2000,
-			UserId: 2,
+			is := &mockInventoryService{}
+			tipService := NewTipService(db, is)
+
+			// user tip will be added to they user_tips table once it requested by user
+			err := db.Querier.Save(&models.UserTip{
+				UserID:      2,
+				TipID:       1000,
+				IsCompleted: false,
+			})
+			require.NoError(t, err)
+
+			_, err = tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
+				TipId:  1000,
+				UserId: 2,
+			})
+
+			require.NoError(t, err)
+			return errors.New("rollback changes")
 		})
-
-		require.NoError(t, err)
-
-		_, err = tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-			TipId:  2000,
-			UserId: 2,
-		})
-
-		require.NoError(t, err)
 	})
 
 	t.Run("return error when user tries to complete system tip", func(t *testing.T) {
@@ -224,5 +219,38 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 		})
 
 		require.Error(t, err, "Tip ID is not correct, it's system tip")
+	})
+
+	t.Run("return error when user tries to user tip which is already completed", func(t *testing.T) {
+		t.Helper()
+
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		defer func() {
+			require.NoError(t, sqlDB.Close())
+		}()
+
+		db.InTransaction(func(tx *reform.TX) error {
+			ctx := context.Background()
+
+			is := &mockInventoryService{}
+			tipService := NewTipService(db, is)
+
+			// user tip will be added to they user_tips table once it requested by user
+			err := db.Querier.Save(&models.UserTip{
+				UserID:      2,
+				TipID:       1000,
+				IsCompleted: true,
+			})
+			require.NoError(t, err)
+
+			_, err = tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
+				TipId:  1000,
+				UserId: 2,
+			})
+
+			require.Error(t, err, "should not complete already completed tip")
+			return errors.New("rollback changes")
+		})
 	})
 }

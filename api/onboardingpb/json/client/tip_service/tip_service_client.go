@@ -30,7 +30,7 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CompleteUserTip(params *CompleteUserTipParams, opts ...ClientOption) (*CompleteUserTipOK, error)
 
-	GetTipStatus(params *GetTipStatusParams, opts ...ClientOption) (*GetTipStatusOK, error)
+	GetOnboardingStatus(params *GetOnboardingStatusParams, opts ...ClientOption) (*GetOnboardingStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -48,7 +48,7 @@ func (a *Client) CompleteUserTip(params *CompleteUserTipParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "CompleteUserTip",
 		Method:             "POST",
-		PathPattern:        "/v1/onboarding/tips",
+		PathPattern:        "/v1/onboarding/tips/{tipId}/complete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -75,24 +75,24 @@ func (a *Client) CompleteUserTip(params *CompleteUserTipParams, opts ...ClientOp
 }
 
 /*
-GetTipStatus gets tip details
+GetOnboardingStatus gets tip details
 
 Retrieve tip details from PMM server
 */
-func (a *Client) GetTipStatus(params *GetTipStatusParams, opts ...ClientOption) (*GetTipStatusOK, error) {
+func (a *Client) GetOnboardingStatus(params *GetOnboardingStatusParams, opts ...ClientOption) (*GetOnboardingStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetTipStatusParams()
+		params = NewGetOnboardingStatusParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "GetTipStatus",
+		ID:                 "GetOnboardingStatus",
 		Method:             "GET",
-		PathPattern:        "/v1/onboarding/tips/{tipId}/type/{tipType}/user/{userId}",
+		PathPattern:        "/v1/onboarding/{userId}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetTipStatusReader{formats: a.formats},
+		Reader:             &GetOnboardingStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -104,12 +104,12 @@ func (a *Client) GetTipStatus(params *GetTipStatusParams, opts ...ClientOption) 
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetTipStatusOK)
+	success, ok := result.(*GetOnboardingStatusOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetTipStatusDefault)
+	unexpectedSuccess := result.(*GetOnboardingStatusDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -10,86 +10,78 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type userTipTableType struct {
+type availableTipTableType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *userTipTableType) Schema() string {
+func (v *availableTipTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("user_tips").
-func (v *userTipTableType) Name() string {
+// Name returns a view or table name in SQL database ("available_tips").
+func (v *availableTipTableType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *userTipTableType) Columns() []string {
+func (v *availableTipTableType) Columns() []string {
 	return []string{
 		"id",
-		"user_id",
-		"tip_id",
-		"is_completed",
+		"type",
 		"created_at",
 		"updated_at",
 	}
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *userTipTableType) NewStruct() reform.Struct {
-	return new(UserTip)
+func (v *availableTipTableType) NewStruct() reform.Struct {
+	return new(AvailableTip)
 }
 
 // NewRecord makes a new record for that table.
-func (v *userTipTableType) NewRecord() reform.Record {
-	return new(UserTip)
+func (v *availableTipTableType) NewRecord() reform.Record {
+	return new(AvailableTip)
 }
 
 // PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *userTipTableType) PKColumnIndex() uint {
+func (v *availableTipTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// UserTipTable represents user_tips view or table in SQL database.
-var UserTipTable = &userTipTableType{
+// AvailableTipTable represents available_tips view or table in SQL database.
+var AvailableTipTable = &availableTipTableType{
 	s: parse.StructInfo{
-		Type:    "UserTip",
-		SQLName: "user_tips",
+		Type:    "AvailableTip",
+		SQLName: "available_tips",
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "int32", Column: "id"},
-			{Name: "UserID", Type: "int32", Column: "user_id"},
-			{Name: "TipID", Type: "int32", Column: "tip_id"},
-			{Name: "IsCompleted", Type: "bool", Column: "is_completed"},
+			{Name: "Type", Type: "string", Column: "type"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
 		PKFieldIndex: 0,
 	},
-	z: new(UserTip).Values(),
+	z: new(AvailableTip).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s UserTip) String() string {
-	res := make([]string, 6)
+func (s AvailableTip) String() string {
+	res := make([]string, 4)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "UserID: " + reform.Inspect(s.UserID, true)
-	res[2] = "TipID: " + reform.Inspect(s.TipID, true)
-	res[3] = "IsCompleted: " + reform.Inspect(s.IsCompleted, true)
-	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[3] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *UserTip) Values() []interface{} {
+func (s *AvailableTip) Values() []interface{} {
 	return []interface{}{
 		s.ID,
-		s.UserID,
-		s.TipID,
-		s.IsCompleted,
+		s.Type,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -97,60 +89,58 @@ func (s *UserTip) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *UserTip) Pointers() []interface{} {
+func (s *AvailableTip) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
-		&s.UserID,
-		&s.TipID,
-		&s.IsCompleted,
+		&s.Type,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}
 }
 
 // View returns View object for that struct.
-func (s *UserTip) View() reform.View {
-	return UserTipTable
+func (s *AvailableTip) View() reform.View {
+	return AvailableTipTable
 }
 
 // Table returns Table object for that record.
-func (s *UserTip) Table() reform.Table {
-	return UserTipTable
+func (s *AvailableTip) Table() reform.Table {
+	return AvailableTipTable
 }
 
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
-func (s *UserTip) PKValue() interface{} {
+func (s *AvailableTip) PKValue() interface{} {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
-func (s *UserTip) PKPointer() interface{} {
+func (s *AvailableTip) PKPointer() interface{} {
 	return &s.ID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *UserTip) HasPK() bool {
-	return s.ID != UserTipTable.z[UserTipTable.s.PKFieldIndex]
+func (s *AvailableTip) HasPK() bool {
+	return s.ID != AvailableTipTable.z[AvailableTipTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *UserTip) SetPK(pk interface{}) {
+func (s *AvailableTip) SetPK(pk interface{}) {
 	reform.SetPK(s, pk)
 }
 
 // check interfaces
 var (
-	_ reform.View   = UserTipTable
-	_ reform.Struct = (*UserTip)(nil)
-	_ reform.Table  = UserTipTable
-	_ reform.Record = (*UserTip)(nil)
-	_ fmt.Stringer  = (*UserTip)(nil)
+	_ reform.View   = AvailableTipTable
+	_ reform.Struct = (*AvailableTip)(nil)
+	_ reform.Table  = AvailableTipTable
+	_ reform.Record = (*AvailableTip)(nil)
+	_ fmt.Stringer  = (*AvailableTip)(nil)
 )
 
 func init() {
-	parse.AssertUpToDate(&UserTipTable.s, new(UserTip))
+	parse.AssertUpToDate(&AvailableTipTable.s, new(AvailableTip))
 }
