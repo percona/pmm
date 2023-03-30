@@ -112,7 +112,7 @@ func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{}
+		vmParams := &models.VictoriaMetricsParams{URL: models.VMBaseURL}
 
 		s := New("/etc/supervisord.d", checker, vmParams, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
