@@ -22,7 +22,15 @@ import (
 )
 
 func TestPrepareQueryWithDatabaseTableName(t *testing.T) {
-	assert.Equal(t, "SHOW /* pmm-agent */ INDEX IN `db`.`table`", prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "db.table"))
-	assert.Equal(t, "SHOW /* pmm-agent */ INDEX IN \"`db`.`table`\"", prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`db.table`"))
-	assert.Equal(t, "SHOW /* pmm-agent */ INDEX IN \"`db`.`table`\"", prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`db`.`table`"))
+	expected := "SHOW /* pmm-agent */ INDEX IN `table`"
+	assert.Equal(t, expected, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "table"))
+	assert.Equal(t, expected, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`table`"))
+	assert.Equal(t, expected, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "\"table\""))
+
+	expectedWithDB := "SHOW /* pmm-agent */ INDEX IN `db`.`table`"
+	assert.Equal(t, expectedWithDB, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "db.table"))
+	assert.Equal(t, expectedWithDB, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`db.table`"))
+	assert.Equal(t, expectedWithDB, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "`db`.`table`"))
+	assert.Equal(t, expectedWithDB, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "\"db.table\""))
+	assert.Equal(t, expectedWithDB, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", "\"db\".\"table\""))
 }

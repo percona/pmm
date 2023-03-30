@@ -106,11 +106,11 @@ func parseRealTableName(query string) string {
 
 func prepareQueryWithDatabaseTableName(query, name string) string {
 	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	q := fmt.Sprintf("%s %#q", query, name)
-
-	if strings.Index(q, "`.`") > -1 {
-		return q
+	fmt.Printf("%#q\n", prepareRealTableName(name))
+	q := fmt.Sprintf("%s %#q", query, prepareRealTableName(name))
+	if strings.Index(q, ".") > -1 {
+		// handle case when there is table name together with database name
+		q = strings.ReplaceAll(q, ".", "`.`")
 	}
-	// handle case when there is table name together with database name
-	return strings.ReplaceAll(q, ".", "`.`")
+	return q
 }
