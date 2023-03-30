@@ -78,14 +78,14 @@ func TestDMLToSelect(t *testing.T) {
 	assert.Equal(t, "SELECT * FROM `tabla-1` LIMIT 1", q)
 
 	q, c = dmlToSelect(`UPDATE
-employees2
+  employees2
 SET
-first_name = 'Joe',
-emp_no = 10
+  first_name = 'Joe',
+  emp_no = 10
 WHERE
-emp_no = 3`)
+  emp_no = 3`)
 	assert.True(t, c)
-	assert.Equal(t, "SELECT first_name = 'Joe', emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
+	assert.Equal(t, "SELECT first_name = 'Joe',   emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
 
 	q, c = dmlToSelect(`UPDATE employees2 SET first_name = 'Joe', emp_no = 10 WHERE emp_no = 3`)
 	assert.True(t, c)
