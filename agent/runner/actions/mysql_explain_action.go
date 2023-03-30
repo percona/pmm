@@ -73,13 +73,19 @@ func (a *mysqlExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+	// Workaround for bug in our MySQL parser if there is keyword "IN" in query.
+	// TODO In future it should be fixed on parser side.
+	a.params.Query = strings.ReplaceAll(a.params.Query, "...", "?")
+
+	// Explain is supported only for DML queries.
+	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
+	if !isDMLQuery(a.params.Query) {
+		return nil, fmt.Errorf("EXPLAIN functionality is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE")
+	}
+
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
-	query := a.params.Query
-	isDMLQuery := isDMLQuery(query)
-	if isDMLQuery {
-		query = dmlToSelect(query)
-	}
+	query, changedToSelect := dmlToSelect(a.params.Query)
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
 	if err != nil {
 		return nil, err
@@ -97,7 +103,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	response := explainResponse{
 		Query:      query,
-		IsDMLQuery: isDMLQuery,
+		IsDMLQuery: changedToSelect,
 	}
 
 	switch a.params.OutputFormat {
@@ -166,6 +172,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 	if err = w.Flush(); err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }
 
