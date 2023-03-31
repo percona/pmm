@@ -222,9 +222,13 @@ func (b *Base) extractTarball(tarPath, targetDir string) error {
 			return err
 		}
 
-		hdrPath := path.Join(targetDir, hdr.Name)
+		hdrPath := path.Join(targetDir, hdr.Name) //nolint:gosec
 
 		abs, err := filepath.Abs(hdrPath)
+		if err != nil {
+			return err
+		}
+
 		if !strings.HasPrefix(abs, targetDir) {
 			return fmt.Errorf("failed to extract %s file as it has relative path", hdr.Name)
 		}
@@ -240,7 +244,7 @@ func (b *Base) extractTarball(tarPath, targetDir string) error {
 		case tar.TypeReg:
 			logrus.Infof("Extracting file: %s", hdr.Name)
 
-			w, err := os.OpenFile(hdrPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
+			w, err := os.OpenFile(hdrPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode)) //nolint:gosec
 			if err != nil {
 				return err
 			}
