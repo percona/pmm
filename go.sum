@@ -1207,8 +1207,8 @@ github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
 github.com/operator-framework/api v0.17.3 h1:wddE1SLKTNiIzwt28DbBIO+vPG2GOV6dkB9xBkDfT3o=
 github.com/operator-framework/api v0.17.3/go.mod h1:34tb98EwTN5SZLkgoxwvRkhMJKLHUWHOrrcv1ZwvEeA=
-github.com/operator-framework/operator-lifecycle-manager v0.23.1 h1:Xw2ml1T4W2ieoFaVwanW/eFlZ11yAOJZUpUI8RLSql8=
-github.com/operator-framework/operator-lifecycle-manager v0.23.1/go.mod h1:q/QgVi/WooEyOFw8ipQrb2A/InjM4djCwPf7IlCpSOQ=
+github.com/operator-framework/operator-lifecycle-manager v0.24.0 h1:9LOfvyohGEkNHwcOGOgw+w3ZAnGeT6JVh3CvIbWpnus=
+github.com/operator-framework/operator-lifecycle-manager v0.24.0/go.mod h1:2zDUxcpW2idTLjRw36WlMetHZ50Nlf1C3JxASPfYS20=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pascaldekloe/goe v0.1.0 h1:cBOtyMzM9HTpWjXfbbunk26uA6nG3a8n06Wieeh0MwY=
 github.com/pascaldekloe/goe v0.1.0/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
