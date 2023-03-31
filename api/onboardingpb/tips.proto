@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package onboardingpb;
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
