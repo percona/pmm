@@ -32,8 +32,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/managed/models"
 )
 
 // rules maps original URL prefix to minimal required role.
@@ -145,14 +143,6 @@ type clientInterface interface {
 	getUserTeams(ctx context.Context, authHeaders http.Header) ([]int, error)
 }
 
-type defaultRoleAssigner interface {
-	AssignDefaultRole(tx *reform.TX, userID int) error
-}
-
-type userRolesGetter interface {
-	GetUserRoles(q *reform.Querier, userID int, teamIDs []int) ([]models.Role, error)
-}
-
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	c       clientInterface
@@ -249,11 +239,13 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	var userID int
+	var teamIDs []int
 	if authUser != nil {
 		userID = authUser.userID
+		teamIDs = authUser.teamIDs
 	}
 
-	if err := s.maybeAddVMProxyFilters(ctx, rw, req, userID, l); err != nil {
+	if err := s.maybeAddVMProxyFilters(ctx, rw, req, userID, teamIDs, l); err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
@@ -281,13 +273,16 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 
 // maybeAddVMProxyFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
-func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+func (s *AuthServer) maybeAddVMProxyFilters(
+	ctx context.Context, rw http.ResponseWriter, req *http.Request,
+	userID int, teamIDs []int, l *logrus.Entry,
+) error {
 	if !s.shallAddVMProxyFilters(req) {
 		return nil
 	}
 
 	var authUser *authUser
-	if userID == 0 {
+	if userID == 0 || teamIDs == nil {
 		l.Debugf("Getting authenticated user info")
 		var err *authError
 		authUser, err = s.getAuthUser(ctx, req, l, true)
@@ -300,13 +295,14 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		}
 
 		userID = authUser.userID
+		teamIDs = authUser.teamIDs
 	}
 
-	if authUser == nil || userID <= 0 {
+	if userID <= 0 || teamIDs == nil {
 		return ErrInvalidUserID
 	}
 
-	filters, err := s.getFiltersForVMProxy(userID, authUser.teamIDs)
+	filters, err := s.getFiltersForVMProxy(userID, teamIDs)
 	if err != nil {
 		return err
 	}

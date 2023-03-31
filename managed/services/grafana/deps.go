@@ -15,10 +15,25 @@
 
 package grafana
 
+import (
+	"github.com/percona/pmm/managed/models"
+	"gopkg.in/reform.v1"
+)
+
 //go:generate ../../../bin/mockery -name=awsInstanceChecker -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=defaultRoleAssigner -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=userRolesGetter -case=snake -inpkg -testonly
 
 // checker is a subset of methods of server.AWSInstanceChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type awsInstanceChecker interface {
 	MustCheck() bool
+}
+
+type defaultRoleAssigner interface {
+	AssignDefaultRole(tx *reform.TX, userID int) error
+}
+
+type userRolesGetter interface {
+	GetUserRoles(q *reform.Querier, userID int, teamIDs []int) ([]models.Role, error)
 }

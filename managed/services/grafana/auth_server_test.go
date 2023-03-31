@@ -29,17 +29,29 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/management/roles"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+func setupRoleRegistry(t *testing.T) (*mockDefaultRoleAssigner, *mockUserRolesGetter) {
+	dra := &mockDefaultRoleAssigner{}
+	dra.Test(t)
+	t.Cleanup(func() { dra.AssertExpectations(t) })
+
+	urg := &mockUserRolesGetter{}
+	urg.Test(t)
+	t.Cleanup(func() { urg.AssertExpectations(t) })
+
+	return dra, urg
+}
 
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{
@@ -72,12 +84,8 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-				return &models.UserRoles{}
-			}, models.UserRolesView),
-		})
-		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
+		dra, urg := setupRoleRegistry(t)
+		s := NewAuthServer(nil, checker, nil, dra, urg)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -120,12 +128,8 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-				return &models.UserRoles{}
-			}, models.UserRolesView),
-		})
-		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
+		dra, urg := setupRoleRegistry(t)
+		s := NewAuthServer(nil, checker, nil, dra, urg)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -151,12 +155,8 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-			roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-				return &models.UserRoles{}
-			}, models.UserRolesView),
-		})
-		s := NewAuthServer(nil, checker, nil, roleRegistry, roleRegistry)
+		dra, urg := setupRoleRegistry(t)
+		s := NewAuthServer(nil, checker, nil, dra, urg)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -184,12 +184,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 
-	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-			return &models.UserRoles{}
-		}, models.UserRolesView),
-	})
-	s := NewAuthServer(c, checker, nil, roleRegistry, roleRegistry)
+	dra, urg := setupRoleRegistry(t)
+	s := NewAuthServer(c, checker, nil, dra, urg)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
@@ -306,12 +302,9 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	defer checker.AssertExpectations(t)
 
 	c := NewClient("127.0.0.1:3000")
-	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-			return &models.UserRoles{}
-		}, models.UserRolesView),
-	})
-	s := NewAuthServer(c, &checker, db, roleRegistry, roleRegistry)
+
+	dra, urg := setupRoleRegistry(t)
+	s := NewAuthServer(c, &checker, db, dra, urg)
 
 	var roleA models.Role
 	roleA.Title = "Role A"
@@ -331,15 +324,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	for userID, roleIDs := range map[int][]int{
-		1337: {int(roleA.ID)},
-		1338: {int(roleA.ID), int(roleB.ID)},
-		1:    {int(roleA.ID)},
+	for userID, r := range map[int][]models.Role{
+		1337: {roleA},
+		1338: {roleA, roleB},
+		1:    {roleA},
 	} {
-		err := db.InTransaction(func(tx *reform.TX) error {
-			return roleRegistry.AssignRoles(tx, roles.EntityUser, userID, roleIDs)
-		})
-		require.NoError(t, err)
+		urg.On("GetUserRoles", mock.Anything, userID, mock.Anything).Return(r, nil)
 	}
 
 	t.Run("shall properly evaluate adding filters", func(t *testing.T) {
@@ -364,7 +354,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 						req.SetBasicAuth("admin", "admin")
 					}
 
-					err = s.maybeAddVMProxyFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					err = s.maybeAddVMProxyFilters(ctx, rw, req, userID, []int{}, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
 					headerString := rw.Header().Get(vmProxyHeaderName)
@@ -385,7 +375,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, []int{}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		headerString := rw.Header().Get(vmProxyHeaderName)
