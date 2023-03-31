@@ -839,21 +839,20 @@ var databaseSchema = [][]string{
         WHERE service_type = 'mongodb';`,
 	},
 	79: {
-		`CREATE TABLE onboarding_tips (
-			id SERIAL PRIMARY KEY,
-			type VARCHAR NOT NULL,
-		
-			created_at TIMESTAMP NOT NULL,
-			updated_at TIMESTAMP NOT NULL
-		);
-		
-		CREATE TABLE onboarding_system_tips (
-			 id SERIAL PRIMARY KEY,
+		`CREATE TABLE onboarding_system_tips (
+			 id INTEGER PRIMARY KEY,
 			 is_completed BOOLEAN NOT NULL,
 		
 			 created_at TIMESTAMP NOT NULL,
 			 updated_at TIMESTAMP NOT NULL
 		);
+
+		INSERT INTO onboarding_system_tips(
+			id, is_completed, created_at, updated_at
+		) VALUES
+			(1, false, current_timestamp, current_timestamp),
+			(2, false, current_timestamp, current_timestamp),
+			(3, false, current_timestamp, current_timestamp);
 		
 		CREATE TABLE onboarding_user_tips (
 		   id SERIAL PRIMARY KEY,
@@ -865,21 +864,6 @@ var databaseSchema = [][]string{
 		   updated_at TIMESTAMP NOT NULL,
 		   UNIQUE (user_id, tip_id)
 		);
-		
-		INSERT INTO onboarding_tips (
-			id, type, created_at, updated_at
-		) VALUES
-			(1, 'system', current_timestamp, current_timestamp),
-			(2, 'system', current_timestamp, current_timestamp),
-			(3, 'system', current_timestamp, current_timestamp),
-			(1000, 'user', current_timestamp, current_timestamp);
-		
-		INSERT INTO onboarding_system_tips(
-			id, is_completed, created_at, updated_at
-		) VALUES
-			(1, false, current_timestamp, current_timestamp),
-			(2, false, current_timestamp, current_timestamp),
-			(3, false, current_timestamp, current_timestamp);
 		`,
 	},
 }
