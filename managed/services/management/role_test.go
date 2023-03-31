@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -50,27 +51,30 @@ func TestRoleService(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}(t)
 
-	roleRegistry := roles.NewRegistry(map[roles.EntityType]roles.EntityService{
-		roles.EntityUser: roles.NewUser("user_id", func() roles.EntityModel {
-			return &models.UserRoles{}
-		}, models.UserRolesView),
-		roles.EntityTeam: roles.NewGeneric("team_id", func() roles.EntityModel {
-			return &models.TeamRoles{}
-		}, models.TeamRolesView),
-	})
-	s := NewRoleService(db, roleRegistry)
-	teardown := func(t *testing.T) {
+	setup := func(t *testing.T) (*RoleService, *mockRoleRegistry, func(t *testing.T)) {
 		t.Helper()
 
-		_, err := db.Querier.DeleteFrom(models.RoleTable, "")
-		require.NoError(t, err)
-		_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
-		require.NoError(t, err)
+		roleRegistry := &mockRoleRegistry{}
+		roleRegistry.Test(t)
+		t.Cleanup(func() { roleRegistry.AssertExpectations(t) })
+
+		s := NewRoleService(db, roleRegistry)
+		teardown := func(t *testing.T) {
+			t.Helper()
+
+			_, err := db.Querier.DeleteFrom(models.RoleTable, "")
+			require.NoError(t, err)
+			_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
+			require.NoError(t, err)
+		}
+
+		return s, roleRegistry, teardown
 	}
 
 	//nolint:paralleltest
 	t.Run("Create role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			res, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
@@ -85,6 +89,7 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Update role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
@@ -103,6 +108,7 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -119,9 +125,12 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Delete role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, rr, teardown := setup(t)
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
+
+			rr.On("BeforeDeleteRole", mock.Anything, int(roleID), 0).Return(nil)
 
 			_, err := s.DeleteRole(ctx, &rolev1beta1.DeleteRoleRequest{RoleId: roleID})
 			require.NoError(t, err)
@@ -133,6 +142,7 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -145,6 +155,7 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Get role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			_, roleID := createDummyRoles(ctx, t, s)
@@ -155,6 +166,7 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -167,6 +179,7 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("List roles", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -181,9 +194,13 @@ func TestRoleService(t *testing.T) {
 	t.Run("Assign role", func(t *testing.T) {
 		t.Run("User", func(t *testing.T) {
 			t.Run("Shall assign one role", func(t *testing.T) {
+				s, rr, teardown := setup(t)
 				defer teardown(t)
 
 				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				rr.On("AssignRoles", mock.Anything, roles.EntityUser, 1337, []int{int(roleIDA)}).Return(nil)
+				rr.On("AssignRoles", mock.Anything, roles.EntityUser, 1338, []int{int(roleIDB)}).Return(nil)
 
 				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 					RoleIds:    []uint32{roleIDA},
@@ -198,17 +215,15 @@ func TestRoleService(t *testing.T) {
 					EntityType: rolev1beta1.EntityType_USER,
 				})
 				require.NoError(t, err)
-
-				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337, nil)
-				require.NoError(t, err)
-				assert.Equal(t, len(roles), 1)
-				assert.Equal(t, roles[0].ID, roleIDA)
 			})
 
 			t.Run("Shall assign multiple roles", func(t *testing.T) {
+				s, rr, teardown := setup(t)
 				defer teardown(t)
 
 				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				rr.On("AssignRoles", mock.Anything, roles.EntityUser, 1337, []int{int(roleIDA), int(roleIDB)}).Return(nil)
 
 				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 					RoleIds:    []uint32{roleIDA, roleIDB},
@@ -216,20 +231,18 @@ func TestRoleService(t *testing.T) {
 					EntityType: rolev1beta1.EntityType_USER,
 				})
 				require.NoError(t, err)
-
-				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 1337, nil)
-				require.NoError(t, err)
-				assert.Equal(t, len(roles), 2)
-				assert.Equal(t, roles[0].ID, roleIDA)
-				assert.Equal(t, roles[1].ID, roleIDB)
 			})
 		})
 
 		t.Run("Team", func(t *testing.T) {
 			t.Run("Shall assign one role", func(t *testing.T) {
+				s, rr, teardown := setup(t)
 				defer teardown(t)
 
 				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				rr.On("AssignRoles", mock.Anything, roles.EntityTeam, 1337, []int{int(roleIDA)}).Return(nil)
+				rr.On("AssignRoles", mock.Anything, roles.EntityTeam, 1338, []int{int(roleIDB)}).Return(nil)
 
 				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 					RoleIds:    []uint32{roleIDA},
@@ -244,17 +257,15 @@ func TestRoleService(t *testing.T) {
 					EntityType: rolev1beta1.EntityType_TEAM,
 				})
 				require.NoError(t, err)
-
-				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 0, []int{1337})
-				require.NoError(t, err)
-				assert.Equal(t, len(roles), 1)
-				assert.Equal(t, roles[0].ID, roleIDA)
 			})
 
 			t.Run("Shall assign multiple roles", func(t *testing.T) {
+				s, rr, teardown := setup(t)
 				defer teardown(t)
 
 				roleIDA, roleIDB := createDummyRoles(ctx, t, s)
+
+				rr.On("AssignRoles", mock.Anything, roles.EntityTeam, 1337, []int{int(roleIDA), int(roleIDB)}).Return(nil)
 
 				_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 					RoleIds:    []uint32{roleIDA, roleIDB},
@@ -262,19 +273,16 @@ func TestRoleService(t *testing.T) {
 					EntityType: rolev1beta1.EntityType_TEAM,
 				})
 				require.NoError(t, err)
-
-				roles, err := s.roleRegistry.GetUserRoles(db.Querier, 0, []int{1337})
-				require.NoError(t, err)
-				assert.Equal(t, len(roles), 2)
-				assert.Equal(t, roles[0].ID, roleIDA)
-				assert.Equal(t, roles[1].ID, roleIDB)
 			})
 		})
 
 		t.Run("Shall return not found for non-existent role", func(t *testing.T) {
+			s, rr, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
+
+			rr.On("AssignRoles", mock.Anything, roles.EntityUser, 1337, []int{0}).Return(models.ErrRoleNotFound)
 
 			_, err := s.AssignRoles(ctx, &rolev1beta1.AssignRolesRequest{
 				RoleIds:    []uint32{0},
@@ -287,6 +295,7 @@ func TestRoleService(t *testing.T) {
 
 	t.Run("Set default role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 			settings, err := models.GetSettings(db)
 			require.NoError(t, err)
@@ -305,6 +314,7 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
+			s, _, teardown := setup(t)
 			defer teardown(t)
 			_, err := s.SetDefaultRole(ctx, &rolev1beta1.SetDefaultRoleRequest{
 				RoleId: 1337,

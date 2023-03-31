@@ -36,13 +36,13 @@ var ErrInvalidRoleData = errors.New("InvalidRoleData")
 // RoleService represents service for working with roles.
 type RoleService struct {
 	db           *reform.DB
-	roleRegistry *roles.Registry
+	roleRegistry roleRegistry
 
 	rolev1beta1.UnimplementedRoleServer
 }
 
 // NewRoleService creates a RoleService instance.
-func NewRoleService(db *reform.DB, roleRegistry *roles.Registry) *RoleService {
+func NewRoleService(db *reform.DB, roleRegistry roleRegistry) *RoleService {
 	//nolint:exhaustruct
 	return &RoleService{
 		db:           db,

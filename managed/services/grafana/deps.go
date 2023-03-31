@@ -16,8 +16,9 @@
 package grafana
 
 import (
-	"github.com/percona/pmm/managed/models"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 //go:generate ../../../bin/mockery -name=awsInstanceChecker -case=snake -inpkg -testonly

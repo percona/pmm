@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management/roles"
 )
 
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
@@ -34,6 +35,7 @@ import (
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=roleRegistry -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -75,6 +77,11 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
+}
+
+type roleRegistry interface {
+	AssignRoles(tx *reform.TX, entityType roles.EntityType, entityID int, roleIDs []int) error
+	BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.

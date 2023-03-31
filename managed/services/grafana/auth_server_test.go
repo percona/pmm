@@ -42,6 +42,8 @@ import (
 )
 
 func setupRoleRegistry(t *testing.T) (*mockDefaultRoleAssigner, *mockUserRolesGetter) {
+	t.Helper()
+
 	dra := &mockDefaultRoleAssigner{}
 	dra.Test(t)
 	t.Cleanup(func() { dra.AssertExpectations(t) })

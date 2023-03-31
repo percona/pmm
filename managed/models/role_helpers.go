@@ -29,7 +29,7 @@ var (
 	ErrRoleIsDefaultRole = fmt.Errorf("RoleIsDefaultRole")
 )
 
-type RoleBeforeDeleter interface {
+type roleBeforeDeleter interface {
 	BeforeDeleteRole(tx *reform.TX, roleID, newRoleID int) error
 }
 
@@ -43,7 +43,7 @@ func CreateRole(q *reform.Querier, role *Role) error {
 }
 
 // DeleteRole deletes a role, if possible.
-func DeleteRole(tx *reform.TX, beforeDelete RoleBeforeDeleter, roleID, replacementRoleID int) error {
+func DeleteRole(tx *reform.TX, beforeDelete roleBeforeDeleter, roleID, replacementRoleID int) error {
 	q := tx.Querier
 
 	var role Role
