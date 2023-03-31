@@ -32,7 +32,6 @@ import (
 )
 
 func TestGetOnboardingStatus(t *testing.T) {
-
 	tests := []struct {
 		name           string
 		tipRequest     *onboardingpb.GetOnboardingStatusRequest

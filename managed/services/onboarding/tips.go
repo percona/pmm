@@ -197,7 +197,6 @@ func (t *TipsService) retrieveUserTips(userID int32) ([]*onboardingpb.TipModel, 
 		}
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
