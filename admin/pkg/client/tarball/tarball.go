@@ -83,11 +83,17 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	logrus.Infof("Extracting tarball %s", tarPath)
-	if err := b.extractTarball(tarPath); err != nil {
+	dir, err := os.MkdirTemp("", "pmm-client")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(dir)
+
+	if err := b.extractTarball(tarPath, dir); err != nil {
 		return err
 	}
 
-	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))
+	extractedPath := path.Join(dir, fmt.Sprintf("pmm2-client-%s", b.Version))
 	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
 	if err := b.installTarball(ctx, extractedPath); err != nil {
@@ -189,17 +195,13 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 	return nil
 }
 
-func (b *Base) extractTarball(tarPath string) error {
-	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", b.Version))); err != nil {
-		return err
-	}
-
-	readFile, err := os.Open(filepath.Clean(tarPath))
+func (b *Base) extractTarball(tarPath, targetDir string) error {
+	readFile, err := os.Open(tarPath) //nolint:gosec
 	if err != nil {
 		return err
 	}
 
-	defer readFile.Close()
+	defer readFile.Close() //nolint:gosec
 
 	reader, err := gzip.NewReader(readFile)
 	if err != nil {
@@ -220,29 +222,31 @@ func (b *Base) extractTarball(tarPath string) error {
 			return err
 		}
 
-		hrdPath := path.Join(os.TempDir(), hdr.Name)
+		hdrPath := path.Join(targetDir, hdr.Name)
+
+		abs, err := filepath.Abs(hdrPath)
+		if !strings.HasPrefix(abs, targetDir) {
+			return fmt.Errorf("failed to extract %s file as it has relative path", hdr.Name)
+		}
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
 			logrus.Infof("Creating dir:    %s", hdr.Name)
 
-			err = os.MkdirAll(hrdPath, os.FileMode(hdr.Mode))
+			err = os.MkdirAll(hdrPath, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
 		case tar.TypeReg:
 			logrus.Infof("Extracting file: %s", hdr.Name)
 
-			w, err := os.OpenFile(filepath.Clean(hrdPath), os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
+			w, err := os.OpenFile(hdrPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
 
-			_, err = io.CopyN(w, tarReader, 1024)
+			_, err = io.Copy(w, tarReader)
 			if err != nil {
-				if err == io.EOF {
-					break
-				}
 				return err
 			}
 
