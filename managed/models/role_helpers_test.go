@@ -18,6 +18,7 @@ package models_test
 import (
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -86,8 +87,8 @@ func TestRoleHelpers(t *testing.T) {
 		require.NoError(t, models.DeleteRole(tx, &noOpBeforeDelete{}, int(role.ID), 0))
 
 		var r models.Role
-		require.NoError(t, models.FindAndLockRole(tx, int(role.ID), &r))
-		require.Equal(t, 0, r.ID)
+		err := models.FindAndLockRole(tx, int(role.ID), &r)
+		require.True(t, errors.Is(err, models.ErrRoleNotFound))
 	})
 
 	//nolint:paralleltest
