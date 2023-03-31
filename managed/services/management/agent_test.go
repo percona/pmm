@@ -66,6 +66,11 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 
 func TestAgentService(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
+		const (
+			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
+			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
+		)
+
 		t.Run("Basic", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
@@ -75,9 +80,9 @@ func TestAgentService(t *testing.T) {
 			assert.Len(t, services, 1)
 			service := services[0]
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()                           // PMM Server Agent
-			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000003").Return(false).Once() // PMM Server PostgreSQL exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000004").Return(false).Once() // PMM Server PG Stat Statements agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
@@ -122,8 +127,8 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false) // MySQLd exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false)    // RDS exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()    // RDS exporter
 
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
@@ -169,8 +174,8 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false) // MySQLd exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false)  // Azure exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()  // Azure exporter
 
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
