@@ -370,6 +370,18 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	})
 
 	//nolint:paralleltest
+	t.Run("shall properly retrieve teams when not provided", func(t *testing.T) {
+		rw := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
+		require.NoError(t, err)
+
+		req.SetBasicAuth("admin", "admin")
+
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, nil, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+	})
+
+	//nolint:paralleltest
 	t.Run("shall be a valid JSON array", func(t *testing.T) {
 		rw := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)

@@ -287,11 +287,11 @@ func (s *AuthServer) maybeAddVMProxyFilters(
 		var err *authError
 		authUser, err = s.getAuthUser(ctx, req, l, true)
 		if err != nil {
-			return ErrCannotGetUserID
+			return errors.Errorf("%w\n%w", ErrCannotGetUserID, err)
 		}
 
 		if authUser == nil {
-			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
+			return errors.Errorf("%w: user is empty", ErrCannotGetUserID)
 		}
 
 		userID = authUser.userID
