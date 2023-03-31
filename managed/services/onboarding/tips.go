@@ -98,7 +98,7 @@ func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
 		}
 	}
 
-	var res []*onboardingpb.TipModel
+	res := make([]*onboardingpb.TipModel, len(tips))
 	for _, tip := range tips {
 		res = append(res, &onboardingpb.TipModel{
 			TipId:       tip.ID,
