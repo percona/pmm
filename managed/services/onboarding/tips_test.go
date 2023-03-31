@@ -42,12 +42,12 @@ func TestGetOnboardingStatus(t *testing.T) {
 	}{
 		{
 			name:           "retrieve system tip status of valid tip of install pmm server",
-			tipRequest:     getDefaultOnboardingStateRequest(),
+			tipRequest:     &onboardingpb.GetOnboardingStatusRequest{},
 			mockInvService: getDefaultMockService(),
 		},
 		{
 			name:           "retrieve system tip status of valid tip of install pmm server and connected service",
-			tipRequest:     getDefaultOnboardingStateRequest(),
+			tipRequest:     &onboardingpb.GetOnboardingStatusRequest{},
 			mockInvService: getDefaultMockServiceWithConnectedTwoServices(),
 			tipResponse: func(resp *onboardingpb.GetOnboardingStatusResponse) {
 				resp.SystemTips[2].IsCompleted = true // third system tip should be completed
@@ -67,8 +67,12 @@ func TestGetOnboardingStatus(t *testing.T) {
 
 			ctx := context.Background()
 
+			c := &mockGrafanaClient{}
+			c.On("GetUserID", mock.Anything).
+				Return(1, nil)
+
 			is := tt.mockInvService()
-			tipService := NewTipService(db, is)
+			tipService := NewTipService(db, is, c)
 
 			expectedTipResponse := getDefaultResponse()
 			if tt.tipResponse != nil {
@@ -138,12 +142,6 @@ func getDefaultResponse() *onboardingpb.GetOnboardingStatusResponse {
 	}
 }
 
-func getDefaultOnboardingStateRequest() *onboardingpb.GetOnboardingStatusRequest {
-	return &onboardingpb.GetOnboardingStatusRequest{
-		UserId: 1,
-	}
-}
-
 func TestTipsServiceCompleteUserTip(t *testing.T) {
 	t.Run("return error when user tip doesn't exist", func(t *testing.T) {
 		t.Helper()
@@ -156,11 +154,14 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		ctx := context.Background()
 
+		c := &mockGrafanaClient{}
+		c.On("GetUserID", mock.Anything).
+			Return(2, nil)
+
 		is := &mockInventoryService{}
-		tipService := NewTipService(db, is)
+		tipService := NewTipService(db, is, c)
 		_, err := tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-			TipId:  2000,
-			UserId: 2,
+			TipId: 2000,
 		})
 
 		require.Error(t, err, "should not complete tip")
@@ -178,20 +179,15 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 		db.InTransaction(func(tx *reform.TX) error {
 			ctx := context.Background()
 
+			c := &mockGrafanaClient{}
+			c.On("GetUserID", mock.Anything).
+				Return(2, nil)
+
 			is := &mockInventoryService{}
-			tipService := NewTipService(db, is)
+			tipService := NewTipService(db, is, c)
 
-			// user tip will be added to they user_tips table once it requested by user
-			err := db.Querier.Save(&models.OnboardingUserTip{
-				UserID:      2,
-				TipID:       1000,
-				IsCompleted: false,
-			})
-			require.NoError(t, err)
-
-			_, err = tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-				TipId:  1000,
-				UserId: 2,
+			_, err := tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
+				TipId: 1000,
 			})
 
 			require.NoError(t, err)
@@ -210,11 +206,14 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		ctx := context.Background()
 
+		c := &mockGrafanaClient{}
+		c.On("GetUserID", mock.Anything).
+			Return(2, nil)
+
 		is := &mockInventoryService{}
-		tipService := NewTipService(db, is)
+		tipService := NewTipService(db, is, c)
 		_, err := tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-			TipId:  1,
-			UserId: 2,
+			TipId: 1,
 		})
 
 		require.Error(t, err, "Tip ID is not correct, it's system tip")
@@ -232,8 +231,12 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 		db.InTransaction(func(tx *reform.TX) error {
 			ctx := context.Background()
 
+			c := &mockGrafanaClient{}
+			c.On("GetUserID", mock.Anything).
+				Return(2, nil)
+
 			is := &mockInventoryService{}
-			tipService := NewTipService(db, is)
+			tipService := NewTipService(db, is, c)
 
 			// user tip will be added to they user_tips table once it requested by user
 			err := db.Querier.Save(&models.OnboardingUserTip{
@@ -244,8 +247,7 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			require.NoError(t, err)
 
 			_, err = tipService.CompleteUserTip(ctx, &onboardingpb.CompleteUserTipRequest{
-				TipId:  1000,
-				UserId: 2,
+				TipId: 1000,
 			})
 
 			require.Error(t, err, "should not complete already completed tip")

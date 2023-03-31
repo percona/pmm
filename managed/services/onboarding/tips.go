@@ -40,37 +40,44 @@ const (
 type TipsService struct {
 	db               *reform.DB
 	inventoryService inventoryService
+	c                grafanaClient
 
-	systemTipIDs map[int32]struct{}
-	userTipIDs   map[int32]struct{}
+	systemTipIDs map[int64]struct{}
+	userTipIDs   map[int64]struct{}
 
 	onboardingpb.UnimplementedTipServiceServer
 }
 
 var _ onboardingpb.TipServiceServer = (*TipsService)(nil)
 
-func NewTipService(db *reform.DB, inventoryService inventoryService) *TipsService {
+func NewTipService(db *reform.DB, inventoryService inventoryService, client grafanaClient) *TipsService {
 	return &TipsService{
 		db:               db,
 		inventoryService: inventoryService,
-		systemTipIDs: map[int32]struct{}{
+		c:                client,
+		systemTipIDs: map[int64]struct{}{
 			InstallPMMServerTipID:    {},
 			InstallPMMClientTipID:    {},
 			ConnectServiceToPMMTipID: {},
 		},
-		userTipIDs: map[int32]struct{}{
+		userTipIDs: map[int64]struct{}{
 			SeeYourNewAdvisorsTipID: {},
 		},
 	}
 }
 
-func (t *TipsService) GetOnboardingStatus(ctx context.Context, tipRequest *onboardingpb.GetOnboardingStatusRequest) (*onboardingpb.GetOnboardingStatusResponse, error) {
+func (t *TipsService) GetOnboardingStatus(ctx context.Context, _ *onboardingpb.GetOnboardingStatusRequest) (*onboardingpb.GetOnboardingStatusResponse, error) {
+	userID, err := t.c.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	systemTips, err := t.retrieveSystemTips()
 	if err != nil {
 		return nil, err
 	}
 
-	userTips, err := t.retrieveUserTips(tipRequest.UserId)
+	userTips, err := t.retrieveUserTips(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +123,7 @@ func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
 	return res, nil
 }
 
-func (t *TipsService) isSystemTipCompleted(tipID int32) (bool, error) {
+func (t *TipsService) isSystemTipCompleted(tipID int64) (bool, error) {
 	switch tipID {
 	case InstallPMMServerTipID:
 		return true, nil
@@ -170,11 +177,11 @@ func (t *TipsService) isAnyServiceConnected() (bool, error) {
 	return len(list) >= 2, nil
 }
 
-func (t *TipsService) retrieveUserTips(userID int32) ([]*onboardingpb.TipModel, error) {
+func (t *TipsService) retrieveUserTips(userID int) ([]*onboardingpb.TipModel, error) {
 	var res []*onboardingpb.TipModel
 	err := t.db.InTransaction(func(tx *reform.TX) error {
-		for userTipID := range t.userTipIDs {
-			retrievedUser, err := t.retrieveOrCreateUserTip(tx, userTipID, userID)
+		for tipID := range t.userTipIDs {
+			retrievedUser, err := t.retrieveOrCreateUserTip(tx, userID, tipID)
 			if err != nil {
 				return err
 			}
@@ -191,11 +198,11 @@ func (t *TipsService) retrieveUserTips(userID int32) ([]*onboardingpb.TipModel, 
 	return res, nil
 }
 
-func (t *TipsService) retrieveOrCreateUserTip(tx *reform.TX, userTipID int32, userID int32) (*models.OnboardingUserTip, error) {
-	retrievedUserTip, err := t.retrieveUserTip(tx, userTipID, userID)
+func (t *TipsService) retrieveOrCreateUserTip(tx *reform.TX, userID int, tipID int64) (*models.OnboardingUserTip, error) {
+	retrievedUserTip, err := t.retrieveUserTip(tx, userID, tipID)
 	if err != nil {
 		if err == reform.ErrNoRows {
-			retrievedUserTip, err = t.createUserTip(tx, userTipID, userID)
+			retrievedUserTip, err = t.createUserTip(tx, userID, tipID)
 			if err != nil {
 				return nil, err
 			}
@@ -206,7 +213,7 @@ func (t *TipsService) retrieveOrCreateUserTip(tx *reform.TX, userTipID int32, us
 	return retrievedUserTip, nil
 }
 
-func (t *TipsService) retrieveUserTip(tx *reform.TX, tipID int32, userID int32) (*models.OnboardingUserTip, error) {
+func (t *TipsService) retrieveUserTip(tx *reform.TX, userID int, tipID int64) (*models.OnboardingUserTip, error) {
 	res, err := tx.Querier.SelectOneFrom(models.OnboardingUserTipTable, "WHERE user_id = $1 AND tip_id = $2", userID, tipID)
 	if err != nil {
 		if err == reform.ErrNoRows {
@@ -218,7 +225,7 @@ func (t *TipsService) retrieveUserTip(tx *reform.TX, tipID int32, userID int32) 
 	return res.(*models.OnboardingUserTip), nil
 }
 
-func (t *TipsService) createUserTip(tx *reform.TX, tipID int32, userID int32) (*models.OnboardingUserTip, error) {
+func (t *TipsService) createUserTip(tx *reform.TX, userID int, tipID int64) (*models.OnboardingUserTip, error) {
 	tip := &models.OnboardingUserTip{
 		UserID:      userID,
 		TipID:       tipID,
@@ -232,6 +239,11 @@ func (t *TipsService) createUserTip(tx *reform.TX, tipID int32, userID int32) (*
 }
 
 func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboardingpb.CompleteUserTipRequest) (*onboardingpb.CompleteUserTipResponse, error) {
+	userID, err := t.c.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if ok := t.isSystemTip(userTipRequest.TipId); ok {
 		return nil, errors.New("Tip ID is not correct, it's system tip")
 	}
@@ -239,8 +251,8 @@ func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboa
 		return nil, errors.New("Tip ID is not correct, it's not user tip")
 	}
 
-	err := t.db.InTransaction(func(tx *reform.TX) error {
-		tip, err := t.retrieveOrCreateUserTip(tx, userTipRequest.TipId, userTipRequest.UserId)
+	err = t.db.InTransaction(func(tx *reform.TX) error {
+		tip, err := t.retrieveOrCreateUserTip(tx, userID, userTipRequest.TipId)
 		if err != nil {
 			return errors.Wrap(err, "cannot complete user tip")
 		}
@@ -262,12 +274,12 @@ func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboa
 	return &onboardingpb.CompleteUserTipResponse{}, nil
 }
 
-func (t *TipsService) isSystemTip(tipID int32) bool {
+func (t *TipsService) isSystemTip(tipID int64) bool {
 	_, ok := t.systemTipIDs[tipID]
 	return ok
 }
 
-func (t *TipsService) isUserTip(tipID int32) bool {
+func (t *TipsService) isUserTip(tipID int64) bool {
 	_, ok := t.userTipIDs[tipID]
 	return ok
 }

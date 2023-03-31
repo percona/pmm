@@ -5,9 +5,9 @@ package onboarding
 import (
 	context "context"
 
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	mock "github.com/stretchr/testify/mock"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb"
 	models "github.com/percona/pmm/managed/models"
 )
 

@@ -57,8 +57,6 @@ func (m *GetOnboardingStatusRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
-
 	if len(errors) > 0 {
 		return GetOnboardingStatusRequestMultiError(errors)
 	}
@@ -436,8 +434,6 @@ func (m *CompleteUserTipRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for TipId
-
-	// no validation rules for UserId
 
 	if len(errors) > 0 {
 		return CompleteUserTipRequestMultiError(errors)

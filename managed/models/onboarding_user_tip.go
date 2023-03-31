@@ -27,9 +27,9 @@ import (
 //
 //reform:onboarding_user_tips
 type OnboardingUserTip struct {
-	ID          int32 `reform:"id,pk"`
-	UserID      int32 `reform:"user_id"`
-	TipID       int32 `reform:"tip_id"`
+	ID          int   `reform:"id,pk"`
+	UserID      int   `reform:"user_id"`
+	TipID       int64 `reform:"tip_id"`
 	IsCompleted bool  `reform:"is_completed"`
 
 	CreatedAt time.Time `reform:"created_at"`

@@ -58,9 +58,9 @@ var OnboardingUserTipTable = &onboardingUserTipTableType{
 		Type:    "OnboardingUserTip",
 		SQLName: "onboarding_user_tips",
 		Fields: []parse.FieldInfo{
-			{Name: "ID", Type: "int32", Column: "id"},
-			{Name: "UserID", Type: "int32", Column: "user_id"},
-			{Name: "TipID", Type: "int32", Column: "tip_id"},
+			{Name: "ID", Type: "int", Column: "id"},
+			{Name: "UserID", Type: "int", Column: "user_id"},
+			{Name: "TipID", Type: "int64", Column: "tip_id"},
 			{Name: "IsCompleted", Type: "bool", Column: "is_completed"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},

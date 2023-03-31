@@ -28,7 +28,7 @@ import (
 //
 //reform:onboarding_system_tips
 type OnboardingSystemTip struct {
-	ID          int32 `reform:"id,pk"`
+	ID          int64 `reform:"id,pk"`
 	IsCompleted bool  `reform:"is_completed"`
 
 	CreatedAt time.Time `reform:"created_at"`

@@ -23,7 +23,12 @@ import (
 )
 
 //go:generate ../../../bin/mockery -name=inventoryService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 
 type inventoryService interface {
 	List(ctx context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error)
+}
+
+type grafanaClient interface {
+	GetUserID(ctx context.Context) (int, error)
 }

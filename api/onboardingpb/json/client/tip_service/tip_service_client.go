@@ -87,7 +87,7 @@ func (a *Client) GetOnboardingStatus(params *GetOnboardingStatusParams, opts ...
 	op := &runtime.ClientOperation{
 		ID:                 "GetOnboardingStatus",
 		Method:             "GET",
-		PathPattern:        "/v1/onboarding/{userId}",
+		PathPattern:        "/v1/onboarding",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

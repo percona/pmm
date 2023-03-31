@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // NewGetOnboardingStatusParams creates a new GetOnboardingStatusParams object,
@@ -61,14 +60,6 @@ GetOnboardingStatusParams contains all the parameters to send to the API endpoin
 	Typically these are written to a http.Request.
 */
 type GetOnboardingStatusParams struct {
-	/* UserID.
-
-	   The User ID.
-
-	   Format: int32
-	*/
-	UserID int32
-
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -122,28 +113,12 @@ func (o *GetOnboardingStatusParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithUserID adds the userID to the get onboarding status params
-func (o *GetOnboardingStatusParams) WithUserID(userID int32) *GetOnboardingStatusParams {
-	o.SetUserID(userID)
-	return o
-}
-
-// SetUserID adds the userId to the get onboarding status params
-func (o *GetOnboardingStatusParams) SetUserID(userID int32) {
-	o.UserID = userID
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *GetOnboardingStatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
 	var res []error
-
-	// path param userId
-	if err := r.SetPathParam("userId", swag.FormatInt32(o.UserID)); err != nil {
-		return err
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

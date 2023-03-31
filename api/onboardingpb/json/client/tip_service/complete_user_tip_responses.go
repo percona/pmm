@@ -117,43 +117,6 @@ func (o *CompleteUserTipDefault) readResponse(response runtime.ClientResponse, c
 }
 
 /*
-CompleteUserTipBody Request message for CompleteUserTip method.
-swagger:model CompleteUserTipBody
-*/
-type CompleteUserTipBody struct {
-	// user id which completes user tip.
-	UserID int32 `json:"userId,omitempty"`
-}
-
-// Validate validates this complete user tip body
-func (o *CompleteUserTipBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this complete user tip body based on context it is used
-func (o *CompleteUserTipBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CompleteUserTipBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CompleteUserTipBody) UnmarshalBinary(b []byte) error {
-	var res CompleteUserTipBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
 CompleteUserTipDefaultBody complete user tip default body
 swagger:model CompleteUserTipDefaultBody
 */

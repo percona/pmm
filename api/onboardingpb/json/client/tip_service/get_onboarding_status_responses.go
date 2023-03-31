@@ -58,7 +58,7 @@ type GetOnboardingStatusOK struct {
 }
 
 func (o *GetOnboardingStatusOK) Error() string {
-	return fmt.Sprintf("[GET /v1/onboarding/{userId}][%d] getOnboardingStatusOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/onboarding][%d] getOnboardingStatusOk  %+v", 200, o.Payload)
 }
 
 func (o *GetOnboardingStatusOK) GetPayload() *GetOnboardingStatusOKBody {
@@ -100,7 +100,7 @@ func (o *GetOnboardingStatusDefault) Code() int {
 }
 
 func (o *GetOnboardingStatusDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/onboarding/{userId}][%d] GetOnboardingStatus default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/onboarding][%d] GetOnboardingStatus default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetOnboardingStatusDefault) GetPayload() *GetOnboardingStatusDefaultBody {
@@ -417,7 +417,7 @@ swagger:model GetOnboardingStatusOKBodySystemTipsItems0
 */
 type GetOnboardingStatusOKBodySystemTipsItems0 struct {
 	// The ID of the tip to retrieve.
-	TipID int32 `json:"tipId,omitempty"`
+	TipID string `json:"tipId,omitempty"`
 
 	// Show whether tip is completed or not.
 	IsCompleted bool `json:"isCompleted,omitempty"`
@@ -457,7 +457,7 @@ swagger:model GetOnboardingStatusOKBodyUserTipsItems0
 */
 type GetOnboardingStatusOKBodyUserTipsItems0 struct {
 	// The ID of the tip to retrieve.
-	TipID int32 `json:"tipId,omitempty"`
+	TipID string `json:"tipId,omitempty"`
 
 	// Show whether tip is completed or not.
 	IsCompleted bool `json:"isCompleted,omitempty"`

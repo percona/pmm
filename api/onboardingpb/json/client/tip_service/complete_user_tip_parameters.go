@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 )
 
 // NewCompleteUserTipParams creates a new CompleteUserTipParams object,
@@ -62,15 +61,15 @@ CompleteUserTipParams contains all the parameters to send to the API endpoint
 */
 type CompleteUserTipParams struct {
 	// Body.
-	Body CompleteUserTipBody
+	Body interface{}
 
 	/* TipID.
 
 	   The ID of the tip to retrieve.
 
-	   Format: int32
+	   Format: int64
 	*/
-	TipID int32
+	TipID string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -126,24 +125,24 @@ func (o *CompleteUserTipParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the complete user tip params
-func (o *CompleteUserTipParams) WithBody(body CompleteUserTipBody) *CompleteUserTipParams {
+func (o *CompleteUserTipParams) WithBody(body interface{}) *CompleteUserTipParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the complete user tip params
-func (o *CompleteUserTipParams) SetBody(body CompleteUserTipBody) {
+func (o *CompleteUserTipParams) SetBody(body interface{}) {
 	o.Body = body
 }
 
 // WithTipID adds the tipID to the complete user tip params
-func (o *CompleteUserTipParams) WithTipID(tipID int32) *CompleteUserTipParams {
+func (o *CompleteUserTipParams) WithTipID(tipID string) *CompleteUserTipParams {
 	o.SetTipID(tipID)
 	return o
 }
 
 // SetTipID adds the tipId to the complete user tip params
-func (o *CompleteUserTipParams) SetTipID(tipID int32) {
+func (o *CompleteUserTipParams) SetTipID(tipID string) {
 	o.TipID = tipID
 }
 
@@ -153,12 +152,14 @@ func (o *CompleteUserTipParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	// path param tipId
-	if err := r.SetPathParam("tipId", swag.FormatInt32(o.TipID)); err != nil {
+	if err := r.SetPathParam("tipId", o.TipID); err != nil {
 		return err
 	}
 

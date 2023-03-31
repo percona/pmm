@@ -56,7 +56,7 @@ var OnboardingSystemTipTable = &onboardingSystemTipTableType{
 		Type:    "OnboardingSystemTip",
 		SQLName: "onboarding_system_tips",
 		Fields: []parse.FieldInfo{
-			{Name: "ID", Type: "int32", Column: "id"},
+			{Name: "ID", Type: "int64", Column: "id"},
 			{Name: "IsCompleted", Type: "bool", Column: "is_completed"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
