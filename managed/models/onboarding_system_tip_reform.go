@@ -10,23 +10,23 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type systemTipTableType struct {
+type onboardingSystemTipTableType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *systemTipTableType) Schema() string {
+func (v *onboardingSystemTipTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("system_tips").
-func (v *systemTipTableType) Name() string {
+// Name returns a view or table name in SQL database ("onboarding_system_tips").
+func (v *onboardingSystemTipTableType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *systemTipTableType) Columns() []string {
+func (v *onboardingSystemTipTableType) Columns() []string {
 	return []string{
 		"id",
 		"is_completed",
@@ -36,25 +36,25 @@ func (v *systemTipTableType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *systemTipTableType) NewStruct() reform.Struct {
-	return new(SystemTip)
+func (v *onboardingSystemTipTableType) NewStruct() reform.Struct {
+	return new(OnboardingSystemTip)
 }
 
 // NewRecord makes a new record for that table.
-func (v *systemTipTableType) NewRecord() reform.Record {
-	return new(SystemTip)
+func (v *onboardingSystemTipTableType) NewRecord() reform.Record {
+	return new(OnboardingSystemTip)
 }
 
 // PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *systemTipTableType) PKColumnIndex() uint {
+func (v *onboardingSystemTipTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// SystemTipTable represents system_tips view or table in SQL database.
-var SystemTipTable = &systemTipTableType{
+// OnboardingSystemTipTable represents onboarding_system_tips view or table in SQL database.
+var OnboardingSystemTipTable = &onboardingSystemTipTableType{
 	s: parse.StructInfo{
-		Type:    "SystemTip",
-		SQLName: "system_tips",
+		Type:    "OnboardingSystemTip",
+		SQLName: "onboarding_system_tips",
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "int32", Column: "id"},
 			{Name: "IsCompleted", Type: "bool", Column: "is_completed"},
@@ -63,11 +63,11 @@ var SystemTipTable = &systemTipTableType{
 		},
 		PKFieldIndex: 0,
 	},
-	z: new(SystemTip).Values(),
+	z: new(OnboardingSystemTip).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s SystemTip) String() string {
+func (s OnboardingSystemTip) String() string {
 	res := make([]string, 4)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "IsCompleted: " + reform.Inspect(s.IsCompleted, true)
@@ -78,7 +78,7 @@ func (s SystemTip) String() string {
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *SystemTip) Values() []interface{} {
+func (s *OnboardingSystemTip) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.IsCompleted,
@@ -89,7 +89,7 @@ func (s *SystemTip) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *SystemTip) Pointers() []interface{} {
+func (s *OnboardingSystemTip) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.IsCompleted,
@@ -99,48 +99,48 @@ func (s *SystemTip) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *SystemTip) View() reform.View {
-	return SystemTipTable
+func (s *OnboardingSystemTip) View() reform.View {
+	return OnboardingSystemTipTable
 }
 
 // Table returns Table object for that record.
-func (s *SystemTip) Table() reform.Table {
-	return SystemTipTable
+func (s *OnboardingSystemTip) Table() reform.Table {
+	return OnboardingSystemTipTable
 }
 
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
-func (s *SystemTip) PKValue() interface{} {
+func (s *OnboardingSystemTip) PKValue() interface{} {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
-func (s *SystemTip) PKPointer() interface{} {
+func (s *OnboardingSystemTip) PKPointer() interface{} {
 	return &s.ID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *SystemTip) HasPK() bool {
-	return s.ID != SystemTipTable.z[SystemTipTable.s.PKFieldIndex]
+func (s *OnboardingSystemTip) HasPK() bool {
+	return s.ID != OnboardingSystemTipTable.z[OnboardingSystemTipTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *SystemTip) SetPK(pk interface{}) {
+func (s *OnboardingSystemTip) SetPK(pk interface{}) {
 	reform.SetPK(s, pk)
 }
 
 // check interfaces
 var (
-	_ reform.View   = SystemTipTable
-	_ reform.Struct = (*SystemTip)(nil)
-	_ reform.Table  = SystemTipTable
-	_ reform.Record = (*SystemTip)(nil)
-	_ fmt.Stringer  = (*SystemTip)(nil)
+	_ reform.View   = OnboardingSystemTipTable
+	_ reform.Struct = (*OnboardingSystemTip)(nil)
+	_ reform.Table  = OnboardingSystemTipTable
+	_ reform.Record = (*OnboardingSystemTip)(nil)
+	_ fmt.Stringer  = (*OnboardingSystemTip)(nil)
 )
 
 func init() {
-	parse.AssertUpToDate(&SystemTipTable.s, new(SystemTip))
+	parse.AssertUpToDate(&OnboardingSystemTipTable.s, new(OnboardingSystemTip))
 }

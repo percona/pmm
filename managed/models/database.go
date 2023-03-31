@@ -839,7 +839,7 @@ var databaseSchema = [][]string{
         WHERE service_type = 'mongodb';`,
 	},
 	79: {
-		`CREATE TABLE available_tips (
+		`CREATE TABLE onboarding_tips (
 			id SERIAL PRIMARY KEY,
 			type VARCHAR NOT NULL,
 		
@@ -847,7 +847,7 @@ var databaseSchema = [][]string{
 			updated_at TIMESTAMP NOT NULL
 		);
 		
-		CREATE TABLE system_tips (
+		CREATE TABLE onboarding_system_tips (
 			 id SERIAL PRIMARY KEY,
 			 is_completed BOOLEAN NOT NULL,
 		
@@ -855,7 +855,7 @@ var databaseSchema = [][]string{
 			 updated_at TIMESTAMP NOT NULL
 		);
 		
-		CREATE TABLE user_tips (
+		CREATE TABLE onboarding_user_tips (
 		   id SERIAL PRIMARY KEY,
 		   tip_id INTEGER NOT NULL,
 		   user_id INTEGER NOT NULL,
@@ -866,7 +866,7 @@ var databaseSchema = [][]string{
 		   UNIQUE (user_id, tip_id)
 		);
 		
-		INSERT INTO available_tips (
+		INSERT INTO onboarding_tips (
 			id, type, created_at, updated_at
 		) VALUES
 			(1, 'system', current_timestamp, current_timestamp),
@@ -874,7 +874,7 @@ var databaseSchema = [][]string{
 			(3, 'system', current_timestamp, current_timestamp),
 			(1000, 'user', current_timestamp, current_timestamp);
 		
-		INSERT INTO system_tips(
+		INSERT INTO onboarding_system_tips(
 			id, is_completed, created_at, updated_at
 		) VALUES
 			(1, false, current_timestamp, current_timestamp),

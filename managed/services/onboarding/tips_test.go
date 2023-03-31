@@ -182,7 +182,7 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			tipService := NewTipService(db, is)
 
 			// user tip will be added to they user_tips table once it requested by user
-			err := db.Querier.Save(&models.UserTip{
+			err := db.Querier.Save(&models.OnboardingUserTip{
 				UserID:      2,
 				TipID:       1000,
 				IsCompleted: false,
@@ -236,7 +236,7 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			tipService := NewTipService(db, is)
 
 			// user tip will be added to they user_tips table once it requested by user
-			err := db.Querier.Save(&models.UserTip{
+			err := db.Querier.Save(&models.OnboardingUserTip{
 				UserID:      2,
 				TipID:       1000,
 				IsCompleted: true,

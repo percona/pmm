@@ -23,11 +23,11 @@ import (
 
 //go:generate ../../bin/reform
 
-// SystemTip represents tip for user which can be completed once
+// OnboardingSystemTip represents tip for user which can be completed once
 // time per system.
 //
-//reform:system_tips
-type SystemTip struct {
+//reform:onboarding_system_tips
+type OnboardingSystemTip struct {
 	ID          int32 `reform:"id,pk"`
 	IsCompleted bool  `reform:"is_completed"`
 
@@ -36,7 +36,7 @@ type SystemTip struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (t *SystemTip) BeforeInsert() error {
+func (t *OnboardingSystemTip) BeforeInsert() error {
 	now := Now()
 	t.CreatedAt = now
 	t.UpdatedAt = now
@@ -45,7 +45,7 @@ func (t *SystemTip) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (t *SystemTip) BeforeUpdate() error {
+func (t *OnboardingSystemTip) BeforeUpdate() error {
 	t.UpdatedAt = Now()
 
 	return nil
@@ -53,6 +53,6 @@ func (t *SystemTip) BeforeUpdate() error {
 
 // check interfaces.
 var (
-	_ reform.BeforeInserter = (*SystemTip)(nil)
-	_ reform.BeforeUpdater  = (*SystemTip)(nil)
+	_ reform.BeforeInserter = (*OnboardingSystemTip)(nil)
+	_ reform.BeforeUpdater  = (*OnboardingSystemTip)(nil)
 )
