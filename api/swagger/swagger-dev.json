@@ -35025,11 +35025,11 @@
     },
     "/v1/onboarding/{userId}": {
       "get": {
-        "description": "Retrieve tip details from PMM server",
+        "description": "Retrieve onboarding status of the user",
         "tags": [
           "TipService"
         ],
-        "summary": "Get tip details",
+        "summary": "Get onboarding status of the user",
         "operationId": "GetOnboardingStatus",
         "parameters": [
           {

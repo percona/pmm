@@ -75,9 +75,9 @@ func (a *Client) CompleteUserTip(params *CompleteUserTipParams, opts ...ClientOp
 }
 
 /*
-GetOnboardingStatus gets tip details
+GetOnboardingStatus gets onboarding status of the user
 
-Retrieve tip details from PMM server
+Retrieve onboarding status of the user
 */
 func (a *Client) GetOnboardingStatus(params *GetOnboardingStatusParams, opts ...ClientOption) (*GetOnboardingStatusOK, error) {
 	// TODO: Validate the params before sending

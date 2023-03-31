@@ -10,11 +10,6 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/onboardingpb;onboardingpb";
 
-enum TipType {
-  SYSTEM = 0;
-  USER = 1;
-}
-
 // Request message for GetOnboardingStatus method.
 message GetOnboardingStatusRequest {
   // The User ID.
@@ -53,8 +48,8 @@ service TipService {
   rpc GetOnboardingStatus(GetOnboardingStatusRequest) returns (GetOnboardingStatusResponse) {
     option (google.api.http) = {get: "/v1/onboarding/{userId}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get tip details"
-      description: "Retrieve tip details from PMM server"
+      summary: "Get onboarding status of the user"
+      description: "Retrieve onboarding status of the user"
     };
   }
   // CompleteUserTip completes user tip
