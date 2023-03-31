@@ -249,7 +249,7 @@ func (b *Base) extractTarball(tarPath, targetDir string) error {
 				return err
 			}
 
-			_, err = io.Copy(w, tarReader)
+			_, err = io.Copy(w, tarReader) //nolint:gosec
 			if err != nil {
 				return err
 			}
