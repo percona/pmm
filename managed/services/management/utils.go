@@ -21,20 +21,17 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// NOTE: the methods IsNonExporterAgent and IsExporterAgent are not the reverse of each other.
-// They perform different checks and can not be used interchangeably with a negation.
-
-// IsNonExporterAgent checks if agent is not an exporter and if it runs on the same node as the service (p.e. pmm-agent).
-func IsNonExporterAgent(agent *models.Agent, service *models.Service) bool {
+// IsNodeAgent checks if agent runs on the same node as the service (p.e. pmm-agent).
+func IsNodeAgent(agent *models.Agent, service *models.Service) bool {
 	return agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID
 }
 
-// IsVMAgent checks if the agent is an vmagent and if it runs on the same node as the service.
+// IsVMAgent checks if the agent is an vmagent and if it relates to a particular service.
 func IsVMAgent(agent *models.Agent, service *models.Service) bool {
 	return pointer.GetString(agent.NodeID) == service.NodeID && agent.AgentType == models.VMAgentType
 }
 
-// IsExporterAgent checks if agent is an exporter and if it runs on the same node as the service.
-func IsExporterAgent(agent *models.Agent, service *models.Service) bool {
+// IsServiceAgent checks if the agent relates to a particular service.
+func IsServiceAgent(agent *models.Agent, service *models.Service) bool {
 	return agent.ServiceID != nil && pointer.GetString(agent.ServiceID) == service.ServiceID
 }

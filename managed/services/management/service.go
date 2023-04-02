@@ -261,7 +261,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		var svcAgents []*managementpb.UniversalAgent
 
 		for _, agent := range agents {
-			if IsNonExporterAgent(agent, service) {
+			if IsNodeAgent(agent, service) {
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
@@ -269,7 +269,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
-			if IsExporterAgent(agent, service) {
+			if IsServiceAgent(agent, service) {
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
