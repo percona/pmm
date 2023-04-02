@@ -228,7 +228,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 	}
 
 	resultSvc := make([]*managementpb.UniversalService, 0, len(services))
-	for _, service := range services {
+	for i, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
 			return nil, err
@@ -261,22 +261,14 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		var svcAgents []*managementpb.UniversalAgent
 
 		for _, agent := range agents {
-			if IsNodeAgent(agent, service) {
-				svcAgents = append(svcAgents, agentToAPI(agent))
-			}
-
-			if IsVMAgent(agent, service) {
-				svcAgents = append(svcAgents, agentToAPI(agent))
-			}
-
-			if IsServiceAgent(agent, service) {
+			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 
 			svc.Agents = svcAgents
 		}
 
-		resultSvc = append(resultSvc, svc)
+		resultSvc[i] = svc
 	}
 
 	return &managementpb.ListServiceResponse{Services: resultSvc}, nil

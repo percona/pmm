@@ -75,23 +75,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 	var svcAgents []*managementpb.UniversalAgent
 
 	for _, agent := range agents {
-		if IsNodeAgent(agent, service) {
-			ag, err := s.agentToAPI(agent)
-			if err != nil {
-				return nil, err
-			}
-			svcAgents = append(svcAgents, ag)
-		}
-
-		if IsVMAgent(agent, service) {
-			ag, err := s.agentToAPI(agent)
-			if err != nil {
-				return nil, err
-			}
-			svcAgents = append(svcAgents, ag)
-		}
-
-		if IsServiceAgent(agent, service) {
+		if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
 			ag, err := s.agentToAPI(agent)
 			if err != nil {
 				return nil, err
