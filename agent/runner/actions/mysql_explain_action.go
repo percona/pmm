@@ -84,7 +84,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(a.params.Query) {
-		return nil, fmt.Errorf("functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
+		return nil, errors.New("functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
 	}
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
