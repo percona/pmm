@@ -171,6 +171,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	}
 	if vPGSM >= pgStatMonitorVersion20PG12 {
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID},
+			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls},
 			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID})
 	} else {
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})

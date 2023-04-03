@@ -21,7 +21,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 var (
@@ -36,8 +35,6 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		maxScrapeSize = space
 	}
 
-	interfaceToBind := envvars.GetInterfaceToBind()
-
 	args := []string{
 		"-remoteWrite.url={{.server_url}}/victoriametrics/api/v1/write",
 		"-remoteWrite.tlsInsecureSkipVerify={{.server_insecure}}",
@@ -47,7 +44,7 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		// 1GB disk queue size.
 		"-remoteWrite.maxDiskUsagePerURL=1073741824",
 		"-loggerLevel=INFO",
-		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
+		"-httpListenAddr=127.0.0.1:{{.listen_port}}",
 		// needed for login/password at client side.
 		"-envflag.enable=true",
 	}

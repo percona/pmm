@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package alerting.v1;
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -9,7 +10,6 @@ import "managementpb/alerting/params.proto";
 import "managementpb/boolean_flag.proto";
 import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
-import "validate/validate.proto";
 
 option go_package = "api/managementpb/alerting;alertingv1";
 
@@ -45,9 +45,9 @@ message StringParamDefinition {
 // ParamDefinition represents a single query parameter.
 message ParamDefinition {
   // Machine-readable name (ID) that is used in expression.
-  string name = 1 [(validate.rules).string.min_len = 1];
+  string name = 1 [(validator.field) = {string_not_empty: true}];
   // Short human-readable parameter summary.
-  string summary = 2 [(validate.rules).string.min_len = 1];
+  string summary = 2 [(validator.field) = {string_not_empty: true}];
   // Parameter unit.
   ParamUnit unit = 3;
   // Parameter type.
@@ -117,22 +117,22 @@ message ListTemplatesResponse {
 
 message CreateTemplateRequest {
   // YAML (or JSON) template file content.
-  string yaml = 1 [(validate.rules).string.min_len = 1];
+  string yaml = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message CreateTemplateResponse {}
 
 message UpdateTemplateRequest {
   // Machine-readable name (ID).
-  string name = 1 [(validate.rules).string.min_len = 1];
+  string name = 1 [(validator.field) = {string_not_empty: true}];
   // YAML (or JSON) template file content.
-  string yaml = 2 [(validate.rules).string.min_len = 1];
+  string yaml = 2 [(validator.field) = {string_not_empty: true}];
 }
 
 message UpdateTemplateResponse {}
 
 message DeleteTemplateRequest {
-  string name = 1 [(validate.rules).string.min_len = 1];
+  string name = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message DeleteTemplateResponse {}
@@ -154,7 +154,7 @@ message Filter {
 // ParamValue represents a single rule parameter value.
 message ParamValue {
   // Machine-readable name (ID) that is used in expression.
-  string name = 1 [(validate.rules).string.min_len = 1];
+  string name = 1 [(validator.field) = {string_not_empty: true}];
   // Parameter type.
   ParamType type = 2;
   // Parameter value.

@@ -22,8 +22,6 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -41,8 +39,6 @@ const (
 	psmdbOperatorName = "percona-server-mongodb-operator"
 	pxcOperatorName   = "percona-xtradb-cluster-operator"
 	defaultNamespace  = "default"
-	// Dev-latest docker image.
-	devLatest = "perconalab/pmm-client:dev-latest"
 )
 
 // ComponentsService holds unexported fields and public methods to handle Components Service.
@@ -522,33 +518,6 @@ func getPMMClientImage() string {
 		return pmmClientImage
 	}
 
-	exists, err := imageExists(context.Background(), pmmClientImage)
-	// if !exists or there was an error while checking if the image exists, use dev-latest as default.
-	if !exists || err != nil {
-		return devLatest
-	}
-
 	pmmClientImage = "percona/pmm-client:" + v.Core().String()
 	return pmmClientImage
-}
-
-func imageExists(ctx context.Context, image string) (bool, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(err)
-	}
-	defer cli.Close()
-
-	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
-	if err != nil {
-		if client.IsErrNotFound(err) {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	reader.Close()
-
-	return true, nil
 }

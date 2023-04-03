@@ -109,7 +109,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddLocationRequest.FilesystemConfig: embedded message failed validation | caused by: invalid FilesystemLocationConfig.Path: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FilesystemConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -123,7 +123,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddLocationRequest.Name: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Name: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -143,7 +143,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddLocationRequest.S3Config: embedded message failed validation | caused by: invalid S3LocationConfig.Endpoint: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -163,7 +163,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddLocationRequest.S3Config: embedded message failed validation | caused by: invalid S3LocationConfig.BucketName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.BucketName: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -502,7 +502,7 @@ func TestLocationConfigValidation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid TestLocationConfigRequest.FilesystemConfig: embedded message failed validation | caused by: invalid FilesystemLocationConfig.Path: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FilesystemConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -520,7 +520,7 @@ func TestLocationConfigValidation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid TestLocationConfigRequest.S3Config: embedded message failed validation | caused by: invalid S3LocationConfig.Endpoint: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 
@@ -538,7 +538,7 @@ func TestLocationConfigValidation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid TestLocationConfigRequest.S3Config: embedded message failed validation | caused by: invalid S3LocationConfig.BucketName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.BucketName: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 

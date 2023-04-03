@@ -23,11 +23,6 @@ run-managed: release-dev-managed    ## Replace pmm-managed from build, restart a
 	supervisorctl start pmm-managed &
 	supervisorctl tail -f pmm-managed
 
-run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
-	supervisorctl stop pmm-managed
-	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
-	supervisorctl start pmm-managed
-
 run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent

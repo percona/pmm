@@ -31,19 +31,14 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RulesClient interface {
-	// Deprecated: Do not use.
 	// ListAlertRules returns a list of all Alerting rules.
 	ListAlertRules(ctx context.Context, in *ListAlertRulesRequest, opts ...grpc.CallOption) (*ListAlertRulesResponse, error)
-	// Deprecated: Do not use.
 	// CreateAlertRule creates Alerting rule.
 	CreateAlertRule(ctx context.Context, in *CreateAlertRuleRequest, opts ...grpc.CallOption) (*CreateAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// UpdateAlertRule updates Alerting rule.
 	UpdateAlertRule(ctx context.Context, in *UpdateAlertRuleRequest, opts ...grpc.CallOption) (*UpdateAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 	ToggleAlertRule(ctx context.Context, in *ToggleAlertRuleRequest, opts ...grpc.CallOption) (*ToggleAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// DeleteAlertRule deletes Alerting rule.
 	DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRequest, opts ...grpc.CallOption) (*DeleteAlertRuleResponse, error)
 }
@@ -56,7 +51,6 @@ func NewRulesClient(cc grpc.ClientConnInterface) RulesClient {
 	return &rulesClient{cc}
 }
 
-// Deprecated: Do not use.
 func (c *rulesClient) ListAlertRules(ctx context.Context, in *ListAlertRulesRequest, opts ...grpc.CallOption) (*ListAlertRulesResponse, error) {
 	out := new(ListAlertRulesResponse)
 	err := c.cc.Invoke(ctx, Rules_ListAlertRules_FullMethodName, in, out, opts...)
@@ -66,7 +60,6 @@ func (c *rulesClient) ListAlertRules(ctx context.Context, in *ListAlertRulesRequ
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *rulesClient) CreateAlertRule(ctx context.Context, in *CreateAlertRuleRequest, opts ...grpc.CallOption) (*CreateAlertRuleResponse, error) {
 	out := new(CreateAlertRuleResponse)
 	err := c.cc.Invoke(ctx, Rules_CreateAlertRule_FullMethodName, in, out, opts...)
@@ -76,7 +69,6 @@ func (c *rulesClient) CreateAlertRule(ctx context.Context, in *CreateAlertRuleRe
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *rulesClient) UpdateAlertRule(ctx context.Context, in *UpdateAlertRuleRequest, opts ...grpc.CallOption) (*UpdateAlertRuleResponse, error) {
 	out := new(UpdateAlertRuleResponse)
 	err := c.cc.Invoke(ctx, Rules_UpdateAlertRule_FullMethodName, in, out, opts...)
@@ -86,7 +78,6 @@ func (c *rulesClient) UpdateAlertRule(ctx context.Context, in *UpdateAlertRuleRe
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *rulesClient) ToggleAlertRule(ctx context.Context, in *ToggleAlertRuleRequest, opts ...grpc.CallOption) (*ToggleAlertRuleResponse, error) {
 	out := new(ToggleAlertRuleResponse)
 	err := c.cc.Invoke(ctx, Rules_ToggleAlertRule_FullMethodName, in, out, opts...)
@@ -96,7 +87,6 @@ func (c *rulesClient) ToggleAlertRule(ctx context.Context, in *ToggleAlertRuleRe
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *rulesClient) DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRequest, opts ...grpc.CallOption) (*DeleteAlertRuleResponse, error) {
 	out := new(DeleteAlertRuleResponse)
 	err := c.cc.Invoke(ctx, Rules_DeleteAlertRule_FullMethodName, in, out, opts...)
@@ -110,19 +100,14 @@ func (c *rulesClient) DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRe
 // All implementations must embed UnimplementedRulesServer
 // for forward compatibility
 type RulesServer interface {
-	// Deprecated: Do not use.
 	// ListAlertRules returns a list of all Alerting rules.
 	ListAlertRules(context.Context, *ListAlertRulesRequest) (*ListAlertRulesResponse, error)
-	// Deprecated: Do not use.
 	// CreateAlertRule creates Alerting rule.
 	CreateAlertRule(context.Context, *CreateAlertRuleRequest) (*CreateAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// UpdateAlertRule updates Alerting rule.
 	UpdateAlertRule(context.Context, *UpdateAlertRuleRequest) (*UpdateAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 	ToggleAlertRule(context.Context, *ToggleAlertRuleRequest) (*ToggleAlertRuleResponse, error)
-	// Deprecated: Do not use.
 	// DeleteAlertRule deletes Alerting rule.
 	DeleteAlertRule(context.Context, *DeleteAlertRuleRequest) (*DeleteAlertRuleResponse, error)
 	mustEmbedUnimplementedRulesServer()

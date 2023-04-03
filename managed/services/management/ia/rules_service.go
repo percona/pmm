@@ -48,7 +48,6 @@ const (
 )
 
 // RulesService represents API for Integrated Alerting Rules.
-// Deprecated. Do not use.
 type RulesService struct {
 	db           *reform.DB
 	l            *logrus.Entry
@@ -61,7 +60,6 @@ type RulesService struct {
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
-// Deprecated. Do not use.
 func NewRulesService(db *reform.DB, templates templatesService, vmalert vmAlert, alertManager alertManager) *RulesService {
 	l := logrus.WithField("component", "management/ia/rules")
 
@@ -84,7 +82,6 @@ func NewRulesService(db *reform.DB, templates templatesService, vmalert vmAlert,
 }
 
 // Enabled returns if service is enabled and can be used.
-// Deprecated. Do not use.
 func (s *RulesService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -114,7 +111,6 @@ type rule struct {
 }
 
 // RemoveVMAlertRulesFiles removes all generated rules files (*.yml) on the ia path.
-// Deprecated. Do not use.
 func (s *RulesService) RemoveVMAlertRulesFiles() error {
 	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
 	if err != nil {
@@ -130,7 +126,6 @@ func (s *RulesService) RemoveVMAlertRulesFiles() error {
 }
 
 // WriteVMAlertRulesFiles converts all available rules to VMAlert rule files.
-// Deprecated. Do not use.
 func (s *RulesService) WriteVMAlertRulesFiles() {
 	rules, err := models.FindRules(s.db.Querier)
 	if err != nil {
@@ -158,7 +153,6 @@ func (s *RulesService) WriteVMAlertRulesFiles() {
 }
 
 // prepareRulesFiles converts collected IA rules to Alertmanager rule files content.
-// Deprecated. Do not use.
 func (s *RulesService) prepareRulesFiles(rules []*models.Rule) ([]ruleFile, error) {
 	res := make([]ruleFile, 0, len(rules))
 	for _, ruleM := range rules {
@@ -231,7 +225,6 @@ func (s *RulesService) prepareRulesFiles(rules []*models.Rule) ([]ruleFile, erro
 }
 
 // fills templates found in labels and annotaitons with values.
-// Deprecated. Do not use.
 func transformMaps(src map[string]string, dest map[string]string, data map[string]string) error {
 	var buf bytes.Buffer
 	for k, v := range src {
@@ -249,7 +242,6 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 }
 
 // dump the transformed IA templates to a file.
-// Deprecated. Do not use.
 func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 	b, err := yaml.Marshal(rule)
 	if err != nil {
@@ -272,7 +264,6 @@ func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 }
 
 // ListAlertRules returns a list of all Integrated Alerting rules.
-// Deprecated. Do not use.
 func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAlertRulesRequest) (*iav1beta1.ListAlertRulesResponse, error) {
 	var pageIndex int
 	pageSize := math.MaxInt32
@@ -346,7 +337,6 @@ func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*model
 }
 
 // CreateAlertRule creates Integrated Alerting rule.
-// Deprecated. Do not use.
 func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) {
 	if req.TemplateName != "" && req.SourceRuleId != "" {
 		return nil, status.Errorf(codes.InvalidArgument, "Both template name and source rule id are specified.")
@@ -443,7 +433,6 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 }
 
 // UpdateAlertRule updates Integrated Alerting rule.
-// Deprecated. Do not use.
 func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.UpdateAlertRuleRequest) (*iav1beta1.UpdateAlertRuleResponse, error) {
 	params := &models.ChangeRuleParams{
 		Name:         req.Name,
@@ -492,7 +481,6 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 }
 
 // ToggleAlertRule allows switching between disabled and enabled states of an Alert Rule.
-// Deprecated. Do not use.
 func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) {
 	params := &models.ToggleRuleParams{Disabled: parseBooleanFlag(req.Disabled)}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -509,7 +497,6 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 }
 
 // DeleteAlertRule deletes Integrated Alerting rule.
-// Deprecated. Do not use.
 func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.DeleteAlertRuleRequest) (*iav1beta1.DeleteAlertRuleResponse, error) {
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveRule(tx.Querier, req.RuleId)
@@ -529,8 +516,6 @@ func (s *RulesService) updateConfigurations() {
 	s.alertManager.RequestConfigurationUpdate()
 }
 
-// convertParamType converts an alert type to its alerting API equivalent.
-// Deprecated. Do not use.
 func convertParamType(t alert.Type) alerting.ParamType {
 	// TODO: add another types.
 	switch t {
@@ -541,8 +526,6 @@ func convertParamType(t alert.Type) alerting.ParamType {
 	}
 }
 
-// convertModelToParamsDefinitions converts a parameter definition model to its alerting API equivalent.
-// Deprecated. Do not use.
 func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*alerting.ParamDefinition, error) {
 	res := make([]*alerting.ParamDefinition, 0, len(definitions))
 	for _, definition := range definitions {
@@ -585,8 +568,6 @@ func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitio
 	return res, nil
 }
 
-// convertModelToParamValues converts a parameter value to its protobuf representation.
-// Deprecated. Do not use.
 func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta1.ParamValue, error) {
 	res := make([]*iav1beta1.ParamValue, len(values))
 	for i, param := range values {
@@ -610,8 +591,6 @@ func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta
 	return res, nil
 }
 
-// convertParamsValuesToModel converts a parameter value to its model equivalent.
-// Deprecated. Do not use.
 func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExprParamsValues, error) {
 	ruleParams := make(models.AlertExprParamsValues, len(params))
 	for i, param := range params {
@@ -638,8 +617,6 @@ func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExp
 	return ruleParams, nil
 }
 
-// parseBooleanFlag converts a protobuf boolean value to a boolean pointer.
-// Deprecated. Do not use.
 func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 	switch bf {
 	case managementpb.BooleanFlag_TRUE:
@@ -653,8 +630,6 @@ func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 	}
 }
 
-// convertModelToFilterType converts a filter type model to its protobuf representation.
-// Deprecated. Do not use.
 func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
 	switch filterType {
 	case models.Equal:
@@ -666,8 +641,6 @@ func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType
 	}
 }
 
-// convertFiltersToModel converts an IA filter to its model representation.
-// Deprecated. Do not use.
 func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) {
 	res := make(models.Filters, len(filters))
 	for i, filter := range filters {

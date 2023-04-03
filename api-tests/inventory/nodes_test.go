@@ -138,7 +138,7 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid GetNodeRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
 		assert.Nil(t, res)
 	})
 }
@@ -195,7 +195,7 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddGenericNodeRequest.NodeName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 		}
@@ -259,7 +259,7 @@ func TestContainerNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddContainerNodeRequest.NodeName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Container.NodeID)
 		}
@@ -323,7 +323,7 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddRemoteNodeRequest.NodeName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Remote.NodeID)
 		}
@@ -495,7 +495,7 @@ func TestRemoveNode(t *testing.T) {
 			Body:    nodes.RemoveNodeBody{},
 			Context: context.Background(),
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveNodeRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
 		assert.Nil(t, removeResp)
 	})
 

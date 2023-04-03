@@ -822,11 +822,3 @@ telemetry:
         column: "bm_location_type"
       - metric_name: "7"
         column: "count"
-
-  - id: PXCClusterNodesCount
-    source: VM
-    query: (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))
-    summary: "Number of nodes for PXC cluster"
-    data:
-      - metric_name: "pxc_cluster_nodes_count"
-        value: 1

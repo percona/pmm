@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package management;
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "validate/validate.proto";
 
 option go_package = "api/managementpb;managementpb";
 
@@ -26,7 +26,7 @@ enum ActionType {
 
 message GetActionRequest {
   // Unique Action ID.
-  string action_id = 1 [(validate.rules).string.min_len = 1];
+  string action_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message GetActionResponse {
@@ -46,7 +46,7 @@ message StartMySQLExplainActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
   // Will be removed in 2.42.
   string query = 3;
@@ -69,7 +69,7 @@ message StartMySQLExplainJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
   // Will be removed in 2.42.
   string query = 3;
@@ -92,7 +92,7 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Deprecated: should not be used.
   // Will be removed in 2.42.
   string query = 3;
@@ -115,9 +115,9 @@ message StartMySQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Table name. Required. May additionally contain a database name.
-  string table_name = 3 [(validate.rules).string.min_len = 1];
+  string table_name = 3 [(validator.field) = {string_not_empty: true}];
   // Database name. Required if not given in the table_name field.
   string database = 4;
 }
@@ -133,9 +133,9 @@ message StartMySQLShowTableStatusActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Table name. Required. May additionally contain a database name.
-  string table_name = 3 [(validate.rules).string.min_len = 1];
+  string table_name = 3 [(validator.field) = {string_not_empty: true}];
   // Database name. Required if not given in the table_name field.
   string database = 4;
 }
@@ -151,9 +151,9 @@ message StartMySQLShowIndexActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Table name. Required. May additionally contain a database name.
-  string table_name = 3 [(validate.rules).string.min_len = 1];
+  string table_name = 3 [(validator.field) = {string_not_empty: true}];
   // Database name. Required if not given in the table_name field.
   string database = 4;
 }
@@ -169,9 +169,9 @@ message StartPostgreSQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Table name. Required. May additionally contain a database name.
-  string table_name = 3 [(validate.rules).string.min_len = 1];
+  string table_name = 3 [(validator.field) = {string_not_empty: true}];
   // Database name. Required if not given in the table_name field.
   string database = 4;
 }
@@ -187,9 +187,9 @@ message StartPostgreSQLShowIndexActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Table name. Required. May additionally contain a database name.
-  string table_name = 3 [(validate.rules).string.min_len = 1];
+  string table_name = 3 [(validator.field) = {string_not_empty: true}];
   // Database name. Required if not given in the table_name field.
   string database = 4;
 }
@@ -205,9 +205,9 @@ message StartMongoDBExplainActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
-  string service_id = 2 [(validate.rules).string.min_len = 1];
+  string service_id = 2 [(validator.field) = {string_not_empty: true}];
   // Query. Required.
-  string query = 3 [(validate.rules).string.min_len = 1];
+  string query = 3 [(validator.field) = {string_not_empty: true}];
 }
 
 message StartMongoDBExplainActionResponse {
@@ -281,7 +281,7 @@ message StartPTMySQLSummaryActionResponse {
 
 message CancelActionRequest {
   // Unique Action ID. Required.
-  string action_id = 1 [(validate.rules).string.min_len = 1];
+  string action_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message CancelActionResponse {}

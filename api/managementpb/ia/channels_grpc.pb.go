@@ -30,16 +30,12 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChannelsClient interface {
-	// Deprecated: Do not use.
 	// ListChannels returns a list of all notifation channels.
 	ListChannels(ctx context.Context, in *ListChannelsRequest, opts ...grpc.CallOption) (*ListChannelsResponse, error)
-	// Deprecated: Do not use.
 	// AddChannel adds notification channel.
 	AddChannel(ctx context.Context, in *AddChannelRequest, opts ...grpc.CallOption) (*AddChannelResponse, error)
-	// Deprecated: Do not use.
 	// ChangeChannel changes notification channel.
 	ChangeChannel(ctx context.Context, in *ChangeChannelRequest, opts ...grpc.CallOption) (*ChangeChannelResponse, error)
-	// Deprecated: Do not use.
 	// RemoveChannel removes notification channel.
 	RemoveChannel(ctx context.Context, in *RemoveChannelRequest, opts ...grpc.CallOption) (*RemoveChannelResponse, error)
 }
@@ -52,7 +48,6 @@ func NewChannelsClient(cc grpc.ClientConnInterface) ChannelsClient {
 	return &channelsClient{cc}
 }
 
-// Deprecated: Do not use.
 func (c *channelsClient) ListChannels(ctx context.Context, in *ListChannelsRequest, opts ...grpc.CallOption) (*ListChannelsResponse, error) {
 	out := new(ListChannelsResponse)
 	err := c.cc.Invoke(ctx, Channels_ListChannels_FullMethodName, in, out, opts...)
@@ -62,7 +57,6 @@ func (c *channelsClient) ListChannels(ctx context.Context, in *ListChannelsReque
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *channelsClient) AddChannel(ctx context.Context, in *AddChannelRequest, opts ...grpc.CallOption) (*AddChannelResponse, error) {
 	out := new(AddChannelResponse)
 	err := c.cc.Invoke(ctx, Channels_AddChannel_FullMethodName, in, out, opts...)
@@ -72,7 +66,6 @@ func (c *channelsClient) AddChannel(ctx context.Context, in *AddChannelRequest, 
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *channelsClient) ChangeChannel(ctx context.Context, in *ChangeChannelRequest, opts ...grpc.CallOption) (*ChangeChannelResponse, error) {
 	out := new(ChangeChannelResponse)
 	err := c.cc.Invoke(ctx, Channels_ChangeChannel_FullMethodName, in, out, opts...)
@@ -82,7 +75,6 @@ func (c *channelsClient) ChangeChannel(ctx context.Context, in *ChangeChannelReq
 	return out, nil
 }
 
-// Deprecated: Do not use.
 func (c *channelsClient) RemoveChannel(ctx context.Context, in *RemoveChannelRequest, opts ...grpc.CallOption) (*RemoveChannelResponse, error) {
 	out := new(RemoveChannelResponse)
 	err := c.cc.Invoke(ctx, Channels_RemoveChannel_FullMethodName, in, out, opts...)
@@ -96,16 +88,12 @@ func (c *channelsClient) RemoveChannel(ctx context.Context, in *RemoveChannelReq
 // All implementations must embed UnimplementedChannelsServer
 // for forward compatibility
 type ChannelsServer interface {
-	// Deprecated: Do not use.
 	// ListChannels returns a list of all notifation channels.
 	ListChannels(context.Context, *ListChannelsRequest) (*ListChannelsResponse, error)
-	// Deprecated: Do not use.
 	// AddChannel adds notification channel.
 	AddChannel(context.Context, *AddChannelRequest) (*AddChannelResponse, error)
-	// Deprecated: Do not use.
 	// ChangeChannel changes notification channel.
 	ChangeChannel(context.Context, *ChangeChannelRequest) (*ChangeChannelResponse, error)
-	// Deprecated: Do not use.
 	// RemoveChannel removes notification channel.
 	RemoveChannel(context.Context, *RemoveChannelRequest) (*RemoveChannelResponse, error)
 	mustEmbedUnimplementedChannelsServer()

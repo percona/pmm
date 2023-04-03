@@ -124,13 +124,10 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 	}()
 
 	logrus.Debug("Running Docker installation script")
-	l := logrus.WithField("component", "docker")
-	lw := l.Writer()
-
 	cmd := exec.Command("sh", "-s")
 	cmd.Stdin = script
-	cmd.Stdout = lw
-	cmd.Stderr = lw
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
 		return err

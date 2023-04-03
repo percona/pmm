@@ -28,7 +28,6 @@ import (
 )
 
 // ChannelsService represents integrated alerting channels API.
-// Deprecated. Do not use.
 type ChannelsService struct {
 	l            *logrus.Entry
 	db           *reform.DB
@@ -38,7 +37,6 @@ type ChannelsService struct {
 }
 
 // NewChannelsService creates new channels API service.
-// Deprecated. Do not use.
 func NewChannelsService(db *reform.DB, alertManager alertManager) *ChannelsService {
 	return &ChannelsService{
 		l:            logrus.WithField("component", "management/ia/channels"),
@@ -48,7 +46,6 @@ func NewChannelsService(db *reform.DB, alertManager alertManager) *ChannelsServi
 }
 
 // Enabled returns if service is enabled and can be used.
-// Deprecated. Do not use.
 func (s *ChannelsService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -59,7 +56,6 @@ func (s *ChannelsService) Enabled() bool {
 }
 
 // ListChannels returns list of available channels.
-// Deprecated. Do not use.
 func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) {
 	var pageIndex int
 	var pageSize int
@@ -115,7 +111,6 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 	return res, nil
 }
 
-// Deprecated. Do not use.
 func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *managementpb.PageTotals, error) {
 	var channels []*models.Channel
 	var totalItems int
@@ -160,7 +155,6 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 }
 
 // AddChannel adds new notification channel.
-// Deprecated. Do not use.
 func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) {
 	params := &models.CreateChannelParams{
 		Summary:  req.Summary,
@@ -211,7 +205,6 @@ func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChan
 }
 
 // ChangeChannel changes existing notification channel.
-// Deprecated. Do not use.
 func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) {
 	params := &models.ChangeChannelParams{
 		Summary:  req.Summary,
@@ -260,7 +253,6 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 }
 
 // RemoveChannel removes notification channel.
-// Deprecated. Do not use.
 func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) {
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveChannel(tx.Querier, req.ChannelId)
@@ -274,8 +266,6 @@ func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.Remo
 	return &iav1beta1.RemoveChannelResponse{}, nil
 }
 
-// convertChannel converts a channel model to its protobuf representation.
-// Deprecated. Do not use.
 func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	c := &iav1beta1.Channel{
 		ChannelId: channel.ID,
@@ -326,8 +316,6 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	return c, nil
 }
 
-// convertHTTPConfigToModel converts a protobuf HTTPConfig to its model representation.
-// Deprecated. Do not use.
 func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 	if config == nil {
 		return nil
@@ -363,8 +351,6 @@ func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 	return res
 }
 
-// convertModelToHTTPConfig converts a HTTPConfig model to its protobuf representation.
-// Deprecated. Do not use.
 func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig {
 	if config == nil {
 		return nil

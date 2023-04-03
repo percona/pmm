@@ -74,7 +74,7 @@ func TestChannelsAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddChannelRequest.EmailConfig: embedded message failed validation | caused by: invalid EmailConfig.To: value must contain at least 1 item(s)")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field EmailConfig.To: value '[]' must contain at least 1 elements")
 			assert.Nil(t, resp)
 		})
 

@@ -485,7 +485,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Body:    postgresql.AddPostgreSQLBody{NodeID: nodeID},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -558,7 +558,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 

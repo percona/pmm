@@ -427,7 +427,7 @@ func TestNodeRegister(t *testing.T) {
 			Body:    node.RegisterNodeBody{},
 		}
 		registerOK, err := client.Default.Node.RegisterNode(&params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RegisterNodeRequest.NodeName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
 		require.Nil(t, registerOK)
 	})
 

@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package server;
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
-import "validate/validate.proto";
 
 option go_package = "api/serverpb;serverpb";
 
@@ -111,9 +111,9 @@ message MetricsResolutions {
 // EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 message EmailAlertingSettings {
   // SMTP From header field.
-  string from = 1 [(validate.rules).string.min_len = 1];
+  string from = 1 [(validator.field) = {string_not_empty: true}];
   // SMTP host and port.
-  string smarthost = 2 [(validate.rules).string.min_len = 1];
+  string smarthost = 2 [(validator.field) = {string_not_empty: true}];
   // Hostname to identify to the SMTP server.
   string hello = 3;
   // Auth using CRAM-MD5, LOGIN and PLAIN.
@@ -131,7 +131,7 @@ message EmailAlertingSettings {
 // SlackAlertingSettings represents Slack configuration for Alerting.
 message SlackAlertingSettings {
   // Slack API (webhook) URL.
-  string url = 1 [(validate.rules).string.min_len = 1];
+  string url = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 // STTCheckIntervals represents intervals between STT checks.
@@ -272,7 +272,7 @@ message TestEmailAlertingSettingsResponse {}
 
 message AWSInstanceCheckRequest {
   // AWS EC2 instance ID (i-1234567890abcdef0).
-  string instance_id = 1 [(validate.rules).string.min_len = 1];
+  string instance_id = 1 [(validator.field) = {string_not_empty: true}];
 }
 
 message AWSInstanceCheckResponse {}
