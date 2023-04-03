@@ -48,7 +48,7 @@ are needed and the pmm user is a not privileged user.
 This function converts DML queries to the equivalent SELECT to make
 it able to explain DML queries on older MySQL versions and for unprivileged users.
 */
-// dmlToSelect returns query converted to select and boolean, if convertion were needed.
+// dmlToSelect returns query converted to select and boolean, if conversion were needed.
 func dmlToSelect(query string) (string, bool) {
 	query = strings.ReplaceAll(query, "\n", " ")
 
