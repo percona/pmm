@@ -105,7 +105,6 @@ require (
 	github.com/VictoriaMetrics/metrics v1.23.1 // indirect
 	github.com/VictoriaMetrics/metricsql v0.56.1 // indirect
 	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
-	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.4.0 // indirect
@@ -124,10 +123,8 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/k0kubun/pp v3.0.1+incompatible // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -150,6 +147,7 @@ require (
 	github.com/valyala/fastrand v1.1.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/valyala/histogram v1.2.0 // indirect
+	github.com/valyala/quicktemplate v1.7.0 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
