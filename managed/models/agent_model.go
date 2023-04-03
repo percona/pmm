@@ -412,6 +412,11 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			path = "/"
 		}
 
+		// Force direct connections: https://www.mongodb.com/docs/drivers/go/current/fundamentals/connection/#direct-connection
+		// It's needed for Actions, we need to execute queries exactly on the node specified in DSN. This parameter
+		// prevents driver from switching to Primary node.
+		q.Add("directConnection", trueStr)
+
 		if s.TLS {
 			q.Add("ssl", trueStr)
 			if s.TLSSkipVerify {
