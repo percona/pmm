@@ -311,7 +311,7 @@ func TestAddExternal(t *testing.T) {
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addExternalOK)
 	})
 
@@ -333,7 +333,7 @@ func TestAddExternal(t *testing.T) {
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ListenPort: value '0' must be greater than '0'")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addExternalOK)
 	})
 
