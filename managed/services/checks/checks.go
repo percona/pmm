@@ -114,9 +114,10 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted  *prom.CounterVec
-	mAlertsGenerated  *prom.CounterVec
-	mChecksDownloaded *prom.CounterVec
+	mScriptsExecuted     *prom.CounterVec
+	mAlertsGenerated     *prom.CounterVec
+	mChecksDownloaded    *prom.CounterVec
+	mChecksExecutionTime *prom.SummaryVec
 }
 
 // queryPlaceholders contain known fields that can be used as placeholders in a check's query.
@@ -184,6 +185,14 @@ func New(
 			Name:      "checks_downloaded_total",
 			Help:      "Counter of checks downloaded per service type, check type and check name",
 		}, []string{"service_type", "check_type", "check_name"}),
+
+		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "checks_execution_time_seconds",
+			Help:       "Time taken to execute checks per service type, advisor, and check name",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
@@ -761,15 +770,18 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 		}
 
 		for _, target := range targets {
+			start := time.Now()
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				continue
 			}
 			res = append(res, results...)
+			executionTime := time.Since(start)
 
 			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
 			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
+			s.mChecksExecutionTime.WithLabelValues(string(serviceType), c.Advisor, c.Name).Observe(executionTime.Seconds())
 		}
 	}
 
@@ -1663,6 +1675,7 @@ func (s *Service) Describe(ch chan<- *prom.Desc) {
 	s.mScriptsExecuted.Describe(ch)
 	s.mAlertsGenerated.Describe(ch)
 	s.mChecksDownloaded.Describe(ch)
+	s.mChecksExecutionTime.Describe(ch)
 }
 
 // Collect implements prom.Collector.
@@ -1670,6 +1683,7 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mScriptsExecuted.Collect(ch)
 	s.mAlertsGenerated.Collect(ch)
 	s.mChecksDownloaded.Collect(ch)
+	s.mChecksExecutionTime.Collect(ch)
 }
 
 func (s *Service) incChecksDownload() {

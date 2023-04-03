@@ -834,7 +834,20 @@ telemetry:
   - id: AdvisorsChecksDisabledCount
     source: PMMDB_SELECT
     query: jsonb_array_length(settings->'sass'->'disabled_stt_checks') as disabled_checks_count from settings
-    summary: "Number of disabled Advisors checks on PMM instance"
+    summary: "Advisor - Number of disabled Advisors checks on PMM instance"
     data:
       - metric_name: "advisor_checks_disabled"
         column: "disabled_checks_count"
+
+  - id: AdvisorsChecksExecutionTime
+    source: VM
+    query: pmm_managed_checks_checks_execution_time_seconds
+    summary: "Advisor - Average time taken for advisor checks to execute"
+    transform:
+      type: JSON
+      metric: "advisor_checks_checks_execution_time"
+    data:
+      - metric_name: 1
+        label: "check_name"
+      - metric_name: 2
+        value: 1
