@@ -8,5 +8,5 @@ import (
 
 // Extension provides dynamic extension point for Telemetry.
 type Extension interface {
-	FetchMetrics(ctx context.Context, report *Config) ([]*pmmv1.ServerMetric_Metric, error)
+	FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error)
 }

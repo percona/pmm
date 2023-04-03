@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
@@ -31,16 +32,20 @@ import (
 )
 
 const (
-	cleanupAfterHours    = 30
-	cleanupCheckInterval = 1 * time.Minute
+	cleanupInterval                = 30 * time.Hour
+	lowersValue                    = int64(0)
+	highestValue                   = int64(1_000 * 60 * 10) // 10 min
+	numberOfSignificantValueDigits = 5
 )
 
 // Service provides facility for storing UI events.
 type Service struct {
 	l               *logrus.Entry
-	lastCleanup     time.Time
 	dashboardUsage  map[string]*DashboardUsageStat
 	componentsUsage map[string]*ComponentsUsageStat
+	userFlowEvents  []*uievents.UserFlowEvent
+
+	stateLock sync.Mutex
 
 	uievents.UnimplementedUIEventsServer
 }
@@ -66,7 +71,6 @@ func New() (*Service, error) {
 		l:               l,
 		dashboardUsage:  make(map[string]*DashboardUsageStat),
 		componentsUsage: make(map[string]*ComponentsUsageStat),
-		lastCleanup:     time.Now(),
 	}
 
 	return &s, nil
@@ -75,13 +79,13 @@ func New() (*Service, error) {
 // ScheduleCleanup schedules internal clean for internal UI event storage.
 func (s *Service) ScheduleCleanup(ctx context.Context) {
 	go func() {
-		ticker := time.NewTicker(cleanupCheckInterval)
+		ticker := time.NewTicker(cleanupInterval)
 		defer ticker.Stop()
 
 		for {
 			select {
 			case <-ticker.C:
-				s.cleanupIfNeeded()
+				s.cleanup()
 			case <-ctx.Done():
 				return
 			}
@@ -89,16 +93,28 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 	}()
 }
 
-func (s *Service) FetchMetrics(ctx context.Context, report *telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) {
-	var metrics []*pmmv1.ServerMetric_Metric
+func (s *Service) FetchMetrics(ctx context.Context, config telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) {
+	s.stateLock.Lock()
+	dashboardUsage := s.dashboardUsage
+	componentsUsage := s.componentsUsage
+	userFlowEvents := s.userFlowEvents
+	s.stateLock.Unlock()
 
-	metrics = s.processDashboardStat(metrics)
-	metrics = s.processComponentsStat(metrics)
+	var result []*pmmv1.ServerMetric_Metric
+	if metric := s.processDashboardMetrics(dashboardUsage); metric != nil {
+		result = append(result, metric)
+	}
+	if metric := s.processComponentMetrics(componentsUsage); metric != nil {
+		result = append(result, metric)
+	}
+	if metrics := s.processUserFlowEvents(userFlowEvents); metrics != nil {
+		result = append(result, metrics...)
+	}
 
-	return metrics, nil
+	return result, nil
 }
 
-func (s *Service) processDashboardStat(metrics []*pmmv1.ServerMetric_Metric) []*pmmv1.ServerMetric_Metric {
+func (s *Service) processDashboardMetrics(dashboardUsage map[string]*DashboardUsageStat) *pmmv1.ServerMetric_Metric {
 	type Stat struct {
 		TopDashboards         []string `json:"top_dashboards"`
 		SlowDashboardsP95_1s  []string `json:"slow_dashboards_p95_1s"`
@@ -106,59 +122,61 @@ func (s *Service) processDashboardStat(metrics []*pmmv1.ServerMetric_Metric) []*
 		SlowDashboardsP95_10s []string `json:"slow_dashboards_p95_10s"`
 	}
 
-	if len(s.dashboardUsage) > 0 {
-		dashboardStat := &Stat{
-			SlowDashboardsP95_1s:  []string{},
-			SlowDashboardsP95_5s:  []string{},
-			SlowDashboardsP95_10s: []string{},
-		}
-
-		// TopDashboards
-		keys := make([]string, 0, len(s.dashboardUsage))
-		for key := range s.dashboardUsage {
-			keys = append(keys, key)
-		}
-		sort.SliceStable(keys, func(i, j int) bool {
-			return s.dashboardUsage[keys[i]].useCount > s.dashboardUsage[keys[j]].useCount
-		})
-		for i := 0; i < len(keys); i++ {
-			sortedKey := keys[i]
-			stat := s.dashboardUsage[sortedKey]
-			dashboardStat.TopDashboards = append(dashboardStat.TopDashboards, stat.uid)
-		}
-
-		// SlowDashboardsP95
-		sort.SliceStable(keys, func(i, j int) bool {
-			return s.dashboardUsage[keys[i]].loadTime.ValueAtPercentile(95) > s.dashboardUsage[keys[j]].loadTime.ValueAtPercentile(95)
-		})
-		for i := 0; i < len(keys); i++ {
-			sortedKey := keys[i]
-			stat := s.dashboardUsage[sortedKey]
-			p95 := stat.loadTime.ValueAtPercentile(95)
-			if p95 >= 1_000 {
-				dashboardStat.SlowDashboardsP95_1s = append(dashboardStat.SlowDashboardsP95_1s, stat.uid)
-			}
-			if p95 >= 5_000 {
-				dashboardStat.SlowDashboardsP95_5s = append(dashboardStat.SlowDashboardsP95_5s, stat.uid)
-			}
-			if p95 >= 10_000 {
-				dashboardStat.SlowDashboardsP95_10s = append(dashboardStat.SlowDashboardsP95_10s, stat.uid)
-			}
-		}
-
-		marshal, err := json.Marshal(dashboardStat)
-		if err != nil {
-			s.l.Error("failed to marshal to JSON")
-		}
-		metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-			Key:   "ui-events-dashboards",
-			Value: string(marshal),
-		})
+	if len(dashboardUsage) == 0 {
+		return nil
 	}
-	return metrics
+
+	dashboardStat := &Stat{
+		SlowDashboardsP95_1s:  []string{},
+		SlowDashboardsP95_5s:  []string{},
+		SlowDashboardsP95_10s: []string{},
+	}
+
+	// TopDashboards
+	keys := make([]string, 0, len(dashboardUsage))
+	for key := range dashboardUsage {
+		keys = append(keys, key)
+	}
+	sort.SliceStable(keys, func(i, j int) bool {
+		return dashboardUsage[keys[i]].useCount > dashboardUsage[keys[j]].useCount
+	})
+	for i := 0; i < len(keys); i++ {
+		sortedKey := keys[i]
+		stat := dashboardUsage[sortedKey]
+		dashboardStat.TopDashboards = append(dashboardStat.TopDashboards, stat.uid)
+	}
+
+	// SlowDashboardsP95
+	sort.SliceStable(keys, func(i, j int) bool {
+		return dashboardUsage[keys[i]].loadTime.ValueAtPercentile(95) > dashboardUsage[keys[j]].loadTime.ValueAtPercentile(95)
+	})
+	for i := 0; i < len(keys); i++ {
+		sortedKey := keys[i]
+		stat := dashboardUsage[sortedKey]
+		p95 := stat.loadTime.ValueAtPercentile(95)
+		if p95 >= 1_000 {
+			dashboardStat.SlowDashboardsP95_1s = append(dashboardStat.SlowDashboardsP95_1s, stat.uid)
+		}
+		if p95 >= 5_000 {
+			dashboardStat.SlowDashboardsP95_5s = append(dashboardStat.SlowDashboardsP95_5s, stat.uid)
+		}
+		if p95 >= 10_000 {
+			dashboardStat.SlowDashboardsP95_10s = append(dashboardStat.SlowDashboardsP95_10s, stat.uid)
+		}
+	}
+
+	serializedDashboardStat, err := json.Marshal(dashboardStat)
+	if err != nil {
+		s.l.Error("failed to marshal to JSON")
+	}
+
+	return &pmmv1.ServerMetric_Metric{
+		Key:   "ui-events-dashboards",
+		Value: string(serializedDashboardStat),
+	}
 }
 
-func (s *Service) processComponentsStat(metrics []*pmmv1.ServerMetric_Metric) []*pmmv1.ServerMetric_Metric {
+func (s *Service) processComponentMetrics(componentsUsage map[string]*ComponentsUsageStat) *pmmv1.ServerMetric_Metric {
 	type Stat struct {
 		SlowComponentsP95_1s  []string `json:"slow_components_p95_1s"`
 		SlowComponentsP95_5s  []string `json:"slow_components_p95_5s"`
@@ -166,45 +184,61 @@ func (s *Service) processComponentsStat(metrics []*pmmv1.ServerMetric_Metric) []
 	}
 
 	if len(s.componentsUsage) > 0 {
-		componentsStat := &Stat{
-			SlowComponentsP95_1s:  []string{},
-			SlowComponentsP95_5s:  []string{},
-			SlowComponentsP95_10s: []string{},
-		}
+		return nil
+	}
 
-		// SlowComponentP95
-		keys := make([]string, 0, len(s.componentsUsage))
-		for key := range s.componentsUsage {
-			keys = append(keys, key)
-		}
-		sort.SliceStable(keys, func(i, j int) bool {
-			return s.componentsUsage[keys[i]].loadTime.ValueAtPercentile(95) > s.componentsUsage[keys[j]].loadTime.ValueAtPercentile(95)
-		})
-		for i := 0; i < len(keys); i++ {
-			sortedKey := keys[i]
-			stat := s.componentsUsage[sortedKey]
-			p95 := stat.loadTime.ValueAtPercentile(95)
-			if p95 >= 1_000 {
-				componentsStat.SlowComponentsP95_1s = append(componentsStat.SlowComponentsP95_1s, stat.uid)
-			}
-			if p95 >= 5_000 {
-				componentsStat.SlowComponentsP95_5s = append(componentsStat.SlowComponentsP95_5s, stat.uid)
-			}
-			if p95 >= 10_000 {
-				componentsStat.SlowComponentsP95_10s = append(componentsStat.SlowComponentsP95_10s, stat.uid)
-			}
-		}
+	componentsStat := &Stat{
+		SlowComponentsP95_1s:  []string{},
+		SlowComponentsP95_5s:  []string{},
+		SlowComponentsP95_10s: []string{},
+	}
 
-		marshal, err := json.Marshal(componentsStat)
+	// SlowComponentP95
+	keys := make([]string, 0, len(componentsUsage))
+	for key := range componentsUsage {
+		keys = append(keys, key)
+	}
+	sort.SliceStable(keys, func(i, j int) bool {
+		return componentsUsage[keys[i]].loadTime.ValueAtPercentile(95) > componentsUsage[keys[j]].loadTime.ValueAtPercentile(95)
+	})
+	for i := 0; i < len(keys); i++ {
+		sortedKey := keys[i]
+		stat := componentsUsage[sortedKey]
+		p95 := stat.loadTime.ValueAtPercentile(95)
+		if p95 >= 1_000 {
+			componentsStat.SlowComponentsP95_1s = append(componentsStat.SlowComponentsP95_1s, stat.uid)
+		}
+		if p95 >= 5_000 {
+			componentsStat.SlowComponentsP95_5s = append(componentsStat.SlowComponentsP95_5s, stat.uid)
+		}
+		if p95 >= 10_000 {
+			componentsStat.SlowComponentsP95_10s = append(componentsStat.SlowComponentsP95_10s, stat.uid)
+		}
+	}
+
+	serializedComponentsStat, err := json.Marshal(componentsStat)
+	if err != nil {
+		s.l.Error("failed to marshal to JSON")
+	}
+	return &pmmv1.ServerMetric_Metric{
+		Key:   "ui-events-components",
+		Value: string(serializedComponentsStat),
+	}
+}
+
+func (s *Service) processUserFlowEvents(events []*uievents.UserFlowEvent) []*pmmv1.ServerMetric_Metric {
+	var result []*pmmv1.ServerMetric_Metric
+	for _, event := range events {
+		marshal, err := json.Marshal(event)
 		if err != nil {
 			s.l.Error("failed to marshal to JSON")
 		}
-		metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-			Key:   "ui-events-components",
+		result = append(result, &pmmv1.ServerMetric_Metric{
+			Key:   "ui-events-user-flow",
 			Value: string(marshal),
 		})
 	}
-	return metrics
+	return result
 }
 
 // Store stores metrics for further processing and sending to Portal.
@@ -216,7 +250,7 @@ func (s *Service) Store(ctx context.Context, request *uievents.StoreRequest) (*u
 				title:    event.Title,
 				uid:      event.Uid,
 				useCount: 0,
-				loadTime: s.loadTimeHistogram(),
+				loadTime: hdrhistogram.New(lowersValue, highestValue, numberOfSignificantValueDigits),
 			}
 			s.dashboardUsage[event.Uid] = stat
 		}
@@ -232,7 +266,7 @@ func (s *Service) Store(ctx context.Context, request *uievents.StoreRequest) (*u
 			stat = &ComponentsUsageStat{
 				uid:      event.Component,
 				useCount: 0,
-				loadTime: s.loadTimeHistogram(),
+				loadTime: hdrhistogram.New(lowersValue, highestValue, numberOfSignificantValueDigits),
 			}
 			s.componentsUsage[event.Component] = stat
 		}
@@ -243,20 +277,16 @@ func (s *Service) Store(ctx context.Context, request *uievents.StoreRequest) (*u
 		}
 	}
 
+	s.userFlowEvents = append(s.userFlowEvents, request.UserFlowEvents...)
+
 	return &uievents.StoreResponse{}, nil
 }
 
-func (s *Service) loadTimeHistogram() *hdrhistogram.Histogram {
-	lowersValue := int64(0)
-	highestValue := int64(1_000 * 60 * 10) // 10 min
-	numberOfSignificantValueDigits := 5
-	return hdrhistogram.New(lowersValue, highestValue, numberOfSignificantValueDigits)
-}
+func (s *Service) cleanup() {
+	s.stateLock.Lock()
+	defer s.stateLock.Unlock()
 
-func (s *Service) cleanupIfNeeded() {
-	if time.Now().Sub(s.lastCleanup).Hours() > cleanupAfterHours {
-		s.dashboardUsage = make(map[string]*DashboardUsageStat)
-		s.componentsUsage = make(map[string]*ComponentsUsageStat)
-		s.lastCleanup = time.Now()
-	}
+	s.dashboardUsage = make(map[string]*DashboardUsageStat)
+	s.componentsUsage = make(map[string]*ComponentsUsageStat)
+	s.userFlowEvents = []*uievents.UserFlowEvent{}
 }

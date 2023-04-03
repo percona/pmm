@@ -35,6 +35,11 @@ func (this *DashboardUsageEvent) Validate() error {
 	return nil
 }
 
+func (this *UserFlowEvent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+
 func (this *StoreRequest) Validate() error {
 	for _, item := range this.Notifications {
 		if item != nil {
@@ -54,6 +59,13 @@ func (this *StoreRequest) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("DashboardUsage", err)
+			}
+		}
+	}
+	for _, item := range this.UserFlowEvents {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("UserFlowEvents", err)
 			}
 		}
 	}

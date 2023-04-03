@@ -231,7 +231,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		if telemetry.Extension != "" {
 			extension, ok := s.extensions[telemetry.Extension]
 			if ok {
-				metrics, err := extension.FetchMetrics(ctx, &telemetry)
+				metrics, err := extension.FetchMetrics(ctx, telemetry)
 				if err != nil {
 					s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
 					continue
