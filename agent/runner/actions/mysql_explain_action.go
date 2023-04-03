@@ -74,7 +74,7 @@ func (a *mysqlExplainAction) Type() string {
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	if a.params.Query == "" {
-		return nil, fmt.Errorf("query to EXPLAIN is empty")
+		return nil, errors.New("query to EXPLAIN is empty")
 	}
 
 	// Workaround for bug in our MySQL parser if there is keyword "IN" in query.
