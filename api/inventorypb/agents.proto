@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package inventory;
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/log_level.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 option go_package = "api/inventorypb;inventorypb";
 
@@ -590,7 +590,7 @@ message ListAgentsResponse {
 
 message GetAgentRequest {
   // Unique randomly generated instance identifier.
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetAgentResponse {
@@ -617,7 +617,7 @@ message GetAgentResponse {
 
 message GetAgentLogsRequest {
   // Unique randomly generated instance identifier.
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   // is less than this value. 0: no limit
   uint32 limit = 2;
 }
@@ -631,7 +631,7 @@ message GetAgentLogsResponse {
 
 message AddPMMAgentRequest {
   // Node identifier where this instance runs.
-  string runs_on_node_id = 1 [(validator.field) = {string_not_empty: true}];
+  string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
 }
@@ -650,7 +650,7 @@ message AddPMMAgentResponse {
 
 message AddNodeExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
   // Enables push metrics mode for exporter.
@@ -666,7 +666,7 @@ message AddNodeExporterResponse {
 }
 
 message ChangeNodeExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -678,11 +678,11 @@ message ChangeNodeExporterResponse {
 
 message AddMySQLdExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for scraping metrics.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for scraping metrics.
   string password = 4;
   // Use TLS for database connections.
@@ -720,7 +720,7 @@ message AddMySQLdExporterResponse {
 }
 
 message ChangeMySQLdExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -732,9 +732,9 @@ message ChangeMySQLdExporterResponse {
 
 message AddMongoDBExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for scraping metrics.
   string username = 3;
   // MongoDB password for scraping metrics.
@@ -779,7 +779,7 @@ message AddMongoDBExporterResponse {
 }
 
 message ChangeMongoDBExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -791,11 +791,11 @@ message ChangeMongoDBExporterResponse {
 
 message AddPostgresExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for scraping metrics.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for scraping metrics.
   string password = 4;
   // Use TLS for database connections.
@@ -827,7 +827,7 @@ message AddPostgresExporterResponse {
 }
 
 message ChangePostgresExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -839,11 +839,11 @@ message ChangePostgresExporterResponse {
 
 message AddProxySQLExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // ProxySQL username for scraping metrics.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // ProxySQL password for scraping metrics.
   string password = 4;
   // Use TLS for database connections.
@@ -869,7 +869,7 @@ message AddProxySQLExporterResponse {
 }
 
 message ChangeProxySQLExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -881,11 +881,11 @@ message ChangeProxySQLExporterResponse {
 
 message AddQANMySQLPerfSchemaAgentRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting performance data.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for getting performance data.
   string password = 4;
   // Use TLS for database connections.
@@ -915,7 +915,7 @@ message AddQANMySQLPerfSchemaAgentResponse {
 }
 
 message ChangeQANMySQLPerfSchemaAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -927,11 +927,11 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
 
 message AddQANMySQLSlowlogAgentRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting slowlog data.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // MySQL password for getting slowlog data.
   string password = 4;
   // Use TLS for database connections.
@@ -964,7 +964,7 @@ message AddQANMySQLSlowlogAgentResponse {
 }
 
 message ChangeQANMySQLSlowlogAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -976,9 +976,9 @@ message ChangeQANMySQLSlowlogAgentResponse {
 
 message AddQANMongoDBProfilerAgentRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for getting profile data.
   string username = 3;
   // MongoDB password for getting profile data.
@@ -1014,7 +1014,7 @@ message AddQANMongoDBProfilerAgentResponse {
 }
 
 message ChangeQANMongoDBProfilerAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1026,11 +1026,11 @@ message ChangeQANMongoDBProfilerAgentResponse {
 
 message AddQANPostgreSQLPgStatementsAgentRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat statements data.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for getting pg stat statements data.
   string password = 4;
   // Use TLS for database connections.
@@ -1058,7 +1058,7 @@ message AddQANPostgreSQLPgStatementsAgentResponse {
 }
 
 message ChangeQANPostgreSQLPgStatementsAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1070,11 +1070,11 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
 
 message AddQANPostgreSQLPgStatMonitorAgentRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
-  string service_id = 2 [(validator.field) = {string_not_empty: true}];
+  string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat monitor data.
-  string username = 3 [(validator.field) = {string_not_empty: true}];
+  string username = 3 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for getting pg stat monitor data.
   string password = 4;
   // Use TLS for database connections.
@@ -1104,7 +1104,7 @@ message AddQANPostgreSQLPgStatMonitorAgentResponse {
 }
 
 message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1116,9 +1116,9 @@ message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
 
 message AddRDSExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // AWS Access Key.
   string aws_access_key = 3;
   // AWS Secret Key.
@@ -1142,7 +1142,7 @@ message AddRDSExporterResponse {
 }
 
 message ChangeRDSExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1154,7 +1154,7 @@ message ChangeRDSExporterResponse {
 
 message AddExternalExporterRequest {
   // The node identifier where this instance is run.
-  string runs_on_node_id = 1 [(validator.field) = {string_not_empty: true}];
+  string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
   string service_id = 2;
   // HTTP basic auth username for collecting metrics.
@@ -1166,9 +1166,9 @@ message AddExternalExporterRequest {
   // Path under which metrics are exposed, used to generate URI(default: /metrics).
   string metrics_path = 7;
   // Listen port for scraping metrics.
-  uint32 listen_port = 8 [(validator.field) = {
-    int_gt: 0
-    int_lt: 65536
+  uint32 listen_port = 8 [(validate.rules).uint32 = {
+    gt: 0,
+    lt: 65536
   }];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
@@ -1181,7 +1181,7 @@ message AddExternalExporterResponse {
 }
 
 message ChangeExternalExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1193,9 +1193,9 @@ message ChangeExternalExporterResponse {
 
 message AddAzureDatabaseExporterRequest {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Azure client ID
   string azure_client_id = 3;
   // Azure client secret
@@ -1207,7 +1207,7 @@ message AddAzureDatabaseExporterRequest {
   // Azure resource group.
   string azure_resource_group = 11;
   // Azure resource type (mysql, maria, postgres)
-  string azure_database_resource_type = 7 [(validator.field) = {string_not_empty: true}];
+  string azure_database_resource_type = 7 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // Skip connection check.
@@ -1223,7 +1223,7 @@ message AddAzureDatabaseExporterResponse {
 }
 
 message ChangeAzureDatabaseExporterRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
 }
 
@@ -1234,7 +1234,7 @@ message ChangeAzureDatabaseExporterResponse {
 // Remove
 
 message RemoveAgentRequest {
-  string agent_id = 1 [(validator.field) = {string_not_empty: true}];
+  string agent_id = 1 [(validate.rules).string.min_len = 1];
   // Remove agent with all dependencies.
   bool force = 2;
 }
