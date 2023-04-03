@@ -953,12 +953,6 @@ func (o *ListAlertRulesOKBodyRulesItems0) UnmarshalBinary(b []byte) error {
 
 /*
 ListAlertRulesOKBodyRulesItems0ChannelsItems0 Channel represents a single Notification Channel.
-//
-// reserved channels
-//  pushover_config = 5;
-//  opsgenie_config = 7;
-//  victorops_config = 9;
-//  wechat_config = 10;
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0 struct {

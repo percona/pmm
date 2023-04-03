@@ -6,7 +6,7 @@ managed:
     except:
       - buf.build/googleapis/googleapis
       - buf.build/grpc-ecosystem/grpc-gateway
-      - buf.build/percona/third_party
+      - buf.build/envoyproxy/protoc-gen-validate
 
 plugins:
   - name: go
@@ -27,13 +27,12 @@ plugins:
     opt:
       - paths=source_relative
 
-  - name: govalidators
-    path: bin/protoc-gen-govalidators
+  - name: validate
+    path: bin/protoc-gen-validate
     out: api
     opt:
       - paths=source_relative
       - lang=go
-      - gogoimport=false
 
   - name: openapiv2
     out: api
