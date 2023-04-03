@@ -60,7 +60,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	Password               string            `help:"MySQL password for scraping metrics"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	DisableCommentsParsing bool              `help:"Disable parsing comments from queries and showing them in QAN"`
+	DisableCommentsParsing bool              `help:"Do not parse comments from queries and hide comments in QAN"`
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
