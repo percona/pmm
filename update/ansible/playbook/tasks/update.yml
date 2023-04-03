@@ -51,6 +51,18 @@
         path: /etc/supervisord.d/
         state: directory
 
+    - name: Upgrade supervisor config
+      command: pmm-managed-init
+      register: managed_init_result
+      changed_when: True
+
+    - name: Disable pmm-update-perform-init
+      ini_file:
+        path: /etc/supervisord.d/pmm.ini
+        section: program:pmm-update-perform-init
+        option: autostart
+        value: "false"
+
     - name: Upgrade supervisord config
       copy:
         src: supervisord.ini
