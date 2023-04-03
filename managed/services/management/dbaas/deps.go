@@ -108,6 +108,7 @@ type kubernetesClient interface {
 	GetDefaultStorageClassName(context.Context) (string, error)
 	GetPXCOperatorVersion(context.Context) (string, error)
 	GetPSMDBOperatorVersion(context.Context) (string, error)
+	GetPGOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
 	CreatePMMSecret(string, map[string][]byte) error

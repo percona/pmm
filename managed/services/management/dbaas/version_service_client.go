@@ -37,6 +37,7 @@ import (
 const (
 	psmdbOperator = "psmdb-operator"
 	pxcOperator   = "pxc-operator"
+	pgOperator    = "pg-operator"
 )
 
 var errNoVersionsFound = errors.New("no versions to compare current version with found")
@@ -60,6 +61,7 @@ type matrix struct {
 	LogCollector  map[string]componentVersion `json:"logCollector"`
 	PXCOperator   map[string]componentVersion `json:"pxcOperator,omitempty"`
 	PSMDBOperator map[string]componentVersion `json:"psmdbOperator,omitempty"`
+	PGOperator    map[string]componentVersion `json:"pgOperator,omitempty"`
 }
 
 type Version struct {
@@ -210,6 +212,7 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 	operatorVersions := map[string][]string{
 		pxcOperator:   {},
 		psmdbOperator: {},
+		pgOperator:    {},
 	}
 
 	for v := range resp.Versions[0].Matrix.PXCOperator {
@@ -219,6 +222,11 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 	for v := range resp.Versions[0].Matrix.PSMDBOperator {
 		operatorVersions[psmdbOperator] = append(operatorVersions[psmdbOperator], v)
 	}
+
+	// FIXME using hardcoded values for PG until version service supports it
+	// https://jira.percona.com/browse/K8SPG-315
+	operatorVersions[pgOperator] = []string{"2.0.0"}
+
 	return operatorVersions, nil
 }
 
