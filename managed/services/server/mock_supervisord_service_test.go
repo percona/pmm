@@ -4,11 +4,13 @@ package server
 
 import (
 	context "context"
-	time "time"
 
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm/managed/models"
+
+	time "time"
+
 	version "github.com/percona/pmm/version"
 )
 

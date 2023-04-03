@@ -8,6 +8,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm/managed/models"
+
 	scheduler "github.com/percona/pmm/managed/services/scheduler"
 )
 

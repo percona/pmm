@@ -32,6 +32,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	victoriametricsv1beta1 "github.com/VictoriaMetrics/operator/api/v1beta1"
+	vmv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
@@ -234,6 +235,12 @@ func (k *Kubernetes) GetClusterServiceVersion(ctx context.Context, key types.Nam
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.GetClusterServiceVersion(ctx, key)
+}
+
+func (k *Kubernetes) ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.ListClusterServiceVersion(ctx, namespace)
 }
 
 func (k *Kubernetes) DeleteObject(obj runtime.Object) error {
@@ -702,7 +709,28 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 	return k.client.GetPersistentVolumes(ctx)
 }
 
-func (k *Kubernetes) ProvisionMonitoring(login, password string) error {
+func (k *Kubernetes) ProvisionMonitoring(login, password, pmmPublicAddress string, labels map[string]string) error {
+	time.Sleep(1 * time.Minute)
+	randomCrypto, err := rand.Prime(rand.Reader, 64)
+	if err != nil {
+		return err
+	}
+
+	secretName := fmt.Sprintf("vm-operator-%d", randomCrypto)
+	err = k.CreatePMMSecret(secretName, map[string][]byte{
+		"username": []byte(login),
+		"password": []byte(password),
+	})
+	if err != nil {
+		return err
+	}
+
+	vmagent := vmAgentSpec(secretName, pmmPublicAddress, labels)
+	err = k.client.ApplyObject(vmagent)
+	if err != nil {
+		return errors.Wrap(err, "cannot apply vm agent spec")
+	}
+
 	files := []string{
 		"crds/victoriametrics/crs/vmagent_rbac.yaml",
 		"crds/victoriametrics/crs/vmnodescrape.yaml",
@@ -719,28 +747,20 @@ func (k *Kubernetes) ProvisionMonitoring(login, password string) error {
 		if err != nil {
 			return err
 		}
-		err = k.client.ApplyFile(file)
+		// retry 3 times because applying vmagent spec might take some time.
+		for i := 0; i < 3; i++ {
+			err = k.client.ApplyFile(file)
+			if err != nil {
+				time.Sleep(10 * time.Second)
+				continue
+			}
+			break
+		}
 		if err != nil {
 			return errors.Wrapf(err, "cannot apply file: %q", path)
 		}
 	}
-
-	randomCrypto, err := rand.Prime(rand.Reader, 64)
-	if err != nil {
-		return err
-	}
-
-	secretName := fmt.Sprintf("vm-operator-%d", randomCrypto)
-	err = k.CreatePMMSecret(secretName, map[string][]byte{
-		"username": []byte(login),
-		"password": []byte(password),
-	})
-	if err != nil {
-		return err
-	}
-
-	vmagent := vmAgentSpec(secretName, login)
-	return k.client.ApplyObject(vmagent)
+	return nil
 }
 
 func (k *Kubernetes) CleanupMonitoring() error {
@@ -769,14 +789,15 @@ func (k *Kubernetes) CleanupMonitoring() error {
 	return nil
 }
 
-func vmAgentSpec(secretName, address string) *victoriametricsv1beta1.VMAgent {
+func vmAgentSpec(secretName, address string, labels map[string]string) *victoriametricsv1beta1.VMAgent {
 	return &victoriametricsv1beta1.VMAgent{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "VMAgent",
 			APIVersion: "operator.victoriametrics.com/v1beta1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "pmm-vmagent-" + secretName,
+			Name:   "pmm-vmagent-" + secretName,
+			Labels: labels,
 		},
 		Spec: victoriametricsv1beta1.VMAgentSpec{
 			ServiceScrapeNamespaceSelector: &metav1.LabelSelector{},
@@ -953,6 +974,7 @@ type InstallOperatorRequest struct {
 	Channel                string
 	InstallPlanApproval    v1alpha1.Approval
 	StartingCSV            string
+	Labels                 map[string]string
 }
 
 // InstallOperator installs an operator via OLM.
@@ -962,7 +984,7 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 	}
 
 	subs, err := k.client.CreateSubscriptionForCatalog(ctx, req.Namespace, req.Name, "olm", req.CatalogSource,
-		req.Name, req.Channel, req.StartingCSV, v1alpha1.ApprovalManual)
+		req.Name, req.Channel, req.StartingCSV, req.Labels, v1alpha1.ApprovalManual)
 	if err != nil {
 		return errors.Wrap(err, "cannot create a susbcription to install the operator")
 	}
@@ -999,6 +1021,10 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 
 func (k *Kubernetes) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
 	return k.client.GetSubscription(ctx, namespace, name)
+}
+
+func (k *Kubernetes) GetSubscriptionCSV(ctx context.Context, key types.NamespacedName) (types.NamespacedName, error) {
+	return k.client.GetSubscriptionCSV(ctx, key)
 }
 
 func createOperatorGroupIfNeeded(ctx context.Context, client client.KubeClientConnector, name string) error {
@@ -1114,4 +1140,26 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 	}
 
 	return templates, nil
+}
+
+// DoRolloutWait waits until a deployment is ready.
+func (k *Kubernetes) DoRolloutWait(ctx context.Context, key types.NamespacedName) error {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.DoRolloutWait(ctx, key)
+}
+
+// DoCSVWait waits until a deployment is ready.
+func (k *Kubernetes) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.client.DoCSVWait(ctx, key)
+}
+
+func (k *Kubernetes) ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error) {
+	return k.client.ListVMAgents(ctx, namespace, labels)
+}
+
+func (k *Kubernetes) DeleteVMAgent(ctx context.Context, namespace, name string) error {
+	return k.client.DeleteVMAgent(ctx, namespace, name)
 }

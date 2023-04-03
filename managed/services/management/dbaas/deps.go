@@ -21,6 +21,7 @@ package dbaas
 import (
 	"context"
 
+	vmv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
@@ -127,6 +128,8 @@ type kubernetesClient interface {
 	GetClusterServiceVersion(context.Context, types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
 	// GetSubscription retrieves a subscription by namespace and name.
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
+	// ListClusterServiceVersion returns all CSVs for the specified namespace.
+	ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error)
 	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
 	InstallOLMOperator(ctx context.Context) error
 	// InstallOperator installs an operator via OLM.
@@ -139,7 +142,18 @@ type kubernetesClient interface {
 	GetServerVersion() (*version.Info, error)
 	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
 	// ProvisionMonitoring configure and start Victoria Metrics to monitor the cluster.
-	ProvisionMonitoring(login, password string) error
+	ProvisionMonitoring(login, password, pmmPublicAddress string, labels map[string]string) error
+	// CleanupMonitoring removes cluster monitoring.
+	CleanupMonitoring() error
+	// DoRolloutWait waits until a deployment is ready.
+	DoRolloutWait(context.Context, types.NamespacedName) error
+	// DoCSVWait waits until a csv is ready.
+	DoCSVWait(context.Context, types.NamespacedName) error
+	GetSubscriptionCSV(ctx context.Context, key types.NamespacedName) (types.NamespacedName, error)
+	// ListVMAgents returns the list of available VM agents for a namespace.
+	ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error)
+	// DeleteVMAgent deletes a vm agent instance.
+	DeleteVMAgent(ctx context.Context, namespace, name string) error
 }
 
 type kubeStorageManager interface {

@@ -5,6 +5,7 @@ package client
 import (
 	"context"
 
+	vmv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
@@ -57,6 +58,7 @@ type KubeClientConnector interface {
 	// and applies them against the cluster
 	ApplyFile(fileBytes []byte) error
 	GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
+	ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error)
 	// DeleteFile accepts manifest file contents parses into []runtime.Object
 	// and deletes them from the cluster
 	DeleteFile(fileBytes []byte) error
@@ -71,7 +73,7 @@ type KubeClientConnector interface {
 	// CreateOperatorGroup creates an operator group to be used as part of a subscription.
 	CreateOperatorGroup(ctx context.Context, namespace, name string) (*v1.OperatorGroup, error)
 	// CreateSubscriptionForCatalog creates an OLM subscription.
-	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error)
+	CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV string, labels map[string]string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error)
 	// GetSubscription retrieves an OLM subscription by namespace and name.
 	GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error)
 	// ListSubscriptions all the subscriptions in the namespace.
@@ -84,4 +86,7 @@ type KubeClientConnector interface {
 	ListCRDs(ctx context.Context, labelSelector *metav1.LabelSelector) (*apiextv1.CustomResourceDefinitionList, error)
 	// ListCRs returns a list of CRs.
 	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector *metav1.LabelSelector) (*unstructured.UnstructuredList, error)
+	// ListVMAgents retrieves all VM agents for a namespace.
+	ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error)
+	DeleteVMAgent(ctx context.Context, namespace, name string) error
 }

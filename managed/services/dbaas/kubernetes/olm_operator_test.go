@@ -40,7 +40,7 @@ func TestInstallOlmOperator(t *testing.T) {
 
 	t.Run("Install OLM Operator", func(t *testing.T) {
 		k8sclient.On("CreateSubscriptionForCatalog", mock.Anything, mock.Anything, mock.Anything,
-			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(&v1alpha1.Subscription{}, nil)
 		k8sclient.On("GetDeployment", ctx, mock.Anything).Return(&appsv1.Deployment{}, nil)
 		k8sclient.On("ApplyFile", mock.Anything).Return(nil)

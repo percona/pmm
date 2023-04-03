@@ -24,9 +24,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -35,7 +35,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -55,6 +55,10 @@ var (
 	flagRole                     = "--role-arn"
 	kubeconfigFlagsConversionMap = map[string]string{flagClusterName: "-i", flagRegion: "--region", flagRole: "-r"}
 	kubeconfigFlagsList          = []string{flagClusterName, flagRegion, flagRole}
+	operatorNamePrefix           = map[string]string{
+		"psmdb": "percona-server-mongodb-operator",
+	}
+	DefaultCatalogSource = "percona-dbaas-catalog"
 )
 
 type kubernetesServer struct {
@@ -66,15 +70,6 @@ type kubernetesServer struct {
 	kubeStorage    *KubeStorage
 
 	dbaasv1beta1.UnimplementedKubernetesServer
-}
-
-type setupMonitoringParams struct {
-	kubeClient         kubernetesClient
-	operatorsToInstall map[string]bool
-	pmmPublicAddress   string
-	kubeConfig         string
-	apiKey             string
-	apiKeyID           int64
 }
 
 // NewKubernetesServer creates Kubernetes Server.
@@ -355,74 +350,67 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
+	labels, err := k.baseLabels()
+	if err != nil {
+		return nil, err
+	}
+
 	params := setupMonitoringParams{
+		clusterName:        req.KubernetesClusterName,
 		kubeClient:         kubeClient,
 		operatorsToInstall: operatorsToInstall,
 		kubeConfig:         req.KubeAuth.Kubeconfig,
 		pmmPublicAddress:   settings.PMMPublicAddress,
 		apiKey:             apiKey,
 		apiKeyID:           apiKeyID,
+		labels:             labels,
 	}
+
 	go k.setupMonitoring(context.TODO(), params)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
+type setupMonitoringParams struct {
+	clusterName        string
+	kubeClient         kubernetesClient
+	pmmPublicAddress   string
+	kubeConfig         string
+	apiKey             string
+	apiKeyID           int64
+	labels             map[string]string
+	operatorsToInstall map[string]bool
+}
+
 func (k kubernetesServer) setupMonitoring(ctx context.Context, params setupMonitoringParams) {
-
-	errs := k.installDefaultOperators(operatorsToInstall, kubeClient)
-	if errs["vm"] != nil {
-		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
-		return
+	errs := installDefaultOperators(params.kubeClient, params.operatorsToInstall, DefaultCatalogSource, params.labels, k.l)
+	if len(errs) > 0 {
+		for key, err := range errs {
+			k.l.Errorf("cannot install default operator %q: %s", key, err)
+		}
 	}
 
-	err = k.startMonitoring(ctx, pmmPublicAddress, apiKey, apiKeyID, kubeConfig)
-	if err != nil {
-		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
+	if !strings.HasPrefix(params.pmmPublicAddress, "http://") && !strings.HasPrefix(params.pmmPublicAddress, "https://") {
+		params.pmmPublicAddress = "https://" + params.pmmPublicAddress
 	}
 
-	if err := kubeClient.ProvisionMonitoring("api_key", apiKey); err != nil {
-		e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+	if err := params.kubeClient.ProvisionMonitoring("api_key", params.apiKey, params.pmmPublicAddress, params.labels); err != nil {
+		e := k.grafanaClient.DeleteAPIKeyByID(ctx, params.apiKeyID)
 		if e != nil {
-			k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+			k.l.Warnf("couldn't delete created API Key %v: %s", params.apiKeyID, e)
 		}
 		k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
 	}
 
-	err = models.ChangeKubernetesClusterToReady(k.db.Querier, clusterName)
+	err := models.ChangeKubernetesClusterToReady(k.db.Querier, params.clusterName)
 	if err != nil {
 		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 	}
 }
 
-func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress string, apiKey string,
-	apiKeyID int64, kubeConfig string,
-) error {
-	pmmParams := &dbaascontrollerv1beta1.PMMParams{
-		PublicAddress: fmt.Sprintf("https://%s", pmmPublicAddress),
-		Login:         "api_key",
-		Password:      apiKey,
-	}
-
-	_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Pmm: pmmParams,
-	})
-	if err != nil {
-		e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-		if e != nil {
-			k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
-		}
-		k.l.Errorf("couldn't start monitoring of the kubernetes cluster: %s", err)
-		return errors.Wrap(err, "couldn't start monitoring of the kubernetes cluster")
-	}
-
-	return nil
-}
-
-func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, kubeClient kubernetesClient) map[string]error {
+func installDefaultOperators(kubeClient kubernetesClient, operatorsToInstall map[string]bool,
+	catalogSource string, labels map[string]string, l *logrus.Entry,
+) map[string]error {
 	ctx := context.TODO()
 
 	retval := make(map[string]error)
@@ -431,14 +419,15 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		err := kubeClient.InstallOLMOperator(ctx)
 		if err != nil {
 			retval["olm"] = err
-			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
+			l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 		}
 	}
 
 	namespace := "default"
 	catalogSourceNamespace := "olm"
 	operatorGroup := "percona-operators-group"
-	catalogSource := "percona-dbaas-catalog"
+
+	rolloutWG := &sync.WaitGroup{}
 
 	if _, ok := operatorsToInstall["vm"]; ok {
 		channel, ok := os.LookupEnv("DBAAS_VM_OP_CHANNEL")
@@ -446,29 +435,37 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			channel = "stable-v0"
 		}
 		operatorName := "victoriametrics-operator"
-		subs, err := kubeClient.GetSubscription(ctx, namespace, operatorName)
+
+		csvName, err := getCSVName(ctx, kubeClient, namespace, operatorName)
 
 		// If the VM operator already exists, we must delete it in order to reconfigure it.
 		// It migh be the case were the cluster is being re-registered and the server's IP has changed.
-		if err == nil {
-			err := uninstallVM(ctx, kubeClient, subs)
+		if err == nil && csvName != "" {
+			err := deleteVMAgent(ctx, kubeClient, namespace, labels)
 			if err != nil {
-				k.l.Errorf("cannot uninstal vm operator in the new cluster: %s", err)
+				l.Errorf("cannot uninstal vm operator in the new cluster: %s", err)
 			}
 		}
-		params := kubernetes.InstallOperatorRequest{
-			Namespace:              namespace,
-			Name:                   operatorName,
-			OperatorGroup:          operatorGroup,
-			CatalogSource:          catalogSource,
-			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                channel,
-			InstallPlanApproval:    v1alpha1.ApprovalManual,
-		}
 
-		if err := kubeClient.InstallOperator(ctx, params); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		if csvName == "" {
+			params := kubernetes.InstallOperatorRequest{
+				Namespace:              namespace,
+				Name:                   operatorName,
+				OperatorGroup:          operatorGroup,
+				CatalogSource:          catalogSource,
+				CatalogSourceNamespace: catalogSourceNamespace,
+				Channel:                channel,
+				InstallPlanApproval:    v1alpha1.ApprovalManual,
+				Labels:                 labels,
+			}
+
+			if err := kubeClient.InstallOperator(ctx, params); err != nil {
+				retval["vm"] = err
+				l.Errorf("Cannot instal VM operator in the new cluster: %s", err)
+			} else {
+				rolloutWG.Add(1)
+				waitForRollout(ctx, kubeClient, types.NamespacedName{Namespace: namespace, Name: operatorName}, rolloutWG)
+			}
 		}
 	}
 
@@ -478,8 +475,9 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			channel = "stable-v1"
 		}
 		operatorName := "percona-xtradb-cluster-operator"
-		_, err := kubeClient.GetSubscription(ctx, namespace, operatorName)
-		if err == nil || apierrors.IsNotFound(err) {
+		csvName, err := getCSVName(ctx, kubeClient, namespace, operatorName)
+
+		if err == nil || csvName == "" {
 			params := kubernetes.InstallOperatorRequest{
 				Namespace:              namespace,
 				Name:                   operatorName,
@@ -488,11 +486,15 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 				CatalogSourceNamespace: catalogSourceNamespace,
 				Channel:                channel,
 				InstallPlanApproval:    v1alpha1.ApprovalManual,
+				Labels:                 labels,
 			}
 
 			if err := kubeClient.InstallOperator(ctx, params); err != nil {
 				retval["pxc"] = err
-				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+				l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			} else {
+				rolloutWG.Add(1)
+				waitForRollout(ctx, kubeClient, types.NamespacedName{Namespace: namespace, Name: operatorName}, rolloutWG)
 			}
 		}
 	}
@@ -503,8 +505,9 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		if !ok || channel == "" {
 			channel = "stable-v1"
 		}
-		_, err := kubeClient.GetSubscription(ctx, namespace, operatorName)
-		if err == nil || apierrors.IsNotFound(err) {
+
+		csvName, err := getCSVName(ctx, kubeClient, namespace, operatorName)
+		if err == nil || csvName == "" {
 			params := kubernetes.InstallOperatorRequest{
 				Namespace:              namespace,
 				Name:                   operatorName,
@@ -513,11 +516,15 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 				CatalogSourceNamespace: catalogSourceNamespace,
 				Channel:                channel,
 				InstallPlanApproval:    v1alpha1.ApprovalManual,
+				Labels:                 labels,
 			}
 
 			if err := kubeClient.InstallOperator(ctx, params); err != nil {
 				retval["psmdb"] = err
-				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+				l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			} else {
+				rolloutWG.Add(1)
+				waitForRollout(ctx, kubeClient, types.NamespacedName{Namespace: namespace, Name: operatorName}, rolloutWG)
 			}
 		}
 	}
@@ -528,8 +535,9 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 		if !ok || channel == "" {
 			channel = "stable-v0"
 		}
-		_, err := kubeClient.GetSubscription(ctx, namespace, operatorName)
-		if err == nil || apierrors.IsNotFound(err) {
+
+		csvName, err := getCSVName(ctx, kubeClient, namespace, operatorName)
+		if err == nil || csvName == "" {
 			params := kubernetes.InstallOperatorRequest{
 				Namespace:              namespace,
 				Name:                   operatorName,
@@ -538,71 +546,91 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 				CatalogSourceNamespace: catalogSourceNamespace,
 				Channel:                channel,
 				InstallPlanApproval:    v1alpha1.ApprovalManual,
+				Labels:                 labels,
 			}
 
 			if err := kubeClient.InstallOperator(ctx, params); err != nil {
 				retval["vm"] = err
-				k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+				l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			} else {
+				rolloutWG.Add(1)
+				waitForRollout(ctx, kubeClient, types.NamespacedName{Namespace: namespace, Name: operatorName}, rolloutWG)
 			}
 		}
 	}
 
+	rolloutWG.Wait()
+
 	return retval
 }
 
-// uninstallVM unistalls Victoria Metrics Operator.
-// To delete the vm operator we must:
-//  1. Delete the subscription.
-//  2. Delete the CSV.
-func uninstallVM(ctx context.Context, kubeClient kubernetesClient, subscription *v1alpha1.Subscription) error {
-	key := types.NamespacedName{
-		Namespace: subscription.Namespace,
-		Name:      subscription.Status.CurrentCSV,
+func waitForRollout(ctx context.Context, kubeClient kubernetesClient, key types.NamespacedName, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	var csv types.NamespacedName
+	var err error
+
+	for i := 0; i > 15; i++ {
+		csv, err = kubeClient.GetSubscriptionCSV(ctx, types.NamespacedName{Namespace: key.Namespace, Name: key.Name})
+		if err != nil {
+			time.Sleep(10 * time.Second)
+			continue
+		}
+		break
 	}
-	csv, err := kubeClient.GetClusterServiceVersion(ctx, key)
+
+	for i := 0; i > 15; i++ {
+		if err := kubeClient.DoCSVWait(ctx, csv); err != nil {
+			if runtime.IsNotRegisteredError(err) || err != nil {
+				time.Sleep(10 * time.Second)
+				continue
+			}
+		}
+		break
+	}
+}
+
+func getCSVName(ctx context.Context, kubeClient kubernetesClient, namespace, operatorName string) (string, error) {
+	csvs, err := kubeClient.ListClusterServiceVersion(ctx, namespace)
 	if err != nil {
-		return errors.Wrap(err, "cannot get the CSV to uninstall the vm operator")
+		return "", err
+	}
+	for _, csv := range csvs.Items {
+		// ObjectMeta.Name has the form: "percona-server-mongodb-operator.v1.14.0"
+		// TODO: match labels so we match only instances managed by this pmm instance
+		//		 "app.kubernetes.io/part-of":  "pmm"
+		//		 "app.kubernetes.io/instance": pmmID
+		if strings.HasPrefix(csv.ObjectMeta.Name, operatorName) {
+			return csv.ObjectMeta.Name, nil
+		}
 	}
 
-	// The getter is not setting these values so, when we want to delete the object we will get an error
-	// because Kind is empty.
-	if subscription.TypeMeta.Kind == "" {
-		subscription.TypeMeta.Kind = v1alpha1.SubscriptionKind
-		subscription.TypeMeta.APIVersion = v1alpha1.SubscriptionCRDAPIVersion
-	}
-	err = kubeClient.DeleteObject(subscription)
+	return "", nil
+}
+
+func deleteVMAgent(ctx context.Context, kubeClient kubernetesClient, namespace string, labels map[string]string) error {
+	vmagents, err := kubeClient.ListVMAgents(ctx, namespace, labels)
 	if err != nil {
-		return errors.Wrapf(err, "cannot delete VM subscription %s for reinstallation", subscription.Name)
+		return err
 	}
 
-	// The getter is not setting these values so, when we want to delete the object we will get an error
-	// because Kind is empty.
-	if csv.TypeMeta.Kind == "" {
-		csv.TypeMeta.Kind = v1alpha1.ClusterServiceVersionKind
-		csv.TypeMeta.APIVersion = v1alpha1.ClusterServiceVersionAPIVersion
+	if len(vmagents.Items) > 1 {
+		return fmt.Errorf("there is more than one vm agent. Don't know which one to stop")
+	}
+	if len(vmagents.Items) == 0 {
+		return nil
 	}
 
-	err = kubeClient.DeleteObject(csv)
-	if err != nil {
-		return errors.Wrapf(err, "cannot delete VM clusterserviceversion %s for reinstallation", subscription.Status.CurrentCSV)
-	}
-
-	return nil
+	return kubeClient.DeleteVMAgent(ctx, namespace, vmagents.Items[0].ObjectMeta.Name)
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 		if err != nil {
 			return err
 		}
-
-		_, err = k.dbaasClient.StopMonitoring(ctx, &dbaascontrollerv1beta1.StopMonitoringRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubernetesCluster.KubeConfig,
-			},
-		})
 
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
@@ -611,7 +639,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		kubeClient, err = k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 		if err != nil {
 			return err
 		}
@@ -627,6 +655,20 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has database clusters", req.KubernetesClusterName)
 		}
 
+		if err := kubeClient.CleanupMonitoring(); err != nil {
+			return nil
+		}
+
+		labels, err := k.baseLabels()
+		if err != nil {
+			return err
+		}
+
+		err = deleteVMAgent(ctx, kubeClient, "default", labels)
+		if err != nil {
+			return errors.Wrap(err, "cannot uninstal vm operator in the new cluster")
+		}
+
 		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 	})
 	if err != nil {
@@ -634,6 +676,17 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 	}
 
 	return &dbaasv1beta1.UnregisterKubernetesClusterResponse{}, nil
+}
+
+func (k kubernetesServer) baseLabels() (map[string]string, error) {
+	settings, err := models.GetSettings(k.db.Querier)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get PMM settings to build base labels")
+	}
+	return map[string]string{
+		"app.kubernetes.io/part-of":  "pmm",
+		"app.kubernetes.io/instance": settings.PMMServerID,
+	}, nil
 }
 
 // GetKubernetesCluster return KubeAuth with Kubernetes config.
