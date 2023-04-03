@@ -65,17 +65,20 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 }
 
 func TestAgentService(t *testing.T) {
-	t.Run("List", func(t *testing.T) {
+	t.Run("List of agents", func(t *testing.T) {
 		const (
 			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
 			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
 		)
 
-		t.Run("Basic", func(t *testing.T) {
+		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{})
+			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{
+				NodeID: models.PMMServerNodeID,
+			})
+
 			require.NoError(t, err)
 			assert.Len(t, services, 1)
 			service := services[0]
@@ -91,7 +94,7 @@ func TestAgentService(t *testing.T) {
 			assert.Len(t, response.Agents, 3) // 2 exporters + 1 agent
 		})
 
-		t.Run("RDS", func(t *testing.T) {
+		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -113,32 +116,23 @@ func TestAgentService(t *testing.T) {
 			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
 			require.NoError(t, err)
 
-			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-				PMMAgentID: pmmAgent.AgentID,
-				ServiceID:  service.ServiceID,
-				Password:   "password",
-				Username:   "username",
-			})
-			require.NoError(t, err)
-
 			rdsExporter, err := models.CreateAgent(s.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
 				PMMAgentID: pmmAgent.AgentID,
 				ServiceID:  service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()    // RDS exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once() // RDS exporter
 
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 2)
+			assert.Len(t, response.Agents, 1)
 		})
 
-		t.Run("Azure", func(t *testing.T) {
+		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
@@ -160,29 +154,20 @@ func TestAgentService(t *testing.T) {
 			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
 			require.NoError(t, err)
 
-			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-				PMMAgentID: pmmAgent.AgentID,
-				ServiceID:  service.ServiceID,
-				Password:   "password",
-				Username:   "username",
-			})
-			require.NoError(t, err)
-
 			azureExporter, err := models.CreateAgent(s.db.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
 				PMMAgentID: pmmAgent.AgentID,
 				ServiceID:  service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
-			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()  // Azure exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once() // Azure exporter
 
 			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 2)
+			assert.Len(t, response.Agents, 1)
 		})
 	})
 }

@@ -227,7 +227,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		nodeMap[node.NodeID] = node.NodeName
 	}
 
-	resultSvc := make([]*managementpb.UniversalService, 0, len(services))
+	resultSvc := make([]*managementpb.UniversalService, len(services))
 	for i, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
