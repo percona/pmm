@@ -35,11 +35,16 @@ const (
 	dbaasKind           = "DatabaseCluster"
 	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
 	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
+	// FIXME when https://jira.percona.com/browse/K8SPG-309 is fixed change the
+	// template to dbaas-%s-pg-secrets
+	postgresqlSecretNameTmpl = "%s-pguser-%s" //nolint:gosec
 	// DatabaseTypePXC is a pxc database
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
 	// DatabaseTypePSMDB is a psmdb database
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
-	externalNLB       string             = "external"
+	// DatabaseTypePostgresql a postgresql database
+	DatabaseTypePostgresql dbaasv1.EngineType = "postgresql"
+	externalNLB            string             = "external"
 
 	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
 	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
@@ -401,79 +406,71 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	return dbCluster, nil, nil
 }
 
-// UpdatePatchForPSMDB returns a patch to update a database cluster
-func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest, clusterType ClusterType) error {
-	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
-		return errSimultaneous
+// DatabaseClusterForPostgresql fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
+func DatabaseClusterForPostgresql(cluster *dbaasv1beta1.CreatePostgresqlClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll,unparam
+	diskSize := resource.NewQuantity(cluster.Params.Instance.DiskSize, resource.DecimalSI)
+	cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", cluster.Params.Instance.ComputeResources.CpuM))
+	if err != nil {
+		return nil, nil, err
 	}
-	dbCluster.TypeMeta = metav1.TypeMeta{
-		APIVersion: dbaasAPI,
-		Kind:       dbaasKind,
+	clusterMemory := resource.NewQuantity(cluster.Params.Instance.ComputeResources.MemoryBytes, resource.DecimalSI)
+	dbCluster := &dbaasv1.DatabaseCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: cluster.Name,
+		},
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: dbaasAPI,
+			Kind:       dbaasKind,
+		},
+		Spec: dbaasv1.DatabaseSpec{
+			Database:       DatabaseTypePostgresql,
+			DatabaseImage:  cluster.Params.Instance.Image,
+			DatabaseConfig: cluster.Params.Instance.Configuration,
+			ClusterSize:    cluster.Params.ClusterSize,
+			SecretsName:    fmt.Sprintf(postgresqlSecretNameTmpl, cluster.Name, cluster.Name),
+			DBInstance: dbaasv1.DBInstanceSpec{
+				DiskSize: *diskSize,
+				CPU:      cpu,
+				Memory:   *clusterMemory,
+			},
+			Monitoring: dbaasv1.MonitoringSpec{
+				PMM: &dbaasv1.PMMSpec{},
+			},
+			LoadBalancer: dbaasv1.LoadBalancerSpec{},
+			Backup:       &dbaasv1.BackupSpec{},
+		},
 	}
-	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
-		if dbCluster.ObjectMeta.Annotations == nil {
-			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+	if cluster.Params.Instance.StorageClass != "" {
+		dbCluster.Spec.DBInstance.StorageClassName = &cluster.Params.Instance.StorageClass
+	}
+	if cluster.Params.Pgbouncer != nil {
+		resources, err := convertComputeResource(cluster.Params.Pgbouncer.ComputeResources)
+		if err != nil {
+			return nil, nil, err
 		}
-		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
-		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
-	} else {
-		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
-		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
+		dbCluster.Spec.LoadBalancer.Size = cluster.Params.ClusterSize
+		dbCluster.Spec.LoadBalancer.Image = cluster.Params.Pgbouncer.Image
+		dbCluster.Spec.LoadBalancer.Resources = resources
+		dbCluster.Spec.LoadBalancer.Type = "pgbouncer"
 	}
-	if updateRequest.Params.ClusterSize > 0 {
-		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
-	}
-	if updateRequest.Params.Image != "" {
-		dbCluster.Spec.DatabaseImage = updateRequest.Params.Image
-	}
-	if updateRequest.Params.Replicaset != nil {
-		if updateRequest.Params.Replicaset.ComputeResources != nil {
-			if updateRequest.Params.Replicaset.ComputeResources.CpuM > 0 {
-				cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", updateRequest.Params.Replicaset.ComputeResources.CpuM))
-				if err != nil {
-					return err
-				}
-				dbCluster.Spec.DBInstance.CPU = cpu
-			}
-			if updateRequest.Params.Replicaset.ComputeResources.MemoryBytes > 0 {
-				clusterMemory := resource.NewQuantity(updateRequest.Params.Replicaset.ComputeResources.MemoryBytes, resource.DecimalSI)
-				dbCluster.Spec.DBInstance.Memory = *clusterMemory
-			}
-		}
-		if updateRequest.Params.Replicaset.Configuration != "" {
-			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Replicaset.Configuration
-		}
 
-		if updateRequest.Params.Replicaset.StorageClass != "" {
-			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Replicaset.StorageClass
-		}
-	}
-	if updateRequest.Params.Suspend {
-		dbCluster.Spec.Pause = true
-	}
-	if updateRequest.Params.Resume {
-		dbCluster.Spec.Pause = false
-	}
-	if !updateRequest.Expose {
-		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
-	}
-	if updateRequest.Expose {
+	if cluster.Expose {
 		exposeType, ok := exposeTypeMap[clusterType]
 		if !ok {
-			return fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
 		annotations, ok := exposeAnnotationsMap[clusterType]
 		if !ok {
-			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+			return dbCluster, nil, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
-		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
+		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
 			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
 		}
 	}
 	var sourceRanges []string
-	for _, sourceRange := range updateRequest.SourceRanges {
+	for _, sourceRange := range cluster.SourceRanges {
 		if sourceRange != "" {
 			sourceRanges = append(sourceRanges, sourceRange)
 		}
@@ -481,10 +478,8 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	if len(sourceRanges) != 0 {
 		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
 	}
-	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
-		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
-	}
-	return nil
+
+	return dbCluster, nil, nil
 }
 
 // UpdatePatchForPXC returns a patch to update a database cluster
@@ -548,6 +543,92 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 			return err
 		}
 		dbCluster.Spec.LoadBalancer.Resources = resources
+	}
+	if updateRequest.Params.Suspend {
+		dbCluster.Spec.Pause = true
+	}
+	if updateRequest.Params.Resume {
+		dbCluster.Spec.Pause = false
+	}
+	if !updateRequest.Expose {
+		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+	}
+	if updateRequest.Expose {
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
+		}
+	}
+	var sourceRanges []string
+	for _, sourceRange := range updateRequest.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	return nil
+}
+
+// UpdatePatchForPSMDB returns a patch to update a database cluster
+func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest, clusterType ClusterType) error {
+	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
+		return errSimultaneous
+	}
+	dbCluster.TypeMeta = metav1.TypeMeta{
+		APIVersion: dbaasAPI,
+		Kind:       dbaasKind,
+	}
+	if updateRequest.Template != nil && updateRequest.Template.Name != "" && updateRequest.Template.Kind != "" {
+		if dbCluster.ObjectMeta.Annotations == nil {
+			dbCluster.ObjectMeta.Annotations = make(map[string]string)
+		}
+		dbCluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey] = updateRequest.Template.Name
+		dbCluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey] = updateRequest.Template.Kind
+	} else {
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateNameAnnotationKey)
+		delete(dbCluster.ObjectMeta.Annotations, dbTemplateKindAnnotationKey)
+	}
+	if updateRequest.Params.ClusterSize > 0 {
+		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
+	}
+	if updateRequest.Params.Image != "" {
+		dbCluster.Spec.DatabaseImage = updateRequest.Params.Image
+	}
+	if updateRequest.Params.Replicaset != nil {
+		if updateRequest.Params.Replicaset.ComputeResources != nil {
+			if updateRequest.Params.Replicaset.ComputeResources.CpuM > 0 {
+				cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", updateRequest.Params.Replicaset.ComputeResources.CpuM))
+				if err != nil {
+					return err
+				}
+				dbCluster.Spec.DBInstance.CPU = cpu
+			}
+			if updateRequest.Params.Replicaset.ComputeResources.MemoryBytes > 0 {
+				clusterMemory := resource.NewQuantity(updateRequest.Params.Replicaset.ComputeResources.MemoryBytes, resource.DecimalSI)
+				dbCluster.Spec.DBInstance.Memory = *clusterMemory
+			}
+		}
+		if updateRequest.Params.Replicaset.Configuration != "" {
+			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Replicaset.Configuration
+		}
+
+		if updateRequest.Params.Replicaset.StorageClass != "" {
+			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Replicaset.StorageClass
+		}
 	}
 	if updateRequest.Params.Suspend {
 		dbCluster.Spec.Pause = true
