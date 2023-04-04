@@ -167,10 +167,6 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			clusters[i].Operators.Pxc.Version = pxcVersion
 			clusters[i].Operators.Psmdb.Version = psmdbVersion
 
-			kubeClient, err := kubernetes.New(cluster.KubeConfig)
-			if err != nil {
-				return
-			}
 			version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
 			if err != nil {
 				return
