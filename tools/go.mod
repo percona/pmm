@@ -10,7 +10,7 @@ require (
 	github.com/apache/skywalking-eyes v0.4.0
 	github.com/bufbuild/buf v1.16.0
 	github.com/daixiang0/gci v0.10.1
-	github.com/envoyproxy/protoc-gen-validate v0.9.1
+	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/go-delve/delve v1.20.1
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
@@ -123,7 +123,7 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.6 // indirect
-	github.com/lyft/protoc-gen-star v0.6.1 // indirect
+	github.com/lyft/protoc-gen-star/v2 v2.0.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
