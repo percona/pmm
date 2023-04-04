@@ -396,15 +396,20 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting the database cluster")
 	}
+
 	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting psmdb operator version")
 	}
-
 	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
+	pgOperatorVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting pg operator version")
+	}
+
 	resp := &dbaasv1beta1.GetDBClusterResponse{}
 	if dbCluster.Spec.Database == kubernetes.DatabaseTypePXC && pxcOperatorVersion != "" {
 		c, err := s.getPXCCluster(ctx, *dbCluster, pxcOperatorVersion)
@@ -419,6 +424,13 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 			return nil, errors.Wrap(err, "failed getting PSMDB cluster")
 		}
 		resp.PsmdbCluster = c
+	}
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePostgresql && pgOperatorVersion != "" {
+		c, err := s.getPostgresqlCluster(*dbCluster, pgOperatorVersion)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed getting Postgresql cluster")
+		}
+		resp.PostgresqlCluster = c
 	}
 	return resp, nil
 }
