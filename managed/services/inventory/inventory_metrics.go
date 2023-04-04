@@ -17,7 +17,6 @@ package inventory
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -54,8 +53,6 @@ type InventoryMetricsCollector struct {
 	mServicesDesc *prom.Desc
 
 	metrics inventoryMetrics
-
-	mutex sync.Mutex
 }
 
 func NewInventoryMetrics(db *reform.DB, registry agentsRegistry) *InventoryMetrics {
@@ -210,9 +207,6 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 
 	ctx = logger.Set(ctx, "inventoryMetrics")
 	l := logger.Get(ctx)
-
-	i.mutex.Lock()
-	defer i.mutex.Unlock()
 
 	agentMetrics, agentError := i.metrics.GetAgentMetrics(ctx)
 
