@@ -48,7 +48,7 @@ func (a *Client) CompleteUserTip(params *CompleteUserTipParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "CompleteUserTip",
 		Method:             "POST",
-		PathPattern:        "/v1/onboarding/tips/{tipId}/complete",
+		PathPattern:        "/v1/onboarding/tips/complete",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

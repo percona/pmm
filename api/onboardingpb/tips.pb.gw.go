@@ -61,23 +61,6 @@ func request_TipService_CompleteUserTip_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["tipId"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
-	}
-
-	protoReq.TipId, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
-	}
-
 	msg, err := client.CompleteUserTip(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -92,23 +75,6 @@ func local_request_TipService_CompleteUserTip_0(ctx context.Context, marshaler r
 	}
 	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["tipId"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "tipId")
-	}
-
-	protoReq.TipId, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tipId", err)
 	}
 
 	msg, err := server.CompleteUserTip(ctx, &protoReq)
@@ -152,7 +118,7 @@ func RegisterTipServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/complete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/complete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -235,7 +201,7 @@ func RegisterTipServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/{tipId}/complete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/onboardingpb.TipService/CompleteUserTip", runtime.WithHTTPPathPattern("/v1/onboarding/tips/complete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -256,7 +222,7 @@ func RegisterTipServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 var (
 	pattern_TipService_GetOnboardingStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "onboarding"}, ""))
 
-	pattern_TipService_CompleteUserTip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "onboarding", "tips", "tipId", "complete"}, ""))
+	pattern_TipService_CompleteUserTip_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "onboarding", "tips", "complete"}, ""))
 )
 
 var (

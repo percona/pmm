@@ -58,7 +58,7 @@ type CompleteUserTipOK struct {
 }
 
 func (o *CompleteUserTipOK) Error() string {
-	return fmt.Sprintf("[POST /v1/onboarding/tips/{tipId}/complete][%d] completeUserTipOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/onboarding/tips/complete][%d] completeUserTipOk  %+v", 200, o.Payload)
 }
 
 func (o *CompleteUserTipOK) GetPayload() interface{} {
@@ -98,7 +98,7 @@ func (o *CompleteUserTipDefault) Code() int {
 }
 
 func (o *CompleteUserTipDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/onboarding/tips/{tipId}/complete][%d] CompleteUserTip default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/onboarding/tips/complete][%d] CompleteUserTip default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CompleteUserTipDefault) GetPayload() *CompleteUserTipDefaultBody {
@@ -113,6 +113,43 @@ func (o *CompleteUserTipDefault) readResponse(response runtime.ClientResponse, c
 		return err
 	}
 
+	return nil
+}
+
+/*
+CompleteUserTipBody Request message for CompleteUserTip method.
+swagger:model CompleteUserTipBody
+*/
+type CompleteUserTipBody struct {
+	// The ID of the tip to retrieve.
+	TipID string `json:"tipId,omitempty"`
+}
+
+// Validate validates this complete user tip body
+func (o *CompleteUserTipBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this complete user tip body based on context it is used
+func (o *CompleteUserTipBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CompleteUserTipBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CompleteUserTipBody) UnmarshalBinary(b []byte) error {
+	var res CompleteUserTipBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 

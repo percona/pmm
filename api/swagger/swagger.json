@@ -23583,7 +23583,7 @@
         }
       }
     },
-    "/v1/onboarding/tips/{tipId}/complete": {
+    "/v1/onboarding/tips/complete": {
       "post": {
         "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
         "tags": [
@@ -23593,20 +23593,21 @@
         "operationId": "CompleteUserTip",
         "parameters": [
           {
-            "type": "string",
-            "format": "int64",
-            "description": "The ID of the tip to retrieve.",
-            "name": "tipId",
-            "in": "path",
-            "required": true
-          },
-          {
+            "description": "Request message for CompleteUserTip method.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "description": "Request message for CompleteUserTip method.",
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],

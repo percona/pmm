@@ -60,16 +60,11 @@ CompleteUserTipParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CompleteUserTipParams struct {
-	// Body.
-	Body interface{}
+	/* Body.
 
-	/* TipID.
-
-	   The ID of the tip to retrieve.
-
-	   Format: int64
+	   Request message for CompleteUserTip method.
 	*/
-	TipID string
+	Body CompleteUserTipBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -125,25 +120,14 @@ func (o *CompleteUserTipParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the complete user tip params
-func (o *CompleteUserTipParams) WithBody(body interface{}) *CompleteUserTipParams {
+func (o *CompleteUserTipParams) WithBody(body CompleteUserTipBody) *CompleteUserTipParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the complete user tip params
-func (o *CompleteUserTipParams) SetBody(body interface{}) {
+func (o *CompleteUserTipParams) SetBody(body CompleteUserTipBody) {
 	o.Body = body
-}
-
-// WithTipID adds the tipID to the complete user tip params
-func (o *CompleteUserTipParams) WithTipID(tipID string) *CompleteUserTipParams {
-	o.SetTipID(tipID)
-	return o
-}
-
-// SetTipID adds the tipId to the complete user tip params
-func (o *CompleteUserTipParams) SetTipID(tipID string) {
-	o.TipID = tipID
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -152,14 +136,7 @@ func (o *CompleteUserTipParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
-
-	// path param tipId
-	if err := r.SetPathParam("tipId", o.TipID); err != nil {
+	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
 
