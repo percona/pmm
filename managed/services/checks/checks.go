@@ -114,9 +114,9 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted     *prom.CounterVec
+	mScriptsExecuted     *prom.GaugeVec
+	mChecksInMemory      *prom.GaugeVec
 	mAlertsGenerated     *prom.CounterVec
-	mChecksDownloaded    *prom.CounterVec
 	mChecksExecutionTime *prom.SummaryVec
 }
 
@@ -165,26 +165,26 @@ func New(
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
-		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
+		mScriptsExecuted: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Help:      "Counter of check scripts executed per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
 		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Help:      "Counter of alerts generated per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
-		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
+		mChecksInMemory: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "checks_downloaded_total",
-			Help:      "Counter of checks downloaded per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_in_memory",
+			Help:      "Counter of checks downloaded per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
 		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
 			Namespace:  prometheusNamespace,
@@ -759,6 +759,8 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check) []services.CheckResult {
 	var res []services.CheckResult
+	s.mScriptsExecuted.Reset()
+
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
 		pmmAgentVersion := s.minPMMAgentVersion(c)
@@ -779,8 +781,8 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			res = append(res, results...)
 			executionTime := time.Since(start)
 
-			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
+			s.mScriptsExecuted.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
+			s.mAlertsGenerated.WithLabelValues(string(serviceType), c.Advisor, c.Name).Add(float64(len(results)))
 			s.mChecksExecutionTime.WithLabelValues(string(serviceType), c.Advisor, c.Name).Observe(executionTime.Seconds())
 		}
 	}
@@ -1488,6 +1490,10 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
+
+	s.mChecksInMemory.Reset()
+	defer s.refreshChecksInMemoryMetric()
+
 	if s.localChecksFile != "" {
 		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
 		checks, err := s.loadLocalChecks(s.localChecksFile)
@@ -1510,8 +1516,6 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded advisors
 		}
-		// defer it to run after updateAdvisors
-		defer s.incChecksDownload()
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
@@ -1674,7 +1678,7 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 func (s *Service) Describe(ch chan<- *prom.Desc) {
 	s.mScriptsExecuted.Describe(ch)
 	s.mAlertsGenerated.Describe(ch)
-	s.mChecksDownloaded.Describe(ch)
+	s.mChecksInMemory.Describe(ch)
 	s.mChecksExecutionTime.Describe(ch)
 }
 
@@ -1682,24 +1686,24 @@ func (s *Service) Describe(ch chan<- *prom.Desc) {
 func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mScriptsExecuted.Collect(ch)
 	s.mAlertsGenerated.Collect(ch)
-	s.mChecksDownloaded.Collect(ch)
+	s.mChecksInMemory.Collect(ch)
 	s.mChecksExecutionTime.Collect(ch)
 }
 
-func (s *Service) incChecksDownload() {
+func (s *Service) refreshChecksInMemoryMetric() {
 	checks, err := s.GetChecks()
 	if err != nil {
 		s.l.Warnf("failed to get checks: %+v", err)
 	}
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
-	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
-	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
-	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
+	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
+	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
+	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
 }
 
-func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
+func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+		s.mChecksInMemory.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
 }
 

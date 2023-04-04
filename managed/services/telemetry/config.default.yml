@@ -629,11 +629,11 @@ telemetry:
   # Advisor
   - id: AdvisorChecksDownloadedCount
     source: VM
-    query: pmm_managed_checks_checks_downloaded_total
+    query: pmm_managed_checks_checks_in_memory
     transform:
       type: JSON
-      metric: "advisor_checks_downloaded"
-    summary: "Advisor - number of downloaded checks per name"
+      metric: "advisor_checks_in_memory"
+    summary: "Advisor - number of loaded checks in PMM"
     data:
       - metric_name: 1
         label: "check_name"
@@ -842,7 +842,7 @@ telemetry:
   - id: AdvisorsChecksExecutionTime
     source: VM
     query: pmm_managed_checks_checks_execution_time_seconds
-    summary: "Advisor - Average time taken for advisor checks to execute"
+    summary: "Advisor - Time taken for advisor checks to execute"
     transform:
       type: JSON
       metric: "advisor_checks_checks_execution_time"
