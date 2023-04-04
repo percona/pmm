@@ -19972,13 +19972,14 @@
                   "x-order": 1
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB"
+                    "DB_CLUSTER_TYPE_PSMDB",
+                    "DB_CLUSTER_TYPE_POSTGRESQL"
                   ],
                   "x-order": 2
                 }
@@ -21356,13 +21357,14 @@
                   "x-order": 1
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB"
+                    "DB_CLUSTER_TYPE_PSMDB",
+                    "DB_CLUSTER_TYPE_POSTGRESQL"
                   ],
                   "x-order": 2
                 }
@@ -24032,13 +24034,14 @@
                   "x-order": 0
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB"
+                    "DB_CLUSTER_TYPE_PSMDB",
+                    "DB_CLUSTER_TYPE_POSTGRESQL"
                   ],
                   "x-order": 1
                 }
