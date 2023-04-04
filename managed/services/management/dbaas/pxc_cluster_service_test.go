@@ -19,14 +19,11 @@ package dbaas
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -138,16 +135,6 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("ListClusterServiceVersion", mock.Anything, mock.Anything).Return(&v1alpha1.ClusterServiceVersionList{}, nil)
 	kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(15*time.Second)).
-		Return(&controllerv1beta1.StartMonitoringResponse{}, nil).Run(func(a mock.Arguments) {
-		// StartMonitoring if being called in a go-routine. Since we cannot forsee when the runtime scheduler
-		// is going to assing some time to this go-routine, the waitgroup is being used to signal than the test
-		// can continue.
-		wg.Done()
-	})
-
 	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		pxcKubernetesClusterNameTest: kubeClient,
@@ -161,8 +148,6 @@ func TestPXCClusterService(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
-
-	wg.Wait()
 
 	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
