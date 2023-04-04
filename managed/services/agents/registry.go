@@ -90,7 +90,7 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, isExternalVM bool) *Registry {
+func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
@@ -126,7 +126,7 @@ func NewRegistry(db *reform.DB, isExternalVM bool) *Registry {
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
 
-		isExternalVM: isExternalVM,
+		isExternalVM: externalVMChecker.ExternalVM(),
 	}
 
 	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{

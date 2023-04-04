@@ -44,11 +44,11 @@ type StateUpdater struct {
 	db       *reform.DB
 	r        *Registry
 	vmdb     prometheusService
-	vmParams *models.VictoriaMetricsParams
+	vmParams victoriaMetricsParams
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams *models.VictoriaMetricsParams) *StateUpdater {
+func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams) *StateUpdater {
 	return &StateUpdater{
 		db:       db,
 		r:        r,

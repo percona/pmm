@@ -429,7 +429,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
-		"VMURL":                    s.vmParams.URL,
+		"VMURL":                    s.vmParams.URL(),
 		"ExternalVM":               s.vmParams.ExternalVM(),
 		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"InterfaceToBind":          envvars.GetInterfaceToBind(),

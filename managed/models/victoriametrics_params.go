@@ -16,6 +16,7 @@
 package models
 
 import (
+	"net/url"
 	"os"
 	"strings"
 
@@ -37,8 +38,8 @@ type VictoriaMetricsParams struct {
 	VMAlertFlags []string
 	// BaseConfigPath defines path for basic prometheus config.
 	BaseConfigPath string
-	// URL defines URL of Victoria Metrics
-	URL string
+	// url defines url of Victoria Metrics
+	url *url.URL
 }
 
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
@@ -46,9 +47,14 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 	if !strings.HasSuffix(vmURL, "/") {
 		vmURL = vmURL + "/"
 	}
+
+	URL, err := url.Parse(vmURL)
+	if err != nil {
+		return nil, err
+	}
 	vmp := &VictoriaMetricsParams{
 		BaseConfigPath: basePath,
-		URL:            vmURL,
+		url:            URL,
 	}
 	if err := vmp.UpdateParams(); err != nil {
 		return vmp, err
@@ -95,5 +101,16 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 }
 
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return !strings.HasPrefix(vmp.URL, "http://127.0.0.1")
+	return vmp.url.Hostname() == "127.0.0.1"
+}
+
+func (vmp *VictoriaMetricsParams) URL() string {
+	return vmp.url.String()
+}
+
+func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
+	if path == "" {
+		return vmp.url, nil
+	}
+	return vmp.url.Parse(path)
 }

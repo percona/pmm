@@ -781,7 +781,7 @@ func main() {
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, vmParams.ExternalVM())
+	agentsRegistry := agents.NewRegistry(db, vmParams)
 	backupRemovalService := backup.NewRemovalService(db, minioClient)
 	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)

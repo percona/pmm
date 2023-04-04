@@ -23,7 +23,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
@@ -33,10 +32,10 @@ var (
 )
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string, params *models.VictoriaMetricsParams) *agentpb.SetStateRequest_AgentProcess {
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentpb.SetStateRequest_AgentProcess {
 	serverURL := "{{.server_url}}/victoriametrics/"
 	if params.ExternalVM() {
-		serverURL = params.URL
+		serverURL = params.URL()
 	}
 	maxScrapeSize := maxScrapeSizeDefault
 	if space := os.Getenv(maxScrapeSizeEnv); space != "" {

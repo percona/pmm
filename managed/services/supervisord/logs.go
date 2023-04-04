@@ -25,7 +25,6 @@ import (
 	"io"
 	"mime"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -38,7 +37,6 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -61,12 +59,12 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
-	vmParams         *models.VictoriaMetricsParams
+	vmParams         victoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
@@ -285,11 +283,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 }
 
 func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
-	vmURL, err := url.Parse(l.vmParams.URL)
-	if err != nil {
-		return nil, err
-	}
-	targetsURL, err := vmURL.Parse("api/v1/targets")
+	targetsURL, err := l.vmParams.URLFor("api/v1/targets")
 	if err != nil {
 		return nil, err
 	}

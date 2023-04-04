@@ -68,7 +68,7 @@ type Service struct {
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
 func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.VictoriaMetricsParams) (*Service, error) {
-	u, err := url.Parse(params.URL)
+	u, err := url.Parse(params.URL())
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -333,7 +333,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, s.HR, svc.params.URL))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, s.HR, svc.params))
 		if svc.params.ExternalVM() {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
@@ -344,8 +344,8 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 }
 
 // scrapeConfigForVictoriaMetrics returns scrape config for Victoria Metrics in Prometheus format.
-func scrapeConfigForVictoriaMetrics(l *logrus.Entry, interval time.Duration, baseURL string) *config.ScrapeConfig {
-	target, err := relativePath(baseURL, "metrics")
+func scrapeConfigForVictoriaMetrics(l *logrus.Entry, interval time.Duration, vmParams *models.VictoriaMetricsParams) *config.ScrapeConfig {
+	target, err := vmParams.URLFor("metrics")
 	if err != nil {
 		l.Errorf("couldn't parse relative path to victoria metrics: %q", err)
 		return nil
