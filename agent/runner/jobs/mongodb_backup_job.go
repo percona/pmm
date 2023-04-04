@@ -160,9 +160,18 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
 
-	backupTimestamp, err := pbmBackupTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
 	if err != nil {
 		return err
+	}
+
+	// mongoArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mongoArtifactFiles := func(pbmBackupName string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: pbmBackupName + pbmArtifactJSONPostfix},
+			{Name: pbmBackupName, IsDirectory: true},
+		}
+		return res
 	}
 
 	send(&agentpb.JobResult{
@@ -170,10 +179,10 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
 			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
-				Repr: &backuppb.StorageRec{
+				Metadata: &backuppb.Metadata{
 					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
 					RestoreTo: timestamppb.New(backupTimestamp),
-					ReprBackup: &backuppb.BackupRec{
+					BackupToolData: &backuppb.BackupToolData{
 						Name: pbmBackupOut.Name,
 					},
 				},
@@ -208,21 +217,4 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	}
 
 	return &result, nil
-}
-
-// mongoArtifactFiles returns list of files and folders the backup consists of.
-func mongoArtifactFiles(pbmBackupName string) []*backuppb.File {
-	res := []*backuppb.File{
-		{Name: pbmBackupName + pbmArtifactJSONPostfix},
-		{Name: pbmBackupName, IsDirectory: true},
-	}
-	return res
-}
-
-func pbmBackupTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (time.Time, error) {
-	timestamp, err := pbmGetSnapshotTimestamp(ctx, dbURL, backupName)
-	if err != nil {
-		return time.Time{}, err
-	}
-	return time.Unix(timestamp, 0), nil
 }

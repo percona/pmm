@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/percona-backup-mongodb/pbm/storage"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,14 +37,14 @@ const (
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PbmPITRService helps perform file lookups in a backup locationClient location
-type PbmPITRService struct {
+// PBMPITRService helps to perform PITR chunks lookup in a backup storage
+type PBMPITRService struct {
 	l *logrus.Entry
 }
 
-// NewPbmPITRService creates new backup locationClient service.
-func NewPbmPITRService() *PbmPITRService {
-	return &PbmPITRService{
+// NewPBMPITRService creates new backup PBMPITRService service.
+func NewPBMPITRService() *PBMPITRService {
+	return &PBMPITRService{
 		l: logrus.WithField("component", "services/backup/pitr_storage"),
 	}
 }
@@ -110,30 +109,28 @@ func file(ext string) compressionType {
 	}
 }
 
-func (s *PbmPITRService) getPITROplogs(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
+func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
+	var err error
+	var oplogChunks []*oplogChunk
+
+	if storage == nil {
+		return oplogChunks, nil
+	}
 	if location.S3Config == nil {
 		return nil, errUnsupportedLocation
 	}
 
-	var err error
-	var oplogChunks []*oplogChunk
-
 	var prefix string
 
 	// Only artifacts taken with new agents can be restored from artifact folder.
-	if len(artifact.StorageRecList) == 0 {
+	if len(artifact.MetadataList) == 0 {
 		prefix = path.Join(artifact.Name, pitrFSPrefix)
 	} else {
 		prefix = path.Join(*artifact.Folder, pitrFSPrefix)
 	}
 
-	locationClient := Location2Storage(location)
-	if locationClient == nil {
-		return []*oplogChunk{}, nil
-	}
-
 	s3Config := location.S3Config
-	pitrFiles, err := locationClient.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
+	pitrFiles, err := storage.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -156,10 +153,11 @@ func (s *PbmPITRService) getPITROplogs(ctx context.Context, location *models.Bac
 	return oplogChunks, nil
 }
 
-func (s *PbmPITRService) ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error) {
+// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
+func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error) {
 	var timelines [][]Timeline
 
-	oplogs, err := s.getPITROplogs(ctx, location, artifact)
+	oplogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
 	}
@@ -180,7 +178,7 @@ func (s *PbmPITRService) ListPITRTimeranges(ctx context.Context, location *model
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
 // it returns nil if the file wasn't parse successfully (e.g. wrong format)
-// current fromat is 20200715155939-0.20200715160029-1.oplog.snappy
+// current format is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! should be agreed with pbm/pitr.chunkPath()
@@ -369,39 +367,9 @@ func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	return ret
 }
 
-// DeletePITRChunks deletes PBM PITR chunks. If 'until' specified, deletes only chunks before (excluding) that date.
-func (s *PbmPITRService) DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error {
-	chunks, err := s.pitrGetChunksSlice(ctx, location, artifact, until)
-	if err != nil {
-		return errors.Wrap(err, "failed to get pitr chunks")
-	}
-
-	if len(chunks) == 0 {
-		s.l.Debug("no chunks to delete")
-		return nil
-	}
-
-	locationClient := Location2Storage(location)
-	if locationClient == nil {
-		return nil
-	}
-
-	for _, chunk := range chunks {
-		s3Config := location.S3Config
-		err = locationClient.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName)
-		if err != nil && err != storage.ErrNotExist {
-			return errors.Wrapf(err, "failed to delete pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
-		}
-
-		s.l.Debugf("deleted %s", chunk.FName)
-	}
-
-	return nil
-}
-
-// pitrGetChunksSlice returns list of PITR chunks. If 'until' specified, returns only chunks created before that date.
-func (s *PbmPITRService) pitrGetChunksSlice(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
-	opLogs, err := s.getPITROplogs(ctx, location, artifact)
+// GetPITRFiles returns list of PITR chunks. If 'until' specified, returns only chunks created before that date, otherwise returns all artifact chunks.
+func (s *PBMPITRService) GetPITRFiles(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
+	opLogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, err
 	}

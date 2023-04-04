@@ -86,12 +86,20 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
+	// mysqlArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mysqlArtifactFiles := func(backupFolder string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: backupFolder, IsDirectory: true},
+		}
+		return res
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
 			MysqlBackup: &agentpb.JobResult_MySQLBackup{
-				Repr: &backuppb.StorageRec{
+				Metadata: &backuppb.Metadata{
 					FileList: mysqlArtifactFiles(j.name),
 				},
 			},
@@ -240,12 +248,4 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}()
 
 	return nil
-}
-
-// mysqlArtifactFiles returns list of files and folders the backup consists of.
-func mysqlArtifactFiles(backupFolder string) []*backuppb.File {
-	res := []*backuppb.File{
-		{Name: backupFolder, IsDirectory: true},
-	}
-	return res
 }

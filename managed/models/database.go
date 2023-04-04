@@ -841,7 +841,7 @@ var databaseSchema = [][]string{
 	79: {
 		`ALTER TABLE artifacts
     		ADD COLUMN folder VARCHAR,
-			ADD COLUMN storage_rec_list JSONB`,
+			ADD COLUMN metadata_list JSONB`,
 	},
 }
 

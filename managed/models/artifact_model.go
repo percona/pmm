@@ -52,13 +52,15 @@ type BackupStatus string
 
 // BackupStatus status (in the same order as in artifacts.proto).
 const (
-	PendingBackupStatus        BackupStatus = "pending"
-	InProgressBackupStatus     BackupStatus = "in_progress"
-	PausedBackupStatus         BackupStatus = "paused"
-	SuccessBackupStatus        BackupStatus = "success"
-	ErrorBackupStatus          BackupStatus = "error"
-	DeletingBackupStatus       BackupStatus = "deleting"
-	FailedToDeleteBackupStatus BackupStatus = "failed_to_delete"
+	PendingBackupStatus             BackupStatus = "pending"
+	InProgressBackupStatus          BackupStatus = "in_progress"
+	PausedBackupStatus              BackupStatus = "paused"
+	SuccessBackupStatus             BackupStatus = "success"
+	ErrorBackupStatus               BackupStatus = "error"
+	DeletingBackupStatus            BackupStatus = "deleting"
+	FailedToDeleteBackupStatus      BackupStatus = "failed_to_delete"
+	RetentionInProgressBackupStatus BackupStatus = "retention_in_progress"
+	FailedRetentionBackupStatus     BackupStatus = "failed_retention"
 )
 
 // Validate validates backup status.
@@ -78,9 +80,9 @@ func (bs BackupStatus) Validate() error {
 	return nil
 }
 
-// BackupStatusPointer returns a pointer of backup status.
-func BackupStatusPointer(status BackupStatus) *BackupStatus {
-	return &status
+// Pointer returns a pointer to status value.
+func (bs BackupStatus) Pointer() *BackupStatus {
+	return &bs
 }
 
 // ArtifactType represents type how artifact was created.
@@ -123,46 +125,46 @@ type File struct {
 	IsDirectory bool   `json:"is_directory"`
 }
 
-// BackupRec contains extra data for backup tools.
-type BackupRec struct {
+// BackupToolData contains extra data for backup tools.
+type BackupToolData struct {
 	// Name of backup in backup tool representation.
 	Name string `json:"name"`
 }
 
-// StorageRec contains artifact representation in storage.
-type StorageRec struct {
-	FileList  []File     `json:"file_list"`
-	RestoreTo *time.Time `json:"restore_to"`
-	BackupRec *BackupRec `json:"repr_backup"`
+// Metadata contains extra artifact data like files it consists of, tool specific data, etc.
+type Metadata struct {
+	FileList       []File          `json:"file_list"`
+	RestoreTo      *time.Time      `json:"restore_to"`
+	BackupToolData *BackupToolData `json:"backup_tool_data"`
 }
 
-type StorageRecList []StorageRec
+type MetadataList []Metadata
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (p StorageRecList) Value() (driver.Value, error) { return jsonValue(p) }
+func (p MetadataList) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *StorageRecList) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
 
 // Artifact represents result of a backup.
 //
 //reform:artifacts
 type Artifact struct {
-	ID             string         `reform:"id,pk"`
-	Name           string         `reform:"name"`
-	Vendor         string         `reform:"vendor"`
-	DBVersion      string         `reform:"db_version"`
-	LocationID     string         `reform:"location_id"`
-	ServiceID      string         `reform:"service_id"`
-	DataModel      DataModel      `reform:"data_model"`
-	Mode           BackupMode     `reform:"mode"`
-	Status         BackupStatus   `reform:"status"`
-	Type           ArtifactType   `reform:"type"`
-	ScheduleID     string         `reform:"schedule_id"`
-	Folder         *string        `reform:"folder"`
-	StorageRecList StorageRecList `reform:"storage_rec_list"`
-	CreatedAt      time.Time      `reform:"created_at"`
-	UpdatedAt      time.Time      `reform:"updated_at"`
+	ID           string       `reform:"id,pk"`
+	Name         string       `reform:"name"`
+	Vendor       string       `reform:"vendor"`
+	DBVersion    string       `reform:"db_version"`
+	LocationID   string       `reform:"location_id"`
+	ServiceID    string       `reform:"service_id"`
+	DataModel    DataModel    `reform:"data_model"`
+	Mode         BackupMode   `reform:"mode"`
+	Status       BackupStatus `reform:"status"`
+	Type         ArtifactType `reform:"type"`
+	ScheduleID   string       `reform:"schedule_id"`
+	Folder       *string      `reform:"folder"`
+	MetadataList MetadataList `reform:"metadata_list"`
+	CreatedAt    time.Time    `reform:"created_at"`
+	UpdatedAt    time.Time    `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

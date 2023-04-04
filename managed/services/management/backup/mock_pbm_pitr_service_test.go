@@ -4,7 +4,6 @@ package backup
 
 import (
 	context "context"
-	time "time"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -17,27 +16,13 @@ type mockPbmPITRService struct {
 	mock.Mock
 }
 
-// DeletePITRChunks provides a mock function with given fields: ctx, location, artifact, until
-func (_m *mockPbmPITRService) DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error {
-	ret := _m.Called(ctx, location, artifact, until)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.BackupLocation, *models.Artifact, *time.Time) error); ok {
-		r0 = rf(ctx, location, artifact, until)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ListPITRTimeranges provides a mock function with given fields: ctx, location, artifact
-func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error) {
-	ret := _m.Called(ctx, location, artifact)
+// ListPITRTimeranges provides a mock function with given fields: ctx, locationClient, location, artifact
+func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, locationClient backup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error) {
+	ret := _m.Called(ctx, locationClient, location, artifact)
 
 	var r0 []backup.Timeline
-	if rf, ok := ret.Get(0).(func(context.Context, *models.BackupLocation, *models.Artifact) []backup.Timeline); ok {
-		r0 = rf(ctx, location, artifact)
+	if rf, ok := ret.Get(0).(func(context.Context, backup.Storage, *models.BackupLocation, *models.Artifact) []backup.Timeline); ok {
+		r0 = rf(ctx, locationClient, location, artifact)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]backup.Timeline)
@@ -45,8 +30,8 @@ func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, location *
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, *models.BackupLocation, *models.Artifact) error); ok {
-		r1 = rf(ctx, location, artifact)
+	if rf, ok := ret.Get(1).(func(context.Context, backup.Storage, *models.BackupLocation, *models.Artifact) error); ok {
+		r1 = rf(ctx, locationClient, location, artifact)
 	} else {
 		r1 = ret.Error(1)
 	}

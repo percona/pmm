@@ -174,7 +174,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				}
 			} else {
 				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.PendingBackupStatus),
+					Status: models.PendingBackupStatus.Pointer(),
 				}); err != nil {
 					return err
 				}
@@ -232,7 +232,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		var target *agents.AgentNotSupportedError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+				Status: models.ErrorBackupStatus.Pointer(),
 			})
 
 			if dbErr != nil {
@@ -359,7 +359,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		var artifactFolder *string
 
 		// Only artifacts taken with new agents can be restored from a folder.
-		if len(artifact.StorageRecList) != 0 {
+		if len(artifact.MetadataList) != 0 {
 			artifactFolder = artifact.Folder
 		}
 
@@ -376,8 +376,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			Folder:        artifactFolder,
 		}
 
-		if len(artifact.StorageRecList) != 0 && artifact.StorageRecList[0].BackupRec != nil {
-			params.ArtifactSysName = artifact.StorageRecList[0].BackupRec.Name
+		if len(artifact.MetadataList) != 0 && artifact.MetadataList[0].BackupToolData != nil {
+			params.ArtifactSysName = artifact.MetadataList[0].BackupToolData.Name
 		}
 
 		return nil
@@ -567,7 +567,8 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
 	}
 
-	timeRanges, err := s.pbmPITRService.ListPITRTimeranges(ctx, location, artifact)
+	storage := GetStorageForLocation(location)
+	timeRanges, err := s.pbmPITRService.ListPITRTimeranges(ctx, storage, location, artifact)
 	if err != nil {
 		return err
 	}

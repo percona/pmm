@@ -376,6 +376,7 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	for _, a := range artifacts {
+		// TODO removing artifact this way is not correct. Should be done via calling "removal service".
 		if err := DeleteArtifact(q, a.ID); err != nil {
 			return err
 		}

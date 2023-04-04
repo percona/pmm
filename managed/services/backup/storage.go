@@ -16,27 +16,12 @@
 package backup
 
 import (
-	"context"
-
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/minio"
 )
 
-type Storage interface {
-	// FileStat returns file info. It returns error if file is empty or not exists.
-	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
-
-	// List scans path with prefix and returns all files with given suffix.
-	// Both prefix and suffix can be omitted.
-	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
-	// Remove removes single objects from storage.
-	Remove(ctx context.Context, endpoint, accessKey, secretKey, bucketName, objectName string) error
-	// RemoveRecursive removes objects recursively from storage with given prefix.
-	RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error)
-}
-
-// Location2Storage returns storage client depending on location type.
-func Location2Storage(location *models.BackupLocation) Storage {
+// GetStorageForLocation returns storage client depending on location type.
+func GetStorageForLocation(location *models.BackupLocation) Storage {
 	switch location.Type {
 	case models.S3BackupLocationType:
 		return minio.New()

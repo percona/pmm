@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
@@ -28,6 +29,7 @@ import (
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=Storage -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -77,13 +79,10 @@ type jobsService interface {
 }
 
 type removalService interface {
-	// DeleteArtifact deletes specified artifact.
-	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
-	// DeleteArtifactFiles deletes artifact files.
-	// If artifact represents a single snapshot, there is only one record representing artifact files.
-	// If artifact represents continuous backup (PITR), artifact may contain several records,
-	// and it's possible to delete only first N of them to implement retention policy.
-	DeleteArtifactFiles(ctx context.Context, artifact *models.Artifact, firstN int) error
+	// DeleteArtifact deletes specified artifact along with files if specified.
+	DeleteArtifact(storage Storage, artifactID string, removeFiles bool) error
+	// TrimPITRArtifact removes first N records from PITR artifact. Removes snapshots, PITR chunks and corresponding data from database.
+	TrimPITRArtifact(storage Storage, artifactID string, firstN int) error
 }
 
 // agentService is a subset of methods of agents.AgentService used by this package.
@@ -109,7 +108,20 @@ type compatibilityService interface {
 // pbmPITRService provides methods that help us inspect and manage PITR oplog slices.
 type pbmPITRService interface {
 	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error)
-	// DeletePITRChunks deletes PBM PITR chunks. If 'until' specified, deletes only chunks before (excluding) that date.
-	DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error
+	ListPITRTimeranges(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error)
+	// GetPITRFiles returns list of PITR chunks. If 'until' specified, returns only chunks created before that date, otherwise returns all artifact chunks.
+	GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error)
+}
+
+type Storage interface {
+	// FileStat returns file info. It returns error if file is empty or not exists.
+	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
+
+	// List scans path with prefix and returns all files with given suffix.
+	// Both prefix and suffix can be omitted.
+	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
+	// Remove removes single objects from storage.
+	Remove(ctx context.Context, endpoint, accessKey, secretKey, bucketName, objectName string) error
+	// RemoveRecursive removes objects recursively from storage with given prefix.
+	RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error)
 }

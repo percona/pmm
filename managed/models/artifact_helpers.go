@@ -253,7 +253,7 @@ type UpdateArtifactParams struct {
 	ServiceID  *string
 	Status     *BackupStatus
 	ScheduleID *string
-	StorageRec *StorageRec
+	Metadata   *Metadata
 }
 
 // UpdateArtifact updates existing artifact.
@@ -272,9 +272,9 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.ScheduleID = *params.ScheduleID
 	}
 
-	if params.StorageRec != nil {
+	if params.Metadata != nil {
 		// We're appending to existing list to cover PITR mode cases.
-		row.StorageRecList = append(row.StorageRecList, *params.StorageRec)
+		row.MetadataList = append(row.MetadataList, *params.Metadata)
 	}
 
 	if err := q.Update(row); err != nil {
@@ -296,53 +296,24 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 	return nil
 }
 
-// ReprListProto returns artifact representation list in protobuf format.
-//func (s *Artifact) ReprListProto() []*backuppb.Repr {
-//	res := make([]*backuppb.Repr, len(s.ReprList))
-//	for i, repr := range s.ReprList {
-//		res[i] = &backuppb.Repr{}
-//		res[i].FileList = make([]*backuppb.File, len(repr.FileList))
-//
-//		for j, file := range repr.FileList {
-//			res[i].FileList[j] = &backuppb.File{}
-//			res[i].FileList[j].Name = file.Name
-//			res[i].FileList[j].IsDirectory = file.IsDirectory
-//		}
-//		if repr.RestoreTo != nil {
-//			res[i].RestoreTo = timestamppb.New(*repr.RestoreTo)
-//		}
-//		if repr.ReprBackup != nil {
-//			res[i].ReprBackup = &backuppb.ReprBackup{
-//				Name: repr.ReprBackup.Name,
-//			}
-//		}
-//	}
-//	return res
-//}
-
-// ReprRemoveFirstN removes first N records from artifact representation list.
-func (s *Artifact) ReprRemoveFirstN(q *reform.Querier, n uint32) error {
-	s.StorageRecList = s.StorageRecList[n:]
+// MetadataRemoveFirstN removes first N records from artifact metadata list.
+func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
+	s.MetadataList = s.MetadataList[n:]
 	if err := q.Update(s); err != nil {
-		return errors.Wrap(err, "failed to update backup artifact")
+		return errors.Wrap(err, "failed to remove artifact metadata records")
 	}
 	return nil
 }
 
-// CanDelete returns error in case artifact not status from which it can be deleted.
-func (s *Artifact) CanDelete() error {
-	switch s.Status {
+// IsArtifactFinalStatus checks if artifact status is one of the final ones.
+func IsArtifactFinalStatus(backupStatus BackupStatus) bool {
+	switch backupStatus {
 	case SuccessBackupStatus,
 		ErrorBackupStatus,
-		FailedToDeleteBackupStatus:
-	case DeletingBackupStatus,
-		InProgressBackupStatus,
-		PausedBackupStatus,
-		PendingBackupStatus:
-		return status.Errorf(codes.FailedPrecondition, "Artifact with ID %q isn't in the final state.", s.ID)
+		FailedToDeleteBackupStatus,
+		FailedRetentionBackupStatus:
+		return true
 	default:
-		return status.Errorf(codes.Internal, "Unhandled status %q", s.Status)
+		return false
 	}
-
-	return nil
 }

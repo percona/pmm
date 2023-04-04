@@ -534,21 +534,24 @@ func groupPartlyDoneErrors(info describeInfo) error {
 	return errors.New(strings.Join(errMsgs, "; "))
 }
 
-func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (int64, error) {
+// pbmGetSnapshotTimestamp returns time the backup restores target db to.
+func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (time.Time, error) {
 	var list pbmList
+	var res time.Time
 	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
-		return 0, err
+		return res, err
 	}
 
 	if len(list.Snapshots) == 0 {
-		return 0, errors.Wrapf(ErrNotFound, "got no one snapshot")
+		return res, errors.Wrapf(ErrNotFound, "got no one snapshot")
 	}
 
 	for _, snapshot := range list.Snapshots {
 		if snapshot.Name == backupName {
-			return snapshot.RestoreTo, nil
+			res = time.Unix(snapshot.RestoreTo, 0)
+			break
 		}
 	}
 
-	return 0, errors.Wrapf(ErrNotFound, "couldn't get specified snapshot")
+	return res, errors.Wrapf(ErrNotFound, "couldn't get specified snapshot")
 }

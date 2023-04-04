@@ -40,7 +40,7 @@ func (v *artifactTableType) Columns() []string {
 		"type",
 		"schedule_id",
 		"folder",
-		"storage_rec_list",
+		"metadata_list",
 		"created_at",
 		"updated_at",
 	}
@@ -79,7 +79,7 @@ var ArtifactTable = &artifactTableType{
 			{Name: "Type", Type: "ArtifactType", Column: "type"},
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
 			{Name: "Folder", Type: "*string", Column: "folder"},
-			{Name: "StorageRecList", Type: "StorageRecList", Column: "storage_rec_list"},
+			{Name: "MetadataList", Type: "MetadataList", Column: "metadata_list"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -103,7 +103,7 @@ func (s Artifact) String() string {
 	res[9] = "Type: " + reform.Inspect(s.Type, true)
 	res[10] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
 	res[11] = "Folder: " + reform.Inspect(s.Folder, true)
-	res[12] = "StorageRecList: " + reform.Inspect(s.StorageRecList, true)
+	res[12] = "MetadataList: " + reform.Inspect(s.MetadataList, true)
 	res[13] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[14] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
@@ -125,7 +125,7 @@ func (s *Artifact) Values() []interface{} {
 		s.Type,
 		s.ScheduleID,
 		s.Folder,
-		s.StorageRecList,
+		s.MetadataList,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -147,7 +147,7 @@ func (s *Artifact) Pointers() []interface{} {
 		&s.Type,
 		&s.ScheduleID,
 		&s.Folder,
-		&s.StorageRecList,
+		&s.MetadataList,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

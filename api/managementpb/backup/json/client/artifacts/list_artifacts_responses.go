@@ -390,7 +390,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
-	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE]
+	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE BACKUP_STATUS_RETENTION_IN_PROGRESS BACKUP_STATUS_FAILED_RETENTION]
 	Status *string `json:"status,omitempty"`
 
 	// Artifact creation time.
@@ -405,7 +405,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	Folder string `json:"folder,omitempty"`
 
 	// List of artifact representations on a storage.
-	ReprList []*ListArtifactsOKBodyArtifactsItems0ReprListItems0 `json:"repr_list"`
+	MetadataList []*ListArtifactsOKBodyArtifactsItems0MetadataListItems0 `json:"metadata_list"`
 }
 
 // Validate validates this list artifacts OK body artifacts items0
@@ -428,7 +428,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if err := o.validateReprList(formats); err != nil {
+	if err := o.validateMetadataList(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -487,7 +487,7 @@ var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR","BACKUP_STATUS_DELETING","BACKUP_STATUS_FAILED_TO_DELETE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR","BACKUP_STATUS_DELETING","BACKUP_STATUS_FAILED_TO_DELETE","BACKUP_STATUS_RETENTION_IN_PROGRESS","BACKUP_STATUS_FAILED_RETENTION"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -520,6 +520,12 @@ const (
 
 	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE captures enum value "BACKUP_STATUS_FAILED_TO_DELETE"
 	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDTODELETE string = "BACKUP_STATUS_FAILED_TO_DELETE"
+
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSRETENTIONINPROGRESS captures enum value "BACKUP_STATUS_RETENTION_IN_PROGRESS"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSRETENTIONINPROGRESS string = "BACKUP_STATUS_RETENTION_IN_PROGRESS"
+
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDRETENTION captures enum value "BACKUP_STATUS_FAILED_RETENTION"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSFAILEDRETENTION string = "BACKUP_STATUS_FAILED_RETENTION"
 )
 
 // prop value enum
@@ -603,22 +609,22 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateMode(formats strfmt.Registr
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0) validateReprList(formats strfmt.Registry) error {
-	if swag.IsZero(o.ReprList) { // not required
+func (o *ListArtifactsOKBodyArtifactsItems0) validateMetadataList(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetadataList) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.ReprList); i++ {
-		if swag.IsZero(o.ReprList[i]) { // not required
+	for i := 0; i < len(o.MetadataList); i++ {
+		if swag.IsZero(o.MetadataList[i]) { // not required
 			continue
 		}
 
-		if o.ReprList[i] != nil {
-			if err := o.ReprList[i].Validate(formats); err != nil {
+		if o.MetadataList[i] != nil {
+			if err := o.MetadataList[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("repr_list" + "." + strconv.Itoa(i))
+					return ve.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("repr_list" + "." + strconv.Itoa(i))
+					return ce.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -633,7 +639,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateReprList(formats strfmt.Reg
 func (o *ListArtifactsOKBodyArtifactsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateReprList(ctx, formats); err != nil {
+	if err := o.contextValidateMetadataList(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -643,14 +649,14 @@ func (o *ListArtifactsOKBodyArtifactsItems0) ContextValidate(ctx context.Context
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0) contextValidateReprList(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.ReprList); i++ {
-		if o.ReprList[i] != nil {
-			if err := o.ReprList[i].ContextValidate(ctx, formats); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0) contextValidateMetadataList(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.MetadataList); i++ {
+		if o.MetadataList[i] != nil {
+			if err := o.MetadataList[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("repr_list" + "." + strconv.Itoa(i))
+					return ve.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("repr_list" + "." + strconv.Itoa(i))
+					return ce.ValidateName("metadata_list" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -679,23 +685,23 @@ func (o *ListArtifactsOKBodyArtifactsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListArtifactsOKBodyArtifactsItems0ReprListItems0 Repr represents artifact on a storage.
-swagger:model ListArtifactsOKBodyArtifactsItems0ReprListItems0
+ListArtifactsOKBodyArtifactsItems0MetadataListItems0 Metadata contains extra artifact data like files it consists of, tool specific data, etc.
+swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0
 */
-type ListArtifactsOKBodyArtifactsItems0ReprListItems0 struct {
+type ListArtifactsOKBodyArtifactsItems0MetadataListItems0 struct {
 	// List of files backup consists of.
-	FileList []*ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0 `json:"file_list"`
+	FileList []*ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0 `json:"file_list"`
 
 	// Exact time DB can be restored to.
 	// Format: date-time
 	RestoreTo strfmt.DateTime `json:"restore_to,omitempty"`
 
-	// repr backup
-	ReprBackup *ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup `json:"repr_backup,omitempty"`
+	// backup tool data
+	BackupToolData *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData `json:"backup_tool_data,omitempty"`
 }
 
-// Validate validates this list artifacts OK body artifacts items0 repr list items0
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifacts OK body artifacts items0 metadata list items0
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateFileList(formats); err != nil {
@@ -706,7 +712,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) Validate(formats strf
 		res = append(res, err)
 	}
 
-	if err := o.validateReprBackup(formats); err != nil {
+	if err := o.validateBackupToolData(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -716,7 +722,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) Validate(formats strf
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateFileList(formats strfmt.Registry) error {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateFileList(formats strfmt.Registry) error {
 	if swag.IsZero(o.FileList) { // not required
 		return nil
 	}
@@ -742,7 +748,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateFileList(form
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateRestoreTo(formats strfmt.Registry) error {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateRestoreTo(formats strfmt.Registry) error {
 	if swag.IsZero(o.RestoreTo) { // not required
 		return nil
 	}
@@ -754,17 +760,17 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateRestoreTo(for
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateReprBackup(formats strfmt.Registry) error {
-	if swag.IsZero(o.ReprBackup) { // not required
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateBackupToolData(formats strfmt.Registry) error {
+	if swag.IsZero(o.BackupToolData) { // not required
 		return nil
 	}
 
-	if o.ReprBackup != nil {
-		if err := o.ReprBackup.Validate(formats); err != nil {
+	if o.BackupToolData != nil {
+		if err := o.BackupToolData.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("repr_backup")
+				return ve.ValidateName("backup_tool_data")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("repr_backup")
+				return ce.ValidateName("backup_tool_data")
 			}
 			return err
 		}
@@ -773,15 +779,15 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) validateReprBackup(fo
 	return nil
 }
 
-// ContextValidate validate this list artifacts OK body artifacts items0 repr list items0 based on the context it is used
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this list artifacts OK body artifacts items0 metadata list items0 based on the context it is used
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateFileList(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateReprBackup(ctx, formats); err != nil {
+	if err := o.contextValidateBackupToolData(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -791,7 +797,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) ContextValidate(ctx c
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) contextValidateFileList(ctx context.Context, formats strfmt.Registry) error {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidateFileList(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.FileList); i++ {
 		if o.FileList[i] != nil {
 			if err := o.FileList[i].ContextValidate(ctx, formats); err != nil {
@@ -808,13 +814,13 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) contextValidateFileLi
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) contextValidateReprBackup(ctx context.Context, formats strfmt.Registry) error {
-	if o.ReprBackup != nil {
-		if err := o.ReprBackup.ContextValidate(ctx, formats); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidateBackupToolData(ctx context.Context, formats strfmt.Registry) error {
+	if o.BackupToolData != nil {
+		if err := o.BackupToolData.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("repr_backup")
+				return ve.ValidateName("backup_tool_data")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("repr_backup")
+				return ce.ValidateName("backup_tool_data")
 			}
 			return err
 		}
@@ -824,7 +830,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) contextValidateReprBa
 }
 
 // MarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -832,8 +838,8 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) MarshalBinary() ([]by
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsOKBodyArtifactsItems0ReprListItems0
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -842,10 +848,47 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0) UnmarshalBinary(b []b
 }
 
 /*
-ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0 File represents file or folder on a storage.
-swagger:model ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0
+ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData ReprBackup contains additional data for backup tools.
+swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData
 */
-type ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0 struct {
+type ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData struct {
+	// Name of backup in backup tool representation.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this list artifacts OK body artifacts items0 metadata list items0 backup tool data
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifacts OK body artifacts items0 metadata list items0 backup tool data based on context it is used
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0 File represents file or folder on a storage.
+swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0
+*/
+type ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0 struct {
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -853,18 +896,18 @@ type ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0 struct {
 	IsDirectory bool `json:"is_directory,omitempty"`
 }
 
-// Validate validates this list artifacts OK body artifacts items0 repr list items0 file list items0
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list artifacts OK body artifacts items0 metadata list items0 file list items0
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list artifacts OK body artifacts items0 repr list items0 file list items0 based on context it is used
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this list artifacts OK body artifacts items0 metadata list items0 file list items0 based on context it is used
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0) MarshalBinary() ([]byte, error) {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -872,45 +915,8 @@ func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0) Marshal
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsOKBodyArtifactsItems0ReprListItems0FileListItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup ReprBackup contains additional data for backup tools.
-swagger:model ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup
-*/
-type ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup struct {
-	// Name of backup in backup tool representation.
-	Name string `json:"name,omitempty"`
-}
-
-// Validate validates this list artifacts OK body artifacts items0 repr list items0 repr backup
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list artifacts OK body artifacts items0 repr list items0 repr backup based on context it is used
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsOKBodyArtifactsItems0ReprListItems0ReprBackup
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

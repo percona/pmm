@@ -30465,7 +30465,9 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_RETENTION_IN_PROGRESS",
+                          "BACKUP_STATUS_FAILED_RETENTION"
                         ],
                         "x-order": 8
                       },
@@ -30492,11 +30494,11 @@
                         "type": "string",
                         "x-order": 11
                       },
-                      "repr_list": {
+                      "metadata_list": {
                         "description": "List of artifact representations on a storage.",
                         "type": "array",
                         "items": {
-                          "description": "Repr represents artifact on a storage.",
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
                           "type": "object",
                           "properties": {
                             "file_list": {
@@ -30524,7 +30526,7 @@
                               "format": "date-time",
                               "x-order": 1
                             },
-                            "repr_backup": {
+                            "backup_tool_data": {
                               "description": "ReprBackup contains additional data for backup tools.",
                               "type": "object",
                               "properties": {

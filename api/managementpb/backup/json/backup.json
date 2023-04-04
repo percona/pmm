@@ -151,30 +151,25 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "mode": {
-                        "description": "BackupMode specifies backup mode.",
-                        "type": "string",
-                        "default": "BACKUP_MODE_INVALID",
-                        "enum": [
-                          "BACKUP_MODE_INVALID",
-                          "SNAPSHOT",
-                          "INCREMENTAL",
-                          "PITR"
-                        ],
-                        "x-order": 10
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Artifact name",
-                        "x-order": 1
-                      },
-                      "repr_list": {
+                      "metadata_list": {
                         "description": "List of artifact representations on a storage.",
                         "type": "array",
                         "items": {
-                          "description": "Repr represents artifact on a storage.",
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
                           "type": "object",
                           "properties": {
+                            "backup_tool_data": {
+                              "description": "ReprBackup contains additional data for backup tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            },
                             "file_list": {
                               "description": "List of files backup consists of.",
                               "type": "array",
@@ -194,18 +189,6 @@
                               },
                               "x-order": 0
                             },
-                            "repr_backup": {
-                              "description": "ReprBackup contains additional data for backup tools.",
-                              "type": "object",
-                              "properties": {
-                                "name": {
-                                  "description": "Name of backup in backup tool representation.",
-                                  "type": "string",
-                                  "x-order": 0
-                                }
-                              },
-                              "x-order": 2
-                            },
                             "restore_to": {
                               "description": "Exact time DB can be restored to.",
                               "type": "string",
@@ -215,6 +198,23 @@
                           }
                         },
                         "x-order": 12
+                      },
+                      "mode": {
+                        "description": "BackupMode specifies backup mode.",
+                        "type": "string",
+                        "default": "BACKUP_MODE_INVALID",
+                        "enum": [
+                          "BACKUP_MODE_INVALID",
+                          "SNAPSHOT",
+                          "INCREMENTAL",
+                          "PITR"
+                        ],
+                        "x-order": 10
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Artifact name",
+                        "x-order": 1
                       },
                       "service_id": {
                         "description": "Machine-readable service ID.",
@@ -238,7 +238,9 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_RETENTION_IN_PROGRESS",
+                          "BACKUP_STATUS_FAILED_RETENTION"
                         ],
                         "x-order": 8
                       },

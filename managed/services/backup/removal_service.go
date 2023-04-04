@@ -19,7 +19,9 @@ import (
 	"context"
 	"database/sql"
 	"path"
+	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,157 +30,291 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// RemovalService manage removing of backup artifacts.
+// RemovalService manages removing of backup artifacts.
 type RemovalService struct {
-	l  *logrus.Entry
-	db *reform.DB
+	l              *logrus.Entry
+	db             *reform.DB
+	pbmPITRService pbmPITRService
 }
 
 // NewRemovalService creates new backup removal service.
-func NewRemovalService(db *reform.DB) *RemovalService {
+func NewRemovalService(db *reform.DB, pbmPITRService pbmPITRService) *RemovalService {
 	return &RemovalService{
-		l:  logrus.WithField("component", "services/backup/removal"),
-		db: db,
+		l:              logrus.WithField("component", "services/backup/removal"),
+		db:             db,
+		pbmPITRService: pbmPITRService,
 	}
 }
 
-// DeleteArtifact deletes specified artifact.
-func (s *RemovalService) DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error {
-	var artifact *models.Artifact
+// DeleteArtifact deletes specified artifact along with files if specified.
+func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, removeFiles bool) error {
 	var err error
-
-	if txErr := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
-		artifact, err = models.FindArtifactByID(s.db.Querier, artifactID)
+	defer func() {
 		if err != nil {
-			return err
+			s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
 		}
+	}()
 
-		err = artifact.CanDelete()
-		if err != nil {
-			return err
-		}
-
-		err = s.beginDeletingArtifact(artifact)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}); txErr != nil {
-		return txErr
+	artifact, _, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
+	if err != nil {
+		return err
 	}
 
-	if removeFiles {
-		err := s.DeleteArtifactFiles(ctx, artifact, len(artifact.StorageRecList))
-		if err != nil {
-			s.setFailedToDeleteBackupStatus(artifactID)
-			return err
-		}
-	}
-
-	return s.db.InTransaction(func(tx *reform.TX) error {
-		restoreItems, err := models.FindRestoreHistoryItems(tx.Querier, models.RestoreHistoryItemFilters{
-			ArtifactID: artifactID,
-		})
-		if err != nil {
-			s.setFailedToDeleteBackupStatus(artifactID)
-			return err
-		}
-
-		for _, ri := range restoreItems {
-			if err := models.RemoveRestoreHistoryItem(tx.Querier, ri.ID); err != nil {
-				s.setFailedToDeleteBackupStatus(artifactID)
-				return err
-			}
-		}
-
-		err = models.DeleteArtifact(tx.Querier, artifactID)
-		if err != nil {
-			s.setFailedToDeleteBackupStatus(artifactID)
-		}
-		return nil
-	})
-}
-
-// beginDeletingArtifact checks if the artifact isn't in use at the moment and sets deleting status,
-// so it will not be used to restore backup.
-func (s *RemovalService) beginDeletingArtifact(artifact *models.Artifact) error {
 	restoreItems, err := models.FindRestoreHistoryItems(s.db.Querier, models.RestoreHistoryItemFilters{
-		ArtifactID: artifact.ID,
-		Status:     models.RestoreStatusPointer(models.InProgressRestoreStatus),
+		ArtifactID: artifactID,
 	})
 	if err != nil {
 		return err
 	}
 
-	if len(restoreItems) != 0 {
-		return status.Errorf(codes.FailedPrecondition, "Cannot delete artifact with ID %q: "+
-			"artifact is used by currently running restore operation.", artifact.ID)
+	for _, ri := range restoreItems {
+		if err = models.RemoveRestoreHistoryItem(s.db.Querier, ri.ID); err != nil {
+			return err
+		}
 	}
 
-	if _, err := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-		Status: models.BackupStatusPointer(models.DeletingBackupStatus),
-	}); err != nil {
+	if removeFiles {
+		go func() {
+			var err error
+			defer func() {
+				if err != nil {
+					s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
+				}
+			}()
+
+			location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+			if err != nil {
+				s.l.WithError(err).Error("couldn't get location")
+				return
+			}
+
+			service, err := models.FindServiceByID(s.db.Querier, artifact.ServiceID)
+			if err != nil {
+				s.l.WithError(err).Error("couldn't get service")
+				return
+			}
+
+			if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList)); err != nil {
+				s.l.WithError(err).Error("couldn't delete artifact files")
+				return
+			}
+
+			if service.ServiceType == models.MongoDBServiceType && artifact.Mode == models.PITR {
+				if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil); err != nil {
+					s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
+					return
+				}
+			}
+
+			err = models.DeleteArtifact(s.db.Querier, artifactID)
+			if err != nil {
+				s.l.WithError(err).Error("couldn't delete artifact")
+			}
+		}()
+
+		return nil
+	}
+
+	err = models.DeleteArtifact(s.db.Querier, artifactID)
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *RemovalService) setFailedToDeleteBackupStatus(id string) {
+// TrimPITRArtifact removes first N first records from PITR artifact. Removes snapshots, PITR chunks and corresponding data from database.
+func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, firstN int) error {
+	artifact, prevStatus, err := s.lockArtifact(artifactID, models.RetentionInProgressBackupStatus)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		var err error
+		defer func() {
+			if err != nil {
+				s.setArtifactStatus(artifactID, models.FailedRetentionBackupStatus)
+			}
+		}()
+
+		location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+		if err != nil {
+			return
+		}
+
+		if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, firstN); err != nil {
+			s.l.WithError(err).Error("couldn't delete artifact files")
+			return
+		}
+
+		if err = artifact.MetadataRemoveFirstN(s.db.Querier, uint32(firstN)); err != nil {
+			s.l.WithError(err).Error("couldn't delete artifact metadata")
+			return
+		}
+
+		if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, artifact.MetadataList[0].RestoreTo); err != nil {
+			s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
+			return
+		}
+
+		if err = s.releaseArtifact(artifactID, prevStatus); err != nil {
+			s.l.WithError(err).Error("couldn't unlock artifact")
+			return
+		}
+	}()
+
+	return nil
+}
+
+// lockArtifact checks if the artifact isn't in use at the moment and sets deleting status,
+// so it will not be used to restore backup.
+func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.BackupStatus) (*models.Artifact, models.BackupStatus, error) {
+	if models.IsArtifactFinalStatus(lockingStatus) {
+		return nil, "", errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't lock artifact, requested new status %s (present in list of final statuses) for artifact %s",
+			lockingStatus, artifactID)
+	}
+
+	var (
+		artifact   *models.Artifact
+		prevStatus models.BackupStatus
+		err        error
+	)
+
+	if errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		artifact, err = models.FindArtifactByID(tx.Querier, artifactID)
+		if err != nil {
+			return err
+		}
+
+		if !models.IsArtifactFinalStatus(artifact.Status) {
+			return errors.Wrapf(ErrIncorrectArtifactStatus, "artifact with ID %q isn't in a final status", artifact.ID)
+		}
+
+		prevStatus = artifact.Status
+
+		restoreItems, err := models.FindRestoreHistoryItems(tx.Querier, models.RestoreHistoryItemFilters{
+			ArtifactID: artifact.ID,
+			Status:     models.InProgressRestoreStatus.Pointer(),
+		})
+		if err != nil {
+			return err
+		}
+
+		if len(restoreItems) != 0 {
+			return status.Errorf(codes.FailedPrecondition, "Cannot delete artifact with ID %q: "+
+				"artifact is used by currently running restore operation.", artifact.ID)
+		}
+
+		if _, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+			Status: lockingStatus.Pointer(),
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	}); errTx != nil {
+		return nil, prevStatus, errTx
+	}
+
+	return artifact, prevStatus, nil
+}
+
+// releaseArtifact releases artifact lock by setting one of the final artifact statuses.
+func (s *RemovalService) releaseArtifact(artifactID string, prevStatus models.BackupStatus) error {
+	if !models.IsArtifactFinalStatus(prevStatus) {
+		return errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't release artifact, requested new status %s (not present in list of final statuses) for artifact %s",
+			prevStatus, artifactID)
+	}
+
+	if _, err := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
+		Status: prevStatus.Pointer(),
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// setArtifactStatus sets provided artifact status. Write error logs if status cannot be set.
+func (s *RemovalService) setArtifactStatus(id string, status models.BackupStatus) {
 	if _, updateErr := models.UpdateArtifact(s.db.Querier, id, models.UpdateArtifactParams{
-		Status: models.BackupStatusPointer(models.FailedToDeleteBackupStatus),
+		Status: status.Pointer(),
 	}); updateErr != nil {
 		s.l.WithError(updateErr).Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, id)
 	}
 }
 
-// DeleteArtifactFiles deletes artifact files.
+// deleteArtifactFiles deletes artifact files.
 // If artifact represents a single snapshot, there is only one record representing artifact files.
 // If artifact represents continuous backup (PITR), artifact may contain several records,
 // and it's possible to delete only first N of them to implement retention policy.
-func (s *RemovalService) DeleteArtifactFiles(ctx context.Context, artifact *models.Artifact, firstN int) error {
-	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
-	if err != nil {
-		return err
-	}
-
-	storage := Location2Storage(location)
+func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact, firstN int) error {
 	s3Config := location.S3Config
-
 	if storage == nil || s3Config == nil {
+		s.l.Debug("Storage not specified.")
 		return nil
 	}
 
 	// Old artifact records don't contain representation file list.
-	if len(artifact.StorageRecList) == 0 {
+	if len(artifact.MetadataList) == 0 {
 		folderName := artifact.Name + "/"
 
+		s.l.Debugf("Deleting folder %s.", folderName)
 		if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
-			s.l.WithError(err).Errorf("failed to remove folder %s of artifact %s", folderName, artifact.ID)
+			return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
 		}
 
 		return nil
 	}
 
-	for _, artifactRepr := range artifact.StorageRecList[:firstN] {
-		for _, file := range artifactRepr.FileList {
+	for _, metadata := range artifact.MetadataList[:firstN] {
+		for _, file := range metadata.FileList {
 			if file.IsDirectory {
 				// Recursive listing finds all the objects with the specified prefix.
 				// There could be a problem e.g. when we have artifacts `backup-daily` and `backup-daily-1`, so
 				// listing by prefix `backup-daily` gives us both artifacts.
 				// To avoid such a situation we need to append a slash.
 				folderName := path.Join(*artifact.Folder, file.Name) + "/"
-
+				s.l.Debugf("Deleting folder %s.", folderName)
 				if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
-					s.l.WithError(err).Errorf("failed to remove folder %s of artifact %s", folderName, artifact.ID)
+					return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
 				}
 			} else {
 				fileName := path.Join(*artifact.Folder, file.Name)
+				s.l.Debugf("Deleting file %s.", fileName)
 				if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName); err != nil {
-					s.l.WithError(err).Errorf("failed to remove file %s of artifact %s", file.Name, artifact.ID)
+					return errors.Wrapf(err, "failed to remove file %s of artifact %s", file.Name, artifact.ID)
 				}
 			}
+		}
+	}
+
+	return nil
+}
+
+// deleteArtifactPITRChunks deletes artifact PITR chunks. If "until" provided, deletes only chunks created before that time. Deletes all artifact chunks otherwise.
+func (s *RemovalService) deleteArtifactPITRChunks(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error {
+	s3Config := location.S3Config
+	if storage == nil || s3Config == nil {
+		s.l.Debug("Storage not specified.")
+		return nil
+	}
+
+	chunks, err := s.pbmPITRService.GetPITRFiles(ctx, storage, location, artifact, until)
+	if err != nil {
+		return errors.Wrap(err, "failed to get pitr chunks")
+	}
+
+	if len(chunks) == 0 {
+		s.l.Debug("No chunks to delete.")
+		return nil
+	}
+
+	for _, chunk := range chunks {
+		s.l.Debugf("Deleting %s.", chunk.FName)
+
+		if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName); err != nil {
+			return errors.Wrapf(err, "failed to remove pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
 		}
 	}
 

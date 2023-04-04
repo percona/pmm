@@ -27,11 +27,11 @@ func (this *File) Validate() error {
 	return nil
 }
 
-func (this *BackupRec) Validate() error {
+func (this *BackupToolData) Validate() error {
 	return nil
 }
 
-func (this *StorageRec) Validate() error {
+func (this *Metadata) Validate() error {
 	for _, item := range this.FileList {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -44,9 +44,9 @@ func (this *StorageRec) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("RestoreTo", err)
 		}
 	}
-	if this.ReprBackup != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ReprBackup); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ReprBackup", err)
+	if this.BackupToolData != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.BackupToolData); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("BackupToolData", err)
 		}
 	}
 	return nil

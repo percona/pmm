@@ -340,32 +340,52 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 
 // Retention returns how many backup artifacts should be stored for the task.
 func (s *ScheduledTask) Retention() (uint32, error) {
-	var retention uint32
-
-	switch s.Type {
-	case ScheduledMySQLBackupTask:
-		retention = s.Data.MySQLBackupTask.Retention
-	case ScheduledMongoDBBackupTask:
-		retention = s.Data.MongoDBBackupTask.Retention
-	default:
-		return retention, errors.Errorf("invalid backup type %s", s.Type)
+	data, err := s.commonBackupData()
+	if err != nil {
+		return 0, nil
 	}
-
-	return retention, nil
+	return data.Retention, nil
 }
 
 // Mode returns task backup mode.
 func (s *ScheduledTask) Mode() (BackupMode, error) {
-	var mode BackupMode
+	data, err := s.commonBackupData()
+	if err != nil {
+		return "", nil
+	}
+	return data.Mode, nil
+}
 
-	switch s.Type {
-	case ScheduledMySQLBackupTask:
-		mode = s.Data.MySQLBackupTask.Mode
-	case ScheduledMongoDBBackupTask:
-		mode = s.Data.MongoDBBackupTask.Mode
-	default:
-		return mode, errors.Errorf("invalid backup type %s", s.Type)
+// LocationID returns task location.
+func (s *ScheduledTask) LocationID() (string, error) {
+	data, err := s.commonBackupData()
+	if err != nil {
+		return "", nil
+	}
+	return data.LocationID, nil
+}
+
+func (s *ScheduledTask) commonBackupData() (*CommonBackupTaskData, error) {
+	var res *CommonBackupTaskData
+
+	if s.Data != nil {
+		switch s.Type {
+		case ScheduledMySQLBackupTask:
+			if s.Data.MySQLBackupTask != nil {
+				res = &s.Data.MySQLBackupTask.CommonBackupTaskData
+			}
+		case ScheduledMongoDBBackupTask:
+			if s.Data.MongoDBBackupTask != nil {
+				res = &s.Data.MongoDBBackupTask.CommonBackupTaskData
+			}
+		default:
+			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+		}
 	}
 
-	return mode, nil
+	if res == nil {
+		return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
+	}
+
+	return res, nil
 }

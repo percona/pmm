@@ -18,6 +18,8 @@ enum BackupStatus {
   BACKUP_STATUS_ERROR = 5;
   BACKUP_STATUS_DELETING = 6;
   BACKUP_STATUS_FAILED_TO_DELETE = 7;
+  BACKUP_STATUS_RETENTION_IN_PROGRESS = 8;
+  BACKUP_STATUS_FAILED_RETENTION = 9;
 }
 
 // Artifact represents single backup artifact.
@@ -46,8 +48,8 @@ message Artifact {
   BackupMode mode = 11;
   // Folder to store artifact on a storage.
   optional string folder = 12;
-  // List of artifact representations on a storage.
-  repeated backup.v1.StorageRec repr_list = 13;
+  // List of artifact metadata.
+  repeated backup.v1.Metadata metadata_list = 13;
 }
 
 message ListArtifactsRequest {}

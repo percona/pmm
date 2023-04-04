@@ -201,7 +201,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
-	pbmPITRService       *backup.PbmPITRService
+	pbmPITRService       *backup.PBMPITRService
 	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
@@ -778,9 +778,9 @@ func main() {
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db)
-	pbmPITRService := backup.NewPbmPITRService()
-	backupRemovalService := backup.NewRemovalService(db)
-	backupRetentionService := backup.NewRetentionService(db, backupRemovalService, pbmPITRService)
+	pbmPITRService := backup.NewPBMPITRService()
+	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
+	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)

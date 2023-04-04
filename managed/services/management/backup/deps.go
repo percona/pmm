@@ -56,12 +56,12 @@ type scheduleService interface {
 }
 
 type removalService interface {
-	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+	// DeleteArtifact deletes specified artifact along with files if specified.
+	DeleteArtifact(storage backup.Storage, artifactID string, removeFiles bool) error
 }
 
-// pitrTimerangeService provides methods that help us inspect PITR artifacts
+// pbmPITRService provides methods that help us inspect PITR artifacts
 type pbmPITRService interface {
-	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)
-	DeletePITRChunks(ctx context.Context, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error
+	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
+	ListPITRTimeranges(ctx context.Context, locationClient backup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)
 }

@@ -187,8 +187,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MySQLBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status:     models.BackupStatusPointer(models.SuccessBackupStatus),
-					StorageRec: ArtifactReprFromProto(result.MysqlBackup.Repr),
+					Status:   models.SuccessBackupStatus.Pointer(),
+					Metadata: ArtifactMetadataFromProto(result.MysqlBackup.Metadata),
 				})
 			if err != nil {
 				return err
@@ -206,8 +206,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status:     models.BackupStatusPointer(models.SuccessBackupStatus),
-					StorageRec: ArtifactReprFromProto(result.MongodbBackup.Repr),
+					Status:   models.SuccessBackupStatus.Pointer(),
+					Metadata: ArtifactMetadataFromProto(result.MongodbBackup.Metadata),
 				})
 			if err != nil {
 				return err
@@ -278,7 +278,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 
 	if scheduleID != "" {
 		go func() {
-			if err := s.retentionService.EnforceRetention(context.Background(), scheduleID); err != nil {
+			if err := s.retentionService.EnforceRetention(scheduleID); err != nil {
 				l.Errorf("failed to enforce retention: %v", err)
 			}
 		}()
@@ -290,11 +290,11 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	switch job.Type {
 	case models.MySQLBackupJob:
 		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			Status: models.ErrorBackupStatus.Pointer(),
 		})
 	case models.MongoDBBackupJob:
 		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			Status: models.ErrorBackupStatus.Pointer(),
 		})
 	case models.MySQLRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(
@@ -559,15 +559,15 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
-		Name:          name,
-		User:          dbConfig.User,
-		Password:      dbConfig.Password,
-		Address:       dbConfig.Address,
-		Port:          int32(dbConfig.Port),
-		Socket:        dbConfig.Socket,
-		PitrTimestamp: timestamppb.New(pitrTimestamp),
-		Folder:        folder,
-		ReprBackup:    &backuppb.BackupRec{Name: sysName},
+		Name:           name,
+		User:           dbConfig.User,
+		Password:       dbConfig.Password,
+		Address:        dbConfig.Address,
+		Port:           int32(dbConfig.Port),
+		Socket:         dbConfig.Socket,
+		PitrTimestamp:  timestamppb.New(pitrTimestamp),
+		Folder:         folder,
+		BackupToolData: &backuppb.BackupToolData{Name: sysName},
 	}
 
 	switch {
@@ -752,8 +752,8 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 	return err
 }
 
-// ArtifactReprFromProto returns artifact protobuf representation converted to Go model format.
-func ArtifactReprFromProto(artifactRepr *backuppb.StorageRec) *models.StorageRec {
+// ArtifactMetadataFromProto returns artifact metadata converted from protobuf to Go model format.
+func ArtifactMetadataFromProto(artifactRepr *backuppb.Metadata) *models.Metadata {
 	if artifactRepr == nil {
 		return nil
 	}
@@ -763,7 +763,7 @@ func ArtifactReprFromProto(artifactRepr *backuppb.StorageRec) *models.StorageRec
 		artifactReprFiles[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
 	}
 
-	var res models.StorageRec
+	var res models.Metadata
 
 	res.FileList = artifactReprFiles
 
@@ -772,8 +772,8 @@ func ArtifactReprFromProto(artifactRepr *backuppb.StorageRec) *models.StorageRec
 		res.RestoreTo = &t
 	}
 
-	if artifactRepr.ReprBackup != nil {
-		res.BackupRec = &models.BackupRec{Name: artifactRepr.ReprBackup.Name}
+	if artifactRepr.BackupToolData != nil {
+		res.BackupToolData = &models.BackupToolData{Name: artifactRepr.BackupToolData.Name}
 	}
 
 	return &res
