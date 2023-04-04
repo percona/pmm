@@ -381,6 +381,8 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 		clusterType = string(kubernetes.DatabaseTypePXC)
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
 		clusterType = string(kubernetes.DatabaseTypePSMDB)
+	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_POSTGRESQL:
+		clusterType = string(kubernetes.DatabaseTypePostgresql)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "unexpected DB cluster type")
 	}
