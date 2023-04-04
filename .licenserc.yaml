@@ -35,8 +35,8 @@ header:
         // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
   - paths:
-      - "**/agent/**/*.go"
-      - "**/admin/**/.go"
+      - "./agent/**/*.go"
+      - "./admin/**/.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
