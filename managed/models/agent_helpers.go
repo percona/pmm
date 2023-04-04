@@ -93,6 +93,12 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 		mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
 		mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
 		mdbOptions.TLSCa = params.GetTlsCa()
+	}
+
+	if params.GetAuthenticationMechanism() != "" || params.GetAuthenticationDatabase() != "" {
+		if mdbOptions == nil {
+			mdbOptions = &MongoDBOptions{}
+		}
 		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
 		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
 	}
