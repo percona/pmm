@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -178,7 +179,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
 //
 //nolint:unparam
-func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.ListServiceRequest) (*managementpb.ListServiceResponse, error) {
+func (s *ServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   convertServiceType(req.ServiceType),
@@ -228,14 +229,14 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		nodeMap[node.NodeID] = node.NodeName
 	}
 
-	resultSvc := make([]*managementpb.UniversalService, len(services))
+	resultSvc := make([]*servicev1beta1.UniversalService, len(services))
 	for i, service := range services {
 		labels, err := service.GetCustomLabels()
 		if err != nil {
 			return nil, err
 		}
 
-		svc := &managementpb.UniversalService{
+		svc := &servicev1beta1.UniversalService{
 			Address:        pointer.GetString(service.Address),
 			Agents:         []*agentv1beta1.UniversalAgent{},
 			Cluster:        service.Cluster,
@@ -272,5 +273,5 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 		resultSvc[i] = svc
 	}
 
-	return &managementpb.ListServiceResponse{Services: resultSvc}, nil
+	return &servicev1beta1.ListServiceResponse{Services: resultSvc}, nil
 }

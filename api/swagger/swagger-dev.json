@@ -29451,10 +29451,10 @@
       "post": {
         "description": "Returns a filtered list of Services.",
         "tags": [
-          "Service"
+          "MgmtService"
         ],
         "summary": "List Services",
-        "operationId": "ListServicesMixin3",
+        "operationId": "ListServicesMixin11",
         "parameters": [
           {
             "name": "body",
@@ -36144,6 +36144,9 @@
     },
     {
       "name": "Agent"
+    },
+    {
+      "name": "MgmtService"
     },
     {
       "name": "Collector"
