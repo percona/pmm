@@ -278,11 +278,7 @@ message AWSInstanceCheckRequest {
 message AWSInstanceCheckResponse {}
 
 message GetFileRequest {
-  string name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetFileResponse {
@@ -295,11 +291,7 @@ message GetFileResponse {
 }
 
 message UpdateFileRequest {
-  string name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 1 [(validate.rules).string.min_len = 1];
   bytes content = 2;
 }
 

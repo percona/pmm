@@ -29,6 +29,8 @@ const (
 	Server_ChangeSettings_FullMethodName            = "/server.Server/ChangeSettings"
 	Server_TestEmailAlertingSettings_FullMethodName = "/server.Server/TestEmailAlertingSettings"
 	Server_AWSInstanceCheck_FullMethodName          = "/server.Server/AWSInstanceCheck"
+	Server_GetFile_FullMethodName                   = "/server.Server/GetFile"
+	Server_UpdateFile_FullMethodName                = "/server.Server/UpdateFile"
 )
 
 // ServerClient is the client API for Server service.
@@ -151,7 +153,7 @@ func (c *serverClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceChec
 
 func (c *serverClient) GetFile(ctx context.Context, in *GetFileRequest, opts ...grpc.CallOption) (*GetFileResponse, error) {
 	out := new(GetFileResponse)
-	err := c.cc.Invoke(ctx, "/server.Server/GetFile", in, out, opts...)
+	err := c.cc.Invoke(ctx, Server_GetFile_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +162,7 @@ func (c *serverClient) GetFile(ctx context.Context, in *GetFileRequest, opts ...
 
 func (c *serverClient) UpdateFile(ctx context.Context, in *UpdateFileRequest, opts ...grpc.CallOption) (*UpdateFileResponse, error) {
 	out := new(UpdateFileResponse)
-	err := c.cc.Invoke(ctx, "/server.Server/UpdateFile", in, out, opts...)
+	err := c.cc.Invoke(ctx, Server_UpdateFile_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -428,7 +430,7 @@ func _Server_GetFile_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/server.Server/GetFile",
+		FullMethod: Server_GetFile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServerServer).GetFile(ctx, req.(*GetFileRequest))
@@ -446,7 +448,7 @@ func _Server_UpdateFile_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/server.Server/UpdateFile",
+		FullMethod: Server_UpdateFile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServerServer).UpdateFile(ctx, req.(*UpdateFileRequest))
