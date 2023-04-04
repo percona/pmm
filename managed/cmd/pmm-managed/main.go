@@ -315,18 +315,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	if err == nil {
-		platformpb.RegisterPlatformServer(gRPCServer, platformService)
-	} else {
-		l.Fatalf("Failed to register platform service: %s", err.Error())
-	}
-
-	if err == nil {
-		uieventspb.RegisterUIEventsServer(gRPCServer, deps.uieventsService)
-	} else {
-		l.Fatalf("Failed to register UI events service: %s", err.Error())
-	}
+	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
+	platformpb.RegisterPlatformServer(gRPCServer, platformService)
+	uieventspb.RegisterUIEventsServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
