@@ -22,7 +22,10 @@ git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
 ls -la ${rpms_dir}
 docker run --rm -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
     sudo chown -R builder /home/builder/rpm/RPMS
-    /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
+    until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+        echo "waiting"
+	sleep 1
+    done
 "
 
 if [ -z "${DOCKER_TAG}" ]; then
