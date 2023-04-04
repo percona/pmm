@@ -627,7 +627,7 @@ telemetry:
         column: "count"
 
   # Advisor
-  - id: AdvisorChecksDownloadedCount
+  - id: AdvisorChecksInMemoryCount
     source: VM
     query: pmm_managed_checks_checks_in_memory
     transform:

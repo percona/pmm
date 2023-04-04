@@ -169,7 +169,7 @@ func New(
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type, advisor and check name",
+			Help:      "Number of check scripts executed per service type, advisor and check name",
 		}, []string{"service_type", "advisor", "check_name"}),
 
 		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
@@ -183,7 +183,7 @@ func New(
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_in_memory",
-			Help:      "Counter of checks downloaded per service type, advisor and check name",
+			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
 		}, []string{"service_type", "advisor", "check_name"}),
 
 		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
