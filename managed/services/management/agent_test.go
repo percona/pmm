@@ -26,7 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -86,7 +86,7 @@ func TestAgentService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
@@ -124,7 +124,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once() // RDS exporter
 
-			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
@@ -162,7 +162,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once() // Azure exporter
 
-			response, err := s.ListAgents(ctx, &managementpb.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 

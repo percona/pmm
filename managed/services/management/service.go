@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -188,8 +189,8 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 	var agents []*models.Agent
 	var nodes []*models.Node
 
-	agentToAPI := func(agent *models.Agent) *managementpb.UniversalAgent {
-		return &managementpb.UniversalAgent{
+	agentToAPI := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
+		return &agentv1beta1.UniversalAgent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
 			Status:      agent.Status,
@@ -236,7 +237,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 
 		svc := &managementpb.UniversalService{
 			Address:        pointer.GetString(service.Address),
-			Agents:         []*managementpb.UniversalAgent{},
+			Agents:         []*agentv1beta1.UniversalAgent{},
 			Cluster:        service.Cluster,
 			CreatedAt:      timestamppb.New(service.CreatedAt),
 			CustomLabels:   labels,
@@ -258,7 +259,7 @@ func (s *ServiceService) ListServices(ctx context.Context, req *managementpb.Lis
 			svc.NodeName = nodeName
 		}
 
-		var svcAgents []*managementpb.UniversalAgent
+		var svcAgents []*agentv1beta1.UniversalAgent
 
 		for _, agent := range agents {
 			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {

@@ -22,7 +22,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -31,7 +31,7 @@ type AgentService struct {
 	db *reform.DB
 	r  agentsRegistry
 
-	managementpb.UnimplementedAgentServer
+	agentv1beta1.UnimplementedAgentServer
 }
 
 // NewAgentService creates AgentService instance.
@@ -45,7 +45,7 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 // ListAgents returns a filtered list of Agents.
 //
 //nolint:unparam
-func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAgentRequest) (*managementpb.ListAgentResponse, error) {
+func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
 	serviceID := req.ServiceId
 
 	var agents []*models.Agent
@@ -72,7 +72,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		return nil, errTX
 	}
 
-	var svcAgents []*managementpb.UniversalAgent
+	var svcAgents []*agentv1beta1.UniversalAgent
 
 	for _, agent := range agents {
 		if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
@@ -84,10 +84,10 @@ func (s *AgentService) ListAgents(ctx context.Context, req *managementpb.ListAge
 		}
 	}
 
-	return &managementpb.ListAgentResponse{Agents: svcAgents}, nil
+	return &agentv1beta1.ListAgentResponse{Agents: svcAgents}, nil
 }
 
-func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.UniversalAgent, error) {
+func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalAgent, error) {
 	const pass = "**********"
 
 	labels, err := agent.GetCustomLabels()
@@ -95,7 +95,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*managementpb.UniversalA
 		return nil, err
 	}
 
-	ga := &managementpb.UniversalAgent{
+	ga := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),

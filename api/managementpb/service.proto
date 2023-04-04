@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
-import "managementpb/agent.proto";
+import "managementpb/agent/agent.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -85,7 +85,7 @@ message UniversalService {
   // Last update timestamp.
   google.protobuf.Timestamp updated_at = 16;
   // List of agents related to this service.
-  repeated UniversalAgent agents = 17;
+  repeated agent.v1beta1.UniversalAgent agents = 17;
 }
 
 message ListServiceRequest {

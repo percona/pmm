@@ -18223,7 +18223,7 @@
           "Agent"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin3",
+        "operationId": "ListAgentsMixin10",
         "parameters": [
           {
             "name": "body",
@@ -36062,9 +36062,6 @@
       "name": "Actions"
     },
     {
-      "name": "Agent"
-    },
-    {
       "name": "Annotation"
     },
     {
@@ -36144,6 +36141,9 @@
     },
     {
       "name": "Role"
+    },
+    {
+      "name": "Agent"
     },
     {
       "name": "Collector"
