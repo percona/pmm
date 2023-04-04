@@ -5004,6 +5004,257 @@
         }
       }
     },
+    "/v1/management/DBaaS/PostgresqlCluster/Create": {
+      "post": {
+        "tags": [
+          "PostgresqlClusters"
+        ],
+        "summary": "CreatePostgresqlCluster creates a new Postgresql cluster.",
+        "operationId": "CreatePostgresqlCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Postgresql cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
+                  "x-order": 1
+                },
+                "params": {
+                  "description": "PostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
+                  "type": "object",
+                  "properties": {
+                    "backup": {
+                      "type": "object",
+                      "title": "Backup configuration for a database cluster",
+                      "properties": {
+                        "cron_expression": {
+                          "type": "string",
+                          "title": "Cron expression represents cron expression",
+                          "x-order": 2
+                        },
+                        "keep_copies": {
+                          "description": "Keep copies represents how many copies should retain.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup Location id of stored backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "service_account": {
+                          "type": "string",
+                          "title": "Service acccount used for backups",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "instance": {
+                      "description": "Instance container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for Postgresql cluster",
+                          "x-order": 3
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for Instance.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for Postgresql cluster.",
+                          "type": "string",
+                          "x-order": 4
+                        }
+                      },
+                      "x-order": 1
+                    },
+                    "pgbouncer": {
+                      "description": "PGBouncer container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Docker image used for PGBouncer.",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "restore": {
+                      "type": "object",
+                      "title": "Restore represents restoration payload to restore a database cluster from backup",
+                      "properties": {
+                        "destination": {
+                          "description": "Destination filename.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "location_id": {
+                          "description": "Backup location in PMM.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "secrets_name": {
+                          "description": "K8s Secrets name.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 2
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 6
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Secrets/List": {
       "post": {
         "tags": [
@@ -5196,6 +5447,9 @@
     },
     {
       "name": "LogsAPI"
+    },
+    {
+      "name": "PostgresqlClusters"
     },
     {
       "name": "PSMDBClusters"
