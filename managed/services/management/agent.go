@@ -88,14 +88,12 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 }
 
 func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalAgent, error) {
-	const pass = "**********"
-
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
 	}
 
-	ga := &agentv1beta1.UniversalAgent{
+	return &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
@@ -104,6 +102,9 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		Disabled:                       agent.Disabled,
 		DisabledCollectors:             agent.DisabledCollectors,
 		IsConnected:                    s.r.IsConnected(agent.AgentID),
+		IsAgentPasswordSet:             agent.AgentPassword != nil,
+		IsAwsSecretKeySet:              agent.AWSSecretKey != nil,
+		IsPasswordSet:                  agent.Password != nil,
 		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),
 		LogLevel:                       pointer.GetString(agent.LogLevel),
 		MaxQueryLength:                 agent.MaxQueryLength,
@@ -127,18 +128,5 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		Username:                       pointer.GetString(agent.Username),
 		UpdatedAt:                      timestamppb.New(agent.UpdatedAt),
 		Version:                        pointer.GetString(agent.Version),
-	}
-
-	// Indicate that there is actually a secret, but don't disclose it.
-	if agent.AgentPassword != nil {
-		ga.AgentPassword = pass
-	}
-	if agent.AWSSecretKey != nil {
-		ga.AwsSecretKey = pass
-	}
-	if agent.Password != nil {
-		ga.Password = pass
-	}
-
-	return ga, nil
+	}, nil
 }

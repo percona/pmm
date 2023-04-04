@@ -660,8 +660,8 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Agent password.
-	AgentPassword string `json:"agent_password,omitempty"`
+	// True if the agent password is set.
+	IsAgentPasswordSet bool `json:"is_agent_password_set,omitempty"`
 
 	// Agent type.
 	AgentType string `json:"agent_type,omitempty"`
@@ -669,8 +669,8 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
-	// AWS Secret Key.
-	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+	// True if AWS Secret Key is set.
+	IsAWSSecretKeySet bool `json:"is_aws_secret_key_set,omitempty"`
 
 	// Options used when adding an Azure exporter.
 	AzureOptions string `json:"azure_options,omitempty"`
@@ -715,8 +715,8 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Password for connecting the agent to the database.
-	Password string `json:"password,omitempty"`
+	// True if password for connecting the agent to the database is set.
+	IsPasswordSet bool `json:"is_password_set,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`

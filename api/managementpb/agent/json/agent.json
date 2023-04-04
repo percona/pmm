@@ -57,11 +57,6 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Agent password.",
-                        "type": "string",
-                        "x-order": 1
-                      },
                       "agent_type": {
                         "description": "Agent type.",
                         "type": "string",
@@ -71,11 +66,6 @@
                         "description": "AWS Access Key.",
                         "type": "string",
                         "x-order": 3
-                      },
-                      "aws_secret_key": {
-                        "description": "AWS Secret Key.",
-                        "type": "string",
-                        "x-order": 4
                       },
                       "azure_options": {
                         "description": "Options used when adding an Azure exporter.",
@@ -109,10 +99,25 @@
                         },
                         "x-order": 9
                       },
+                      "is_agent_password_set": {
+                        "description": "True if the agent password is set.",
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "is_aws_secret_key_set": {
+                        "description": "True if AWS Secret Key is set.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "is_connected": {
                         "description": "True if Agent is running and connected to pmm-managed.",
                         "type": "boolean",
                         "x-order": 37
+                      },
+                      "is_password_set": {
+                        "description": "True if password for connecting the agent to the database is set.",
+                        "type": "boolean",
+                        "x-order": 19
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -161,11 +166,6 @@
                         "description": "Node identifier.",
                         "type": "string",
                         "x-order": 18
-                      },
-                      "password": {
-                        "description": "Password for connecting the agent to the database.",
-                        "type": "string",
-                        "x-order": 19
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",

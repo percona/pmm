@@ -59,13 +59,13 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for AgentId
 
-	// no validation rules for AgentPassword
+	// no validation rules for IsAgentPasswordSet
 
 	// no validation rules for AgentType
 
 	// no validation rules for AwsAccessKey
 
-	// no validation rules for AwsSecretKey
+	// no validation rules for IsAwsSecretKeySet
 
 	// no validation rules for AzureOptions
 
@@ -120,7 +120,7 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for NodeId
 
-	// no validation rules for Password
+	// no validation rules for IsPasswordSet
 
 	// no validation rules for PmmAgentId
 

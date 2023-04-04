@@ -12,14 +12,14 @@ option go_package = "api/managementpb/agent;agentv1beta1";
 message UniversalAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // Agent password.
-  string agent_password = 2;
+  // True if the agent password is set.
+  bool is_agent_password_set = 2;
   // Agent type.
   string agent_type = 3;
   // AWS Access Key.
   string aws_access_key = 4;
-  // AWS Secret Key.
-  string aws_secret_key = 5;
+  // True if AWS Secret Key is set.
+  bool is_aws_secret_key_set = 5;
   // Options used when adding an Azure exporter.
   string azure_options = 6;
   // Creation timestamp.
@@ -48,8 +48,8 @@ message UniversalAgent {
   string mysql_options = 18;
   // Node identifier.
   string node_id = 19;
-  // Password for connecting the agent to the database.
-  string password = 20;
+  // True if password for connecting the agent to the database is set.
+  bool is_password_set = 20;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 21;
   // Options for connecting to PostgreSQL.

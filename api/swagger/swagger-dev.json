@@ -18258,9 +18258,9 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "agent_password": {
-                        "description": "Agent password.",
-                        "type": "string",
+                      "is_agent_password_set": {
+                        "description": "True if the agent password is set.",
+                        "type": "boolean",
                         "x-order": 1
                       },
                       "agent_type": {
@@ -18273,9 +18273,9 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "aws_secret_key": {
-                        "description": "AWS Secret Key.",
-                        "type": "string",
+                      "is_aws_secret_key_set": {
+                        "description": "True if AWS Secret Key is set.",
+                        "type": "boolean",
                         "x-order": 4
                       },
                       "azure_options": {
@@ -18358,9 +18358,9 @@
                         "type": "string",
                         "x-order": 18
                       },
-                      "password": {
-                        "description": "Password for connecting the agent to the database.",
-                        "type": "string",
+                      "is_password_set": {
+                        "description": "True if password for connecting the agent to the database is set.",
+                        "type": "boolean",
                         "x-order": 19
                       },
                       "pmm_agent_id": {
@@ -29601,9 +29601,9 @@
                               "type": "string",
                               "x-order": 0
                             },
-                            "agent_password": {
-                              "description": "Agent password.",
-                              "type": "string",
+                            "is_agent_password_set": {
+                              "description": "True if the agent password is set.",
+                              "type": "boolean",
                               "x-order": 1
                             },
                             "agent_type": {
@@ -29616,9 +29616,9 @@
                               "type": "string",
                               "x-order": 3
                             },
-                            "aws_secret_key": {
-                              "description": "AWS Secret Key.",
-                              "type": "string",
+                            "is_aws_secret_key_set": {
+                              "description": "True if AWS Secret Key is set.",
+                              "type": "boolean",
                               "x-order": 4
                             },
                             "azure_options": {
@@ -29701,9 +29701,9 @@
                               "type": "string",
                               "x-order": 18
                             },
-                            "password": {
-                              "description": "Password for connecting the agent to the database.",
-                              "type": "string",
+                            "is_password_set": {
+                              "description": "True if password for connecting the agent to the database is set.",
+                              "type": "boolean",
                               "x-order": 19
                             },
                             "pmm_agent_id": {
