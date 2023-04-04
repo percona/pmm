@@ -118,6 +118,7 @@ linters:
     - forbidigo
     - errcheck
     - dupl
+    - dupword
     # ENDTODO
 
 run:

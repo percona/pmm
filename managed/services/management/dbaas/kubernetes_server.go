@@ -55,10 +55,7 @@ var (
 	flagRole                     = "--role-arn"
 	kubeconfigFlagsConversionMap = map[string]string{flagClusterName: "-i", flagRegion: "--region", flagRole: "-r"}
 	kubeconfigFlagsList          = []string{flagClusterName, flagRegion, flagRole}
-	operatorNamePrefix           = map[string]string{
-		"psmdb": "percona-server-mongodb-operator",
-	}
-	DefaultCatalogSource = "percona-dbaas-catalog"
+	DefaultCatalogSource         = "percona-dbaas-catalog"
 )
 
 type kubernetesServer struct {
@@ -384,7 +381,7 @@ type setupMonitoringParams struct {
 
 func (k kubernetesServer) setupMonitoring(ctx context.Context, params setupMonitoringParams) {
 	errs := installDefaultOperators(params.kubeClient, params.operatorsToInstall, DefaultCatalogSource, params.labels, k.l)
-	if len(errs) > 0 {
+	if len(errs) != 0 {
 		for key, err := range errs {
 			k.l.Errorf("cannot install default operator %q: %s", key, err)
 		}
@@ -590,7 +587,7 @@ func waitForRollout(ctx context.Context, kubeClient kubernetesClient, key types.
 	}
 }
 
-func getCSVName(ctx context.Context, kubeClient kubernetesClient, namespace, operatorName string) (string, error) {
+func getCSVName(ctx context.Context, kubeClient kubernetesClient, namespace, operatorName string) (string, error) { //nolint:unparam
 	csvs, err := kubeClient.ListClusterServiceVersion(ctx, namespace)
 	if err != nil {
 		return "", err
@@ -639,11 +636,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
 		}
 
-		kubeClient, err = k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
-		if err != nil {
-			return err
-		}
-
 		out, err := kubeClient.ListDatabaseClusters(ctx)
 
 		switch {
@@ -656,7 +648,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		}
 
 		if err := kubeClient.CleanupMonitoring(); err != nil {
-			return nil
+			return err
 		}
 
 		labels, err := k.baseLabels()

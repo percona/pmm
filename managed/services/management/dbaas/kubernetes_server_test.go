@@ -122,7 +122,6 @@ func TestKubernetesServer(t *testing.T) {
 		kubeClient.On("ListClusterServiceVersion", mock.Anything, mock.Anything).Return(&v1alpha1.ClusterServiceVersionList{}, nil)
 		kubeClient.On("CleanupMonitoring").Return(nil)
 		kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		// kubeClient.On("ListVMAgents", mock.Anything, mock.Anything, mock.Anything).Return(&vmv1beta1.VMAgentList{Items: []vmv1beta1.VMAgent{vmv1beta1.VMAgent{}}}, nil)
 		kubeClient.On("ListVMAgents", mock.Anything, mock.Anything, mock.Anything).Return(&vmv1beta1.VMAgentList{Items: []vmv1beta1.VMAgent{}}, nil)
 		kubeClient.On("DeleteVMAgent", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
