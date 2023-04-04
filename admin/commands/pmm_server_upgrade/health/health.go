@@ -30,8 +30,7 @@ import (
 )
 
 // HealthCommand is used by Kong for CLI flags and commands.
-type HealthCommand struct {
-}
+type HealthCommand struct{}
 
 type healthResult struct{}
 

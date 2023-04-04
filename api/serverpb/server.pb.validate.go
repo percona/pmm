@@ -852,6 +852,10 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for PmmUpdateAvailable
+
+	// no validation rules for ServerUpgradeServiceAvailable
+
 	if len(errors) > 0 {
 		return CheckUpdatesResponseMultiError(errors)
 	}
@@ -953,6 +957,8 @@ func (m *StartUpdateRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Method
 
 	if len(errors) > 0 {
 		return StartUpdateRequestMultiError(errors)
@@ -1165,6 +1171,8 @@ func (m *UpdateStatusRequest) validate(all bool) error {
 	// no validation rules for AuthToken
 
 	// no validation rules for LogOffset
+
+	// no validation rules for Method
 
 	if len(errors) > 0 {
 		return UpdateStatusRequestMultiError(errors)
