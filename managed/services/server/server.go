@@ -450,7 +450,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
 		AlertingEnabled:         !settings.Alerting.Disabled,
-		BackupManagementEnabled: settings.BackupManagement.Enabled,
+		BackupManagementEnabled: !settings.BackupManagement.Disabled,
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
@@ -727,7 +727,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
 		s.templatesService.CollectTemplates(ctx)
 		if !sttStarted {
-			s.checksService.CollectChecks(ctx)
+			s.checksService.CollectAdvisors(ctx)
 		}
 	}
 

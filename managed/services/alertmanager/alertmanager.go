@@ -232,7 +232,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager reload: %s", b)
@@ -866,7 +866,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager ready: %s", b)

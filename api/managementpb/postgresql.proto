@@ -2,16 +2,16 @@ syntax = "proto3";
 
 package management;
 
-option go_package = "api/managementpb;managementpb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
+import "inventorypb/log_level.proto";
 import "inventorypb/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
-import "inventorypb/log_level.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb;managementpb";
 
 // Add PostgreSQL
 
@@ -26,11 +26,7 @@ message AddPostgreSQLRequest {
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   AddNodeParams add_node = 3;
   // Unique across all Services user-defined name. Required.
-  string service_name = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 4 [(validate.rules).string.min_len = 1];
   // Node and Service access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 5;
@@ -43,11 +39,7 @@ message AddPostgreSQLRequest {
   // Address (and port) or socket is required.
   string socket = 18;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 7 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
   // Environment name.
   string environment = 8;
   // Cluster name.
@@ -55,11 +47,7 @@ message AddPostgreSQLRequest {
   // Replication set name.
   string replication_set = 10;
   // PostgreSQL username for scraping metrics.
-  string username = 11 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 11 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for scraping metrics.
   string password = 12;
   // If true, adds qan-postgresql-pgstatements-agent for provided service.

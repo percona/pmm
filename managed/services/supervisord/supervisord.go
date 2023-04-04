@@ -41,6 +41,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 )
@@ -443,6 +444,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		}
 		templateParams["PerconaSSODetails"] = ssoDetails
 		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
 	} else {
 		templateParams["PerconaSSODetails"] = nil
@@ -575,6 +577,9 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+var interfaceToBind = envvars.GetInterfaceToBind()
+
+//nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
@@ -617,7 +622,7 @@ command =
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr=127.0.0.1:9090
+		--httpListenAddr=` + interfaceToBind + `:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=1MB
 		--search.latencyOffset=5s
@@ -659,7 +664,7 @@ command =
 		--remoteWrite.url=http://127.0.0.1:9090/prometheus
 		--rule=/srv/prometheus/rules/*.yml
 		--rule=/etc/ia/rules/*.yml
-		--httpListenAddr=127.0.0.1:8880
+		--httpListenAddr=` + interfaceToBind + `:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
@@ -683,7 +688,7 @@ command =
     /usr/sbin/vmproxy
       --target-url=http://127.0.0.1:9090/
       --listen-port=8430
-      --listen-address=127.0.0.1
+      --listen-address=` + interfaceToBind + `
       --header-name=X-Proxy-Filter
 user = pmm
 autorestart = true
@@ -707,7 +712,7 @@ command =
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address=127.0.0.1:9093
+		--web.listen-address=` + interfaceToBind + `:9093
 		--cluster.listen-address=""
 user = pmm
 autorestart = true
@@ -768,7 +773,7 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-		cfg:default.auth.generic_oauth.role_attribute_path="contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') && 'Admin' || 'Viewer'"
+		cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
 		cfg:default.auth.generic_oauth.use_pkce="true"
 
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
