@@ -299,7 +299,7 @@ nav:
       - "Add a DB Cluster": dbaas/databases.html#add-a-db-cluster
       - "Manage a DB Cluster": dbaas/databases.html#edit-a-db-cluster
       - "Delete a DB Cluster": dbaas/databases.html#delete-a-db-cluster
-      - "Create a database cluster from a template": dbaas/DBaaS_tepmplate.md
+      - "Create a database cluster from a template": dbaas/DBaaS_template.md
     - "Backup and restore": dbaas/backup_restore.md
   - faq.md
   - Release Notes:
