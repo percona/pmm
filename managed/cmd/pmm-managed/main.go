@@ -810,10 +810,7 @@ func main() {
 		l.Fatalf("Could not create Percona Portal client: %s", err)
 	}
 
-	uieventsService, err := uievents.New()
-	if err != nil {
-		l.Fatalf("Could not create UI Events Service: %s", err)
-	}
+	uieventsService := uievents.New()
 	uieventsService.ScheduleCleanup(ctx)
 
 	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{

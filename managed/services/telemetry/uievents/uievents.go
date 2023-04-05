@@ -64,7 +64,7 @@ type ComponentsUsageStat struct {
 }
 
 // New returns platform Service.
-func New() (*Service, error) {
+func New() *Service {
 	l := logrus.WithField("component", "uievents")
 
 	s := Service{
@@ -73,7 +73,7 @@ func New() (*Service, error) {
 		componentsUsage: make(map[string]*ComponentsUsageStat),
 	}
 
-	return &s, nil
+	return &s
 }
 
 // ScheduleCleanup schedules internal clean for internal UI event storage.
@@ -93,7 +93,7 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 	}()
 }
 
-func (s *Service) FetchMetrics(ctx context.Context, config telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()
 
@@ -224,7 +224,7 @@ func (s *Service) processComponentMetrics() *pmmv1.ServerMetric_Metric {
 }
 
 func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
-	var result []*pmmv1.ServerMetric_Metric
+	result := make([]*pmmv1.ServerMetric_Metric, 0, len(s.userFlowEvents))
 	for _, event := range s.userFlowEvents {
 		marshal, err := json.Marshal(event)
 		if err != nil {
