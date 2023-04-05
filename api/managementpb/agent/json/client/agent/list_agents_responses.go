@@ -415,9 +415,6 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// True if AWS Secret Key is set.
 	IsAWSSecretKeySet bool `json:"is_aws_secret_key_set,omitempty"`
 
-	// Options used when adding an Azure exporter.
-	AzureOptions string `json:"azure_options,omitempty"`
-
 	// Creation timestamp.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
@@ -449,23 +446,14 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// Scheme to generate URI to exporter metrics endpoints.
 	MetricsScheme string `json:"metrics_scheme,omitempty"`
 
-	// TLS options for connecting to MongoDB.
-	MongoDBOptions string `json:"mongo_db_options,omitempty"`
-
-	// Options for connecting to MySQL.
-	MysqlOptions string `json:"mysql_options,omitempty"`
-
-	// Node identifier.
+	// A unique node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
 	// True if password for connecting the agent to the database is set.
 	IsPasswordSet bool `json:"is_password_set,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
+	// The pmm-agent identifier.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Options for connecting to PostgreSQL.
-	PostgresqlOptions string `json:"postgresql_options,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
@@ -517,6 +505,18 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
+
+	// azure options
+	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
+
+	// mongo db options
+	MongoDBOptions *ListAgentsOKBodyAgentsItems0MongoDBOptions `json:"mongo_db_options,omitempty"`
+
+	// mysql options
+	MysqlOptions *ListAgentsOKBodyAgentsItems0MysqlOptions `json:"mysql_options,omitempty"`
+
+	// postgresql options
+	PostgresqlOptions *ListAgentsOKBodyAgentsItems0PostgresqlOptions `json:"postgresql_options,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0
@@ -528,6 +528,22 @@ func (o *ListAgentsOKBodyAgentsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAzureOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongoDBOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMysqlOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresqlOptions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -561,8 +577,165 @@ func (o *ListAgentsOKBodyAgentsItems0) validateUpdatedAt(formats strfmt.Registry
 	return nil
 }
 
-// ContextValidate validates this list agents OK body agents items0 based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0) validateAzureOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AzureOptions) { // not required
+		return nil
+	}
+
+	if o.AzureOptions != nil {
+		if err := o.AzureOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("azure_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("azure_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateMongoDBOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MongoDBOptions) { // not required
+		return nil
+	}
+
+	if o.MongoDBOptions != nil {
+		if err := o.MongoDBOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mongo_db_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mongo_db_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateMysqlOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MysqlOptions) { // not required
+		return nil
+	}
+
+	if o.MysqlOptions != nil {
+		if err := o.MysqlOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mysql_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mysql_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validatePostgresqlOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.PostgresqlOptions) { // not required
+		return nil
+	}
+
+	if o.PostgresqlOptions != nil {
+		if err := o.PostgresqlOptions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("postgresql_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("postgresql_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body agents items0 based on the context it is used
 func (o *ListAgentsOKBodyAgentsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAzureOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMongoDBOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMysqlOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresqlOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.AzureOptions != nil {
+		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("azure_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("azure_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MongoDBOptions != nil {
+		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mongo_db_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mongo_db_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MysqlOptions != nil {
+		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mysql_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mysql_options")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.PostgresqlOptions != nil {
+		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("postgresql_options")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("postgresql_options")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -577,6 +750,199 @@ func (o *ListAgentsOKBodyAgentsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyAgentsItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyAgentsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAgentsItems0AzureOptions list agents OK body agents items0 azure options
+swagger:model ListAgentsOKBodyAgentsItems0AzureOptions
+*/
+type ListAgentsOKBodyAgentsItems0AzureOptions struct {
+	// Azure client ID.
+	ClientID string `json:"client_id,omitempty"`
+
+	// True if Azure client secret is set.
+	IsClientSecretSet bool `json:"is_client_secret_set,omitempty"`
+
+	// Azure resource group.
+	ResourceGroup string `json:"resource_group,omitempty"`
+
+	// Azure subscription ID.
+	SubscriptionID string `json:"subscription_id,omitempty"`
+
+	// Azure tenant ID.
+	TenantID string `json:"tenant_id,omitempty"`
+}
+
+// Validate validates this list agents OK body agents items0 azure options
+func (o *ListAgentsOKBodyAgentsItems0AzureOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body agents items0 azure options based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0AzureOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0AzureOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0AzureOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAgentsItems0AzureOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAgentsItems0MongoDBOptions list agents OK body agents items0 mongo DB options
+swagger:model ListAgentsOKBodyAgentsItems0MongoDBOptions
+*/
+type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
+	// True if TLS certificate is set.
+	IsTLSCertificateKeySet bool `json:"is_tls_certificate_key_set,omitempty"`
+
+	// True if TLS certificate file password is set.
+	IsTLSCertificateKeyFilePasswordSet bool `json:"is_tls_certificate_key_file_password_set,omitempty"`
+
+	// TLS CA certificate.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// MongoDB auth mechanism.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// MongoDB auth database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// MongoDB stats collections.
+	StatsCollections []string `json:"stats_collections"`
+
+	// MongoDB collections limit.
+	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+
+	// True if all collectors are enabled.
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+}
+
+// Validate validates this list agents OK body agents items0 mongo DB options
+func (o *ListAgentsOKBodyAgentsItems0MongoDBOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body agents items0 mongo DB options based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0MongoDBOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0MongoDBOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0MongoDBOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAgentsItems0MongoDBOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAgentsItems0MysqlOptions list agents OK body agents items0 mysql options
+swagger:model ListAgentsOKBodyAgentsItems0MysqlOptions
+*/
+type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
+	// TLS CA certificate.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// TLS certificate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// True if TLS key is set.
+	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
+}
+
+// Validate validates this list agents OK body agents items0 mysql options
+func (o *ListAgentsOKBodyAgentsItems0MysqlOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body agents items0 mysql options based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0MysqlOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0MysqlOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0MysqlOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAgentsItems0MysqlOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAgentsItems0PostgresqlOptions list agents OK body agents items0 postgresql options
+swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
+*/
+type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
+	// TLS CA certificate.
+	SslCa string `json:"ssl_ca,omitempty"`
+
+	// TLS certificate.
+	SslCert string `json:"ssl_cert,omitempty"`
+
+	// True if TLS key is set.
+	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
+}
+
+// Validate validates this list agents OK body agents items0 postgresql options
+func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body agents items0 postgresql options based on context it is used
+func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAgentsItems0PostgresqlOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAgentsItems0PostgresqlOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

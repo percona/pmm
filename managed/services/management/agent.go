@@ -93,7 +93,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		return nil, err
 	}
 
-	return &agentv1beta1.UniversalAgent{
+	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
@@ -128,5 +128,46 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		Username:                       pointer.GetString(agent.Username),
 		UpdatedAt:                      timestamppb.New(agent.UpdatedAt),
 		Version:                        pointer.GetString(agent.Version),
-	}, nil
+	}
+
+	if agent.AzureOptions != nil {
+		ua.AzureOptions = &agentv1beta1.UniversalAgent_AzureOptions{
+			ClientId:          agent.AzureOptions.ClientID,
+			IsClientSecretSet: agent.AzureOptions.ClientSecret != "",
+			TenantId:          agent.AzureOptions.TenantID,
+			SubscriptionId:    agent.AzureOptions.SubscriptionID,
+			ResourceGroup:     agent.AzureOptions.ResourceGroup,
+		}
+	}
+
+	if agent.MySQLOptions != nil {
+		ua.MysqlOptions = &agentv1beta1.UniversalAgent_MySQLOptions{
+			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
+			TlsCa:       agent.MySQLOptions.TLSCa,
+			TlsCert:     agent.MySQLOptions.TLSCert,
+		}
+	}
+
+	if agent.PostgreSQLOptions != nil {
+		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+			IsSslKeySet: agent.PostgreSQLOptions.SSLKey != "",
+			SslCa:       agent.PostgreSQLOptions.SSLCa,
+			SslCert:     agent.PostgreSQLOptions.SSLCert,
+		}
+	}
+
+	if agent.MongoDBOptions != nil {
+		ua.MongoDbOptions = &agentv1beta1.UniversalAgent_MongoDBOptions{
+			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
+			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
+			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
+			EnableAllCollectors:                agent.MongoDBOptions.EnableAllCollectors,
+			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
+			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
+			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
+			TlsCa:                              agent.MongoDBOptions.TLSCa,
+		}
+	}
+
+	return ua, nil
 }

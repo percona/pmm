@@ -10,6 +10,56 @@ import "validate/validate.proto";
 option go_package = "api/managementpb/agent;agentv1beta1";
 
 message UniversalAgent {
+  message MySQLOptions {
+    // TLS CA certificate.
+    string tls_ca = 1;
+    // TLS certificate.
+    string tls_cert = 2;
+    // True if TLS key is set.
+    bool is_tls_key_set = 3;
+  }
+
+  message AzureOptions {
+    // Azure client ID.
+    string client_id = 1;
+    // True if Azure client secret is set.
+    bool is_client_secret_set = 2;
+    // Azure resource group.
+    string resource_group = 3;
+    // Azure subscription ID.
+    string subscription_id = 4;
+    // Azure tenant ID.
+    string tenant_id = 5;
+  }
+
+  message MongoDBOptions {
+    // True if TLS certificate is set.
+    bool is_tls_certificate_key_set = 1;
+    // True if TLS certificate file password is set.
+    bool is_tls_certificate_key_file_password_set = 2;
+    // TLS CA certificate.
+    string tls_ca = 3;
+    // MongoDB auth mechanism.
+    string authentication_mechanism = 4;
+    // MongoDB auth database.
+    string authentication_database = 5;
+    // MongoDB stats collections.
+    repeated string stats_collections = 6;
+    // MongoDB collections limit.
+    int32 collections_limit = 7;
+    // True if all collectors are enabled.
+    bool enable_all_collectors = 8;
+  }
+
+  message PostgreSQLOptions {
+    // TLS CA certificate.
+    string ssl_ca = 1;
+    // TLS certificate.
+    string ssl_cert = 2;
+    // True if TLS key is set.
+    bool is_ssl_key_set = 3;
+  }
+
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // True if the agent password is set.
@@ -20,8 +70,8 @@ message UniversalAgent {
   string aws_access_key = 4;
   // True if AWS Secret Key is set.
   bool is_aws_secret_key_set = 5;
-  // Options used when adding an Azure exporter.
-  string azure_options = 6;
+  // Options used for connecting to Azure.
+  AzureOptions azure_options = 6;
   // Creation timestamp.
   google.protobuf.Timestamp created_at = 7;
   // Custom user-assigned labels.
@@ -42,18 +92,18 @@ message UniversalAgent {
   string metrics_path = 15;
   // Scheme to generate URI to exporter metrics endpoints.
   string metrics_scheme = 16;
-  // TLS options for connecting to MongoDB.
-  string mongo_db_options = 17;
-  // Options for connecting to MySQL.
-  string mysql_options = 18;
-  // Node identifier.
+  // TLS and other options for connecting to MongoDB.
+  MongoDBOptions mongo_db_options = 17;
+  // TLS options for connecting to MySQL.
+  MySQLOptions mysql_options = 18;
+  // A unique node identifier.
   string node_id = 19;
   // True if password for connecting the agent to the database is set.
   bool is_password_set = 20;
-  // The pmm-agent identifier which runs this instance.
+  // The pmm-agent identifier.
   string pmm_agent_id = 21;
-  // Options for connecting to PostgreSQL.
-  string postgresql_options = 22;
+  // TLS options for connecting to PostgreSQL.
+  PostgreSQLOptions postgresql_options = 22;
   // Path to exec process.
   string process_exec_path = 23;
   // True if exporter uses push metrics mode.
