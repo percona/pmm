@@ -53,7 +53,7 @@ func newRegistry(alertTTL time.Duration) *registry {
 		mCheckResults: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "insights_total",
+			Name:      "check_insights",
 			Help:      "Number of advisor insights per service type, advisor and check name",
 		}, []string{"service_type", "advisor", "check_name"}),
 	}

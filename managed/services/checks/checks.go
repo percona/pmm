@@ -174,7 +174,7 @@ func New(
 		mChecksInMemory: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "checks_available_total",
+			Name:      "checks_available",
 			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
 		}, []string{"service_type", "advisor", "check_name"}),
 
