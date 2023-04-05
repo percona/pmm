@@ -16,9 +16,9 @@
 package models
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,7 +33,6 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
 	})
 	t.Run("check external VM", func(t *testing.T) {
-
 		tests := []struct {
 			url  string
 			want bool
