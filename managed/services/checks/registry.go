@@ -40,7 +40,7 @@ type registry struct {
 	alertTTL time.Duration
 	nowF     func() time.Time // for tests
 
-	mCheckResults *prom.GaugeVec
+	mInsights *prom.GaugeVec
 }
 
 // newRegistry creates a new registry.
@@ -50,7 +50,7 @@ func newRegistry(alertTTL time.Duration) *registry {
 		alertTTL:     alertTTL,
 		nowF:         time.Now,
 
-		mCheckResults: prom.NewGaugeVec(prom.GaugeOpts{
+		mInsights: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "check_insights",
@@ -171,17 +171,17 @@ func (r *registry) createAlert(checkResult *services.CheckResult) *ammodels.Post
 
 // Describe implements prom.Collector.
 func (r *registry) Describe(ch chan<- *prom.Desc) {
-	r.mCheckResults.Describe(ch)
+	r.mInsights.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (r *registry) Collect(ch chan<- prom.Metric) {
-	r.mCheckResults.Reset()
+	r.mInsights.Reset()
 	res := r.getCheckResults()
 	for _, re := range res {
-		r.mCheckResults.WithLabelValues(string(re.Target.ServiceType), re.AdvisorName, re.CheckName).Inc()
+		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.AdvisorName, re.CheckName).Inc()
 	}
-	r.mCheckResults.Collect(ch)
+	r.mInsights.Collect(ch)
 }
 
 // makeID creates an ID for STT check alert.
