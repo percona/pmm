@@ -1,4 +1,3 @@
-
 # Working with Advisors
 
 Percona Advisors provide automated insights and recommendations within Percona Monitoring and Management. These proactive insights help you uncover problems before they become larger issues: security risks, misconfigurations, poor performance, etc.
@@ -8,11 +7,13 @@ Advisors are grouped by category: Security, Configuration, Performance and Query
 ## Prerequisites for accessing Advisor checks
 All checks are hosted on Percona Platform. PMM Server automatically downloads them from here when the **Advisors** and **Telemetry** options are enabled in PMM under **Configuration > Settings > Advanced Settings**. Both these options are enabled by default.
 
+## Highest security for your databases
+Percona Platform communicates with PMM via secure channels, using the highest standards for privacy and security. Before downloading and running Advisor checks on your database, PMM verifies the content and integrity of all Advisor checks to confirm that every component originated from Percona Platform and that no one has altered them since the checks were digitally signed.
+
 ### Advisor check tiers and Platform entitlements
 Depending on the entitlements available for your Percona Account, the set of Advisor checks that PMM can download from the Percona Platform differs in terms of complexity and functionality.
-As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for Registered PMM instances.
 
-If your PMM instance is not connected to Percona Platform, PMM can only use its built-in Advisor checks.
+If your PMM instance is not connected to Percona Platform, PMM can only use the default Advisor checks.
 As soon as you connect your PMM instance to Percona Platform, has access to additional checks, available only for registered PMM instances.
 
 If you are a Percona customer with a Percona Customer Portal account, you also get access to Standard/Premium Advisor checks, which offer more advanced database health information.
