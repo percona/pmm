@@ -365,6 +365,7 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `PMM_DEBUG`                                                     | Enables a more verbose log level.
 | `PMM_TRACE`                                                     | Enables a more verbose log level including trace-back information.
 | `PMM_PUBLIC_ADDRESS`                                            | External IP address or the DNS name on which PMM server is running.
+| `PMM_DISABLE_BUILTIN_POSTGRES`                                  | Disable built-in PostgreSQL database.
 
 
 ## Preview environment variables
