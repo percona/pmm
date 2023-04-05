@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package ia.v1beta1;
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/pagination.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
@@ -65,7 +65,7 @@ message EmailConfig {
   option deprecated = true;
 
   bool send_resolved = 1;
-  repeated string to = 2 [(validator.field) = {repeated_count_min: 1}];
+  repeated string to = 2 [(validate.rules).repeated.min_items = 1];
 }
 
 // PagerDutyConfig represents PagerDuty configuration.
@@ -84,7 +84,7 @@ message SlackConfig {
   option deprecated = true;
 
   bool send_resolved = 1;
-  string channel = 2 [(validator.field) = {string_not_empty: true}];
+  string channel = 2 [(validate.rules).string.min_len = 1];
 }
 
 // WebhookConfig represents webhook configuration.
@@ -92,7 +92,7 @@ message WebhookConfig {
   option deprecated = true;
 
   bool send_resolved = 1;
-  string url = 2 [(validator.field) = {string_not_empty: true}];
+  string url = 2 [(validate.rules).string.min_len = 1];
   HTTPConfig http_config = 3;
   int32 max_alerts = 4;
 }
@@ -140,7 +140,7 @@ message AddChannelRequest {
   option deprecated = true;
 
   // Short human-readable summary.
-  string summary = 2 [(validator.field) = {string_not_empty: true}];
+  string summary = 2 [(validate.rules).string.min_len = 1];
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 3;
   // PagerDuty configuration. Exactly one config should be set.
@@ -164,7 +164,7 @@ message ChangeChannelRequest {
   option deprecated = true;
 
   // Machine-readable ID.
-  string channel_id = 1 [(validator.field) = {string_not_empty: true}];
+  string channel_id = 1 [(validate.rules).string.min_len = 1];
   // Short human-readable summary. Empty value will not change it.
   string summary = 2;
   // Email configuration. Exactly one config should be set.
@@ -185,8 +185,7 @@ message ChangeChannelResponse {
 
 message RemoveChannelRequest {
   option deprecated = true;
-
-  string channel_id = 1 [(validator.field) = {string_not_empty: true}];
+  string channel_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message RemoveChannelResponse {
