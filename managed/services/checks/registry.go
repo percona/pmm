@@ -24,6 +24,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/check"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
@@ -38,6 +39,8 @@ type registry struct {
 
 	alertTTL time.Duration
 	nowF     func() time.Time // for tests
+
+	mCheckResults *prom.GaugeVec
 }
 
 // newRegistry creates a new registry.
@@ -46,6 +49,13 @@ func newRegistry(alertTTL time.Duration) *registry {
 		checkResults: make(map[check.Interval]map[string][]services.CheckResult),
 		alertTTL:     alertTTL,
 		nowF:         time.Now,
+
+		mCheckResults: prom.NewGaugeVec(prom.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "insights_total",
+			Help:      "Number of advisor insights per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 }
 
@@ -157,6 +167,21 @@ func (r *registry) createAlert(checkResult *services.CheckResult) *ammodels.Post
 		EndsAt:      strfmt.DateTime(endsAt),
 		Annotations: annotations,
 	}
+}
+
+// Describe implements prom.Collector.
+func (r *registry) Describe(ch chan<- *prom.Desc) {
+	r.mCheckResults.Describe(ch)
+}
+
+// Collect implements prom.Collector.
+func (r *registry) Collect(ch chan<- prom.Metric) {
+	r.mCheckResults.Reset()
+	res := r.getCheckResults()
+	for _, re := range res {
+		r.mCheckResults.WithLabelValues(string(re.Target.ServiceType), re.AdvisorName, re.CheckName).Inc()
+	}
+	r.mCheckResults.Collect(ch)
 }
 
 // makeID creates an ID for STT check alert.
