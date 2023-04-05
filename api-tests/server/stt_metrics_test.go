@@ -63,12 +63,12 @@ func TestSTTMetrics(t *testing.T) {
 				},
 			},
 			{
-				query:      "pmm_managed_checks_scripts_executed_total",
+				query:      "pmm_managed_checks_scripts_executed",
 				metricType: "vector",
 				expectedValues: []string{
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`,
+					`pmm_managed_checks_scripts_executed{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_checks_scripts_executed{instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
+					`pmm_managed_checks_scripts_executed{instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`,
 				},
 			},
 		}

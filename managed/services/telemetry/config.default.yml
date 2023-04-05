@@ -642,7 +642,7 @@ telemetry:
 
   - id: AdvisorChecksExecutedCount
     source: VM
-    query: pmm_managed_checks_scripts_executed_total
+    query: pmm_managed_checks_scripts_executed
     transform:
       type: JSON
       metric: "advisor_checks_executed"

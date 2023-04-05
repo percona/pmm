@@ -168,7 +168,7 @@ func New(
 		mScriptsExecuted: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "scripts_executed_total",
+			Name:      "scripts_executed",
 			Help:      "Number of check scripts executed per service type, advisor and check name",
 		}, []string{"service_type", "advisor", "check_name"}),
 
