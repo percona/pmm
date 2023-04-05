@@ -23,24 +23,24 @@ import (
 
 // ListUsers lists all users and their roles. Returns map with user ID as key and role ID as values.
 func ListUsers(q *reform.Querier) (map[int][]uint32, error) {
-	rows, err := q.SelectAllFrom(UserRolesView, "")
+	rows, err := q.SelectAllFrom(EntityRolesView, "WHERE entity_type = ?", EntityTypeUser)
 	if err != nil {
 		return nil, err
 	}
 
 	roles := make(map[int][]uint32)
 	for _, row := range rows {
-		userRole, ok := row.(*UserRoles)
+		userRole, ok := row.(*EntityRoles)
 		if !ok {
-			return nil, fmt.Errorf("invalid data in user_roles table")
+			return nil, fmt.Errorf("invalid data in entity_roles table")
 		}
 
-		_, ok = roles[userRole.UserID]
+		_, ok = roles[userRole.EntityID]
 		if !ok {
-			roles[userRole.UserID] = []uint32{}
+			roles[userRole.EntityID] = []uint32{}
 		}
 
-		roles[userRole.UserID] = append(roles[userRole.UserID], userRole.RoleID)
+		roles[userRole.EntityID] = append(roles[userRole.EntityID], userRole.RoleID)
 	}
 
 	return roles, nil

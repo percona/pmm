@@ -838,6 +838,24 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`CREATE TABLE entity_roles (
+			entity_id INTEGER NOT NULL,
+			entity_type VARCHAR NOT NULL,
+			role_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (entity_id, entity_type, role_id)
+		);
+		CREATE INDEX entity_roles_role_id_index ON user_roles (role_id);
+		
+		INSERT INTO entity_roles (entity_id, entity_type, role_id, created_at, updated_at)
+		SELECT
+			user_id, 'user', role_id, created_at, updated_at
+		FROM user_roles;
+		
+		DROP TABLE user_roles;`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

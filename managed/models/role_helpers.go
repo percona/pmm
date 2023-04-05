@@ -44,7 +44,12 @@ func CreateRole(q *reform.Querier, role *Role) error {
 func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 	q := tx.Querier
 
-	if _, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID); err != nil {
+	if _, err := q.DeleteFrom(
+		EntityRolesView,
+		" WHERE entity_id = $1 AND entity_type = $2",
+		userID,
+		EntityTypeUser,
+	); err != nil {
 		return err
 	}
 
@@ -55,8 +60,9 @@ func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 			return err
 		}
 
-		var userRole UserRoles
-		userRole.UserID = userID
+		var userRole EntityRoles
+		userRole.EntityID = userID
+		userRole.EntityType = EntityTypeUser
 		userRole.RoleID = uint32(roleID)
 		s = append(s, &userRole)
 	}
@@ -117,7 +123,7 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 
 	// If no new role is assigned, we remove all role assignements.
 	if newRoleID == 0 {
-		_, err := q.DeleteFrom(UserRolesView, "WHERE role_id = $1", roleID)
+		_, err := q.DeleteFrom(EntityRolesView, "WHERE role_id = $1", roleID)
 		return err
 	}
 
@@ -126,25 +132,45 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 	}
 
 	// Check if the role is the last role for a user and apply special logic if it is.
-	structs, err := q.FindAllFrom(UserRolesView, "role_id", roleID)
+	structs, err := q.FindAllFrom(EntityRolesView, "role_id", roleID)
 	if err != nil {
 		return err
 	}
 
 	for _, s := range structs {
-		ur, ok := s.(*UserRoles)
+		ur, ok := s.(*EntityRoles)
 		if !ok {
-			return fmt.Errorf("invalid data structure in user roles for role ID %d. Found %+v", roleID, s)
+			return fmt.Errorf("invalid data structure in entity roles for role ID %d. Found %+v", roleID, s)
 		}
 
-		roleStructs, err := q.SelectAllFrom(UserRolesView, "WHERE user_id = $1 FOR UPDATE", ur.UserID)
+		if ur.EntityType != EntityTypeUser {
+			continue
+		}
+
+		userID := ur.EntityID
+		roleStructs, err := q.SelectAllFrom(
+			EntityRolesView,
+			`WHERE
+				entity_id = $1 AND
+				entity_type = $2
+			FOR UPDATE`,
+			userID,
+			EntityTypeUser)
 		if err != nil {
 			return err
 		}
 
 		// If there are more than 1 roles, we remove the role without a replacement.
 		if len(roleStructs) > 1 {
-			_, err := q.DeleteFrom(UserRolesView, "WHERE user_id = $1 AND role_id = $2", ur.UserID, roleID)
+			_, err := q.DeleteFrom(
+				EntityRolesView,
+				`WHERE 
+					entity_id = $1 AND 
+					entity_type = $2 AND 
+					role_id = $3`,
+				userID,
+				EntityTypeUser,
+				roleID)
 			if err != nil {
 				return err
 			}
@@ -154,21 +180,24 @@ func replaceRole(tx *reform.TX, roleID, newRoleID int) error {
 
 		// The removed role is the last one. We replace it with a new role.
 		_, err = q.Exec(`
-			UPDATE user_roles
+			UPDATE entity_roles
 			SET
 				role_id = $1
 			WHERE
-				user_id = $2 AND
-				role_id = $3 AND
+				entity_id = $2 AND
+				entity_type = $3 AND
+				role_id = $4 AND
 				NOT EXISTS(
 					SELECT 1
-					FROM user_roles ur
+					FROM entity_roles er
 					WHERE
-						ur.user_id = $2 AND
-						ur.role_id = $1
+						er.entity_id = $2 AND
+						er.entity_type = $3 AND
+						er.role_id = $1
 				)`,
 			newRoleID,
-			ur.UserID,
+			userID,
+			EntityTypeUser,
 			roleID)
 		if err != nil {
 			return err
@@ -215,12 +244,13 @@ func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
 			%[2]s
 			INNER JOIN %[3]s ON (%[2]s.role_id = %[3]s.id)
 		WHERE
-			user_roles.user_id = $1`,
+			%[2]s.entity_id = $1 AND
+			%[2]s.entity_type = $2`,
 		strings.Join(q.QualifiedColumns(RoleTable), ","),
-		UserRolesView.Name(),
+		EntityRolesView.Name(),
 		RoleTable.Name())
 
-	rows, err := q.Query(query, userID)
+	rows, err := q.Query(query, userID, EntityTypeUser)
 	if err != nil {
 		return nil, err
 	}

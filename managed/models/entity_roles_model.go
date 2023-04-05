@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,14 +21,21 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+type EntityType string
+
+const (
+	EntityTypeUser EntityType = "user"
+)
+
 //go:generate ../../bin/reform
 
-// UserRoles represents mapping of users to roles.
+// EntityRoles represents mapping of entities to roles.
 //
-//reform:user_roles
-type UserRoles struct {
-	UserID int    `reform:"user_id"`
-	RoleID uint32 `reform:"role_id"`
+//reform:entity_roles
+type EntityRoles struct {
+	EntityID   int        `reform:"entity_id"`
+	EntityType EntityType `reform:"entity_type"`
+	RoleID     uint32     `reform:"role_id"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
@@ -37,7 +44,7 @@ type UserRoles struct {
 // BeforeInsert implements reform.BeforeInserter interface.
 //
 //nolint:unparam
-func (t *UserRoles) BeforeInsert() error {
+func (t *EntityRoles) BeforeInsert() error {
 	now := Now()
 	t.CreatedAt = now
 	t.UpdatedAt = now
@@ -48,7 +55,7 @@ func (t *UserRoles) BeforeInsert() error {
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //
 //nolint:unparam
-func (t *UserRoles) BeforeUpdate() error {
+func (t *EntityRoles) BeforeUpdate() error {
 	t.UpdatedAt = Now()
 
 	return nil
