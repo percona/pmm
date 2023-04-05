@@ -737,6 +737,7 @@ func (k *Kubernetes) ProvisionMonitoring(login, password, pmmPublicAddress strin
 		"crds/victoriametrics/crs/vmpodscrape.yaml",
 		"crds/victoriametrics/kube-state-metrics/service-account.yaml",
 		"crds/victoriametrics/kube-state-metrics/cluster-role.yaml",
+		"crds/victoriametrics/kube-state-metrics/ksm-configmap.yaml",		
 		"crds/victoriametrics/kube-state-metrics/cluster-role-binding.yaml",
 		"crds/victoriametrics/kube-state-metrics/deployment.yaml",
 		"crds/victoriametrics/kube-state-metrics/service.yaml",
