@@ -182,6 +182,27 @@ func (_m *mockKubernetesClient) GetConsumedDiskBytes(_a0 context.Context, _a1 ku
 	return r0, r1
 }
 
+// GetDBaaSOperatorVersion provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) GetDBaaSOperatorVersion(_a0 context.Context) (string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetDatabaseCluster provides a mock function with given fields: _a0, _a1
 func (_m *mockKubernetesClient) GetDatabaseCluster(_a0 context.Context, _a1 string) (*v1.DatabaseCluster, error) {
 	ret := _m.Called(_a0, _a1)
