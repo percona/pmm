@@ -536,6 +536,296 @@ var _ interface {
 	ErrorName() string
 } = CreatePostgresqlClusterResponseValidationError{}
 
+// Validate checks the field values on UpdatePostgresqlClusterRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdatePostgresqlClusterRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdatePostgresqlClusterRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// UpdatePostgresqlClusterRequestMultiError, or nil if none found.
+func (m *UpdatePostgresqlClusterRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePostgresqlClusterRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetKubernetesClusterName()) < 1 {
+		err := UpdatePostgresqlClusterRequestValidationError{
+			field:  "KubernetesClusterName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := UpdatePostgresqlClusterRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetParams()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequestValidationError{
+					field:  "Params",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequestValidationError{
+					field:  "Params",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequestValidationError{
+				field:  "Params",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Expose
+
+	// no validation rules for InternetFacing
+
+	if all {
+		switch v := interface{}(m.GetTemplate()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequestValidationError{
+					field:  "Template",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequestValidationError{
+					field:  "Template",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequestValidationError{
+				field:  "Template",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UpdatePostgresqlClusterRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdatePostgresqlClusterRequestMultiError is an error wrapping multiple
+// validation errors returned by UpdatePostgresqlClusterRequest.ValidateAll()
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePostgresqlClusterRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePostgresqlClusterRequestMultiError) AllErrors() []error { return m }
+
+// UpdatePostgresqlClusterRequestValidationError is the validation error
+// returned by UpdatePostgresqlClusterRequest.Validate if the designated
+// constraints aren't met.
+type UpdatePostgresqlClusterRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePostgresqlClusterRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdatePostgresqlClusterRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdatePostgresqlClusterRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdatePostgresqlClusterRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdatePostgresqlClusterRequestValidationError) ErrorName() string {
+	return "UpdatePostgresqlClusterRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePostgresqlClusterRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePostgresqlClusterRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePostgresqlClusterRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePostgresqlClusterRequestValidationError{}
+
+// Validate checks the field values on UpdatePostgresqlClusterResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdatePostgresqlClusterResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdatePostgresqlClusterResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// UpdatePostgresqlClusterResponseMultiError, or nil if none found.
+func (m *UpdatePostgresqlClusterResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePostgresqlClusterResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UpdatePostgresqlClusterResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdatePostgresqlClusterResponseMultiError is an error wrapping multiple
+// validation errors returned by UpdatePostgresqlClusterResponse.ValidateAll()
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePostgresqlClusterResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePostgresqlClusterResponseMultiError) AllErrors() []error { return m }
+
+// UpdatePostgresqlClusterResponseValidationError is the validation error
+// returned by UpdatePostgresqlClusterResponse.Validate if the designated
+// constraints aren't met.
+type UpdatePostgresqlClusterResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePostgresqlClusterResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdatePostgresqlClusterResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdatePostgresqlClusterResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdatePostgresqlClusterResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdatePostgresqlClusterResponseValidationError) ErrorName() string {
+	return "UpdatePostgresqlClusterResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePostgresqlClusterResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePostgresqlClusterResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePostgresqlClusterResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePostgresqlClusterResponseValidationError{}
+
 // Validate checks the field values on PostgresqlClusterParams_Instance with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
@@ -815,3 +1105,487 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = PostgresqlClusterParams_PGBouncerValidationError{}
+
+// Validate checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError, or
+// nil if none found.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ClusterSize
+
+	if all {
+		switch v := interface{}(m.GetInstance()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+					field:  "Instance",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+					field:  "Instance",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetInstance()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+				field:  "Instance",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetPgbouncer()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+					field:  "Pgbouncer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+					field:  "Pgbouncer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPgbouncer()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{
+				field:  "Pgbouncer",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Suspend
+
+	// no validation rules for Resume
+
+	if len(errors) > 0 {
+		return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError is an
+// error wrapping multiple validation errors returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams.ValidateAll()
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsMultiError) AllErrors() []error {
+	return m
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError
+// is the validation error returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams.Validate if
+// the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) ErrorName() string {
+	return "UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParamsValidationError{}
+
+// Validate checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError,
+// or nil if none found.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetComputeResources()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError{
+					field:  "ComputeResources",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError{
+					field:  "ComputeResources",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError{
+				field:  "ComputeResources",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Image
+
+	// no validation rules for Configuration
+
+	// no validation rules for StorageClass
+
+	if len(errors) > 0 {
+		return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError
+// is an error wrapping multiple validation errors returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance.ValidateAll()
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceMultiError) AllErrors() []error {
+	return m
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError
+// is the validation error returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance.Validate
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) ErrorName() string {
+	return "UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_InstanceValidationError{}
+
+// Validate checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError,
+// or nil if none found.
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetComputeResources()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError{
+					field:  "ComputeResources",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError{
+					field:  "ComputeResources",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError{
+				field:  "ComputeResources",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError
+// is an error wrapping multiple validation errors returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer.ValidateAll()
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerMultiError) AllErrors() []error {
+	return m
+}
+
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError
+// is the validation error returned by
+// UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer.Validate
+// if the designated constraints aren't met.
+type UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) ErrorName() string {
+	return "UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncerValidationError{}

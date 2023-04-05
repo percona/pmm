@@ -30,6 +30,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreatePostgresqlCluster(params *CreatePostgresqlClusterParams, opts ...ClientOption) (*CreatePostgresqlClusterOK, error)
 
+	UpdatePostgresqlCluster(params *UpdatePostgresqlClusterParams, opts ...ClientOption) (*UpdatePostgresqlClusterOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -67,6 +69,43 @@ func (a *Client) CreatePostgresqlCluster(params *CreatePostgresqlClusterParams, 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*CreatePostgresqlClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdatePostgresqlCluster updates postgresql cluster updates existing postgresql cluster
+*/
+func (a *Client) UpdatePostgresqlCluster(params *UpdatePostgresqlClusterParams, opts ...ClientOption) (*UpdatePostgresqlClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdatePostgresqlClusterParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdatePostgresqlCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/PostgresqlCluster/Update",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdatePostgresqlClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdatePostgresqlClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdatePostgresqlClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

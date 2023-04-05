@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	PostgresqlClusters_CreatePostgresqlCluster_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/CreatePostgresqlCluster"
+	PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/UpdatePostgresqlCluster"
 )
 
 // PostgresqlClustersClient is the client API for PostgresqlClusters service.
@@ -29,6 +30,8 @@ const (
 type PostgresqlClustersClient interface {
 	// CreatePostgresqlCluster creates a new Postgresql cluster.
 	CreatePostgresqlCluster(ctx context.Context, in *CreatePostgresqlClusterRequest, opts ...grpc.CallOption) (*CreatePostgresqlClusterResponse, error)
+	// UpdatePostgresqlCluster updates existing Postgresql cluster.
+	UpdatePostgresqlCluster(ctx context.Context, in *UpdatePostgresqlClusterRequest, opts ...grpc.CallOption) (*UpdatePostgresqlClusterResponse, error)
 }
 
 type postgresqlClustersClient struct {
@@ -48,12 +51,23 @@ func (c *postgresqlClustersClient) CreatePostgresqlCluster(ctx context.Context, 
 	return out, nil
 }
 
+func (c *postgresqlClustersClient) UpdatePostgresqlCluster(ctx context.Context, in *UpdatePostgresqlClusterRequest, opts ...grpc.CallOption) (*UpdatePostgresqlClusterResponse, error) {
+	out := new(UpdatePostgresqlClusterResponse)
+	err := c.cc.Invoke(ctx, PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostgresqlClustersServer is the server API for PostgresqlClusters service.
 // All implementations must embed UnimplementedPostgresqlClustersServer
 // for forward compatibility
 type PostgresqlClustersServer interface {
 	// CreatePostgresqlCluster creates a new Postgresql cluster.
 	CreatePostgresqlCluster(context.Context, *CreatePostgresqlClusterRequest) (*CreatePostgresqlClusterResponse, error)
+	// UpdatePostgresqlCluster updates existing Postgresql cluster.
+	UpdatePostgresqlCluster(context.Context, *UpdatePostgresqlClusterRequest) (*UpdatePostgresqlClusterResponse, error)
 	mustEmbedUnimplementedPostgresqlClustersServer()
 }
 
@@ -62,6 +76,10 @@ type UnimplementedPostgresqlClustersServer struct{}
 
 func (UnimplementedPostgresqlClustersServer) CreatePostgresqlCluster(context.Context, *CreatePostgresqlClusterRequest) (*CreatePostgresqlClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePostgresqlCluster not implemented")
+}
+
+func (UnimplementedPostgresqlClustersServer) UpdatePostgresqlCluster(context.Context, *UpdatePostgresqlClusterRequest) (*UpdatePostgresqlClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePostgresqlCluster not implemented")
 }
 func (UnimplementedPostgresqlClustersServer) mustEmbedUnimplementedPostgresqlClustersServer() {}
 
@@ -94,6 +112,24 @@ func _PostgresqlClusters_CreatePostgresqlCluster_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostgresqlClusters_UpdatePostgresqlCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePostgresqlClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostgresqlClustersServer).UpdatePostgresqlCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostgresqlClustersServer).UpdatePostgresqlCluster(ctx, req.(*UpdatePostgresqlClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostgresqlClusters_ServiceDesc is the grpc.ServiceDesc for PostgresqlClusters service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +140,10 @@ var PostgresqlClusters_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreatePostgresqlCluster",
 			Handler:    _PostgresqlClusters_CreatePostgresqlCluster_Handler,
+		},
+		{
+			MethodName: "UpdatePostgresqlCluster",
+			Handler:    _PostgresqlClusters_UpdatePostgresqlCluster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

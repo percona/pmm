@@ -5845,6 +5845,200 @@
         }
       }
     },
+    "/v1/management/DBaaS/PostgresqlCluster/Update": {
+      "post": {
+        "tags": [
+          "PostgresqlClusters"
+        ],
+        "summary": "UpdatePostgresqlCluster updates existing Postgresql cluster.",
+        "operationId": "UpdatePostgresqlCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "Postgresql cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "params": {
+                  "description": "UpdatePostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
+                  "type": "object",
+                  "properties": {
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "instance": {
+                      "description": "Instance container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        },
+                        "configuration": {
+                          "type": "string",
+                          "title": "Configuration for Postgresql cluster",
+                          "x-order": 2
+                        },
+                        "image": {
+                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "storage_class": {
+                          "description": "Storage Class for Postgresql cluster.",
+                          "type": "string",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 1
+                    },
+                    "pgbouncer": {
+                      "description": "PGBouncer container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "resume": {
+                      "description": "Resume cluster `pause: false`.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "suspend": {
+                      "description": "Suspend cluster `pause: true`.",
+                      "type": "boolean",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 2
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 6
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Secrets/List": {
       "post": {
         "tags": [
