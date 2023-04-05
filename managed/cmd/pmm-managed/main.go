@@ -215,10 +215,6 @@ type gRPCServerDeps struct {
 	uieventsService      *uievents.Service
 }
 
-type gRPCServerFeatures struct {
-	enableAccessControl bool
-}
-
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 //
 //nolint:lll

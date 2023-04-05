@@ -93,7 +93,7 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 	}()
 }
 
-func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) { //nolint:unparam
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()
 
@@ -239,7 +239,7 @@ func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
 }
 
 // Store stores metrics for further processing and sending to Portal.
-func (s *Service) Store(ctx context.Context, request *uievents.StoreRequest) (*uievents.StoreResponse, error) {
+func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uievents.StoreResponse, error) {
 	s.stateM.Lock()
 	defer s.stateM.Unlock()
 
