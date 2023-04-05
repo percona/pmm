@@ -16,6 +16,8 @@ package actions
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -65,7 +67,20 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", a.params.Table)
+	table := a.params.Table
+	if containsDB := strings.Contains(a.params.Table, "."); containsDB {
+		split := strings.Split(a.params.Table, ".")
+		if len(split) > 1 {
+			useQuery := fmt.Sprintf("USE /* pmm-agent */ %s;", split[0])
+			table = split[1]
+			_, err = db.QueryContext(ctx, useQuery)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", table)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +90,7 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, err
 	}
 	if len(dataRows) == 0 {
-		return nil, errors.Errorf("table %q not found", a.params.Table)
+		return nil, errors.Errorf("table %q not found", table)
 	}
 	return jsonRows(columns, dataRows)
 }
