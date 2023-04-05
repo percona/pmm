@@ -21,11 +21,10 @@ spec:
     spec:
       automountServiceAccountToken: true
       containers:
-      - name: kube-state-metrics
-        args:          
+      - args:
           - --metric-labels-allowlist=pods=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of],persistentvolumeclaims=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of],jobs=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of]
           - --custom-resource-state-config-file=/go/src/k8s.io/kube-state-metrics/config
-      - image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.8.2
+        image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.8.2
         livenessProbe:
           httpGet:
             path: /healthz
