@@ -157,7 +157,7 @@ var defaultConfig string
 type ExtensionType string
 
 const (
-	UIEventsExtension ExtensionType = "UIEventsExtension"
+	UIEventsExtension = ExtensionType("UIEventsExtension")
 )
 
 // Init initializes telemetry config.

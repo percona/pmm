@@ -180,7 +180,7 @@ func (s *Service) processComponentMetrics() *pmmv1.ServerMetric_Metric {
 		SlowComponentsP95_10s []string `json:"slow_components_p95_10s"`
 	}
 
-	if len(s.componentsUsage) > 0 {
+	if len(s.componentsUsage) != 0 {
 		return nil
 	}
 
