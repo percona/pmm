@@ -58,9 +58,28 @@ type ServiceService struct {
 	managementpb.UnimplementedServiceServer
 }
 
+type MgmtServiceService struct {
+	db    *reform.DB
+	r     agentsRegistry
+	state agentsStateUpdater
+	vmdb  prometheusService
+
+	servicev1beta1.UnimplementedMgmtServiceServer
+}
+
 // NewServiceService creates ServiceService instance.
 func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
 	return &ServiceService{
+		db:    db,
+		r:     r,
+		state: state,
+		vmdb:  vmdb,
+	}
+}
+
+// NewMgmtServiceService creates MgmtServiceService instance.
+func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *MgmtServiceService {
+	return &MgmtServiceService{
 		db:    db,
 		r:     r,
 		state: state,
@@ -179,7 +198,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
 //
 //nolint:unparam
-func (s *ServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
+func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   convertServiceType(req.ServiceType),

@@ -68,6 +68,7 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/userpb"
@@ -274,6 +275,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
@@ -397,6 +399,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
 		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,

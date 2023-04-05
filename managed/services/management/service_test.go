@@ -263,6 +263,37 @@ func TestServiceService(t *testing.T) {
 	})
 
 	t.Run("List", func(t *testing.T) {
+		setup := func(t *testing.T) (context.Context, *MgmtServiceService, func(t *testing.T), *mockPrometheusService) {
+			t.Helper()
+
+			ctx := logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			teardown := func(t *testing.T) {
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+				vmdb.AssertExpectations(t)
+				state.AssertExpectations(t)
+				ar.AssertExpectations(t)
+			}
+			s := NewMgmtServiceService(db, ar, state, vmdb)
+
+			return ctx, s, teardown, vmdb
+		}
+
 		const (
 			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
 			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
