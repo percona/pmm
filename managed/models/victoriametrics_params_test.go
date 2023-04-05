@@ -16,6 +16,7 @@
 package models
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -30,5 +31,36 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		vmp, err := NewVictoriaMetricsParams("../testdata/victoriametrics/prometheus.external.alerts.yml", VMBaseURL)
 		require.NoError(t, err)
 		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
+	})
+	t.Run("check external VM", func(t *testing.T) {
+
+		tests := []struct {
+			url  string
+			want bool
+		}{
+			{
+				"http://127.0.0.1:9090/prometheus",
+				false,
+			},
+			{
+				"http://127.0.0.1:9090/prometheus/",
+				false,
+			},
+			{
+				"http://victoriametrics:8428/",
+				true,
+			},
+			{
+				"https://example.com:9090/",
+				true,
+			},
+		}
+		for _, tt := range tests {
+			t.Run(tt.url, func(t *testing.T) {
+				vmp, err := NewVictoriaMetricsParams(BasePrometheusConfigPath, tt.url)
+				require.NoError(t, err)
+				assert.Equalf(t, tt.want, vmp.ExternalVM(), "ExternalVM()")
+			})
+		}
 	})
 }

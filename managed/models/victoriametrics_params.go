@@ -101,7 +101,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 }
 
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
-	return vmp.url.Hostname() == "127.0.0.1"
+	return vmp.url.Hostname() != "127.0.0.1"
 }
 
 func (vmp *VictoriaMetricsParams) URL() string {
