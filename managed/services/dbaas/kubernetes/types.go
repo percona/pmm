@@ -669,6 +669,90 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	return nil
 }
 
+// UpdatePatchForPostgresql returns a patch to update a database cluster
+func UpdatePatchForPostgresql(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePostgresqlClusterRequest, clusterType ClusterType) error { //nolint:lll
+	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
+		return errSimultaneous
+	}
+	dbCluster.TypeMeta = metav1.TypeMeta{
+		APIVersion: dbaasAPI,
+		Kind:       dbaasKind,
+	}
+
+	if updateRequest.Params.ClusterSize > 0 {
+		dbCluster.Spec.ClusterSize = updateRequest.Params.ClusterSize
+	}
+	if updateRequest.Params.Instance != nil {
+		if updateRequest.Params.Instance.Image != "" {
+			dbCluster.Spec.DatabaseImage = updateRequest.Params.Instance.Image
+		}
+		if updateRequest.Params.Instance.Configuration != "" {
+			dbCluster.Spec.DatabaseConfig = updateRequest.Params.Instance.Configuration
+		}
+		if updateRequest.Params.Instance.StorageClass != "" {
+			dbCluster.Spec.DBInstance.StorageClassName = &updateRequest.Params.Instance.StorageClass
+		}
+	}
+
+	if updateRequest.Params.Instance != nil && updateRequest.Params.Instance.ComputeResources != nil {
+		if updateRequest.Params.Instance.ComputeResources.CpuM > 0 {
+			cpu, err := resource.ParseQuantity(fmt.Sprintf("%dm", updateRequest.Params.Instance.ComputeResources.CpuM))
+			if err != nil {
+				return err
+			}
+			dbCluster.Spec.DBInstance.CPU = cpu
+		}
+		if updateRequest.Params.Instance.ComputeResources.MemoryBytes > 0 {
+			clusterMemory := resource.NewQuantity(updateRequest.Params.Instance.ComputeResources.MemoryBytes, resource.DecimalSI)
+			dbCluster.Spec.DBInstance.Memory = *clusterMemory
+		}
+	}
+	if updateRequest.Params.Pgbouncer != nil && updateRequest.Params.Pgbouncer.ComputeResources != nil {
+		resources, err := convertComputeResource(updateRequest.Params.Pgbouncer.ComputeResources)
+		if err != nil {
+			return err
+		}
+		dbCluster.Spec.LoadBalancer.Resources = resources
+	}
+	if updateRequest.Params.Suspend {
+		dbCluster.Spec.Pause = true
+	}
+	if updateRequest.Params.Resume {
+		dbCluster.Spec.Pause = false
+	}
+	if !updateRequest.Expose {
+		dbCluster.Spec.LoadBalancer.ExposeType = corev1.ServiceTypeClusterIP
+	}
+	if updateRequest.Expose {
+		exposeType, ok := exposeTypeMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose type for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.ExposeType = exposeType
+		annotations, ok := exposeAnnotationsMap[clusterType]
+		if !ok {
+			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
+		}
+		dbCluster.Spec.LoadBalancer.Annotations = annotations
+		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
+			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
+		}
+	}
+	var sourceRanges []string
+	for _, sourceRange := range updateRequest.SourceRanges {
+		if sourceRange != "" {
+			sourceRanges = append(sourceRanges, sourceRange)
+		}
+	}
+	if len(sourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	if len(sourceRanges) == 0 && len(dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges) != 0 {
+		dbCluster.Spec.LoadBalancer.LoadBalancerSourceRanges = sourceRanges
+	}
+	return nil
+}
+
 func SecretForBackup(backupLocation *models.BackupLocation) map[string][]byte {
 	return map[string][]byte{
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),

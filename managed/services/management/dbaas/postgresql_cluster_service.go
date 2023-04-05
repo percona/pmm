@@ -213,6 +213,38 @@ func (s PostgresqlClustersService) fillDefaults(req *dbaasv1beta1.CreatePostgres
 	return nil
 }
 
+// UpdatePostgresqlCluster updates Postgresql cluster.
+//
+//nolint:dupl
+func (s PostgresqlClustersService) UpdatePostgresqlCluster(ctx context.Context,
+	req *dbaasv1beta1.UpdatePostgresqlClusterRequest,
+) (*dbaasv1beta1.UpdatePostgresqlClusterResponse, error) {
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPostgresql(dbCluster, req, clusterType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CR specification")
+	}
+
+	err = kubeClient.PatchDatabaseCluster(dbCluster)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.UpdatePostgresqlClusterResponse{}, nil
+}
+
 func (s PostgresqlClustersService) getBackupLocation(req *dbaasv1beta1.CreatePostgresqlClusterRequest) (*models.BackupLocation, error) {
 	if req.Params != nil && req.Params.Backup != nil && req.Params.Backup.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)

@@ -69,12 +69,68 @@ message CreatePostgresqlClusterRequest {
 
 message CreatePostgresqlClusterResponse {}
 
+message UpdatePostgresqlClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
+  // Postgresql cluster name.
+  string name = 2 [(validate.rules).string.min_len = 1];
+  // UpdatePostgresqlClusterParams represents Postgresql cluster parameters that can be updated.
+  message UpdatePostgresqlClusterParams {
+    // Instance container parameters.
+    message Instance {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+      // Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
+      // in given tag is triggered. If entirely different image is given, error is returned.
+      string image = 2;
+      // Configuration for Postgresql cluster
+      string configuration = 4;
+      // Storage Class for Postgresql cluster.
+      string storage_class = 5;
+    }
+    // PGBouncer container parameters.
+    message PGBouncer {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+    }
+    // Cluster size.
+    int32 cluster_size = 1;
+    // Instance container parameters.
+    Instance instance = 2;
+    // PGBouncer container parameters.
+    PGBouncer pgbouncer = 3;
+    // Suspend cluster `pause: true`.
+    bool suspend = 4;
+    // Resume cluster `pause: false`.
+    bool resume = 5;
+  }
+  // Cluster parameters.
+  UpdatePostgresqlClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
+}
+
+message UpdatePostgresqlClusterResponse {}
+
 // PostgresqlClusters service provides public methods for managing Postgresql clusters.
 service PostgresqlClusters {
   // CreatePostgresqlCluster creates a new Postgresql cluster.
   rpc CreatePostgresqlCluster(CreatePostgresqlClusterRequest) returns (CreatePostgresqlClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/PostgresqlCluster/Create"
+      body: "*"
+    };
+  }
+  // UpdatePostgresqlCluster updates existing Postgresql cluster.
+  rpc UpdatePostgresqlCluster(UpdatePostgresqlClusterRequest) returns (UpdatePostgresqlClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PostgresqlCluster/Update"
       body: "*"
     };
   }
