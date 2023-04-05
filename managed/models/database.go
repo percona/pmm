@@ -841,7 +841,12 @@ var databaseSchema = [][]string{
 	79: {
 		`ALTER TABLE artifacts
     		ADD COLUMN folder VARCHAR,
-			ADD COLUMN metadata_list JSONB`,
+			ADD COLUMN metadata_list JSONB;
+
+		UPDATE scheduled_tasks 
+		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
+		WHERE type = 'mongodb_backup'
+			AND data->'mongodb_backup'->>'mode' = 'pitr';`,
 	},
 }
 
