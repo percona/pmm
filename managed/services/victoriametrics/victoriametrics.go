@@ -367,14 +367,6 @@ func scrapeConfigForVictoriaMetrics(l *logrus.Entry, interval time.Duration, vmP
 	}
 }
 
-func relativePath(baseURL string, path string) (*url.URL, error) {
-	u, err := url.Parse(baseURL)
-	if err != nil {
-		return nil, err
-	}
-	return u.Parse(path)
-}
-
 // scrapeConfigForInternalVMAgent returns scrape config for internal VM Agent in Prometheus format.
 func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
