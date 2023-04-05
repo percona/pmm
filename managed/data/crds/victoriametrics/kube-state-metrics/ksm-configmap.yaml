@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: customresource-config-ksm
+  namespace: default
+data:
+  config: |
+    kind: CustomResourceStateMetrics
+    spec:
+      resources:
+        - groupVersionKind:
+            group: pxc.percona.com
+            version: v1
+            kind: PerconaXtraDBCluster
+          labelsFromPath:
+            name: [metadata,name]
+            namespace: [metadata,namespace]
+          metricNamePrefix: kube_pxc
+          metrics:
+            - name: info
+              help: "Information of PXC cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    version: [spec,crVersion]
+            - name: pitr_enabled
+              help: "PITR enabled"
+              each:
+                type: Gauge
+                gauge:
+                  path: [spec,backup,pitr,enabled]
+            - name: pmm_enabled
+              help: "PMM enabled"
+              each:
+                type: Gauge
+                gauge:
+                  path: [spec,pmm,enabled]
+            - name: state
+              help: "PXC state"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: state
+                  path: [status,state]
+                  list: [unknown,ready,initializing,error,paused]
+            - name: status_pxc_replicas
+              help: "PXC Replica Status"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,pxc,size]
+            - name: status_pxc_replicas_ready
+              help: "Number of ready PXC replicas"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,pxc,ready]
+            - name: status_haproxy_replicas
+              help: "HAProxy Replica Status"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,haproxy,size]
+            - name: status_haproxy_replicas_ready
+              help: "Number of ready HAProxy replicas"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,haproxy,ready]
+            - name: status_proxysql_replicas
+              help: "ProxySQL Replica Status"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,proxysql,size]
+            - name: status_proxysql_replicas_ready
+              help: "Number of ready ProxySQL replicas"
+              each:
+                type: Gauge
+                gauge:
+                  path: [status,proxysql,ready]
+        - groupVersionKind:
+            group: psmdb.percona.com
+            version: v1
+            kind: PerconaServerMongoDB
+          metricNamePrefix: percona_psm_cluster
+          metrics:
+            - name: info
+              help: "Information of PSMDB cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    version:
+                    - spec
+                    - crVersion

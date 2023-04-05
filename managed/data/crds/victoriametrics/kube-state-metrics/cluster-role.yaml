@@ -108,9 +108,53 @@ rules:
   - list
   - watch
 - apiGroups:
+  - pxc.percona.com
+  resources:
+  - perconaxtradbclusters
+  - perconaxtradbclusters/status
+  - perconaxtradbclusterbackups
+  - perconaxtradbclusterbackups/status
+  - perconaxtradbclusterrestores
+  - perconaxtradbclusterrestores/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - psmdb.percona.com
+  resources:
+  - perconaservermongodbs
+  - perconaservermongodbs/status
+  - perconaservermongodbbackups
+  - perconaservermongodbbackups/status
+  - perconaservermongodbrestores
+  - perconaservermongodbrestores/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - pg.percona.com
+  resources:
+  - perconapgbackups/status
+  - perconapgclusters/status
+  - perconapgrestores/status
+  - perconapgclusters
+  - perconapgrestores
+  - perconapgbackups
+  - pgclusters
+  - pgpolicies
+  - pgreplicas
+  - pgtasks
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - psmdb.percona.com
   resources:
   - perconaservermongodbs
   verbs:
+  - get    
   - list
-  - watch  
+  - watch

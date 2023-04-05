@@ -22,27 +22,9 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: kube-state-metrics
-        args:
+        args:          
           - --metric-labels-allowlist=pods=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of],persistentvolumeclaims=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of],jobs=[app.kubernetes.io/component,app.kubernetes.io/instance,app.kubernetes.io/managed-by,app.kubernetes.io/name,app.kubernetes.io/part-of]
-          - --custom-resource-state-config
-          - |
-            spec:
-              resources:
-                - groupVersionKind:
-                    group: psmdb.percona.com
-                    version: v1
-                    kind: PerconaServerMongoDB
-                  metricNamePrefix: percona_psm_cluster
-                  metrics:
-                    - name: info
-                      help: "Information of PSM cluster on k8s"
-                      each:
-                        type: Info
-                        info:
-                          labelsFromPath:
-                            version:
-                            - spec
-                            - crVersion
+          - --custom-resource-state-config-file=/go/src/k8s.io/kube-state-metrics/config
       - image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.8.2
         livenessProbe:
           httpGet:
@@ -69,6 +51,14 @@ spec:
             - ALL
           readOnlyRootFilesystem: true
           runAsUser: 65534
+        volumeMounts:
+          - mountPath: /go/src/k8s.io/kube-state-metrics/
+            name: cr-config
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: kube-state-metrics
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: customresource-config-ksm
+          name: cr-config
