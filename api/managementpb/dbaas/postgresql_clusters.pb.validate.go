@@ -255,6 +255,383 @@ var _ interface {
 	ErrorName() string
 } = PostgresqlClusterParamsValidationError{}
 
+// Validate checks the field values on GetPostgresqlClusterCredentialsRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetPostgresqlClusterCredentialsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// GetPostgresqlClusterCredentialsRequest with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// GetPostgresqlClusterCredentialsRequestMultiError, or nil if none found.
+func (m *GetPostgresqlClusterCredentialsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPostgresqlClusterCredentialsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetKubernetesClusterName()) < 1 {
+		err := GetPostgresqlClusterCredentialsRequestValidationError{
+			field:  "KubernetesClusterName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := GetPostgresqlClusterCredentialsRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetPostgresqlClusterCredentialsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPostgresqlClusterCredentialsRequestMultiError is an error wrapping
+// multiple validation errors returned by
+// GetPostgresqlClusterCredentialsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetPostgresqlClusterCredentialsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPostgresqlClusterCredentialsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPostgresqlClusterCredentialsRequestMultiError) AllErrors() []error { return m }
+
+// GetPostgresqlClusterCredentialsRequestValidationError is the validation
+// error returned by GetPostgresqlClusterCredentialsRequest.Validate if the
+// designated constraints aren't met.
+type GetPostgresqlClusterCredentialsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPostgresqlClusterCredentialsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPostgresqlClusterCredentialsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPostgresqlClusterCredentialsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPostgresqlClusterCredentialsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPostgresqlClusterCredentialsRequestValidationError) ErrorName() string {
+	return "GetPostgresqlClusterCredentialsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPostgresqlClusterCredentialsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPostgresqlClusterCredentialsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPostgresqlClusterCredentialsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPostgresqlClusterCredentialsRequestValidationError{}
+
+// Validate checks the field values on PostgresqlClusterConnectionCredentials
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *PostgresqlClusterConnectionCredentials) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// PostgresqlClusterConnectionCredentials with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// PostgresqlClusterConnectionCredentialsMultiError, or nil if none found.
+func (m *PostgresqlClusterConnectionCredentials) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PostgresqlClusterConnectionCredentials) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for Host
+
+	// no validation rules for Port
+
+	if len(errors) > 0 {
+		return PostgresqlClusterConnectionCredentialsMultiError(errors)
+	}
+
+	return nil
+}
+
+// PostgresqlClusterConnectionCredentialsMultiError is an error wrapping
+// multiple validation errors returned by
+// PostgresqlClusterConnectionCredentials.ValidateAll() if the designated
+// constraints aren't met.
+type PostgresqlClusterConnectionCredentialsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PostgresqlClusterConnectionCredentialsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PostgresqlClusterConnectionCredentialsMultiError) AllErrors() []error { return m }
+
+// PostgresqlClusterConnectionCredentialsValidationError is the validation
+// error returned by PostgresqlClusterConnectionCredentials.Validate if the
+// designated constraints aren't met.
+type PostgresqlClusterConnectionCredentialsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PostgresqlClusterConnectionCredentialsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PostgresqlClusterConnectionCredentialsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PostgresqlClusterConnectionCredentialsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PostgresqlClusterConnectionCredentialsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PostgresqlClusterConnectionCredentialsValidationError) ErrorName() string {
+	return "PostgresqlClusterConnectionCredentialsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PostgresqlClusterConnectionCredentialsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPostgresqlClusterConnectionCredentials.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PostgresqlClusterConnectionCredentialsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PostgresqlClusterConnectionCredentialsValidationError{}
+
+// Validate checks the field values on GetPostgresqlClusterCredentialsResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetPostgresqlClusterCredentialsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// GetPostgresqlClusterCredentialsResponse with the rules defined in the proto
+// definition for this message. If any rules are violated, the result is a
+// list of violation errors wrapped in
+// GetPostgresqlClusterCredentialsResponseMultiError, or nil if none found.
+func (m *GetPostgresqlClusterCredentialsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPostgresqlClusterCredentialsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetConnectionCredentials()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetPostgresqlClusterCredentialsResponseValidationError{
+					field:  "ConnectionCredentials",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetPostgresqlClusterCredentialsResponseValidationError{
+					field:  "ConnectionCredentials",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionCredentials()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetPostgresqlClusterCredentialsResponseValidationError{
+				field:  "ConnectionCredentials",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetPostgresqlClusterCredentialsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPostgresqlClusterCredentialsResponseMultiError is an error wrapping
+// multiple validation errors returned by
+// GetPostgresqlClusterCredentialsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetPostgresqlClusterCredentialsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPostgresqlClusterCredentialsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPostgresqlClusterCredentialsResponseMultiError) AllErrors() []error { return m }
+
+// GetPostgresqlClusterCredentialsResponseValidationError is the validation
+// error returned by GetPostgresqlClusterCredentialsResponse.Validate if the
+// designated constraints aren't met.
+type GetPostgresqlClusterCredentialsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPostgresqlClusterCredentialsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPostgresqlClusterCredentialsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPostgresqlClusterCredentialsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPostgresqlClusterCredentialsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPostgresqlClusterCredentialsResponseValidationError) ErrorName() string {
+	return "GetPostgresqlClusterCredentialsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPostgresqlClusterCredentialsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPostgresqlClusterCredentialsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPostgresqlClusterCredentialsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPostgresqlClusterCredentialsResponseValidationError{}
+
 // Validate checks the field values on CreatePostgresqlClusterRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

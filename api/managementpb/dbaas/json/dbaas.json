@@ -5845,6 +5845,106 @@
         }
       }
     },
+    "/v1/management/DBaaS/PostgresqlCluster/GetCredentials": {
+      "post": {
+        "tags": [
+          "PostgresqlClusters"
+        ],
+        "summary": "GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.",
+        "operationId": "GetPostgresqlClusterCredentials",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "Postgresql cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "connection_credentials": {
+                  "description": "PostgresqlClusterConnectionCredentials is cluster connection credentials.",
+                  "type": "object",
+                  "properties": {
+                    "host": {
+                      "description": "Postgresql host.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "Postgresql password.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "port": {
+                      "description": "Postgresql port.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "Postgresql username.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/PostgresqlCluster/Update": {
       "post": {
         "tags": [

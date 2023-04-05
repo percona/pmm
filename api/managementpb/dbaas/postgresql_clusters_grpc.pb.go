@@ -20,14 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PostgresqlClusters_CreatePostgresqlCluster_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/CreatePostgresqlCluster"
-	PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/UpdatePostgresqlCluster"
+	PostgresqlClusters_GetPostgresqlClusterCredentials_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/GetPostgresqlClusterCredentials"
+	PostgresqlClusters_CreatePostgresqlCluster_FullMethodName         = "/dbaas.v1beta1.PostgresqlClusters/CreatePostgresqlCluster"
+	PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName         = "/dbaas.v1beta1.PostgresqlClusters/UpdatePostgresqlCluster"
 )
 
 // PostgresqlClustersClient is the client API for PostgresqlClusters service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PostgresqlClustersClient interface {
+	// GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.
+	GetPostgresqlClusterCredentials(ctx context.Context, in *GetPostgresqlClusterCredentialsRequest, opts ...grpc.CallOption) (*GetPostgresqlClusterCredentialsResponse, error)
 	// CreatePostgresqlCluster creates a new Postgresql cluster.
 	CreatePostgresqlCluster(ctx context.Context, in *CreatePostgresqlClusterRequest, opts ...grpc.CallOption) (*CreatePostgresqlClusterResponse, error)
 	// UpdatePostgresqlCluster updates existing Postgresql cluster.
@@ -40,6 +43,15 @@ type postgresqlClustersClient struct {
 
 func NewPostgresqlClustersClient(cc grpc.ClientConnInterface) PostgresqlClustersClient {
 	return &postgresqlClustersClient{cc}
+}
+
+func (c *postgresqlClustersClient) GetPostgresqlClusterCredentials(ctx context.Context, in *GetPostgresqlClusterCredentialsRequest, opts ...grpc.CallOption) (*GetPostgresqlClusterCredentialsResponse, error) {
+	out := new(GetPostgresqlClusterCredentialsResponse)
+	err := c.cc.Invoke(ctx, PostgresqlClusters_GetPostgresqlClusterCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *postgresqlClustersClient) CreatePostgresqlCluster(ctx context.Context, in *CreatePostgresqlClusterRequest, opts ...grpc.CallOption) (*CreatePostgresqlClusterResponse, error) {
@@ -64,6 +76,8 @@ func (c *postgresqlClustersClient) UpdatePostgresqlCluster(ctx context.Context, 
 // All implementations must embed UnimplementedPostgresqlClustersServer
 // for forward compatibility
 type PostgresqlClustersServer interface {
+	// GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.
+	GetPostgresqlClusterCredentials(context.Context, *GetPostgresqlClusterCredentialsRequest) (*GetPostgresqlClusterCredentialsResponse, error)
 	// CreatePostgresqlCluster creates a new Postgresql cluster.
 	CreatePostgresqlCluster(context.Context, *CreatePostgresqlClusterRequest) (*CreatePostgresqlClusterResponse, error)
 	// UpdatePostgresqlCluster updates existing Postgresql cluster.
@@ -73,6 +87,10 @@ type PostgresqlClustersServer interface {
 
 // UnimplementedPostgresqlClustersServer must be embedded to have forward compatible implementations.
 type UnimplementedPostgresqlClustersServer struct{}
+
+func (UnimplementedPostgresqlClustersServer) GetPostgresqlClusterCredentials(context.Context, *GetPostgresqlClusterCredentialsRequest) (*GetPostgresqlClusterCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostgresqlClusterCredentials not implemented")
+}
 
 func (UnimplementedPostgresqlClustersServer) CreatePostgresqlCluster(context.Context, *CreatePostgresqlClusterRequest) (*CreatePostgresqlClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePostgresqlCluster not implemented")
@@ -92,6 +110,24 @@ type UnsafePostgresqlClustersServer interface {
 
 func RegisterPostgresqlClustersServer(s grpc.ServiceRegistrar, srv PostgresqlClustersServer) {
 	s.RegisterService(&PostgresqlClusters_ServiceDesc, srv)
+}
+
+func _PostgresqlClusters_GetPostgresqlClusterCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostgresqlClusterCredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostgresqlClustersServer).GetPostgresqlClusterCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostgresqlClusters_GetPostgresqlClusterCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostgresqlClustersServer).GetPostgresqlClusterCredentials(ctx, req.(*GetPostgresqlClusterCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _PostgresqlClusters_CreatePostgresqlCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -137,6 +173,10 @@ var PostgresqlClusters_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "dbaas.v1beta1.PostgresqlClusters",
 	HandlerType: (*PostgresqlClustersServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetPostgresqlClusterCredentials",
+			Handler:    _PostgresqlClusters_GetPostgresqlClusterCredentials_Handler,
+		},
 		{
 			MethodName: "CreatePostgresqlCluster",
 			Handler:    _PostgresqlClusters_CreatePostgresqlCluster_Handler,
