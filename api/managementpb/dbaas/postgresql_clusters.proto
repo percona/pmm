@@ -47,6 +47,30 @@ message PostgresqlClusterParams {
   Restore restore = 5;
 }
 
+message GetPostgresqlClusterCredentialsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
+  // Postgresql cluster name.
+  string name = 2 [(validate.rules).string.min_len = 1];
+}
+
+// PostgresqlClusterConnectionCredentials is cluster connection credentials.
+message PostgresqlClusterConnectionCredentials {
+  // Postgresql username.
+  string username = 1;
+  // Postgresql password.
+  string password = 2;
+  // Postgresql host.
+  string host = 3;
+  // Postgresql port.
+  int32 port = 4;
+}
+
+message GetPostgresqlClusterCredentialsResponse {
+  // Cluster connection credentials.
+  PostgresqlClusterConnectionCredentials connection_credentials = 1;
+}
+
 message CreatePostgresqlClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
@@ -120,6 +144,13 @@ message UpdatePostgresqlClusterResponse {}
 
 // PostgresqlClusters service provides public methods for managing Postgresql clusters.
 service PostgresqlClusters {
+  // GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.
+  rpc GetPostgresqlClusterCredentials(GetPostgresqlClusterCredentialsRequest) returns (GetPostgresqlClusterCredentialsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PostgresqlCluster/GetCredentials"
+      body: "*"
+    };
+  }
   // CreatePostgresqlCluster creates a new Postgresql cluster.
   rpc CreatePostgresqlCluster(CreatePostgresqlClusterRequest) returns (CreatePostgresqlClusterResponse) {
     option (google.api.http) = {

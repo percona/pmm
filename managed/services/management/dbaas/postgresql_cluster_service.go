@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"math/rand"
 	"regexp"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -65,6 +66,40 @@ func NewPostgresqlClusterService(db *reform.DB, grafanaClient grafanaClient, com
 		componentsService: componentsService,
 		kubeStorage:       NewKubeStorage(db),
 	}
+}
+
+// GetPostgresqlClusterCredentials returns a Postgresql cluster credentials.
+func (s PostgresqlClustersService) GetPostgresqlClusterCredentials(ctx context.Context,
+	req *dbaasv1beta1.GetPostgresqlClusterCredentialsRequest,
+) (*dbaasv1beta1.GetPostgresqlClusterCredentialsResponse, error) {
+	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+	dbCluster, err := kubeClient.GetDatabaseCluster(ctx, req.Name)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting database cluster")
+	}
+	secret, err := kubeClient.GetSecret(ctx, dbCluster.Spec.SecretsName)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting secret")
+	}
+
+	port, err := strconv.ParseInt(string(secret.Data["port"]), 10, 32)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting port")
+	}
+
+	resp := dbaasv1beta1.GetPostgresqlClusterCredentialsResponse{
+		ConnectionCredentials: &dbaasv1beta1.PostgresqlClusterConnectionCredentials{
+			Username: string(secret.Data["user"]),
+			Password: string(secret.Data["password"]),
+			Host:     string(secret.Data["host"]),
+			Port:     int32(port),
+		},
+	}
+
+	return &resp, nil
 }
 
 // CreatePostgresqlCluster creates Postgresql cluster with given parameters.
