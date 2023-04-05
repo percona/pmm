@@ -73,7 +73,7 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 		if len(split) > 1 {
 			useQuery := fmt.Sprintf("USE /* pmm-agent */ %s;", split[0])
 			table = split[1]
-			_, err = db.ExecContext(ctx, useQuery)
+			_, err = db.ExecContext(ctx, useQuery) //nolint:sqlclosecheck
 			if err != nil {
 				return nil, err
 			}
