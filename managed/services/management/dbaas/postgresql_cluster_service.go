@@ -280,6 +280,36 @@ func (s PostgresqlClustersService) UpdatePostgresqlCluster(ctx context.Context,
 	return &dbaasv1beta1.UpdatePostgresqlClusterResponse{}, nil
 }
 
+// GetPostgresqlClusterResources returns expected resources to be consumed by the cluster.
+func (s PostgresqlClustersService) GetPostgresqlClusterResources(_ context.Context,
+	req *dbaasv1beta1.GetPostgresqlClusterResourcesRequest,
+) (*dbaasv1beta1.GetPostgresqlClusterResourcesResponse, error) {
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterSize := uint64(req.Params.ClusterSize)
+	memory := uint64(req.Params.Instance.ComputeResources.MemoryBytes+req.Params.Pgbouncer.ComputeResources.MemoryBytes) * clusterSize
+	cpu := uint64(req.Params.Instance.ComputeResources.CpuM+req.Params.Pgbouncer.ComputeResources.CpuM) * clusterSize
+	disk := uint64(req.Params.Instance.DiskSize+req.Params.Pgbouncer.DiskSize) * clusterSize
+
+	// If PMM is enabled, a pmm-client container is deployed to every
+	// postgresql instance pod, thus we need to multiply by the clusterSize
+	if settings.PMMPublicAddress != "" {
+		memory += 500000000 * clusterSize
+		cpu += 500 * clusterSize
+	}
+
+	return &dbaasv1beta1.GetPostgresqlClusterResourcesResponse{
+		Expected: &dbaasv1beta1.Resources{
+			CpuM:        cpu,
+			MemoryBytes: memory,
+			DiskSize:    disk,
+		},
+	}, nil
+}
+
 func (s PostgresqlClustersService) getBackupLocation(req *dbaasv1beta1.CreatePostgresqlClusterRequest) (*models.BackupLocation, error) {
 	if req.Params != nil && req.Params.Backup != nil && req.Params.Backup.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Backup.LocationId)

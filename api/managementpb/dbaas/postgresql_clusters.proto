@@ -142,6 +142,16 @@ message UpdatePostgresqlClusterRequest {
 
 message UpdatePostgresqlClusterResponse {}
 
+message GetPostgresqlClusterResourcesRequest {
+  // Cluster parameters.
+  PostgresqlClusterParams params = 1 [(validate.rules).message.required = true];
+}
+
+message GetPostgresqlClusterResourcesResponse {
+  // Expected resources to be consumed by the cluster.
+  Resources expected = 1;
+}
+
 // PostgresqlClusters service provides public methods for managing Postgresql clusters.
 service PostgresqlClusters {
   // GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.
@@ -162,6 +172,13 @@ service PostgresqlClusters {
   rpc UpdatePostgresqlCluster(UpdatePostgresqlClusterRequest) returns (UpdatePostgresqlClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/PostgresqlCluster/Update"
+      body: "*"
+    };
+  }
+  // GetPostgresqlClusterResources returns expected resources to be consumed by the cluster.
+  rpc GetPostgresqlClusterResources(GetPostgresqlClusterResourcesRequest) returns (GetPostgresqlClusterResourcesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PostgresqlCluster/Resources/Get"
       body: "*"
     };
   }
