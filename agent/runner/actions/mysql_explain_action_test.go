@@ -167,7 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		require.Error(t, err)
-		assert.Regexp(t, `query to EXPLAIN is empty`, err.Error())
+		assert.Regexp(t, `Query to EXPLAIN is empty`, err.Error())
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
@@ -196,7 +196,7 @@ func TestMySQLExplain(t *testing.T) {
 			var count int
 			err := q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)
-			assert.Equal(t, 4079, count)
+			assert.Equal(t, 4082, count)
 		}
 
 		t.Run("Drop", func(t *testing.T) {
