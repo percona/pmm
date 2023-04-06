@@ -33,7 +33,7 @@ import (
 
 const (
 	errNoDatabaseSelectedCode    = "Error 1046 (3D000)"
-	errNoDatabaseSelectedMessage = "database name is not included in this query. Explain could not be triggered without this info"
+	errNoDatabaseSelectedMessage = "Database name is not included in this query. Explain could not be triggered without this info"
 )
 
 type mysqlExplainAction struct {
@@ -79,7 +79,7 @@ func (a *mysqlExplainAction) Type() string {
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	if a.params.Query == "" {
-		return nil, errors.New("query to EXPLAIN is empty")
+		return nil, errors.New("Query to EXPLAIN is empty")
 	}
 
 	// Workaround for bug in our MySQL parser if there is keyword "IN" in query.
@@ -89,7 +89,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(a.params.Query) {
-		return nil, errors.New("functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
+		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
 	}
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
@@ -153,7 +153,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.New(errNoDatabaseSelectedMessage)
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
 		}
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.New(errNoDatabaseSelectedMessage)
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
 		}
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.New(errNoDatabaseSelectedMessage)
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
 		}
 		return nil, err
 	}
