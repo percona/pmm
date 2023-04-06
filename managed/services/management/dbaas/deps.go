@@ -91,6 +91,7 @@ type grafanaClient interface {
 type componentsService interface {
 	GetPSMDBComponents(context.Context, *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error)
 	GetPXCComponents(context.Context, *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error)
+	GetPGComponents(context.Context, *dbaasv1beta1.GetPGComponentsRequest) (*dbaasv1beta1.GetPGComponentsResponse, error)
 	ChangePSMDBComponents(context.Context, *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error)
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)

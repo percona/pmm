@@ -28,6 +28,9 @@ message Matrix {
   map<string, Component> backup = 6;
   map<string, Component> operator = 7;
   map<string, Component> log_collector = 8;
+  map<string, Component> postgresql = 9;
+  map<string, Component> pgbouncer = 10;
+  map<string, Component> pgbackrest = 11;
 }
 
 // OperatorVersion contains information about operator and components matrix.
@@ -56,6 +59,17 @@ message GetPXCComponentsRequest {
 }
 
 message GetPXCComponentsResponse {
+  repeated OperatorVersion versions = 1;
+}
+
+message GetPGComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+  // Version of DB.
+  string db_version = 2;
+}
+
+message GetPGComponentsResponse {
   repeated OperatorVersion versions = 1;
 }
 
@@ -135,6 +149,13 @@ service Components {
   rpc GetPXCComponents(GetPXCComponentsRequest) returns (GetPXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/GetPXC"
+      body: "*"
+    };
+  }
+  // GetPGComponents returns list of available components for PG Clusters.
+  rpc GetPGComponents(GetPGComponentsRequest) returns (GetPGComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/GetPG"
       body: "*"
     };
   }

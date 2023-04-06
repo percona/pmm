@@ -149,6 +149,37 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
+func (c ComponentsService) GetPGComponents(ctx context.Context, req *dbaasv1beta1.GetPGComponentsRequest) (*dbaasv1beta1.GetPGComponentsResponse, error) {
+	var kubernetesCluster *models.KubernetesCluster
+	params := componentsParams{
+		product:   pgOperator,
+		dbVersion: req.DbVersion,
+	}
+	if req.KubernetesClusterName != "" {
+		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		params.productVersion = pgVersion
+	}
+
+	versions, err := c.versions(ctx, params, kubernetesCluster)
+	if err != nil {
+		return nil, err
+	}
+	return &dbaasv1beta1.GetPGComponentsResponse{Versions: versions}, nil
+}
+
 func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
@@ -323,12 +354,15 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 		return nil, err
 	}
 
-	var mongod, pxc, proxySQL, haproxy *models.Component
+	var mongod, pxc, proxySQL, haproxy, postgresql, pgbouncer, pgbackrest *models.Component
 	if cluster != nil {
 		mongod = cluster.Mongod
 		pxc = cluster.PXC
 		proxySQL = cluster.ProxySQL
 		haproxy = cluster.HAProxy
+		postgresql = cluster.Postgresql
+		pgbouncer = cluster.Pgbouncer
+		pgbackrest = cluster.Pgbackrest
 	}
 
 	versions := make([]*dbaasv1beta1.OperatorVersion, 0, len(components.Versions))
@@ -347,6 +381,9 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 				Backup:       c.matrix(v.Matrix.Backup, nil, nil),
 				Operator:     c.matrix(v.Matrix.Operator, nil, nil),
 				LogCollector: c.matrix(v.Matrix.LogCollector, nil, nil),
+				Postgresql:   c.matrix(v.Matrix.Postgresql, nil, postgresql),
+				Pgbouncer:    c.matrix(v.Matrix.Pgbouncer, nil, pgbouncer),
+				Pgbackrest:   c.matrix(v.Matrix.Pgbackrest, nil, pgbackrest),
 			},
 		}
 		versions = append(versions, respVersion)
