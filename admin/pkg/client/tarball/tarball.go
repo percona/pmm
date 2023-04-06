@@ -23,6 +23,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 	"os"
@@ -230,21 +231,21 @@ func (b *Base) extractTarball(tarPath, targetDir string) error {
 		}
 
 		if !strings.HasPrefix(abs, targetDir) {
-			return fmt.Errorf("failed to extract %s file as it has relative path", hdr.Name)
+			return errors.Errorf("failed to extract %s file as the resolved path is outside of the destination folder", hdr.Name)
 		}
 
 		switch hdr.Typeflag {
 		case tar.TypeDir:
 			logrus.Infof("Creating dir:    %s", hdr.Name)
 
-			err = os.MkdirAll(hdrPath, os.FileMode(hdr.Mode))
+			err = os.MkdirAll(abs, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
 			}
 		case tar.TypeReg:
 			logrus.Infof("Extracting file: %s", hdr.Name)
 
-			w, err := os.OpenFile(hdrPath, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode)) //nolint:gosec
+			w, err := os.OpenFile(abs, os.O_CREATE|os.O_RDWR, os.FileMode(hdr.Mode)) //nolint:gosec
 			if err != nil {
 				return err
 			}
