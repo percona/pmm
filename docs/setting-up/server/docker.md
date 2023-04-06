@@ -367,6 +367,19 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `PMM_PUBLIC_ADDRESS`                                            | External IP address or the DNS name on which PMM server is running.
 | `PMM_DISABLE_BUILTIN_POSTGRES`                                  | Disable built-in PostgreSQL database.
 
+The following variables are also supported but values passed are not verified by PMM. If any other variable is found, it will be considered invalid and the server won't start.
+
+| Variable                                                        | Description
+| --------------------------------------------------------------- | ------------------------------------------------------
+| `_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM` | Default environment variables.
+| `GF_*`                                                          | [Grafana](https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/) environment variables.
+| `VM_*`                                                          | [VictoriaMetrics'](https://docs.victoriametrics.com/Single-server-VictoriaMetrics.html#environment-variables) environment variables.
+| `SUPERVISOR_`                                                   | `supervisord` environment variables.
+| `KUBERNETES_`                                                   | Kubernetes environment variables.
+| `MONITORING_`                                                   | Kubernetes monitoring environment variables.
+| `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting.
+| `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`.
+
 
 ## Preview environment variables
 
@@ -381,20 +394,6 @@ Use the following Docker container environment variables (with `-e var=value`) t
 | `​​PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`                                    | The maximum number of threads in the current connection thread pool. This value cannot be bigger than max_thread_pool_size.
 | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`                                   | The number of rows to load from tables in one block for this connection.
 
-
-### Ignored variables
-
-These variables will be ignored by `pmm-managed` when starting the server. If any other variable is found, it will be considered invalid and the server won't start.
-
-| Variable                                                        | Description
-| --------------------------------------------------------------- | ------------------------------------------------------
-| `_`, `HOME`, `HOSTNAME`, `LANG`, `PATH`, `PWD`, `SHLVL`, `TERM` | Default environment variables.
-| `GF_*`                                                          | Grafana's environment variables.
-| `SUPERVISOR_`                                                   | `supervisord` environment variables.
-| `KUBERNETES_`                                                   | Kubernetes environment variables.
-| `MONITORING_`                                                   | Kubernetes monitoring environment variables.
-| `PERCONA_TEST_`                                                 | Unknown variable but won't prevent the server starting.
-| `PERCONA_TEST_DBAAS`                                            | Deprecated. Use `ENABLE_DBAAS`.
 
 ## Tips
 
