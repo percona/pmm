@@ -92,7 +92,7 @@ require (
 	k8s.io/client-go v0.26.3
 	k8s.io/kubectl v0.26.3
 	modernc.org/sqlite v1.21.1
-	sigs.k8s.io/controller-runtime v0.14.5
+	sigs.k8s.io/controller-runtime v0.14.6
 	vitess.io/vitess v0.15.2
 )
 
