@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.4.0
-	github.com/bufbuild/buf v1.16.0
+	github.com/bufbuild/buf v1.17.0
 	github.com/daixiang0/gci v0.10.1
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/go-delve/delve v1.20.1
@@ -44,7 +44,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/bmatcuk/doublestar/v2 v2.0.4 // indirect
 	github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 // indirect
-	github.com/bufbuild/connect-go v1.5.2 // indirect
+	github.com/bufbuild/connect-go v1.6.0 // indirect
 	github.com/bufbuild/protocompile v0.5.1 // indirect
 	github.com/cilium/ebpf v0.7.0 // indirect
 	github.com/cosiner/argv v0.1.0 // indirect
@@ -53,7 +53,7 @@ require (
 	github.com/derekparker/trie v0.0.0-20200317170641-1fdf38b7b0e9 // indirect
 	github.com/docker/cli v23.0.2+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-	github.com/docker/docker v23.0.2+incompatible // indirect
+	github.com/docker/docker v23.0.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-delve/liner v1.2.3-0.20220127212407-d32d89dd2a5d // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.21.3 // indirect
 	github.com/go-openapi/errors v0.20.2 // indirect
@@ -173,7 +173,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.starlark.net v0.0.0-20220816155156-cfacd8902214 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/build v0.0.0-20200616162219-07bebbe343e9 // indirect
