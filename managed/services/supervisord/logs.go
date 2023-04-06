@@ -304,11 +304,12 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	r := ring.New(maxLines)
 	reader := bufio.NewReader(f)
 	for {
-		r.Value, err = reader.ReadBytes('\n')
-		r = r.Next()
+		b, err := reader.ReadBytes('\n')
 		if err == io.EOF {
 			break
 		}
+		r.Value = b
+		r = r.Next()
 
 		if err != nil {
 			return nil, m, errors.WithStack(err)
