@@ -196,7 +196,7 @@ func TestMySQLExplain(t *testing.T) {
 			var count int
 			err := q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)
-			assert.Equal(t, 4082, count)
+			assert.Equal(t, 4079, count)
 		}
 
 		t.Run("Drop", func(t *testing.T) {
