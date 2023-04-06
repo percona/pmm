@@ -138,8 +138,8 @@ github.com/Microsoft/hcsshim/test v0.0.0-20210227013316-43a75bb4edd3/go.mod h1:m
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMomdKFjzJNB0c=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253 h1:tMNqI5D54wWWL8x7yvAIZvVO96+NjIsEFnVb2F113DA=
-github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230105215234-10537622c253/go.mod h1:xCJfGpj56ERA85Mj1VfBzoeWW4lZ00xXXkvG0LJQjZU=
+github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592 h1:i7HDf+zPQvaPdrbLGS+wz/Ta32SszwYyHfJks1oVFzg=
+github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592/go.mod h1:xCJfGpj56ERA85Mj1VfBzoeWW4lZ00xXXkvG0LJQjZU=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible h1:N5oM40aAatvf8bCYjv69YsVdxJLIUhY/MerUG1jRL9Y=
 github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible/go.mod h1:UC6j/e2eqpHBB/vn+5214ExsoDLiEo6BfUGBhbtf+x0=
 github.com/Percona-Lab/spec v0.20.5-percona h1:ViCJVq52QIZxpP8/Nv4/nIed+WnqUirNjPtXvHhset4=
