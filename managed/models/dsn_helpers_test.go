@@ -208,6 +208,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S4", "PA2", "test")
 		require.NoError(t, err)
 		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=1000" +
+			"&directConnection=true" +
 			"&serverSelectionTimeoutMS=1000&ssl=true" +
 			"&tlsCaFile=[[.TextFiles.caFilePlaceholder]]" +
 			"&tlsCertificateKeyFile=[[.TextFiles.certificateKeyFilePlaceholder]]" +
