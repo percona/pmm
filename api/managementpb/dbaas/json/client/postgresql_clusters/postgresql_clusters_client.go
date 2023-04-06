@@ -32,6 +32,8 @@ type ClientService interface {
 
 	GetPostgresqlClusterCredentials(params *GetPostgresqlClusterCredentialsParams, opts ...ClientOption) (*GetPostgresqlClusterCredentialsOK, error)
 
+	GetPostgresqlClusterResources(params *GetPostgresqlClusterResourcesParams, opts ...ClientOption) (*GetPostgresqlClusterResourcesOK, error)
+
 	UpdatePostgresqlCluster(params *UpdatePostgresqlClusterParams, opts ...ClientOption) (*UpdatePostgresqlClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -108,6 +110,43 @@ func (a *Client) GetPostgresqlClusterCredentials(params *GetPostgresqlClusterCre
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetPostgresqlClusterCredentialsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetPostgresqlClusterResources gets postgresql cluster resources returns expected resources to be consumed by the cluster
+*/
+func (a *Client) GetPostgresqlClusterResources(params *GetPostgresqlClusterResourcesParams, opts ...ClientOption) (*GetPostgresqlClusterResourcesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPostgresqlClusterResourcesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetPostgresqlClusterResources",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/PostgresqlCluster/Resources/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPostgresqlClusterResourcesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPostgresqlClusterResourcesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPostgresqlClusterResourcesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

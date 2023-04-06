@@ -23,6 +23,7 @@ const (
 	PostgresqlClusters_GetPostgresqlClusterCredentials_FullMethodName = "/dbaas.v1beta1.PostgresqlClusters/GetPostgresqlClusterCredentials"
 	PostgresqlClusters_CreatePostgresqlCluster_FullMethodName         = "/dbaas.v1beta1.PostgresqlClusters/CreatePostgresqlCluster"
 	PostgresqlClusters_UpdatePostgresqlCluster_FullMethodName         = "/dbaas.v1beta1.PostgresqlClusters/UpdatePostgresqlCluster"
+	PostgresqlClusters_GetPostgresqlClusterResources_FullMethodName   = "/dbaas.v1beta1.PostgresqlClusters/GetPostgresqlClusterResources"
 )
 
 // PostgresqlClustersClient is the client API for PostgresqlClusters service.
@@ -35,6 +36,8 @@ type PostgresqlClustersClient interface {
 	CreatePostgresqlCluster(ctx context.Context, in *CreatePostgresqlClusterRequest, opts ...grpc.CallOption) (*CreatePostgresqlClusterResponse, error)
 	// UpdatePostgresqlCluster updates existing Postgresql cluster.
 	UpdatePostgresqlCluster(ctx context.Context, in *UpdatePostgresqlClusterRequest, opts ...grpc.CallOption) (*UpdatePostgresqlClusterResponse, error)
+	// GetPostgresqlClusterResources returns expected resources to be consumed by the cluster.
+	GetPostgresqlClusterResources(ctx context.Context, in *GetPostgresqlClusterResourcesRequest, opts ...grpc.CallOption) (*GetPostgresqlClusterResourcesResponse, error)
 }
 
 type postgresqlClustersClient struct {
@@ -72,6 +75,15 @@ func (c *postgresqlClustersClient) UpdatePostgresqlCluster(ctx context.Context, 
 	return out, nil
 }
 
+func (c *postgresqlClustersClient) GetPostgresqlClusterResources(ctx context.Context, in *GetPostgresqlClusterResourcesRequest, opts ...grpc.CallOption) (*GetPostgresqlClusterResourcesResponse, error) {
+	out := new(GetPostgresqlClusterResourcesResponse)
+	err := c.cc.Invoke(ctx, PostgresqlClusters_GetPostgresqlClusterResources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostgresqlClustersServer is the server API for PostgresqlClusters service.
 // All implementations must embed UnimplementedPostgresqlClustersServer
 // for forward compatibility
@@ -82,6 +94,8 @@ type PostgresqlClustersServer interface {
 	CreatePostgresqlCluster(context.Context, *CreatePostgresqlClusterRequest) (*CreatePostgresqlClusterResponse, error)
 	// UpdatePostgresqlCluster updates existing Postgresql cluster.
 	UpdatePostgresqlCluster(context.Context, *UpdatePostgresqlClusterRequest) (*UpdatePostgresqlClusterResponse, error)
+	// GetPostgresqlClusterResources returns expected resources to be consumed by the cluster.
+	GetPostgresqlClusterResources(context.Context, *GetPostgresqlClusterResourcesRequest) (*GetPostgresqlClusterResourcesResponse, error)
 	mustEmbedUnimplementedPostgresqlClustersServer()
 }
 
@@ -98,6 +112,10 @@ func (UnimplementedPostgresqlClustersServer) CreatePostgresqlCluster(context.Con
 
 func (UnimplementedPostgresqlClustersServer) UpdatePostgresqlCluster(context.Context, *UpdatePostgresqlClusterRequest) (*UpdatePostgresqlClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePostgresqlCluster not implemented")
+}
+
+func (UnimplementedPostgresqlClustersServer) GetPostgresqlClusterResources(context.Context, *GetPostgresqlClusterResourcesRequest) (*GetPostgresqlClusterResourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPostgresqlClusterResources not implemented")
 }
 func (UnimplementedPostgresqlClustersServer) mustEmbedUnimplementedPostgresqlClustersServer() {}
 
@@ -166,6 +184,24 @@ func _PostgresqlClusters_UpdatePostgresqlCluster_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostgresqlClusters_GetPostgresqlClusterResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPostgresqlClusterResourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostgresqlClustersServer).GetPostgresqlClusterResources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PostgresqlClusters_GetPostgresqlClusterResources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostgresqlClustersServer).GetPostgresqlClusterResources(ctx, req.(*GetPostgresqlClusterResourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostgresqlClusters_ServiceDesc is the grpc.ServiceDesc for PostgresqlClusters service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -184,6 +220,10 @@ var PostgresqlClusters_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdatePostgresqlCluster",
 			Handler:    _PostgresqlClusters_UpdatePostgresqlCluster_Handler,
+		},
+		{
+			MethodName: "GetPostgresqlClusterResources",
+			Handler:    _PostgresqlClusters_GetPostgresqlClusterResources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

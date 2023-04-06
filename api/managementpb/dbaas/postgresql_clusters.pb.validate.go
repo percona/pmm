@@ -1203,6 +1203,285 @@ var _ interface {
 	ErrorName() string
 } = UpdatePostgresqlClusterResponseValidationError{}
 
+// Validate checks the field values on GetPostgresqlClusterResourcesRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetPostgresqlClusterResourcesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetPostgresqlClusterResourcesRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetPostgresqlClusterResourcesRequestMultiError, or nil if none found.
+func (m *GetPostgresqlClusterResourcesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPostgresqlClusterResourcesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetParams() == nil {
+		err := GetPostgresqlClusterResourcesRequestValidationError{
+			field:  "Params",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetParams()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetPostgresqlClusterResourcesRequestValidationError{
+					field:  "Params",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetPostgresqlClusterResourcesRequestValidationError{
+					field:  "Params",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetPostgresqlClusterResourcesRequestValidationError{
+				field:  "Params",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetPostgresqlClusterResourcesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPostgresqlClusterResourcesRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// GetPostgresqlClusterResourcesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetPostgresqlClusterResourcesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPostgresqlClusterResourcesRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPostgresqlClusterResourcesRequestMultiError) AllErrors() []error { return m }
+
+// GetPostgresqlClusterResourcesRequestValidationError is the validation error
+// returned by GetPostgresqlClusterResourcesRequest.Validate if the designated
+// constraints aren't met.
+type GetPostgresqlClusterResourcesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPostgresqlClusterResourcesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPostgresqlClusterResourcesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPostgresqlClusterResourcesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPostgresqlClusterResourcesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPostgresqlClusterResourcesRequestValidationError) ErrorName() string {
+	return "GetPostgresqlClusterResourcesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPostgresqlClusterResourcesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPostgresqlClusterResourcesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPostgresqlClusterResourcesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPostgresqlClusterResourcesRequestValidationError{}
+
+// Validate checks the field values on GetPostgresqlClusterResourcesResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *GetPostgresqlClusterResourcesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetPostgresqlClusterResourcesResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// GetPostgresqlClusterResourcesResponseMultiError, or nil if none found.
+func (m *GetPostgresqlClusterResourcesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPostgresqlClusterResourcesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetExpected()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetPostgresqlClusterResourcesResponseValidationError{
+					field:  "Expected",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetPostgresqlClusterResourcesResponseValidationError{
+					field:  "Expected",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetExpected()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetPostgresqlClusterResourcesResponseValidationError{
+				field:  "Expected",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetPostgresqlClusterResourcesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPostgresqlClusterResourcesResponseMultiError is an error wrapping
+// multiple validation errors returned by
+// GetPostgresqlClusterResourcesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetPostgresqlClusterResourcesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPostgresqlClusterResourcesResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPostgresqlClusterResourcesResponseMultiError) AllErrors() []error { return m }
+
+// GetPostgresqlClusterResourcesResponseValidationError is the validation error
+// returned by GetPostgresqlClusterResourcesResponse.Validate if the
+// designated constraints aren't met.
+type GetPostgresqlClusterResourcesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPostgresqlClusterResourcesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPostgresqlClusterResourcesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPostgresqlClusterResourcesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPostgresqlClusterResourcesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPostgresqlClusterResourcesResponseValidationError) ErrorName() string {
+	return "GetPostgresqlClusterResourcesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPostgresqlClusterResourcesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPostgresqlClusterResourcesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPostgresqlClusterResourcesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPostgresqlClusterResourcesResponseValidationError{}
+
 // Validate checks the field values on PostgresqlClusterParams_Instance with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
