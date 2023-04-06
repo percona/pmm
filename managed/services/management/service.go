@@ -43,6 +43,18 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
+// A map to check if the service is supported.
+// NOTE: known external services appear to match the vendor names,
+// (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
+// which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
+var supportedServices = map[string]inventorypb.ServiceType{
+	string(models.MySQLServiceType):      inventorypb.ServiceType_MYSQL_SERVICE,
+	string(models.MongoDBServiceType):    inventorypb.ServiceType_MONGODB_SERVICE,
+	string(models.PostgreSQLServiceType): inventorypb.ServiceType_POSTGRESQL_SERVICE,
+	string(models.ProxySQLServiceType):   inventorypb.ServiceType_PROXYSQL_SERVICE,
+	string(models.HAProxyServiceType):    inventorypb.ServiceType_HAPROXY_SERVICE,
+}
+
 func convertServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
 		return nil
@@ -69,6 +81,11 @@ type MgmtServiceService struct {
 	vmClient victoriaMetricsClient
 
 	servicev1beta1.UnimplementedMgmtServiceServer
+}
+
+type statusMetrics struct {
+	status      int
+	serviceType string
 }
 
 // NewServiceService creates ServiceService instance.
@@ -223,16 +240,17 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		}
 	}
 
-	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}"
+	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or proxysql_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}"
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}
 
-	data := map[string]int{}
+	metrics := make(map[string]statusMetrics, len(result.(model.Vector)))
 	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
 		serviceID := string(v.Metric[model.LabelName("service_id")])
-		data[serviceID] = int(v.Value)
+		serviceType := string(v.Metric[model.LabelName("service_type")])
+		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
 	}
 
 	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
@@ -291,16 +309,21 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			UpdatedAt:      timestamppb.New(service.UpdatedAt),
 		}
 
-		if status, ok := data[service.ServiceID]; ok {
-			switch status {
+		if metric, ok := metrics[service.ServiceID]; ok {
+			switch metric.status {
+			// We assume there can only be values of either 1(UP) or 0(DOWN).
 			case 0:
 				svc.Status = servicev1beta1.UniversalService_DOWN
 			case 1:
 				svc.Status = servicev1beta1.UniversalService_UP
 			}
 		} else {
-			// We assume there is always a value of 1 or 0, otherwise the health is unknown.
-			svc.Status = servicev1beta1.UniversalService_UNKNOWN
+			// In case there is no metric, we need to assign different values for supported and unsupported service types.
+			if _, ok := supportedServices[metric.serviceType]; ok {
+				svc.Status = servicev1beta1.UniversalService_UNKNOWN
+			} else {
+				svc.Status = servicev1beta1.UniversalService_STATUS_INVALID
+			}
 		}
 
 		nodeName, ok := nodeMap[service.NodeID]
