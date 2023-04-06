@@ -1,12 +1,33 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
-{%- macro relbar2 () %}
-
-{%- endmacro %}
-              
-              {% block extrahead %}
-              {{ super() }}
+  {%- macro relbar2 () %}
+  <div class="md-relbar2__inner md-grid">
+  <div class="md-content">
+    <article class="md-content__inner md-typeset" role="main">    
+      <h3>Contact us </h3>
+         <p>For free technical help, visit the Percona <a class="reference external" href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/30/all" target="_blank">Community Forum</a>.<br>
+          <p>To report bugs or submit feature requests, open a <a class="reference external" href="https://jira.percona.com/projects/PMM/issues/" target="_blank">JIRA</a> ticket.<br>
+           <p>For paid <a class="reference external" href="https://www.percona.com/services/support"> support </a> and <a class="reference external" href="https://www.percona.com/services/managed-services"> managed </a> or <a class="reference external" href="https://www.percona.com/services/consulting">consulting services </a>, contact <a class="reference external" href="https://www.percona.com/about-percona/contact" target="_blank">Percona Sales</a>.</p>
+   </article>
+  </div>
+  </div>
+  
+  {%- endmacro %}
+                
+                {% block extrahead %}
+                {{ super() }}
+  
+                <html data-lt-installed="true">
+                  <head>
+                      <meta property="og:title" content="Percona Monitoring and Management">
+                      <meta property="og:description" content="Documentation">
+                      <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/_images/PMM.png"
+                      <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
+                  </head>
+                  <body>
+                  </body>
+                </html>
 
               <script>
               (function (w, d, s, l, i) {
