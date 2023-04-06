@@ -28,3 +28,28 @@ spec:
     target_label: node_name
     regex: (.+);(.+)
     replacement: $1-$2
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMNodeScrape
+metadata:
+  name: kubelet
+spec:
+  scheme: "https"
+  interval: "10s"
+  scrapeTimeout: "5s"
+  selector: {}
+  tlsConfig:
+    insecureSkipVerify: true
+    caFile: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+  bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  relabelConfigs:
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)
+    - targetLabel: __address__
+      replacement: kubernetes.default.svc:443
+    - sourceLabels: [__meta_kubernetes_node_name]
+      regex: (.+)
+      targetLabel: __metrics_path__
+      replacement: /api/v1/nodes/$1/proxy/metrics
+    - targetLabel: "job"
+      replacement: "kubelet"
