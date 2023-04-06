@@ -17,20 +17,19 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	"github.com/golang-migrate/migrate"
-	_ "github.com/golang-migrate/migrate/database/clickhouse" // register golang-migrate driver
-	bindata "github.com/golang-migrate/migrate/source/go_bindata"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/pkg/errors"
-
-	"github.com/percona/pmm/qan-api2/migrations"
 )
 
 const (
@@ -102,15 +101,16 @@ func createDB(dsn string) error {
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 }
 
-func runMigrations(dsn string) error {
-	s := bindata.Resource(migrations.AssetNames(), migrations.Asset)
+//go:embed migrations/sql/*.sql
+var fs embed.FS
 
-	d, err := bindata.WithInstance(s)
+func runMigrations(dsn string) error {
+	d, err := iofs.New(fs, "migrations/sql")
 	if err != nil {
 		return err
 	}
 	log.Println("dsn: ", dsn)
-	m, err := migrate.NewWithSourceInstance("go-bindata", d, dsn)
+	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
 	if err != nil {
 		return err
 	}

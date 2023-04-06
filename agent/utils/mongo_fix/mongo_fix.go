@@ -24,18 +24,22 @@ import (
 // ClientOptionsForDSN applies URI to Client.
 func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
 	clientOptions := options.Client().ApplyURI(dsn)
+	if e := clientOptions.Validate(); e != nil {
+		return nil, e
+	}
 
 	// Workaround for PMM-9320
 	// if username or password is set, need to replace it with correctly parsed credentials.
 	parsedDsn, err := url.Parse(dsn)
 	if err != nil {
 		// for non-URI, do nothing (PMM-10265)
-		return clientOptions, nil
+		return clientOptions, nil //nolint:nilerr
 	}
 	username := parsedDsn.User.Username()
 	password, _ := parsedDsn.User.Password()
 	if username != "" || password != "" {
-		clientOptions = clientOptions.SetAuth(options.Credential{Username: username, Password: password})
+		clientOptions.Auth.Username = username
+		clientOptions.Auth.Password = password
 	}
 
 	return clientOptions, nil

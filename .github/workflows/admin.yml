@@ -11,8 +11,9 @@ on:
   pull_request:
     paths-ignore:
       - "agent/**"
-      - "managed/**"
+      - "api-tests/**"
       - "docs/**"
+      - "managed/**"
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
@@ -32,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
@@ -47,7 +48,7 @@ jobs:
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -100,7 +101,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
@@ -115,7 +116,7 @@ jobs:
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
 

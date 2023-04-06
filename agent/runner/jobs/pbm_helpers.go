@@ -40,6 +40,19 @@ const (
 type pbmSeverity int
 
 type describeInfo struct {
+	Status   string    `json:"status"`
+	Error    string    `json:"error"`
+	ReplSets []replSet `json:"replsets"`
+}
+
+type replSet struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Nodes  []node `json:"nodes"`
+}
+
+type node struct {
+	Name   string `json:"name"`
 	Status string `json:"status"`
 	Error  string `json:"error"`
 }
@@ -163,6 +176,13 @@ type pbmError struct {
 	Error string `json:"Error"`
 }
 
+// pbmConfigParams groups the flags/options for configuring PBM.
+type pbmConfigParams struct {
+	configFilePath string
+	forceResync    bool
+	dbURL          *url.URL
+}
+
 func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
@@ -245,7 +265,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 				return nil
 			case "canceled":
 				return errors.New("backup was canceled")
-			case "error":
+			case "error": //nolint:goconst
 				return errors.New(info.Error)
 			}
 
@@ -311,7 +331,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRe
 }
 
 func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore, backupType, confFile string) error {
-	l.Infof("waiting for pbm restore")
+	l.Infof("Detecting restore name")
 	var name string
 	var err error
 
@@ -325,6 +345,8 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		name = restoreInfo.Name
 	}
 
+	l.Infof("waiting for pbm restore: %s", name)
+
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
@@ -334,7 +356,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		case <-ticker.C:
 			var info describeInfo
 			if backupType == "physical" {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", "--config="+confFile, name)
+				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name, "--config="+confFile)
 			} else {
 				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
 			}
@@ -357,6 +379,9 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 				return errors.New("restore was canceled")
 			case "error":
 				return errors.New(info.Error)
+			// We consider partlyDone as an error because we cannot automatically recover cluster from this status to fully working.
+			case "partlyDone":
+				return groupPartlyDoneErrors(info)
 			}
 
 		case <-ctx.Done():
@@ -365,19 +390,34 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	}
 }
 
-func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, confFile string) error {
-	l.Info("Configuring S3 location.")
+func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigParams) error {
+	l.Info("Configuring PBM.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	output, err := exec.CommandContext( //nolint:gosec
-		nCtx,
-		pbmBin,
+	args := []string{
 		"config",
-		"--mongodb-uri="+dbURL.String(),
-		"--file="+confFile).CombinedOutput()
+		"--out=json",
+		"--mongodb-uri=" + params.dbURL.String(),
+		"--file=" + params.configFilePath,
+	}
+
+	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
 		return errors.Wrapf(err, "pbm config error: %s", string(output))
+	}
+
+	if params.forceResync {
+		args := []string{
+			"config",
+			"--out=json",
+			"--mongodb-uri=" + params.dbURL.String(),
+			"--force-resync",
+		}
+		output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
+		if err != nil {
+			return errors.Wrapf(err, "pbm config resync error: %s", string(output))
+		}
 	}
 
 	return nil
@@ -477,4 +517,19 @@ func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr b
 		return nil, errors.New("unknown location config")
 	}
 	return conf, nil
+}
+
+func groupPartlyDoneErrors(info describeInfo) error {
+	var errMsgs []string
+
+	for _, rs := range info.ReplSets {
+		if rs.Status == "partlyDone" {
+			for _, node := range rs.Nodes {
+				if node.Status == "error" {
+					errMsgs = append(errMsgs, fmt.Sprintf("replset: %s, node: %s, error: %s", rs.Name, node.Name, node.Error))
+				}
+			}
+		}
+	}
+	return errors.New(strings.Join(errMsgs, "; "))
 }

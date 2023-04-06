@@ -34,7 +34,7 @@ telemetry:
 
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
@@ -75,6 +75,25 @@ telemetry:
         label: "version"
       - metric_name: "mysql_version_comment"
         label: "version_comment"
+
+  - id: MySQLPlugins
+    source: VM
+    query: mysql_plugin
+    transform:
+      type: JSON
+      metric: mysql_plugins
+    summary: "Plugins on the MySQL instance"
+    data:
+      - metric_name: "1"
+        label: "library"
+      - metric_name: "2"
+        label: "license"
+      - metric_name: "3"
+        label: "name"
+      - metric_name: "4"
+        label: "status"
+      - metric_name: "5"
+        label: "type"
 
   - id: MySQLEngineRocksDBCount
     source: VM
@@ -225,6 +244,22 @@ telemetry:
       - metric_name: "mongodb_storage_engine_type"
         label: engine
 
+  - id: MongoDBIsEncryptionAtRestEnabled
+    source: VM
+    query: (group(mongodb_up) by (service_name)) * on(service_name) group_left(service_name) mongodb_security_encryption_enabled OR (group(mongodb_up) by (service_name)) - 1
+    summary: "Returns 1 if encryption at rest is enabled on the mongo instance, otherwise returns 0"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_enabled"
+        value: 1
+
+  - id: MongoDBEncryptionType
+    source: VM
+    query: mongodb_security_encryption_enabled
+    summary: "Returns the type of how encryption at rest was enabled (using local file, kmip or vault)"
+    data:
+      - metric_name: "mongodb_encryption_at_rest_type"
+        label: type
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
@@ -343,7 +378,7 @@ telemetry:
   # Nodes information - v2
   - id: NodesInfoPMMAgentV2
     source: PMMDB_SELECT
-    query: version, agent_type, runs_on_node_id FROM agents
+    query: a.version, a.agent_type, COALESCE(a.runs_on_node_id, aa.runs_on_node_id) AS runs_on_node_id FROM agents a LEFT JOIN agents aa ON a.pmm_agent_id = aa.agent_id
     summary: "Agents version"
     transform:
       type: JSON
@@ -703,4 +738,95 @@ telemetry:
       - metric_name: "5" # pmm-managed / qan-api2
         label: "job"
       - metric_name: "6"
+        value: 1
+
+  # Backup Management information
+  - id: BackupManagementStorageTypes
+    source: PMMDB_SELECT
+    query: type AS storage_type, count(*) AS count FROM backup_locations GROUP BY type
+    transform:
+      type: JSON
+      metric: backup_management_storage_types
+    summary: "How many storages configured by types"
+    data:
+      - metric_name: "1"
+        column: "storage_type"
+      - metric_name: "2"
+        column: "count"
+
+  - id: BackupManagementScheduledTasks
+    source: PMMDB_SELECT
+    query: type AS task_type, count(*) AS count FROM scheduled_tasks GROUP BY task_type
+    transform:
+      type: JSON
+      metric: backup_management_scheduled_tasks
+    summary: "How many backup tasks scheduled by types"
+    data:
+      - metric_name: "1"
+        column: "task_type"
+      - metric_name: "2"
+        column: "count"
+
+  - id: BackupManagementJobsPerformed
+    source: PMMDB_SELECT
+    query: >
+      j.type bm_job_type,
+      	coalesce(j.mod, 'N/A') bm_backup_mode,
+      	coalesce(j.dm, 'N/A') bm_data_model,
+      	coalesce(a_backup.type, 'N/A') bm_job_run_type,
+      	j.job_status bm_job_status,
+      	coalesce(bl_backup.type, bl_restore.type, 'N/A') bm_location_type,
+      	count(*) count
+      from (select type, 
+      			"data"->"type"->>'mode' mod, 
+      			"data"->"type"->>'data_model' dm, 
+      			"data"->"type"->>'artifact_id' artifact_id,
+      			"data"->"type"->>'restore_id' restore_id,
+      			case error when '' then 'success' else 'failed' end job_status
+      		from jobs 
+      		where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW() 
+      			group by type, mod, dm, artifact_id, restore_id, job_status) j
+      left join artifacts a_backup
+      	on a_backup.id = j.artifact_id
+      left join backup_locations bl_backup
+      	on bl_backup.id = a_backup.location_id 
+      left join restore_history rh
+      	on rh.id = j.restore_id
+      left join artifacts a_restore
+      	on a_restore.id = rh.artifact_id
+      left join backup_locations bl_restore
+      	on bl_restore.id = a_restore.location_id
+      group by 
+      	bm_job_type, 
+      	bm_backup_mode, 
+      	bm_data_model, 
+      	bm_job_run_type, 
+      	bm_job_status, 
+      	bm_location_type
+    transform:
+      type: JSON
+      metric: backup_management_jobs_performed
+    summary: "Backup/restore jobs sliced by different parameters"
+    data:
+      - metric_name: "1"
+        column: "bm_job_type"
+      - metric_name: "2"
+        column: "bm_backup_mode"
+      - metric_name: "3"
+        column: "bm_data_model"
+      - metric_name: "4"
+        column: "bm_job_run_type"
+      - metric_name: "5"
+        column: "bm_job_status"
+      - metric_name: "6"
+        column: "bm_location_type"
+      - metric_name: "7"
+        column: "count"
+
+  - id: PXCClusterNodesCount
+    source: VM
+    query: (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))
+    summary: "Number of nodes for PXC cluster"
+    data:
+      - metric_name: "pxc_cluster_nodes_count"
         value: 1

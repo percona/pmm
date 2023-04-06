@@ -34,7 +34,7 @@ type AgentNotSupportedError struct {
 }
 
 func (e *AgentNotSupportedError) Error() string {
-	return fmt.Sprintf("%s is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
+	return fmt.Sprintf("'%s' functionality is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
 		e.AgentID, e.AgentVersion, e.MinAgentVersion)
 }
 
