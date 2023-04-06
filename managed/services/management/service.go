@@ -218,8 +218,6 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-//
-//nolint:unparam
 func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
@@ -240,7 +238,12 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		}
 	}
 
-	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or proxysql_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}" //nolint:lll
+	query := `pg_up{collector="exporter",job=~".*_hr$"}
+		or mysql_up{job=~".*_hr$"}
+		or mongodb_up{job=~".*_hr$"}
+		or proxysql_up{job=~".*_hr$"}
+		or haproxy_backend_status{state="UP"}
+	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
