@@ -529,6 +529,15 @@ type ListServicesOKBodyServicesItems0 struct {
 
 	// List of agents related to this service.
 	Agents []*ListServicesOKBodyServicesItems0AgentsItems0 `json:"agents"`
+
+	// Service status.
+	//
+	//  - STATUS_INVALID: In case we don't support the db vendor yet.
+	//  - UP: The service is up.
+	//  - DOWN: The service is down.
+	//  - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).
+	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this list services OK body services items0
@@ -544,6 +553,10 @@ func (o *ListServicesOKBodyServicesItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateAgents(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -598,6 +611,54 @@ func (o *ListServicesOKBodyServicesItems0) validateAgents(formats strfmt.Registr
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var listServicesOkBodyServicesItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["STATUS_INVALID","UP","DOWN","UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listServicesOkBodyServicesItems0TypeStatusPropEnum = append(listServicesOkBodyServicesItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListServicesOKBodyServicesItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
+	ListServicesOKBodyServicesItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+
+	// ListServicesOKBodyServicesItems0StatusUP captures enum value "UP"
+	ListServicesOKBodyServicesItems0StatusUP string = "UP"
+
+	// ListServicesOKBodyServicesItems0StatusDOWN captures enum value "DOWN"
+	ListServicesOKBodyServicesItems0StatusDOWN string = "DOWN"
+
+	// ListServicesOKBodyServicesItems0StatusUNKNOWN captures enum value "UNKNOWN"
+	ListServicesOKBodyServicesItems0StatusUNKNOWN string = "UNKNOWN"
+)
+
+// prop value enum
+func (o *ListServicesOKBodyServicesItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listServicesOkBodyServicesItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListServicesOKBodyServicesItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil

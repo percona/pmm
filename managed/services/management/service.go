@@ -17,8 +17,11 @@ package management
 
 import (
 	"context"
+	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -59,10 +62,11 @@ type ServiceService struct {
 }
 
 type MgmtServiceService struct {
-	db    *reform.DB
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
+	db       *reform.DB
+	r        agentsRegistry
+	state    agentsStateUpdater
+	vmdb     prometheusService
+	vmClient victoriaMetricsClient
 
 	servicev1beta1.UnimplementedMgmtServiceServer
 }
@@ -78,12 +82,13 @@ func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater
 }
 
 // NewMgmtServiceService creates MgmtServiceService instance.
-func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *MgmtServiceService {
+func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, vmClient victoriaMetricsClient) *MgmtServiceService {
 	return &MgmtServiceService{
-		db:    db,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
+		db:       db,
+		r:        r,
+		state:    state,
+		vmdb:     vmdb,
+		vmClient: vmClient,
 	}
 }
 
@@ -218,6 +223,18 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		}
 	}
 
+	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}"
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	data := map[string]int{}
+	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+		serviceID := string(v.Metric[model.LabelName("service_id")])
+		data[serviceID] = int(v.Value)
+	}
+
 	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
 	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -272,6 +289,18 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
 			UpdatedAt:      timestamppb.New(service.UpdatedAt),
+		}
+
+		if status, ok := data[service.ServiceID]; ok {
+			switch status {
+			case 0:
+				svc.Status = servicev1beta1.UniversalService_DOWN
+			case 1:
+				svc.Status = servicev1beta1.UniversalService_UP
+			}
+		} else {
+			// We assume there is always a value of 1 or 0, otherwise the health is unknown.
+			svc.Status = servicev1beta1.UniversalService_UNKNOWN
 		}
 
 		nodeName, ok := nodeMap[service.NodeID]

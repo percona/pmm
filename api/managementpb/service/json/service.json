@@ -468,6 +468,18 @@
                         "type": "string",
                         "x-order": 13
                       },
+                      "status": {
+                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "UP",
+                          "DOWN",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 17
+                      },
                       "updated_at": {
                         "description": "Last update timestamp.",
                         "type": "string",
