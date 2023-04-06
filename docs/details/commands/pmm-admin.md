@@ -16,8 +16,6 @@ DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | 
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-`pmm-admin add external [FLAGS] [NAME] [ADDRESS]` (CAUTION: Technical preview feature)
-
 `pmm-admin add haproxy [FLAGS] [NAME]`
 
 `pmm-admin add external [FLAGS] [NAME] [ADDRESS]`
