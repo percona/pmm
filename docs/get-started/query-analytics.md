@@ -222,12 +222,14 @@ PMM 2.36 now supports [pg_stat_monitor](https://docs.percona.com/pg-stat-monitor
 - Security improvements
 - All previous PGSM versions are still supported
 
-!!! caution alert alert-warning ""
-You will probably need to grant more permissions to the user in PostgreSQL 15. An error message will appear in the `pmm-agent` log if more permissions are required. This behavior is pertaining to PostgreSQL and not PMM.
+!!! note alert alert-primary "Postgres 15"
+    You will probably need to grant more permissions to the user in PostgreSQL 15. An error message will appear in the `pmm-agent` log if more permissions are required. This behavior is pertaining to PostgreSQL and not PMM.
 
-You can use this query:
-CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'USERNAME';
-where USERNAME should be replaced by your user.
+    You can use this query:
+    ```
+    CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'USERNAME';
+    ```
+    where `USERNAME` should be replaced by the user.
 
 ## Query Analytics for MongoDB
 

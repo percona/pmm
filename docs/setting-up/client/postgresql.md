@@ -148,8 +148,8 @@ You can now [add the service](#add-service).
 
 `pg_stat_monitor` has been tested with:
 
-- PostgreSQL versions 11, 12, 13, 14.
-- Percona Distribution for PostgreSQL versions 11, 12, 13, 14.
+- PostgreSQL versions 11, 12, 13, 14, 15.
+- Percona Distribution for PostgreSQL versions 11, 12, 13, 14, 15.
 
 #### Install
 
