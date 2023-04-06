@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package inventory;
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 option go_package = "api/inventorypb;inventorypb";
 
@@ -197,7 +197,7 @@ message ListActiveServiceTypesResponse {
 
 message GetServiceRequest {
   // Unique randomly generated instance identifier.
-  string service_id = 1 [(validator.field) = {string_not_empty: true}];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetServiceResponse {
@@ -215,9 +215,9 @@ message GetServiceResponse {
 
 message AddMySQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -245,9 +245,9 @@ message AddMySQLServiceResponse {
 
 message AddMongoDBServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -275,9 +275,9 @@ message AddMongoDBServiceResponse {
 
 message AddPostgreSQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -305,9 +305,9 @@ message AddPostgreSQLServiceResponse {
 
 message AddProxySQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -335,9 +335,9 @@ message AddProxySQLServiceResponse {
 
 message AddHAProxyServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Environment name.
   string environment = 3;
   // Cluster name.
@@ -356,9 +356,9 @@ message AddHAProxyServiceResponse {
 
 message AddExternalServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validator.field) = {string_not_empty: true}];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validator.field) = {string_not_empty: true}];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Environment name.
   string environment = 3;
   // Cluster name.
@@ -379,7 +379,7 @@ message AddExternalServiceResponse {
 
 message RemoveServiceRequest {
   // Unique randomly generated instance identifier. Required.
-  string service_id = 1 [(validator.field) = {string_not_empty: true}];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
   // Remove service with all dependencies.
   bool force = 2;
 }
@@ -388,7 +388,7 @@ message RemoveServiceResponse {}
 
 message AddCustomLabelsRequest {
   // Unique Service ID.
-  string service_id = 1 [(validator.field) = {string_not_empty: true}];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels to be added.
   map<string, string> custom_labels = 2;
 }
@@ -397,7 +397,7 @@ message AddCustomLabelsResponse {}
 
 message RemoveCustomLabelsRequest {
   // Unique Service ID.
-  string service_id = 1 [(validator.field) = {string_not_empty: true}];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned label keys to be removed.
   repeated string custom_label_keys = 2;
 }
