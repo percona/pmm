@@ -535,6 +535,144 @@ func (m *Matrix) validate(all bool) error {
 		}
 	}
 
+	{
+		sorted_keys := make([]string, len(m.GetPostgresql()))
+		i := 0
+		for key := range m.GetPostgresql() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetPostgresql()[key]
+			_ = val
+
+			// no validation rules for Postgresql[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Postgresql[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Postgresql[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return MatrixValidationError{
+						field:  fmt.Sprintf("Postgresql[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetPgbouncer()))
+		i := 0
+		for key := range m.GetPgbouncer() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetPgbouncer()[key]
+			_ = val
+
+			// no validation rules for Pgbouncer[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Pgbouncer[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Pgbouncer[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return MatrixValidationError{
+						field:  fmt.Sprintf("Pgbouncer[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetPgbackrest()))
+		i := 0
+		for key := range m.GetPgbackrest() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetPgbackrest()[key]
+			_ = val
+
+			// no validation rules for Pgbackrest[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Pgbackrest[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, MatrixValidationError{
+							field:  fmt.Sprintf("Pgbackrest[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return MatrixValidationError{
+						field:  fmt.Sprintf("Pgbackrest[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return MatrixMultiError(errors)
 	}
@@ -1228,6 +1366,248 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetPXCComponentsResponseValidationError{}
+
+// Validate checks the field values on GetPGComponentsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetPGComponentsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetPGComponentsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetPGComponentsRequestMultiError, or nil if none found.
+func (m *GetPGComponentsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPGComponentsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for KubernetesClusterName
+
+	// no validation rules for DbVersion
+
+	if len(errors) > 0 {
+		return GetPGComponentsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPGComponentsRequestMultiError is an error wrapping multiple validation
+// errors returned by GetPGComponentsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetPGComponentsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPGComponentsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPGComponentsRequestMultiError) AllErrors() []error { return m }
+
+// GetPGComponentsRequestValidationError is the validation error returned by
+// GetPGComponentsRequest.Validate if the designated constraints aren't met.
+type GetPGComponentsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPGComponentsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPGComponentsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPGComponentsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPGComponentsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPGComponentsRequestValidationError) ErrorName() string {
+	return "GetPGComponentsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPGComponentsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPGComponentsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPGComponentsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPGComponentsRequestValidationError{}
+
+// Validate checks the field values on GetPGComponentsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetPGComponentsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetPGComponentsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetPGComponentsResponseMultiError, or nil if none found.
+func (m *GetPGComponentsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetPGComponentsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetVersions() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetPGComponentsResponseValidationError{
+						field:  fmt.Sprintf("Versions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetPGComponentsResponseValidationError{
+						field:  fmt.Sprintf("Versions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetPGComponentsResponseValidationError{
+					field:  fmt.Sprintf("Versions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GetPGComponentsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetPGComponentsResponseMultiError is an error wrapping multiple validation
+// errors returned by GetPGComponentsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetPGComponentsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetPGComponentsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetPGComponentsResponseMultiError) AllErrors() []error { return m }
+
+// GetPGComponentsResponseValidationError is the validation error returned by
+// GetPGComponentsResponse.Validate if the designated constraints aren't met.
+type GetPGComponentsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetPGComponentsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetPGComponentsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetPGComponentsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetPGComponentsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetPGComponentsResponseValidationError) ErrorName() string {
+	return "GetPGComponentsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetPGComponentsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetPGComponentsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetPGComponentsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetPGComponentsResponseValidationError{}
 
 // Validate checks the field values on ChangeComponent with the rules defined
 // in the proto definition for this message. If any rules are violated, the

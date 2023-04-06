@@ -34,6 +34,8 @@ type ClientService interface {
 
 	CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, opts ...ClientOption) (*CheckForOperatorUpdateOK, error)
 
+	GetPGComponents(params *GetPGComponentsParams, opts ...ClientOption) (*GetPGComponentsOK, error)
+
 	GetPSMDBComponents(params *GetPSMDBComponentsParams, opts ...ClientOption) (*GetPSMDBComponentsOK, error)
 
 	GetPXCComponents(params *GetPXCComponentsParams, opts ...ClientOption) (*GetPXCComponentsOK, error)
@@ -151,6 +153,43 @@ func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, op
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*CheckForOperatorUpdateDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetPGComponents gets p g components returns list of available components for p g clusters
+*/
+func (a *Client) GetPGComponents(params *GetPGComponentsParams, opts ...ClientOption) (*GetPGComponentsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPGComponentsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetPGComponents",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Components/GetPG",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPGComponentsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPGComponentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPGComponentsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

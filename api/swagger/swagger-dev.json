@@ -19119,6 +19119,477 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/GetPG": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "GetPGComponents returns list of available components for PG Clusters.",
+        "operationId": "GetPGComponents",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "db_version": {
+                  "description": "Version of DB.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "versions": {
+                  "type": "array",
+                  "items": {
+                    "description": "OperatorVersion contains information about operator and components matrix.",
+                    "type": "object",
+                    "properties": {
+                      "product": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "operator": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "matrix": {
+                        "description": "Matrix contains all available components.",
+                        "type": "object",
+                        "properties": {
+                          "mongod": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 0
+                          },
+                          "pxc": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "pmm": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 2
+                          },
+                          "proxysql": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 3
+                          },
+                          "haproxy": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 4
+                          },
+                          "backup": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 5
+                          },
+                          "operator": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 6
+                          },
+                          "log_collector": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 7
+                          },
+                          "postgresql": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 8
+                          },
+                          "pgbouncer": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 9
+                          },
+                          "pgbackrest": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 10
+                          }
+                        },
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/GetPSMDB": {
       "post": {
         "tags": [
@@ -19443,6 +19914,108 @@
                               }
                             },
                             "x-order": 7
+                          },
+                          "postgresql": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 8
+                          },
+                          "pgbouncer": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 9
+                          },
+                          "pgbackrest": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 10
                           }
                         },
                         "x-order": 2
@@ -19812,6 +20385,108 @@
                               }
                             },
                             "x-order": 7
+                          },
+                          "postgresql": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 8
+                          },
+                          "pgbouncer": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 9
+                          },
+                          "pgbackrest": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "description": "Component contains information about component.",
+                              "type": "object",
+                              "properties": {
+                                "image_path": {
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "image_hash": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "critical": {
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "default": {
+                                  "type": "boolean",
+                                  "x-order": 4
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 10
                           }
                         },
                         "x-order": 2
