@@ -8,9 +8,6 @@ data:
     kind: CustomResourceStateMetrics
     spec:
       resources:
-    kind: CustomResourceStateMetrics
-    spec:
-      resources:        
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
