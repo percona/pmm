@@ -109,6 +109,7 @@
           - pmm-update
           - dbaas-controller
           - dbaas-tools
+          - grafana-db-migrator
           - pmm-dump
           - vmproxy
         state: installed
