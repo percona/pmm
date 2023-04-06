@@ -240,7 +240,7 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		}
 	}
 
-	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or proxysql_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}"
+	query := "pg_up{collector=\"exporter\",job=~\".*_hr$\"} or mysql_up{job=~\".*_hr$\"} or mongodb_up{job=~\".*_hr$\"} or proxysql_up{job=~\".*_hr$\"} or haproxy_backend_status{state=\"UP\"}" //nolint:lll
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
