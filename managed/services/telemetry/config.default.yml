@@ -32,6 +32,14 @@ telemetry:
       - metric_name: "pmm_server_stt_enabled"
         column: "stt_enabled"
 
+- id: PMMServerAdvisorsDisabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN stt->'stt_disabled' = 'true' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    summary: "PMM Advisors Disabled"
+    data:
+      - metric_name: "pmm_server_advisors_disabled"
+        column: "advisors_disabled"
+
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN backup_management->'disabled' = 'false' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
@@ -748,7 +756,7 @@ telemetry:
   # API usage
   - id: APIUsageMetrics
     source: VM
-    query: grpc_server_msg_received_total
+    query: pmm_grpc_server_msg_received_total
     transform:
       type: JSON
       metric: pmm_server_api_usage
