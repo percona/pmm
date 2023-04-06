@@ -10,7 +10,7 @@ data:
       resources:
     kind: CustomResourceStateMetrics
     spec:
-      resources:
+      resources:        
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
@@ -226,18 +226,3 @@ data:
                   path:
                   - status
                   - completed
-        - groupVersionKind:
-            group: psmdb.percona.com
-            version: v1
-            kind: PerconaServerMongoDB
-          metricNamePrefix: percona_psm_cluster
-          metrics:
-            - name: info
-              help: "Information of PSMDB cluster on k8s"
-              each:
-                type: Info
-                info:
-                  labelsFromPath:
-                    version:
-                    - spec
-                    - crVersion
