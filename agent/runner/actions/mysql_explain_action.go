@@ -31,6 +31,11 @@ import (
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
+const (
+	errNoDatabaseSelectedCode    = "Error 1046 (3D000)"
+	errNoDatabaseSelectedMessage = "database name is not included in this query. Explain could not be triggered without this info"
+)
+
 type mysqlExplainAction struct {
 	id      string
 	timeout time.Duration
@@ -147,6 +152,9 @@ func prepareValues(values []string) []any {
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.New(errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
@@ -184,6 +192,9 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	var b []byte
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.New(errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
@@ -224,6 +235,9 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.New(errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
