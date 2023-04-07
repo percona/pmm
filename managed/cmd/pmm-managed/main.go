@@ -672,15 +672,15 @@ func main() {
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
-		Envar("POSTGRES_ADDR").
+		Envar("PERCONA_TEST_POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
 		Default("pmm-managed").
-		Envar("POSTGRES_DBNAME").
+		Envar("PERCONA_TEST_POSTGRES_DBNAME").
 		String()
 	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
 		Default("pmm-managed").
-		Envar("POSTGRES_USERNAME").
+		Envar("PERCONA_TEST_POSTGRES_USERNAME").
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
 		Default(models.DisableSSLMode).
@@ -691,7 +691,7 @@ func main() {
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
 		Default("pmm-managed").
-		Envar("POSTGRES_DBPASSWORD").
+		Envar("PERCONA_TEST_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
 		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").

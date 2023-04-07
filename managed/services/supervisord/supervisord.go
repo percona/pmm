@@ -798,10 +798,10 @@ command =
         cfg:default.auth.generic_oauth.use_pkce="true"
         {{- end}}
 environment =
-    POSTGRES_ADDR="{{ .PostgresAddr }}",
-    POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
     PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
     PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
