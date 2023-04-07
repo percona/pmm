@@ -1,3 +1,3 @@
 CREATE DATABASE "grafana";
 CREATE USER "grafana" WITH PASSWORD 'grafana';
-GRANT ALL PRIVILEGES ON DATABASE "grafana" TO "grafana";
+GRANT ALL PRIVILEGES ON DATABASE "grafana" TO "grafana"

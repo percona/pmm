@@ -139,6 +139,7 @@ services:
     depends_on:
       - ch
       - victoriametrics
+      - pg
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
     container_name: pmm-managed-server
     hostname: pmm-managed-server
@@ -161,8 +162,17 @@ services:
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
       - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      - POSTGRES_ADDR=pg:5432
+      - POSTGRES_USERNAME=pmm-managed
+      - POSTGRES_DBPASSWORD=pmm-password
+      - PERCONA_TEST_POSTGRES_SSL_MODE=require
+      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana?ssl_mode=require
+      - GF_DATABASE_SSL_MODE=require
+#      - PMM_DEBUG=1
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
-      - PMM_DEBUG=1
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
 
     extra_hosts:
@@ -194,17 +204,19 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      - ./managed/testdata/pg/certs/:/certs/
 
   # PMM with external Postgres DB
   pg:
     profiles:
-      - pmm-pg
+      - pmm-ch
     build:
       context: ./managed/testdata/pg
       args:
         POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
       dockerfile: Dockerfile
-    container_name: pmm-pg
+#    image: postgres:14
+    container_name: pg
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
     ports:
@@ -223,6 +235,9 @@ services:
       -c hba_file=/conf/pg_hba.conf
     networks:
       - ${NETWORK:-default}
+    volumes:
+      - ./managed/testdata/pg/conf/:/conf/
+      - ./managed/testdata/pg/queries/:/docker-entrypoint-initdb.d/
 
 volumes:
   go-modules:
