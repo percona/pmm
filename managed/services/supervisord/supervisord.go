@@ -806,13 +806,6 @@ environment =
     PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    GF_DATABASE_HOST="{{ .PostgresAddr }}",
-    GF_DATABASE_USER="{{ .PostgresDBUsername }}",
-    GF_DATABASE_PASSWORD="{{ .PostgresDBPassword }}",
-    GF_DATABASE_SSL_MODE="{{ .PostgresSSLMode }}",
-    GF_DATABASE_CA_CERT_PATH="{{ .PostgresSSLCAPath }}",
-    GF_DATABASE_CLIENT_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    GF_DATABASE_CLIENT_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
