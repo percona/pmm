@@ -32,6 +32,7 @@ const (
 	mdAgentNodeID      = "pmm-agent-node-id"
 	mdNodeName         = "pmm-node-name"
 	mdServerVersion    = "pmm-server-version"
+	mdContentType      = "Content-Type"
 )
 
 // AgentConnectMetadata represents metadata sent by pmm-agent with Connect RPC method call.
@@ -61,7 +62,9 @@ func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) cont
 	return metadata.AppendToOutgoingContext(ctx,
 		mdAgentID, md.ID,
 		mdAgentVersion, md.Version,
-		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10))
+		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10),
+		mdContentType, "application/grpc",
+	)
 }
 
 // ReceiveAgentConnectMetadata receives pmm-agent's metadata. Used by pmm-managed.
