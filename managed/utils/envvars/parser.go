@@ -42,6 +42,7 @@ const (
 	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
+	ENVvmAgentPrefix          = "VMAGENT_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -200,6 +201,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 			// skip Victoria Metric's environment variables
 			if strings.HasPrefix(k, "VM_") {
+				continue
+			}
+
+			// skip VM Agents environment variables
+			if strings.HasPrefix(k, ENVvmAgentPrefix) {
 				continue
 			}
 

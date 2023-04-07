@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 
@@ -52,4 +53,12 @@ type retentionService interface {
 type jobsService interface {
 	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
 	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
+}
+
+// victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
+// We use it instead of real type to avoid dependency cycle.
+type victoriaMetricsParams interface {
+	ExternalVM() bool
+	URLFor(path string) (*url.URL, error)
+	URL() string
 }

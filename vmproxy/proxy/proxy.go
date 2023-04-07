@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -82,6 +83,12 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
+
+		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+		if err != nil {
+			logrus.Error(err)
+		}
+		req.URL.Path = rp.Path
 
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {
