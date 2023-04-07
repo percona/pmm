@@ -794,7 +794,7 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        cfg:default.auth.generic_oauth.role_attribute_path="contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') && 'Admin' || 'Viewer'"
+        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
         cfg:default.auth.generic_oauth.use_pkce="true"
         {{- end}}
 environment =
