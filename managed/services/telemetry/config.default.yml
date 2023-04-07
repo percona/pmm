@@ -32,7 +32,7 @@ telemetry:
       - metric_name: "pmm_server_stt_enabled"
         column: "stt_enabled"
 
-- id: PMMServerAdvisorsDisabled
+  - id: PMMServerAdvisorsDisabled
     source: PMMDB_SELECT
     query: (CASE WHEN stt->'stt_disabled' = 'true' THEN '1' ELSE '0' END) AS advisors_disabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
     summary: "PMM Advisors Disabled"
