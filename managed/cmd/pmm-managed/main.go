@@ -684,20 +684,20 @@ func main() {
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
 		Default(models.DisableSSLMode).
-		Envar("POSTGRES_SSL_MODE").
+		Envar("PERCONA_TEST_POSTGRES_SSL_MODE").
 		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
-		Envar("POSTGRES_SSL_CA_PATH").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CA_PATH").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
 		Default("pmm-managed").
 		Envar("POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
-		Envar("POSTGRES_SSL_KEY_PATH").
+		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").
 		String()
 	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
-		Envar("POSTGRES_SSL_CERT_PATH").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
 		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
