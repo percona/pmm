@@ -16,9 +16,9 @@ datasources:
   orgId: 1
   type: postgres
   access: proxy
-  url: ${POSTGRES_ADDR}
-  user: ${POSTGRES_USERNAME}
-  database: ${POSTGRES_DBNAME}
+  url: ${PERCONA_TEST_POSTGRES_ADDR}
+  user: ${PERCONA_TEST_POSTGRES_USERNAME}
+  database: ${PERCONA_TEST_POSTGRES_DBNAME}
   jsonData:
     sslRootCertFile: ${PERCONA_TEST_POSTGRES_SSL_CA_PATH}
     sslKeyFile: ${PERCONA_TEST_POSTGRES_SSL_KEY_PATH}
