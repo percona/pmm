@@ -38,7 +38,17 @@ func TestConfig(t *testing.T) {
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+	pgParams := models.PGParams{
+		Addr:        "127.0.0.1:5432",
+		DBName:      "postgres",
+		DBUsername:  "db_username",
+		DBPassword:  "db_password",
+		SSLMode:     "verify",
+		SSLCAPath:   "path-to-CA-cert",
+		SSLKeyPath:  "path-to-key",
+		SSLCertPath: "path-to-cert",
+	}
+	s := New(configDir, pmmUpdateCheck, vmParams, pgParams, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",

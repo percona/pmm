@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	_ "expvar" // register /debug/vars
 	"fmt"
-	"github.com/percona/pmm/managed/services/highavailability"
 	"html/template"
 	"log"
 	"net"
@@ -41,6 +40,7 @@ import (
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/percona/pmm/managed/services/highavailability"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
