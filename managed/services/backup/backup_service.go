@@ -22,7 +22,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -100,9 +99,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			// TODO remove before merging or after FE is ready.
-			if params.Folder == nil {
-				params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
-			}
+			//if params.Folder == nil {
+			//	params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
+			//}
 
 			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
 			if err != nil {

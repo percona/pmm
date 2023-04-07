@@ -335,7 +335,7 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
 		}
 	}
-	return "", nil
+	return "", errors.New("scheduled task name cannot be empty")
 }
 
 // Retention returns how many backup artifacts should be stored for the task.

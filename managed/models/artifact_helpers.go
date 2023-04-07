@@ -254,6 +254,7 @@ type UpdateArtifactParams struct {
 	Status     *BackupStatus
 	ScheduleID *string
 	Metadata   *Metadata
+	Folder     *string
 }
 
 // UpdateArtifact updates existing artifact.
@@ -275,6 +276,10 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 	if params.Metadata != nil {
 		// We're appending to existing list to cover PITR mode cases.
 		row.MetadataList = append(row.MetadataList, *params.Metadata)
+	}
+
+	if params.Folder != nil {
+		row.Folder = params.Folder
 	}
 
 	if err := q.Update(row); err != nil {

@@ -845,8 +845,7 @@ var databaseSchema = [][]string{
 
 		UPDATE scheduled_tasks 
 		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
-		WHERE type = 'mongodb_backup'
-			AND data->'mongodb_backup'->>'mode' = 'pitr';`,
+		WHERE type = 'mongodb_backup';`,
 	},
 }
 

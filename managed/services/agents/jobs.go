@@ -202,12 +202,14 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
 			}
 
+			metadata := ArtifactMetadataFromProto(result.MongodbBackup.Metadata)
+
 			artifact, err := models.UpdateArtifact(
 				t.Querier,
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
 					Status:   models.SuccessBackupStatus.Pointer(),
-					Metadata: ArtifactMetadataFromProto(result.MongodbBackup.Metadata),
+					Metadata: metadata,
 				})
 			if err != nil {
 				return err
@@ -216,6 +218,36 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 			if artifact.Type == models.ScheduledArtifactType {
 				scheduleID = artifact.ScheduleID
 			}
+
+			// If task was running by an old agent. Hacky code to support artifacts created on new server and old agent.
+			if metadata == nil && artifact.Mode == models.PITR && (artifact.Folder == nil || *artifact.Folder != artifact.Name) {
+				s.l.Error("Here1")
+				artifact, err := models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
+				s.l.Error("Here2")
+				if err != nil {
+					return errors.Wrapf(err, "Failed to update artifact %s", artifact.ID)
+				}
+
+				s.l.Error("Here3")
+
+				task, err := models.FindScheduledTaskByID(t.Querier, scheduleID)
+				taskData := task.Data
+				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = &artifact.Name
+
+
+				params := models.ChangeScheduledTaskParams{
+					Data: taskData,
+				}
+
+				s.l.Error("Here4")
+
+				_, err = models.ChangeScheduledTask(t.Querier, scheduleID, params)
+				if err != nil {
+					return errors.Wrapf(err, "Failed to update scheduled task %s", scheduleID)
+				}
+				s.l.Error("Here5")
+			}
+
 		case *agentpb.JobResult_MysqlRestoreBackup:
 			if job.Type != models.MySQLRestoreBackupJob {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, job.Type)
@@ -753,13 +785,13 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 }
 
 // ArtifactMetadataFromProto returns artifact metadata converted from protobuf to Go model format.
-func ArtifactMetadataFromProto(artifactRepr *backuppb.Metadata) *models.Metadata {
-	if artifactRepr == nil {
+func ArtifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
+	if metadata == nil {
 		return nil
 	}
 
-	artifactReprFiles := make([]models.File, len(artifactRepr.FileList))
-	for i, file := range artifactRepr.FileList {
+	artifactReprFiles := make([]models.File, len(metadata.FileList))
+	for i, file := range metadata.FileList {
 		artifactReprFiles[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
 	}
 
@@ -767,13 +799,13 @@ func ArtifactMetadataFromProto(artifactRepr *backuppb.Metadata) *models.Metadata
 
 	res.FileList = artifactReprFiles
 
-	if artifactRepr.RestoreTo != nil {
-		t := artifactRepr.RestoreTo.AsTime()
+	if metadata.RestoreTo != nil {
+		t := metadata.RestoreTo.AsTime()
 		res.RestoreTo = &t
 	}
 
-	if artifactRepr.BackupToolData != nil {
-		res.BackupToolData = &models.BackupToolData{Name: artifactRepr.BackupToolData.Name}
+	if metadata.BackupToolData != nil {
+		res.BackupToolData = &models.BackupToolData{Name: metadata.BackupToolData.Name}
 	}
 
 	return &res

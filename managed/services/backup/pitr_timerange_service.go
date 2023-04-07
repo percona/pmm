@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"github.com/AlekSi/pointer"
 	"path"
 	"sort"
 	"strconv"
@@ -126,7 +127,7 @@ func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, loc
 	if len(artifact.MetadataList) == 0 {
 		prefix = path.Join(artifact.Name, pitrFSPrefix)
 	} else {
-		prefix = path.Join(*artifact.Folder, pitrFSPrefix)
+		prefix = path.Join(pointer.GetString(artifact.Folder), pitrFSPrefix)
 	}
 
 	s3Config := location.S3Config

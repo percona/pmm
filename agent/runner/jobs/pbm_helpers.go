@@ -549,9 +549,9 @@ func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName str
 	for _, snapshot := range list.Snapshots {
 		if snapshot.Name == backupName {
 			res = time.Unix(snapshot.RestoreTo, 0)
-			break
+			return res, nil
 		}
 	}
 
-	return res, errors.Wrapf(ErrNotFound, "couldn't get specified snapshot")
+	return res, errors.Wrapf(ErrNotFound, "couldn't find required snapshot")
 }
