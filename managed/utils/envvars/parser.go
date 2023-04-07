@@ -96,8 +96,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
 			// skip env variables for external clickhouse
 			continue
-		case "POSTGRES_ADDR", "POSTGRES_DBNAME", "POSTGRES_USERNAME", "POSTGRES_DBPASSWORD",
-			"POSTGRES_SSL_MODE", "POSTGRES_SSL_CA_PATH", "POSTGRES_SSL_KEY_PATH", "POSTGRES_SSL_CERT_PATH":
+		case "POSTGRES_ADDR", "POSTGRES_DBNAME", "POSTGRES_USERNAME", "POSTGRES_DBPASSWORD":
 			// skip env variables for external postgres that are already handled by kingpin
 			continue
 		case "DISABLE_UPDATES":
@@ -192,9 +191,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
-			continue
-
-		case "PMM_DISABLE_BUILTIN_POSTGRES":
 			continue
 
 		default:

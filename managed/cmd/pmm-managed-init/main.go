@@ -53,7 +53,7 @@ func main() {
 	}
 
 	pmmConfigParams := make(map[string]any)
-	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
+	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES"))
 	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
