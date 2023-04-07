@@ -502,6 +502,58 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		}
 
 		for _, label := range values {
+			if label.key == "comments" {
+				switch v := label.value.(type) {
+				case string:
+					split := strings.Split(v, "=")
+					if len(split) < 2 {
+						continue
+					}
+					label.key = split[0]
+					label.value = split[1]
+
+					for k, l := range values {
+						if l.value == label.value {
+							values[k] = &customLabel{
+								key:              l.key,
+								value:            l.value,
+								mainMetricPerSec: label.mainMetricPerSec + l.mainMetricPerSec,
+							}
+						} else {
+							values = append(values, label)
+						}
+					}
+				case []string:
+					for _, c := range v {
+						split := strings.Split(c, "=")
+						if len(split) < 2 {
+							continue
+						}
+						label.key = split[0]
+						label.value = split[1]
+
+						for k, l := range values {
+							if l.value == label.value {
+								values[k] = &customLabel{
+									key:              l.key,
+									value:            l.value,
+									mainMetricPerSec: label.mainMetricPerSec + l.mainMetricPerSec,
+								}
+							} else {
+								values = append(values, label)
+							}
+						}
+					}
+				default:
+					fmt.Println(label.value)
+				}
+
+			}
+		}
+
+		for _, label := range values {
+			fmt.Println(label.key)
+			fmt.Println(label.value)
 			if _, ok := result.Labels[label.key]; !ok {
 				result.Labels[label.key] = &qanpb.ListLabels{
 					Name: []*qanpb.Values{},
@@ -518,14 +570,35 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 				value = v
 			case []string:
 				value = strings.Join(v, ",")
+			default:
+				value = "unknown"
 			}
 
+			// // prevent same values multiple times
+			// values := result.Labels[label.key].Name
 			val := qanpb.Values{
 				Value:             value,
 				MainMetricPerSec:  label.mainMetricPerSec,
 				MainMetricPercent: label.mainMetricPerSec / total,
 			}
 			result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
+
+			// for k, v := range values {
+			// 	if v.Value == value {
+			// 		values[k] = &qanpb.Values{
+			// 			Value:             value,
+			// 			MainMetricPerSec:  label.mainMetricPerSec + v.MainMetricPerSec,
+			// 			MainMetricPercent: label.mainMetricPerSec/total + v.MainMetricPercent,
+			// 		}
+			// 	} else {
+			// 		val := qanpb.Values{
+			// 			Value:             value,
+			// 			MainMetricPerSec:  label.mainMetricPerSec,
+			// 			MainMetricPercent: label.mainMetricPerSec / total,
+			// 		}
+			// 		result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
+			// 	}
+			// }
 		}
 	}
 

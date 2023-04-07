@@ -88,50 +88,30 @@ func TestParseMySQLComments(t *testing.T) {
 		},
 		{
 			Name:     "Dash comment",
-			Query:    `SELECT * FROM people -- dash comment`,
-			Comments: map[string]bool{"dash comment": true},
+			Query:    `SELECT * FROM people -- framework='Django', controller='unknown'`,
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
 		},
 		{
 			Name: "Hash comment",
-			Query: `SELECT * FROM people # hash comment
+			Query: `SELECT * FROM people # framework='Django'
 			WHERE name = 'John'
 			`,
-			Comments: map[string]bool{"hash comment": true},
-		},
-		{
-			Name:     "Multiline comment",
-			Query:    `SELECT * FROM people /* multiline comment */`,
-			Comments: map[string]bool{"multiline comment": true},
+			Comments: map[string]bool{"framework='Django'": true},
 		},
 		{
 			Name: "Multiline comment with new line",
-			Query: `SELECT * FROM people /* multiline comment 
-				with new line */`,
-			Comments: map[string]bool{"multiline comment with new line": true},
-		},
-		{
-			Name: "Special multiline comment case with new line",
-			Query: `SELECT * FROM people /*!80000 
-				special multiline comment case 
-				with new line
-				 */`,
-			Comments: map[string]bool{"!80000 special multiline comment case with new line": true},
-		},
-		{
-			Name: "Second special multiline comment case with new line",
-			Query: `SELECT * FROM people /*+ BKA(t1) 
-				second special multiline comment case 
-				with new line */`,
-			Comments: map[string]bool{"+ BKA(t1) second special multiline comment case with new line": true},
+			Query: `SELECT * FROM people /* framework='Django', 
+			controller='unknown' */`,
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
 		},
 		{
 			Name: "Multicomment case with new line",
 			Query: `SELECT * FROM people /*
-				multicomment case 
-				  with new line 
-				 */ WHERE name = 'John' # John
+				framework='Django',
+				controller='unknown'
+				 */ WHERE name = 'John' # os='unix'
 				 AND name != 'Doe'`,
-			Comments: map[string]bool{"multicomment case with new line": true, "John": true},
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true, "os='unix'": true},
 		},
 	}
 
@@ -154,22 +134,23 @@ func TestParsePostgreSQLComments(t *testing.T) {
 		},
 		{
 			Name:     "Dash comment",
-			Query:    `SELECT * FROM people -- dash comment`,
-			Comments: map[string]bool{"dash comment": true},
+			Query:    `SELECT * FROM people -- framework='Django', controller='unknown'`,
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
 		},
 		{
-			Name: "Multiline comment case with new line",
-			Query: `SELECT * FROM people /* new
-				* multiline comment case 
-				* with new line
-				 */`,
-			Comments: map[string]bool{"new multiline comment case with new line": true},
+			Name: "Multiline comment with new line",
+			Query: `SELECT * FROM people /* framework='Django', 
+			controller='unknown' */`,
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
 		},
 		{
-			Name: "Second multiline comment case with new line",
-			Query: `SELECT * FROM people /* test 
-				with new line */`,
-			Comments: map[string]bool{"test with new line": true},
+			Name: "Multicomment case with new line",
+			Query: `SELECT * FROM people /*
+				framework='Django',
+				controller='unknown'
+				 */ WHERE name = 'John' -- os='unix'
+				 AND name != 'Doe'`,
+			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true, "os='unix'": true},
 		},
 	}
 

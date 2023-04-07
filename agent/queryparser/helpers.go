@@ -31,12 +31,23 @@ var (
 	multilineRegexp *regexp.Regexp
 	multilineOnce   sync.Once
 	errMultiline    error
+
+	dashRegexp *regexp.Regexp
+	dashOnce   sync.Once
+	errDash    error
+
+	sharpRegexp *regexp.Regexp
+	sharpOnce   sync.Once
+	errSharp    error
+
+	keyValueRegexp *regexp.Regexp
+	keyValueOnce   sync.Once
+	errKeyValue    error
 )
 
 func parseMySQLComments(q string) (map[string]bool, error) {
-	prepareMultilineRegexp()
-	if errMultiline != nil {
-		return nil, errMultiline
+	if err := prepareMultilineRegexp(); err != nil {
+		return nil, err
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -54,7 +65,13 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 			return nil, err
 		}
 
-		comments[value] = true
+		parsed, err := parseKeyValueFromComment(value)
+		if err != nil {
+			continue
+		}
+		for k := range parsed {
+			comments[k] = true
+		}
 	}
 
 	hashComments, err := parseSinglelineComments(q, "#")
@@ -62,7 +79,13 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 		return nil, err
 	}
 	for c := range hashComments {
-		comments[c] = true
+		parsed, err := parseKeyValueFromComment(c)
+		if err != nil {
+			continue
+		}
+		for k := range parsed {
+			comments[k] = true
+		}
 	}
 
 	dashComments, err := parseSinglelineComments(q, "--")
@@ -70,16 +93,21 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 		return nil, err
 	}
 	for c := range dashComments {
-		comments[c] = true
+		parsed, err := parseKeyValueFromComment(c)
+		if err != nil {
+			continue
+		}
+		for k := range parsed {
+			comments[k] = true
+		}
 	}
 
 	return comments, nil
 }
 
 func parsePostgreSQLComments(q string) (map[string]bool, error) {
-	prepareMultilineRegexp()
-	if errMultiline != nil {
-		return nil, errMultiline
+	if err := prepareMultilineRegexp(); err != nil {
+		return nil, err
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -97,7 +125,13 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 			return nil, err
 		}
 
-		comments[value] = true
+		parsed, err := parseKeyValueFromComment(value)
+		if err != nil {
+			continue
+		}
+		for k := range parsed {
+			comments[k] = true
+		}
 	}
 
 	dashComments, err := parseSinglelineComments(q, "--")
@@ -105,16 +139,31 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 		return nil, err
 	}
 	for c := range dashComments {
-		comments[c] = true
+		parsed, err := parseKeyValueFromComment(c)
+		if err != nil {
+			continue
+		}
+		for k := range parsed {
+			comments[k] = true
+		}
 	}
 
 	return comments, nil
 }
 
 func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
-	r, err := regexp.Compile(fmt.Sprintf("%s.*", startChar))
-	if err != nil {
-		return nil, err
+	var r *regexp.Regexp
+	switch startChar {
+	case "--":
+		if err := prepareDashRegexp(); err != nil {
+			return nil, err
+		}
+		r = dashRegexp
+	case "#":
+		if err := prepareSharpRegexp(); err != nil {
+			return nil, err
+		}
+		r = sharpRegexp
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -132,6 +181,23 @@ func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
 	return comments, nil
 }
 
+func parseKeyValueFromComment(s string) (map[string]bool, error) {
+	if err := prepareKeyValueRegexp(); err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]bool)
+	matches := keyValueRegexp.FindAllStringSubmatch(removeFormatting(s), -1)
+	for _, v := range matches {
+		if len(v) < 2 {
+			continue
+		}
+		res[v[1]] = true
+	}
+
+	return res, nil
+}
+
 func prepareMultilineRegexp() error {
 	// to compile regexp only once
 	multilineOnce.Do(func() {
@@ -144,18 +210,62 @@ func prepareMultilineRegexp() error {
 	return nil
 }
 
+func prepareSpaceRegexp() error {
+	// to compile regexp only once
+	spaceOnce.Do(func() {
+		spaceRegexp, errSpace = regexp.Compile(`\s+`)
+	})
+	if errSpace != nil {
+		return errSpace
+	}
+
+	return nil
+}
+
+func prepareDashRegexp() error {
+	// to compile regexp only once
+	dashOnce.Do(func() {
+		dashRegexp, errDash = regexp.Compile(`--.*`)
+	})
+	if errDash != nil {
+		return errDash
+	}
+
+	return nil
+}
+
+func prepareSharpRegexp() error {
+	// to compile regexp only once
+	sharpOnce.Do(func() {
+		sharpRegexp, errSharp = regexp.Compile(`#.*`)
+	})
+	if errSharp != nil {
+		return errSharp
+	}
+
+	return nil
+}
+
+func prepareKeyValueRegexp() error {
+	// to compile regexp only once
+	keyValueOnce.Do(func() {
+		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)\W*(.+?='.+?')`)
+	})
+	if errKeyValue != nil {
+		return errKeyValue
+	}
+
+	return nil
+}
+
 func removeFormatting(s string) string {
 	value := strings.ReplaceAll(s, "\n", "")
 	return strings.ReplaceAll(value, "\t", "")
 }
 
 func removeSpaces(s string) (string, error) {
-	// to compile regexp only once
-	spaceOnce.Do(func() {
-		spaceRegexp, errSpace = regexp.Compile(`\s+`)
-	})
-	if errSpace != nil {
-		return "", errSpace
+	if err := prepareSpaceRegexp(); err != nil {
+		return "", err
 	}
 
 	value := spaceRegexp.ReplaceAllString(s, " ")
