@@ -467,18 +467,99 @@ var (
 		"top_queryid":      queryDimensionTmpl,
 		"application_name": queryDimensionTmpl,
 		"planid":           queryDimensionTmpl,
-		"comments":         queryDimensionTmpl,
 	}
 )
 
-// SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
-	result := qanpb.FiltersReply{
-		Labels: make(map[string]*qanpb.ListLabels),
+func customLabelIsInArray(list []customLabel, k, v string) bool {
+	for _, b := range list {
+		if s, ok := b.value.(string); ok && b.key == k && s == v {
+			return true
+		}
+	}
+	return false
+}
+
+// commentsIntoGroupLabels parse comments with key=value pair into filter groups and values.
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) {
+	totals := make(map[string]float32)
+	groupLabels := make(map[string]*qanpb.ListLabels)
+	dimensionName := "comments"
+	subDimensions := make(map[string][]string)
+	for k, v := range dimensions {
+		if k == dimensionName {
+			continue
+		}
+		subDimensions[k] = v
 	}
 
+	values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, queryDimensionTmpl, subDimensions, labels)
+	if err != nil {
+		return totals, groupLabels
+	}
+	if mainMetricPerSec == 0 {
+		for _, label := range values {
+			totals[label.key] += label.mainMetricPerSec
+		}
+	}
+
+	commentsValues := []customLabel{}
+	for _, label := range values {
+		switch val := label.value.(type) {
+		case []string:
+			for _, v := range val {
+				split := strings.Split(strings.ReplaceAll(v, "'", ""), "=")
+				if len(split) < 2 {
+					continue
+				}
+				if customLabelIsInArray(commentsValues, split[0], split[1]) {
+					continue
+				}
+
+				label.key = split[0]
+				label.value = split[1]
+				commentsValues = append(commentsValues, *label)
+			}
+		default:
+			continue
+		}
+	}
+
+	for _, label := range commentsValues {
+		if _, ok := groupLabels[label.key]; !ok {
+			groupLabels[label.key] = &qanpb.ListLabels{
+				Name: []*qanpb.Values{},
+			}
+		}
+		total := mainMetricPerSec
+		if mainMetricPerSec == 0 {
+			total = totals[label.key]
+		}
+
+		var value string
+		if s, ok := label.value.(string); ok {
+			value = s
+		}
+
+		val := qanpb.Values{
+			Value:             value,
+			MainMetricPerSec:  label.mainMetricPerSec,
+			MainMetricPercent: label.mainMetricPerSec / total,
+		}
+		groupLabels[label.key].Name = append(groupLabels[label.key].Name, &val)
+	}
+
+	return totals, groupLabels
+}
+
+// SelectFilters selects dimension and their values, and also keys and values of labels.
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
+	}
+
+	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimensions, labels)
+	result := qanpb.FiltersReply{
+		Labels: groupLabels,
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {
@@ -494,7 +575,6 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
 		}
 
-		totals := make(map[string]float32)
 		if mainMetricPerSec == 0 {
 			for _, label := range values {
 				totals[label.key] += label.mainMetricPerSec
@@ -502,58 +582,6 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		}
 
 		for _, label := range values {
-			if label.key == "comments" {
-				switch v := label.value.(type) {
-				case string:
-					split := strings.Split(v, "=")
-					if len(split) < 2 {
-						continue
-					}
-					label.key = split[0]
-					label.value = split[1]
-
-					for k, l := range values {
-						if l.value == label.value {
-							values[k] = &customLabel{
-								key:              l.key,
-								value:            l.value,
-								mainMetricPerSec: label.mainMetricPerSec + l.mainMetricPerSec,
-							}
-						} else {
-							values = append(values, label)
-						}
-					}
-				case []string:
-					for _, c := range v {
-						split := strings.Split(c, "=")
-						if len(split) < 2 {
-							continue
-						}
-						label.key = split[0]
-						label.value = split[1]
-
-						for k, l := range values {
-							if l.value == label.value {
-								values[k] = &customLabel{
-									key:              l.key,
-									value:            l.value,
-									mainMetricPerSec: label.mainMetricPerSec + l.mainMetricPerSec,
-								}
-							} else {
-								values = append(values, label)
-							}
-						}
-					}
-				default:
-					fmt.Println(label.value)
-				}
-
-			}
-		}
-
-		for _, label := range values {
-			fmt.Println(label.key)
-			fmt.Println(label.value)
 			if _, ok := result.Labels[label.key]; !ok {
 				result.Labels[label.key] = &qanpb.ListLabels{
 					Name: []*qanpb.Values{},
@@ -565,40 +593,16 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 			}
 
 			var value string
-			switch v := label.value.(type) {
-			case string:
-				value = v
-			case []string:
-				value = strings.Join(v, ",")
-			default:
-				value = "unknown"
+			if s, ok := label.value.(string); ok {
+				value = s
 			}
 
-			// // prevent same values multiple times
-			// values := result.Labels[label.key].Name
 			val := qanpb.Values{
 				Value:             value,
 				MainMetricPerSec:  label.mainMetricPerSec,
 				MainMetricPercent: label.mainMetricPerSec / total,
 			}
 			result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
-
-			// for k, v := range values {
-			// 	if v.Value == value {
-			// 		values[k] = &qanpb.Values{
-			// 			Value:             value,
-			// 			MainMetricPerSec:  label.mainMetricPerSec + v.MainMetricPerSec,
-			// 			MainMetricPercent: label.mainMetricPerSec/total + v.MainMetricPercent,
-			// 		}
-			// 	} else {
-			// 		val := qanpb.Values{
-			// 			Value:             value,
-			// 			MainMetricPerSec:  label.mainMetricPerSec,
-			// 			MainMetricPercent: label.mainMetricPerSec / total,
-			// 		}
-			// 		result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
-			// 	}
-			// }
 		}
 	}
 
