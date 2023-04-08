@@ -480,7 +480,7 @@ func customLabelIsInArray(list []customLabel, k, v string) bool {
 }
 
 // commentsIntoGroupLabels parse comments with key=value pair into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) {
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
 	dimensionName := "comments"
