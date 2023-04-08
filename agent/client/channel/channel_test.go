@@ -34,6 +34,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 )
@@ -248,7 +249,7 @@ func TestServerRequest(t *testing.T) {
 	for req := range channel.Requests() {
 		assert.IsType(t, &agentpb.Ping{}, req.Payload)
 
-		channel.Send(&AgentResponse{
+		channel.Send(&models.AgentResponse{
 			ID: req.ID,
 			Payload: &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
@@ -416,7 +417,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown()
 	req := <-channel.Requests()
-	channel.Send(&AgentResponse{
+	channel.Send(&models.AgentResponse{
 		ID: req.ID,
 		Payload: &agentpb.Pong{
 			CurrentTime: timestamppb.Now(),
