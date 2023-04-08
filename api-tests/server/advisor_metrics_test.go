@@ -35,7 +35,7 @@ func TestSTTMetrics(t *testing.T) {
 		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
 	}
 
-	t.Run("StartSTTChecksAndRecordMetrics", func(t *testing.T) {
+	t.Run("StartAdvisorChecksAndRecordMetrics", func(t *testing.T) {
 		client, err := api.NewClient(api.Config{
 			Address: pmmapitests.BaseURL.ResolveReference(&url.URL{
 				Path: "/prometheus",
@@ -63,12 +63,12 @@ func TestSTTMetrics(t *testing.T) {
 				},
 			},
 			{
-				query:      "pmm_managed_checks_scripts_executed_total",
+				query:      "pmm_managed_advisor_checks_executed_total",
 				metricType: "vector",
 				expectedValues: []string{
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
-					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`,
+					`pmm_managed_advisor_checks_executed_total{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_advisor_checks_executed_total{instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
+					`pmm_managed_advisor_checks_executed_total{instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`,
 				},
 			},
 		}
