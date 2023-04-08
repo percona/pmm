@@ -32327,6 +32327,7 @@
         ],
         "summary": "ListAlerts returns a list of all Alerts.",
         "operationId": "ListAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -32722,7 +32723,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                              "description": "Channel represents a single Notification Channel.",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -32992,6 +32993,7 @@
         ],
         "summary": "ToggleAlerts allows to switch alerts state between silenced and unsilenced.",
         "operationId": "ToggleAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33071,6 +33073,7 @@
         ],
         "summary": "AddChannel adds notification channel.",
         "operationId": "AddChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33307,6 +33310,7 @@
         ],
         "summary": "ChangeChannel changes notification channel.",
         "operationId": "ChangeChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33541,6 +33545,7 @@
         ],
         "summary": "ListChannels returns a list of all notifation channels.",
         "operationId": "ListChannels",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33581,7 +33586,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                    "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -33825,6 +33830,7 @@
         ],
         "summary": "RemoveChannel removes notification channel.",
         "operationId": "RemoveChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33889,6 +33895,7 @@
         ],
         "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34088,6 +34095,7 @@
         ],
         "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34153,6 +34161,7 @@
         ],
         "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34496,7 +34505,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                          "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -34750,6 +34759,7 @@
         ],
         "summary": "ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.",
         "operationId": "ToggleAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34826,6 +34836,7 @@
         ],
         "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
