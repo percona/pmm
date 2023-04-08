@@ -234,7 +234,6 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				taskData := task.Data
 				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = &artifact.Name
 
-
 				params := models.ChangeScheduledTaskParams{
 					Data: taskData,
 				}

@@ -17,13 +17,13 @@ package backup
 
 import (
 	"context"
-	"github.com/AlekSi/pointer"
 	"path"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"

@@ -21734,7 +21734,7 @@
                         "x-order": 11
                       },
                       "metadata_list": {
-                        "description": "List of artifact representations on a storage.",
+                        "description": "List of artifact metadata.",
                         "type": "array",
                         "items": {
                           "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
@@ -21766,7 +21766,7 @@
                               "x-order": 1
                             },
                             "backup_tool_data": {
-                              "description": "ReprBackup contains additional data for backup tools.",
+                              "description": "BackupToolData contains additional data for backup tools.",
                               "type": "object",
                               "properties": {
                                 "name": {

@@ -34,3 +34,407 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 )
+
+// Validate checks the field values on File with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *File) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on File with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in FileMultiError, or nil if none found.
+func (m *File) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *File) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := FileValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsDirectory
+
+	if len(errors) > 0 {
+		return FileMultiError(errors)
+	}
+
+	return nil
+}
+
+// FileMultiError is an error wrapping multiple validation errors returned by
+// File.ValidateAll() if the designated constraints aren't met.
+type FileMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FileMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FileMultiError) AllErrors() []error { return m }
+
+// FileValidationError is the validation error returned by File.Validate if the
+// designated constraints aren't met.
+type FileValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FileValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FileValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FileValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FileValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FileValidationError) ErrorName() string { return "FileValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FileValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFile.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FileValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FileValidationError{}
+
+// Validate checks the field values on BackupToolData with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BackupToolData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BackupToolData with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BackupToolDataMultiError,
+// or nil if none found.
+func (m *BackupToolData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BackupToolData) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return BackupToolDataMultiError(errors)
+	}
+
+	return nil
+}
+
+// BackupToolDataMultiError is an error wrapping multiple validation errors
+// returned by BackupToolData.ValidateAll() if the designated constraints
+// aren't met.
+type BackupToolDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BackupToolDataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BackupToolDataMultiError) AllErrors() []error { return m }
+
+// BackupToolDataValidationError is the validation error returned by
+// BackupToolData.Validate if the designated constraints aren't met.
+type BackupToolDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BackupToolDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BackupToolDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BackupToolDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BackupToolDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BackupToolDataValidationError) ErrorName() string { return "BackupToolDataValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BackupToolDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBackupToolData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BackupToolDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BackupToolDataValidationError{}
+
+// Validate checks the field values on Metadata with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Metadata) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Metadata with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MetadataMultiError, or nil
+// if none found.
+func (m *Metadata) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Metadata) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetFileList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MetadataValidationError{
+						field:  fmt.Sprintf("FileList[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MetadataValidationError{
+						field:  fmt.Sprintf("FileList[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MetadataValidationError{
+					field:  fmt.Sprintf("FileList[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if all {
+		switch v := interface{}(m.GetRestoreTo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetadataValidationError{
+					field:  "RestoreTo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetadataValidationError{
+					field:  "RestoreTo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRestoreTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MetadataValidationError{
+				field:  "RestoreTo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetBackupToolData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetadataValidationError{
+					field:  "BackupToolData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetadataValidationError{
+					field:  "BackupToolData",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBackupToolData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MetadataValidationError{
+				field:  "BackupToolData",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return MetadataMultiError(errors)
+	}
+
+	return nil
+}
+
+// MetadataMultiError is an error wrapping multiple validation errors returned
+// by Metadata.ValidateAll() if the designated constraints aren't met.
+type MetadataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MetadataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MetadataMultiError) AllErrors() []error { return m }
+
+// MetadataValidationError is the validation error returned by
+// Metadata.Validate if the designated constraints aren't met.
+type MetadataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MetadataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MetadataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MetadataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MetadataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MetadataValidationError) ErrorName() string { return "MetadataValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MetadataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMetadata.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MetadataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MetadataValidationError{}

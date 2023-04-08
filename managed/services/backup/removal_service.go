@@ -18,10 +18,10 @@ package backup
 import (
 	"context"
 	"database/sql"
-	"github.com/AlekSi/pointer"
 	"path"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"

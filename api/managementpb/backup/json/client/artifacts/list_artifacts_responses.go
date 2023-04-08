@@ -404,7 +404,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	// Folder to store artifact on a storage.
 	Folder string `json:"folder,omitempty"`
 
-	// List of artifact representations on a storage.
+	// List of artifact metadata.
 	MetadataList []*ListArtifactsOKBodyArtifactsItems0MetadataListItems0 `json:"metadata_list"`
 }
 
@@ -848,7 +848,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) UnmarshalBinary(b
 }
 
 /*
-ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData ReprBackup contains additional data for backup tools.
+ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData BackupToolData contains additional data for backup tools.
 swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData
 */
 type ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData struct {

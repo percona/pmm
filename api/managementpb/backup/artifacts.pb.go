@@ -124,7 +124,7 @@ type Artifact struct {
 	Mode BackupMode `protobuf:"varint,11,opt,name=mode,proto3,enum=backup.v1.BackupMode" json:"mode,omitempty"`
 	// Folder to store artifact on a storage.
 	Folder *string `protobuf:"bytes,12,opt,name=folder,proto3,oneof" json:"folder,omitempty"`
-	// List of artifact representations on a storage.
+	// List of artifact metadata.
 	MetadataList []*Metadata `protobuf:"bytes,13,rep,name=metadata_list,json=metadataList,proto3" json:"metadata_list,omitempty"`
 }
 
