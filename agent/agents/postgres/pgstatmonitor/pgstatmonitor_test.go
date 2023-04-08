@@ -72,9 +72,9 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent:pgstatmonitor */"):
+		case strings.Contains(b.Common.Fingerprint, "/* controller='test' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent:pgstatmonitor */"):
+		case strings.Contains(b.Common.Example, "/* controller='test' */"):
 			continue
 		case strings.Contains(b.Common.Fingerprint, "pg_stat_monitor_reset()"):
 			continue
@@ -125,8 +125,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
-	const selectAllCountries = "SELECT /* AllCountries:PGStatMonitor */ * FROM country"
-	const selectAllCountriesLong = "SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN " +
+	const selectAllCountries = "SELECT /* controller='test' */ * FROM country"
+	const selectAllCountriesLong = "SELECT /* controller='test' */ * FROM country WHERE capital IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -237,7 +237,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"AllCountries:PGStatMonitor"},
+				Comments:            []string{"controller='test'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -295,7 +295,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"AllCountries:PGStatMonitor"},
+				Comments:            []string{"controller='test'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -341,7 +341,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
+		q := fmt.Sprintf("SELECT /* controller='test' */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
@@ -368,7 +368,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"AllCountriesTruncated:PGStatMonitor"},
+				Comments:            []string{"controller='test'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -429,7 +429,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"AllCountriesTruncated:PGStatMonitor"},
+				Comments:            []string{"controller='test'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -488,7 +488,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		n := 1000
 		for i := 0; i < n; i++ {
 			id := i
-			query := fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
+			query := fmt.Sprintf(`INSERT /* controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
 			waitGroup.Add(1)
 			go func() {
 				defer waitGroup.Done()
@@ -519,14 +519,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
-		expectedFingerprint := fmt.Sprintf("INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName)
+		expectedFingerprint := fmt.Sprintf("INSERT /* controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         expectedFingerprint,
 				Example:             actual.Common.Example,
 				ExampleType:         agentpb.ExampleType_RANDOM,
-				Comments:            []string{"CheckMBlkReadTime"},
+				Comments:            []string{"controller='test'"},
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,

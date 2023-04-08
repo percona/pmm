@@ -54,9 +54,9 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		Class: map[string]*event.Class{
 			"example": {
 				Metrics:     &event.Metrics{},
-				Fingerprint: "SELECT /* comment */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
+				Fingerprint: "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				Example: &event.Example{
-					Query: "SELECT /* comment */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
+					Query: "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				},
 			},
 		},
@@ -67,14 +67,14 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
-				ExplainFingerprint:  "select /* comment */ * from contacts as t0 where t0.person_id = :1",
+				ExplainFingerprint:  "select /* controller='test' */ * from contacts as t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
-				Comments:            []string{"comment"},
+				Comments:            []string{"controller='test'"},
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
-				Example:             "SELECT /* comment */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
+				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
