@@ -4,7 +4,7 @@ metadata:
   name: customresource-config-ksm
   namespace: default
 data:
-  config: |
+  config: |-
     kind: CustomResourceStateMetrics
     spec:
       resources:
@@ -49,7 +49,7 @@ data:
                   - spec
                   - pmm
                   - enabled
-            - name: state
+            - name: status_state
               help: "PXC state"
               each:
                 type: StateSet
@@ -124,7 +124,7 @@ data:
                   - status
                   - proxysql
                   - ready
-
+​
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
@@ -144,13 +144,13 @@ data:
                 type: Info
                 info:
                   labelsFromPath:
-                    pxc_cluster:
+                    cluster_name:
                     - spec
                     - pxcCluster
                     storage_name:
                     - spec
                     - storageName
-            - name: state
+            - name: status_state
               help: "PXC Backup state"
               each:
                 type: StateSet
@@ -172,7 +172,7 @@ data:
                   path:
                   - status
                   - completed
-
+​
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
@@ -192,13 +192,13 @@ data:
                 type: Info
                 info:
                   labelsFromPath:
-                    pxc_cluster:
+                    cluster_name:
                     - spec
                     - pxcCluster
                     backup_name:
                     - spec
                     - backupName
-            - name: state
+            - name: status_state
               help: "PXC Restore state"
               each:
                 type: StateSet
@@ -217,6 +217,229 @@ data:
                   - Succeeded
             - name: status_completed
               help: "Time when PXC Restore was completed"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - status
+                  - completed
+​
+        - groupVersionKind:
+            group: psmdb.percona.com
+            version: v1
+            kind: PerconaServerMongoDB
+          labelsFromPath:
+            name:
+            - metadata
+            - name
+            namespace: 
+            - metadata
+            - namespace
+          metricNamePrefix: kube_psmdb
+          metrics:
+            - name: info
+              help: "Information of PSMDB cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    version:
+                    - spec
+                    - crVersion
+            - name: pmm_enabled
+              help: "PMM enabled"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - spec
+                  - pmm
+                  - enabled
+            - name: pitr_enabled
+              help: "PITR enabled"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - spec
+                  - backup
+                  - pitr
+                  - enabled
+            - name: sharding_enabled
+              help: "Sharding enabled"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - spec
+                  - sharding
+                  - enabled
+            - name: status_state
+              help: "PSMDB state"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: state
+                  path:
+                  - status
+                  - state
+                  list:
+                  - stopping
+                  - ready
+                  - initializing
+                  - error
+                  - paused
+            - name: status_mongos
+              help: "Mongos state"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: state
+                  path:
+                  - status
+                  - mongos
+                  - status
+                  list:
+                  - stopping
+                  - ready
+                  - initializing
+                  - error
+                  - paused
+            - name: status_mongos_replicas
+              help: "Mongos Replica Status"
+              each:
+                type: Gauge
+                gauge:
+                  nilIsZero: true
+                  path:
+                  - status
+                  - mongos
+                  - size
+            - name: status_mongos_replicas_ready
+              help: "Mongos Replica Ready"
+              each:
+                type: Gauge
+                gauge:
+                  nilIsZero: true
+                  path:
+                  - status
+                  - mongos
+                  - ready
+
+        - groupVersionKind:
+            group: psmdb.percona.com
+            version: v1
+            kind: PerconaServerMongoDBBackup
+          labelsFromPath:
+            name:
+            - metadata
+            - name
+            namespace:
+            - metadata
+            - namespace
+          metricNamePrefix: kube_psmdb_backup
+          metrics:
+            - name: info
+              help: "Information of PSMDB cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    cluster_name:
+                    - spec
+                    - clusterName
+                    storage_name:
+                    - spec
+                    - storageName
+            - name: status_state
+              help: "PSMDB Backup state"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: state
+                  path:
+                  - status
+                  - state
+                  list:
+                  - waiting
+                  - requested
+                  - rejected
+                  - running
+                  - error
+                  - ready
+            - name: type
+              help: "PSMDB Backup Type Physical/Logical/Incremental"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: type
+                  path:
+                  - status
+                  - type
+                  list:
+                  - physical
+                  - incremental
+                  - logical
+            - name: status_start
+              help: "PSMDB Backup Start Time"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - status
+                  - start
+            - name: status_completed
+              help: "PSMDB Backup Completed Time"
+              each:
+                type: Gauge
+                gauge:
+                  path:
+                  - status
+                  - completed
+​
+        - groupVersionKind:
+            group: psmdb.percona.com
+            version: v1
+            kind: PerconaServerMongoDBRestore
+          labelsFromPath:
+            name:
+            - metadata
+            - name
+            namespace:
+            - metadata
+            - namespace
+          metricNamePrefix: kube_psmdb_restore
+          metrics:
+            - name: info
+              help: "Information of PSMDB cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    cluster_name:
+                    - spec
+                    - clusterName
+                    storage_name:
+                    - spec
+                    - backupName
+            - name: status_state
+              help: "PSMDB Restore state"
+              each:
+                type: StateSet
+                stateSet:
+                  labelName: state
+                  path:
+                  - status
+                  - state
+                  list:
+                  - waiting
+                  - requested
+                  - rejected
+                  - running
+                  - error
+                  - ready
+            - name: status_completed
+              help: "PSMDB Restore Completed Time"
               each:
                 type: Gauge
                 gauge:
