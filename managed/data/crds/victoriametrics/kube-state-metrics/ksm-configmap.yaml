@@ -4,7 +4,7 @@ metadata:
   name: customresource-config-ksm
   namespace: default
 data:
-  config: |-
+  config: |
     kind: CustomResourceStateMetrics
     spec:
       resources:
@@ -124,7 +124,7 @@ data:
                   - status
                   - proxysql
                   - ready
-​
+
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
@@ -172,7 +172,7 @@ data:
                   path:
                   - status
                   - completed
-​
+
         - groupVersionKind:
             group: pxc.percona.com
             version: v1
@@ -223,7 +223,7 @@ data:
                   path:
                   - status
                   - completed
-​
+
         - groupVersionKind:
             group: psmdb.percona.com
             version: v1
@@ -232,7 +232,7 @@ data:
             name:
             - metadata
             - name
-            namespace: 
+            namespace:
             - metadata
             - namespace
           metricNamePrefix: kube_psmdb
@@ -325,6 +325,15 @@ data:
                   - status
                   - mongos
                   - ready
+            - name: psm_cluster_version
+              help: "Information of PSM cluster on k8s"
+              each:
+                type: Info
+                info:
+                  labelsFromPath:
+                    version:
+                    - spec
+                    - crVersion
 
         - groupVersionKind:
             group: psmdb.percona.com
@@ -396,7 +405,7 @@ data:
                   path:
                   - status
                   - completed
-​
+
         - groupVersionKind:
             group: psmdb.percona.com
             version: v1
@@ -446,19 +455,3 @@ data:
                   path:
                   - status
                   - completed
-
-        - groupVersionKind:
-            group: psmdb.percona.com
-            version: v1
-            kind: PerconaServerMongoDB
-          metricNamePrefix: percona_psm_cluster
-          metrics:
-            - name: info
-              help: "Information of PSM cluster on k8s"
-              each:
-                type: Info
-                info:
-                  labelsFromPath:
-                    version:
-                    - spec
-                    - crVersion
