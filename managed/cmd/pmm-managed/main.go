@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	_ "expvar" // register /debug/vars
 	"fmt"
+	"github.com/percona/pmm/managed/services/highavailability"
 	"html/template"
 	"log"
 	"net"
@@ -182,6 +183,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 type gRPCServerDeps struct {
 	db                   *reform.DB
+	ha                   *highavailability.Service
 	vmdb                 *victoriametrics.Service
 	platformClient       *platformClient.Client
 	server               *server.Server
@@ -299,7 +301,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
-	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+
+	if deps.ha.ActiveMode() {
+		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+	}
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -524,6 +529,7 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
+	ha           *highavailability.Service
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
 	vmalert      *vmalert.Service
@@ -572,21 +578,27 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
 		return false
 	}
-	deps.vmdb.RequestConfigurationUpdate()
+	if deps.ha.ActiveMode() {
+		deps.vmdb.RequestConfigurationUpdate()
+	}
 
 	deps.l.Infof("Checking VMAlert...")
 	if err = deps.vmalert.IsReady(ctx); err != nil {
 		deps.l.Warnf("VMAlert problem: %+v.", err)
 		return false
 	}
-	deps.vmalert.RequestConfigurationUpdate()
+	if deps.ha.ActiveMode() {
+		deps.vmalert.RequestConfigurationUpdate()
+	}
 
 	deps.l.Infof("Checking Alertmanager...")
 	if err = deps.alertmanager.IsReady(ctx); err != nil {
 		deps.l.Warnf("Alertmanager problem: %+v.", err)
 		return false
 	}
-	deps.alertmanager.RequestConfigurationUpdate()
+	if deps.ha.ActiveMode() {
+		deps.alertmanager.RequestConfigurationUpdate()
+	}
 
 	deps.l.Info("Setup completed.")
 	return true
@@ -709,6 +721,10 @@ func main() {
 		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
 		String()
 
+	passiveModeF := kingpin.Flag("ha-passive-mode", "Run in Passive mode").
+		Envar("PERCONA_TEST_HA_PASSIVE").
+		Bool()
+
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
 	logLevelF := kingpin.Flag("log-level", "Set logging level").Envar("PMM_LOG_LEVEL").Default("info").Enum("trace", "debug", "info", "warn", "error", "fatal")
@@ -737,6 +753,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
+
+	ha := highavailability.New(passiveModeF)
 
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
@@ -794,17 +812,21 @@ func main() {
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, setupParams)
+	if ha.ActiveMode() {
+		migrateDB(ctx, sqlDB, setupParams)
+	}
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	// Generate unique PMM Server ID if it's not already set.
-	err = models.SetPMMServerID(db)
-	if err != nil {
-		l.Panicf("failed to set PMM Server ID")
+	if ha.ActiveMode() {
+		// Generate unique PMM Server ID if it's not already set.
+		err = models.SetPMMServerID(db)
+		if err != nil {
+			l.Panicf("failed to set PMM Server ID")
+		}
 	}
 
 	cleaner := clean.New(db)
@@ -884,7 +906,7 @@ func main() {
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
-	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
+	agentsHandler := agents.NewHandler(db, ha, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
@@ -1007,11 +1029,13 @@ func main() {
 		}()
 	}
 
-	// Set all agents status to unknown at startup. The ones that are alive
-	// will get their status updated after they connect to the pmm-managed.
-	err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
-	if err != nil {
-		l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
+	if ha.ActiveMode() {
+		// Set all agents status to unknown at startup. The ones that are alive
+		// will get their status updated after they connect to the pmm-managed.
+		err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
+		if err != nil {
+			l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
+		}
 	}
 
 	settings, err := models.GetSettings(sqlDB)
@@ -1050,7 +1074,9 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		checksService.Run(ctx)
+		if ha.ActiveMode() {
+			checksService.Run(ctx)
+		}
 	}()
 
 	wg.Add(1)
@@ -1062,13 +1088,17 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		telemetry.Run(ctx)
+		if ha.ActiveMode() {
+			telemetry.Run(ctx)
+		}
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		schedulerService.Run(ctx)
+		if ha.ActiveMode() {
+			schedulerService.Run(ctx)
+		}
 	}()
 
 	wg.Add(1)

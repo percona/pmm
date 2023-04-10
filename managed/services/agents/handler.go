@@ -37,6 +37,7 @@ import (
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
+	ha          highAvailablityService
 	r           *Registry
 	vmdb        prometheusService
 	qanClient   qanClient
@@ -45,11 +46,10 @@ type Handler struct {
 }
 
 // NewHandler creates new agents handler.
-func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
-	jobsService jobsService,
-) *Handler {
+func NewHandler(db *reform.DB, ha highAvailablityService, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater, jobsService jobsService, ) *Handler {
 	h := &Handler{
 		db:          db,
+		ha:          ha,
 		r:           registry,
 		vmdb:        vmdb,
 		qanClient:   qanClient,
@@ -61,6 +61,9 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
 func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
+	if h.ha.PassiveMode() {
+		return status.Errorf(codes.FailedPrecondition, "Current PMM Server is running in passive mode.")
+	}
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()

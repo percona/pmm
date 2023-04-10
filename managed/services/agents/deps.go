@@ -62,3 +62,8 @@ type victoriaMetricsParams interface {
 	URLFor(path string) (*url.URL, error)
 	URL() string
 }
+
+// highAvailablityService is an interface to get information related to High Availability.
+type highAvailablityService interface {
+	PassiveMode() bool
+}
