@@ -38,7 +38,7 @@ pmm-managed-ssl:                                    ## Generates pmm-managed-ssl
 		-keyout ./certs/pmm-managed.key \
 		-out /tmp/pmm-managed.csr
 	openssl x509 -req -days 3653 -sha256 \
-		-CA ./certs/root.crt -CAkey /tmp/root.key -CAcreateserial \
+		-CA ./certs/root.crt -CAkey ./certs/root.key -CAcreateserial \
 		-in /tmp/pmm-managed.csr \
 		-out ./certs/pmm-managed.crt
 	chmod 600 certs/pmm-managed.crt
