@@ -72,7 +72,7 @@ const (
 	defaultResendInterval = 2 * time.Second
 
 	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "checks"
+	prometheusSubsystem = "advisor"
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
@@ -114,9 +114,9 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted  *prom.CounterVec
-	mAlertsGenerated  *prom.CounterVec
-	mChecksDownloaded *prom.CounterVec
+	mChecksExecuted      *prom.CounterVec
+	mChecksAvailable     *prom.GaugeVec
+	mChecksExecutionTime *prom.SummaryVec
 }
 
 // queryPlaceholders contain known fields that can be used as placeholders in a check's query.
@@ -164,26 +164,27 @@ func New(
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
-		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
+		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_executed_total",
+			Help:      "Number of check scripts executed per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name", "status"}),
 
-		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
+		mChecksAvailable: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_available",
+			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
-		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "checks_downloaded_total",
-			Help:      "Counter of checks downloaded per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "check_execution_time_seconds",
+			Help:       "Time taken to execute checks per service type, advisor, and check name",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
@@ -764,12 +765,11 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
 				continue
 			}
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 			res = append(res, results...)
-
-			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
 		}
 	}
 
@@ -779,6 +779,10 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.CheckResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, checkExecutionTimeout)
 	defer cancel()
+
+	defer func(t time.Time) {
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name).Observe(time.Since(t).Seconds())
+	}(time.Now())
 
 	queries := c.Queries
 	if c.Version == 1 {
@@ -1397,10 +1401,11 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: aCheck.Name,
-			Interval:  aCheck.Interval,
-			Target:    target,
-			Result:    result,
+			CheckName:   aCheck.Name,
+			AdvisorName: aCheck.Advisor,
+			Interval:    aCheck.Interval,
+			Target:      target,
+			Result:      result,
 		}
 	}
 	return checkResults, nil
@@ -1455,6 +1460,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 				AgentID:       pmmAgent.AgentID,
 				ServiceID:     service.ServiceID,
 				ServiceName:   service.ServiceName,
+				ServiceType:   service.ServiceType,
 				NodeName:      node.NodeName,
 				Labels:        labels,
 				DSN:           DSN,
@@ -1476,6 +1482,9 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
+
+	defer s.refreshChecksInMemoryMetric()
+
 	if s.localChecksFile != "" {
 		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
 		checks, err := s.loadLocalChecks(s.localChecksFile)
@@ -1498,8 +1507,6 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded advisors
 		}
-		// defer it to run after updateAdvisors
-		defer s.incChecksDownload()
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
@@ -1660,32 +1667,38 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 
 // Describe implements prom.Collector.
 func (s *Service) Describe(ch chan<- *prom.Desc) {
-	s.mScriptsExecuted.Describe(ch)
-	s.mAlertsGenerated.Describe(ch)
-	s.mChecksDownloaded.Describe(ch)
+	s.mChecksExecuted.Describe(ch)
+	s.mChecksAvailable.Describe(ch)
+	s.mChecksExecutionTime.Describe(ch)
+
+	s.alertsRegistry.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (s *Service) Collect(ch chan<- prom.Metric) {
-	s.mScriptsExecuted.Collect(ch)
-	s.mAlertsGenerated.Collect(ch)
-	s.mChecksDownloaded.Collect(ch)
+	s.mChecksExecuted.Collect(ch)
+	s.mChecksAvailable.Collect(ch)
+	s.mChecksExecutionTime.Collect(ch)
+
+	s.alertsRegistry.Collect(ch)
 }
 
-func (s *Service) incChecksDownload() {
+func (s *Service) refreshChecksInMemoryMetric() {
 	checks, err := s.GetChecks()
 	if err != nil {
 		s.l.Warnf("failed to get checks: %+v", err)
+		return
 	}
+	s.mChecksAvailable.Reset()
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
-	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
-	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
-	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
+	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
+	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
+	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
 }
 
-func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
+func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
 }
 
