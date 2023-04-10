@@ -69,6 +69,7 @@ import (
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/uieventspb"
 	"github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -94,6 +95,7 @@ import (
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
+	"github.com/percona/pmm/managed/services/telemetry/uievents"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
@@ -210,6 +212,7 @@ type gRPCServerDeps struct {
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
+	uieventsService      *uievents.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -301,12 +304,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	if err == nil {
-		platformpb.RegisterPlatformServer(gRPCServer, platformService)
-	} else {
-		l.Fatalf("Failed to register platform service: %s", err.Error())
-	}
+	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
+	platformpb.RegisterPlatformServer(gRPCServer, platformService)
+	uieventspb.RegisterUIEventsServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -419,6 +419,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dbaasv1beta1.RegisterTemplatesHandlerFromEndpoint,
 
 		platformpb.RegisterPlatformHandlerFromEndpoint,
+		uieventspb.RegisterUIEventsHandlerFromEndpoint,
 
 		userpb.RegisterUserHandlerFromEndpoint,
 	} {
@@ -852,7 +853,14 @@ func main() {
 		l.Fatalf("Could not create Percona Portal client: %s", err)
 	}
 
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry)
+	uieventsService := uievents.New()
+	uieventsService.ScheduleCleanup(ctx)
+
+	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{
+		telemetry.UIEventsExtension: uieventsService,
+	}
+
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry, telemetryExtensions)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -1094,6 +1102,7 @@ func main() {
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
+				uieventsService:      uieventsService,
 			})
 	}()
 
