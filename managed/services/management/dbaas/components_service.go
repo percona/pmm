@@ -253,6 +253,50 @@ func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 	return &dbaasv1beta1.ChangePXCComponentsResponse{}, nil
 }
 
+func (c ComponentsService) ChangePGComponents(ctx context.Context, req *dbaasv1beta1.ChangePGComponentsRequest) (*dbaasv1beta1.ChangePGComponentsResponse, error) {
+	err := c.db.InTransaction(func(tx *reform.TX) error {
+		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
+		if e != nil {
+			return e
+		}
+
+		if req.Postgresql != nil {
+			kubernetesCluster.Postgresql, e = setComponent(kubernetesCluster.Postgresql, req.Postgresql)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: postgresql", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		if req.Pgbouncer != nil {
+			kubernetesCluster.Pgbouncer, e = setComponent(kubernetesCluster.Pgbouncer, req.Pgbouncer)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: pgbouncer", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		if req.Pgbackrest != nil {
+			kubernetesCluster.Pgbackrest, e = setComponent(kubernetesCluster.Pgbackrest, req.Pgbackrest)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: pgbackrest", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+		e = tx.Save(kubernetesCluster)
+		if e != nil {
+			return e
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.ChangePGComponentsResponse{}, nil
+}
+
 func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sync.WaitGroup, responseCh chan installedComponentsVersion, kuberentesCluster *models.KubernetesCluster) { //nolint:lll
 	defer wg.Done()
 	kubeClient, err := c.kubeStorage.GetOrSetClient(kuberentesCluster.KubernetesClusterName)

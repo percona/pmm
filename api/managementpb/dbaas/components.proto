@@ -103,6 +103,16 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
+message ChangePGComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
+  ChangeComponent postgresql = 2;
+  ChangeComponent pgbouncer = 3;
+  ChangeComponent pgbackrest = 4;
+}
+
+message ChangePGComponentsResponse {}
+
 message InstallOperatorRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
@@ -170,6 +180,13 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
+      body: "*"
+    };
+  }
+  // ChangePGComponents manages PG related components.
+  rpc ChangePGComponents(ChangePGComponentsRequest) returns (ChangePGComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/ChangePG"
       body: "*"
     };
   }
