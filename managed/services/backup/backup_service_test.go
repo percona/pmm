@@ -690,7 +690,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				require.NoError(t, err)
 
 				if tc.prepareMock {
-					mockedPbmPITRService.On("ListPITRTimeranges", ctx, locationRes, artifact).Return(timelineList, nil).Once()
+					mockedPbmPITRService.On("ListPITRTimeranges", ctx, mock.Anything, locationRes, artifact).Return(timelineList, nil).Once()
 				}
 
 				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)

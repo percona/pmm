@@ -106,8 +106,7 @@ func TestListPITRTimelines(t *testing.T) {
 		//	Name: pitrFSPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 		//	Size: 1024,
 		//}
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
-		// mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
+		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil).Once()
 
 		service := NewPBMPITRService()
 		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
@@ -116,10 +115,10 @@ func TestListPITRTimelines(t *testing.T) {
 	})
 
 	t.Run("fails on file list error", func(t *testing.T) {
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
+		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error")).Once()
 
 		service := NewPBMPITRService()
-		timelines, err := service.getPITROplogs(ctx, location, "")
+		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
@@ -133,10 +132,10 @@ func TestListPITRTimelines(t *testing.T) {
 			},
 		}
 
-		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
+		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil).Once()
 
 		service := NewPBMPITRService()
-		timelines, err := service.getPITROplogs(ctx, location, "")
+		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)
 	})

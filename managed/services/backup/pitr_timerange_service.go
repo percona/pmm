@@ -111,7 +111,6 @@ func file(ext string) compressionType {
 }
 
 func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
-	var err error
 	var oplogChunks []*oplogChunk
 
 	if storage == nil {

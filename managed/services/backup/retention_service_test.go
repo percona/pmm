@@ -16,6 +16,7 @@
 package backup
 
 import (
+	"github.com/stretchr/testify/mock"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -36,8 +37,8 @@ func TestEnsureRetention(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	removalService := &mockRemovalService{}
-	retentionService := NewRetentionService(db, removalService)
+	mockedRemovalService := &mockRemovalService{}
+	retentionService := NewRetentionService(db, mockedRemovalService)
 
 	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"
@@ -100,6 +101,19 @@ func TestEnsureRetention(t *testing.T) {
 		return len(artifacts)
 	}
 
+	deleteArtifacts := func(args mock.Arguments) {
+		artifacts, err := models.FindArtifacts(db.Querier, models.ArtifactFilters{
+			ScheduleID: task.ID,
+			Status:     models.SuccessBackupStatus,
+		})
+		require.NoError(t, err)
+		require.NotEqual(t, len(artifacts), 0)
+
+		err = models.DeleteArtifact(db.Querier, artifacts[0].ID)
+		require.NoError(t, err)
+
+	}
+
 	changeRetention := func(retention uint32) {
 		task.Data.MongoDBBackupTask.Retention = retention
 		task, err = models.ChangeScheduledTask(db.Querier, task.ID, models.ChangeScheduledTaskParams{
@@ -125,10 +139,12 @@ func TestEnsureRetention(t *testing.T) {
 	assert.Equal(t, 5, countArtifacts())
 
 	changeRetention(4)
+	mockedRemovalService.On("DeleteArtifact", mock.Anything, mock.Anything, true).Return(nil).Run(deleteArtifacts).Once()
 	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 4, countArtifacts())
 
 	changeRetention(2)
+	mockedRemovalService.On("DeleteArtifact", mock.Anything, mock.Anything, true).Return(nil).Run(deleteArtifacts).Twice()
 	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 2, countArtifacts())
 }

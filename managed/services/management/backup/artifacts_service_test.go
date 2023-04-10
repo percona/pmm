@@ -43,7 +43,7 @@ func TestListPitrTimelines(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	mockedPitrStorageSvc := &mockPbmPITRService{}
+	mockedPbmPITRService := &mockPbmPITRService{}
 
 	timelines := []backup.Timeline{
 		{
@@ -53,8 +53,8 @@ func TestListPitrTimelines(t *testing.T) {
 		},
 	}
 
-	mockedPitrStorageSvc.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	artifactsService := NewArtifactsService(db, nil, mockedPitrStorageSvc)
+	mockedPbmPITRService.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything, mock.Anything).Return(timelines, nil)
+	artifactsService := NewArtifactsService(db, nil, mockedPbmPITRService)
 	var locationID string
 
 	params := models.CreateBackupLocationParams{
@@ -123,5 +123,5 @@ func TestListPitrTimelines(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
 		assert.Nil(t, response)
 	})
-	mock.AssertExpectationsForObjects(t, mockedPitrStorageSvc)
+	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
 }
