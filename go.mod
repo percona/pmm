@@ -171,6 +171,7 @@ require (
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.9.0 // indirect
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
 	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
+	github.com/HdrHistogram/hdrhistogram-go v1.1.2
 	github.com/Microsoft/go-winio v0.5.2 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect

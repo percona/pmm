@@ -866,4 +866,7 @@ telemetry:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
 
-
+  # UI Events
+  - id: UIEvents
+    summary: "UI Events"
+    extension: UIEventsExtension
