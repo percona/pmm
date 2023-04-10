@@ -2294,6 +2294,308 @@ var _ interface {
 	ErrorName() string
 } = ChangePXCComponentsResponseValidationError{}
 
+// Validate checks the field values on ChangePGComponentsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangePGComponentsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangePGComponentsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangePGComponentsRequestMultiError, or nil if none found.
+func (m *ChangePGComponentsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangePGComponentsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetKubernetesClusterName()) < 1 {
+		err := ChangePGComponentsRequestValidationError{
+			field:  "KubernetesClusterName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetPostgresql()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Postgresql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Postgresql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangePGComponentsRequestValidationError{
+				field:  "Postgresql",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetPgbouncer()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Pgbouncer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Pgbouncer",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPgbouncer()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangePGComponentsRequestValidationError{
+				field:  "Pgbouncer",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetPgbackrest()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Pgbackrest",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangePGComponentsRequestValidationError{
+					field:  "Pgbackrest",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPgbackrest()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangePGComponentsRequestValidationError{
+				field:  "Pgbackrest",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ChangePGComponentsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangePGComponentsRequestMultiError is an error wrapping multiple validation
+// errors returned by ChangePGComponentsRequest.ValidateAll() if the
+// designated constraints aren't met.
+type ChangePGComponentsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangePGComponentsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangePGComponentsRequestMultiError) AllErrors() []error { return m }
+
+// ChangePGComponentsRequestValidationError is the validation error returned by
+// ChangePGComponentsRequest.Validate if the designated constraints aren't met.
+type ChangePGComponentsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangePGComponentsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangePGComponentsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangePGComponentsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangePGComponentsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangePGComponentsRequestValidationError) ErrorName() string {
+	return "ChangePGComponentsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangePGComponentsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangePGComponentsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangePGComponentsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangePGComponentsRequestValidationError{}
+
+// Validate checks the field values on ChangePGComponentsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangePGComponentsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangePGComponentsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangePGComponentsResponseMultiError, or nil if none found.
+func (m *ChangePGComponentsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangePGComponentsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ChangePGComponentsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangePGComponentsResponseMultiError is an error wrapping multiple
+// validation errors returned by ChangePGComponentsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ChangePGComponentsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangePGComponentsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangePGComponentsResponseMultiError) AllErrors() []error { return m }
+
+// ChangePGComponentsResponseValidationError is the validation error returned
+// by ChangePGComponentsResponse.Validate if the designated constraints aren't met.
+type ChangePGComponentsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangePGComponentsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangePGComponentsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangePGComponentsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangePGComponentsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangePGComponentsResponseValidationError) ErrorName() string {
+	return "ChangePGComponentsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangePGComponentsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangePGComponentsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangePGComponentsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangePGComponentsResponseValidationError{}
+
 // Validate checks the field values on InstallOperatorRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

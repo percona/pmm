@@ -97,6 +97,170 @@
         }
       }
     },
+    "/v1/management/DBaaS/Components/ChangePG": {
+      "post": {
+        "tags": [
+          "Components"
+        ],
+        "summary": "ChangePGComponents manages PG related components.",
+        "operationId": "ChangePGComponents",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "pgbackrest": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 3
+                },
+                "pgbouncer": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
+                "postgresql": {
+                  "description": "ChangeComponent contains fields to manage components.",
+                  "type": "object",
+                  "properties": {
+                    "default_version": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "description": "ComponentVersion contains operations which should be done with component version.",
+                        "type": "object",
+                        "properties": {
+                          "disable": {
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "enable": {
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "version": {
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Components/ChangePSMDB": {
       "post": {
         "tags": [
