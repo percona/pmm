@@ -237,12 +237,14 @@ func (k *Kubernetes) GetClusterServiceVersion(ctx context.Context, key types.Nam
 	return k.client.GetClusterServiceVersion(ctx, key)
 }
 
+// ListClusterServiceVersion list all CSVs for the given namespace.
 func (k *Kubernetes) ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.ListClusterServiceVersion(ctx, namespace)
 }
 
+// DeleteObject deletes an object.
 func (k *Kubernetes) DeleteObject(obj runtime.Object) error {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -709,6 +711,8 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 	return k.client.GetPersistentVolumes(ctx)
 }
 
+// ProvisionMonitoring applies all VictoriaMetrics requiered files to start monitoring a cluster
+// and creates a VM Agent instance.
 func (k *Kubernetes) ProvisionMonitoring(login, password, pmmPublicAddress string, labels map[string]string) error {
 	time.Sleep(1 * time.Minute)
 	randomCrypto, err := rand.Prime(rand.Reader, 64)
@@ -763,6 +767,7 @@ func (k *Kubernetes) ProvisionMonitoring(login, password, pmmPublicAddress strin
 	return nil
 }
 
+// CleanupMonitoring remove all files installed by ProvisionMonitoring.
 func (k *Kubernetes) CleanupMonitoring() error {
 	files := []string{
 		"crds/victoriametrics/kube-state-metrics.yaml",
@@ -1019,10 +1024,12 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 	return err
 }
 
+// GetSubscription returns a susbscription by namespaced name.
 func (k *Kubernetes) GetSubscription(ctx context.Context, namespace, name string) (*v1alpha1.Subscription, error) {
 	return k.client.GetSubscription(ctx, namespace, name)
 }
 
+// GetSubscriptionCSV retrieves a Subscription CVS.
 func (k *Kubernetes) GetSubscriptionCSV(ctx context.Context, key types.NamespacedName) (types.NamespacedName, error) {
 	return k.client.GetSubscriptionCSV(ctx, key)
 }
@@ -1156,10 +1163,12 @@ func (k *Kubernetes) DoCSVWait(ctx context.Context, key types.NamespacedName) er
 	return k.client.DoCSVWait(ctx, key)
 }
 
+// ListVMAgents list all VM agents in a namespace that match the specified labels.
 func (k *Kubernetes) ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error) {
 	return k.client.ListVMAgents(ctx, namespace, labels)
 }
 
+// ListVMAgents delete a VM agent for a namespaced name.
 func (k *Kubernetes) DeleteVMAgent(ctx context.Context, namespace, name string) error {
 	return k.client.DeleteVMAgent(ctx, namespace, name)
 }

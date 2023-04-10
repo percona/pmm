@@ -215,7 +215,6 @@ func TestKubernetesServer(t *testing.T) {
 			},
 		}
 
-		// dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 		listDatabaseMock := kubeClient.On("ListDatabaseClusters", ctx)
 		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 

@@ -686,6 +686,7 @@ func (c *Client) ApplyFile(fileBytes []byte) error {
 	return nil
 }
 
+// GetClusterServiceVersion retrieve a CSV by namespaced name.
 func (c *Client) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -695,6 +696,7 @@ func (c *Client) GetClusterServiceVersion(ctx context.Context, key types.Namespa
 	return operatorClient.OperatorsV1alpha1().ClusterServiceVersions(key.Namespace).Get(ctx, key.Name, metav1.GetOptions{})
 }
 
+// ListClusterServiceVersion list all CSVs for the given namespace.
 func (c *Client) ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -1142,6 +1144,7 @@ func (c *Client) ListVMAgents(ctx context.Context, namespace string, labels map[
 	return vmcli.VictoriametricsV1beta1().VMAgents(namespace).List(ctx, metav1.ListOptions{})
 }
 
+// DeleteVMAgent deletes a Victoria Metrics agent instance.
 func (c *Client) DeleteVMAgent(ctx context.Context, namespace, name string) error {
 	vmcli, err := vmClient.NewForConfig(c.restConfig)
 	if err != nil {
