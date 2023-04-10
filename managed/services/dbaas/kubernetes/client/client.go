@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"sort"
 	"strings"
@@ -30,6 +29,8 @@ import (
 	"text/tabwriter"
 	"time"
 
+	vmClient "github.com/VictoriaMetrics/operator/api/client/versioned"
+	vmv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/operator-framework/operator-lifecycle-manager/pkg/api/client/clientset/versioned"
@@ -685,6 +686,40 @@ func (c *Client) ApplyFile(fileBytes []byte) error {
 	return nil
 }
 
+func (c *Client) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().ClusterServiceVersions(key.Namespace).Get(ctx, key.Name, metav1.GetOptions{})
+}
+
+func (c *Client) ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error) {
+	operatorClient, err := versioned.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create an operator client instance")
+	}
+
+	return operatorClient.OperatorsV1alpha1().ClusterServiceVersions(namespace).List(ctx, metav1.ListOptions{})
+}
+
+// DeleteFile accepts manifest file contents parses into []runtime.Object
+// and deletes them from the cluster
+func (c *Client) DeleteFile(fileBytes []byte) error {
+	objs, err := c.getObjects(fileBytes)
+	if err != nil {
+		return err
+	}
+	for i := range objs {
+		err := c.DeleteObject(objs[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) getObjects(f []byte) ([]runtime.Object, error) {
 	objs := []runtime.Object{}
 	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(f), 100)
@@ -780,9 +815,9 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 			Namespace: subKey.Namespace,
 			Name:      installedCSV,
 		}
-		log.Printf("  Found installed CSV %q", installedCSV)
 		return true, nil
 	}
+
 	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
@@ -974,7 +1009,7 @@ func (c *Client) CreateOperatorGroup(ctx context.Context, namespace, name string
 
 // CreateSubscriptionForCatalog creates an OLM subscription.
 func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, name, catalogNamespace, catalog,
-	packageName, channel, startingCSV string, approval v1alpha1.Approval,
+	packageName, channel, startingCSV string, labels map[string]string, approval v1alpha1.Approval,
 ) (*v1alpha1.Subscription, error) {
 	operatorClient, err := versioned.NewForConfig(c.restConfig)
 	if err != nil {
@@ -989,6 +1024,7 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      name,
+			Labels:    labels,
 		},
 		Spec: &v1alpha1.SubscriptionSpec{
 			CatalogSource:          catalog,
@@ -1005,8 +1041,10 @@ func (c *Client) CreateSubscriptionForCatalog(ctx context.Context, namespace, na
 		if apierrors.IsAlreadyExists(err) {
 			return sub, nil
 		}
+
 		return sub, err
 	}
+
 	return sub, nil
 }
 
@@ -1085,4 +1123,30 @@ func (c *Client) ListCRs(
 	}
 
 	return c.dynamicClientset.Resource(gvr).Namespace(namespace).List(ctx, options)
+}
+
+// ListVMAgents retrieves all VM agents for a namespace.
+func (c *Client) ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error) {
+	vmcli, err := vmClient.NewForConfig(c.restConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	opts := metav1.ListOptions{}
+	if labels != nil {
+		opts.LabelSelector = metav1.FormatLabelSelector(&metav1.LabelSelector{
+			MatchLabels: labels,
+		})
+	}
+
+	return vmcli.VictoriametricsV1beta1().VMAgents(namespace).List(ctx, metav1.ListOptions{})
+}
+
+func (c *Client) DeleteVMAgent(ctx context.Context, namespace, name string) error {
+	vmcli, err := vmClient.NewForConfig(c.restConfig)
+	if err != nil {
+		return err
+	}
+
+	return vmcli.VictoriametricsV1beta1().VMAgents(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 }

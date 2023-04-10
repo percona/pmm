@@ -20,9 +20,10 @@ import (
 	"testing"
 	"time"
 
+	vmv1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
 	"github.com/google/uuid"
 	goversion "github.com/hashicorp/go-version"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -34,8 +35,10 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -94,7 +97,7 @@ func TestKubernetesServer(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		ctx, ks, dbaasClient, kubeClient, grafanaClient, versionService, teardown := setup(t)
+		ctx, ks, _, kubeClient, grafanaClient, versionService, teardown := setup(t)
 		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 		defer teardown(t)
@@ -109,12 +112,18 @@ func TestKubernetesServer(t *testing.T) {
 		kubeconfig := "preferences: {}\n"
 
 		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
-		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+		k8NotFoundError := apierrors.NewNotFound(schema.GroupResource{Group: "a-group", Resource: "a-resource"}, "zapp")
+		kubeClient.On("GetSubscription", mock.Anything, mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil, k8NotFoundError)
+		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
 		kubeClient.On("GetServerVersion").Return(nil, nil)
-		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
+		kubeClient.On("ListClusterServiceVersion", mock.Anything, mock.Anything).Return(&v1alpha1.ClusterServiceVersionList{}, nil)
+		kubeClient.On("CleanupMonitoring").Return(nil)
+		kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("ListVMAgents", mock.Anything, mock.Anything, mock.Anything).Return(&vmv1beta1.VMAgentList{Items: []vmv1beta1.VMAgent{}}, nil)
+		kubeClient.On("DeleteVMAgent", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		kubernetesClusterName := "test-cluster"
 		clients := map[string]kubernetesClient{
@@ -206,7 +215,7 @@ func TestKubernetesServer(t *testing.T) {
 			},
 		}
 
-		dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
+		// dbaasClient.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 		listDatabaseMock := kubeClient.On("ListDatabaseClusters", ctx)
 		listDatabaseMock.Return(&dbaasv1.DatabaseClusterList{Items: mockK8sResp}, nil)
 

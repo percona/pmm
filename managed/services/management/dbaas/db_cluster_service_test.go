@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,8 +29,10 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -105,16 +107,20 @@ func TestDBClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+	k8NotFoundError := apierrors.NewNotFound(schema.GroupResource{Group: "a-group", Resource: "a-resource"}, "zapp")
+	kubeClient.On("GetSubscription", mock.Anything, mock.Anything, mock.Anything).Return(nil, k8NotFoundError)
+	kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
+	kubeClient.On("ListClusterServiceVersion", mock.Anything, mock.Anything).Return(&v1alpha1.ClusterServiceVersionList{}, nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("GetServerVersion").Return(nil, nil)
 
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
-	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		dbKubernetesClusterNameTest: kubeClient,
 	}

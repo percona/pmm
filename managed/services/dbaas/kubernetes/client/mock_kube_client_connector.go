@@ -3,21 +3,35 @@
 package client
 
 import (
+	apiv1 "github.com/percona/dbaas-operator/api/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+
+	appsv1 "k8s.io/api/apps/v1"
+
 	context "context"
 
-	v1 "github.com/operator-framework/api/pkg/operators/v1"
-	v1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	apiv1 "github.com/percona/dbaas-operator/api/v1"
-	mock "github.com/stretchr/testify/mock"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	storagev1 "k8s.io/api/storage/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	mock "github.com/stretchr/testify/mock"
+
 	runtime "k8s.io/apimachinery/pkg/runtime"
+
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
+
+	storagev1 "k8s.io/api/storage/v1"
+
 	types "k8s.io/apimachinery/pkg/types"
+
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	v1 "github.com/operator-framework/api/pkg/operators/v1"
+
+	v1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+
+	v1beta1 "github.com/VictoriaMetrics/operator/api/victoriametrics/v1beta1"
+
 	version "k8s.io/apimachinery/pkg/version"
 )
 
@@ -77,13 +91,13 @@ func (_m *MockKubeClientConnector) CreateOperatorGroup(ctx context.Context, name
 	return r0, r1
 }
 
-// CreateSubscriptionForCatalog provides a mock function with given fields: ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, approval
-func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Context, namespace string, name string, catalogNamespace string, catalog string, packageName string, channel string, startingCSV string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error) {
-	ret := _m.Called(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, approval)
+// CreateSubscriptionForCatalog provides a mock function with given fields: ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, labels, approval
+func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Context, namespace string, name string, catalogNamespace string, catalog string, packageName string, channel string, startingCSV string, labels map[string]string, approval v1alpha1.Approval) (*v1alpha1.Subscription, error) {
+	ret := _m.Called(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, labels, approval)
 
 	var r0 *v1alpha1.Subscription
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string, string, string, v1alpha1.Approval) *v1alpha1.Subscription); ok {
-		r0 = rf(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, approval)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string, string, string, map[string]string, v1alpha1.Approval) *v1alpha1.Subscription); ok {
+		r0 = rf(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, labels, approval)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v1alpha1.Subscription)
@@ -91,13 +105,27 @@ func (_m *MockKubeClientConnector) CreateSubscriptionForCatalog(ctx context.Cont
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string, string, string, string, v1alpha1.Approval) error); ok {
-		r1 = rf(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, approval)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string, string, string, string, map[string]string, v1alpha1.Approval) error); ok {
+		r1 = rf(ctx, namespace, name, catalogNamespace, catalog, packageName, channel, startingCSV, labels, approval)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
+}
+
+// DeleteFile provides a mock function with given fields: fileBytes
+func (_m *MockKubeClientConnector) DeleteFile(fileBytes []byte) error {
+	ret := _m.Called(fileBytes)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]byte) error); ok {
+		r0 = rf(fileBytes)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // DeleteObject provides a mock function with given fields: obj
@@ -107,6 +135,20 @@ func (_m *MockKubeClientConnector) DeleteObject(obj runtime.Object) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(runtime.Object) error); ok {
 		r0 = rf(obj)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteVMAgent provides a mock function with given fields: ctx, namespace, name
+func (_m *MockKubeClientConnector) DeleteVMAgent(ctx context.Context, namespace string, name string) error {
+	ret := _m.Called(ctx, namespace, name)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, namespace, name)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -158,6 +200,29 @@ func (_m *MockKubeClientConnector) GenerateKubeConfig(secret *corev1.Secret) ([]
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*corev1.Secret) error); ok {
 		r1 = rf(secret)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetClusterServiceVersion provides a mock function with given fields: ctx, key
+func (_m *MockKubeClientConnector) GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error) {
+	ret := _m.Called(ctx, key)
+
+	var r0 *v1alpha1.ClusterServiceVersion
+	if rf, ok := ret.Get(0).(func(context.Context, types.NamespacedName) *v1alpha1.ClusterServiceVersion); ok {
+		r0 = rf(ctx, key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.ClusterServiceVersion)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, types.NamespacedName) error); ok {
+		r1 = rf(ctx, key)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -550,6 +615,29 @@ func (_m *MockKubeClientConnector) ListCRs(ctx context.Context, namespace string
 	return r0, r1
 }
 
+// ListClusterServiceVersion provides a mock function with given fields: ctx, namespace
+func (_m *MockKubeClientConnector) ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error) {
+	ret := _m.Called(ctx, namespace)
+
+	var r0 *v1alpha1.ClusterServiceVersionList
+	if rf, ok := ret.Get(0).(func(context.Context, string) *v1alpha1.ClusterServiceVersionList); ok {
+		r0 = rf(ctx, namespace)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.ClusterServiceVersionList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListDatabaseClusters provides a mock function with given fields: ctx
 func (_m *MockKubeClientConnector) ListDatabaseClusters(ctx context.Context) (*apiv1.DatabaseClusterList, error) {
 	ret := _m.Called(ctx)
@@ -612,6 +700,29 @@ func (_m *MockKubeClientConnector) ListSubscriptions(ctx context.Context, namesp
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListVMAgents provides a mock function with given fields: ctx, namespace, labels
+func (_m *MockKubeClientConnector) ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*v1beta1.VMAgentList, error) {
+	ret := _m.Called(ctx, namespace, labels)
+
+	var r0 *v1beta1.VMAgentList
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) *v1beta1.VMAgentList); ok {
+		r0 = rf(ctx, namespace, labels)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1beta1.VMAgentList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, map[string]string) error); ok {
+		r1 = rf(ctx, namespace, labels)
 	} else {
 		r1 = ret.Error(1)
 	}
