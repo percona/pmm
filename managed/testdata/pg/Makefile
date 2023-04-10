@@ -5,7 +5,7 @@ help:                                                ## Display this help messag
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-all: root-ssl server-ssl pmm-managed-ssl             ## Generates all required dev certs.
+all: root-ssl server-ssl pmm-managed-ssl grafana-ssl ## Generates all required dev certs.
 	rm -f ./certs/*.srl
 
 root-ssl:                                            ## Generates root-ssl cert.
@@ -39,3 +39,13 @@ pmm-managed-ssl:                                    ## Generates pmm-managed-ssl
 		-CA ./certs/root.crt -CAkey /tmp/root.key -CAcreateserial \
 		-in /tmp/pmm-managed.csr \
 		-out ./certs/pmm-managed.crt
+
+grafana-ssl:                                        ## Generates grafana-ssl cert.
+	openssl req -new -sha256 -nodes -newkey rsa:2048 \
+		-config ./certs/grafana.cnf \
+		-keyout ./certs/grafana.key \
+		-out /tmp/grafana.csr
+	openssl x509 -req -days 3653 -sha256 \
+		-CA ./certs/root.crt -CAkey /tmp/root.key -CAcreateserial \
+		-in /tmp/grafana.csr \
+		-out ./certs/grafana.crt

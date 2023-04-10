@@ -49,6 +49,10 @@ services:
     #      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
     #      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
     #      - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
+    #      - GF_DATABASE_SSL_MODE=verify-full
+    #      - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
+    #      - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
+    #      - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
     #  - PERCONA_TEST_CHECKS_FILE=/srv/checks/local-checks.yml
 
     extra_hosts:
