@@ -1168,7 +1168,7 @@ func (k *Kubernetes) ListVMAgents(ctx context.Context, namespace string, labels 
 	return k.client.ListVMAgents(ctx, namespace, labels)
 }
 
-// ListVMAgents delete a VM agent for a namespaced name.
+// DeleteVMAgent delete a VM agent for a namespaced name.
 func (k *Kubernetes) DeleteVMAgent(ctx context.Context, namespace, name string) error {
 	return k.client.DeleteVMAgent(ctx, namespace, name)
 }
