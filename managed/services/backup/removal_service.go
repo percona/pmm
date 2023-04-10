@@ -49,17 +49,16 @@ func NewRemovalService(db *reform.DB, pbmPITRService pbmPITRService) *RemovalSer
 
 // DeleteArtifact deletes specified artifact along with files if specified.
 func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, removeFiles bool) error {
-	var err error
+	artifact, _, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
+	if err != nil {
+		return err
+	}
+
 	defer func() {
 		if err != nil {
 			s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
 		}
 	}()
-
-	artifact, _, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
-	if err != nil {
-		return err
-	}
 
 	restoreItems, err := models.FindRestoreHistoryItems(s.db.Querier, models.RestoreHistoryItemFilters{
 		ArtifactID: artifactID,

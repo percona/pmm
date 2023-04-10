@@ -16,7 +16,6 @@
 package backup
 
 import (
-	"context"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -30,21 +29,19 @@ import (
 )
 
 func TestEnsureRetention(t *testing.T) {
-	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	removalService := NewRemovalService(db)
-	pbmPITRService := NewPbmPITRService()
-	retentionService := NewRetentionService(db, removalService, pbmPITRService)
+	removalService := &mockRemovalService{}
+	retentionService := NewRetentionService(db, removalService)
 
 	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"
 	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
-
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -114,24 +111,24 @@ func TestEnsureRetention(t *testing.T) {
 	createArtifact()
 	assert.Equal(t, 1, countArtifacts())
 	createArtifact()
-	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
+	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 2, countArtifacts())
 
 	createArtifact()
 	createArtifact()
 	createArtifact()
-	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
+	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 5, countArtifacts())
 
 	changeRetention(6)
-	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
+	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 5, countArtifacts())
 
 	changeRetention(4)
-	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
+	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 4, countArtifacts())
 
 	changeRetention(2)
-	assert.NoError(t, retentionService.EnforceRetention(ctx, task.ID))
+	assert.NoError(t, retentionService.EnforceRetention(task.ID))
 	assert.Equal(t, 2, countArtifacts())
 }

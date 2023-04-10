@@ -30,6 +30,7 @@ import (
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=Storage -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

@@ -301,7 +301,7 @@ func TestRestoreBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-			StorageRec: &models.StorageRec{FileList: []models.File{{Name: "test_file_name"}}},
+			Metadata: &models.Metadata{FileList: []models.File{{Name: "test_file_name"}}},
 		})
 		require.NoError(t, err)
 
@@ -343,7 +343,7 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("artifact not ready", func(t *testing.T) {
 			updatedArtifact, err := models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
+				Status: models.PendingBackupStatus.Pointer(),
 			})
 			require.NoError(t, err)
 			require.NotNil(t, updatedArtifact)
@@ -370,7 +370,7 @@ func TestRestoreBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		artifactWithVersion, err = models.UpdateArtifact(db.Querier, artifactWithVersion.ID, models.UpdateArtifactParams{
-			StorageRec: &models.StorageRec{BackupRec: &models.BackupRec{Name: "artifact_repr_name"}},
+			Metadata: &models.Metadata{BackupToolData: &models.BackupToolData{Name: "artifact_repr_name"}},
 		})
 		require.NoError(t, err)
 
@@ -422,9 +422,9 @@ func TestRestoreBackup(t *testing.T) {
 				mockedCompatibilityService.On("CheckArtifactCompatibility", tc.artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
 
 				if tc.expectedError == nil {
-					if len(tc.artifact.StorageRecList) != 0 && tc.artifact.StorageRecList[0].BackupRec != nil {
+					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-							time.Duration(0), tc.artifact.Name, tc.artifact.StorageRecList[0].BackupRec.Name, mock.Anything, tc.artifact.DataModel,
+							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.Name, mock.Anything, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					} else {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),

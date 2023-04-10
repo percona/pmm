@@ -98,11 +98,6 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				return err
 			}
 
-			// TODO remove before merging or after FE is ready.
-			//if params.Folder == nil {
-			//	params.Folder = pointer.ToString(svc.ServiceName + "_" + svc.Cluster)
-			//}
-
 			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
 			if err != nil {
 				return err
