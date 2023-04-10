@@ -57,7 +57,9 @@ type KubeClientConnector interface {
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
 	// and applies them against the cluster
 	ApplyFile(fileBytes []byte) error
+	// GetClusterServiceVersion retrieve a CSV by namespaced name.
 	GetClusterServiceVersion(ctx context.Context, key types.NamespacedName) (*v1alpha1.ClusterServiceVersion, error)
+	// ListClusterServiceVersion list all CSVs for the given namespace.
 	ListClusterServiceVersion(ctx context.Context, namespace string) (*v1alpha1.ClusterServiceVersionList, error)
 	// DeleteFile accepts manifest file contents parses into []runtime.Object
 	// and deletes them from the cluster
@@ -88,5 +90,6 @@ type KubeClientConnector interface {
 	ListCRs(ctx context.Context, namespace string, gvr schema.GroupVersionResource, labelSelector *metav1.LabelSelector) (*unstructured.UnstructuredList, error)
 	// ListVMAgents retrieves all VM agents for a namespace.
 	ListVMAgents(ctx context.Context, namespace string, labels map[string]string) (*vmv1beta1.VMAgentList, error)
+	// DeleteVMAgent deletes a Victoria Metrics agent instance.
 	DeleteVMAgent(ctx context.Context, namespace, name string) error
 }
