@@ -22,7 +22,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,38 +41,37 @@ import (
 )
 
 func TestServiceService(t *testing.T) {
-	setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) {
-		t.Helper()
-
-		ctx := logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		vmdb := &mockPrometheusService{}
-		vmdb.Test(t)
-
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
-
-		ar := &mockAgentsRegistry{}
-		ar.Test(t)
-
-		teardown := func(t *testing.T) {
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-			vmdb.AssertExpectations(t)
-			state.AssertExpectations(t)
-			ar.AssertExpectations(t)
-		}
-		s := NewServiceService(db, ar, state, vmdb)
-
-		return ctx, s, teardown, vmdb
-	}
-
 	t.Run("Remove", func(t *testing.T) {
+		setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+			t.Helper()
+
+			ctx := logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			teardown := func(t *testing.T) {
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+				vmdb.AssertExpectations(t)
+				state.AssertExpectations(t)
+				ar.AssertExpectations(t)
+			}
+			s := NewServiceService(db, ar, state, vmdb)
+
+			return ctx, s, teardown, vmdb
+		}
 		t.Run("No params", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
@@ -281,6 +282,8 @@ func TestServiceService(t *testing.T) {
 			ar := &mockAgentsRegistry{}
 			ar.Test(t)
 
+			vmClient := &mockVictoriaMetricsClient{}
+
 			teardown := func(t *testing.T) {
 				uuid.SetRand(nil)
 
@@ -289,7 +292,7 @@ func TestServiceService(t *testing.T) {
 				state.AssertExpectations(t)
 				ar.AssertExpectations(t)
 			}
-			s := NewMgmtServiceService(db, ar, state, vmdb)
+			s := NewMgmtServiceService(db, ar, state, vmdb, vmClient)
 
 			return ctx, s, teardown, vmdb
 		}
@@ -304,6 +307,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(3)
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
@@ -350,6 +354,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(7)
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
@@ -402,6 +407,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Times(7)
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter

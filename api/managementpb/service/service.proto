@@ -12,6 +12,18 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "api/managementpb/service;servicev1beta1";
 
 message UniversalService {
+  // Service status.
+  enum Status {
+    // In case we don't support the db vendor yet.
+    STATUS_INVALID = 0;
+    // The service is up.
+    UP = 1;
+    // The service is down.
+    DOWN = 2;
+    // The service's status cannot be known (p.e. there are no metrics yet).
+    UNKNOWN = 3;
+  }
+
   // Unique service identifier.
   string service_id = 1;
   // Service type.
@@ -49,6 +61,8 @@ message UniversalService {
   google.protobuf.Timestamp updated_at = 16;
   // List of agents related to this service.
   repeated agent.v1beta1.UniversalAgent agents = 17;
+  // The health status of the service.
+  Status status = 18;
 }
 
 message ListServiceRequest {

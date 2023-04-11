@@ -181,6 +181,8 @@ func (m *UniversalService) validate(all bool) error {
 
 	}
 
+	// no validation rules for Status
+
 	if len(errors) > 0 {
 		return UniversalServiceMultiError(errors)
 	}
