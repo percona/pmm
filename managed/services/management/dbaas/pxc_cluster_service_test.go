@@ -146,9 +146,6 @@ func TestPXCClusterService(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
-	// kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
-	// k8NotFoundError := apierrors.NewNotFound(schema.GroupResource{Group: "a-group", Resource: "a-resource"}, "zapp")
-	// kubeClient.On("GetSubscription", mock.Anything, mock.Anything, mock.Anything).Return(nil, k8NotFoundError)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
