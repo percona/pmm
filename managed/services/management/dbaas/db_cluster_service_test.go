@@ -33,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -119,6 +120,8 @@ func TestDBClusterService(t *testing.T) {
 	kubeClient.On("ProvisionMonitoring", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetServerVersion").Return(nil, nil)
 
+	kubeClient.On("GetSubscriptionCSV", mock.Anything, mock.Anything).Return(types.NamespacedName{}, nil)
+	kubeClient.On("DoCSVWait", mock.Anything, mock.Anything).Return(nil)
 	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 
 	clients := map[string]kubernetesClient{
