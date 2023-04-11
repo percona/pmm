@@ -714,7 +714,6 @@ func (k *Kubernetes) GetPersistentVolumes(ctx context.Context) (*corev1.Persiste
 // ProvisionMonitoring applies all VictoriaMetrics requiered files to start monitoring a cluster
 // and creates a VM Agent instance.
 func (k *Kubernetes) ProvisionMonitoring(login, password, pmmPublicAddress string, labels map[string]string) error {
-	time.Sleep(1 * time.Minute)
 	randomCrypto, err := rand.Prime(rand.Reader, 64)
 	if err != nil {
 		return err

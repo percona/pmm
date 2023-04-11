@@ -567,7 +567,7 @@ func waitForRollout(ctx context.Context, kubeClient kubernetesClient, key types.
 	var csv types.NamespacedName
 	var err error
 
-	for i := 0; i > 15; i++ {
+	for i := 0; i < 15; i++ {
 		csv, err = kubeClient.GetSubscriptionCSV(ctx, types.NamespacedName{Namespace: key.Namespace, Name: key.Name})
 		if err != nil {
 			time.Sleep(10 * time.Second)
@@ -576,7 +576,7 @@ func waitForRollout(ctx context.Context, kubeClient kubernetesClient, key types.
 		break
 	}
 
-	for i := 0; i > 15; i++ {
+	for i := 0; i < 15; i++ {
 		if err := kubeClient.DoCSVWait(ctx, csv); err != nil {
 			if runtime.IsNotRegisteredError(err) || err != nil {
 				time.Sleep(10 * time.Second)
