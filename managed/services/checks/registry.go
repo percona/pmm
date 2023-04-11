@@ -19,6 +19,7 @@ import (
 	"sync"
 
 	"github.com/percona-platform/saas/pkg/check"
+	prom "github.com/prometheus/client_golang/prometheus"
 
 	"github.com/percona/pmm/managed/services"
 )
@@ -28,12 +29,19 @@ type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
 	checkResults map[check.Interval]map[string][]services.CheckResult
+	mInsights    *prom.GaugeVec
 }
 
 // newRegistry creates a new registry.
 func newRegistry() *registry {
 	return &registry{
 		checkResults: make(map[check.Interval]map[string][]services.CheckResult),
+		mInsights: prom.NewGaugeVec(prom.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "check_insights",
+			Help:      "Number of advisor insights per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 }
 
@@ -100,4 +108,19 @@ func (r *registry) getCheckResults(serviceID string) []services.CheckResult {
 	}
 
 	return results
+}
+
+// Describe implements prom.Collector.
+func (r *registry) Describe(ch chan<- *prom.Desc) {
+	r.mInsights.Describe(ch)
+}
+
+// Collect implements prom.Collector.
+func (r *registry) Collect(ch chan<- prom.Metric) {
+	r.mInsights.Reset()
+	res := r.getCheckResults("")
+	for _, re := range res {
+		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.AdvisorName, re.CheckName).Inc()
+	}
+	r.mInsights.Collect(ch)
 }

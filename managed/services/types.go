@@ -26,6 +26,7 @@ type Target struct {
 	AgentID       string
 	ServiceID     string
 	ServiceName   string
+	ServiceType   models.ServiceType
 	NodeName      string
 	Labels        map[string]string
 	DSN           string
@@ -51,6 +52,7 @@ func (t *Target) Copy() Target {
 		AgentID:       t.AgentID,
 		ServiceID:     t.ServiceID,
 		ServiceName:   t.ServiceName,
+		ServiceType:   t.ServiceType,
 		NodeName:      t.NodeName,
 		Labels:        labels,
 		DSN:           t.DSN,
@@ -62,10 +64,11 @@ func (t *Target) Copy() Target {
 
 // CheckResult contains the output from the check file and other information.
 type CheckResult struct {
-	CheckName string
-	Interval  check.Interval
-	Target    Target
-	Result    check.Result
+	CheckName   string
+	AdvisorName string
+	Interval    check.Interval
+	Target      Target
+	Result      check.Result
 }
 
 // CheckResultSummary contains the summary of failed checks for a service.
