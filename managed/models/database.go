@@ -1102,7 +1102,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 			return err
 		}
 	} else {
-		params.Name = "" // using postgres database in order get metrics from entrypoint extension setup for QAN.
+		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
 	}
 
 	// create PostgreSQL Service and associated Agents
