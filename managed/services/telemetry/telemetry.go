@@ -219,12 +219,14 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 
 	// initialize datasources
 	for sourceName, dataSource := range s.dataSourcesMap {
-		err := dataSource.Init(ctx)
-		if err != nil {
-			s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
-			continue
+		if dataSource.Enabled() {
+			err := dataSource.Init(ctx)
+			if err != nil {
+				s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
+				continue
+			}
+			initializedDataSources[sourceName] = dataSource
 		}
-		initializedDataSources[sourceName] = dataSource
 	}
 
 	for _, telemetry := range s.config.telemetry {
