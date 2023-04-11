@@ -986,6 +986,7 @@ func main() {
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
+		ha:           ha,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,
@@ -1097,6 +1098,7 @@ func main() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
 				db:                   db,
+				ha:                   ha,
 				vmdb:                 vmdb,
 				platformClient:       platformClient,
 				server:               server,
