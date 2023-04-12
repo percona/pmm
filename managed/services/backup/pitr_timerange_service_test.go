@@ -18,14 +18,15 @@ package backup
 import (
 	"context"
 	"fmt"
-	"path"
-	"strings"
-	"testing"
-
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"path"
+	"strings"
+	"testing"
+	"time"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/minio"
@@ -80,7 +81,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 	}
 }
 
-func TestListPITRTimelines(t *testing.T) {
+func TestGetPITROplogs(t *testing.T) {
 	ctx := context.Background()
 	location := &models.BackupLocation{
 		S3Config: &models.S3LocationConfig{
@@ -492,4 +493,58 @@ func printTTL(tlns ...Timeline) string {
 	}
 
 	return strings.Join(ret, ", ")
+}
+
+func TestGetPITRFiles(t *testing.T) {
+	ctx := context.Background()
+	S3Config := models.S3LocationConfig{
+		Endpoint:     "https://s3.us-west-2.amazonaws.com",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	location := &models.BackupLocation{
+		S3Config: &S3Config,
+	}
+
+	mockedStorage := &MockStorage{}
+	service := NewPBMPITRService()
+
+	listedFiles := []minio.FileInfo{
+		{Name: "rs0/20230411/20230411112014-2.20230411112507-12.oplog.s2"},
+		{Name: "rs0/20230411/20230411112507-12.20230411112514-3.oplog.s2"},
+		{Name: "rs0/20230411/20230411112514-3.20230411113007-8.oplog.s2"},
+		{Name: "rs0/20230411/20230411113007-8.20230411113014-2.oplog.s2"},
+		{Name: "rs0/20230411/20230411113014-2.20230411113507-8.oplog.s2"},
+	}
+
+	t.Run("'until' not specified", func(t *testing.T) {
+		mockedStorage.On("List", ctx, S3Config.Endpoint, S3Config.AccessKey, S3Config.SecretKey, S3Config.BucketName, pitrFSPrefix, "").Return(listedFiles, nil).Twice()
+
+		PITRChunks, err := service.GetPITRFiles(ctx, mockedStorage, location, &models.Artifact{}, nil)
+		require.NoError(t, err)
+
+		expectedRes, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
+		require.NoError(t, err)
+
+		assert.Equal(t, expectedRes, PITRChunks)
+	})
+
+	t.Run("'until' specified", func(t *testing.T) {
+		mockedStorage.On("List", ctx, S3Config.Endpoint, S3Config.AccessKey, S3Config.SecretKey, S3Config.BucketName, pitrFSPrefix, "").Return(listedFiles, nil).Twice()
+
+		until, err := time.Parse("2006-01-02T15:04:05", "2023-04-11T11:25:14")
+		require.NoError(t, err)
+
+		PITRChunks, err := service.GetPITRFiles(ctx, mockedStorage, location, &models.Artifact{}, &until)
+		require.NoError(t, err)
+
+		expectedRes, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
+		require.NoError(t, err)
+
+		assert.Equal(t, expectedRes[:2], PITRChunks)
+	})
+
+	mockedStorage.AssertExpectations(t)
 }

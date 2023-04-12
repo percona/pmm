@@ -16,6 +16,7 @@
 package backup
 
 import (
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -78,7 +79,7 @@ func (s *RetentionService) EnforceRetention(scheduleID string) error {
 	case models.PITR:
 		err = s.retentionPITR(storage, scheduleID, retention)
 	default:
-		s.l.Warnf("Retantion policy is not implemented for backup mode %s", mode)
+		s.l.Warnf("Retention policy is not implemented for backup mode %s", mode)
 		return nil
 	}
 
@@ -116,9 +117,12 @@ func (s *RetentionService) retentionPITR(storage Storage, scheduleID string, ret
 		return err
 	}
 
-	if len(artifacts) != 1 {
-		s.l.Errorf("Must be only one artifact entity for PITR in the database but found %d", len(artifacts))
+	if len(artifacts) == 0 {
 		return nil
+	}
+
+	if len(artifacts) > 1 {
+		return errors.Errorf("Can be only one artifact entity for PITR in the database but found %d", len(artifacts))
 	}
 
 	artifact := artifacts[0]
