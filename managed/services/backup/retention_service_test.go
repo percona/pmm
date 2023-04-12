@@ -201,7 +201,7 @@ func TestEnsureRetention(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			for i := 1; i<=5; i++ {
+			for i := 1; i <= 5; i++ {
 				_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file"}}}})
 				require.NoError(t, err)
 			}
@@ -239,7 +239,6 @@ func TestEnsureRetention(t *testing.T) {
 			require.NotNil(t, err)
 			assert.Equal(t, "Can be only one artifact entity for PITR in the database but found 2", err.Error())
 		})
-
 	})
 
 	mockedRemovalService.AssertExpectations(t)

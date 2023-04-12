@@ -38,9 +38,13 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func TestListPitrTimelines(t *testing.T) {
+func TestListPitrTimeranges(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedPbmPITRService := &mockPbmPITRService{}
@@ -124,4 +128,46 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.Nil(t, response)
 	})
 	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
+}
+
+func TestArtifactMetadataListToProto(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	params := models.CreateBackupLocationParams{
+		Name:        gofakeit.Name(),
+		Description: "",
+	}
+	params.S3Config = &models.S3LocationConfig{
+		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	loc, err := models.CreateBackupLocation(db.Querier, params)
+	require.NoError(t, err)
+	require.NotEmpty(t, loc.ID)
+
+	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+		Name:       "test_artifact",
+		Vendor:     "test_vendor",
+		LocationID: loc.ID,
+		ServiceID:  "test_service",
+		Mode:       models.PITR,
+		DataModel:  models.LogicalDataModel,
+		Status:     models.PendingBackupStatus,
+	})
+	assert.NoError(t, err)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
+		},
+	})
+	require.NoError(t, err)
 }

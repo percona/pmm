@@ -134,7 +134,8 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 		var err error
 		defer func() {
 			if err != nil {
-				s.setArtifactStatus(artifactID, models.FailedRetentionBackupStatus)
+				s.l.Error("Couldn't trim artifact files. Restoring is not guaranteed for files outside of retention policy limit.")
+				s.setArtifactStatus(artifactID, models.SuccessBackupStatus)
 			}
 		}()
 
@@ -176,8 +177,8 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 	}
 
 	var (
-		artifact   *models.Artifact
-		err        error
+		artifact *models.Artifact
+		err      error
 	)
 
 	if errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {

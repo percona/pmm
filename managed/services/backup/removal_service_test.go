@@ -18,13 +18,13 @@ package backup
 import (
 	"context"
 	"database/sql"
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/mock"
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -333,7 +333,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
 		require.NotNil(t, artifact)
-		assert.Equal(t, models.FailedRetentionBackupStatus, artifact.Status)
+		assert.Equal(t, models.SuccessBackupStatus, artifact.Status)
 		assert.Equal(t, 3, len(artifact.MetadataList))
 	})
 

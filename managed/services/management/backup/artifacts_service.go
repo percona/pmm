@@ -256,21 +256,22 @@ func convertArtifact(
 		Status:       backupStatus,
 		CreatedAt:    createdAt,
 		Folder:       a.Folder,
-		MetadataList: ArtifactMetadataListToProto(a),
+		MetadataList: artifactMetadataListToProto(a),
 	}, nil
 }
 
-// ArtifactMetadataListToProto returns artifact metadata list in protobuf format.
-func ArtifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata {
+// artifactMetadataListToProto returns artifact metadata list in protobuf format.
+func artifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata {
 	res := make([]*backuppb.Metadata, len(artifact.MetadataList))
 	for i, metadata := range artifact.MetadataList {
 		res[i] = &backuppb.Metadata{}
 		res[i].FileList = make([]*backuppb.File, len(metadata.FileList))
 
 		for j, file := range metadata.FileList {
-			res[i].FileList[j] = &backuppb.File{}
-			res[i].FileList[j].Name = file.Name
-			res[i].FileList[j].IsDirectory = file.IsDirectory
+			res[i].FileList[j] = &backuppb.File{
+				Name:        file.Name,
+				IsDirectory: file.IsDirectory,
+			}
 		}
 		if metadata.RestoreTo != nil {
 			res[i].RestoreTo = timestamppb.New(*metadata.RestoreTo)
