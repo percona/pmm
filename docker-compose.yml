@@ -29,25 +29,38 @@ services:
       - DBAAS_DBAAS_OP_CHANNEL=${DBAAS_DBAAS_OP_CHANNEL}
       - DBAAS_ALLOW_UNSUPPORTED_OPERATORS=${DBAAS_ALLOW_UNSUPPORTED_OPERATORS:-0}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=${PERCONA_TEST_DBAAS_PMM_CLIENT}
-    #      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-    #      - PERCONA_TEST_PLATFORM_INSECURE=1
-    #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-    #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-    #      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
-    #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
-    #      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
-    #      - PMM_DEBUG=1
-    #  - PERCONA_TEST_CHECKS_FILE=/srv/checks/local-checks.yml
+      # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+      # - PERCONA_TEST_PLATFORM_INSECURE=1
+      # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+      # - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+      # - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      # - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+      # - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
+      # - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
+      # - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
+      # - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      # - PMM_DEBUG=1
+      # - PERCONA_TEST_CHECKS_FILE=/srv/checks/local-checks.yml
+      # - PERCONA_TEST_POSTGRES_ADDR=pg
+      # - PERCONA_TEST_POSTGRES_DBNAME=pmm-managed
+      # - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
+      # - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
+      # - PERCONA_TEST_POSTGRES_SSL_MODE=verify-full
+      # - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
+      # - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
+      # - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
+      # - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
+      # - GF_DATABASE_SSL_MODE=verify-full
+      # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
+      # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
+      # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+      # - portal.localhost:${PORTAL_HOST:-host-gateway}
+      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -77,6 +90,15 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+    # command: >
+    #   bash -c "
+    #     rm -rf /tmp/certs
+    #     mkdir /tmp/certs
+    #     cp -R /root/go/src/github.com/percona/pmm/managed/testdata/pg/certs/* /tmp/certs
+    #     chown grafana:grafana /tmp/certs/*
+    #     chmod 600 /tmp/certs/*
+    #     /opt/entrypoint.sh
+    #   "
 
   # PMM with external DBs
   ch:
@@ -128,12 +150,13 @@ services:
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-#      - PERCONA_TEST_PLATFORM_INSECURE=1
-#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      - ENABLE_BACKUP_MANAGEMENT=1
+      # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+      # - PERCONA_TEST_PLATFORM_INSECURE=1
+      # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+      # - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+      # - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+      # - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
       - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
@@ -144,10 +167,10 @@ services:
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+      # - portal.localhost:${PORTAL_HOST:-host-gateway}
+      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -166,11 +189,40 @@ services:
       - ${PMM_PORT_DELVE:-2345}:2345
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-#      - "../grafana/public:/usr/share/grafana/public"
+      #  - "../grafana/public:/usr/share/grafana/public"
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+
+  # PMM with external Postgres DB
+  pg:
+    profiles:
+      - pmm-pg
+    build:
+      context: ./managed/testdata/pg
+      args:
+        POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
+      dockerfile: Dockerfile
+    container_name: pmm-pg
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    command: |
+      postgres 
+      -c shared_preload_libraries=pg_stat_statements 
+      -c pg_stat_statements.max=10000 
+      -c pg_stat_statements.track=all 
+      -c pg_stat_statements.save=off 
+      -c fsync=off 
+      -c ssl=on 
+      -c ssl_ca_file=/certs/root.crt 
+      -c ssl_cert_file=/certs/server.crt 
+      -c ssl_key_file=/certs/server.key
+      -c hba_file=/conf/pg_hba.conf
+    networks:
+      - ${NETWORK:-default}
 
 volumes:
   go-modules:
@@ -179,5 +231,5 @@ volumes:
 
 networks:
   minikube:
-    external:
-      name: minikube
+    external: true
+    name: minikube
