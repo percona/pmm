@@ -11,7 +11,7 @@ require (
 	github.com/bufbuild/buf v1.17.0
 	github.com/daixiang0/gci v0.10.1
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
-	github.com/go-delve/delve v1.20.1
+	github.com/go-delve/delve v1.20.2
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
@@ -22,11 +22,11 @@ require (
 	github.com/vburenin/ifacemaker v1.2.0
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.7.0
+	golang.org/x/tools v0.8.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/reform.v1 v1.5.1
-	mvdan.cc/gofumpt v0.4.0
+	mvdan.cc/gofumpt v0.5.0
 )
 
 require (
@@ -50,7 +50,7 @@ require (
 	github.com/cosiner/argv v0.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
-	github.com/derekparker/trie v0.0.0-20200317170641-1fdf38b7b0e9 // indirect
+	github.com/derekparker/trie v0.0.0-20221213183930-4c74548207f4 // indirect
 	github.com/docker/cli v23.0.2+incompatible // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/docker v23.0.3+incompatible // indirect
@@ -91,7 +91,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-containerregistry v0.14.0 // indirect
-	github.com/google/go-dap v0.6.0 // indirect
+	github.com/google/go-dap v0.7.0 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-github/v39 v39.2.0 // indirect
 	github.com/google/go-github/v41 v41.0.0 // indirect
@@ -150,7 +150,7 @@ require (
 	github.com/reviewdog/errorformat v0.0.0-20220309155058-b075c45b6d9a // indirect
 	github.com/reviewdog/go-bitbucket v0.0.0-20201024094602-708c3f6a7de0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/rs/cors v1.8.3 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
@@ -179,13 +179,13 @@ require (
 	golang.org/x/build v0.0.0-20200616162219-07bebbe343e9 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
-	golang.org/x/mod v0.9.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/term v0.7.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.108.0 // indirect

@@ -4,7 +4,7 @@ slug: 'listservices'
 
 ## List Services
 
-The following Curl API call lists the available services on a Node:
+The following API call lists the available services on a Node:
 
 ```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
@@ -26,4 +26,6 @@ Then, you require the [node_id](ref:listnodes).
 Choose the `service_type` that you want to list. The options are:
 `SERVICE_TYPE_INVALID, MYSQL_SERVICE, MONGODB_SERVICE, POSTGRESQL_SERVICE, PROXYSQL_SERVICE, HAPROXY_SERVICE, EXTERNAL_SERVICE`
 
+If you prefer to get all services running on the node, you can omit the `service_type` parameter.
 
+However, calling the same endpoint without any parameters will return all services known to this PMM instance.

@@ -45,8 +45,8 @@ const (
 	mariaDBComment = "mariadb"
 	debianComment  = "debian"
 
-	versionQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'`
-	commentQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`
+	mysqlVersionQuery = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'`
+	commentQuery      = `SHOW GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`
 )
 
 var (
@@ -57,9 +57,9 @@ var (
 )
 
 // GetMySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.) and vendor.
-func GetMySQLVersion(ctx context.Context, q *reform.Querier) (MySQLVersion, MySQLVendor, error) {
+func GetMySQLVersion(ctx context.Context, q reform.DBTXContext) (MySQLVersion, MySQLVendor, error) {
 	var name, version string
-	err := q.QueryRowContext(ctx, versionQuery).Scan(&name, &version)
+	err := q.QueryRowContext(ctx, mysqlVersionQuery).Scan(&name, &version)
 	if err != nil {
 		return MySQLVersion{}, 0, err
 	}

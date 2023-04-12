@@ -61,12 +61,14 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/uieventspb"
@@ -213,6 +215,7 @@ type gRPCServerDeps struct {
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
 	uieventsService      *uievents.Service
+	vmClient             *metrics.Client
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -260,13 +263,16 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
+	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
@@ -386,6 +392,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
+		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
@@ -606,8 +614,10 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername, dbPassword string) {
+func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) {
 	l := logrus.WithField("component", "migration")
+	params.Logf = l.Debugf
+	params.SetupFixtures = models.SetupFixtures
 
 	const timeout = 5 * time.Minute
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -619,14 +629,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 		default:
 		}
 		l.Infof("Migrating database...")
-		_, err := models.SetupDB(sqlDB, &models.SetupDBParams{
-			Logf:          l.Debugf,
-			Name:          dbName,
-			Address:       dbAddress,
-			Username:      dbUsername,
-			Password:      dbPassword,
-			SetupFixtures: models.SetupFixtures,
-		})
+		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}
@@ -676,10 +679,35 @@ func main() {
 	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
-	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
-	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
-	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").Default("pmm-managed").String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").Default("pmm-managed").String()
+	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
+		Default(models.DefaultPostgreSQLAddr).
+		Envar("PERCONA_TEST_POSTGRES_ADDR").
+		String()
+	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_DBNAME").
+		String()
+	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_USERNAME").
+		String()
+	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
+		Default(models.DisableSSLMode).
+		Envar("PERCONA_TEST_POSTGRES_SSL_MODE").
+		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
+	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CA_PATH").
+		String()
+	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_DBPASSWORD").
+		String()
+	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").
+		String()
+	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -714,16 +742,24 @@ func main() {
 	if err := cfg.Load(); err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
+	// in order to reproduce postgres behaviour.
+	if *postgresSSLModeF == models.RequireSSLMode && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = models.VerifyCaSSLMode
+	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 	pmmdb := ds.PmmDBSelect
-
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
 	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
-	q.Set("sslmode", "disable")
+	q.Set("sslmode", *postgresSSLModeF)
+	if *postgresSSLModeF != models.DisableSSLMode {
+		q.Set("sslrootcert", *postgresSSLCAPathF)
+		q.Set("sslcert", *postgresSSLCertPathF)
+		q.Set("sslkey", *postgresSSLKeyPathF)
+	}
 	pmmdb.DSN.Params = q.Encode()
 
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
@@ -731,13 +767,24 @@ func main() {
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = clickhouseDSN
 
-	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
+	setupParams := models.SetupDBParams{
+		Address:     *postgresAddrF,
+		Name:        *postgresDBNameF,
+		Username:    *postgresDBUsernameF,
+		Password:    *postgresDBPasswordF,
+		SSLMode:     *postgresSSLModeF,
+		SSLCAPath:   *postgresSSLCAPathF,
+		SSLKeyPath:  *postgresSSLKeyPathF,
+		SSLCertPath: *postgresSSLCertPathF,
+	}
+
+	sqlDB, err := models.OpenDB(setupParams)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
@@ -787,7 +834,22 @@ func main() {
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+
+	supervisord := supervisord.New(
+		*supervisordConfigDirF,
+		pmmUpdateCheck,
+		vmParams,
+		models.PGParams{
+			Addr:        *postgresAddrF,
+			DBName:      *postgresDBNameF,
+			DBUsername:  *postgresDBUsernameF,
+			DBPassword:  *postgresDBPasswordF,
+			SSLMode:     *postgresSSLModeF,
+			SSLCAPath:   *postgresSSLCAPathF,
+			SSLKeyPath:  *postgresSSLKeyPathF,
+			SSLCertPath: *postgresSSLCertPathF,
+		},
+		gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
@@ -1049,6 +1111,7 @@ func main() {
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
 				uieventsService:      uieventsService,
+				vmClient:             &vmClient,
 			})
 	}()
 

@@ -17,7 +17,7 @@ services:
           username: pmm
           password: pmm
       GRAFANADB_SELECT:
-        enabled: true
+        enabled: false
         timeout: 5s
         db_file: /srv/grafana/grafana.db
     reporting:
