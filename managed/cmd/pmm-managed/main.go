@@ -61,12 +61,14 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/uieventspb"
@@ -213,6 +215,7 @@ type gRPCServerDeps struct {
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
 	uieventsService      *uievents.Service
+	vmClient             *metrics.Client
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -260,13 +263,16 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
+	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
@@ -386,6 +392,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
+		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
@@ -1103,6 +1111,7 @@ func main() {
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
 				uieventsService:      uieventsService,
+				vmClient:             &vmClient,
 			})
 	}()
 

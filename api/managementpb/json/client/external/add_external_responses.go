@@ -717,7 +717,7 @@ func (o *AddExternalOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExternalParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddExternalParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddExternalParamsBodyAddNode
 */
 type AddExternalParamsBodyAddNode struct {
