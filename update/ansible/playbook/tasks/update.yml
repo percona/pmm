@@ -57,6 +57,7 @@
         dest: /etc/supervisord.d/pmm.ini
         force: true
         remote_src: true
+        ignore_errors: true
 
     - name: Remove supervisord block from pmm.ini
       ini_file:
