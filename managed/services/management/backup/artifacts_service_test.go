@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
 	"time"
 
@@ -170,4 +171,39 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 		},
 	})
 	require.NoError(t, err)
+
+	restoreTo := time.Unix(123, 456)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList:       []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
+			RestoreTo:      &restoreTo,
+			BackupToolData: &models.BackupToolData{Name: "backup tool data name"},
+		},
+	})
+	require.NoError(t, err)
+
+	expected := []*backuppb.Metadata{
+		{FileList: []*backuppb.File{
+			{Name: "dir1", IsDirectory: true},
+			{Name: "file1"},
+			{Name: "file2"},
+			{Name: "file3"},
+		},
+		},
+		{FileList: []*backuppb.File{
+			{Name: "dir2", IsDirectory: true},
+			{Name: "file4"},
+			{Name: "file5"},
+			{Name: "file6"},
+		},
+			RestoreTo:      &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
+			BackupToolData: &backuppb.BackupToolData{Name: "backup tool data name"},
+		},
+	}
+
+	actual := artifactMetadataListToProto(artifact)
+
+	assert.Equal(t, expected, actual)
+
 }
