@@ -61,7 +61,7 @@ type Service struct {
 }
 
 // New returns platform Service.
-func New(client *platform.Client, db *reform.DB, supervisord supervisordService, checksService checksService, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam,lll
+func New(client *platform.Client, db *reform.DB, supervisord supervisordService, checksService checksService, grafanaClient grafanaClient) *Service {
 	l := logrus.WithField("component", "platform")
 
 	s := Service{
@@ -74,7 +74,7 @@ func New(client *platform.Client, db *reform.DB, supervisord supervisordService,
 		grafanaClient: grafanaClient,
 	}
 
-	return &s, nil
+	return &s
 }
 
 // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.

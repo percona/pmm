@@ -1,5 +1,5 @@
 ---
-# This playbook is used in the post-build phase for all pmm2 images (AMI/OVF/Docker).
+# This playbook is used as a post build actions for all pmm2 images (AMI/OVF/Docker).
 
 - hosts: localhost
   become: yes
@@ -9,7 +9,7 @@
     pmm_client_repos_final: "original release"
 
   tasks:
-    # pmm-managed checks when /srv/pmm-distribution exists, that it contains "docker", "ovf" or "ami" (all lowercase)
+    # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
       when: ansible_virtualization_type == "docker"
       copy:
@@ -41,11 +41,8 @@
     - name: Disable repo               | Disable testing repo for pmm2-client
       command: percona-release disable {{ pmm_client_repos }}
 
-    # We don't want to enable the release repo for pmm2-client on OracleLinux
-    # since no update functionality is supported for it.
     - name: Enable repo                | Enable release repo for pmm2-client
       command: percona-release enable {{ pmm_client_repos_final }}
-      # when: ansible_distribution != "OracleLinux"
 
     - name: pmm-agent                  | Setup pmm-agent
       command: >
@@ -72,22 +69,47 @@
       # become: true
       # ignore_errors: True
 
-    - name: Close all connections to pmm-managed
-      postgresql_query:
-        db: pmm-managed
-        query: "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'pmm-managed' AND pid <> pg_backend_pid();"
+    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
 
-    - name: Remove pmm-managed database from postgres
+    - name: Supervisord stop           | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker"
+      shell: supervisorctl shutdown
+
+      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
+      # so a temporary solution was to start it without supervisord and remove the
+      # pmm-managed database/role. However, a complete overhaul of the pipeline is
+      # necessary for a permanent fix.
+    - name: Start PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      when: ansible_virtualization_type != "docker"
+
+    - name: Remove pmm-managed database
       postgresql_db:
+        login_user: postgres
         name: pmm-managed
         state: absent
-      # ignore_errors: True
+      register: db_check_result
+
+    - name: Output db_check_result
+      debug:
+        msg: "pmm-managed database was removed"
+      when: db_check_result.changed == True
+
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
         name: pmm-managed
         state: absent
-      # ignore_errors: True
+
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      when: ansible_virtualization_type != "docker"
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
@@ -120,8 +142,8 @@
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
     # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents are recreated.
+    # This due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
+    # This step ensures the directory is empty on startup and the contents is recreated.
     # This is not an issue if the folder is in a volume or mounted from the host OS.
     - name: Recreate /srv/victoriametrics folder
       file:
@@ -129,7 +151,7 @@
         path: /srv/victoriametrics
         owner: pmm
         group: pmm
-        mode: "0775"
+        mode: '0775'
       with_items:
         - absent
         - directory
@@ -141,5 +163,3 @@
         owner: pmm
         group: pmm
         mode: "0775"
-    - name: Remove VBoxGuest            | Remove VBoxGuest
-      shell: bash +x /opt/VBoxGuestAdditions*/uninstall.sh || true

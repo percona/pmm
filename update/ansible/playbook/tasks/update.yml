@@ -1,13 +1,8 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: true
-  remote_user: root
-  gather_facts: true
-
-  environment:
-    PATH: /usr/local/bin:{{ ansible_env.PATH }}
-
+  become: yes
+  gather_facts: yes
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -66,6 +61,7 @@
         path: /etc/supervisord.d/pmm.ini
         section: supervisord
         state: absent
+        path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
 
     - name: Create grafana config
@@ -109,12 +105,12 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Supervisord start EL7         | Start supervisord for docker
-      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+    - name: Supervisord start         | Start supervisord for docker
+      when: is_docker and not is_supervisor_running.stat.exists and ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Supervisord start EL9        | Start supervisord for docker
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: is_docker and not is_supervisor_running.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
@@ -212,7 +208,7 @@
         exclude:
           - nginx*
 
-    - name: Updating only select packages
+    - name: Updating vulnerable packages
       yum:
         name: "{{ item }}"
         state: latest
@@ -265,7 +261,7 @@
         mode: 0755
 
     # https://jira.percona.com/browse/PMM-5271
-    - name: Patch volume size script
+    - name: Check volume size
       when: not is_docker
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
