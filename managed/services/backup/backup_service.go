@@ -241,17 +241,17 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 }
 
 type restoreJobParams struct {
-	JobID           string
-	ServiceID       string
-	AgentID         string
-	ArtifactName    string
-	ArtifactSysName string
-	LocationModel   *models.BackupLocation
-	ServiceType     models.ServiceType
-	DBConfig        *models.DBConfig
-	DataModel       models.DataModel
-	PITRTimestamp   time.Time
-	Folder          *string
+	JobID         string
+	ServiceID     string
+	AgentID       string
+	ArtifactName  string
+	pbmBackupName string
+	LocationModel *models.BackupLocation
+	ServiceType   models.ServiceType
+	DBConfig      *models.DBConfig
+	DataModel     models.DataModel
+	PITRTimestamp time.Time
+	Folder        *string
 }
 
 // RestoreBackup starts restore backup job.
@@ -371,7 +371,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		if len(artifact.MetadataList) != 0 && artifact.MetadataList[0].BackupToolData != nil {
-			params.ArtifactSysName = artifact.MetadataList[0].BackupToolData.Name
+			params.pbmBackupName = artifact.MetadataList[0].BackupToolData.Name
 		}
 
 		return nil
@@ -453,7 +453,7 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			params.AgentID,
 			0,
 			params.ArtifactName,
-			params.ArtifactSysName,
+			params.pbmBackupName,
 			params.DBConfig,
 			params.DataModel,
 			locationConfig,

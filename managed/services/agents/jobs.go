@@ -554,7 +554,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	pmmAgentID string,
 	timeout time.Duration,
 	name string,
-	sysName string,
+	pbmBackupName string,
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
@@ -594,7 +594,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Socket:         dbConfig.Socket,
 		PitrTimestamp:  timestamppb.New(pitrTimestamp),
 		Folder:         folder,
-		BackupToolData: &backuppb.BackupToolData{Name: sysName},
+		BackupToolData: &backuppb.BackupToolData{Name: pbmBackupName},
 	}
 
 	switch {

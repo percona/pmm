@@ -70,7 +70,7 @@ type jobsService interface {
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,
-		sysName string,
+		pbmBackupName string,
 		dbConfig *models.DBConfig,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,

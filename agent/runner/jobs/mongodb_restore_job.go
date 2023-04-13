@@ -48,7 +48,7 @@ type MongoDBRestoreJob struct {
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
 	folder          *string
-	sysName         string
+	pbmBackupName   string
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
@@ -61,7 +61,7 @@ func NewMongoDBRestoreJob(
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
 	folder *string,
-	sysName string,
+	pbmBackupName string,
 ) *MongoDBRestoreJob {
 	dbURL := createDBURL(dbConfig)
 	return &MongoDBRestoreJob{
@@ -75,7 +75,7 @@ func NewMongoDBRestoreJob(
 		agentsRestarter: restarter,
 		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbURL),
 		folder:          folder,
-		sysName:         sysName,
+		pbmBackupName:   pbmBackupName,
 	}
 }
 
@@ -105,7 +105,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	var artifactFolder string
 
 	// Old artifacts don't contain pbm backup name.
-	if j.sysName == "" {
+	if j.pbmBackupName == "" {
 		artifactFolder = j.name
 	}
 
@@ -140,7 +140,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 	cancel()
 
-	snapshot, err := j.findSnapshot(ctx, j.sysName)
+	snapshot, err := j.findSnapshot(ctx, j.pbmBackupName)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.WithStack(err)
