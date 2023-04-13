@@ -39,7 +39,6 @@
 
 - name: Copy el7 files to RPMS_7 and remaining to both directories
   become: yes
-  become_user: root
   command: "find /tmp/RPMS -maxdepth 1 -type f -name '*.el7*' -exec mv {} /tmp/RPMS_7/ \\; || true"
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
