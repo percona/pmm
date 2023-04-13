@@ -382,5 +382,4 @@ func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
 	}
 
 	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
-
 }

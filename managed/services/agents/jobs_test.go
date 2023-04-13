@@ -16,13 +16,15 @@
 package agents
 
 import (
-	"github.com/AlekSi/pointer"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
-	"github.com/percona/pmm/managed/models"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
 	"time"
+
+	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestArtifactMetadataFromProto(t *testing.T) {
