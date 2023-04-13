@@ -4,7 +4,7 @@ set -o errexit
 # init /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then
-    echo "File $DIST_FILE doesn't exist. Initizlize /srv..."
+    echo "File $DIST_FILE doesn't exist. Initialize /srv..."
     echo docker > $DIST_FILE
     mkdir -p /srv/{clickhouse,grafana,logs,postgres14,prometheus,nginx,victoriametrics}
     echo "Copy plugins and VERSION file"
@@ -17,7 +17,7 @@ if [ ! -f $DIST_FILE ]; then
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
     echo "Init Postgres"
     su postgres -c "/usr/pgsql-14/bin/initdb -D /srv/postgres14"
-    echo "Temporary start postgres and enable pg_stat_statements"
+    echo "Enable pg_stat_statements extension"
     su postgres -c "/usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14"
     su postgres -c "psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'"
     su postgres -c "/usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14"
