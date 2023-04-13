@@ -110,6 +110,7 @@ func TestScheduleBackup(t *testing.T) {
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        false,
 					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					Folder:         "backup_folder",
 				},
 				Context: pmmapitests.Context,
 			})
@@ -150,6 +151,7 @@ func TestScheduleBackup(t *testing.T) {
 			assert.Equal(t, body.Name, backup.Name)
 			assert.Equal(t, body.Description, backup.Description)
 			assert.Equal(t, body.CronExpression, backup.CronExpression)
+			assert.Equal(t, "backup_folder", backup.Folder)
 
 			_, err = client.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 				Body: backups.RemoveScheduledBackupBody{
