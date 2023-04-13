@@ -46,21 +46,30 @@
           - percona-grafana
         state: latest
 
-    - name: Create supervisord dir
+    - name: Create supervisor dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Copy supervisord config
-      copy:
-        src: pmm.ini
-        dest: /etc/supervisord.d/pmm.ini
-      when: not is_docker
+    - name: Upgrade supervisor config
+      command: pmm-managed-init
+      register: managed_init_result
+      changed_when: True
 
-    - name: Remove supervisord block from pmm.ini
+    - name: Disable pmm-update-perform-init
       ini_file:
         path: /etc/supervisord.d/pmm.ini
-        section: supervisord
+        section: program:pmm-update-perform-init
+        option: autostart
+        value: "false"
+
+    - name: Upgrade supervisord config
+      copy:
+        src: supervisord.ini
+        dest: /etc/supervisord.d/supervisord.ini
+
+    - name: Remove supervisord
+      file:
         state: absent
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
