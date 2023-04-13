@@ -368,7 +368,13 @@ func mergeTimelines(timelines ...[]Timeline) []Timeline {
 }
 
 // GetPITRFiles returns list of PITR chunks. If 'until' specified, returns only chunks created before that date, otherwise returns all artifact chunks.
-func (s *PBMPITRService) GetPITRFiles(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
+func (s *PBMPITRService) GetPITRFiles(
+	ctx context.Context,
+	storage Storage,
+	location *models.BackupLocation,
+	artifact *models.Artifact,
+	until *time.Time,
+) ([]*oplogChunk, error) {
 	opLogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, err

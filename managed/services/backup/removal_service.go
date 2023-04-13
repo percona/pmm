@@ -291,7 +291,13 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 }
 
 // deleteArtifactPITRChunks deletes artifact PITR chunks. If "until" provided, deletes only chunks created before that time. Deletes all artifact chunks otherwise.
-func (s *RemovalService) deleteArtifactPITRChunks(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) error {
+func (s *RemovalService) deleteArtifactPITRChunks(
+	ctx context.Context,
+	storage Storage,
+	location *models.BackupLocation,
+	artifact *models.Artifact,
+	until *time.Time,
+) error {
 	s3Config := location.S3Config
 	if storage == nil || s3Config == nil {
 		s.l.Debug("Storage not specified.")

@@ -18,7 +18,6 @@ package backup
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
 	"time"
 
@@ -29,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -184,19 +184,21 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 	require.NoError(t, err)
 
 	expected := []*backuppb.Metadata{
-		{FileList: []*backuppb.File{
-			{Name: "dir1", IsDirectory: true},
-			{Name: "file1"},
-			{Name: "file2"},
-			{Name: "file3"},
+		{
+			FileList: []*backuppb.File{
+				{Name: "dir1", IsDirectory: true},
+				{Name: "file1"},
+				{Name: "file2"},
+				{Name: "file3"},
+			},
 		},
-		},
-		{FileList: []*backuppb.File{
-			{Name: "dir2", IsDirectory: true},
-			{Name: "file4"},
-			{Name: "file5"},
-			{Name: "file6"},
-		},
+		{
+			FileList: []*backuppb.File{
+				{Name: "dir2", IsDirectory: true},
+				{Name: "file4"},
+				{Name: "file5"},
+				{Name: "file6"},
+			},
 			RestoreTo:      &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
 			BackupToolData: &backuppb.BackupToolData{Name: "backup tool data name"},
 		},
@@ -205,5 +207,4 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 	actual := artifactMetadataListToProto(artifact)
 
 	assert.Equal(t, expected, actual)
-
 }
