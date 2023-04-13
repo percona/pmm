@@ -188,7 +188,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				job.Data.MySQLBackup.ArtifactID,
 				models.UpdateArtifactParams{
 					Status:   models.SuccessBackupStatus.Pointer(),
-					Metadata: ArtifactMetadataFromProto(result.MysqlBackup.Metadata),
+					Metadata: artifactMetadataFromProto(result.MysqlBackup.Metadata),
 				})
 			if err != nil {
 				return err
@@ -202,7 +202,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
 			}
 
-			metadata := ArtifactMetadataFromProto(result.MongodbBackup.Metadata)
+			metadata := artifactMetadataFromProto(result.MongodbBackup.Metadata)
 
 			artifact, err := models.UpdateArtifact(
 				t.Querier,
@@ -221,16 +221,15 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 
 			// If task was running by an old agent. Hacky code to support artifacts created on new server and old agent.
 			if metadata == nil && artifact.Mode == models.PITR && (artifact.Folder == nil || *artifact.Folder != artifact.Name) {
-				s.l.Error("Here1")
 				artifact, err := models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
-				s.l.Error("Here2")
 				if err != nil {
-					return errors.Wrapf(err, "Failed to update artifact %s", artifact.ID)
+					return errors.Wrapf(err, "failed to update artifact %s", artifact.ID)
 				}
 
-				s.l.Error("Here3")
-
 				task, err := models.FindScheduledTaskByID(t.Querier, scheduleID)
+				if err != nil {
+					return errors.Wrapf(err, "cannot get scheduled task %s", scheduleID)
+				}
 				taskData := task.Data
 				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = &artifact.Name
 
@@ -238,13 +237,10 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 					Data: taskData,
 				}
 
-				s.l.Error("Here4")
-
 				_, err = models.ChangeScheduledTask(t.Querier, scheduleID, params)
 				if err != nil {
-					return errors.Wrapf(err, "Failed to update scheduled task %s", scheduleID)
+					return errors.Wrapf(err, "failed to update scheduled task %s", scheduleID)
 				}
-				s.l.Error("Here5")
 			}
 
 		case *agentpb.JobResult_MysqlRestoreBackup:
@@ -783,20 +779,20 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 	return err
 }
 
-// ArtifactMetadataFromProto returns artifact metadata converted from protobuf to Go model format.
-func ArtifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
+// artifactMetadataFromProto returns artifact metadata converted from protobuf to Go model format.
+func artifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
 	if metadata == nil {
 		return nil
 	}
 
-	artifactReprFiles := make([]models.File, len(metadata.FileList))
+	files := make([]models.File, len(metadata.FileList))
 	for i, file := range metadata.FileList {
-		artifactReprFiles[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
+		files[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
 	}
 
 	var res models.Metadata
 
-	res.FileList = artifactReprFiles
+	res.FileList = files
 
 	if metadata.RestoreTo != nil {
 		t := metadata.RestoreTo.AsTime()

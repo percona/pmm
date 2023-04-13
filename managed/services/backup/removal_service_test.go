@@ -411,8 +411,9 @@ func TestLockArtifact(t *testing.T) {
 	removalService := NewRemovalService(db, nil)
 
 	t.Run("wrong locking status", func(t *testing.T) {
-		res, err := removalService.lockArtifact(artifact.ID, models.FailedToDeleteBackupStatus)
+		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.FailedToDeleteBackupStatus)
 		assert.Nil(t, res)
+		assert.Empty(t, oldStatus)
 		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
@@ -422,8 +423,9 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	t.Run("artifact not in final status", func(t *testing.T) {
-		res, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
+		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		assert.Nil(t, res)
+		assert.Empty(t, oldStatus)
 		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
@@ -448,8 +450,9 @@ func TestLockArtifact(t *testing.T) {
 			require.NoError(t, err)
 		})
 
-		res, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
+		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		assert.Nil(t, res)
+		assert.Empty(t, oldStatus)
 		assert.Contains(t, err.Error(), "artifact is used by currently running restore operation")
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
@@ -459,8 +462,9 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
-		res, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
+		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		require.NotNil(t, res)
+		assert.Equal(t, models.SuccessBackupStatus, oldStatus)
 		require.NoError(t, err)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)

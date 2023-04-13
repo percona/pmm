@@ -49,7 +49,7 @@ func NewRemovalService(db *reform.DB, pbmPITRService pbmPITRService) *RemovalSer
 
 // DeleteArtifact deletes specified artifact along with files if specified.
 func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, removeFiles bool) error {
-	artifact, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
+	artifact, _, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 
 // TrimPITRArtifact removes first N first records from PITR artifact. Removes snapshots, PITR chunks and corresponding data from database.
 func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, firstN int) error {
-	artifact, err := s.lockArtifact(artifactID, models.RetentionInProgressBackupStatus)
+	artifact, oldStatus, err := s.lockArtifact(artifactID, models.RetentionInProgressBackupStatus)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 			return
 		}
 
-		if err = s.releaseArtifact(artifactID, models.SuccessBackupStatus); err != nil {
+		if err = s.releaseArtifact(artifactID, oldStatus); err != nil {
 			s.l.WithError(err).Error("couldn't unlock artifact")
 			return
 		}
@@ -170,9 +170,11 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 
 // lockArtifact checks if the artifact isn't in use at the moment and sets deleting status,
 // so it will not be used to restore backup.
-func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.BackupStatus) (*models.Artifact, error) {
+func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.BackupStatus) (*models.Artifact, models.BackupStatus, error) {
+	var currentStatus models.BackupStatus
+
 	if models.IsArtifactFinalStatus(lockingStatus) {
-		return nil, errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't lock artifact, requested new status %s (present in list of final statuses) for artifact %s",
+		return nil, "", errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't lock artifact, requested new status %s (present in list of final statuses) for artifact %s",
 			lockingStatus, artifactID)
 	}
 
@@ -186,6 +188,8 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		if err != nil {
 			return err
 		}
+
+		currentStatus = artifact.Status
 
 		if !models.IsArtifactFinalStatus(artifact.Status) {
 			return errors.Wrapf(ErrIncorrectArtifactStatus, "artifact with ID %q isn't in a final status", artifact.ID)
@@ -212,10 +216,10 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 
 		return nil
 	}); errTx != nil {
-		return nil, errTx
+		return nil, "", errTx
 	}
 
-	return artifact, nil
+	return artifact, currentStatus, nil
 }
 
 // releaseArtifact releases artifact lock by setting one of the final artifact statuses.
