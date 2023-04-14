@@ -64,8 +64,8 @@ github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.2 h1:uqM+VoHjVH6zdlkLF2b6O
 github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.2/go.mod h1:twTKAa1E6hLmSDjLhaCkbTMQKc7p/rNLU40rLxGEOCI=
 github.com/Azure/azure-sdk-for-go/sdk/internal v1.2.0 h1:leh5DwKv6Ihwi+h60uHtn6UWAxBbZ0q8DwQVMzf61zw=
 github.com/Azure/azure-sdk-for-go/sdk/internal v1.2.0/go.mod h1:eWRD7oawr1Mu1sLCawqVc0CUiF43ia3qQMxLscsKQ9w=
-github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.7.0 h1:ht6xbz1wlfgLAwho2Fv4nKqq2ev/PCDCoX8H0MXf6q4=
-github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.7.0/go.mod h1:21rlzm+SuYrS9ARS92XEGxcHQeLVDcaY2YV30rHjSd4=
+github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.7.1 h1:eoQrCw9DMThzbJ32fHXZtISnURk6r0TozXiWuTsay5s=
+github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.7.1/go.mod h1:21rlzm+SuYrS9ARS92XEGxcHQeLVDcaY2YV30rHjSd4=
 github.com/Azure/azure-storage-blob-go v0.13.0/go.mod h1:pA9kNqtjUeQF2zOSu4s//nUdBD+e64lEuc4sVnuOfNs=
 github.com/Azure/azure-storage-blob-go v0.14.0 h1:1BCg74AmVdYwO3dlKwtFU1V0wU2PZdREkXvAmZJRUlM=
 github.com/Azure/azure-storage-blob-go v0.14.0/go.mod h1:SMqIBi+SuiQH32bvyjngEewEeXoPfKMgWlBDaYf6fck=
