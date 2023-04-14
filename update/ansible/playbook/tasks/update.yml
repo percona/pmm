@@ -56,15 +56,25 @@
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Copy supervisord config
-      copy:
-        src: pmm.ini
-        dest: /etc/supervisord.d/pmm.ini
+    - name: Upgrade supervisor config
+      command: pmm-managed-init
+      register: managed_init_result
+      changed_when: True
 
-    - name: Remove supervisord block from pmm.ini
+    - name: Disable pmm-update-perform-init
       ini_file:
         path: /etc/supervisord.d/pmm.ini
-        section: supervisord
+        section: program:pmm-update-perform-init
+        option: autostart
+        value: "false"
+
+    - name: Upgrade supervisord config
+      copy:
+        src: supervisord.ini
+        dest: /etc/supervisord.d/supervisord.ini
+
+    - name: Remove supervisord
+      file:
         state: absent
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
@@ -111,11 +121,11 @@
       register: is_supervisor_running
 
     - name: Supervisord start EL7         | Start supervisord for docker
-      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+      when: is_docker and not is_supervisor_running.stat.exists and ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Supervisord start EL9        | Start supervisord for docker
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: is_docker and not is_supervisor_running.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
@@ -184,6 +194,12 @@
       yum:
         name: "{{ pmm_packages }}"
         state: latest
+
+    - name: Update supervisor
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread && /usr/local/bin/supervisorctl update
+      become: true
+      changed_when: true
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed EL7
@@ -392,4 +408,5 @@
       file:
         state: absent
         path: /var/cache/yum
+
 
