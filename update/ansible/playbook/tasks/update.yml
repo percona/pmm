@@ -195,12 +195,6 @@
         name: "{{ pmm_packages }}"
         state: latest
 
-    - name: Update supervisor
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-      command: /usr/local/bin/supervisorctl reread && /usr/local/bin/supervisorctl update
-      become: true
-      changed_when: true
-
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed EL7
       when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
