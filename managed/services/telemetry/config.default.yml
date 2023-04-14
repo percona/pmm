@@ -600,6 +600,15 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMNodeOSVersionInside
+    source: VM
+    query: node_os
+    summary: "PMM node OS version Inside"
+    data:
+      - metric_name: "pmm_server_node_os_version_inside"
+        label: "os_version"
+
+
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
