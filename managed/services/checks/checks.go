@@ -717,7 +717,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
 	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
 	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
@@ -1689,7 +1689,7 @@ func (s *Service) refreshChecksInMemoryMetric() {
 		return
 	}
 	s.mChecksAvailable.Reset()
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
 	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
 	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
@@ -1699,6 +1699,56 @@ func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks
 	for _, c := range checks {
 		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
+}
+
+// groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
+func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) {
+	mySQLChecks = make(map[string]check.Check)
+	postgreSQLChecks = make(map[string]check.Check)
+	mongoDBChecks = make(map[string]check.Check)
+	for _, c := range checks {
+		switch c.Version {
+		case 1:
+			switch c.Type {
+			case check.MySQLSelect:
+				fallthrough
+			case check.MySQLShow:
+				mySQLChecks[c.Name] = c
+
+			case check.PostgreSQLSelect:
+				fallthrough
+			case check.PostgreSQLShow:
+				postgreSQLChecks[c.Name] = c
+
+			case check.MongoDBGetParameter:
+				fallthrough
+			case check.MongoDBBuildInfo:
+				fallthrough
+			case check.MongoDBGetCmdLineOpts:
+				fallthrough
+			case check.MongoDBReplSetGetStatus:
+				fallthrough
+			case check.MongoDBGetDiagnosticData:
+				mongoDBChecks[c.Name] = c
+
+			default:
+				l.Warnf("Unknown check type %s, skip it.", c.Type)
+			}
+		case 2:
+			switch c.Family {
+			case check.MySQL:
+				mySQLChecks[c.Name] = c
+			case check.PostgreSQL:
+				postgreSQLChecks[c.Name] = c
+			case check.MongoDB:
+				mongoDBChecks[c.Name] = c
+			default:
+				l.Warnf("Unknown check family %s, skip it.", c.Family)
+			}
+		}
+	}
+
+	return
 }
 
 // check interfaces.
