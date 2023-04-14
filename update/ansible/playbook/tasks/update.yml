@@ -325,7 +325,6 @@
       become: true
       changed_when: true
       with_nested:
-        - - alertmanager
           - nginx
           - grafana
           - qan-api2
