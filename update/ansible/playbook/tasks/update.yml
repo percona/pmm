@@ -320,7 +320,7 @@
         - ["stop", "remove", "add"]
 
     - name: Restart services EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9' and is_docker
       command: /usr/local/bin/supervisorctl {{ item.1 }} {{ item.0 }}
       become: true
       changed_when: true
