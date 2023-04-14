@@ -1,8 +1,13 @@
 ---
 # This playbook contains tasks executed during PMM Server update.
 - hosts: localhost
-  become: yes
-  gather_facts: yes
+  become: true
+  remote_user: root
+  gather_facts: true
+
+  environment:
+    PATH: /usr/local/bin:{{ ansible_env.PATH }}
+
   vars:
     pmm_packages:
       - percona-victoriametrics
@@ -46,30 +51,20 @@
           - percona-grafana
         state: latest
 
-    - name: Create supervisor dir
+    - name: Create supervisord dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
-    - name: Upgrade supervisor config
-      command: pmm-managed-init
-      register: managed_init_result
-      changed_when: True
+    - name: Copy supervisord config
+      copy:
+        src: pmm.ini
+        dest: /etc/supervisord.d/pmm.ini
 
-    - name: Disable pmm-update-perform-init
+    - name: Remove supervisord block from pmm.ini
       ini_file:
         path: /etc/supervisord.d/pmm.ini
-        section: program:pmm-update-perform-init
-        option: autostart
-        value: "false"
-
-    - name: Upgrade supervisord config
-      copy:
-        src: supervisord.ini
-        dest: /etc/supervisord.d/supervisord.ini
-
-    - name: Remove supervisord
-      file:
+        section: supervisord
         state: absent
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
@@ -115,12 +110,12 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Supervisord start         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists and ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+    - name: Supervisord start EL7         | Start supervisord for docker
+      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Supervisord start EL9        | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
 
     - name: Run initialization playbook
@@ -218,7 +213,7 @@
         exclude:
           - nginx*
 
-    - name: Updating vulnerable packages
+    - name: Updating only select packages
       yum:
         name: "{{ item }}"
         state: latest
@@ -325,7 +320,8 @@
       become: true
       changed_when: true
       with_nested:
-        - - nginx
+        - - alertmanager
+          - nginx
           - grafana
           - qan-api2
           - pmm-agent
@@ -396,3 +392,4 @@
       file:
         state: absent
         path: /var/cache/yum
+
