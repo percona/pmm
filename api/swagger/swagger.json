@@ -24123,6 +24123,9 @@
       "name": "Service"
     },
     {
+      "name": "TipService"
+    },
+    {
       "name": "Artifacts"
     },
     {
@@ -24133,9 +24136,6 @@
     },
     {
       "name": "RestoreHistory"
-    },
-    {
-      "name": "TipService"
     },
     {
       "name": "Alerting"
