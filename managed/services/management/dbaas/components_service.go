@@ -502,7 +502,7 @@ func getPMMClientImage() string {
 	pmmClientImage := "perconalab/pmm-client:dev-latest"
 
 	pmmClientImageEnv, ok := os.LookupEnv("PERCONA_TEST_DBAAS_PMM_CLIENT")
-	if ok {
+	if ok && pmmClientImageEnv != "" {
 		pmmClientImage = pmmClientImageEnv
 		return pmmClientImage
 	}

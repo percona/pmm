@@ -432,7 +432,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			CatalogSourceNamespace: catalogSourceNamespace,
 			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            os.Getenv("DBAAS_VM_STARTING_CSV"),
+			StartingCSV:            os.Getenv("DBAAS_VM_OP_STARTING_CSV"),
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
@@ -455,7 +455,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			CatalogSourceNamespace: catalogSourceNamespace,
 			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            os.Getenv("DBAAS_PXC_STARTING_CSV"),
+			StartingCSV:            os.Getenv("DBAAS_PXC_OP_STARTING_CSV"),
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
@@ -478,7 +478,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			CatalogSourceNamespace: catalogSourceNamespace,
 			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            os.Getenv("DBAAS_PSMDB_STARTING_CSV"),
+			StartingCSV:            os.Getenv("DBAAS_PSMDB_OP_STARTING_CSV"),
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
