@@ -673,15 +673,28 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").
-		Default("http://127.0.0.1:9090/prometheus/").String()
+		Default("http://127.0.0.1:9090/prometheus/").
+		Envar("PERCONA_TEST_PROMETHEUS_ADDR").
+		String()
 	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").
-		Default("http://127.0.0.1:8880/").String()
+		Default("http://127.0.0.1:8880/").
+		Envar("PERCONA_TEST_VMALERT_ADDR").
+		String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
-	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
-	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
-	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
+	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").
+		Default("127.0.0.1:3000").
+		Envar("PERCONA_TEST_GRAFANA_ADDR").
+		String()
+	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").
+		Default("127.0.0.1:9911").
+		Envar("PERCONA_TEST_QAN_API_ADDR").
+		String()
+	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").
+		Default("127.0.0.1:20201").
+		Envar("PERCONA_TEST_DBAAS_CONTROLLER_API_ADDR").
+		String()
 
 	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
