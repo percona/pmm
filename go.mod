@@ -23,9 +23,9 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.243
+	github.com/aws/aws-sdk-go v1.44.244
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/brianvoe/gofakeit/v6 v6.20.2
+	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/charmbracelet/lipgloss v0.7.1
@@ -85,11 +85,11 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.27.0
+	k8s.io/api v0.27.1
 	k8s.io/apiextensions-apiserver v0.26.2
-	k8s.io/apimachinery v0.27.0
-	k8s.io/cli-runtime v0.27.0
-	k8s.io/client-go v0.27.0
+	k8s.io/apimachinery v0.27.1
+	k8s.io/cli-runtime v0.27.1
+	k8s.io/client-go v0.27.1
 	k8s.io/kubectl v0.27.0
 	modernc.org/sqlite v1.21.1
 	sigs.k8s.io/controller-runtime v0.14.6
