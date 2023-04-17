@@ -23559,6 +23559,170 @@
         }
       }
     },
+    "/v1/onboarding": {
+      "get": {
+        "description": "Retrieve onboarding status of the user",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Get onboarding status of the user",
+        "operationId": "GetOnboardingStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for GetOnboardingStatusResponse method.",
+              "type": "object",
+              "properties": {
+                "systemTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per PMM instance",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "userTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per user",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/tips/complete": {
+      "post": {
+        "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Complete user tip",
+        "operationId": "CompleteUserTip",
+        "parameters": [
+          {
+            "description": "Request message for CompleteUserTip method.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Request message for CompleteUserTip method.",
+              "type": "object",
+              "properties": {
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for CompleteUserTip method.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/readyz": {
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
@@ -24027,6 +24191,9 @@
     },
     {
       "name": "Service"
+    },
+    {
+      "name": "TipService"
     },
     {
       "name": "Artifacts"
