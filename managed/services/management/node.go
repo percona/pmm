@@ -64,7 +64,7 @@ func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	}
 }
 
-// NewNodeService creates NodeService instance.
+// NewMgmtNodeService creates MgmtNodeService instance.
 func NewMgmtNodeService(db *reform.DB, r agentsRegistry, vmClient victoriaMetricsClient) *MgmtNodeService {
 	return &MgmtNodeService{
 		db:       db,
@@ -167,12 +167,15 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	return res, nil
 }
 
+// ListNodes returns a filtered list of Nodes.
+//
+//nolint:unparam
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: grpc.ProtoToModelNodeType(req.NodeType),
 	}
 
-	nodesRst, err := models.FindNodes(s.db.Querier, filters)
+	nodes, err := models.FindNodes(s.db.Querier, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -191,27 +194,27 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		return nil, err
 	}
 
-	nodes := make([]*nodev1beta1.UniversalNode, len(nodesRst))
-	for i, node := range nodesRst {
+	res := make([]*nodev1beta1.UniversalNode, len(nodes))
+	for i, node := range nodes {
 		labels, err := node.GetCustomLabels()
 		if err != nil {
 			return nil, err
 		}
 
-		universalNode := &nodev1beta1.UniversalNode{
-			NodeId:        node.NodeID,
-			NodeType:      string(node.NodeType),
-			NodeName:      node.NodeName,
-			MachineId:     pointer.GetString(node.MachineID),
-			Distro:        node.Distro,
+		uNode := &nodev1beta1.UniversalNode{
+			Address:       node.Address,
+			Az:            node.AZ,
+			CreatedAt:     timestamppb.New(node.CreatedAt),
 			ContainerId:   pointer.GetString(node.ContainerID),
 			ContainerName: pointer.GetString(node.ContainerName),
+			CustomLabels:  labels,
+			Distro:        node.Distro,
+			MachineId:     pointer.GetString(node.MachineID),
+			NodeId:        node.NodeID,
+			NodeName:      node.NodeName,
+			NodeType:      string(node.NodeType),
 			NodeModel:     node.NodeModel,
 			Region:        pointer.GetString(node.Region),
-			Az:            node.AZ,
-			CustomLabels:  labels,
-			Address:       node.Address,
-			CreatedAt:     timestamppb.New(node.CreatedAt),
 			UpdatedAt:     timestamppb.New(node.UpdatedAt),
 		}
 
@@ -223,11 +226,11 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 			}
 		}
 
-		universalNode.Agents = svcAgents
-		nodes[i] = universalNode
+		uNode.Agents = svcAgents
+		res[i] = uNode
 	}
 
 	return &nodev1beta1.ListNodeResponse{
-		Nodes: nodes,
+		Nodes: res,
 	}, nil
 }

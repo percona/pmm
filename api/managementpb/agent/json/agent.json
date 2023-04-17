@@ -31,6 +31,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Return only Agents that relate to a specific NodeID.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "service_id": {
                   "description": "Return only Agents that relate to a specific ServiceID.",
                   "type": "string",

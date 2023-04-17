@@ -142,7 +142,9 @@ message UniversalAgent {
 
 message ListAgentRequest {
   // Return only Agents that relate to a specific ServiceID.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
+  string service_id = 1;
+  // Return only Agents that relate to a specific NodeID.
+  string node_id = 2;
 }
 
 message ListAgentResponse {

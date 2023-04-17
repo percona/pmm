@@ -19,6 +19,8 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -46,8 +48,32 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
-	serviceID := req.ServiceId
+	err := s.validateRequest(req)
+	if err != nil {
+		return nil, err
+	}
 
+	serviceID := req.ServiceId
+	nodeID := req.NodeId
+
+	if serviceID != "" {
+		agents, err := listAgentsByServiceId(s, serviceID)
+		if err != nil {
+			return nil, err
+		}
+
+		return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
+	}
+
+	agents, err := listAgentsByNodeId(s, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
+}
+
+func listAgentsByServiceId(s *AgentService, serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
@@ -72,7 +98,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 		return nil, errTX
 	}
 
-	var svcAgents []*agentv1beta1.UniversalAgent
+	var res []*agentv1beta1.UniversalAgent
 
 	for _, agent := range agents {
 		if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
@@ -80,11 +106,34 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 			if err != nil {
 				return nil, err
 			}
-			svcAgents = append(svcAgents, ag)
+			res = append(res, ag)
 		}
 	}
 
-	return &agentv1beta1.ListAgentResponse{Agents: svcAgents}, nil
+	return res, nil
+}
+
+func listAgentsByNodeId(s *AgentService, nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
+	var agents []*models.Agent
+
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*agentv1beta1.UniversalAgent
+
+	for _, agent := range agents {
+		if pointer.GetString(agent.NodeID) == nodeID || pointer.GetString(agent.RunsOnNodeID) == nodeID {
+			ag, err := s.agentToAPI(agent)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, ag)
+		}
+	}
+
+	return res, nil
 }
 
 func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalAgent, error) {
@@ -170,4 +219,16 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	}
 
 	return ua, nil
+}
+
+func (s *AgentService) validateRequest(req *agentv1beta1.ListAgentRequest) error {
+	if req.ServiceId == "" && req.NodeId == "" {
+		return status.Error(codes.InvalidArgument, "either service_id or node_id expected")
+	}
+
+	if req.ServiceId != "" && req.NodeId != "" {
+		return status.Error(codes.InvalidArgument, "either service_id or node_id expected, not both")
+	}
+
+	return nil
 }

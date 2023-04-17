@@ -126,6 +126,9 @@ swagger:model ListAgentsBody
 type ListAgentsBody struct {
 	// Return only Agents that relate to a specific ServiceID.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// Return only Agents that relate to a specific NodeID.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this list agents body
