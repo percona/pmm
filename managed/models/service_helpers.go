@@ -22,12 +22,13 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // ErrInvalidServiceType is returned when unsupported service type is provided.

@@ -18,8 +18,9 @@ package models
 import (
 	"time"
 
-	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 //go:generate ../../bin/reform
