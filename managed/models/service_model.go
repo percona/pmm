@@ -18,6 +18,7 @@ package models
 import (
 	"time"
 
+	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
 )
 
@@ -36,6 +37,16 @@ const (
 	HAProxyServiceType    ServiceType = "haproxy"
 	ExternalServiceType   ServiceType = "external"
 )
+
+// ServiceTypes maps protobuf types to their string representation.
+var ServiceTypes = map[inventorypb.ServiceType]ServiceType{
+	inventorypb.ServiceType_MYSQL_SERVICE:      MySQLServiceType,
+	inventorypb.ServiceType_MONGODB_SERVICE:    MongoDBServiceType,
+	inventorypb.ServiceType_POSTGRESQL_SERVICE: PostgreSQLServiceType,
+	inventorypb.ServiceType_PROXYSQL_SERVICE:   ProxySQLServiceType,
+	inventorypb.ServiceType_HAPROXY_SERVICE:    HAProxyServiceType,
+	inventorypb.ServiceType_EXTERNAL_SERVICE:   ExternalServiceType,
+}
 
 // Service represents Service as stored in database.
 //

@@ -32,17 +32,7 @@ import (
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/inventory/grpc"
 )
-
-var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
-}
 
 // A map to check if the service is supported.
 // NOTE: known external services appear to match the vendor names,
@@ -197,7 +187,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 }
 
 func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
-	if expected, ok := serviceTypes[serviceType]; ok && expected == service.ServiceType {
+	if expected, ok := models.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
@@ -217,7 +207,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
-		ServiceType:   grpc.ProtoToModelServiceType(req.ServiceType),
+		ServiceType:   models.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 

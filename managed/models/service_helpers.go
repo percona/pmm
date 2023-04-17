@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -417,4 +418,12 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 		return nil
 	}
 	return nil
+}
+
+func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *ServiceType {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		return nil
+	}
+	result := ServiceTypes[serviceType]
+	return &result
 }

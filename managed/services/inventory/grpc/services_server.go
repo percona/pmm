@@ -37,28 +37,11 @@ func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer 
 	return &servicesServer{s: s}
 }
 
-var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
-}
-
-func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
-		return nil
-	}
-	result := serviceTypes[serviceType]
-	return &result
-}
-
 // ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
-		ServiceType:   ProtoToModelServiceType(req.ServiceType),
+		ServiceType:   models.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 	services, err := s.s.List(ctx, filters)
