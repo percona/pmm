@@ -32,6 +32,7 @@ import (
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/inventory/grpc"
 )
 
 var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
@@ -53,14 +54,6 @@ var supportedServices = map[string]inventorypb.ServiceType{
 	string(models.PostgreSQLServiceType): inventorypb.ServiceType_POSTGRESQL_SERVICE,
 	string(models.ProxySQLServiceType):   inventorypb.ServiceType_PROXYSQL_SERVICE,
 	string(models.HAProxyServiceType):    inventorypb.ServiceType_HAPROXY_SERVICE,
-}
-
-func convertServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
-		return nil
-	}
-	result := serviceTypes[serviceType]
-	return &result
 }
 
 // ServiceService represents service for working with services.
@@ -118,7 +111,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 	pmmAgentIDs := make(map[string]struct{})
 	var reloadPrometheusConfig bool
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var service *models.Service
 		var err error
 		switch {
@@ -187,9 +180,12 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		}
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTX != nil {
+		return nil, errTX
 	}
+
 	for agentID := range pmmAgentIDs {
 		s.state.RequestStateUpdate(ctx, agentID)
 	}
@@ -221,7 +217,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
-		ServiceType:   convertServiceType(req.ServiceType),
+		ServiceType:   grpc.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 
@@ -340,10 +336,9 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
-
-			svc.Agents = svcAgents
 		}
 
+		svc.Agents = svcAgents
 		resultSvc[i] = svc
 	}
 

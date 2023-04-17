@@ -46,7 +46,7 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
-func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
 		return nil
 	}
@@ -57,9 +57,9 @@ func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 // ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
-		NodeID:        req.GetNodeId(),
-		ServiceType:   serviceType(req.GetServiceType()),
-		ExternalGroup: req.GetExternalGroup(),
+		NodeID:        req.NodeId,
+		ServiceType:   ProtoToModelServiceType(req.ServiceType),
+		ExternalGroup: req.ExternalGroup,
 	}
 	services, err := s.s.List(ctx, filters)
 	if err != nil {
