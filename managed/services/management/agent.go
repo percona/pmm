@@ -57,7 +57,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 	nodeID := req.NodeId
 
 	if serviceID != "" {
-		agents, err := listAgentsByServiceId(s, serviceID)
+		agents, err := s.listAgentsByServiceID(serviceID)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +65,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 		return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
 	}
 
-	agents, err := listAgentsByNodeId(s, nodeID)
+	agents, err := s.listAgentsByNodeID(nodeID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,8 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 	return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
 }
 
-func listAgentsByServiceId(s *AgentService, serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
+// listAgentsByServiceID returns a list of Agents filtered by ServiceID.
+func (s *AgentService) listAgentsByServiceID(serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
@@ -113,7 +114,8 @@ func listAgentsByServiceId(s *AgentService, serviceID string) ([]*agentv1beta1.U
 	return res, nil
 }
 
-func listAgentsByNodeId(s *AgentService, nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
+// listAgentsByNodeID returns a list of Agents filtered by NodeID.
+func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
