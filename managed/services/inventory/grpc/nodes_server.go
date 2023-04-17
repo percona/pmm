@@ -43,7 +43,7 @@ var nodeTypes = map[inventorypb.NodeType]models.NodeType{
 	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
-func nodeType(nodeType inventorypb.NodeType) *models.NodeType {
+func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
 	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
 		return nil
 	}
@@ -54,7 +54,7 @@ func nodeType(nodeType inventorypb.NodeType) *models.NodeType {
 // ListNodes returns a list of all Nodes.
 func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesRequest) (*inventorypb.ListNodesResponse, error) {
 	filters := models.NodeFilters{
-		NodeType: nodeType(req.NodeType),
+		NodeType: ProtoToModelNodeType(req.NodeType),
 	}
 	nodes, err := s.svc.List(ctx, filters)
 	if err != nil {

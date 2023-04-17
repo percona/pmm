@@ -23,12 +23,16 @@ import (
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
+	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/inventory/grpc"
 )
 
 //go:generate ../../../bin/mockery -name=apiKeyProvider -case=snake -inpkg -testonly
@@ -43,11 +47,29 @@ type NodeService struct {
 	akp apiKeyProvider
 }
 
+// MgmtNodeService represents a management API service for working with nodes.
+type MgmtNodeService struct {
+	db       *reform.DB
+	r        agentsRegistry
+	vmClient victoriaMetricsClient
+
+	nodev1beta1.UnimplementedMgmtNodeServer
+}
+
 // NewNodeService creates NodeService instance.
 func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	return &NodeService{
 		db:  db,
 		akp: akp,
+	}
+}
+
+// NewNodeService creates NodeService instance.
+func NewMgmtNodeService(db *reform.DB, r agentsRegistry, vmClient victoriaMetricsClient) *MgmtNodeService {
+	return &MgmtNodeService{
+		db:       db,
+		r:        r,
+		vmClient: vmClient,
 	}
 }
 
@@ -143,4 +165,69 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 
 	return res, nil
+}
+
+func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
+	filters := models.NodeFilters{
+		NodeType: grpc.ProtoToModelNodeType(req.NodeType),
+	}
+
+	nodesRst, err := models.FindNodes(s.db.Querier, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	agentToAPI := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
+		return &agentv1beta1.UniversalAgent{
+			AgentId:     agent.AgentID,
+			AgentType:   string(agent.AgentType),
+			Status:      agent.Status,
+			IsConnected: s.r.IsConnected(agent.AgentID),
+		}
+	}
+
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	nodes := make([]*nodev1beta1.UniversalNode, len(nodesRst))
+	for i, node := range nodesRst {
+		labels, err := node.GetCustomLabels()
+		if err != nil {
+			return nil, err
+		}
+
+		universalNode := &nodev1beta1.UniversalNode{
+			NodeId:        node.NodeID,
+			NodeType:      string(node.NodeType),
+			NodeName:      node.NodeName,
+			MachineId:     pointer.GetString(node.MachineID),
+			Distro:        node.Distro,
+			ContainerId:   pointer.GetString(node.ContainerID),
+			ContainerName: pointer.GetString(node.ContainerName),
+			NodeModel:     node.NodeModel,
+			Region:        pointer.GetString(node.Region),
+			Az:            node.AZ,
+			CustomLabels:  labels,
+			Address:       node.Address,
+			CreatedAt:     timestamppb.New(node.CreatedAt),
+			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+		}
+
+		var svcAgents []*agentv1beta1.UniversalAgent
+
+		for _, agent := range agents {
+			if agent.ServiceID == nil {
+				svcAgents = append(svcAgents, agentToAPI(agent))
+			}
+		}
+
+		universalNode.Agents = svcAgents
+		nodes[i] = universalNode
+	}
+
+	return &nodev1beta1.ListNodeResponse{
+		Nodes: nodes,
+	}, nil
 }
