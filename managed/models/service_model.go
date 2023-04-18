@@ -39,7 +39,7 @@ const (
 	ExternalServiceType   ServiceType = "external"
 )
 
-// ServiceTypes maps protobuf types to their string representation.
+// ServiceTypes maps protobuf types to their string types.
 var ServiceTypes = map[inventorypb.ServiceType]ServiceType{
 	inventorypb.ServiceType_MYSQL_SERVICE:      MySQLServiceType,
 	inventorypb.ServiceType_MONGODB_SERVICE:    MongoDBServiceType,

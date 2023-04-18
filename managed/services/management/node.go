@@ -32,7 +32,6 @@ import (
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/inventory/grpc"
 )
 
 //go:generate ../../../bin/mockery -name=apiKeyProvider -case=snake -inpkg -testonly
@@ -172,7 +171,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 //nolint:unparam
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
 	filters := models.NodeFilters{
-		NodeType: grpc.ProtoToModelNodeType(req.NodeType),
+		NodeType: models.ProtoToModelNodeType(req.NodeType),
 	}
 
 	nodes, err := models.FindNodes(s.db.Querier, filters)
