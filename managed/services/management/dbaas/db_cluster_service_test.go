@@ -107,6 +107,7 @@ func TestDBClusterService(t *testing.T) {
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 	kubeClient.On("SetKubeConfig", mock.Anything).Return(nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
