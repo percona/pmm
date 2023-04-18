@@ -27,7 +27,7 @@ fuzzing/
 
 backoff.png
 pmm-agent-dev.yaml
-docker-compose.local.yml
+compose.yml
 
 /qan-api2/logs/
 
