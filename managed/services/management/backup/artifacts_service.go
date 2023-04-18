@@ -137,7 +137,7 @@ func (s *ArtifactsService) ListPitrTimeranges(
 	}
 
 	if artifact.IsShardedCluster {
-		return nil, status.Errorf(codes.FailedPrecondition, "Not supported for sharded cluster artifacts.")
+		return nil, status.Errorf(codes.FailedPrecondition, "Getting PITR timeranges not supported for sharded cluster artifacts.")
 	}
 
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
