@@ -886,6 +886,11 @@ var databaseSchema = [][]string{
 		);
 		`,
 	},
+	80: {
+		`ALTER TABLE kubernetes_clusters ADD COLUMN postgresql JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbouncer JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbackrest JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
