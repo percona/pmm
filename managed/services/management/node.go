@@ -220,7 +220,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		var svcAgents []*agentv1beta1.UniversalAgent
 
 		for _, agent := range agents {
-			if agent.ServiceID == nil {
+			if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
 				svcAgents = append(svcAgents, agentToAPI(agent))
 			}
 		}
