@@ -109,7 +109,8 @@
           - pmm-update
           - dbaas-controller
           - dbaas-tools
-          - grafana-db-migrator
+# TODO uncomment this string
+#          - grafana-db-migrator
           - pmm-dump
           - vmproxy
         state: installed
