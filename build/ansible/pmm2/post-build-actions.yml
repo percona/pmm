@@ -117,7 +117,7 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
       become_user: postgres
-      become_method: su
+      ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
