@@ -1,4 +1,4 @@
-# This Dockerfile used only for the API tests.
+# This Dockerfile is used only for API tests.
 
 FROM golang:1.20
 
