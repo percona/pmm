@@ -120,9 +120,9 @@ func TestArtifacts(t *testing.T) {
 		assert.Less(t, time.Now().UTC().Unix()-a.CreatedAt.Unix(), int64(5))
 
 		updateParams := models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			ScheduleID: pointer.ToString("schedule_id"),
-			ServiceID: &serviceID2,
+			Status:           models.BackupStatusPointer(models.SuccessBackupStatus),
+			ScheduleID:       pointer.ToString("schedule_id"),
+			ServiceID:        &serviceID2,
 			IsShardedCluster: true,
 		}
 
@@ -134,7 +134,6 @@ func TestArtifacts(t *testing.T) {
 		assert.Equal(t, *updateParams.ServiceID, a.ServiceID)
 		assert.Equal(t, updateParams.IsShardedCluster, a.IsShardedCluster)
 		assert.Less(t, time.Now().UTC().Unix()-a.UpdatedAt.Unix(), int64(5))
-
 	})
 
 	t.Run("list", func(t *testing.T) {

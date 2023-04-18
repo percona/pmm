@@ -223,17 +223,17 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	}
 
 	row := &Artifact{
-		ID:         id,
-		Name:       params.Name,
-		Vendor:     params.Vendor,
-		DBVersion:  params.DBVersion,
-		LocationID: params.LocationID,
-		ServiceID:  params.ServiceID,
-		DataModel:  params.DataModel,
-		Mode:       params.Mode,
-		Status:     params.Status,
-		Type:       OnDemandArtifactType,
-		ScheduleID: params.ScheduleID,
+		ID:               id,
+		Name:             params.Name,
+		Vendor:           params.Vendor,
+		DBVersion:        params.DBVersion,
+		LocationID:       params.LocationID,
+		ServiceID:        params.ServiceID,
+		DataModel:        params.DataModel,
+		Mode:             params.Mode,
+		Status:           params.Status,
+		Type:             OnDemandArtifactType,
+		ScheduleID:       params.ScheduleID,
 		IsShardedCluster: params.IsShardedCluster,
 	}
 

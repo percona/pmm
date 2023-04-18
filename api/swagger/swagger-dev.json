@@ -31382,6 +31382,11 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
                       }
                     }
                   },
