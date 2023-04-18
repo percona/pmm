@@ -45,13 +45,13 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
-const pxcKubeconfigTest = `
+const postgresqlKubeconfigTest = `
 {
 	"apiVersion": "v1",
 	"kind": "Config",
 	"users": [
 		{
-			"name": "percona-xtradb-cluster-operator",
+			"name": "percona-postgresql-cluster-operator",
 			"user": {
 				"token": "some-token"
 			}
@@ -70,7 +70,7 @@ const pxcKubeconfigTest = `
 		{
 			"context": {
 				"cluster": "self-hosted-cluster",
-				"user": "percona-xtradb-cluster-operator"
+				"user": "percona-postgresql-cluster-operator"
 			},
 			"name": "svcs-acct-context"
 		}
@@ -78,9 +78,9 @@ const pxcKubeconfigTest = `
 	"current-context": "svcs-acct-context"
 }
 `
-const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
+const postgresqlKubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func TestPXCClusterService(t *testing.T) {
+func TestPostgresqlClusterService(t *testing.T) {
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
 	// these lines in kubernetes_server.go will throw an error and tests won't finish.
 	//
@@ -90,7 +90,7 @@ func TestPXCClusterService(t *testing.T) {
 	//     }
 	//
 	if pmmversion.PMMVersion == "" {
-		pmmversion.PMMVersion = "2.30.0"
+		pmmversion.PMMVersion = "2.37.0"
 	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
 		componentsService *mockComponentsService, kubeClient *mockKubernetesClient, teardown func(t *testing.T),
@@ -144,14 +144,14 @@ func TestPXCClusterService(t *testing.T) {
 
 	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
-		pxcKubernetesClusterNameTest: kubeClient,
+		postgresqlKubernetesClusterNameTest: kubeClient,
 	}
 	s := ks.(*kubernetesServer)
 	s.kubeStorage.clients = clients
 	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
-		KubernetesClusterName: pxcKubernetesClusterNameTest,
-		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: pxcKubeconfigTest},
+		KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: postgresqlKubeconfigTest},
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
@@ -167,26 +167,25 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
 
 	//nolint:dupl
-	t.Run("BasicCreatePXCClusters", func(t *testing.T) {
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
+	t.Run("BasicCreatePostgresqlClusters", func(t *testing.T) {
+		cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PostgresqlClustersService)
 		s.kubeStorage.clients = clients
 		kubeClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
-		in := dbaasv1beta1.CreatePXCClusterRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "third-pxc-test",
-			Params: &dbaasv1beta1.PXCClusterParams{
+		in := dbaasv1beta1.CreatePostgresqlClusterRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+			Name:                  "third-postgresql-test",
+			Params: &dbaasv1beta1.PostgresqlClusterParams{
 				ClusterSize: 5,
-				Pxc: &dbaasv1beta1.PXCClusterParams_PXC{
+				Instance: &dbaasv1beta1.PostgresqlClusterParams_Instance{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        3,
 						MemoryBytes: 256,
 					},
 					DiskSize: 1024 * 1024 * 1024,
-					Image:    "path",
 				},
-				Proxysql: &dbaasv1beta1.PXCClusterParams_ProxySQL{
+				Pgbouncer: &dbaasv1beta1.PostgresqlClusterParams_PGBouncer{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        2,
 						MemoryBytes: 124,
@@ -196,111 +195,70 @@ func TestPXCClusterService(t *testing.T) {
 			},
 		}
 
-		_, err := s.CreatePXCCluster(ctx, &in)
+		_, err := s.CreatePostgresqlCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 
-	t.Run("CreatePXCClusterMinimumParams", func(t *testing.T) {
-		pxcComponents := &dbaasv1beta1.GetPXCComponentsResponse{
+	t.Run("CreatePostgresqlClusterMinimumParams", func(t *testing.T) {
+		pgComponents := &dbaasv1beta1.GetPGComponentsResponse{
 			Versions: []*dbaasv1beta1.OperatorVersion{
 				{
-					Product:  "pxc-operator",
+					Product:  "pg-operator",
 					Operator: "1.10.0",
 					Matrix: &dbaasv1beta1.Matrix{
-						Pxc: map[string]*dbaasv1beta1.Component{
-							"8.0.19-10.1": {
-								ImagePath: "percona/percona-xtradb-cluster:8.0.19-10.1",
-								ImageHash: "1058ae8eded735ebdf664807aad7187942fc9a1170b3fd0369574cb61206b63a",
-								Status:    "available",
-								Critical:  false,
-								Default:   false,
-								Disabled:  false,
-							},
-							"8.0.20-11.1": {
-								ImagePath: "percona/percona-xtradb-cluster:8.0.20-11.1",
-								ImageHash: "54b1b2f5153b78b05d651034d4603a13e685cbb9b45bfa09a39864fa3f169349",
-								Status:    "available",
-								Critical:  false,
-								Default:   false,
-								Disabled:  false,
-							},
-							"8.0.25-15.1": {
-								ImagePath: "percona/percona-xtradb-cluster:8.0.25-15.1",
-								ImageHash: "529e979c86442429e6feabef9a2d9fc362f4626146f208fbfac704e145a492dd",
+						Postgresql: map[string]*dbaasv1beta1.Component{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-postgres",
+								ImageHash: "bf47531669ab49a26479f46efc78ed42b9393325cfac1b00c3e340987c8869f0",
 								Status:    "recommended",
-								Critical:  false,
-								Default:   true,
-								Disabled:  false,
+							},
+						},
+						Pgbouncer: map[string]*dbaasv1beta1.Component{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbouncer",
+								ImageHash: "64de9cd659e2d6f75bea9263b23a72e5aa9b00560ae403249c92a3439a2fd527",
+								Status:    "recommended",
+							},
+						},
+						Pgbackrest: map[string]*dbaasv1beta1.Component{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbackrest",
+								ImageHash: "9bcac75e97204eb78296f4befff555cad1600373ed5fd76576e0401a8c8eb4e6",
+								Status:    "recommended",
 							},
 						},
 					},
 				},
 			},
 		}
-		componentsClient.On("GetPXCComponents", ctx, mock.Anything).Return(pxcComponents, nil)
+		componentsClient.On("GetPGComponents", ctx, mock.Anything).Return(pgComponents, nil)
 		kubeClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
+		cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PostgresqlClustersService)
 		s.kubeStorage.clients = clients
 
-		in := dbaasv1beta1.CreatePXCClusterRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "fourth-pxc-test",
+		in := dbaasv1beta1.CreatePostgresqlClusterRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+			Name:                  "fourth-postgresql-test",
 		}
 
-		_, err := s.CreatePXCCluster(ctx, &in)
+		_, err := s.CreatePostgresqlCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 
-	t.Run("BasicGetPXCClusterCredentials", func(t *testing.T) {
-		name := "third-pxc-test"
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
+	t.Run("BasicGetPostgresqlClusterCredentials", func(t *testing.T) {
+		name := "third-postgresql-test"
+		cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PostgresqlClustersService)
 		s.kubeStorage.clients = clients
 
 		mockReq := &corev1.Secret{
 			Data: map[string][]byte{
-				"root": []byte("root_password"),
-			},
-		}
-		dbMock := &dbaasv1.DatabaseCluster{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: name,
-			},
-			Status: dbaasv1.DatabaseClusterStatus{
-				Host: "hostname",
-			},
-			Spec: dbaasv1.DatabaseSpec{
-				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
-			},
-		}
-
-		kubeClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
-
-		kubeClient.On("GetSecret", ctx, mock.Anything).Return(mockReq, nil)
-
-		in := dbaasv1beta1.GetPXCClusterCredentialsRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  name,
-		}
-
-		actual, err := s.GetPXCClusterCredentials(ctx, &in)
-		assert.NoError(t, err)
-		assert.Equal(t, actual.ConnectionCredentials.Username, "root")
-		assert.Equal(t, actual.ConnectionCredentials.Password, "root_password")
-		assert.Equal(t, actual.ConnectionCredentials.Host, "hostname", name)
-		assert.Equal(t, actual.ConnectionCredentials.Port, int32(3306))
-	})
-
-	t.Run("BasicGetPXCClusterCredentialsWithHost", func(t *testing.T) { // Real kubernetes will have ingress
-		name := "another-third-pxc-test"
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
-		s.kubeStorage.clients = clients
-		mockReq := &corev1.Secret{
-			Data: map[string][]byte{
-				"root": []byte("root_password"),
+				"user":     []byte("some_username"),
+				"password": []byte("user_password"),
+				"host":     []byte("amazing.com"),
+				"port":     []byte("5432"),
 			},
 		}
 		dbMock := &dbaasv1.DatabaseCluster{
@@ -308,43 +266,40 @@ func TestPXCClusterService(t *testing.T) {
 				Name: name,
 			},
 			Spec: dbaasv1.DatabaseSpec{
-				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
-			},
-			Status: dbaasv1.DatabaseClusterStatus{
-				Host: "amazing.com",
+				SecretsName: fmt.Sprintf(postgresqlSecretNameTmpl, name, name),
 			},
 		}
 
 		kubeClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
 
-		kubeClient.On("GetSecret", ctx, fmt.Sprintf(pxcSecretNameTmpl, name)).Return(mockReq, nil)
+		kubeClient.On("GetSecret", ctx, fmt.Sprintf(postgresqlSecretNameTmpl, name, name)).Return(mockReq, nil)
 
-		in := dbaasv1beta1.GetPXCClusterCredentialsRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
+		in := dbaasv1beta1.GetPostgresqlClusterCredentialsRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
 			Name:                  name,
 		}
 
-		actual, err := s.GetPXCClusterCredentials(ctx, &in)
+		actual, err := s.GetPostgresqlClusterCredentials(ctx, &in)
 		assert.NoError(t, err)
-		assert.Equal(t, "root", actual.ConnectionCredentials.Username)
-		assert.Equal(t, "root_password", actual.ConnectionCredentials.Password)
-		assert.Equal(t, "amazing.com", actual.ConnectionCredentials.Host)
-		assert.Equal(t, int32(3306), actual.ConnectionCredentials.Port)
+		assert.Equal(t, actual.ConnectionCredentials.Username, "some_username")
+		assert.Equal(t, actual.ConnectionCredentials.Password, "user_password")
+		assert.Equal(t, actual.ConnectionCredentials.Host, "amazing.com", name)
+		assert.Equal(t, actual.ConnectionCredentials.Port, int32(5432))
 	})
 
 	//nolint:dupl
-	t.Run("BasicUpdatePXCCluster", func(t *testing.T) {
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
+	t.Run("BasicUpdatePostgresqlCluster", func(t *testing.T) {
+		cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PostgresqlClustersService)
 		s.kubeStorage.clients = clients
 
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "first-pxc-test",
+				Name: "first-postgresql-test",
 			},
 			Spec: dbaasv1.DatabaseSpec{
-				Database:      "pxc",
-				DatabaseImage: "percona/percona-xtradb-cluster:8.0.27-18.1",
+				Database:      "postgresql",
+				DatabaseImage: "percona/percona-postgresql-operator:2.0.0-ppg14-postgres",
 				ClusterSize:   5,
 				DBInstance: dbaasv1.DBInstanceSpec{
 					CPU:      resource.MustParse("3m"),
@@ -366,21 +321,21 @@ func TestPXCClusterService(t *testing.T) {
 				Size:  15,
 			},
 		}
-		kubeClient.On("GetDatabaseCluster", ctx, "first-pxc-test").Return(dbMock, nil)
+		kubeClient.On("GetDatabaseCluster", ctx, "first-postgresql-test").Return(dbMock, nil)
 		kubeClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
-		in := dbaasv1beta1.UpdatePXCClusterRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "third-pxc-test",
-			Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+		in := dbaasv1beta1.UpdatePostgresqlClusterRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+			Name:                  "third-postgresql-test",
+			Params: &dbaasv1beta1.UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams{
 				ClusterSize: 8,
-				Pxc: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC{
+				Instance: &dbaasv1beta1.UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_Instance{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 256,
 					},
 					Image: "path",
 				},
-				Proxysql: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL{
+				Pgbouncer: &dbaasv1beta1.UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams_PGBouncer{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 124,
@@ -389,22 +344,22 @@ func TestPXCClusterService(t *testing.T) {
 			},
 		}
 
-		_, err := s.UpdatePXCCluster(ctx, &in)
+		_, err := s.UpdatePostgresqlCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 
 	//nolint:dupl
-	t.Run("BasicSuspendResumePXCCluster", func(t *testing.T) {
-		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-		s := cs.(*PXCClustersService)
+	t.Run("BasicSuspendResumePostgresqlCluster", func(t *testing.T) {
+		cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PostgresqlClustersService)
 		s.kubeStorage.clients = clients
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "forth-pxc-test",
+				Name: "forth-postgresql-test",
 			},
 			Spec: dbaasv1.DatabaseSpec{
-				Database:      "pxc",
-				DatabaseImage: "percona/percona-xtradb-cluster:8.0.27-18.1",
+				Database:      "postgresql",
+				DatabaseImage: "percona/percona-postgresql-operator:2.0.0-ppg14-postgres",
 				ClusterSize:   5,
 				DBInstance: dbaasv1.DBInstanceSpec{
 					CPU:      resource.MustParse("3m"),
@@ -426,51 +381,51 @@ func TestPXCClusterService(t *testing.T) {
 				Size:  15,
 			},
 		}
-		kubeClient.On("GetDatabaseCluster", ctx, "forth-pxc-test").Return(dbMock, nil)
+		kubeClient.On("GetDatabaseCluster", ctx, "forth-postgresql-test").Return(dbMock, nil)
 		kubeClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
 
-		in := dbaasv1beta1.UpdatePXCClusterRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "forth-pxc-test",
-			Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+		in := dbaasv1beta1.UpdatePostgresqlClusterRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+			Name:                  "forth-postgresql-test",
+			Params: &dbaasv1beta1.UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams{
 				Suspend: true,
 			},
 		}
-		_, err := s.UpdatePXCCluster(ctx, &in)
+		_, err := s.UpdatePostgresqlCluster(ctx, &in)
 		assert.NoError(t, err)
 
-		in = dbaasv1beta1.UpdatePXCClusterRequest{
-			KubernetesClusterName: pxcKubernetesClusterNameTest,
-			Name:                  "forth-pxc-test",
-			Params: &dbaasv1beta1.UpdatePXCClusterRequest_UpdatePXCClusterParams{
+		in = dbaasv1beta1.UpdatePostgresqlClusterRequest{
+			KubernetesClusterName: postgresqlKubernetesClusterNameTest,
+			Name:                  "forth-postgresql-test",
+			Params: &dbaasv1beta1.UpdatePostgresqlClusterRequest_UpdatePostgresqlClusterParams{
 				Resume: true,
 			},
 		}
-		_, err = s.UpdatePXCCluster(ctx, &in)
+		_, err = s.UpdatePostgresqlCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 
-	t.Run("BasicGetXtraDBClusterResources", func(t *testing.T) {
+	t.Run("BasicGetPostgresqlClusterResources", func(t *testing.T) {
 		t.Parallel()
 		t.Run("ProxySQL", func(t *testing.T) {
 			t.Parallel()
-			cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-			s := cs.(*PXCClustersService)
+			cs := NewPostgresqlClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+			s := cs.(*PostgresqlClustersService)
 			s.kubeStorage.clients = clients
 			v := int64(1000000000)
 			r := int64(2000000000)
 
-			in := dbaasv1beta1.GetPXCClusterResourcesRequest{
-				Params: &dbaasv1beta1.PXCClusterParams{
+			in := dbaasv1beta1.GetPostgresqlClusterResourcesRequest{
+				Params: &dbaasv1beta1.PostgresqlClusterParams{
 					ClusterSize: 1,
-					Pxc: &dbaasv1beta1.PXCClusterParams_PXC{
+					Instance: &dbaasv1beta1.PostgresqlClusterParams_Instance{
 						ComputeResources: &dbaasv1beta1.ComputeResources{
 							CpuM:        1000,
 							MemoryBytes: v,
 						},
 						DiskSize: v,
 					},
-					Proxysql: &dbaasv1beta1.PXCClusterParams_ProxySQL{
+					Pgbouncer: &dbaasv1beta1.PostgresqlClusterParams_PGBouncer{
 						ComputeResources: &dbaasv1beta1.ComputeResources{
 							CpuM:        1000,
 							MemoryBytes: v,
@@ -480,44 +435,11 @@ func TestPXCClusterService(t *testing.T) {
 				},
 			}
 
-			actual, err := s.GetPXCClusterResources(ctx, &in)
+			actual, err := s.GetPostgresqlClusterResources(ctx, &in)
 			assert.NoError(t, err)
 			assert.Equal(t, uint64(r), actual.Expected.MemoryBytes)
 			assert.Equal(t, uint64(2000), actual.Expected.CpuM)
 			assert.Equal(t, uint64(r), actual.Expected.DiskSize)
-		})
-
-		t.Run("HAProxy", func(t *testing.T) {
-			t.Parallel()
-			cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
-			s := cs.(*PXCClustersService)
-			s.kubeStorage.clients = clients
-			v := int64(1000000000)
-
-			in := dbaasv1beta1.GetPXCClusterResourcesRequest{
-				Params: &dbaasv1beta1.PXCClusterParams{
-					ClusterSize: 1,
-					Pxc: &dbaasv1beta1.PXCClusterParams_PXC{
-						ComputeResources: &dbaasv1beta1.ComputeResources{
-							CpuM:        1000,
-							MemoryBytes: v,
-						},
-						DiskSize: v,
-					},
-					Haproxy: &dbaasv1beta1.PXCClusterParams_HAProxy{
-						ComputeResources: &dbaasv1beta1.ComputeResources{
-							CpuM:        1000,
-							MemoryBytes: v,
-						},
-					},
-				},
-			}
-
-			actual, err := s.GetPXCClusterResources(ctx, &in)
-			assert.NoError(t, err)
-			assert.Equal(t, uint64(2000000000), actual.Expected.MemoryBytes)
-			assert.Equal(t, uint64(2000), actual.Expected.CpuM)
-			assert.Equal(t, uint64(v), actual.Expected.DiskSize)
 		})
 	})
 }
