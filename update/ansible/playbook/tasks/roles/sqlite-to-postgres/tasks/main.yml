@@ -107,7 +107,7 @@
     name: grafana
     state: restarted
 
-- name: wait for grafana initiazation
+- name: Wait for grafana initialization
   pause:
     seconds: 5
 
