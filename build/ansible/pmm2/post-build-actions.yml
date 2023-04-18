@@ -81,10 +81,19 @@
       # so a temporary solution was to start it without supervisord and remove the
       # pmm-managed database/role. However, a complete overhaul of the pipeline is
       # necessary for a permanent fix.
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      become_method: su
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+    
     - name: Start PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become: yes
       become_user: postgres
+      become_method: su
       when: ansible_virtualization_type != "docker"
 
     - name: Remove pmm-managed database
@@ -109,6 +118,7 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
       become_user: postgres
+      become_method: su
       when: ansible_virtualization_type != "docker"
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
