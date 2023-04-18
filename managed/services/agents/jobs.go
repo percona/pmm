@@ -205,7 +205,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+					Status:           models.BackupStatusPointer(models.SuccessBackupStatus),
+					IsShardedCluster: result.MongodbBackup.IsShardedCluster,
 				})
 			if err != nil {
 				return err

@@ -524,6 +524,10 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
 	}
 
+	if artifact.IsShardedCluster {
+		return errors.Wrapf(ErrIncompatibleService, "artifact %q taken from sharded cluster", artifactID)
+	}
+
 	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
 		return err
 	}

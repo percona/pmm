@@ -886,6 +886,10 @@ var databaseSchema = [][]string{
 		);
 		`,
 	},
+	80: {
+		`ALTER TABLE artifacts
+		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
