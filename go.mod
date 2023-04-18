@@ -23,7 +23,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.244
+	github.com/aws/aws-sdk-go v1.44.245
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
@@ -33,7 +33,7 @@ require (
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
-	github.com/go-co-op/gocron v1.22.0
+	github.com/go-co-op/gocron v1.22.2
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/strfmt v0.21.7
@@ -90,7 +90,7 @@ require (
 	k8s.io/apimachinery v0.27.1
 	k8s.io/cli-runtime v0.27.1
 	k8s.io/client-go v0.27.1
-	k8s.io/kubectl v0.27.0
+	k8s.io/kubectl v0.27.1
 	modernc.org/sqlite v1.21.1
 	sigs.k8s.io/controller-runtime v0.14.6
 	vitess.io/vitess v0.15.2
