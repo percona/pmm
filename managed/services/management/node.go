@@ -171,7 +171,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 //nolint:unparam
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
 	filters := models.NodeFilters{
-		NodeType: models.ProtoToModelNodeType(req.NodeType),
+		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
 
 	nodes, err := models.FindNodes(s.db.Querier, filters)

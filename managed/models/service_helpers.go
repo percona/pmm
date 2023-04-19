@@ -27,8 +27,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/api/inventorypb"
 )
 
 // ErrInvalidServiceType is returned when unsupported service type is provided.
@@ -419,12 +417,4 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 		return nil
 	}
 	return nil
-}
-
-func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
-		return nil
-	}
-	result := ServiceTypes[serviceType]
-	return &result
 }

@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/inventory"
 )
 
@@ -38,7 +39,7 @@ func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
 // ListNodes returns a list of all Nodes.
 func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesRequest) (*inventorypb.ListNodesResponse, error) {
 	filters := models.NodeFilters{
-		NodeType: models.ProtoToModelNodeType(req.NodeType),
+		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
 	nodes, err := s.svc.List(ctx, filters)
 	if err != nil {

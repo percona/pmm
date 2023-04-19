@@ -25,8 +25,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/api/inventorypb"
 )
 
 func checkUniqueNodeID(q *reform.Querier, id string) error {
@@ -317,12 +315,4 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	return errors.Wrap(q.Delete(n), "failed to delete Node")
-}
-
-func ProtoToModelNodeType(nodeType inventorypb.NodeType) *NodeType {
-	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
-		return nil
-	}
-	result := NodeTypes[nodeType]
-	return &result
 }

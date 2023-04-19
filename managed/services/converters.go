@@ -484,3 +484,19 @@ func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 
 	return variant.String()
 }
+
+func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+		return nil
+	}
+	result := models.NodeTypes[nodeType]
+	return &result
+}
+
+func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		return nil
+	}
+	result := models.ServiceTypes[serviceType]
+	return &result
+}

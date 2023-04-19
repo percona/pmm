@@ -32,6 +32,7 @@ import (
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // A map to check if the service is supported.
@@ -207,7 +208,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
-		ServiceType:   models.ProtoToModelServiceType(req.ServiceType),
+		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 
