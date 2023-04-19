@@ -23,6 +23,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/inventory"
 )
 
@@ -41,7 +42,7 @@ func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer 
 func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
-		ServiceType:   models.ProtoToModelServiceType(req.ServiceType),
+		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 	services, err := s.s.List(ctx, filters)
