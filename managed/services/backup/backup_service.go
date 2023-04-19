@@ -525,7 +525,8 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	}
 
 	if artifact.IsShardedCluster {
-		return errors.Wrapf(ErrIncompatibleService, "artifact %q taken from sharded cluster", artifactID)
+		return errors.Wrapf(ErrIncompatibleService,
+			"artifact %q was taken from sharded cluster and cannot be restored from UI; for more information check Documentation, 'Backup management' section", artifactID)
 	}
 
 	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
