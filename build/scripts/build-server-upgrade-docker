@@ -17,7 +17,9 @@ echo "root_dir -> ${root_dir}
 ls ${root_dir}
 echo "+++++++++++++++++++++++++++++"
 
-docker run --rm -v ${PWD}:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
+cp ${root_dir}/tmp/source/pmm/* ${root_dir}/tmp/pmm-server
+
+docker run --rm -v ${root_dir}/tmp/pmm-server:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
     set -o errexit
     set -o xtrace
 
