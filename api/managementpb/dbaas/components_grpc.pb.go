@@ -22,8 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Components_GetPSMDBComponents_FullMethodName     = "/dbaas.v1beta1.Components/GetPSMDBComponents"
 	Components_GetPXCComponents_FullMethodName       = "/dbaas.v1beta1.Components/GetPXCComponents"
+	Components_GetPGComponents_FullMethodName        = "/dbaas.v1beta1.Components/GetPGComponents"
 	Components_ChangePSMDBComponents_FullMethodName  = "/dbaas.v1beta1.Components/ChangePSMDBComponents"
 	Components_ChangePXCComponents_FullMethodName    = "/dbaas.v1beta1.Components/ChangePXCComponents"
+	Components_ChangePGComponents_FullMethodName     = "/dbaas.v1beta1.Components/ChangePGComponents"
 	Components_InstallOperator_FullMethodName        = "/dbaas.v1beta1.Components/InstallOperator"
 	Components_CheckForOperatorUpdate_FullMethodName = "/dbaas.v1beta1.Components/CheckForOperatorUpdate"
 )
@@ -36,10 +38,14 @@ type ComponentsClient interface {
 	GetPSMDBComponents(ctx context.Context, in *GetPSMDBComponentsRequest, opts ...grpc.CallOption) (*GetPSMDBComponentsResponse, error)
 	// GetPXCComponents returns list of available components for PXC Clusters.
 	GetPXCComponents(ctx context.Context, in *GetPXCComponentsRequest, opts ...grpc.CallOption) (*GetPXCComponentsResponse, error)
+	// GetPGComponents returns list of available components for PG Clusters.
+	GetPGComponents(ctx context.Context, in *GetPGComponentsRequest, opts ...grpc.CallOption) (*GetPGComponentsResponse, error)
 	// ChangePSMDBComponents manages PSMDB related components.
 	ChangePSMDBComponents(ctx context.Context, in *ChangePSMDBComponentsRequest, opts ...grpc.CallOption) (*ChangePSMDBComponentsResponse, error)
 	// ChangePXCComponents manages PXC related components.
 	ChangePXCComponents(ctx context.Context, in *ChangePXCComponentsRequest, opts ...grpc.CallOption) (*ChangePXCComponentsResponse, error)
+	// ChangePGComponents manages PG related components.
+	ChangePGComponents(ctx context.Context, in *ChangePGComponentsRequest, opts ...grpc.CallOption) (*ChangePGComponentsResponse, error)
 	// InstallOperator installs given operator in given version.
 	InstallOperator(ctx context.Context, in *InstallOperatorRequest, opts ...grpc.CallOption) (*InstallOperatorResponse, error)
 	// CheckForOperatorUpdate checks if a new version of an operator is available.
@@ -72,6 +78,15 @@ func (c *componentsClient) GetPXCComponents(ctx context.Context, in *GetPXCCompo
 	return out, nil
 }
 
+func (c *componentsClient) GetPGComponents(ctx context.Context, in *GetPGComponentsRequest, opts ...grpc.CallOption) (*GetPGComponentsResponse, error) {
+	out := new(GetPGComponentsResponse)
+	err := c.cc.Invoke(ctx, Components_GetPGComponents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *componentsClient) ChangePSMDBComponents(ctx context.Context, in *ChangePSMDBComponentsRequest, opts ...grpc.CallOption) (*ChangePSMDBComponentsResponse, error) {
 	out := new(ChangePSMDBComponentsResponse)
 	err := c.cc.Invoke(ctx, Components_ChangePSMDBComponents_FullMethodName, in, out, opts...)
@@ -84,6 +99,15 @@ func (c *componentsClient) ChangePSMDBComponents(ctx context.Context, in *Change
 func (c *componentsClient) ChangePXCComponents(ctx context.Context, in *ChangePXCComponentsRequest, opts ...grpc.CallOption) (*ChangePXCComponentsResponse, error) {
 	out := new(ChangePXCComponentsResponse)
 	err := c.cc.Invoke(ctx, Components_ChangePXCComponents_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *componentsClient) ChangePGComponents(ctx context.Context, in *ChangePGComponentsRequest, opts ...grpc.CallOption) (*ChangePGComponentsResponse, error) {
+	out := new(ChangePGComponentsResponse)
+	err := c.cc.Invoke(ctx, Components_ChangePGComponents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,10 +140,14 @@ type ComponentsServer interface {
 	GetPSMDBComponents(context.Context, *GetPSMDBComponentsRequest) (*GetPSMDBComponentsResponse, error)
 	// GetPXCComponents returns list of available components for PXC Clusters.
 	GetPXCComponents(context.Context, *GetPXCComponentsRequest) (*GetPXCComponentsResponse, error)
+	// GetPGComponents returns list of available components for PG Clusters.
+	GetPGComponents(context.Context, *GetPGComponentsRequest) (*GetPGComponentsResponse, error)
 	// ChangePSMDBComponents manages PSMDB related components.
 	ChangePSMDBComponents(context.Context, *ChangePSMDBComponentsRequest) (*ChangePSMDBComponentsResponse, error)
 	// ChangePXCComponents manages PXC related components.
 	ChangePXCComponents(context.Context, *ChangePXCComponentsRequest) (*ChangePXCComponentsResponse, error)
+	// ChangePGComponents manages PG related components.
+	ChangePGComponents(context.Context, *ChangePGComponentsRequest) (*ChangePGComponentsResponse, error)
 	// InstallOperator installs given operator in given version.
 	InstallOperator(context.Context, *InstallOperatorRequest) (*InstallOperatorResponse, error)
 	// CheckForOperatorUpdate checks if a new version of an operator is available.
@@ -138,12 +166,20 @@ func (UnimplementedComponentsServer) GetPXCComponents(context.Context, *GetPXCCo
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCComponents not implemented")
 }
 
+func (UnimplementedComponentsServer) GetPGComponents(context.Context, *GetPGComponentsRequest) (*GetPGComponentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPGComponents not implemented")
+}
+
 func (UnimplementedComponentsServer) ChangePSMDBComponents(context.Context, *ChangePSMDBComponentsRequest) (*ChangePSMDBComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePSMDBComponents not implemented")
 }
 
 func (UnimplementedComponentsServer) ChangePXCComponents(context.Context, *ChangePXCComponentsRequest) (*ChangePXCComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePXCComponents not implemented")
+}
+
+func (UnimplementedComponentsServer) ChangePGComponents(context.Context, *ChangePGComponentsRequest) (*ChangePGComponentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePGComponents not implemented")
 }
 
 func (UnimplementedComponentsServer) InstallOperator(context.Context, *InstallOperatorRequest) (*InstallOperatorResponse, error) {
@@ -202,6 +238,24 @@ func _Components_GetPXCComponents_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Components_GetPGComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPGComponentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComponentsServer).GetPGComponents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Components_GetPGComponents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComponentsServer).GetPGComponents(ctx, req.(*GetPGComponentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Components_ChangePSMDBComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangePSMDBComponentsRequest)
 	if err := dec(in); err != nil {
@@ -234,6 +288,24 @@ func _Components_ChangePXCComponents_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ComponentsServer).ChangePXCComponents(ctx, req.(*ChangePXCComponentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Components_ChangePGComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePGComponentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComponentsServer).ChangePGComponents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Components_ChangePGComponents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComponentsServer).ChangePGComponents(ctx, req.(*ChangePGComponentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,12 +362,20 @@ var Components_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Components_GetPXCComponents_Handler,
 		},
 		{
+			MethodName: "GetPGComponents",
+			Handler:    _Components_GetPGComponents_Handler,
+		},
+		{
 			MethodName: "ChangePSMDBComponents",
 			Handler:    _Components_ChangePSMDBComponents_Handler,
 		},
 		{
 			MethodName: "ChangePXCComponents",
 			Handler:    _Components_ChangePXCComponents_Handler,
+		},
+		{
+			MethodName: "ChangePGComponents",
+			Handler:    _Components_ChangePGComponents_Handler,
 		},
 		{
 			MethodName: "InstallOperator",
