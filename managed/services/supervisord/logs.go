@@ -306,8 +306,14 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	for {
 		b, err := reader.ReadBytes('\n')
 		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
 			break
 		}
+
 		r.Value = b
 		r = r.Next()
 
