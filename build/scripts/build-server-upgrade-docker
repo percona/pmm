@@ -12,12 +12,9 @@ fi
 
 echo "+++++++++++++++++++++++++++++"
 echo "PWD -> ${PWD}"
-echo "bin_dir -> ${bin_dir}
-echo "root_dir -> ${root_dir}
 ls ${PWD}
-ls ${bin_dir}
+echo "root_dir -> ${root_dir}
 ls ${root_dir}
-find . -name "pmm" -type d
 echo "+++++++++++++++++++++++++++++"
 
 docker run --rm -v ${PWD}:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
