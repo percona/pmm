@@ -52,15 +52,14 @@ type BackupStatus string
 
 // BackupStatus status (in the same order as in artifacts.proto).
 const (
-	PendingBackupStatus             BackupStatus = "pending"
-	InProgressBackupStatus          BackupStatus = "in_progress"
-	PausedBackupStatus              BackupStatus = "paused"
-	SuccessBackupStatus             BackupStatus = "success"
-	ErrorBackupStatus               BackupStatus = "error"
-	DeletingBackupStatus            BackupStatus = "deleting"
-	FailedToDeleteBackupStatus      BackupStatus = "failed_to_delete"
-	RetentionInProgressBackupStatus BackupStatus = "retention_in_progress"
-	FailedRetentionBackupStatus     BackupStatus = "failed_retention"
+	PendingBackupStatus        BackupStatus = "pending"
+	InProgressBackupStatus     BackupStatus = "in_progress"
+	PausedBackupStatus         BackupStatus = "paused"
+	SuccessBackupStatus        BackupStatus = "success"
+	ErrorBackupStatus          BackupStatus = "error"
+	DeletingBackupStatus       BackupStatus = "deleting"
+	FailedToDeleteBackupStatus BackupStatus = "failed_to_delete"
+	CleanupInProgressStatus    BackupStatus = "cleanup_in_progress"
 )
 
 // Validate validates backup status.

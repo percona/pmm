@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -535,23 +536,21 @@ func groupPartlyDoneErrors(info describeInfo) error {
 }
 
 // pbmGetSnapshotTimestamp returns time the backup restores target db to.
-func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (time.Time, error) {
+func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (*time.Time, error) {
 	var list pbmList
-	var res time.Time
 	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
-		return res, err
+		return nil, err
 	}
 
 	if len(list.Snapshots) == 0 {
-		return res, errors.Wrapf(ErrNotFound, "got no one snapshot")
+		return nil, errors.Wrapf(ErrNotFound, "got no one snapshot")
 	}
 
 	for _, snapshot := range list.Snapshots {
 		if snapshot.Name == backupName {
-			res = time.Unix(snapshot.RestoreTo, 0)
-			return res, nil
+			return pointer.ToTime(time.Unix(snapshot.RestoreTo, 0)), nil
 		}
 	}
 
-	return res, errors.Wrapf(ErrNotFound, "couldn't find required snapshot")
+	return nil, errors.Wrapf(ErrNotFound, "couldn't find required snapshot")
 }

@@ -125,7 +125,7 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 
 // TrimPITRArtifact removes first N first records from PITR artifact. Removes snapshots, PITR chunks and corresponding data from database.
 func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, firstN int) error {
-	artifact, oldStatus, err := s.lockArtifact(artifactID, models.RetentionInProgressBackupStatus)
+	artifact, oldStatus, err := s.lockArtifact(artifactID, models.CleanupInProgressStatus)
 	if err != nil {
 		return err
 	}

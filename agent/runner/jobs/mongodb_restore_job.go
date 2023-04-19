@@ -197,7 +197,7 @@ func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context, snapshotName strin
 			if len(list.Snapshots) == 0 {
 				j.l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
 				if checks > maxListChecks {
-					return nil, errors.Wrapf(ErrNotFound, "got no one snapshot")
+					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
 				}
 				continue
 			}

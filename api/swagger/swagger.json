@@ -21705,8 +21705,7 @@
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
                           "BACKUP_STATUS_FAILED_TO_DELETE",
-                          "BACKUP_STATUS_RETENTION_IN_PROGRESS",
-                          "BACKUP_STATUS_FAILED_RETENTION"
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },

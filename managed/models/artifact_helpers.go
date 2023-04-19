@@ -318,8 +318,7 @@ func IsArtifactFinalStatus(backupStatus BackupStatus) bool {
 	switch backupStatus {
 	case SuccessBackupStatus,
 		ErrorBackupStatus,
-		FailedToDeleteBackupStatus,
-		FailedRetentionBackupStatus:
+		FailedToDeleteBackupStatus:
 		return true
 	default:
 		return false

@@ -198,10 +198,8 @@ func convertBackupStatus(status models.BackupStatus) (backuppb.BackupStatus, err
 		return backuppb.BackupStatus_BACKUP_STATUS_DELETING, nil
 	case models.FailedToDeleteBackupStatus:
 		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
-	case models.RetentionInProgressBackupStatus:
-		return backuppb.BackupStatus_BACKUP_STATUS_RETENTION_IN_PROGRESS, nil
-	case models.FailedRetentionBackupStatus:
-		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_RETENTION, nil
+	case models.CleanupInProgressStatus:
+		return backuppb.BackupStatus_BACKUP_STATUS_CLEANUP_IN_PROGRESS, nil
 	default:
 		return 0, errors.Errorf("invalid status '%s'", status)
 	}
