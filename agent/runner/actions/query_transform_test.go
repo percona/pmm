@@ -21,54 +21,73 @@ import (
 )
 
 func TestDMLToSelect(t *testing.T) {
-	q := dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0 limit 2`)
+	q, c := dmlToSelect(`SELECT nombre FROM tabla WHERE id = 0`)
+	assert.False(t, c)
+	assert.Equal(t, `SELECT nombre FROM tabla WHERE id = 0`, q)
+
+	q, c = dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0 limit 2`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla WHERE id = 0`, q)
 
-	q = dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0`)
+	q, c = dmlToSelect(`update ignore tabla set nombre = "carlos" where id = 0`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla WHERE id = 0`, q)
 
-	q = dmlToSelect(`update ignore tabla set nombre = "carlos" limit 1`)
+	q, c = dmlToSelect(`update ignore tabla set nombre = "carlos" limit 1`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla`, q)
 
-	q = dmlToSelect(`update tabla set nombre = "carlos" where id = 0 limit 2`)
+	q, c = dmlToSelect(`update tabla set nombre = "carlos" where id = 0 limit 2`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla WHERE id = 0`, q)
 
-	q = dmlToSelect(`update tabla set nombre = "carlos" where id = 0`)
+	q, c = dmlToSelect(`update tabla set nombre = "carlos" where id = 0`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla WHERE id = 0`, q)
 
-	q = dmlToSelect(`update tabla set nombre = "carlos" limit 1`)
+	q, c = dmlToSelect(`update tabla set nombre = "carlos" limit 1`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT nombre = "carlos" FROM tabla`, q)
 
-	q = dmlToSelect(`delete from tabla`)
+	q, c = dmlToSelect(`delete from tabla`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT * FROM tabla`, q)
 
-	q = dmlToSelect(`delete from tabla join tabla2 on tabla.id = tabla2.tabla2_id`)
+	q, c = dmlToSelect(`delete from tabla join tabla2 on tabla.id = tabla2.tabla2_id`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT 1 FROM tabla join tabla2 on tabla.id = tabla2.tabla2_id`, q)
 
-	q = dmlToSelect(`insert into tabla (f1, f2, f3) values (1,2,3)`)
+	q, c = dmlToSelect(`insert into tabla (f1, f2, f3) values (1,2,3)`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT * FROM tabla  WHERE f1=1 and f2=2 and f3=3`, q)
 
-	q = dmlToSelect(`insert into tabla (f1, f2, f3) values (1,2)`)
+	q, c = dmlToSelect(`insert into tabla (f1, f2, f3) values (1,2)`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT * FROM tabla  LIMIT 1`, q)
 
-	q = dmlToSelect(`insert into tabla set f1="A1", f2="A2"`)
+	q, c = dmlToSelect(`insert into tabla set f1="A1", f2="A2"`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT * FROM tabla WHERE f1="A1" AND  f2="A2"`, q)
 
-	q = dmlToSelect(`replace into tabla set f1="A1", f2="A2"`)
+	q, c = dmlToSelect(`replace into tabla set f1="A1", f2="A2"`)
+	assert.True(t, c)
 	assert.Equal(t, `SELECT * FROM tabla WHERE f1="A1" AND  f2="A2"`, q)
 
-	q = dmlToSelect("insert into `tabla-1` values(12)")
+	q, c = dmlToSelect("insert into `tabla-1` values(12)")
+	assert.True(t, c)
 	assert.Equal(t, "SELECT * FROM `tabla-1` LIMIT 1", q)
 
-	q = dmlToSelect(`UPDATE
+	q, c = dmlToSelect(`UPDATE
   employees2
 SET
   first_name = 'Joe',
   emp_no = 10
 WHERE
   emp_no = 3`)
+	assert.True(t, c)
 	assert.Equal(t, "SELECT first_name = 'Joe',   emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
 
-	q = dmlToSelect(`UPDATE employees2 SET first_name = 'Joe', emp_no = 10 WHERE emp_no = 3`)
+	q, c = dmlToSelect(`UPDATE employees2 SET first_name = 'Joe', emp_no = 10 WHERE emp_no = 3`)
+	assert.True(t, c)
 	assert.Equal(t, "SELECT first_name = 'Joe', emp_no = 10 FROM employees2 WHERE emp_no = 3", q)
 }

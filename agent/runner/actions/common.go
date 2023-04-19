@@ -18,6 +18,8 @@ package actions
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
@@ -27,49 +29,6 @@ import (
 )
 
 const queryTag = "pmm-agent-tests:MySQLVersion"
-
-// readRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
-func readRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err error) {
-	defer func() {
-		// overwrite err with e only if err does not already contains (more interesting) error
-		if e := rows.Close(); err == nil {
-			err = e
-		}
-	}()
-
-	columns, err = rows.Columns()
-	if err != nil {
-		return
-	}
-
-	for rows.Next() {
-		dest := make([]interface{}, len(columns))
-		for i := range dest {
-			var ei interface{}
-			dest[i] = &ei
-		}
-		if err = rows.Scan(dest...); err != nil {
-			return
-		}
-
-		// Each dest element is an *interface{} (&ei above) which always contain some typed data
-		// (in particular, it can contain typed nil). Dereference it for easier manipulations by the caller.
-		// As a special case, convert []byte values to strings. That does not change semantics of this function
-		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
-		// them as base64 strings.
-		for i, d := range dest {
-			ei := *(d.(*interface{}))
-			dest[i] = ei
-			if b, ok := (ei).([]byte); ok {
-				dest[i] = string(b)
-			}
-		}
-
-		dataRows = append(dataRows, dest)
-	}
-	err = rows.Err()
-	return //nolint:nakedret
-}
 
 // jsonRows converts input to JSON array:
 // [
@@ -115,4 +74,43 @@ func mysqlOpen(dsn string, tlsFiles *agentpb.TextFiles) (*sql.DB, error) {
 	}
 
 	return sql.OpenDB(connector), nil
+}
+
+func prepareRealTableName(name string) string {
+	name = strings.ReplaceAll(name, "'", "")
+	name = strings.ReplaceAll(name, "\"", "")
+	name = strings.ReplaceAll(name, "`", "")
+	return strings.TrimSpace(name)
+}
+
+func parseRealTableName(query string) string {
+	// due to historical reasons we parsing only one table name
+	keyword := "FROM "
+
+	query = strings.ReplaceAll(query, " . ", ".")
+	// in case of subquery it will choose root query
+	index := strings.LastIndex(query, keyword)
+	if index == -1 {
+		return ""
+	}
+
+	parsed := query[index+len(keyword):]
+	parsed = strings.ReplaceAll(parsed, ";", "")
+	index = strings.Index(parsed, " ")
+	if index == -1 {
+		return prepareRealTableName(parsed)
+	}
+
+	return prepareRealTableName(parsed[:index+1])
+}
+
+func prepareQueryWithDatabaseTableName(query, name string) string {
+	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
+	q := fmt.Sprintf("%s %#q", query, prepareRealTableName(name))
+	if strings.Index(q, ".") == -1 {
+		return q
+	}
+
+	// handle case when there is table name together with database name
+	return strings.ReplaceAll(q, ".", "`.`")
 }

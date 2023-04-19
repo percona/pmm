@@ -41,9 +41,11 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes/client"
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
@@ -59,13 +61,17 @@ const (
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
+	pgDeploymentName                       = "percona-postgresql-operator"
 	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
 	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
 	dbaasOperatorContainerName             = "manager"
+	pgOperatorContainerName                = "operator"
 	databaseClusterKind                    = "DatabaseCluster"
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
 	managedByKey                           = "dbaas.percona.com/managed-by"
+	templateLabelKey                       = "dbaas.percona.com/template"
+	engineLabelKey                         = "dbaas.percona.com/engine"
 
 	// ContainerStateWaiting represents a state when container requires some
 	// operations being done in order to complete start up.
@@ -255,7 +261,9 @@ func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) erro
 func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
-	cluster.ObjectMeta.Annotations = make(map[string]string)
+	if cluster.ObjectMeta.Annotations == nil {
+		cluster.ObjectMeta.Annotations = make(map[string]string)
+	}
 	cluster.ObjectMeta.Annotations[managedByKey] = "pmm"
 	return k.client.ApplyObject(cluster)
 }
@@ -343,6 +351,13 @@ func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error
 	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
 }
 
+// GetPGOperatorVersion parses PG operator version from operator deployment
+func (k *Kubernetes) GetPGOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.getOperatorVersion(ctx, pgDeploymentName, pgOperatorContainerName)
+}
+
 // GetSecret returns secret by name
 func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
 	k.lock.RLock()
@@ -381,11 +396,9 @@ func (k *Kubernetes) CreateRestore(restore *dbaasv1.DatabaseClusterRestore) erro
 	return k.client.ApplyObject(restore)
 }
 
-// GetPods returns list of pods based on given filters. Filters are args to
-// kubectl command. For example "-lyour-label=value,next-label=value", "-ntest-namespace".
-func (k *Kubernetes) GetPods(ctx context.Context, namespace string, filters ...string) (*corev1.PodList, error) {
-	podList, err := k.client.GetPods(ctx, namespace, strings.Join(filters, ""))
-	return podList, err
+// GetPods returns list of pods.
+func (k *Kubernetes) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
+	return k.client.GetPods(ctx, namespace, labelSelector)
 }
 
 // GetLogs returns logs as slice of log lines - strings - for given pod's container.
@@ -585,7 +598,7 @@ func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace stri
 	cpuMillis uint64, memoryBytes uint64, err error,
 ) {
 	// Get CPU and Memory Requests of Pods' containers.
-	pods, err := k.GetPods(ctx, namespace)
+	pods, err := k.GetPods(ctx, namespace, nil)
 	if err != nil {
 		return 0, 0, errors.Wrap(err, "failed to get consumed resources")
 	}
@@ -903,4 +916,63 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	_, err = k.client.UpdateInstallPlan(ctx, namespace, ip)
 
 	return err
+}
+
+// GetServerVersion returns server version
+func (k *Kubernetes) GetServerVersion() (*version.Info, error) {
+	return k.client.GetServerVersion()
+}
+
+// ListTemplates returns a list of templates.
+func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+
+	labelSelector := &metav1.LabelSelector{
+		MatchLabels: map[string]string{
+			templateLabelKey: "yes",
+			engineLabelKey:   engine,
+		},
+	}
+
+	templateCRDs, err := k.client.ListCRDs(ctx, labelSelector)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed listing template CRDs")
+	}
+
+	templates := []*dbaasv1beta1.Template{}
+	for _, templateCRD := range templateCRDs.Items {
+		var storedVersionName string
+		for _, version := range templateCRD.Spec.Versions {
+			if version.Storage {
+				storedVersionName = version.Name
+				break
+			}
+		}
+		// XXX: logically we should check that storedVersionName has been set and
+		// return an error otherwise but according to the
+		// CustomResourceDefinitionVersion documentation
+		// "There must be exactly one version with storage=true." so we are sure
+		// that storedVersionName will be set. If for some reason it's not, it will
+		// fail to find the CRs so an error will be returned either way.
+		gvr := schema.GroupVersionResource{
+			Group:    templateCRD.Spec.Group,
+			Version:  storedVersionName,
+			Resource: templateCRD.Spec.Names.Plural,
+		}
+
+		templateCRs, err := k.client.ListCRs(ctx, namespace, gvr, labelSelector)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed listing template CRs")
+		}
+
+		for _, templateCR := range templateCRs.Items {
+			templates = append(templates, &dbaasv1beta1.Template{
+				Name: templateCR.Object["metadata"].(map[string]interface{})["name"].(string),
+				Kind: templateCR.Object["kind"].(string),
+			})
+		}
+	}
+
+	return templates, nil
 }

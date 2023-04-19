@@ -82,6 +82,7 @@ func TestComponentService(t *testing.T) {
 		vsc := NewVersionServiceClient(versionServiceURL)
 		kubeStorage = &mockKubeStorageManager{}
 		kubeClient = &mockKubernetesClient{}
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 		cs = NewComponentsService(db, dbaasClient, vsc, kubeStorage)
 
 		return
@@ -92,6 +93,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			pxcComponents, err := cs.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
@@ -114,6 +116,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePXCComponents(ctx, &dbaasv1beta1.ChangePXCComponentsRequest{
@@ -224,6 +227,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			psmdbComponents, err := cs.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
@@ -246,6 +250,7 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePSMDBComponents(ctx, &dbaasv1beta1.ChangePSMDBComponentsRequest{
@@ -723,6 +728,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -776,6 +782,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -830,6 +837,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
+		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
 				{

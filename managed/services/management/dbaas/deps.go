@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
@@ -90,6 +91,7 @@ type grafanaClient interface {
 type componentsService interface {
 	GetPSMDBComponents(context.Context, *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error)
 	GetPXCComponents(context.Context, *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error)
+	GetPGComponents(context.Context, *dbaasv1beta1.GetPGComponentsRequest) (*dbaasv1beta1.GetPGComponentsResponse, error)
 	ChangePSMDBComponents(context.Context, *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error)
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
@@ -107,6 +109,7 @@ type kubernetesClient interface {
 	GetDefaultStorageClassName(context.Context) (string, error)
 	GetPXCOperatorVersion(context.Context) (string, error)
 	GetPSMDBOperatorVersion(context.Context) (string, error)
+	GetPGOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
 	CreatePMMSecret(string, map[string][]byte) error
@@ -125,6 +128,9 @@ type kubernetesClient interface {
 	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
 	// UpgradeOperator upgrades an operator to the next available version.
 	UpgradeOperator(ctx context.Context, namespace, name string) error
+	// GetServerVersion returns server version
+	GetServerVersion() (*version.Info, error)
+	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
 }
 
 type kubeStorageManager interface {

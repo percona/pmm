@@ -126,9 +126,11 @@ func TestPSMDBClusterService(t *testing.T) {
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(nil)
 
+	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		psmdbKubernetesClusterNameTest: kubeClient,
 	}

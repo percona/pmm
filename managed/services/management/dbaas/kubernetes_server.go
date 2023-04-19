@@ -19,7 +19,9 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -101,6 +103,11 @@ func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operato
 		}
 	}
 
+	allowUnsupportedOperators := os.Getenv("DBAAS_ALLOW_UNSUPPORTED_OPERATORS")
+	if boolValue, _ := strconv.ParseBool(allowUnsupportedOperators); boolValue {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
+	}
+
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED
 }
 
@@ -133,6 +140,7 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Pxc:   &dbaasv1beta1.Operator{},
 					Psmdb: &dbaasv1beta1.Operator{},
 					Dbaas: &dbaasv1beta1.Operator{},
+					Pg:    &dbaasv1beta1.Operator{},
 				},
 			}
 			kubeClient, err := k.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
@@ -153,12 +161,18 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if err != nil {
 				k.l.Errorf("couldn't get psmdb operator version: %s", err)
 			}
+			pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+			if err != nil {
+				k.l.Errorf("couldn't get pg operator version: %s", err)
+			}
 
 			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
 			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], psmdbVersion)
+			clusters[i].Operators.Pg.Status = k.convertToOperatorStatus(operatorsVersions[pgOperator], pgVersion)
 
 			clusters[i].Operators.Pxc.Version = pxcVersion
 			clusters[i].Operators.Psmdb.Version = psmdbVersion
+			clusters[i].Operators.Pg.Version = pgVersion
 
 			// FIXME: Uncomment it when FE will be ready
 			// kubeClient, err := kubernetes.New(cluster.KubeConfig)
@@ -412,6 +426,10 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	catalogSource := "percona-dbaas-catalog"
 
 	if _, ok := operatorsToInstall["vm"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_VM_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
 		operatorName := "victoriametrics-operator"
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -419,7 +437,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v0",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -430,6 +448,10 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 	}
 
 	if _, ok := operatorsToInstall["pxc"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_PXC_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
 		operatorName := "percona-xtradb-cluster-operator"
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
@@ -437,7 +459,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v1",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -449,15 +471,18 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	if _, ok := operatorsToInstall["psmdb"]; ok {
 		operatorName := "percona-server-mongodb-operator"
+		channel, ok := os.LookupEnv("DBAAS_PSMDB_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v1",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
-			StartingCSV:            "percona-server-mongodb-operator.v1.11.0",
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
@@ -468,13 +493,17 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 	if _, ok := operatorsToInstall["dbaas"]; ok {
 		operatorName := "dbaas-operator"
+		channel, ok := os.LookupEnv("DBAAS_DBAAS_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
 		params := kubernetes.InstallOperatorRequest{
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
 			CatalogSource:          "percona-dbaas-catalog",
 			CatalogSourceNamespace: catalogSourceNamespace,
-			Channel:                "stable-v0",
+			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
@@ -490,10 +519,6 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
-		if err != nil {
-			return err
-		}
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
@@ -510,6 +535,11 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		}
 		if req.Force {
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		}
+
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return err
 		}
 
 		out, err := kubeClient.ListDatabaseClusters(ctx)

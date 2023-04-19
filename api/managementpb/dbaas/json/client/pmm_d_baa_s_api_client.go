@@ -14,8 +14,10 @@ import (
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/postgresql_clusters"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/templates"
 )
 
 // Default PMM d baa s API HTTP client.
@@ -64,8 +66,10 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAP
 	cli.DBClusters = db_clusters.New(transport, formats)
 	cli.Kubernetes = kubernetes.New(transport, formats)
 	cli.LogsAPI = logs_api.New(transport, formats)
+	cli.PostgresqlClusters = postgresql_clusters.New(transport, formats)
 	cli.PSMDBClusters = psmdb_clusters.New(transport, formats)
 	cli.PXCClusters = pxc_clusters.New(transport, formats)
+	cli.Templates = templates.New(transport, formats)
 	return cli
 }
 
@@ -118,9 +122,13 @@ type PMMDBaaSAPI struct {
 
 	LogsAPI logs_api.ClientService
 
+	PostgresqlClusters postgresql_clusters.ClientService
+
 	PSMDBClusters psmdb_clusters.ClientService
 
 	PXCClusters pxc_clusters.ClientService
+
+	Templates templates.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -132,6 +140,8 @@ func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
 	c.DBClusters.SetTransport(transport)
 	c.Kubernetes.SetTransport(transport)
 	c.LogsAPI.SetTransport(transport)
+	c.PostgresqlClusters.SetTransport(transport)
 	c.PSMDBClusters.SetTransport(transport)
 	c.PXCClusters.SetTransport(transport)
+	c.Templates.SetTransport(transport)
 }

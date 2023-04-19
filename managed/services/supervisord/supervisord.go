@@ -41,6 +41,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 )
@@ -67,6 +68,7 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
+	pgParams models.PGParams
 }
 
 type sub struct {
@@ -78,10 +80,11 @@ type sub struct {
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
+	pmmConfig               = "/etc/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -92,6 +95,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
 		vmParams:           vmParams,
+		pgParams:           pgParams,
 	}
 }
 
@@ -436,6 +440,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseBlockSize":      clickhouseBlockSize,
 	}
 
+	s.addPostgresParams(templateParams)
+
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
 		if err != nil {
@@ -490,6 +496,18 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
 
 	return nil
+}
+
+// addPostgresParams adds pmm-server postgres database params to template config for grafana.
+func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+	templateParams["PostgresAddr"] = s.pgParams.Addr
+	templateParams["PostgresDBName"] = s.pgParams.DBName
+	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
+	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
+	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
+	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
+	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
+	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -580,6 +598,8 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+var interfaceToBind = envvars.GetInterfaceToBind()
+
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
@@ -623,7 +643,7 @@ command =
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr=127.0.0.1:9090
+		--httpListenAddr=` + interfaceToBind + `:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=1MB
 		--search.latencyOffset=5s
@@ -665,7 +685,7 @@ command =
 		--remoteWrite.url=http://127.0.0.1:9090/prometheus
 		--rule=/srv/prometheus/rules/*.yml
 		--rule=/etc/ia/rules/*.yml
-		--httpListenAddr=127.0.0.1:8880
+		--httpListenAddr=` + interfaceToBind + `:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
@@ -689,7 +709,7 @@ command =
     /usr/sbin/vmproxy
       --target-url=http://127.0.0.1:9090/
       --listen-port=8430
-      --listen-address=127.0.0.1
+      --listen-address=` + interfaceToBind + `
       --header-name=X-Proxy-Filter
 user = pmm
 autorestart = true
@@ -713,7 +733,7 @@ command =
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address=127.0.0.1:9093
+		--web.listen-address=` + interfaceToBind + `:9093
 		--cluster.listen-address=""
 user = pmm
 autorestart = true
@@ -774,14 +794,22 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-		cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-		cfg:default.auth.generic_oauth.use_pkce="true"
-
-environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
+        cfg:default.auth.generic_oauth.use_pkce="true"
         {{- end}}
 environment =
+    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
-	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
+    {{- if .PerconaSSODetails}}
+    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+    {{- end}}
 user = grafana
 directory = /usr/share/grafana
 autorestart = true
