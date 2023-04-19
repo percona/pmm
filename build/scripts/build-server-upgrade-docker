@@ -13,7 +13,7 @@ fi
 echo "+++++++++++++++++++++++++++++"
 echo "PWD -> ${PWD}"
 ls ${PWD}
-echo "root_dir -> ${root_dir}
+echo "root_dir -> ${root_dir}"
 ls ${root_dir}
 
 echo "--------------------------"
