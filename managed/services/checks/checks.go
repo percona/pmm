@@ -1732,7 +1732,7 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 				mongoDBChecks[c.Name] = c
 
 			default:
-				l.Warnf("Unknown check type %s, skip it.", c.Type)
+				l.Warnf("Unknown check type %s, will be skipped.", c.Type)
 			}
 		case 2:
 			switch c.Family {
