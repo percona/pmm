@@ -12,13 +12,15 @@ fi
 
 echo "+++++++++++++++++++++++++++++"
 echo "PWD -> ${PWD}"
-echo "tmp_dir -> $${tmp_dir}"
-ls ${tmp_dir}
-ls ${tmp_dir}/source/
-ls ${tmp_dir}/source/pmm
+echo "bin_dir -> ${bin_dir}
+echo "root_dir -> ${root_dir}
+ls ${PWD}
+ls ${bin_dir}
+ls ${root_dir}
+find . -name "pmm" -type d
 echo "+++++++++++++++++++++++++++++"
 
-docker run --rm -v ${tmp_dir}/source/pmm:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
+docker run --rm -v ${PWD}:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
     set -o errexit
     set -o xtrace
 
@@ -35,7 +37,7 @@ docker build \
     -t ${DOCKER_SERVER_UPGRADE_TAG} \
     -f ${tmp_dir}/source/pmm/build/docker/pmm-server-upgrade/Dockerfile \
     --build-arg VERSION=${SERVER_UPGRADE_IMAGE_VERSION} \
-    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" ${tmp_dir}/source/pmm/bin
+    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" ${PWD}/bin
 
 if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_server_upgrade_tag_file})
