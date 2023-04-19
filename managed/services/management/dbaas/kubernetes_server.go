@@ -339,6 +339,9 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx); psmdbVersion == "" || err != nil {
 		operatorsToInstall["psmdb"] = true
 	}
+	if pgVersion, err := kubeClient.GetPGOperatorVersion(ctx); pgVersion == "" || err != nil {
+		operatorsToInstall["pg"] = true
+	}
 	settings, err := models.GetSettings(k.db.Querier)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot get PMM settings to start Victoria Metrics")
@@ -443,7 +446,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
 			retval["vm"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			k.l.Errorf("cannot install VM operator in the new cluster: %s", err)
 		}
 	}
 
@@ -465,7 +468,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
 			retval["pxc"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			k.l.Errorf("cannot install PXC operator in the new cluster: %s", err)
 		}
 	}
 
@@ -487,7 +490,29 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
 			retval["psmdb"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["pg"]; ok {
+		operatorName := "percona-postgresql-operator"
+		channel, ok := os.LookupEnv("DBAAS_PG_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v2"
+		}
+		params := kubernetes.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          catalogSource,
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                channel,
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := kubeClient.InstallOperator(ctx, params); err != nil {
+			retval["pg"] = err
+			k.l.Errorf("cannot install PG operator in the new cluster: %s", err)
 		}
 	}
 
@@ -501,15 +526,15 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			Namespace:              namespace,
 			Name:                   operatorName,
 			OperatorGroup:          operatorGroup,
-			CatalogSource:          "percona-dbaas-catalog",
+			CatalogSource:          catalogSource,
 			CatalogSourceNamespace: catalogSourceNamespace,
 			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+			retval["dbaas"] = err
+			k.l.Errorf("cannot install DBaaS operator in the new cluster: %s", err)
 		}
 	}
 
