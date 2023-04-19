@@ -46,7 +46,9 @@ type Handler struct {
 }
 
 // NewHandler creates new agents handler.
-func NewHandler(db *reform.DB, ha highAvailablityService, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater, jobsService jobsService) *Handler {
+func NewHandler(db *reform.DB, ha highAvailablityService, qanClient qanClient, vmdb prometheusService, registry *Registry,
+	state *StateUpdater, jobsService jobsService,
+) *Handler {
 	h := &Handler{
 		db:          db,
 		ha:          ha,
