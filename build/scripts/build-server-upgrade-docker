@@ -16,11 +16,6 @@ ls ${root_dir}
 ls ${root_dir}/sources
 ls ${root_dir}/sources/pmm
 ls ${root_dir}/sources/pmm/src/github.com/percona/pmm
-echo "--------------------------"
-ls ${root_dir}/tmp/source/pmm
-ls ${root_dir}/tmp/source/pmm/build/scripts
-ls ${root_dir}/tmp/source/pmm/build/docker
-
 echo "+++++++++++++++++++++++++++++"
 
 docker run --rm -v ${root_dir}/sources/pmm/src/github.com/percona/pmm:/pmm-server ${rpmbuild_docker_image} sh -c "cd /pmm-server && make -C admin release"
