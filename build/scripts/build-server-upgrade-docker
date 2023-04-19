@@ -15,16 +15,17 @@ echo "PWD -> ${PWD}"
 ls ${PWD}
 echo "root_dir -> ${root_dir}
 ls ${root_dir}
+
+echo "--------------------------"
+ls ${root_dir}/tmp/source/pmm
+ls ${root_dir}/tmp/source/pmm/build/scripts
+ls ${root_dir}/tmp/source/pmm/build/docker
+
 echo "+++++++++++++++++++++++++++++"
 
 cp ${root_dir}/tmp/source/pmm/* ${root_dir}/tmp/pmm-server
 
-docker run --rm -v ${root_dir}/tmp/pmm-server:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
-    set -o errexit
-    set -o xtrace
-
-    cd /home/builder/tmp && make -C admin release
-"
+docker run --rm -v ${root_dir}/tmp/pmm-server:/pmm-server ${rpmbuild_docker_image} sh -c "cd /pmm-server && make -C admin release"
 
 if [ -z "${DOCKER_SERVER_UPGRADE_TAG}" ]; then
     DOCKER_SERVER_UPGRADE_TAG=perconalab/pmm-server-upgrade-fb:${full_pmm_version}
