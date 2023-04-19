@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -o errexit
+set -o xtrace
+
+. $(dirname $0)/vars
+
+if [ -f "${docker_server_upgrade_tarball}" ]; then
+    echo skip docker build
+    exit 0
+fi
+
+echo "+++++++++++++++++++++++++++++"
+echo "PWD -> ${PWD}"
+echo "tmp_dir -> $${tmp_dir}"
+ls ${tmp_dir}
+ls ${tmp_dir}/source/
+ls ${tmp_dir}/source/pmm
+echo "+++++++++++++++++++++++++++++"
+
+docker run --rm -v ${tmp_dir}/source/pmm:/home/builder/tmp ${rpmbuild_docker_image} sh -c "
+    set -o errexit
+    set -o xtrace
+
+    cd /home/builder/tmp && make -C admin release
+"
+
+if [ -z "${DOCKER_SERVER_UPGRADE_TAG}" ]; then
+    DOCKER_SERVER_UPGRADE_TAG=perconalab/pmm-server-upgrade-fb:${full_pmm_version}
+fi
+
+SERVER_UPGRADE_IMAGE_VERSION=`echo ${DOCKER_SERVER_UPGRADE_TAG} | cut -d ':' -f2`
+
+docker build \
+    -t ${DOCKER_SERVER_UPGRADE_TAG} \
+    -f ${tmp_dir}/source/pmm/build/docker/pmm-server-upgrade/Dockerfile \
+    --build-arg VERSION=${SERVER_UPGRADE_IMAGE_VERSION} \
+    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" ${tmp_dir}/source/pmm/bin
+
+if [ -n "${PUSH_DOCKER}" ]; then
+    mkdir -p $(dirname ${docker_server_upgrade_tag_file})
+    echo ${DOCKER_SERVER_UPGRADE_TAG} > ${docker_server_upgrade_tag_file}
+    docker push ${DOCKER_SERVER_UPGRADE_TAG}
+fi
+if [ -n "${SAVE_DOCKER}" ]; then
+    mkdir -p $(dirname ${docker_server_upgrade_tarball})
+    docker save ${DOCKER_SERVER_UPGRADE_TAG} | xz > ${docker_server_upgrade_tarball}
+fi
