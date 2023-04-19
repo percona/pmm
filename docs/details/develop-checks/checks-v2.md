@@ -20,7 +20,8 @@ Advisor checks for PMM 2.28 and later use the following format:
         description: Checks something important
         interval: standard
         family: MYSQL
-        category: configuration
+        category: configuration ## Deprecated since PMM 2.36
+        advisor: dev            ## Required since PMM 2.36
         queries:
           - type: MYSQL_SHOW
             query: VARIABLES
@@ -141,7 +142,7 @@ Checks can include the following fields:
 
 - **Script** (string, required): contains a small Starlark program that processes query results, and returns check results. It is executed on the PMM Server side.
 - **Family** (string, required): specifies one of the supported database families: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2, created for PMM 2.28 and later.
-- **Category** (string, required): specifies a custom or a default advisor check category. For example: Performance, Security.
+- **Advisor** (string, required): specifies the advisor to which this check belongs. For local environments, specify **dev**.
 - **Queries** (array, required): contains items that specify queries.
   - **Type** (string/enum, required): defines the query type. Check the list of available types in the table below.
   - **Query** (string, can be absent if the type defines the whole query by itself): The query is executed on the PMM Client side and can contain multiple queries specific to the target DBMS.
@@ -204,7 +205,7 @@ To develop custom checks for PMM 2.28 and later:
 
 4. Go to **Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
 
-5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check.
+5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in you check.
 
 6.  The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
 
