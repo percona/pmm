@@ -11,11 +11,9 @@ if [ -f "${docker_server_upgrade_tarball}" ]; then
 fi
 
 echo "+++++++++++++++++++++++++++++"
-echo "PWD -> ${PWD}"
-ls ${PWD}
 echo "root_dir -> ${root_dir}"
 ls ${root_dir}
-
+ls ${root_dir}/sources
 echo "--------------------------"
 ls ${root_dir}/tmp/source/pmm
 ls ${root_dir}/tmp/source/pmm/build/scripts
