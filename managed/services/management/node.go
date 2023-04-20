@@ -170,8 +170,6 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 }
 
 // ListNodes returns a filtered list of Nodes.
-//
-//nolint:unparam
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
