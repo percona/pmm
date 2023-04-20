@@ -20,8 +20,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/api/inventorypb"
 )
 
 //go:generate ../../bin/reform
@@ -38,15 +36,6 @@ const (
 	RemoteRDSNodeType           NodeType = "remote_rds"
 	RemoteAzureDatabaseNodeType NodeType = "remote_azure_database"
 )
-
-// NodeTypes maps protobuf types to their string types.
-var NodeTypes = map[inventorypb.NodeType]NodeType{
-	inventorypb.NodeType_GENERIC_NODE:               GenericNodeType,
-	inventorypb.NodeType_CONTAINER_NODE:             ContainerNodeType,
-	inventorypb.NodeType_REMOTE_NODE:                RemoteNodeType,
-	inventorypb.NodeType_REMOTE_RDS_NODE:            RemoteRDSNodeType,
-	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: RemoteAzureDatabaseNodeType,
-}
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
 const PMMServerNodeID = string("pmm-server") // no /node_id/ prefix

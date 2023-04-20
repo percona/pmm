@@ -188,7 +188,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 }
 
 func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
-	if expected, ok := models.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
+	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")

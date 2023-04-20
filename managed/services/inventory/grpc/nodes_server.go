@@ -21,7 +21,6 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/inventory"
 )
 
@@ -36,10 +35,26 @@ func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
 	return &nodesServer{svc: svc}
 }
 
+var nodeTypes = map[inventorypb.NodeType]models.NodeType{
+	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+}
+
+func nodeType(nodeType inventorypb.NodeType) *models.NodeType {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+		return nil
+	}
+	result := nodeTypes[nodeType]
+	return &result
+}
+
 // ListNodes returns a list of all Nodes.
 func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesRequest) (*inventorypb.ListNodesResponse, error) {
 	filters := models.NodeFilters{
-		NodeType: services.ProtoToModelNodeType(req.NodeType),
+		NodeType: nodeType(req.NodeType),
 	}
 	nodes, err := s.svc.List(ctx, filters)
 	if err != nil {
