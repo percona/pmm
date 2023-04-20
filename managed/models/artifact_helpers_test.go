@@ -106,6 +106,7 @@ func TestArtifacts(t *testing.T) {
 			DataModel:  models.PhysicalDataModel,
 			Status:     models.PendingBackupStatus,
 			Mode:       models.Snapshot,
+			Folder:     "artifact_folder",
 		}
 
 		a, err := models.CreateArtifact(q, params)
@@ -116,6 +117,7 @@ func TestArtifacts(t *testing.T) {
 		assert.Equal(t, params.ServiceID, a.ServiceID)
 		assert.Equal(t, params.DataModel, a.DataModel)
 		assert.Equal(t, params.Status, a.Status)
+		assert.Equal(t, params.Folder, a.Folder)
 		assert.Less(t, time.Now().UTC().Unix()-a.CreatedAt.Unix(), int64(5))
 	})
 

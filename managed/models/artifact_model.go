@@ -160,7 +160,7 @@ type Artifact struct {
 	Status       BackupStatus `reform:"status"`
 	Type         ArtifactType `reform:"type"`
 	ScheduleID   string       `reform:"schedule_id"`
-	Folder       *string      `reform:"folder"`
+	Folder       string       `reform:"folder"`
 	MetadataList MetadataList `reform:"metadata_list"`
 	CreatedAt    time.Time    `reform:"created_at"`
 	UpdatedAt    time.Time    `reform:"updated_at"`

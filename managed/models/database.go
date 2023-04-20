@@ -888,7 +888,7 @@ var databaseSchema = [][]string{
 	},
 	80: {
 		`ALTER TABLE artifacts
-    		ADD COLUMN folder VARCHAR,
+    		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
 			ADD COLUMN metadata_list JSONB;
 
 		UPDATE scheduled_tasks 

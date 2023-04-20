@@ -21,7 +21,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -276,13 +275,13 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 				// There could be a problem e.g. when we have artifacts `backup-daily` and `backup-daily-1`, so
 				// listing by prefix `backup-daily` gives us both artifacts.
 				// To avoid such a situation we need to append a slash.
-				folderName := path.Join(pointer.GetString(artifact.Folder), file.Name) + "/"
+				folderName := path.Join(artifact.Folder, file.Name) + "/"
 				s.l.Debugf("Deleting folder %s.", folderName)
 				if err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName); err != nil {
 					return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
 				}
 			} else {
-				fileName := path.Join(pointer.GetString(artifact.Folder), file.Name)
+				fileName := path.Join(artifact.Folder, file.Name)
 				s.l.Debugf("Deleting file %s.", fileName)
 				if err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName); err != nil {
 					return errors.Wrapf(err, "failed to remove file %s of artifact %s", file.Name, artifact.ID)

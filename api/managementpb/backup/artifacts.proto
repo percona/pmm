@@ -46,7 +46,7 @@ message Artifact {
   // Backup mode.
   BackupMode mode = 11;
   // Folder to store artifact on a storage.
-  optional string folder = 12;
+  string folder = 12;
   // List of artifact metadata.
   repeated backup.v1.Metadata metadata_list = 13;
 }

@@ -78,7 +78,7 @@ var ArtifactTable = &artifactTableType{
 			{Name: "Status", Type: "BackupStatus", Column: "status"},
 			{Name: "Type", Type: "ArtifactType", Column: "type"},
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
-			{Name: "Folder", Type: "*string", Column: "folder"},
+			{Name: "Folder", Type: "string", Column: "folder"},
 			{Name: "MetadataList", Type: "MetadataList", Column: "metadata_list"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},

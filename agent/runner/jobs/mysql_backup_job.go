@@ -45,11 +45,11 @@ type MySQLBackupJob struct {
 	name           string
 	connConf       DBConnConfig
 	locationConfig BackupLocationConfig
-	folder         *string
+	folder         string
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder *string) *MySQLBackupJob {
+func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder string) *MySQLBackupJob {
 	return &MySQLBackupJob{
 		id:             id,
 		timeout:        timeout,
@@ -170,12 +170,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	case j.locationConfig.Type == S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
 
-		var artifactFolder string
-		if j.folder != nil {
-			artifactFolder = path.Join(*j.folder, j.name)
-		} else {
-			artifactFolder = j.name
-		}
+		artifactFolder := path.Join(j.folder, j.name)
 
 		j.l.Debugf("Artifact folder is: %s", artifactFolder)
 

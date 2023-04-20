@@ -116,9 +116,7 @@ func (m *StartBackupRequest) validate(all bool) error {
 
 	// no validation rules for DataModel
 
-	if m.Folder != nil {
-		// no validation rules for Folder
-	}
+	// no validation rules for Folder
 
 	if len(errors) > 0 {
 		return StartBackupRequestMultiError(errors)
@@ -1017,9 +1015,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 
 	// no validation rules for Mode
 
-	if m.Folder != nil {
-		// no validation rules for Folder
-	}
+	// no validation rules for Folder
 
 	if len(errors) > 0 {
 		return ScheduledBackupMultiError(errors)
@@ -1226,9 +1222,7 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 
 	// no validation rules for DataModel
 
-	if m.Folder != nil {
-		// no validation rules for Folder
-	}
+	// no validation rules for Folder
 
 	if len(errors) > 0 {
 		return ScheduleBackupRequestMultiError(errors)

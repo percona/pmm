@@ -43,7 +43,7 @@ type jobsService interface {
 		name string,
 		dbConfig *models.DBConfig,
 		locationConfig *models.BackupLocationConfig,
-		folder *string,
+		folder string,
 	) error
 	StartMySQLRestoreBackupJob(
 		jobID string,
@@ -52,7 +52,7 @@ type jobsService interface {
 		timeout time.Duration,
 		name string,
 		locationConfig *models.BackupLocationConfig,
-		folder *string,
+		folder string,
 	) error
 	StartMongoDBBackupJob(
 		jobID string,
@@ -63,7 +63,7 @@ type jobsService interface {
 		mode models.BackupMode,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
-		folder *string,
+		folder string,
 	) error
 	StartMongoDBRestoreBackupJob(
 		jobID string,
@@ -75,7 +75,7 @@ type jobsService interface {
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
 		pitrTimestamp time.Time,
-		folder *string,
+		folder string,
 	) error
 }
 

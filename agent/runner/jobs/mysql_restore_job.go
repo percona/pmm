@@ -52,11 +52,11 @@ type MySQLRestoreJob struct {
 	l              logrus.FieldLogger
 	name           string
 	locationConfig BackupLocationConfig
-	folder         *string
+	folder         string
 }
 
 // NewMySQLRestoreJob constructs new Job for MySQL backup restore.
-func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig, folder *string) *MySQLRestoreJob {
+func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig, folder string) *MySQLRestoreJob {
 	return &MySQLRestoreJob{
 		id:             id,
 		timeout:        timeout,
@@ -211,12 +211,8 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	defer cancel()
 
 	var stderr, stdout bytes.Buffer
-	var artifactFolder string
-	if j.folder != nil {
-		artifactFolder = path.Join(*j.folder, j.name)
-	} else {
-		artifactFolder = j.name
-	}
+
+	artifactFolder := path.Join(j.folder, j.name)
 
 	j.l.Debugf("Artifact folder is: %s", artifactFolder)
 

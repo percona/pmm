@@ -50,7 +50,7 @@ type MongoDBBackupJob struct {
 	pitr           bool
 	dataModel      backuppb.DataModel
 	jobLogger      *pbmJobLogger
-	folder         *string
+	folder         string
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -62,7 +62,7 @@ func NewMongoDBBackupJob(
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
-	folder *string,
+	folder string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -109,12 +109,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	var artifactFolder string
-	if j.folder != nil {
-		artifactFolder = *j.folder
-	}
-
-	conf, err := createPBMConfig(&j.locationConfig, artifactFolder, j.pitr)
+	conf, err := createPBMConfig(&j.locationConfig, j.folder, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}

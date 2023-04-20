@@ -495,7 +495,7 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
     }
     // Folder to store artifact on a storage.
-    optional string folder = 12;
+    string folder = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
@@ -511,7 +511,7 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
     }
     // Folder to store artifact on a storage.
-    optional string folder = 12;
+    string folder = 12;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
@@ -537,7 +537,7 @@ message StartJobRequest {
       FilesystemLocationConfig filesystem_config = 11;
     }
     // Folder to store artifact on a storage.
-    optional string folder = 12;
+    string folder = 12;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
@@ -561,7 +561,7 @@ message StartJobRequest {
       FilesystemLocationConfig filesystem_config = 11;
     }
     // Folder to store artifact on a storage.
-    optional string folder = 12;
+    string folder = 12;
     // Extra data for backup tool.
     backup.v1.BackupToolData backup_tool_data = 13;
   }

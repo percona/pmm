@@ -54,7 +54,7 @@ type BackupTaskParams struct {
 	Retention     uint32
 	Retries       uint32
 	RetryInterval time.Duration
-	Folder        *string
+	Folder        string
 }
 
 // Validate checks backup task parameters for correctness.

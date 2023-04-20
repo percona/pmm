@@ -47,7 +47,7 @@ type MongoDBRestoreJob struct {
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
-	folder          *string
+	folder          string
 	pbmBackupName   string
 }
 
@@ -60,7 +60,7 @@ func NewMongoDBRestoreJob(
 	dbConfig DBConnConfig,
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
-	folder *string,
+	folder string,
 	pbmBackupName string,
 ) *MongoDBRestoreJob {
 	dbURL := createDBURL(dbConfig)
@@ -102,15 +102,11 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	var artifactFolder string
+	artifactFolder := j.folder
 
 	// Old artifacts don't contain pbm backup name.
 	if j.pbmBackupName == "" {
 		artifactFolder = j.name
-	}
-
-	if j.folder != nil {
-		artifactFolder = *j.folder
 	}
 
 	conf, err := createPBMConfig(&j.locationConfig, artifactFolder, false)

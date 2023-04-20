@@ -173,7 +173,7 @@ type CreateArtifactParams struct {
 	Mode       BackupMode
 	Status     BackupStatus
 	ScheduleID string
-	Folder     *string
+	Folder     string
 }
 
 // Validate validates params used for creating an artifact entry.
@@ -279,7 +279,7 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 	}
 
 	if params.Folder != nil {
-		row.Folder = params.Folder
+		row.Folder = *params.Folder
 	}
 
 	if err := q.Update(row); err != nil {

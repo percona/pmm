@@ -29,7 +29,7 @@ message StartBackupRequest {
   // DataModel represents the data model used for the backup.
   DataModel data_model = 7;
   // Folder on storage for artifact.
-  optional string folder = 8;
+  string folder = 8;
 }
 
 message StartBackupResponse {
@@ -100,7 +100,7 @@ message ScheduledBackup {
   // Backup mode.
   BackupMode mode = 19;
   // Folder on storage for artifact.
-  optional string folder = 20;
+  string folder = 20;
 }
 
 message ScheduleBackupRequest {
@@ -129,7 +129,7 @@ message ScheduleBackupRequest {
   // Backup data model (physical or logical).
   DataModel data_model = 12;
   // Folder on storage for artifact.
-  optional string folder = 13;
+  string folder = 13;
 }
 
 message ScheduleBackupResponse {

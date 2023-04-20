@@ -66,7 +66,7 @@ type PerformBackupParams struct {
 	Mode          models.BackupMode
 	Retries       uint32
 	RetryInterval time.Duration
-	Folder        *string
+	Folder        string
 }
 
 // PerformBackup starts on-demand backup.
@@ -251,7 +251,7 @@ type restoreJobParams struct {
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
 	PITRTimestamp time.Time
-	Folder        *string
+	Folder        string
 }
 
 // RestoreBackup starts restore backup job.
@@ -350,7 +350,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			return err
 		}
 
-		var artifactFolder *string
+		var artifactFolder string
 
 		// Only artifacts taken with new agents can be restored from a folder.
 		if len(artifact.MetadataList) != 0 {

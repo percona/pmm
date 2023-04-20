@@ -69,7 +69,7 @@ type CommonBackupTaskData struct {
 	Mode          BackupMode    `json:"mode"`
 	Retries       uint32        `json:"retries"`
 	RetryInterval time.Duration `json:"retry_interval"`
-	Folder        *string       `json:"folder"`
+	Folder        string        `json:"folder"`
 }
 
 // MySQLBackupTaskData contains data for mysql backup task.

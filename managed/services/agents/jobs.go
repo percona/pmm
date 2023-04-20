@@ -220,7 +220,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 			}
 
 			// If task was running by an old agent. Hacky code to support artifacts created on new server and old agent.
-			if metadata == nil && artifact.Mode == models.PITR && (artifact.Folder == nil || *artifact.Folder != artifact.Name) {
+			if metadata == nil && artifact.Mode == models.PITR && artifact.Folder != artifact.Name {
 				artifact, err := models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
 				if err != nil {
 					return errors.Wrapf(err, "failed to update artifact %s", artifact.ID)
@@ -231,7 +231,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 					return errors.Wrapf(err, "cannot get scheduled task %s", scheduleID)
 				}
 				taskData := task.Data
-				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = &artifact.Name
+				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = artifact.Name
 
 				params := models.ChangeScheduledTaskParams{
 					Data: taskData,
@@ -368,7 +368,7 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder *string) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
@@ -426,7 +426,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	mode models.BackupMode,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
-	folder *string,
+	folder string,
 ) error {
 	var err error
 	switch dataModel {
@@ -506,7 +506,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	locationConfig *models.BackupLocationConfig,
-	folder *string,
+	folder string,
 ) error {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
@@ -559,7 +559,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
-	folder *string,
+	folder string,
 ) error {
 	var err error
 	switch dataModel {

@@ -11004,6 +11004,8 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 
 	// no validation rules for Name
 
+	// no validation rules for Folder
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLBackup_S3Config:
 		if v == nil {
@@ -11048,10 +11050,6 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 
 	default:
 		_ = v // ensures v is used
-	}
-
-	if m.Folder != nil {
-		// no validation rules for Folder
 	}
 
 	if len(errors) > 0 {
@@ -11162,6 +11160,8 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 
 	// no validation rules for Name
 
+	// no validation rules for Folder
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLRestoreBackup_S3Config:
 		if v == nil {
@@ -11206,10 +11206,6 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 
 	default:
 		_ = v // ensures v is used
-	}
-
-	if m.Folder != nil {
-		// no validation rules for Folder
 	}
 
 	if len(errors) > 0 {
@@ -11332,6 +11328,8 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 
 	// no validation rules for DataModel
 
+	// no validation rules for Folder
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBBackup_S3Config:
 		if v == nil {
@@ -11417,10 +11415,6 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 
 	default:
 		_ = v // ensures v is used
-	}
-
-	if m.Folder != nil {
-		// no validation rules for Folder
 	}
 
 	if len(errors) > 0 {
@@ -11568,6 +11562,8 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Folder
+
 	if all {
 		switch v := interface{}(m.GetBackupToolData()).(type) {
 		case interface{ ValidateAll() error }:
@@ -11682,10 +11678,6 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 
 	default:
 		_ = v // ensures v is used
-	}
-
-	if m.Folder != nil {
-		// no validation rules for Folder
 	}
 
 	if len(errors) > 0 {

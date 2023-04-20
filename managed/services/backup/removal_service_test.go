@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -186,7 +185,7 @@ func TestDeleteArtifact(t *testing.T) {
 			DataModel:  models.LogicalDataModel,
 			Mode:       models.PITR,
 			Status:     models.SuccessBackupStatus,
-			Folder:     pointer.ToString("artifact_folder"),
+			Folder:     "artifact_folder",
 		})
 		require.NoError(t, err)
 
@@ -277,7 +276,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 		DataModel:  models.LogicalDataModel,
 		Mode:       models.PITR,
 		Status:     models.PendingBackupStatus,
-		Folder:     pointer.ToString("artifact_folder"),
+		Folder:     "artifact_folder",
 	})
 	require.NoError(t, err)
 
@@ -404,7 +403,7 @@ func TestLockArtifact(t *testing.T) {
 		DataModel:  models.LogicalDataModel,
 		Mode:       models.PITR,
 		Status:     models.PendingBackupStatus,
-		Folder:     pointer.ToString("artifact_folder"),
+		Folder:     "artifact_folder",
 	})
 	require.NoError(t, err)
 
@@ -500,7 +499,7 @@ func TestReleaseArtifact(t *testing.T) {
 		DataModel:  models.LogicalDataModel,
 		Mode:       models.PITR,
 		Status:     models.DeletingBackupStatus,
-		Folder:     pointer.ToString("artifact_folder"),
+		Folder:     "artifact_folder",
 	})
 	require.NoError(t, err)
 

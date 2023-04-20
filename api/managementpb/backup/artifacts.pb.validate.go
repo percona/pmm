@@ -106,6 +106,8 @@ func (m *Artifact) validate(all bool) error {
 
 	// no validation rules for Mode
 
+	// no validation rules for Folder
+
 	for idx, item := range m.GetMetadataList() {
 		_, _ = idx, item
 
@@ -138,10 +140,6 @@ func (m *Artifact) validate(all bool) error {
 			}
 		}
 
-	}
-
-	if m.Folder != nil {
-		// no validation rules for Folder
 	}
 
 	if len(errors) > 0 {
