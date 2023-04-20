@@ -19,8 +19,11 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -188,6 +191,22 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 	}
 
+	query := `up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter"}`
+
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	metrics := make(map[string]int, len(result.(model.Vector)))
+	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
 	if err != nil {
 		return nil, err
@@ -215,6 +234,19 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 			NodeModel:     node.NodeModel,
 			Region:        pointer.GetString(node.Region),
 			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+		}
+
+		if metric, ok := metrics[node.NodeID]; ok {
+			switch metric {
+			// We assume there can only be values of either 1(UP) or 0(DOWN).
+			case 0:
+				uNode.Status = nodev1beta1.UniversalNode_DOWN
+			case 1:
+				uNode.Status = nodev1beta1.UniversalNode_UP
+			}
+		} else {
+			// In case there is no metric, we need to assign different values for supported and unsupported service types.
+			uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
 		}
 
 		var svcAgents []*agentv1beta1.UniversalAgent
