@@ -23,7 +23,7 @@ Alerts are split into four key components: alert rules, contact points, notifica
 ### Alert rules
 Describe the circumstances under which you want to be alerted. The evaluation criteria that you define determine whether an alert will fire. 
 
-An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and optionally, the duration over which the condition is met.
+An alert rule consists of one or more queries and expressions, a condition, the frequency of evaluation, and the duration over which the condition is met.
 
 For example, you might configure an alert to identify and notify you when MongoDB is down.
 
