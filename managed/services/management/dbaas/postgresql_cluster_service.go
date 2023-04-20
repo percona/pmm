@@ -241,7 +241,7 @@ func (s PostgresqlClustersService) fillDefaults(req *dbaasv1beta1.CreatePostgres
 		// FIXME using hardcoded values for PGBouncer until version service
 		// supports it https://jira.percona.com/browse/K8SPG-315
 		if req.Params.Pgbouncer.Image == "" {
-			req.Params.Pgbouncer.Image = "percona/percona-postgresql-operator:2.0.0-ppg14-pgbouncer"
+			req.Params.Pgbouncer.Image = "perconalab/percona-postgresql-operator:main-ppg14-pgbouncer"
 		}
 	}
 

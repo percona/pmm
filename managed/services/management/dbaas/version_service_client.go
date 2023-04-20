@@ -148,7 +148,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 			Versions: []Version{
 				{
 					Product:        pgOperator,
-					ProductVersion: "2.0.0",
+					ProductVersion: "main",
 					Matrix: matrix{
 						Pmm: map[string]componentVersion{
 							"2.32.0": {
@@ -158,29 +158,29 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 							},
 						},
 						Operator: map[string]componentVersion{
-							"2.0.0": {
-								ImagePath: "percona/percona-postgresql-operator:2.0.0",
+							"main": {
+								ImagePath: "perconalab/percona-postgresql-operator:main",
 								ImageHash: "",
 								Status:    "recommended",
 							},
 						},
 						Postgresql: map[string]componentVersion{
 							"14.7": {
-								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-postgres",
+								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-postgres",
 								ImageHash: "bf47531669ab49a26479f46efc78ed42b9393325cfac1b00c3e340987c8869f0",
 								Status:    "recommended",
 							},
 						},
 						Pgbouncer: map[string]componentVersion{
 							"14.7": {
-								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbouncer",
+								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-pgbouncer",
 								ImageHash: "64de9cd659e2d6f75bea9263b23a72e5aa9b00560ae403249c92a3439a2fd527",
 								Status:    "recommended",
 							},
 						},
 						Pgbackrest: map[string]componentVersion{
 							"14.7": {
-								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbackrest",
+								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-pgbackrest",
 								ImageHash: "9bcac75e97204eb78296f4befff555cad1600373ed5fd76576e0401a8c8eb4e6",
 								Status:    "recommended",
 							},
@@ -277,7 +277,10 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 
 	// FIXME using hardcoded values for PG until version service supports it
 	// https://jira.percona.com/browse/K8SPG-315
-	operatorVersions[pgOperator] = []string{"2.0.0"}
+	//	for v := range resp.Versions[0].Matrix.PGOperator {
+	//		operatorVersions[pgOperator] = append(operatorVersions[pgOperator], v)
+	//	}
+	operatorVersions[pgOperator] = []string{"main"}
 
 	return operatorVersions, nil
 }
