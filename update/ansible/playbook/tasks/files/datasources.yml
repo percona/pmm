@@ -26,7 +26,7 @@ datasources:
     postgresVersion: "1100"
     sslmode: ${PERCONA_TEST_POSTGRES_SSL_MODE}
   secureJsonData:
-    password: ${POSTGRES_DBPASSWORD}
+    password: ${PERCONA_TEST_POSTGRES_DBPASSWORD}
 - name: ClickHouse
   version: 2
   orgId: 1

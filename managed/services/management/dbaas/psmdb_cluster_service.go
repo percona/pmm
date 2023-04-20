@@ -340,6 +340,9 @@ func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *
 	cpu := uint64(req.Params.Replicaset.ComputeResources.CpuM) * 2 * clusterSize
 	disk := uint64(req.Params.Replicaset.DiskSize)*3 + uint64(req.Params.Replicaset.DiskSize)*clusterSize
 
+	// If PMM is enabled, a pmm-client container is deployed to every
+	// cfg, replset and mongos pod, thus we need to multiply by 2x the
+	// clusterSize (cfg+replset) plus 3 for mongos
 	if settings.PMMPublicAddress != "" {
 		memory += (3 + 2*clusterSize) * 500000000
 		cpu += (3 + 2*clusterSize) * 500

@@ -1627,7 +1627,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -1970,7 +1970,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2298,7 +2298,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2880,7 +2880,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -3918,7 +3918,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -4567,7 +4567,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -6788,7 +6788,7 @@
     },
     "/v1/management/Service/Remove": {
       "post": {
-        "description": "Removes Service with Agents.",
+        "description": "Removes a Service along with Agents.",
         "tags": [
           "Service"
         ],

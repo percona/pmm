@@ -61,12 +61,15 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
+	"github.com/percona/pmm/api/onboardingpb"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/uieventspb"
@@ -89,6 +92,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
+	"github.com/percona/pmm/managed/services/onboarding"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -213,6 +217,7 @@ type gRPCServerDeps struct {
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
 	uieventsService      *uievents.Service
+	vmClient             *metrics.Client
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -260,13 +265,16 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
+	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
@@ -279,6 +287,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+
+	onboardingpb.RegisterTipServiceServer(gRPCServer, onboarding.NewTipService(deps.db, servicesSvc, deps.grafanaClient))
 
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
@@ -298,6 +308,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
+	dbaasv1beta1.RegisterPostgresqlClustersServer(gRPCServer, managementdbaas.NewPostgresqlClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.kubeStorage))
 	dbaasv1beta1.RegisterTemplatesServer(gRPCServer, managementdbaas.NewTemplateService(deps.db))
@@ -386,6 +397,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
+		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
@@ -398,6 +411,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
+
+		onboardingpb.RegisterTipServiceHandlerFromEndpoint,
+
 		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
 		iav1beta1.RegisterAlertsHandlerFromEndpoint,
@@ -414,6 +430,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,
 		dbaasv1beta1.RegisterPXCClustersHandlerFromEndpoint,
 		dbaasv1beta1.RegisterPSMDBClustersHandlerFromEndpoint,
+		dbaasv1beta1.RegisterPostgresqlClustersHandlerFromEndpoint,
 		dbaasv1beta1.RegisterLogsAPIHandlerFromEndpoint,
 		dbaasv1beta1.RegisterComponentsHandlerFromEndpoint,
 		dbaasv1beta1.RegisterTemplatesHandlerFromEndpoint,
@@ -1102,6 +1119,7 @@ func main() {
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
 				uieventsService:      uieventsService,
+				vmClient:             &vmClient,
 			})
 	}()
 

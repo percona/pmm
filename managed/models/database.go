@@ -858,6 +858,39 @@ var databaseSchema = [][]string{
 		FROM services
         WHERE service_type = 'mongodb';`,
 	},
+	79: {
+		`CREATE TABLE onboarding_system_tips (
+			 id INTEGER PRIMARY KEY,
+			 is_completed BOOLEAN NOT NULL,
+		
+			 created_at TIMESTAMP NOT NULL,
+			 updated_at TIMESTAMP NOT NULL
+		);
+
+		INSERT INTO onboarding_system_tips(
+			id, is_completed, created_at, updated_at
+		) VALUES
+			(1, false, current_timestamp, current_timestamp),
+			(2, false, current_timestamp, current_timestamp),
+			(3, false, current_timestamp, current_timestamp);
+		
+		CREATE TABLE onboarding_user_tips (
+		   id SERIAL PRIMARY KEY,
+		   tip_id INTEGER NOT NULL,
+		   user_id INTEGER NOT NULL,
+		   is_completed BOOLEAN NOT NULL,
+		
+		   created_at TIMESTAMP NOT NULL,
+		   updated_at TIMESTAMP NOT NULL,
+		   UNIQUE (user_id, tip_id)
+		);
+		`,
+	},
+	80: {
+		`ALTER TABLE kubernetes_clusters ADD COLUMN postgresql JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbouncer JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbackrest JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1101,6 +1134,8 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 		}); err != nil {
 			return err
 		}
+	} else {
+		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
 	}
 
 	// create PostgreSQL Service and associated Agents

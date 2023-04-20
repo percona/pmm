@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -34,6 +36,7 @@ import (
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=victoriaMetricsClient -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -92,4 +95,10 @@ type connectionChecker interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type versionCache interface {
 	RequestSoftwareVersionsUpdate()
+}
+
+// victoriaMetricsClient is a subset of methods of prometheus' API used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type victoriaMetricsClient interface {
+	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
