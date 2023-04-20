@@ -1,5 +1,5 @@
 # Version 2 advisor checks for PMM 2.28 and newer
- PMM 2.28 upgraded Advisor Checks to version 2, which uses a slightly different structure than version 1 checks, created in 2.7 and older. This is because, compared to version 1 checks, checks created in 2.28 and later offer additional support for:
+ PMM 2.28 upgraded Advisor Checks to version 2, which uses a slightly different structure than version 1 checks, created in 2.7 and earlier. This is because, compared to version 1 checks, checks created in 2.28 and later offer additional support for:
 
 - Multiple queries
 - Victoria Metrics as a data source
@@ -59,7 +59,7 @@ Advisor checks for PMM 2.28 and later use the following format:
               #
               # `check_context` function is expected to return a list of dicts that are then converted to alerts;
               # in particular, that list can be empty.
-              # Any other value (for example, string) is treated as script execution failure
+              # Any other value (for example, string) is treated as a script execution failure
               # (Starlark does not support Python exceptions);
               # it is recommended to use global function `fail` for that instead.
 
@@ -165,8 +165,9 @@ Expand the table below for the list of checks types that you can use to define y
     | MONGODB_GETCMDLINEOPTS          |    Executes db.adminCommand( { getCmdLineOpts: 1 } ) against MongoDB's "admin" database. For more information, see [getCmdLineOpts](https://docs.mongodb.com/manual/reference/command/getCmdLineOpts/) |No|
     | MONGODB_REPLSETGETSTATUS     |   Executes db.adminCommand( { replSetGetStatus: 1 } ) against MongoDB's "admin" database. For more information, see  [replSetGetStatus](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/) |No|
     | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)| No|
-    | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{}}.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries see [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
-    | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{}}.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries see [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
+    | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
+    | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
+    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](https://docs.percona.com/percona-monitoring-and-management/get-started/query-analytics.html) Clickhouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
 
 ## Query parameters
 - `METRICS_INSTANT`
@@ -205,7 +206,7 @@ To develop custom checks for PMM 2.28 and later:
 
 4. Go to **Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
 
-5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in you check.
+5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
 
 6.  The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
 
@@ -215,7 +216,7 @@ To develop custom checks for PMM 2.28 and later:
 
     ![!](../../_images/FailedChecks.png)
 
-8.  Go into Docker container to output the logs of pmm-managed and read check logs:
+8.  Go into the Docker container to output the logs of pmm-managed and read the check logs:
 
 ```sh
 # get inside the container
