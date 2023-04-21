@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MgmtNodeClient interface {
-	// ListNode return a list of nodes.
+	// ListNode returns a list of nodes.
 	ListNodes(ctx context.Context, in *ListNodeRequest, opts ...grpc.CallOption) (*ListNodeResponse, error)
 }
 
@@ -52,7 +52,7 @@ func (c *mgmtNodeClient) ListNodes(ctx context.Context, in *ListNodeRequest, opt
 // All implementations must embed UnimplementedMgmtNodeServer
 // for forward compatibility
 type MgmtNodeServer interface {
-	// ListNode return a list of nodes.
+	// ListNode returns a list of nodes.
 	ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error)
 	mustEmbedUnimplementedMgmtNodeServer()
 }
