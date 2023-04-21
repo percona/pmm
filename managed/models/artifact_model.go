@@ -124,10 +124,15 @@ type File struct {
 	IsDirectory bool   `json:"is_directory"`
 }
 
+// PbmMetadata contains extra data for pbm cli tool.
+type PbmMetadata struct {
+	// Name of backup in pbm representation.
+	Name string `json:"name"`
+}
+
 // BackupToolData contains extra data for backup tools.
 type BackupToolData struct {
-	// Name of backup in backup tool representation.
-	Name string `json:"name"`
+	PbmMetadata *PbmMetadata
 }
 
 // Metadata contains extra artifact data like files it consists of, tool specific data, etc.

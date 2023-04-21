@@ -178,7 +178,7 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 		Metadata: &models.Metadata{
 			FileList:       []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
 			RestoreTo:      &restoreTo,
-			BackupToolData: &models.BackupToolData{Name: "backup tool data name"},
+			BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "backup tool data name"}},
 		},
 	})
 	require.NoError(t, err)
@@ -199,8 +199,8 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 				{Name: "file5"},
 				{Name: "file6"},
 			},
-			RestoreTo:      &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
-			BackupToolData: &backuppb.BackupToolData{Name: "backup tool data name"},
+			RestoreTo:          &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
+			BackupToolMetadata: &backuppb.Metadata_PbmMetadata{PbmMetadata: &backuppb.PbmMetadata{Name: "backup tool data name"}},
 		},
 	}
 

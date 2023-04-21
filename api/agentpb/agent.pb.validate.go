@@ -11565,11 +11565,11 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 	// no validation rules for Folder
 
 	if all {
-		switch v := interface{}(m.GetBackupToolData()).(type) {
+		switch v := interface{}(m.GetPbmMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "BackupToolData",
+					field:  "PbmMetadata",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -11577,16 +11577,16 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "BackupToolData",
+					field:  "PbmMetadata",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackupToolData()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
-				field:  "BackupToolData",
+				field:  "PbmMetadata",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

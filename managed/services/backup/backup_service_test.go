@@ -370,7 +370,7 @@ func TestRestoreBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		artifactWithVersion, err = models.UpdateArtifact(db.Querier, artifactWithVersion.ID, models.UpdateArtifactParams{
-			Metadata: &models.Metadata{BackupToolData: &models.BackupToolData{Name: "artifact_repr_name"}},
+			Metadata: &models.Metadata{BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "artifact_repr_name"}}},
 		})
 		require.NoError(t, err)
 
@@ -424,7 +424,7 @@ func TestRestoreBackup(t *testing.T) {
 				if tc.expectedError == nil {
 					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.Name, mock.Anything, tc.artifact.DataModel,
+							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, mock.Anything, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					} else {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),

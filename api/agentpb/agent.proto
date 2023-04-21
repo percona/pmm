@@ -563,7 +563,7 @@ message StartJobRequest {
     // Folder to store artifact on a storage.
     string folder = 12;
     // Extra data for backup tool.
-    backup.v1.BackupToolData backup_tool_data = 13;
+    backup.v1.PbmMetadata pbm_metadata = 13;
   }
 
   string job_id = 1;

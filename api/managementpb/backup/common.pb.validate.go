@@ -146,22 +146,22 @@ var _ interface {
 	ErrorName() string
 } = FileValidationError{}
 
-// Validate checks the field values on BackupToolData with the rules defined in
+// Validate checks the field values on PbmMetadata with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *BackupToolData) Validate() error {
+func (m *PbmMetadata) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on BackupToolData with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in BackupToolDataMultiError,
-// or nil if none found.
-func (m *BackupToolData) ValidateAll() error {
+// ValidateAll checks the field values on PbmMetadata with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in PbmMetadataMultiError, or
+// nil if none found.
+func (m *PbmMetadata) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *BackupToolData) validate(all bool) error {
+func (m *PbmMetadata) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -171,19 +171,18 @@ func (m *BackupToolData) validate(all bool) error {
 	// no validation rules for Name
 
 	if len(errors) > 0 {
-		return BackupToolDataMultiError(errors)
+		return PbmMetadataMultiError(errors)
 	}
 
 	return nil
 }
 
-// BackupToolDataMultiError is an error wrapping multiple validation errors
-// returned by BackupToolData.ValidateAll() if the designated constraints
-// aren't met.
-type BackupToolDataMultiError []error
+// PbmMetadataMultiError is an error wrapping multiple validation errors
+// returned by PbmMetadata.ValidateAll() if the designated constraints aren't met.
+type PbmMetadataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m BackupToolDataMultiError) Error() string {
+func (m PbmMetadataMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -192,11 +191,11 @@ func (m BackupToolDataMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m BackupToolDataMultiError) AllErrors() []error { return m }
+func (m PbmMetadataMultiError) AllErrors() []error { return m }
 
-// BackupToolDataValidationError is the validation error returned by
-// BackupToolData.Validate if the designated constraints aren't met.
-type BackupToolDataValidationError struct {
+// PbmMetadataValidationError is the validation error returned by
+// PbmMetadata.Validate if the designated constraints aren't met.
+type PbmMetadataValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -204,22 +203,22 @@ type BackupToolDataValidationError struct {
 }
 
 // Field function returns field value.
-func (e BackupToolDataValidationError) Field() string { return e.field }
+func (e PbmMetadataValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e BackupToolDataValidationError) Reason() string { return e.reason }
+func (e PbmMetadataValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e BackupToolDataValidationError) Cause() error { return e.cause }
+func (e PbmMetadataValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e BackupToolDataValidationError) Key() bool { return e.key }
+func (e PbmMetadataValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e BackupToolDataValidationError) ErrorName() string { return "BackupToolDataValidationError" }
+func (e PbmMetadataValidationError) ErrorName() string { return "PbmMetadataValidationError" }
 
 // Error satisfies the builtin error interface
-func (e BackupToolDataValidationError) Error() string {
+func (e PbmMetadataValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -231,14 +230,14 @@ func (e BackupToolDataValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sBackupToolData.%s: %s%s",
+		"invalid %sPbmMetadata.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = BackupToolDataValidationError{}
+var _ error = PbmMetadataValidationError{}
 
 var _ interface {
 	Field() string
@@ -246,7 +245,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = BackupToolDataValidationError{}
+} = PbmMetadataValidationError{}
 
 // Validate checks the field values on Metadata with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -333,33 +332,50 @@ func (m *Metadata) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetBackupToolData()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, MetadataValidationError{
-					field:  "BackupToolData",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
+	switch v := m.BackupToolMetadata.(type) {
+	case *Metadata_PbmMetadata:
+		if v == nil {
+			err := MetadataValidationError{
+				field:  "BackupToolMetadata",
+				reason: "oneof value cannot be a typed-nil",
 			}
-		case interface{ Validate() error }:
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPbmMetadata()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MetadataValidationError{
+						field:  "PbmMetadata",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MetadataValidationError{
+						field:  "PbmMetadata",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, MetadataValidationError{
-					field:  "BackupToolData",
+				return MetadataValidationError{
+					field:  "PbmMetadata",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackupToolData()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return MetadataValidationError{
-				field:  "BackupToolData",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+
+	default:
+		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {

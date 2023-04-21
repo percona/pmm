@@ -693,8 +693,8 @@ type ListArtifactsOKBodyArtifactsItems0MetadataListItems0 struct {
 	// Format: date-time
 	RestoreTo strfmt.DateTime `json:"restore_to,omitempty"`
 
-	// backup tool data
-	BackupToolData *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData `json:"backup_tool_data,omitempty"`
+	// pbm metadata
+	PbmMetadata *ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata `json:"pbm_metadata,omitempty"`
 }
 
 // Validate validates this list artifacts OK body artifacts items0 metadata list items0
@@ -709,7 +709,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) Validate(formats 
 		res = append(res, err)
 	}
 
-	if err := o.validateBackupToolData(formats); err != nil {
+	if err := o.validatePbmMetadata(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -757,17 +757,17 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateRestoreTo
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validateBackupToolData(formats strfmt.Registry) error {
-	if swag.IsZero(o.BackupToolData) { // not required
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) validatePbmMetadata(formats strfmt.Registry) error {
+	if swag.IsZero(o.PbmMetadata) { // not required
 		return nil
 	}
 
-	if o.BackupToolData != nil {
-		if err := o.BackupToolData.Validate(formats); err != nil {
+	if o.PbmMetadata != nil {
+		if err := o.PbmMetadata.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_tool_data")
+				return ve.ValidateName("pbm_metadata")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("backup_tool_data")
+				return ce.ValidateName("pbm_metadata")
 			}
 			return err
 		}
@@ -784,7 +784,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) ContextValidate(c
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateBackupToolData(ctx, formats); err != nil {
+	if err := o.contextValidatePbmMetadata(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -811,13 +811,13 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidateFi
 	return nil
 }
 
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidateBackupToolData(ctx context.Context, formats strfmt.Registry) error {
-	if o.BackupToolData != nil {
-		if err := o.BackupToolData.ContextValidate(ctx, formats); err != nil {
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) contextValidatePbmMetadata(ctx context.Context, formats strfmt.Registry) error {
+	if o.PbmMetadata != nil {
+		if err := o.PbmMetadata.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("backup_tool_data")
+				return ve.ValidateName("pbm_metadata")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("backup_tool_data")
+				return ce.ValidateName("pbm_metadata")
 			}
 			return err
 		}
@@ -837,43 +837,6 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0) UnmarshalBinary(b []byte) error {
 	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData BackupToolData contains additional data for backup tools.
-swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData
-*/
-type ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData struct {
-	// Name of backup in backup tool representation.
-	Name string `json:"name,omitempty"`
-}
-
-// Validate validates this list artifacts OK body artifacts items0 metadata list items0 backup tool data
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list artifacts OK body artifacts items0 metadata list items0 backup tool data based on context it is used
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData) UnmarshalBinary(b []byte) error {
-	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0BackupToolData
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -914,6 +877,43 @@ func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) Mar
 // UnmarshalBinary interface implementation
 func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0) UnmarshalBinary(b []byte) error {
 	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0FileListItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata PbmMetadata contains additional data for pbm cli tools.
+swagger:model ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata
+*/
+type ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata struct {
+	// Name of backup in backup tool representation.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this list artifacts OK body artifacts items0 metadata list items0 pbm metadata
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list artifacts OK body artifacts items0 metadata list items0 pbm metadata based on context it is used
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata) UnmarshalBinary(b []byte) error {
+	var res ListArtifactsOKBodyArtifactsItems0MetadataListItems0PbmMetadata
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

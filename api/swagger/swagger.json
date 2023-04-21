@@ -21764,8 +21764,8 @@
                               "format": "date-time",
                               "x-order": 1
                             },
-                            "backup_tool_data": {
-                              "description": "BackupToolData contains additional data for backup tools.",
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
                               "type": "object",
                               "properties": {
                                 "name": {

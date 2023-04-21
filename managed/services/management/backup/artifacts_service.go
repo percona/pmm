@@ -271,12 +271,16 @@ func artifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata
 				IsDirectory: file.IsDirectory,
 			}
 		}
+
 		if metadata.RestoreTo != nil {
 			res[i].RestoreTo = timestamppb.New(*metadata.RestoreTo)
 		}
+
 		if metadata.BackupToolData != nil {
-			res[i].BackupToolData = &backuppb.BackupToolData{
-				Name: metadata.BackupToolData.Name,
+			if metadata.BackupToolData.PbmMetadata != nil {
+				res[i].BackupToolMetadata = &backuppb.Metadata_PbmMetadata{
+					PbmMetadata: &backuppb.PbmMetadata{Name: metadata.BackupToolData.PbmMetadata.Name},
+				}
 			}
 		}
 	}

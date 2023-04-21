@@ -28,8 +28,8 @@ message File {
   bool is_directory = 2;
 }
 
-// BackupToolData contains additional data for backup tools.
-message BackupToolData {
+// PbmMetadata contains additional data for pbm cli tools.
+message PbmMetadata {
   // Name of backup in backup tool representation.
   string name = 1;
 }
@@ -41,5 +41,7 @@ message Metadata {
   // Exact time DB can be restored to.
   google.protobuf.Timestamp restore_to = 2;
   // Extra data for backup tools.
-  BackupToolData backup_tool_data = 3;
+  oneof backup_tool_metadata {
+    PbmMetadata pbm_metadata = 3;
+  }
 }

@@ -370,8 +370,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			Folder:        artifactFolder,
 		}
 
-		if len(artifact.MetadataList) != 0 && artifact.MetadataList[0].BackupToolData != nil {
-			params.pbmBackupName = artifact.MetadataList[0].BackupToolData.Name
+		if len(artifact.MetadataList) != 0 &&
+			artifact.MetadataList[0].BackupToolData != nil &&
+			artifact.MetadataList[0].BackupToolData.PbmMetadata != nil {
+			params.pbmBackupName = artifact.MetadataList[0].BackupToolData.PbmMetadata.Name
 		}
 
 		return nil

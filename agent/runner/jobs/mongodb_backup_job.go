@@ -177,8 +177,8 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 				Metadata: &backuppb.Metadata{
 					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
 					RestoreTo: timestamppb.New(*backupTimestamp),
-					BackupToolData: &backuppb.BackupToolData{
-						Name: pbmBackupOut.Name,
+					BackupToolMetadata: &backuppb.Metadata_PbmMetadata{
+						PbmMetadata: &backuppb.PbmMetadata{Name: pbmBackupOut.Name},
 					},
 				},
 			},

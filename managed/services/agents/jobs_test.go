@@ -30,15 +30,15 @@ import (
 func TestArtifactMetadataFromProto(t *testing.T) {
 	t.Run("all fields are filled", func(t *testing.T) {
 		protoMetadata := backuppb.Metadata{
-			FileList:       []*backuppb.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
-			RestoreTo:      &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
-			BackupToolData: &backuppb.BackupToolData{Name: "some name"},
+			FileList:           []*backuppb.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
+			RestoreTo:          &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
+			BackupToolMetadata: &backuppb.Metadata_PbmMetadata{PbmMetadata: &backuppb.PbmMetadata{Name: "some name"}},
 		}
 
 		expected := &models.Metadata{
 			FileList:       []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
 			RestoreTo:      pointer.ToTime(time.Unix(123, 456).UTC()),
-			BackupToolData: &models.BackupToolData{Name: "some name"},
+			BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "some name"}},
 		}
 
 		actual := artifactMetadataFromProto(&protoMetadata)

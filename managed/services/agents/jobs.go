@@ -586,15 +586,15 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
-		Name:           name,
-		User:           dbConfig.User,
-		Password:       dbConfig.Password,
-		Address:        dbConfig.Address,
-		Port:           int32(dbConfig.Port),
-		Socket:         dbConfig.Socket,
-		PitrTimestamp:  timestamppb.New(pitrTimestamp),
-		Folder:         folder,
-		BackupToolData: &backuppb.BackupToolData{Name: pbmBackupName},
+		Name:          name,
+		User:          dbConfig.User,
+		Password:      dbConfig.Password,
+		Address:       dbConfig.Address,
+		Port:          int32(dbConfig.Port),
+		Socket:        dbConfig.Socket,
+		PitrTimestamp: timestamppb.New(pitrTimestamp),
+		Folder:        folder,
+		PbmMetadata:   &backuppb.PbmMetadata{Name: pbmBackupName},
 	}
 
 	switch {
@@ -799,8 +799,13 @@ func artifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
 		res.RestoreTo = &t
 	}
 
-	if metadata.BackupToolData != nil {
-		res.BackupToolData = &models.BackupToolData{Name: metadata.BackupToolData.Name}
+	if metadata.BackupToolMetadata != nil {
+		switch toolType := metadata.BackupToolMetadata.(type) {
+		case *backuppb.Metadata_PbmMetadata:
+			res.BackupToolData = &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: toolType.PbmMetadata.Name}}
+		default:
+			// Do nothing.
+		}
 	}
 
 	return &res
