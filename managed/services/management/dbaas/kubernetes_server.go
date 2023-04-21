@@ -508,6 +508,7 @@ func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]
 			CatalogSourceNamespace: catalogSourceNamespace,
 			Channel:                channel,
 			InstallPlanApproval:    v1alpha1.ApprovalManual,
+			StartingCSV:            os.Getenv("DBAAS_PG_OP_STARTING_CSV"),
 		}
 
 		if err := kubeClient.InstallOperator(ctx, params); err != nil {
