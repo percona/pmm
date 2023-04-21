@@ -253,7 +253,7 @@ func isShardedCluster(ctx context.Context, dbURL *url.URL) (bool, error) {
 func getPBMStatus(ctx context.Context, dbURL *url.URL) (*pbmStatus, error) {
 	var status pbmStatus
 	if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
-		return nil, errors.Wrapf(err, "pbm status error")
+		return nil, errors.Wrap(err, "pbm status error")
 	}
 	return &status, nil
 }
