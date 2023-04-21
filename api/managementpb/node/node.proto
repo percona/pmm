@@ -73,7 +73,7 @@ message ListNodeResponse {
 
 // MgmtNode service provides public Management API methods for Nodes.
 service MgmtNode {
-  // ListNode return a list of nodes.
+  // ListNode returns a list of nodes.
   rpc ListNodes(ListNodeRequest) returns (ListNodeResponse) {
     option (google.api.http) = {
       post: "/v1/management/Node/List"

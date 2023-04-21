@@ -23,6 +23,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -65,6 +67,24 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 }
 
 func TestAgentService(t *testing.T) {
+	t.Run("Should throw a validation error when no params passed", func(t *testing.T) {
+		ctx, s, teardown, _ := setup(t)
+		defer teardown(t)
+
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
+		assert.Nil(t, response)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "either service_id or node_id is expected"), err)
+	})
+
+	t.Run("Should throw a validation error when both params passed", func(t *testing.T) {
+		ctx, s, teardown, _ := setup(t)
+		defer teardown(t)
+
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		assert.Nil(t, response)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "either service_id or node_id is expected, not both"), err)
+	})
+
 	t.Run("List of agents", func(t *testing.T) {
 		const (
 			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"

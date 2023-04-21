@@ -180,6 +180,11 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		return nil, err
 	}
 
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+	if err != nil {
+		return nil, err
+	}
+
 	agentToAPI := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
 		return &agentv1beta1.UniversalAgent{
 			AgentId:     agent.AgentID,
@@ -203,11 +208,6 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		if _, ok := metrics[nodeID]; !ok {
 			metrics[nodeID] = int(v.Value)
 		}
-	}
-
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-	if err != nil {
-		return nil, err
 	}
 
 	res := make([]*nodev1beta1.UniversalNode, len(nodes))
@@ -236,14 +236,13 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 
 		if metric, ok := metrics[node.NodeID]; ok {
 			switch metric {
-			// We assume there can only be values of either 1(UP) or 0(DOWN).
+			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
 			case 0:
 				uNode.Status = nodev1beta1.UniversalNode_DOWN
 			case 1:
 				uNode.Status = nodev1beta1.UniversalNode_UP
 			}
 		} else {
-			// In case there is no metric, we need to assign different values for supported and unsupported service types.
 			uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
 		}
 
