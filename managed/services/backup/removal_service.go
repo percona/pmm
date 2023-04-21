@@ -55,7 +55,7 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 
 	defer func() {
 		if err != nil {
-			s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
+			_ = s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
 		}
 	}()
 
@@ -77,7 +77,7 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 			var err error
 			defer func() {
 				if err != nil {
-					s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
+					_ = s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
 				}
 			}()
 
@@ -134,7 +134,11 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 		defer func() {
 			if err != nil {
 				s.l.Error("Couldn't trim artifact files. Restoring is not guaranteed for files outside of retention policy limit.")
-				s.setArtifactStatus(artifactID, models.SuccessBackupStatus)
+				// We need to release PITR artifact in case of error, otherwise it will be blocked for restoring.
+				if err = s.releaseArtifact(artifactID, oldStatus); err != nil {
+					s.l.WithError(err).Errorf("couldn't unlock artifact %q", artifactID)
+					return
+				}
 			}
 		}()
 
@@ -159,7 +163,7 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 		}
 
 		if err = s.releaseArtifact(artifactID, oldStatus); err != nil {
-			s.l.WithError(err).Error("couldn't unlock artifact")
+			s.l.WithError(err).Errorf("couldn't unlock artifact %q", artifactID)
 			return
 		}
 	}()
@@ -228,21 +232,21 @@ func (s *RemovalService) releaseArtifact(artifactID string, setStatus models.Bac
 			setStatus, artifactID)
 	}
 
-	if _, err := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
-		Status: setStatus.Pointer(),
-	}); err != nil {
+	if err := s.setArtifactStatus(artifactID, setStatus); err != nil {
 		return err
 	}
 	return nil
 }
 
 // setArtifactStatus sets provided artifact status. Write error logs if status cannot be set.
-func (s *RemovalService) setArtifactStatus(id string, status models.BackupStatus) {
-	if _, updateErr := models.UpdateArtifact(s.db.Querier, id, models.UpdateArtifactParams{
+func (s *RemovalService) setArtifactStatus(artifactID string, status models.BackupStatus) error {
+	if _, err := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
 		Status: status.Pointer(),
-	}); updateErr != nil {
-		s.l.WithError(updateErr).Errorf("failed to set status %q for artifact %q", models.FailedToDeleteBackupStatus, id)
+	}); err != nil {
+		s.l.WithError(err).Errorf("failed to set status %q for artifact %q", status, artifactID)
+		return err
 	}
+	return nil
 }
 
 // deleteArtifactFiles deletes artifact files.
