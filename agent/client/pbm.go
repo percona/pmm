@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -39,6 +40,9 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentpb.PBMSwi
 	if err != nil {
 		return errors.WithStack(err)
 	}
+
+	// TODO following line is a quick patch. Come up with something better.
+	dsn = strings.Replace(dsn, "directConnection=true", "directConnection=false", 1)
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
