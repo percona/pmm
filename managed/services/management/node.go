@@ -194,6 +194,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 	}
 
+	// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
 	query := `up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter"}`
 
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
@@ -218,20 +219,11 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 
 		uNode := &nodev1beta1.UniversalNode{
-			Address:       node.Address,
-			Az:            node.AZ,
-			CreatedAt:     timestamppb.New(node.CreatedAt),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			CustomLabels:  labels,
-			Distro:        node.Distro,
-			MachineId:     pointer.GetString(node.MachineID),
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			NodeType:      string(node.NodeType),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			UpdatedAt:     timestamppb.New(node.UpdatedAt),
+			Address:      node.Address,
+			CustomLabels: labels,
+			NodeId:       node.NodeID,
+			NodeName:     node.NodeName,
+			NodeType:     string(node.NodeType),
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {
@@ -260,5 +252,41 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 
 	return &nodev1beta1.ListNodeResponse{
 		Nodes: res,
+	}, nil
+}
+
+// Get returns a single Node by ID.
+//
+//nolint:unparam
+func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	labels, err := node.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	uNode := &nodev1beta1.UniversalNode{
+		Address:       node.Address,
+		Az:            node.AZ,
+		CreatedAt:     timestamppb.New(node.CreatedAt),
+		ContainerId:   pointer.GetString(node.ContainerID),
+		ContainerName: pointer.GetString(node.ContainerName),
+		CustomLabels:  labels,
+		Distro:        node.Distro,
+		MachineId:     pointer.GetString(node.MachineID),
+		NodeId:        node.NodeID,
+		NodeName:      node.NodeName,
+		NodeType:      string(node.NodeType),
+		NodeModel:     node.NodeModel,
+		Region:        pointer.GetString(node.Region),
+		UpdatedAt:     timestamppb.New(node.UpdatedAt),
+	}
+
+	return &nodev1beta1.GetNodeResponse{
+		Node: uNode,
 	}, nil
 }

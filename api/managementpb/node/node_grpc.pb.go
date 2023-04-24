@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	MgmtNode_ListNodes_FullMethodName = "/management.MgmtNode/ListNodes"
+	MgmtNode_GetNode_FullMethodName   = "/management.MgmtNode/GetNode"
 )
 
 // MgmtNodeClient is the client API for MgmtNode service.
@@ -29,6 +30,8 @@ const (
 type MgmtNodeClient interface {
 	// ListNode returns a list of nodes.
 	ListNodes(ctx context.Context, in *ListNodeRequest, opts ...grpc.CallOption) (*ListNodeResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 }
 
 type mgmtNodeClient struct {
@@ -48,12 +51,23 @@ func (c *mgmtNodeClient) ListNodes(ctx context.Context, in *ListNodeRequest, opt
 	return out, nil
 }
 
+func (c *mgmtNodeClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error) {
+	out := new(GetNodeResponse)
+	err := c.cc.Invoke(ctx, MgmtNode_GetNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MgmtNodeServer is the server API for MgmtNode service.
 // All implementations must embed UnimplementedMgmtNodeServer
 // for forward compatibility
 type MgmtNodeServer interface {
 	// ListNode returns a list of nodes.
 	ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error)
+	// GetNode returns a single Node by ID.
+	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
 	mustEmbedUnimplementedMgmtNodeServer()
 }
 
@@ -62,6 +76,10 @@ type UnimplementedMgmtNodeServer struct{}
 
 func (UnimplementedMgmtNodeServer) ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
+}
+
+func (UnimplementedMgmtNodeServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
 func (UnimplementedMgmtNodeServer) mustEmbedUnimplementedMgmtNodeServer() {}
 
@@ -94,6 +112,24 @@ func _MgmtNode_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MgmtNode_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MgmtNodeServer).GetNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MgmtNode_GetNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MgmtNodeServer).GetNode(ctx, req.(*GetNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MgmtNode_ServiceDesc is the grpc.ServiceDesc for MgmtNode service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +140,10 @@ var MgmtNode_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListNodes",
 			Handler:    _MgmtNode_ListNodes_Handler,
+		},
+		{
+			MethodName: "GetNode",
+			Handler:    _MgmtNode_GetNode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
