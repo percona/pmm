@@ -18,8 +18,6 @@ package dbaas
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
 	"regexp"
 	"strconv"
 
@@ -108,10 +106,6 @@ func (s PostgresqlClustersService) GetPostgresqlClusterCredentials(ctx context.C
 func (s PostgresqlClustersService) CreatePostgresqlCluster(ctx context.Context,
 	req *dbaasv1beta1.CreatePostgresqlClusterRequest,
 ) (*dbaasv1beta1.CreatePostgresqlClusterResponse, error) {
-	settings, err := models.GetSettings(s.db.Querier)
-	if err != nil {
-		return nil, errInvalidClusterName
-	}
 
 	if req.Params == nil {
 		req.Params = &dbaasv1beta1.PostgresqlClusterParams{}
@@ -146,37 +140,8 @@ func (s PostgresqlClustersService) CreatePostgresqlCluster(ctx context.Context,
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
 
-	secrets := make(map[string][]byte)
-	var apiKeyID int64
-	if settings.PMMPublicAddress != "" {
-		var apiKey string
-		apiKeyName := fmt.Sprintf("postgresql-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63()) //nolint:gosec
-		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-		if err != nil {
-			return nil, err
-		}
-		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
-		dbCluster.Spec.Monitoring.PMM.Login = "api_key" //nolint:goconst
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
-
-		secrets["pmmserver"] = []byte(apiKey)
-	}
-	if req.Params.Restore == nil || (req.Params.Restore != nil && req.Params.Restore.SecretsName == "") {
-		err = kubeClient.CreatePMMSecret(dbCluster.Spec.SecretsName, secrets)
-		if err != nil {
-			return nil, err
-		}
-	}
 	err = kubeClient.CreateDatabaseCluster(dbCluster)
 
-	if err != nil {
-		if apiKeyID != 0 {
-			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-			if e != nil {
-				s.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
-			}
-		}
-	}
 	return &dbaasv1beta1.CreatePostgresqlClusterResponse{}, nil
 }
 
@@ -284,22 +249,10 @@ func (s PostgresqlClustersService) UpdatePostgresqlCluster(ctx context.Context,
 func (s PostgresqlClustersService) GetPostgresqlClusterResources(_ context.Context,
 	req *dbaasv1beta1.GetPostgresqlClusterResourcesRequest,
 ) (*dbaasv1beta1.GetPostgresqlClusterResourcesResponse, error) {
-	settings, err := models.GetSettings(s.db.Querier)
-	if err != nil {
-		return nil, err
-	}
-
 	clusterSize := uint64(req.Params.ClusterSize)
 	memory := uint64(req.Params.Instance.ComputeResources.MemoryBytes+req.Params.Pgbouncer.ComputeResources.MemoryBytes) * clusterSize
 	cpu := uint64(req.Params.Instance.ComputeResources.CpuM+req.Params.Pgbouncer.ComputeResources.CpuM) * clusterSize
 	disk := uint64(req.Params.Instance.DiskSize+req.Params.Pgbouncer.DiskSize) * clusterSize
-
-	// If PMM is enabled, a pmm-client container is deployed to every
-	// postgresql instance pod, thus we need to multiply by the clusterSize
-	if settings.PMMPublicAddress != "" {
-		memory += 500000000 * clusterSize
-		cpu += 500 * clusterSize
-	}
 
 	return &dbaasv1beta1.GetPostgresqlClusterResourcesResponse{
 		Expected: &dbaasv1beta1.Resources{
