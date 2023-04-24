@@ -433,9 +433,6 @@ func DatabaseClusterForPostgresql(cluster *dbaasv1beta1.CreatePostgresqlClusterR
 				CPU:      cpu,
 				Memory:   *clusterMemory,
 			},
-			Monitoring: dbaasv1.MonitoringSpec{
-				PMM: &dbaasv1.PMMSpec{},
-			},
 			LoadBalancer: dbaasv1.LoadBalancerSpec{},
 			Backup:       &dbaasv1.BackupSpec{},
 		},
