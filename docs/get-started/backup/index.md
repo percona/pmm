@@ -6,8 +6,8 @@ PMM enables you to do all this with zero downtime and minimal performance impact
 
 Currently, PMM provides Backup and Restore functionality to work with:
 
-- MongoDB clusters (Generally Available)
-- MySQL Databases (in Technical Preview)
+- MongoDB (Generally Available)
+- MySQL (in Technical Preview)
 
 Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can:
 
