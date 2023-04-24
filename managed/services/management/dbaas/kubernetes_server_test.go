@@ -113,6 +113,8 @@ func TestKubernetesServer(t *testing.T) {
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
+		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"
@@ -148,6 +150,9 @@ func TestKubernetesServer(t *testing.T) {
 				"1.12.0",
 				"1.10.0",
 			},
+			"pg-operator": {
+				"2.0.0",
+			},
 		}
 		versionService.On("SupportedOperatorVersionsList", mock.Anything, mock.Anything).Return(supportedOperatorVersions, nil)
 
@@ -161,6 +166,7 @@ func TestKubernetesServer(t *testing.T) {
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
 					Dbaas: &dbaasv1beta1.Operator{Version: "", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID},
+					Pg:    &dbaasv1beta1.Operator{Version: "2.0.0", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
@@ -307,6 +313,7 @@ current-context: local`
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
 		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 		clients := map[string]kubernetesClient{
 			clusterName: kubeClient,
 		}
@@ -356,6 +363,7 @@ current-context: local`
 		defer teardown(t)
 
 		kubeClient.On("GetClusterType", mock.Anything).Return(kubernetes.ClusterTypeUnknown, errors.New("error"))
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 
 		_, err := ks.GetResources(context.Background(), &dbaasv1beta1.GetResourcesRequest{
 			KubernetesClusterName: "test-cluster",
@@ -477,6 +485,7 @@ current-context: local`
 				},
 			},
 		}, nil)
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 		resp, err := ks.ListStorageClasses(context.Background(), &dbaasv1beta1.ListStorageClassesRequest{
 			KubernetesClusterName: "test-cluster",
 		})
@@ -504,6 +513,7 @@ current-context: local`
 		defer teardown(t)
 
 		kubeClient.On("SetKubeconfig", mock.Anything, mock.Anything).Return(nil)
+		kubeClient.On("GetServerVersion").Return(nil, nil)
 
 		kubeClient.On("GetStorageClasses", mock.Anything).Return(nil, errors.New("error"))
 

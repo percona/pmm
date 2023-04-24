@@ -348,7 +348,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}
@@ -382,9 +386,12 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 	cpu := uint64(req.Params.Pxc.ComputeResources.CpuM+proxyComputeResources.CpuM) * clusterSize
 	disk += uint64(req.Params.Pxc.DiskSize) * clusterSize
 
+	// If PMM is enabled, a pmm-client container is deployed to every
+	// pxc and haproxy/proxysql pod, thus we need to multiply by 2x the
+	// clusterSize
 	if settings.PMMPublicAddress != "" {
-		memory += 1000000000 * clusterSize
-		cpu += 1000 * clusterSize
+		memory += 500000000 * 2 * clusterSize
+		cpu += 500 * 2 * clusterSize
 	}
 
 	return &dbaasv1beta1.GetPXCClusterResourcesResponse{

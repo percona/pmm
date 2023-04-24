@@ -41,6 +41,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -60,9 +61,11 @@ const (
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
+	pgDeploymentName                       = "percona-postgresql-operator"
 	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
 	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
 	dbaasOperatorContainerName             = "manager"
+	pgOperatorContainerName                = "operator"
 	databaseClusterKind                    = "DatabaseCluster"
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
@@ -346,6 +349,13 @@ func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
+}
+
+// GetPGOperatorVersion parses PG operator version from operator deployment
+func (k *Kubernetes) GetPGOperatorVersion(ctx context.Context) (string, error) {
+	k.lock.RLock()
+	defer k.lock.RUnlock()
+	return k.getOperatorVersion(ctx, pgDeploymentName, pgOperatorContainerName)
 }
 
 // GetSecret returns secret by name
@@ -906,6 +916,11 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	_, err = k.client.UpdateInstallPlan(ctx, namespace, ip)
 
 	return err
+}
+
+// GetServerVersion returns server version
+func (k *Kubernetes) GetServerVersion() (*version.Info, error) {
+	return k.client.GetServerVersion()
 }
 
 // ListTemplates returns a list of templates.

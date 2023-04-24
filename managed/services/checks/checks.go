@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"net/url"
 	"os"
@@ -71,7 +72,7 @@ const (
 	defaultResendInterval = 2 * time.Second
 
 	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "checks"
+	prometheusSubsystem = "advisor"
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
@@ -84,6 +85,8 @@ var (
 	pmmAgent2_7_0   = version.MustParse("2.7.0")
 	pmmAgent2_27_0  = version.MustParse("2.27.0-0")
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
+
+	b64 = base64.StdEncoding
 )
 
 // Service is responsible for interactions with Percona Check service.
@@ -111,9 +114,9 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted  *prom.CounterVec
-	mAlertsGenerated  *prom.CounterVec
-	mChecksDownloaded *prom.CounterVec
+	mChecksExecuted      *prom.CounterVec
+	mChecksAvailable     *prom.GaugeVec
+	mChecksExecutionTime *prom.SummaryVec
 }
 
 // queryPlaceholders contain known fields that can be used as placeholders in a check's query.
@@ -161,26 +164,27 @@ func New(
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
-		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
+		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_executed_total",
+			Help:      "Number of check scripts executed per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name", "status"}),
 
-		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
+		mChecksAvailable: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_available",
+			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
-		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "checks_downloaded_total",
-			Help:      "Counter of checks downloaded per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "check_execution_time_seconds",
+			Help:       "Time taken to execute checks per service type, advisor, and check name",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
@@ -761,12 +765,11 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
 				continue
 			}
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 			res = append(res, results...)
-
-			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
 		}
 	}
 
@@ -776,6 +779,10 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.CheckResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, checkExecutionTimeout)
 	defer cancel()
+
+	defer func(t time.Time) {
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name).Observe(time.Since(t).Seconds())
+	}(time.Now())
 
 	queries := c.Queries
 	if c.Version == 1 {
@@ -878,7 +885,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	return res, nil
 }
 
-func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, target services.Target) ([]byte, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare result")
@@ -897,13 +904,13 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 		return nil, errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return res, nil
 }
 
-func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -912,20 +919,20 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 	}()
 
 	if err = s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil { //nolint:lll
-		return nil, errors.Wrap(err, "failed to start mySQL select action")
+		return "", errors.Wrap(err, "failed to start mySQL select action")
 	}
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -933,14 +940,14 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 		}
 	}()
 	if err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN); err != nil {
-		return nil, errors.Wrap(err, "failed to start postgreSQL show action")
+		return "", errors.Wrap(err, "failed to start postgreSQL show action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
 func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.Query, target services.Target) (any, error) {
@@ -960,7 +967,7 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to split target by db")
 	}
-	res := make(map[string][]map[string]any, len(targets))
+	res := make(map[string]string, len(targets))
 	for dbName, t := range targets {
 		if res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
 			return nil, errors.WithStack(err)
@@ -970,10 +977,10 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	return res, nil
 }
 
-func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
+func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, query check.Query, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -982,21 +989,21 @@ func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, q
 	}()
 
 	if err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query); err != nil {
-		return nil, errors.Wrap(err, "failed to start postgreSQL select action")
+		return "", errors.Wrap(err, "failed to start postgreSQL select action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -1005,21 +1012,21 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 	}()
 
 	if err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-		return nil, errors.Wrap(err, "failed to start mongoDB getParameter action")
+		return "", errors.Wrap(err, "failed to start mongoDB getParameter action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -1027,21 +1034,21 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 		}
 	}()
 	if err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-		return nil, errors.Wrap(err, "failed to start mongoDB buildInfo action")
+		return "", errors.Wrap(err, "failed to start mongoDB buildInfo action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -1050,21 +1057,21 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 	}()
 
 	if err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-		return nil, errors.Wrap(err, "failed to start mongoDB getCmdLineOpts action")
+		return "", errors.Wrap(err, "failed to start mongoDB getCmdLineOpts action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -1073,21 +1080,21 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 	}()
 
 	if err = s.agentsRegistry.StartMongoDBQueryReplSetGetStatusAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-		return nil, errors.Wrap(err, "failed to start mongoDB replSetGetStatus action")
+		return "", errors.Wrap(err, "failed to start mongoDB replSetGetStatus action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target services.Target) (string, error) {
 	r, err := models.CreateActionResult(s.db.Querier, target.AgentID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare result")
+		return "", errors.Wrap(err, "failed to prepare result")
 	}
 	defer func() {
 		if err = s.db.Delete(r); err != nil {
@@ -1096,18 +1103,18 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 	}()
 
 	if err = s.agentsRegistry.StartMongoDBQueryGetDiagnosticDataAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
-		return nil, errors.Wrap(err, "failed to start mongoDB getDiagnosticData action")
+		return "", errors.Wrap(err, "failed to start mongoDB getDiagnosticData action")
 	}
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.UnmarshalActionQueryResult(res)
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Query, target services.Target) (string, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
@@ -1115,14 +1122,14 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 
 	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
 	var lookback time.Time // if not specified use empty time which means "current time"
 	if v, ok := query.Parameters[check.Lookback]; ok {
 		d, err := time.ParseDuration(v)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse 'lookback' query parameter")
+			return "", errors.Wrap(err, "failed to parse 'lookback' query parameter")
 		}
 
 		lookback = time.Now().Add(-d)
@@ -1130,7 +1137,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 
 	r, warns, err := s.vmClient.Query(ctx, q, lookback)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute instant VM query")
+		return "", errors.Wrap(err, "failed to execute instant VM query")
 	}
 
 	for _, warn := range warns {
@@ -1139,13 +1146,13 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 
 	res, err := convertVMValue(r)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return res, nil
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) ([]map[string]any, error) {
+func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Query, target services.Target) (string, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		NodeName:    target.NodeName,
@@ -1153,7 +1160,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 
 	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
 	rng := v1.Range{
@@ -1163,7 +1170,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 	if v, ok := query.Parameters[check.Lookback]; ok {
 		d, err := time.ParseDuration(v)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse 'lookback' query parameter")
+			return "", errors.Wrap(err, "failed to parse 'lookback' query parameter")
 		}
 
 		rng.End = time.Now().Add(-d)
@@ -1171,29 +1178,29 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 
 	rg, ok := query.Parameters[check.Range]
 	if !ok {
-		return nil, errors.New("'range' query parameter is required for range queries")
+		return "", errors.New("'range' query parameter is required for range queries")
 	}
 
 	d, err := time.ParseDuration(rg)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse 'range' query parameter")
+		return "", errors.Wrap(err, "failed to parse 'range' query parameter")
 	}
 
 	rng.Start = rng.End.Add(-d)
 
 	st, ok := query.Parameters[check.Step]
 	if !ok {
-		return nil, errors.New("'step' query parameter is required for range queries")
+		return "", errors.New("'step' query parameter is required for range queries")
 	}
 
 	rng.Step, err = time.ParseDuration(st)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse 'step' query parameter")
+		return "", errors.Wrap(err, "failed to parse 'step' query parameter")
 	}
 
 	r, warns, err := s.vmClient.QueryRange(ctx, q, rng)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute range VM query")
+		return "", errors.Wrap(err, "failed to execute range VM query")
 	}
 
 	for _, warn := range warns {
@@ -1202,13 +1209,13 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 
 	res, err := convertVMValue(r)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	return res, nil
+	return b64.EncodeToString(res), nil
 }
 
-func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) ([]byte, error) {
+func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery check.Query, target services.Target) (string, error) {
 	queryData := queryPlaceholders{
 		ServiceName: target.ServiceName,
 		ServiceID:   target.ServiceID,
@@ -1216,25 +1223,30 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 
 	query, err := fillQueryPlaceholders(checkQuery.Query, queryData)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
 	query = "SELECT " + query
 	rows, err := s.clickhouseDB.QueryContext(ctx, query, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute query")
+		return "", errors.Wrap(err, "failed to execute query")
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, err
+		return "", errors.WithStack(err)
 	}
 
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	b, err := agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return b64.EncodeToString(b), nil
 }
 
 // convertVMValue converts VM results to format applicable to check input.
-func convertVMValue(value model.Value) ([]map[string]any, error) {
+func convertVMValue(value model.Value) ([]byte, error) {
 	if value.Type() == model.ValScalar {
 		// MetricsQL treats scalar type the same as instant vector without labels, since subtle differences between
 		// these types usually confuse users. See the corresponding Prometheus docs for details.
@@ -1254,7 +1266,12 @@ func convertVMValue(value model.Value) ([]map[string]any, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	return data, nil
+	res, err := agentpb.MarshalActionQueryDocsResult(data)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return res, nil
 }
 
 func (s *Service) discoverAvailablePGDatabases(ctx context.Context, target services.Target) ([]string, error) {
@@ -1266,8 +1283,18 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 		return nil, errors.Wrapf(err, "failed to select available databases")
 	}
 
-	r := make([]string, len(res))
-	for i, row := range res {
+	dec, err := b64.DecodeString(res)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode database discovery results")
+	}
+
+	data, err := agentpb.UnmarshalActionQueryResult(dec)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal database discovery results")
+	}
+
+	r := make([]string, len(data))
+	for i, row := range data {
 		datname, ok := row["datname"]
 		if !ok {
 			return nil, errors.New("missing expected 'datname' filed in query response")
@@ -1374,10 +1401,11 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: aCheck.Name,
-			Interval:  aCheck.Interval,
-			Target:    target,
-			Result:    result,
+			CheckName:   aCheck.Name,
+			AdvisorName: aCheck.Advisor,
+			Interval:    aCheck.Interval,
+			Target:      target,
+			Result:      result,
 		}
 	}
 	return checkResults, nil
@@ -1432,6 +1460,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 				AgentID:       pmmAgent.AgentID,
 				ServiceID:     service.ServiceID,
 				ServiceName:   service.ServiceName,
+				ServiceType:   service.ServiceType,
 				NodeName:      node.NodeName,
 				Labels:        labels,
 				DSN:           DSN,
@@ -1453,6 +1482,9 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
+
+	defer s.refreshChecksInMemoryMetric()
+
 	if s.localChecksFile != "" {
 		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
 		checks, err := s.loadLocalChecks(s.localChecksFile)
@@ -1475,8 +1507,6 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded advisors
 		}
-		// defer it to run after updateAdvisors
-		defer s.incChecksDownload()
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
@@ -1637,32 +1667,38 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 
 // Describe implements prom.Collector.
 func (s *Service) Describe(ch chan<- *prom.Desc) {
-	s.mScriptsExecuted.Describe(ch)
-	s.mAlertsGenerated.Describe(ch)
-	s.mChecksDownloaded.Describe(ch)
+	s.mChecksExecuted.Describe(ch)
+	s.mChecksAvailable.Describe(ch)
+	s.mChecksExecutionTime.Describe(ch)
+
+	s.alertsRegistry.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (s *Service) Collect(ch chan<- prom.Metric) {
-	s.mScriptsExecuted.Collect(ch)
-	s.mAlertsGenerated.Collect(ch)
-	s.mChecksDownloaded.Collect(ch)
+	s.mChecksExecuted.Collect(ch)
+	s.mChecksAvailable.Collect(ch)
+	s.mChecksExecutionTime.Collect(ch)
+
+	s.alertsRegistry.Collect(ch)
 }
 
-func (s *Service) incChecksDownload() {
+func (s *Service) refreshChecksInMemoryMetric() {
 	checks, err := s.GetChecks()
 	if err != nil {
 		s.l.Warnf("failed to get checks: %+v", err)
+		return
 	}
+	s.mChecksAvailable.Reset()
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
-	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
-	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
-	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
+	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
+	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
+	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
 }
 
-func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
+func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
 }
 

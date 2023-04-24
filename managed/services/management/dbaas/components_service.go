@@ -22,6 +22,8 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -39,6 +41,8 @@ const (
 	psmdbOperatorName = "percona-server-mongodb-operator"
 	pxcOperatorName   = "percona-xtradb-cluster-operator"
 	defaultNamespace  = "default"
+	// Dev-latest docker image.
+	devLatest = "perconalab/pmm-client:dev-latest"
 )
 
 // ComponentsService holds unexported fields and public methods to handle Components Service.
@@ -145,6 +149,37 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
+func (c ComponentsService) GetPGComponents(ctx context.Context, req *dbaasv1beta1.GetPGComponentsRequest) (*dbaasv1beta1.GetPGComponentsResponse, error) {
+	var kubernetesCluster *models.KubernetesCluster
+	params := componentsParams{
+		product:   pgOperator,
+		dbVersion: req.DbVersion,
+	}
+	if req.KubernetesClusterName != "" {
+		var err error
+		kubernetesCluster, err = models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		kubeClient, err := c.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return nil, err
+		}
+		pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		params.productVersion = pgVersion
+	}
+
+	versions, err := c.versions(ctx, params, kubernetesCluster)
+	if err != nil {
+		return nil, err
+	}
+	return &dbaasv1beta1.GetPGComponentsResponse{Versions: versions}, nil
+}
+
 func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
@@ -218,6 +253,50 @@ func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 	return &dbaasv1beta1.ChangePXCComponentsResponse{}, nil
 }
 
+func (c ComponentsService) ChangePGComponents(ctx context.Context, req *dbaasv1beta1.ChangePGComponentsRequest) (*dbaasv1beta1.ChangePGComponentsResponse, error) {
+	err := c.db.InTransaction(func(tx *reform.TX) error {
+		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
+		if e != nil {
+			return e
+		}
+
+		if req.Postgresql != nil {
+			kubernetesCluster.Postgresql, e = setComponent(kubernetesCluster.Postgresql, req.Postgresql)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: postgresql", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		if req.Pgbouncer != nil {
+			kubernetesCluster.Pgbouncer, e = setComponent(kubernetesCluster.Pgbouncer, req.Pgbouncer)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: pgbouncer", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+
+		if req.Pgbackrest != nil {
+			kubernetesCluster.Pgbackrest, e = setComponent(kubernetesCluster.Pgbackrest, req.Pgbackrest)
+			if e != nil {
+				message := fmt.Sprintf("%s, cluster: %s, component: pgbackrest", e.Error(), kubernetesCluster.KubernetesClusterName)
+				return status.Errorf(codes.InvalidArgument, message)
+			}
+		}
+		e = tx.Save(kubernetesCluster)
+		if e != nil {
+			return e
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.ChangePGComponentsResponse{}, nil
+}
+
 func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sync.WaitGroup, responseCh chan installedComponentsVersion, kuberentesCluster *models.KubernetesCluster) { //nolint:lll
 	defer wg.Done()
 	kubeClient, err := c.kubeStorage.GetOrSetClient(kuberentesCluster.KubernetesClusterName)
@@ -275,6 +354,7 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 		kubeClient, err := c.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
 		if err != nil {
 			c.l.Errorf("Cannot list the subscriptions for the cluster %q: %s", cluster.KubernetesClusterName, err)
+			continue
 		}
 
 		subscriptions, err := kubeClient.ListSubscriptions(ctx, "default")
@@ -318,12 +398,15 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 		return nil, err
 	}
 
-	var mongod, pxc, proxySQL, haproxy *models.Component
+	var mongod, pxc, proxySQL, haproxy, postgresql, pgbouncer, pgbackrest *models.Component
 	if cluster != nil {
 		mongod = cluster.Mongod
 		pxc = cluster.PXC
 		proxySQL = cluster.ProxySQL
 		haproxy = cluster.HAProxy
+		postgresql = cluster.Postgresql
+		pgbouncer = cluster.Pgbouncer
+		pgbackrest = cluster.Pgbackrest
 	}
 
 	versions := make([]*dbaasv1beta1.OperatorVersion, 0, len(components.Versions))
@@ -342,6 +425,9 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 				Backup:       c.matrix(v.Matrix.Backup, nil, nil),
 				Operator:     c.matrix(v.Matrix.Operator, nil, nil),
 				LogCollector: c.matrix(v.Matrix.LogCollector, nil, nil),
+				Postgresql:   c.matrix(v.Matrix.Postgresql, nil, postgresql),
+				Pgbouncer:    c.matrix(v.Matrix.Pgbouncer, nil, pgbouncer),
+				Pgbackrest:   c.matrix(v.Matrix.Pgbackrest, nil, pgbackrest),
 			},
 		}
 		versions = append(versions, respVersion)
@@ -517,6 +603,33 @@ func getPMMClientImage() string {
 		return pmmClientImage
 	}
 
+	exists, err := imageExists(context.Background(), pmmClientImage)
+	// if !exists or there was an error while checking if the image exists, use dev-latest as default.
+	if !exists || err != nil {
+		return devLatest
+	}
+
 	pmmClientImage = "percona/pmm-client:" + v.Core().String()
 	return pmmClientImage
+}
+
+func imageExists(ctx context.Context, image string) (bool, error) {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
+	defer cli.Close()
+
+	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	reader.Close()
+
+	return true, nil
 }
