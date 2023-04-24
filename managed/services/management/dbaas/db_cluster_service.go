@@ -41,6 +41,8 @@ import (
 const (
 	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
 	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
+
+	externalLBType = "external"
 )
 
 // DBClusterService holds unexported field and public methods to handle DB Clusters.
@@ -77,17 +79,23 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 		// return nil, errors.Wrap(err, "failed listing database clusters")
 		dbClusters = &dbaasv1.DatabaseClusterList{Items: []dbaasv1.DatabaseCluster{}}
 	}
+
 	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		s.l.Errorf("failed determining version of psmdb operator: %v", err)
 	}
-
 	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		s.l.Errorf("failed determining version of pxc operator: %v", err)
 	}
+	pgOperatorVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+	if err != nil {
+		s.l.Errorf("failed determining version of pg operator: %v", err)
+	}
+
 	psmdbClusters := []*dbaasv1beta1.PSMDBCluster{}
 	pxcClusters := []*dbaasv1beta1.PXCCluster{}
+	postgresqlClusters := []*dbaasv1beta1.PostgresqlCluster{}
 
 	for _, cluster := range dbClusters.Items {
 		switch cluster.Spec.Database {
@@ -103,14 +111,21 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 				s.l.Errorf("failed getting PSMDB cluster: %v", err)
 			}
 			psmdbClusters = append(psmdbClusters, c)
+		case kubernetes.DatabaseTypePostgresql:
+			c, err := s.getPostgresqlCluster(cluster, pgOperatorVersion)
+			if err != nil {
+				s.l.Errorf("failed getting Postgresql cluster: %v", err)
+			}
+			postgresqlClusters = append(postgresqlClusters, c)
 		default:
 			s.l.Errorf("unsupported database type %s", cluster.Spec.Database)
 		}
 	}
 
 	return &dbaasv1beta1.ListDBClustersResponse{
-		PxcClusters:   pxcClusters,
-		PsmdbClusters: psmdbClusters,
+		PxcClusters:        pxcClusters,
+		PsmdbClusters:      psmdbClusters,
+		PostgresqlClusters: postgresqlClusters,
 	}, nil
 }
 
@@ -165,7 +180,7 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing || lbType == "external",
+		InternetFacing: internetFacing || lbType == externalLBType,
 		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
@@ -275,7 +290,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing || lbType == "external",
+		InternetFacing: internetFacing || lbType == externalLBType,
 		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
@@ -314,6 +329,64 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	return c, nil
 }
 
+func (s DBClusterService) getPostgresqlCluster(cluster dbaasv1.DatabaseCluster, _ string) (*dbaasv1beta1.PostgresqlCluster, error) {
+	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
+	if err != nil {
+		return nil, err
+	}
+	c := &dbaasv1beta1.PostgresqlCluster{
+		Name: cluster.Name,
+		Params: &dbaasv1beta1.PostgresqlClusterParams{
+			ClusterSize: cluster.Spec.ClusterSize,
+			Instance: &dbaasv1beta1.PostgresqlClusterParams_Instance{
+				DiskSize: diskSize,
+				ComputeResources: &dbaasv1beta1.ComputeResources{
+					CpuM:        int32(cpu),
+					MemoryBytes: memory,
+				},
+				Configuration: cluster.Spec.DatabaseConfig,
+			},
+		},
+		State:          dbClusterStates()[cluster.Status.State],
+		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
+		InternetFacing: internetFacing || lbType == externalLBType,
+		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
+		Operation: &dbaasv1beta1.RunningOperation{
+			TotalSteps:    cluster.Status.Size,
+			FinishedSteps: cluster.Status.Ready,
+			Message:       cluster.Status.Message,
+		},
+	}
+	if cluster.Spec.DBInstance.StorageClassName != nil {
+		c.Params.Instance.StorageClass = *cluster.Spec.DBInstance.StorageClassName
+	}
+
+	compute, err := s.getComputeResources(cluster.Spec.LoadBalancer.Resources.Requests)
+	if err != nil {
+		s.l.Errorf("could not parse resources for proxysql %v", err)
+	}
+	c.Params.Pgbouncer = &dbaasv1beta1.PostgresqlClusterParams_PGBouncer{
+		ComputeResources: compute,
+		Image:            cluster.Spec.LoadBalancer.Image,
+	}
+
+	c.InstalledImage = cluster.Spec.DatabaseImage
+
+	if cluster.ObjectMeta.Annotations != nil {
+		templateName, templateNameExists := cluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey]
+		templateKind, templateKindExists := cluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey]
+		if templateNameExists && templateKindExists {
+			c.Template = &dbaasv1beta1.Template{
+				Name: templateName,
+				Kind: templateKind,
+			}
+		}
+	}
+
+	return c, nil
+}
+
 func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.GetDBClusterRequest) (*dbaasv1beta1.GetDBClusterResponse, error) {
 	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
@@ -323,15 +396,20 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting the database cluster")
 	}
+
 	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting psmdb operator version")
 	}
-
 	pxcOperatorVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed getting pxc operator version")
 	}
+	pgOperatorVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting pg operator version")
+	}
+
 	resp := &dbaasv1beta1.GetDBClusterResponse{}
 	if dbCluster.Spec.Database == kubernetes.DatabaseTypePXC && pxcOperatorVersion != "" {
 		c, err := s.getPXCCluster(ctx, *dbCluster, pxcOperatorVersion)
@@ -346,6 +424,13 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 			return nil, errors.Wrap(err, "failed getting PSMDB cluster")
 		}
 		resp.PsmdbCluster = c
+	}
+	if dbCluster.Spec.Database == kubernetes.DatabaseTypePostgresql && pgOperatorVersion != "" {
+		c, err := s.getPostgresqlCluster(*dbCluster, pgOperatorVersion)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed getting Postgresql cluster")
+		}
+		resp.PostgresqlCluster = c
 	}
 	return resp, nil
 }
@@ -381,6 +466,8 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 		clusterType = string(kubernetes.DatabaseTypePXC)
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
 		clusterType = string(kubernetes.DatabaseTypePSMDB)
+	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_POSTGRESQL:
+		clusterType = string(kubernetes.DatabaseTypePostgresql)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "unexpected DB cluster type")
 	}

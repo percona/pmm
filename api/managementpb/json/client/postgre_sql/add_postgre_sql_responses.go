@@ -1475,7 +1475,7 @@ func (o *AddPostgreSQLOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddPostgreSQLParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddPostgreSQLParamsBodyAddNode
 */
 type AddPostgreSQLParamsBodyAddNode struct {

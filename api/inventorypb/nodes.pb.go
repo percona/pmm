@@ -648,8 +648,7 @@ type ListNodesRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only Nodes with matching Node type.
 	NodeType NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.NodeType" json:"node_type,omitempty"`
 }
 

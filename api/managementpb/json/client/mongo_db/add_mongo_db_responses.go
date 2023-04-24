@@ -1237,7 +1237,7 @@ func (o *AddMongoDBOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddMongoDBParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddMongoDBParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddMongoDBParamsBodyAddNode
 */
 type AddMongoDBParamsBodyAddNode struct {
