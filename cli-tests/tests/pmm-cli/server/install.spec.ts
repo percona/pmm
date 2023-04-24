@@ -20,7 +20,14 @@ test.describe('Install PMM Server respects relevant flags', async () => {
         --container-name=${containerName}
         --volume-name=${volumeName}`);
     await output.assertSuccess();
-    expect(output.stderr).toContain('Starting PMM Server');
+
+    await expect(async () => {
+      expect(output.stderr).toContain('Starting PMM Server');
+    }).toPass({
+      // Probe, wait 1s, probe, wait 2s, probe, wait 2s, probe, wait 2s, probe, ....
+      intervals: [1_000, 2_000, 2_000],
+      timeout: 20_000,
+    });
   });
 
   test.afterAll(async ({}) => {
@@ -38,10 +45,9 @@ test.describe('Install PMM Server respects relevant flags', async () => {
       ignoreHTTPSErrors: true,
     });
     const resp = await client.doPost('/v1/Settings/Get');
-    const respBody = await resp.json();
 
     await expect(resp).toBeOK();
-    expect(respBody).toHaveProperty('settings');
+    expect(await resp.json()).toHaveProperty('settings');
   });
 
   test('Container name', async ({ }) => {

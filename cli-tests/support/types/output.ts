@@ -28,23 +28,23 @@ class Output {
   async outContains(expectedValue: string) {
     await test.step(`Verify command output contains ${expectedValue}`, async () => {
       expect(this.stdout, `Stdout does not contain ${expectedValue}!`).toContain(expectedValue);
-    })
+    });
   }
 
   async outContainsMany(expectedValues: string[]) {
     for (const val of expectedValues) {
       await test.step(`Verify command output contains ${val}`, async () => {
-        expect.soft(this.stdout,`Stdout does not contain '${val}'!`).toContain(val);
-      })
+        expect.soft(this.stdout, `Stdout does not contain '${val}'!`).toContain(val);
+      });
     }
     expect(
-        test.info().errors,
-        `'Contains all elements' failed with ${test.info().errors.length} error(s):\n${this.getErrors()}`
+      test.info().errors,
+      `'Contains all elements' failed with ${test.info().errors.length} error(s):\n${this.getErrors()}`,
     ).toHaveLength(0);
   }
 
   private getErrors(): string {
-    let errors: string[] = [];
+    const errors: string[] = [];
     for (const obj of test.info().errors) {
       errors.push(`\t${obj.message.split('\n')[0]}`);
     }
