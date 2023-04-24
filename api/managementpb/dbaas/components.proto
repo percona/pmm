@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-option go_package = "api/managementpb/dbaas;dbaasv1beta1";
-
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // Component contains information about component.
 message Component {
@@ -28,6 +28,9 @@ message Matrix {
   map<string, Component> backup = 6;
   map<string, Component> operator = 7;
   map<string, Component> log_collector = 8;
+  map<string, Component> postgresql = 9;
+  map<string, Component> pgbouncer = 10;
+  map<string, Component> pgbackrest = 11;
 }
 
 // OperatorVersion contains information about operator and components matrix.
@@ -59,16 +62,23 @@ message GetPXCComponentsResponse {
   repeated OperatorVersion versions = 1;
 }
 
+message GetPGComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+  // Version of DB.
+  string db_version = 2;
+}
+
+message GetPGComponentsResponse {
+  repeated OperatorVersion versions = 1;
+}
+
 // ChangeComponent contains fields to manage components.
 message ChangeComponent {
   string default_version = 1;
   // ComponentVersion contains operations which should be done with component version.
   message ComponentVersion {
-    string version = 1 [
-      (validator.field) = {
-        string_not_empty: true
-      }
-    ];
+    string version = 1 [(validate.rules).string.min_len = 1];
     bool disable = 2;
     bool enable = 3;
   }
@@ -77,11 +87,7 @@ message ChangeComponent {
 
 message ChangePSMDBComponentsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   ChangeComponent mongod = 2;
 }
 
@@ -89,11 +95,7 @@ message ChangePSMDBComponentsResponse {}
 
 message ChangePXCComponentsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   ChangeComponent pxc = 2;
   ChangeComponent proxysql = 3;
   ChangeComponent haproxy = 4;
@@ -101,25 +103,23 @@ message ChangePXCComponentsRequest {
 
 message ChangePXCComponentsResponse {}
 
+message ChangePGComponentsRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
+  ChangeComponent postgresql = 2;
+  ChangeComponent pgbouncer = 3;
+  ChangeComponent pgbackrest = 4;
+}
+
+message ChangePGComponentsResponse {}
+
 message InstallOperatorRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // operator_type tells what operator we are interested in updating.
-  string operator_type = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string operator_type = 2 [(validate.rules).string.min_len = 1];
   // version tells what version of the operator we should update to.
-  string version = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string version = 3 [(validate.rules).string.min_len = 1];
 }
 
 message InstallOperatorResponse {
@@ -162,6 +162,13 @@ service Components {
       body: "*"
     };
   }
+  // GetPGComponents returns list of available components for PG Clusters.
+  rpc GetPGComponents(GetPGComponentsRequest) returns (GetPGComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/GetPG"
+      body: "*"
+    };
+  }
   // ChangePSMDBComponents manages PSMDB related components.
   rpc ChangePSMDBComponents(ChangePSMDBComponentsRequest) returns (ChangePSMDBComponentsResponse) {
     option (google.api.http) = {
@@ -173,6 +180,13 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
+      body: "*"
+    };
+  }
+  // ChangePGComponents manages PG related components.
+  rpc ChangePGComponents(ChangePGComponentsRequest) returns (ChangePGComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/Components/ChangePG"
       body: "*"
     };
   }

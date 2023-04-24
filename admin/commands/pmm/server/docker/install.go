@@ -24,13 +24,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/pmm/common"
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
+	"github.com/percona/pmm/admin/pkg/docker"
 )
+
+const defaultGrafanaAdminPassword = "admin"
 
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
@@ -47,7 +51,9 @@ type InstallCommand struct {
 }
 
 type installResult struct {
-	adminPassword string
+	URL      string `json:"url"`
+	User     string `json:"user"`
+	Password string `json:"password"`
 }
 
 // Result is a command run result.
@@ -57,10 +63,10 @@ func (r *installResult) Result() {}
 func (r *installResult) String() string {
 	return `
 	
-PMM Server is now available at http://localhost/
+PMM Server is now available at ` + r.URL + `
 
-User: admin
-Password: ` + r.adminPassword
+User: ` + r.User + `
+Password: ` + r.Password
 }
 
 // ErrDockerNoAccess is returned when there is no access to Docker or Docker is not running.
@@ -98,15 +104,22 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		return nil, healthy.Error
 	}
 
-	if !c.SkipChangePassword {
+	finalPassword := c.AdminPassword
+	if !c.SkipChangePassword && c.AdminPassword != defaultGrafanaAdminPassword {
 		err = c.dockerFn.ChangeServerPassword(ctx, containerID, c.AdminPassword)
 		if err != nil {
-			return nil, err
+			if !errors.Is(err, docker.ErrPasswordChangeFailed) {
+				return nil, err
+			}
+
+			finalPassword = defaultGrafanaAdminPassword
 		}
 	}
 
 	return &installResult{
-		adminPassword: c.AdminPassword,
+		URL:      "http://localhost",
+		User:     "admin",
+		Password: finalPassword,
 	}, nil
 }
 

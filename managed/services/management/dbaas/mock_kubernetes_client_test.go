@@ -5,11 +5,14 @@ package dbaas
 import (
 	context "context"
 
+	v1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	v1 "github.com/percona/dbaas-operator/api/v1"
 	mock "github.com/stretchr/testify/mock"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
+	version "k8s.io/apimachinery/pkg/version"
 
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	kubernetes "github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
@@ -223,6 +226,27 @@ func (_m *mockKubernetesClient) GetDefaultStorageClassName(_a0 context.Context) 
 	return r0, r1
 }
 
+// GetPGOperatorVersion provides a mock function with given fields: _a0
+func (_m *mockKubernetesClient) GetPGOperatorVersion(_a0 context.Context) (string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPSMDBOperatorVersion provides a mock function with given fields: _a0
 func (_m *mockKubernetesClient) GetPSMDBOperatorVersion(_a0 context.Context) (string, error) {
 	ret := _m.Called(_a0)
@@ -311,6 +335,29 @@ func (_m *mockKubernetesClient) GetSecret(_a0 context.Context, _a1 string) (*cor
 	return r0, r1
 }
 
+// GetServerVersion provides a mock function with given fields:
+func (_m *mockKubernetesClient) GetServerVersion() (*version.Info, error) {
+	ret := _m.Called()
+
+	var r0 *version.Info
+	if rf, ok := ret.Get(0).(func() *version.Info); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*version.Info)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetStorageClasses provides a mock function with given fields: ctx
 func (_m *mockKubernetesClient) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	ret := _m.Called(ctx)
@@ -332,6 +379,34 @@ func (_m *mockKubernetesClient) GetStorageClasses(ctx context.Context) (*storage
 	}
 
 	return r0, r1
+}
+
+// InstallOLMOperator provides a mock function with given fields: ctx
+func (_m *mockKubernetesClient) InstallOLMOperator(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// InstallOperator provides a mock function with given fields: ctx, req
+func (_m *mockKubernetesClient) InstallOperator(ctx context.Context, req kubernetes.InstallOperatorRequest) error {
+	ret := _m.Called(ctx, req)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, kubernetes.InstallOperatorRequest) error); ok {
+		r0 = rf(ctx, req)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // ListDatabaseClusters provides a mock function with given fields: _a0
@@ -380,6 +455,52 @@ func (_m *mockKubernetesClient) ListSecrets(_a0 context.Context) (*corev1.Secret
 	return r0, r1
 }
 
+// ListSubscriptions provides a mock function with given fields: ctx, namespace
+func (_m *mockKubernetesClient) ListSubscriptions(ctx context.Context, namespace string) (*v1alpha1.SubscriptionList, error) {
+	ret := _m.Called(ctx, namespace)
+
+	var r0 *v1alpha1.SubscriptionList
+	if rf, ok := ret.Get(0).(func(context.Context, string) *v1alpha1.SubscriptionList); ok {
+		r0 = rf(ctx, namespace)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1alpha1.SubscriptionList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListTemplates provides a mock function with given fields: ctx, engine, namespace
+func (_m *mockKubernetesClient) ListTemplates(ctx context.Context, engine string, namespace string) ([]*dbaasv1beta1.Template, error) {
+	ret := _m.Called(ctx, engine, namespace)
+
+	var r0 []*dbaasv1beta1.Template
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*dbaasv1beta1.Template); ok {
+		r0 = rf(ctx, engine, namespace)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*dbaasv1beta1.Template)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, engine, namespace)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PatchDatabaseCluster provides a mock function with given fields: _a0
 func (_m *mockKubernetesClient) PatchDatabaseCluster(_a0 *v1.DatabaseCluster) error {
 	ret := _m.Called(_a0)
@@ -415,6 +536,20 @@ func (_m *mockKubernetesClient) SetKubeconfig(_a0 string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpgradeOperator provides a mock function with given fields: ctx, namespace, name
+func (_m *mockKubernetesClient) UpgradeOperator(ctx context.Context, namespace string, name string) error {
+	ret := _m.Called(ctx, namespace, name)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, namespace, name)
 	} else {
 		r0 = ret.Error(0)
 	}

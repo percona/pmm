@@ -67,18 +67,6 @@
         state: stopped
       ignore_errors: True
 
-    - name: Remove pmm-managed database from postgres
-      postgresql_db:
-        name: pmm-managed
-        state: absent
-      ignore_errors: True
-
-    - name: Remove pmm-managed role from postgres
-      postgresql_user:
-        name: pmm-managed
-        state: absent
-      ignore_errors: True
-
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
       service: name=supervisord state=stopped enabled=yes
@@ -86,6 +74,39 @@
     - name: Supervisord stop           | Stop supervisord service for docker
       when: ansible_virtualization_type == "docker"
       shell: supervisorctl shutdown
+
+      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
+      # so a temporary solution was to start it without supervisord and remove the
+      # pmm-managed database/role. However, a complete overhaul of the pipeline is
+      # necessary for a permanent fix.
+    - name: Start PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      when: ansible_virtualization_type != "docker"
+
+    - name: Remove pmm-managed database
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        state: absent
+      register: db_check_result
+
+    - name: Output db_check_result
+      debug:
+        msg: "pmm-managed database was removed"
+      when: db_check_result.changed == True
+
+    - name: Remove pmm-managed role from postgres
+      postgresql_user:
+        name: pmm-managed
+        state: absent
+
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      when: ansible_virtualization_type != "docker"
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all

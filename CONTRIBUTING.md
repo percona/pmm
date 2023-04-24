@@ -153,7 +153,7 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
 
 ### API tests
 
-API tests are included into pmm repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are included into pmm repository and located in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests runs against running PMM Server container.
 
 ### End to End (E2E) tests
 
@@ -162,7 +162,10 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md) and [Common tech libraries and approaches](docs/process/common_tech_lib_approaches.md)
+Before proceeding with your first pull request, we highly recommend you to read the following documents:
+- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](docs/process/tech_stack.md)
+- [Best practices](docs/process/best_practices.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)

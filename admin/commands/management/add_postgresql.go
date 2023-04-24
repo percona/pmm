@@ -57,7 +57,7 @@ type AddPostgreSQLCommand struct {
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
-	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
+	QuerySource          string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
 	Environment          string            `help:"Environment name"`
 	Cluster              string            `help:"Cluster name"`
 	ReplicationSet       string            `help:"Replication set name"`

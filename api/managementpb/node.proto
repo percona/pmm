@@ -2,24 +2,20 @@ syntax = "proto3";
 
 package management;
 
-option go_package = "api/managementpb;managementpb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/nodes.proto";
 import "managementpb/metrics.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb;managementpb";
 
 message RegisterNodeRequest {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
   // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 2 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
   string address = 3;
   // Linux machine-id.

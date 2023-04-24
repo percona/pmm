@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -81,10 +82,12 @@ const (
 	pgStatMonitorVersion20PG12
 	pgStatMonitorVersion20PG13
 	pgStatMonitorVersion20PG14
+	pgStatMonitorVersion20PG15
 )
 
 const (
-	queryTag = "pmm-agent:pgstatmonitor"
+	queryTag                = "pmm-agent:pgstatmonitor"
+	pgsm20SettingsViewQuery = "CREATE VIEW pg_stat_monitor_settings AS SELECT * FROM pg_settings WHERE name like 'pg_stat_monitor.%';"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
 	commandTypeSelect       = "SELECT"
@@ -176,9 +179,13 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 		return pgStatMonitorVersion06, "", err
 	}
 
-	version := pgStatMonitorVersion06
+	var version pgStatMonitorVersion
 	switch {
 	case vPGSM.Core().GreaterThanOrEqual(v20):
+		if vPG >= 15 {
+			version = pgStatMonitorVersion20PG15
+			break
+		}
 		if vPG >= 14 {
 			version = pgStatMonitorVersion20PG14
 			break
@@ -212,6 +219,8 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 		version = pgStatMonitorVersion09
 	case vPGSM.GreaterThanOrEqual(v08):
 		version = pgStatMonitorVersion08
+	default:
+		version = pgStatMonitorVersion06
 	}
 
 	prerelease := vPGSM.Prerelease()
@@ -344,14 +353,30 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 type settings map[string]*pgStatMonitorSettingsTextValue
 
 func (m *PGStatMonitorQAN) getSettings() (settings, error) {
-	var settingsRows []reform.Struct
-
 	settingsValuesAreText, err := areSettingsTextValues(m.q)
 	if err != nil {
 		return nil, err
 	}
+
+	pgsmVersion, _, err := getPGMonitorVersion(m.q)
+	if err != nil {
+		return nil, err
+	}
+
+	var settingsRows []reform.Struct
 	if settingsValuesAreText {
-		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+		if pgsmVersion >= pgStatMonitorVersion20PG12 {
+			// In case of PGSM 2.0 and above we need create view first.
+			_, errSettings := m.q.Exec(pgsm20SettingsViewQuery)
+			// If it is already existing we just igroning error.
+			if errSettings != nil && !strings.Contains(errSettings.Error(), "already exists") {
+				return nil, errSettings
+			}
+
+			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValue20View, "")
+		} else {
+			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+		}
 	} else {
 		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
 	}
@@ -362,8 +387,16 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	settings := make(settings)
 	for _, row := range settingsRows {
 		if settingsValuesAreText {
-			setting := row.(*pgStatMonitorSettingsTextValue)
-			settings[setting.Name] = setting
+			if pgsmVersion >= pgStatMonitorVersion20PG12 {
+				setting := row.(*pgStatMonitorSettingsTextValue20)
+				settings[setting.Name] = &pgStatMonitorSettingsTextValue{
+					Name:  setting.Name,
+					Value: setting.Setting,
+				}
+			} else {
+				setting := row.(*pgStatMonitorSettingsTextValue)
+				settings[setting.Name] = setting
+			}
 		} else {
 			setting := row.(*pgStatMonitorSettings)
 			name := setting.Name
@@ -383,7 +416,7 @@ func (s settings) getNormalizedQueryValue() (bool, error) {
 		return false, errors.New("failed to get pgsm_normalized_query property")
 	}
 
-	if s[key].Value == "yes" || s[key].Value == "1" {
+	if s[key].Value == "yes" || s[key].Value == "1" || s[key].Value == "on" {
 		return true, nil
 	}
 
@@ -435,6 +468,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
+		vPGSM, _, err := getPGMonitorVersion(m.q)
+		if err != nil {
+			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
+			continue
+		}
+
 		prev := cache[bucketStartTime]
 		for queryID, currentPSM := range bucket {
 			var prevPSM *pgStatMonitorExtended
@@ -490,7 +529,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			mb.Postgresql.Planid = pointer.GetString(currentPSM.PlanID)
 			mb.Postgresql.QueryPlan = pointer.GetString(currentPSM.QueryPlan)
 
-			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls)
+			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
 			if err != nil {
 				m.l.Warnf(err.Error())
 			} else {
@@ -507,6 +546,16 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			}
+
+			var cpuSysTime, cpuUserTime float64
+			// Since PGSM 2.0 and higher we should not cumulate times, because its already done on PGSM side
+			if vPGSM >= pgStatMonitorVersion20PG12 {
+				cpuSysTime = currentPSM.CPUSysTime
+				cpuUserTime = currentPSM.CPUUserTime
+			} else {
+				cpuSysTime = currentPSM.CPUSysTime - prevPSM.CPUSysTime
+				cpuUserTime = currentPSM.CPUUserTime - prevPSM.CPUUserTime
 			}
 
 			for _, p := range []struct {
@@ -539,8 +588,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.BlkWriteTime-prevPSM.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
 
 				// convert microseconds to seconds
-				{float32(currentPSM.CPUSysTime-prevPSM.CPUSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
-				{float32(currentPSM.CPUUserTime-prevPSM.CPUUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
+				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
+				{float32(cpuUserTime) / 1000000, &mb.Postgresql.MCpuUserTimeSum, &mb.Postgresql.MCpuUserTimeCnt},
 
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 			} {
@@ -557,8 +606,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray) ([]*agentpb.HistogramItem, error) {
-	histogram := getHistogramRangesArray()
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentpb.HistogramItem, error) {
+	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
@@ -580,10 +629,37 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	return histogram, nil
 }
 
-func getHistogramRangesArray() []*agentpb.HistogramItem {
-	// For now we using static ranges.
+func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramItem {
+	// For now we using static ranges (different ones since PGSM 2.0).
 	// In future we will compute range values from pg_stat_monitor_settings.
 	// pgsm_histogram_min, pgsm_histogram_max, pgsm_histogram_buckets.
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		return []*agentpb.HistogramItem{
+			{Range: "(0 - 1)"},
+			{Range: "(1 - 2)"},
+			{Range: "(2 - 4)"},
+			{Range: "(4 - 6)"},
+			{Range: "(6 - 10)"},
+			{Range: "(10 - 18)"},
+			{Range: "(18 - 32)"},
+			{Range: "(32 - 57)"},
+			{Range: "(57 - 100)"},
+			{Range: "(100 - 178)"},
+			{Range: "(178 - 317)"},
+			{Range: "(317 - 563)"},
+			{Range: "(563 - 1000)"},
+			{Range: "(1000 - 1779)"},
+			{Range: "(1779 - 3163)"},
+			{Range: "(3163 - 5624)"},
+			{Range: "(5624 - 10000)"},
+			{Range: "(10000 - 17783)"},
+			{Range: "(17783 - 31623)"},
+			{Range: "(31623 - 56234)"},
+			{Range: "(56234 - 100000)"},
+			{Range: "(100000 - ...)"},
+		}
+	}
+
 	return []*agentpb.HistogramItem{
 		{Range: "(0 - 3)"},
 		{Range: "(3 - 10)"},
