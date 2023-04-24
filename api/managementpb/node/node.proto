@@ -24,6 +24,15 @@ message UniversalNode {
     // The node's status cannot be known (p.e. there are no metrics yet).
     UNKNOWN = 3;
   }
+  // Service represents a service running on a node.
+  message Service {
+    // Unique Service identifier.
+    string service_id = 1;
+    // Service type.
+    string service_type = 2;
+    // Service name.
+    string service_name = 3;
+  }
 
   // Unique Node identifier.
   string node_id = 1;
@@ -57,6 +66,8 @@ message UniversalNode {
   repeated agent.v1beta1.UniversalAgent agents = 15;
   // The health status of the node.
   Status status = 16;
+  // List of services running on this node.
+  repeated Service services = 17;
 }
 
 message ListNodeRequest {

@@ -28484,6 +28484,32 @@
                         "UNKNOWN"
                       ],
                       "x-order": 15
+                    },
+                    "services": {
+                      "description": "List of services running on this node.",
+                      "type": "array",
+                      "items": {
+                        "description": "Service represents a service running on a node.",
+                        "type": "object",
+                        "properties": {
+                          "service_id": {
+                            "description": "Unique Service identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "service_type": {
+                            "description": "Service type.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "service_name": {
+                            "description": "Service name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -28972,6 +28998,32 @@
                           "UNKNOWN"
                         ],
                         "x-order": 15
+                      },
+                      "services": {
+                        "description": "List of services running on this node.",
+                        "type": "array",
+                        "items": {
+                          "description": "Service represents a service running on a node.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "Unique Service identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_type": {
+                              "description": "Service type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "service_name": {
+                              "description": "Service name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 16
                       }
                     }
                   },

@@ -185,13 +185,40 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		return nil, err
 	}
 
-	agentToAPI := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
+	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	convertAgentToProto := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
 		return &agentv1beta1.UniversalAgent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
 			Status:      agent.Status,
 			IsConnected: s.r.IsConnected(agent.AgentID),
 		}
+	}
+
+	aMap := make(map[string][]*agentv1beta1.UniversalAgent)
+	for _, a := range agents {
+		if a.NodeID != nil || a.RunsOnNodeID != nil {
+			var nodeID string
+			if a.NodeID != nil {
+				nodeID = pointer.GetString(a.NodeID)
+			} else {
+				nodeID = pointer.GetString(a.RunsOnNodeID)
+			}
+			aMap[nodeID] = append(aMap[nodeID], convertAgentToProto(a))
+		}
+	}
+
+	sMap := make(map[string][]*nodev1beta1.UniversalNode_Service, len(services))
+	for _, s := range services {
+		sMap[s.NodeID] = append(sMap[s.NodeID], &nodev1beta1.UniversalNode_Service{
+			ServiceId:   s.ServiceID,
+			ServiceType: string(s.ServiceType),
+			ServiceName: s.ServiceName,
+		})
 	}
 
 	// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
@@ -238,15 +265,14 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 			uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
 		}
 
-		var svcAgents []*agentv1beta1.UniversalAgent
-
-		for _, agent := range agents {
-			if pointer.GetString(agent.NodeID) == node.NodeID || pointer.GetString(agent.RunsOnNodeID) == node.NodeID {
-				svcAgents = append(svcAgents, agentToAPI(agent))
-			}
+		if uAgents, ok := aMap[node.NodeID]; ok {
+			uNode.Agents = uAgents
 		}
 
-		uNode.Agents = svcAgents
+		if uServices, ok := sMap[node.NodeID]; ok {
+			uNode.Services = uServices
+		}
+
 		res[i] = uNode
 	}
 

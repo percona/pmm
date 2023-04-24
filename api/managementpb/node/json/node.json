@@ -434,6 +434,32 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "services": {
+                      "description": "List of services running on this node.",
+                      "type": "array",
+                      "items": {
+                        "description": "Service represents a service running on a node.",
+                        "type": "object",
+                        "properties": {
+                          "service_id": {
+                            "description": "Unique Service identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "service_name": {
+                            "description": "Service name.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "service_type": {
+                            "description": "Service type.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 16
+                    },
                     "status": {
                       "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
                       "type": "string",
@@ -921,6 +947,32 @@
                         "description": "Node region.",
                         "type": "string",
                         "x-order": 9
+                      },
+                      "services": {
+                        "description": "List of services running on this node.",
+                        "type": "array",
+                        "items": {
+                          "description": "Service represents a service running on a node.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "Unique Service identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_name": {
+                              "description": "Service name.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "service_type": {
+                              "description": "Service type.",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 16
                       },
                       "status": {
                         "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",

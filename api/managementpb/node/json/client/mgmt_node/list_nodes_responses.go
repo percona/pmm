@@ -520,6 +520,9 @@ type ListNodesOKBodyNodesItems0 struct {
 	//  - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// List of services running on this node.
+	Services []*ListNodesOKBodyNodesItems0ServicesItems0 `json:"services"`
 }
 
 // Validate validates this list nodes OK body nodes items0
@@ -539,6 +542,10 @@ func (o *ListNodesOKBodyNodesItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServices(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -646,11 +653,41 @@ func (o *ListNodesOKBodyNodesItems0) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
+func (o *ListNodesOKBodyNodesItems0) validateServices(formats strfmt.Registry) error {
+	if swag.IsZero(o.Services) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Services); i++ {
+		if swag.IsZero(o.Services[i]) { // not required
+			continue
+		}
+
+		if o.Services[i] != nil {
+			if err := o.Services[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("services" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("services" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list nodes OK body nodes items0 based on the context it is used
 func (o *ListNodesOKBodyNodesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateAgents(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateServices(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -668,6 +705,23 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, 
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("agents" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Services); i++ {
+		if o.Services[i] != nil {
+			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("services" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("services" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1243,6 +1297,49 @@ func (o *ListNodesOKBodyNodesItems0AgentsItems0PostgresqlOptions) MarshalBinary(
 // UnmarshalBinary interface implementation
 func (o *ListNodesOKBodyNodesItems0AgentsItems0PostgresqlOptions) UnmarshalBinary(b []byte) error {
 	var res ListNodesOKBodyNodesItems0AgentsItems0PostgresqlOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListNodesOKBodyNodesItems0ServicesItems0 Service represents a service running on a node.
+swagger:model ListNodesOKBodyNodesItems0ServicesItems0
+*/
+type ListNodesOKBodyNodesItems0ServicesItems0 struct {
+	// Unique Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Service type.
+	ServiceType string `json:"service_type,omitempty"`
+
+	// Service name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this list nodes OK body nodes items0 services items0
+func (o *ListNodesOKBodyNodesItems0ServicesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body nodes items0 services items0 based on context it is used
+func (o *ListNodesOKBodyNodesItems0ServicesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesOKBodyNodesItems0ServicesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesOKBodyNodesItems0ServicesItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyNodesItems0ServicesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
