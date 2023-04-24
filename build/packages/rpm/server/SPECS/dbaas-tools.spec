@@ -3,9 +3,9 @@
 %global commit_aws          d72e1b46444d0efcb995a28c3846223b39bc4964
 %global shortcommit_aws     %(c=%{commit_aws}; echo ${c:0:7})
 
-%global commit_k8s          ad3338546da947756e8a88aa6822e9c11e7eac22
+%global commit_k8s          ef70d260f3d036fc22b30538576bbf6b36329995
 %global shortcommit_k8s     %(c=%{commit_k8s}; echo ${c:0:7})
-%global version_k8s         v1.23.7
+%global version_k8s         v1.24.12
 
 %global install_golang 1
 
