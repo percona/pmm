@@ -48,9 +48,14 @@ func NewRemovalService(db *reform.DB, pbmPITRService pbmPITRService) *RemovalSer
 
 // DeleteArtifact deletes specified artifact along with files if specified.
 func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, removeFiles bool) error {
-	artifact, _, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
+	artifact, prevStatus, err := s.lockArtifact(artifactID, models.DeletingBackupStatus)
 	if err != nil {
 		return err
+	}
+
+	// For cases when it's not clear can files be removed or not - cannot tell new from legacy artifacts.
+	if prevStatus != models.SuccessBackupStatus && len(artifact.MetadataList) == 0 {
+		removeFiles = false
 	}
 
 	defer func() {
