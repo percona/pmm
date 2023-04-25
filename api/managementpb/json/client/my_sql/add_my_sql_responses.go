@@ -1516,7 +1516,7 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddMySQLParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {

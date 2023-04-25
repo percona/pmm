@@ -130,6 +130,7 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -160,6 +161,7 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
