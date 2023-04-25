@@ -141,6 +141,7 @@ func TestPXCClusterService(t *testing.T) {
 		wg.Done()
 	})
 
+	kubeClient.On("GetServerVersion").Return(nil, nil)
 	clients := map[string]kubernetesClient{
 		pxcKubernetesClusterNameTest: kubeClient,
 	}

@@ -17018,7 +17018,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17124,7 +17124,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -17230,7 +17230,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Query ID or query is required.\nValue of query.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
                 },
@@ -20007,6 +20007,30 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "source_ranges": {
+                      "description": "Apply IP source ranges against the cluster.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -20238,6 +20262,30 @@
                         }
                       },
                       "x-order": 9
+                    },
+                    "source_ranges": {
+                      "description": "Apply IP source ranges against the cluster.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
+                    "template": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "Template CR name.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "kind": {
+                          "description": "Template CR kind.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -20607,6 +20655,30 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "source_ranges": {
+                        "description": "Apply IP source ranges against the cluster.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 11
                       }
                     }
                   },
@@ -20842,6 +20914,30 @@
                           }
                         },
                         "x-order": 9
+                      },
+                      "source_ranges": {
+                        "description": "Apply IP source ranges against the cluster.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
+                      "template": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "Template CR name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "kind": {
+                            "description": "Template CR kind.",
+                            "type": "string",
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 11
                       }
                     }
                   },
@@ -21810,6 +21906,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -22141,6 +22253,40 @@
                     }
                   },
                   "x-order": 2
+                },
+                "expose": {
+                  "description": "Make DB cluster accessible outside of K8s cluster.",
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "internet_facing": {
+                  "description": "Make DB cluster accessible via public internet.",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "source_ranges": {
+                  "description": "Apply IP source ranges against the cluster.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -22512,6 +22658,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -22981,6 +23143,22 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "template": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Template CR name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "Template CR kind.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -23167,6 +23345,103 @@
                         "type": "string",
                         "title": "Name of a secret",
                         "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/Templates/List": {
+      "post": {
+        "tags": [
+          "Templates"
+        ],
+        "summary": "ListTemplates returns a list of all registered templates.",
+        "operationId": "ListTemplates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "templates": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Template CR name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "kind": {
+                        "description": "Template CR kind.",
+                        "type": "string",
+                        "x-order": 1
                       }
                     }
                   },
@@ -29330,7 +29605,7 @@
           "Alerting"
         ],
         "summary": "ListTemplates returns a list of all collected alert rule templates.",
-        "operationId": "ListTemplates",
+        "operationId": "ListTemplatesMixin6",
         "parameters": [
           {
             "name": "body",
@@ -32016,6 +32291,7 @@
         ],
         "summary": "ListAlerts returns a list of all Alerts.",
         "operationId": "ListAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -32411,7 +32687,7 @@
                             "description": "Channels.",
                             "type": "array",
                             "items": {
-                              "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                              "description": "Channel represents a single Notification Channel.",
                               "type": "object",
                               "properties": {
                                 "channel_id": {
@@ -32681,6 +32957,7 @@
         ],
         "summary": "ToggleAlerts allows to switch alerts state between silenced and unsilenced.",
         "operationId": "ToggleAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -32760,6 +33037,7 @@
         ],
         "summary": "AddChannel adds notification channel.",
         "operationId": "AddChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -32996,6 +33274,7 @@
         ],
         "summary": "ChangeChannel changes notification channel.",
         "operationId": "ChangeChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33230,6 +33509,7 @@
         ],
         "summary": "ListChannels returns a list of all notifation channels.",
         "operationId": "ListChannels",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33270,7 +33550,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                    "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -33514,6 +33794,7 @@
         ],
         "summary": "RemoveChannel removes notification channel.",
         "operationId": "RemoveChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33578,6 +33859,7 @@
         ],
         "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33777,6 +34059,7 @@
         ],
         "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -33842,6 +34125,7 @@
         ],
         "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34185,7 +34469,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "Channel represents a single Notification Channel.\n\nreserved channels\n pushover_config = 5;\n opsgenie_config = 7;\n victorops_config = 9;\n wechat_config = 10;",
+                          "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
                             "channel_id": {
@@ -34439,6 +34723,7 @@
         ],
         "summary": "ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.",
         "operationId": "ToggleAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -34515,6 +34800,7 @@
         ],
         "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -35181,6 +35467,9 @@
     },
     {
       "name": "PXCClusters"
+    },
+    {
+      "name": "Templates"
     },
     {
       "name": "Alerts"

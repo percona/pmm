@@ -606,7 +606,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
 		AlertingEnabled:         !settings.Alerting.Disabled,
-		BackupManagementEnabled: settings.BackupManagement.Enabled,
+		BackupManagementEnabled: !settings.BackupManagement.Disabled,
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),

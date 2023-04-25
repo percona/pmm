@@ -2,9 +2,10 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/templates.proto";
+import "validate/validate.proto";
 
 option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
@@ -36,9 +37,9 @@ message PSMDBClusterParams {
 
 message GetPSMDBClusterCredentialsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
-  string name = 2 [(validator.field) = {string_not_empty: true}];
+  string name = 2 [(validate.rules).string.min_len = 1];
 }
 
 message GetPSMDBClusterCredentialsResponse {
@@ -61,7 +62,7 @@ message GetPSMDBClusterCredentialsResponse {
 
 message CreatePSMDBClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
   // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
   // start with an alphabetic character, and end with an alphanumeric character
@@ -75,15 +76,17 @@ message CreatePSMDBClusterRequest {
   bool internet_facing = 5;
   // Apply IP source ranges against the cluster.
   repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message CreatePSMDBClusterResponse {}
 
 message UpdatePSMDBClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [(validator.field) = {string_not_empty: true}];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
-  string name = 2 [(validator.field) = {string_not_empty: true}];
+  string name = 2 [(validate.rules).string.min_len = 1];
   // UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
   message UpdatePSMDBClusterParams {
     // ReplicaSet container parameters.
@@ -109,6 +112,14 @@ message UpdatePSMDBClusterRequest {
   }
   // Cluster parameters.
   UpdatePSMDBClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message UpdatePSMDBClusterResponse {}

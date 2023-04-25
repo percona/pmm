@@ -484,6 +484,9 @@ type ListDBClustersOKBodyPSMDBClustersItems0 struct {
 	// Is DB cluster accessible via public internet.
 	InternetFacing bool `json:"internet_facing,omitempty"`
 
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// backup
 	Backup *ListDBClustersOKBodyPSMDBClustersItems0Backup `json:"backup,omitempty"`
 
@@ -495,6 +498,9 @@ type ListDBClustersOKBodyPSMDBClustersItems0 struct {
 
 	// restore
 	Restore *ListDBClustersOKBodyPSMDBClustersItems0Restore `json:"restore,omitempty"`
+
+	// template
+	Template *ListDBClustersOKBodyPSMDBClustersItems0Template `json:"template,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PSMDB clusters items0
@@ -518,6 +524,10 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) Validate(formats strfmt.Regist
 	}
 
 	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -660,6 +670,25 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateRestore(formats strfmt
 	return nil
 }
 
+func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list DB clusters OK body PSMDB clusters items0 based on the context it is used
 func (o *ListDBClustersOKBodyPSMDBClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -677,6 +706,10 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) ContextValidate(ctx context.Co
 	}
 
 	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -738,6 +771,21 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateRestore(ctx con
 				return ve.ValidateName("restore")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("template")
 			}
 			return err
 		}
@@ -1310,6 +1358,46 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Restore) UnmarshalBinary(b []byt
 }
 
 /*
+ListDBClustersOKBodyPSMDBClustersItems0Template list DB clusters OK body PSMDB clusters items0 template
+swagger:model ListDBClustersOKBodyPSMDBClustersItems0Template
+*/
+type ListDBClustersOKBodyPSMDBClustersItems0Template struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this list DB clusters OK body PSMDB clusters items0 template
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Template) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list DB clusters OK body PSMDB clusters items0 template based on context it is used
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Template) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Template) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPSMDBClustersItems0Template) UnmarshalBinary(b []byte) error {
+	var res ListDBClustersOKBodyPSMDBClustersItems0Template
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 ListDBClustersOKBodyPXCClustersItems0 PXCCluster represents PXC cluster information.
 swagger:model ListDBClustersOKBodyPXCClustersItems0
 */
@@ -1343,6 +1431,9 @@ type ListDBClustersOKBodyPXCClustersItems0 struct {
 	// Is DB cluster accessible via public internet.
 	InternetFacing bool `json:"internet_facing,omitempty"`
 
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// backup
 	Backup *ListDBClustersOKBodyPXCClustersItems0Backup `json:"backup,omitempty"`
 
@@ -1354,6 +1445,9 @@ type ListDBClustersOKBodyPXCClustersItems0 struct {
 
 	// restore
 	Restore *ListDBClustersOKBodyPXCClustersItems0Restore `json:"restore,omitempty"`
+
+	// template
+	Template *ListDBClustersOKBodyPXCClustersItems0Template `json:"template,omitempty"`
 }
 
 // Validate validates this list DB clusters OK body PXC clusters items0
@@ -1377,6 +1471,10 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) Validate(formats strfmt.Registry
 	}
 
 	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1519,6 +1617,25 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) validateRestore(formats strfmt.R
 	return nil
 }
 
+func (o *ListDBClustersOKBodyPXCClustersItems0) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list DB clusters OK body PXC clusters items0 based on the context it is used
 func (o *ListDBClustersOKBodyPXCClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1536,6 +1653,10 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) ContextValidate(ctx context.Cont
 	}
 
 	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1597,6 +1718,21 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateRestore(ctx conte
 				return ve.ValidateName("restore")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("template")
 			}
 			return err
 		}
@@ -2520,6 +2656,46 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Restore) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *ListDBClustersOKBodyPXCClustersItems0Restore) UnmarshalBinary(b []byte) error {
 	var res ListDBClustersOKBodyPXCClustersItems0Restore
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListDBClustersOKBodyPXCClustersItems0Template list DB clusters OK body PXC clusters items0 template
+swagger:model ListDBClustersOKBodyPXCClustersItems0Template
+*/
+type ListDBClustersOKBodyPXCClustersItems0Template struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this list DB clusters OK body PXC clusters items0 template
+func (o *ListDBClustersOKBodyPXCClustersItems0Template) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list DB clusters OK body PXC clusters items0 template based on context it is used
+func (o *ListDBClustersOKBodyPXCClustersItems0Template) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPXCClustersItems0Template) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListDBClustersOKBodyPXCClustersItems0Template) UnmarshalBinary(b []byte) error {
+	var res ListDBClustersOKBodyPXCClustersItems0Template
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

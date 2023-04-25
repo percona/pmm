@@ -27,11 +27,14 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/pkg/common"
 )
+
+var ErrPasswordChangeFailed = errors.New("ErrPasswordChangeFailed")
 
 // Base contains methods to interact with Docker.
 type Base struct {
@@ -120,10 +123,13 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 	}()
 
 	logrus.Debug("Running Docker installation script")
+	l := logrus.WithField("component", "docker")
+	lw := l.Writer()
+
 	cmd := exec.Command("sh", "-s")
 	cmd.Stdin = script
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = lw
+	cmd.Stderr = lw
 
 	if err := cmd.Run(); err != nil {
 		return err
@@ -143,18 +149,15 @@ func (b *Base) GetDockerClient() *client.Client {
 func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPassword string) error {
 	logrus.Info("Changing password")
 
-	exec, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{ //nolint:exhaustruct
-		Cmd:          []string{"change-admin-password", newPassword},
-		Tty:          true,
-		AttachStderr: true,
-		AttachStdout: true,
-	})
+	exitCode, err := b.ContainerExecPrintOutput(ctx, containerID, []string{"change-admin-password", newPassword})
 	if err != nil {
 		return err
 	}
 
-	if err := b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil { //nolint:exhaustruct
-		return err
+	if exitCode != 0 {
+		logrus.Errorf("Password change exit code: %d", exitCode)
+		logrus.Error(`Password change failed. Use the default password "admin"`)
+		return ErrPasswordChangeFailed
 	}
 
 	logrus.Info("Password changed")
@@ -196,4 +199,53 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[s
 	}
 
 	return &volume, nil
+}
+
+// ContainerExecPrintOutput runs a command in a container and prints output to stdout/stderr.
+func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string, cmd []string) (int, error) {
+	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+		Cmd:          cmd,
+		AttachStderr: true,
+		AttachStdout: true,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	execID := cresp.ID
+
+	// run it, with stdout/stderr attached
+	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, types.ExecStartCheck{})
+	if err != nil {
+		return 0, err
+	}
+	defer aresp.Close()
+
+	// read the output
+	outputDone := make(chan error)
+
+	go func() {
+		// StdCopy demultiplexes the stream into two buffers
+		_, err = stdcopy.StdCopy(os.Stdout, os.Stderr, aresp.Reader)
+		outputDone <- err
+	}()
+
+	select {
+	case err := <-outputDone:
+		if err != nil {
+			return 0, err
+		}
+		break
+
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	}
+
+	// get the exit code
+	iresp, err := b.Cli.ContainerExecInspect(ctx, execID)
+	if err != nil {
+		return 0, err
+	}
+
+	return iresp.ExitCode, nil
 }
