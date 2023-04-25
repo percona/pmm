@@ -172,7 +172,17 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 		timelines = append(timelines, t)
 	}
 
-	return mergeTimelines(timelines...), nil
+	mergedTimelines := mergeTimelines(timelines...)
+	trimTimelines(mergedTimelines)
+
+	return mergedTimelines, nil
+}
+
+// trimTimelines adds one second from Start value of every timeline record. Required to fit PBM values.
+func trimTimelines(timelines []Timeline) {
+	for i, _ := range timelines {
+		timelines[i].Start += 1
+	}
 }
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
