@@ -18,12 +18,12 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
-	github.com/ClickHouse/clickhouse-go/v2 v2.9.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.9.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.247
+	github.com/aws/aws-sdk-go v1.44.249
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
@@ -33,7 +33,7 @@ require (
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.0
-	github.com/go-co-op/gocron v1.22.4
+	github.com/go-co-op/gocron v1.23.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.26.0
 	github.com/go-openapi/strfmt v0.21.7
