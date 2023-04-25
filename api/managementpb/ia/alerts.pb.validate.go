@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = managementpb.BooleanFlag(0)
+	_ = managementpb.Severity(0)
 )
 
 // Validate checks the field values on Alert with the rules defined in the
