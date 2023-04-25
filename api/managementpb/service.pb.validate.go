@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = inventorypb.ServiceType(0)
+	_ = inventorypb.NodeType(0)
 )
 
 // Validate checks the field values on AddNodeParams with the rules defined in
