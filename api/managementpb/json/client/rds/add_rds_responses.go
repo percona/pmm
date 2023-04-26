@@ -216,6 +216,9 @@ type AddRDSBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Database name.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this add RDS body

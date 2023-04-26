@@ -29601,6 +29601,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 28
+                },
+                "database": {
+                  "description": "Database name.",
+                  "type": "string",
+                  "x-order": 29
                 }
               }
             }
