@@ -180,7 +180,7 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 
 // trimTimelines adds one second from Start value of every timeline record. Required to fit PBM values.
 func trimTimelines(timelines []Timeline) {
-	for i, _ := range timelines {
+	for i := range timelines {
 		timelines[i].Start += 1
 	}
 }
