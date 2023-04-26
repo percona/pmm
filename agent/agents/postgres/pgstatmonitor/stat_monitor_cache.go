@@ -99,14 +99,16 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	row, view := newPgStatMonitorStructs(vPGSM, vPG)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
 	if vPGSM >= pgStatMonitorVersion09 && vPGSM < pgStatMonitorVersion20PG12 {
-		// only pg_stat_monitor from 0.9.0 until 2.0.0 supports state_code. It tells what is the query's current state.
+		// Only pg_stat_monitor from 0.9.0 until 2.0.0 supports state_code. It tells what is the query's current state.
 		// To have correct data in QAN, we have to get only queries that are either 'FINISHED' or 'FINISHED WITH ERROR'.
 		conditions += " AND (state_code = 3 OR state_code = 4)"
 		ssc.l.Debug("PGSM version with state and state_code")
 	}
 	if vPGSM >= pgStatMonitorVersion20PG12 {
-		// since version above we should scrape only buckets where bucket_done = true
-		conditions += " AND bucket_done"
+		// Since version above we should scrape only buckets where bucket_done = true
+		// and they have valid pgsm_query_id. Anyway empty pgsm_query_id means problem
+		// on PGSM side (query with error, bad setup etc).
+		conditions += " AND bucket_done AND pgsm_query_id IS NOT NULL"
 	}
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
