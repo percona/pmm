@@ -269,9 +269,8 @@ func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.
 }
 
 // ContainerStop stops a container.
-func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
-	ts := int(timeout.Seconds())
-	return b.Cli.ContainerStop(ctx, containerID, container.StopOptions{Timeout: &ts})
+func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *int) error {
+	return b.Cli.ContainerStop(ctx, containerID, container.StopOptions{Timeout: timeout})
 }
 
 // ContainerUpdate updates container configuration.

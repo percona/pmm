@@ -5,7 +5,6 @@ package docker
 import (
 	context "context"
 	io "io"
-	time "time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	types "github.com/docker/docker/api/types"
@@ -58,11 +57,11 @@ func (_m *MockFunctions) ContainerInspect(ctx context.Context, containerID strin
 }
 
 // ContainerStop provides a mock function with given fields: ctx, containerID, timeout
-func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, timeout *int) error {
 	ret := _m.Called(ctx, containerID, timeout)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *time.Duration) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *int) error); ok {
 		r0 = rf(ctx, containerID, timeout)
 	} else {
 		r0 = ret.Error(0)
