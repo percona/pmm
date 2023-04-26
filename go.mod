@@ -23,7 +23,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.247
+	github.com/aws/aws-sdk-go v1.44.249
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
@@ -79,8 +79,8 @@ require (
 	golang.org/x/sys v0.7.0
 	golang.org/x/text v0.9.0
 	golang.org/x/tools v0.8.0
-	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37
-	google.golang.org/grpc v1.53.0-dev
+	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
+	google.golang.org/grpc v1.56.0-dev
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
@@ -91,7 +91,7 @@ require (
 	k8s.io/cli-runtime v0.27.1
 	k8s.io/client-go v0.27.1
 	k8s.io/kubectl v0.27.1
-	modernc.org/sqlite v1.21.2
+	modernc.org/sqlite v1.22.0
 	sigs.k8s.io/controller-runtime v0.14.6
 	vitess.io/vitess v0.15.2
 )
