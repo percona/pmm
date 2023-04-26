@@ -31,6 +31,5 @@ Execute command in the Project Root folder
 
 
 ## Contributing
-[more test examples](https://github.com/percona/pmm-ui-tests/tree/main/cli/tests)  
-_coming soon_ 
+For the specific contributions guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md) . 
 
