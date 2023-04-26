@@ -4,16 +4,17 @@ import PMMRestClient from '@tests/support/types/request';
 import { teardown } from '@tests/helpers/containers';
 
 test.describe('Install PMM Server respects relevant flags', async () => {
-  const adminPw = 'admin123';
+  const adminPassword = 'admin123';
   const containerName = 'pmm-server-install-test';
   const imageName = 'percona/pmm-server:2.32.0';
   const volumeName = 'pmm-data-install-test';
 
   test.beforeAll(async ({}) => {
+    // TODO: add "docker pull" test images as tests configuration to speed up tests
     const output = await cli.exec(`
       pmm server docker install 
         --json
-        --admin-password=${adminPw}
+        --admin-password=${adminPassword}
         --docker-image="${imageName}"
         --https-listen-port=1443
         --http-listen-port=1080
@@ -35,12 +36,12 @@ test.describe('Install PMM Server respects relevant flags', async () => {
   });
 
   test('http client', async ({ }) => {
-    const client = new PMMRestClient('admin', adminPw, 1080);
+    const client = new PMMRestClient('admin', adminPassword, 1080);
     await client.works();
   });
 
   test('https client', async ({ }) => {
-    const client = new PMMRestClient('admin', adminPw, 1443, {
+    const client = new PMMRestClient('admin', adminPassword, 1443, {
       baseURL: 'https://localhost:1443',
       ignoreHTTPSErrors: true,
     });

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@playwright/test": "^1.32.3",
+    "@types/shelljs": "^0.8.12",
     "dotenv": "^16.0.3",
     "playwright": "^1.32.3",
     "promise-retry": "^2.0.1",

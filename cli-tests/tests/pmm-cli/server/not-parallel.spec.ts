@@ -4,7 +4,7 @@ import PMMRestClient from '@tests/support/types/request';
 import { teardown } from '@tests/helpers/containers';
 
 test.describe('Install PMM Server - not parallel', async () => {
-  test('shall install with no flags', async ({ }) => {
+  test('Install PMM Server with no flags', async ({ }) => {
     try {
       const output = await cli.exec('pmm server docker install --json');
       await output.assertSuccess();
