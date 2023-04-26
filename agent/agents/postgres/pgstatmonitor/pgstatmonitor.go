@@ -353,11 +353,10 @@ type settings map[string]*pgStatMonitorSettingsTextValue
 type pgsm20Settings struct {
 	Name    string
 	Setting string
-	Unit    *string
 }
 
 func getPGSM20Settings(q *reform.Querier) (settings, error) {
-	rows, err := q.Query("SELECT * FROM pg_settings WHERE name like 'pg_stat_monitor.%'")
+	rows, err := q.Query(pgsm20SettingsQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -367,8 +366,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 		var setting pgsm20Settings
 		err = rows.Scan(
 			&setting.Name,
-			&setting.Setting,
-			&setting.Unit)
+			&setting.Setting)
 		if err != nil {
 			return nil, err
 		}
