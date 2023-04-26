@@ -552,5 +552,5 @@ func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName str
 		}
 	}
 
-	return nil, errors.Wrapf(ErrNotFound, "couldn't find required snapshot")
+	return nil, errors.Wrap(ErrNotFound, "couldn't find required snapshot")
 }
