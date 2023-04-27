@@ -3,15 +3,20 @@ import * as cli from '@helpers/cliHelper';
 import PMMRestClient from '@tests/support/types/request';
 import { teardown } from '@tests/helpers/containers';
 
-test.describe('Install PMM Server respects relevant flags', async () => {
+test.describe.configure({ mode: 'parallel' });
+test.describe('PMM Server Install tests', async () => {
   const adminPassword = 'admin123';
   const containerName = 'pmm-server-install-test';
   const imageName = 'percona/pmm-server:2.32.0';
   const volumeName = 'pmm-data-install-test';
 
-  test.beforeAll(async ({}) => {
+  test.afterAll(async ({}) => {
+    await teardown([`^${containerName}$`], [volumeName]);
+  });
+
+  test('"pmm server docker install" respects relevant flags', async ({ }) => {
     // TODO: add "docker pull" test images as tests configuration to speed up tests
-    const output = await cli.exec(`
+    let output = await cli.exec(`
       pmm server docker install 
         --json
         --admin-password=${adminPassword}
@@ -29,18 +34,11 @@ test.describe('Install PMM Server respects relevant flags', async () => {
       intervals: [1_000, 2_000, 2_000],
       timeout: 20_000,
     });
-  });
 
-  test.afterAll(async ({}) => {
-    await teardown([`^${containerName}$`], [volumeName]);
-  });
+    // verify --http-listen-port
+    await (new PMMRestClient('admin', adminPassword, 1080)).works();
 
-  test('http client', async ({ }) => {
-    const client = new PMMRestClient('admin', adminPassword, 1080);
-    await client.works();
-  });
-
-  test('https client', async ({ }) => {
+    // verify --https-listen-port
     const client = new PMMRestClient('admin', adminPassword, 1443, {
       baseURL: 'https://localhost:1443',
       ignoreHTTPSErrors: true,
@@ -49,20 +47,17 @@ test.describe('Install PMM Server respects relevant flags', async () => {
 
     await expect(resp).toBeOK();
     expect(await resp.json()).toHaveProperty('settings');
-  });
 
-  test('Container name', async ({ }) => {
-    const output = await cli.exec('docker ps --format="{{.Names}}"');
+    // verify --container-name
+    output = await cli.exec('docker ps --format="{{.Names}}"');
     await output.outContains(containerName);
-  });
 
-  test('Volume name', async ({ }) => {
-    const output = await cli.exec('docker volume ls --format="{{.Name}}"');
+    // verify --volume-name
+    output = await cli.exec('docker volume ls --format="{{.Name}}"');
     await output.outContains(volumeName);
-  });
 
-  test('Docker image', async ({ }) => {
-    const output = await cli.exec('docker ps --format="{{.Names}} {{.Image}}"');
+    // verify --docker-image
+    output = await cli.exec('docker ps --format="{{.Names}} {{.Image}}"');
     await output.outContains(`${containerName} ${imageName}`);
   });
 });
