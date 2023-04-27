@@ -383,6 +383,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return result, nil
 }
 
@@ -427,7 +428,6 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 				Value: fmt.Sprintf("%d", setting.Value),
 			}
 		}
-
 	}
 
 	return result, nil
