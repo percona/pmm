@@ -3,7 +3,7 @@ import Output from '@support/types/output';
 import * as shell from 'shelljs';
 
 /**
- * Shell(sh) exec() wrapper to use outside outside {@link test}
+ * Shell(sh) exec() wrapper to use outside {@link test}
  * returns handy {@link Output} object.
  *
  * @param       command   sh command to execute
