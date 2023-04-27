@@ -146,9 +146,8 @@ jobs:
 
       - name: Install Playwright
         run: |
-          npm ci
+          npm install
           npx playwright install
-          npm install -D @playwright/test
 
       - name: Run tests
         run: npx playwright test --reporter=list tests/pmm-cli/
