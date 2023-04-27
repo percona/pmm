@@ -82,9 +82,9 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.New("Query to EXPLAIN is empty")
 	}
 
-	// Workaround for bug in our MySQL parser if there is keyword "IN" in query.
-	// TODO In future it should be fixed on parser side.
-	a.params.Query = strings.ReplaceAll(a.params.Query, "...", "?")
+	// // Workaround for bug in our MySQL parser if there is keyword "IN" in query.
+	// // TODO In future it should be fixed on parser side.
+	// a.params.Query = strings.ReplaceAll(a.params.Query, "...", "?")
 
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
@@ -143,14 +143,22 @@ func (a *mysqlExplainAction) sealed() {}
 func prepareValues(values []string) []any {
 	res := make([]any, 0, len(values))
 	for _, p := range values {
-		res = append(res, p)
+		res = append(res, strings.Replace(strings.Replace(p, "(", "", 1), ")", "", 1))
 	}
 
 	return res
 }
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
+	// replacer := strings.NewReplacer("(?+)", "(?)", "(...)", "(?)")
+	// query := replacer.Replace(a.params.Query)
+	// fmt.Println("-----------")
+	// fmt.Printf("%#q", query)
+	// fmt.Println(a.params.Values)
+	// fmt.Println("-----------")
+	q := "insert into sbtest1 (id, k, c, pad) values ?"
+	values := []any{0, 1, "ABW", "x"}
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", q), values...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
