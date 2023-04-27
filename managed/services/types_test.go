@@ -29,6 +29,7 @@ func TestTarget_Copy(t1 *testing.T) {
 		AgentID:     "agent_id",
 		ServiceID:   "service_id",
 		ServiceName: "service_name",
+		ServiceType: models.MySQLServiceType,
 		NodeName:    "node_name",
 		Labels:      map[string]string{"label": "value"},
 		DSN:         "dsn",
@@ -47,6 +48,7 @@ func TestTarget_Copy(t1 *testing.T) {
 	newTarget.AgentID = "new_agent_id"
 	newTarget.ServiceID = "new_service_id"
 	newTarget.ServiceName = "new_service_name"
+	newTarget.ServiceType = models.PostgreSQLServiceType
 	newTarget.NodeName = "new_node_name"
 	newTarget.Labels["new_label"] = "new_value"
 	newTarget.DSN = "new_dsn"
@@ -59,6 +61,7 @@ func TestTarget_Copy(t1 *testing.T) {
 	assert.Equal(t1, "agent_id", target.AgentID)
 	assert.Equal(t1, "service_id", target.ServiceID)
 	assert.Equal(t1, "service_name", target.ServiceName)
+	assert.Equal(t1, models.MySQLServiceType, target.ServiceType)
 	assert.Equal(t1, "node_name", target.NodeName)
 	assert.Equal(t1, map[string]string{"label": "value"}, target.Labels)
 	assert.Equal(t1, "dsn", target.DSN)

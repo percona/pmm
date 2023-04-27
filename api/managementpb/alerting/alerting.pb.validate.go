@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = managementpb.Severity(0)
+	_ = managementpb.BooleanFlag(0)
 )
 
 // Validate checks the field values on BoolParamDefinition with the rules
