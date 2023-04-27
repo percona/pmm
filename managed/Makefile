@@ -37,7 +37,7 @@ release:                        ## Build pmm-managed release binaries
 	$(PMM_RELEASE_PATH)/pmm-managed --version
 
 ARCH=$(shell uname -m)
-release-dev:
+release-dev:										## Build pmm-managed binaries for development
 	if [ $(ARCH) = "aarch64" ]; then \
 		go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
 	else \

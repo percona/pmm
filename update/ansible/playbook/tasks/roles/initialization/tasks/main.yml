@@ -1,6 +1,6 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
-- name: Determine type of updgrade
+- name: Determine type of upgrade
   set_fact:
     ui_upgrade: False
   when: ui_upgrade is undefined
