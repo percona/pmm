@@ -42,7 +42,9 @@ This will help to split tests and order the execution for workers parallel mode.
 
 
 * **Methods.**   
-  Methods should be named as actions with camelCase (changeSorting, changeGrouping, etc..)
+  * Methods should be named as actions with camelCase (changeSorting, changeGrouping, etc..)
+  * General preferable declaration style is _fat arrow function_,  
+    ex: `const add = (a, b) => a + b;`
 
 
 * **Test Files.**   
