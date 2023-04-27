@@ -349,11 +349,13 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	return true
 }
 
-type settings map[string]*pgStatMonitorSettingsTextValue
-type pgsm20Settings struct {
-	Name    string
-	Setting string
-}
+type (
+	settings       map[string]*pgStatMonitorSettingsTextValue
+	pgsm20Settings struct {
+		Name    string
+		Setting string
+	}
+)
 
 func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	rows, err := q.Query(pgsm20SettingsQuery)
