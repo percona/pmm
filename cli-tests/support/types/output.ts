@@ -43,6 +43,9 @@ class Output {
     ).toHaveLength(0);
   }
 
+  getStdOutLines(): string[] {
+    return this.stdout.trim().split('\n').filter((item) => item.trim().length > 0);
+  }
   private getErrors(): string {
     const errors: string[] = [];
     for (const obj of test.info().errors) {

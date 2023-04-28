@@ -50,7 +50,7 @@ test.describe('PMM Server Install tests', async () => {
 
     // verify --container-name
     output = await cli.exec('docker ps --format="{{.Names}}"');
-    await output.outContains(containerName);
+    expect(output.getStdOutLines()).toContainEqual(containerName);
 
     // verify --volume-name
     output = await cli.exec('docker volume ls --format="{{.Name}}"');
