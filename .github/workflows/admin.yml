@@ -1,4 +1,4 @@
-name: pmm binary
+name: 'Client: pmm'
 
 on:
   push:
