@@ -718,7 +718,7 @@ ListServicesOKBodyServicesItems0AgentsItems0 list services OK body services item
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0
 */
 type ListServicesOKBodyServicesItems0AgentsItems0 struct {
-	// Unique randomly generated instance identifier.
+	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
 	// True if the agent password is set.

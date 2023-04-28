@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -212,10 +213,6 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		ExternalGroup: req.ExternalGroup,
 	}
 
-	var services []*models.Service
-	var agents []*models.Agent
-	var nodes []*models.Node
-
 	agentToAPI := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
 		return &agentv1beta1.UniversalAgent{
 			AgentId:     agent.AgentID,
@@ -243,8 +240,11 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
 	}
 
-	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	var services []*models.Service
+	var agents []*models.Agent
+	var nodes []*models.Node
+
+	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, filters)
 		if err != nil {
@@ -321,15 +321,15 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			svc.NodeName = nodeName
 		}
 
-		var svcAgents []*agentv1beta1.UniversalAgent
+		var uAgents []*agentv1beta1.UniversalAgent
 
 		for _, agent := range agents {
 			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
-				svcAgents = append(svcAgents, agentToAPI(agent))
+				uAgents = append(uAgents, agentToAPI(agent))
 			}
 		}
 
-		svc.Agents = svcAgents
+		svc.Agents = uAgents
 		resultSvc[i] = svc
 	}
 

@@ -58,7 +58,7 @@
                     "type": "object",
                     "properties": {
                       "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
+                        "description": "Unique agent identifier.",
                         "type": "string",
                         "x-order": 0
                       },

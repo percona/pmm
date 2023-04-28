@@ -30,7 +30,7 @@ type UniversalAgent struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Unique randomly generated instance identifier.
+	// Unique agent identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// True if the agent password is set.
 	IsAgentPasswordSet bool `protobuf:"varint,2,opt,name=is_agent_password_set,json=isAgentPasswordSet,proto3" json:"is_agent_password_set,omitempty"`

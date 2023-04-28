@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -48,24 +49,21 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
-	err := s.validateRequest(req)
+	var err error
+	err = s.validateRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
 	serviceID := req.ServiceId
 	nodeID := req.NodeId
+	var agents []*agentv1beta1.UniversalAgent
 
 	if serviceID != "" {
-		agents, err := s.listAgentsByServiceID(serviceID)
-		if err != nil {
-			return nil, err
-		}
-
-		return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
+		agents, err = s.listAgentsByServiceID(serviceID)
+	} else {
+		agents, err = s.listAgentsByNodeID(nodeID)
 	}
-
-	agents, err := s.listAgentsByNodeID(nodeID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +76,7 @@ func (s *AgentService) listAgentsByServiceID(serviceID string) ([]*agentv1beta1.
 	var agents []*models.Agent
 	var service *models.Service
 
-	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
 
 		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})

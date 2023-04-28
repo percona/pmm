@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"math/rand"
 	"time"
@@ -31,7 +32,6 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -175,23 +175,37 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
 
-	nodes, err := models.FindNodes(s.db.Querier, filters)
-	if err != nil {
-		return nil, err
+	var nodes []*models.Node
+	var agents []*models.Agent
+	var services []*models.Service
+
+	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		var err error
+
+		nodes, err = models.FindNodes(s.db.Querier, filters)
+		if err != nil {
+			return err
+		}
+
+		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		if err != nil {
+			return err
+		}
+
+		services, err = models.FindServices(s.db.Querier, models.ServiceFilters{})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if errTX != nil {
+		return nil, errTX
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-	if err != nil {
-		return nil, err
-	}
-
-	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{})
-	if err != nil {
-		return nil, err
-	}
-
-	convertAgentToProto := func(agent *models.Agent) *agentv1beta1.UniversalAgent {
-		return &agentv1beta1.UniversalAgent{
+	convertAgentToProto := func(agent *models.Agent) *nodev1beta1.UniversalNode_Agent {
+		return &nodev1beta1.UniversalNode_Agent{
 			AgentId:     agent.AgentID,
 			AgentType:   string(agent.AgentType),
 			Status:      agent.Status,
@@ -199,7 +213,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 	}
 
-	aMap := make(map[string][]*agentv1beta1.UniversalAgent)
+	aMap := make(map[string][]*nodev1beta1.UniversalNode_Agent)
 	for _, a := range agents {
 		if a.NodeID != nil || a.RunsOnNodeID != nil {
 			var nodeID string

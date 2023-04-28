@@ -34,6 +34,17 @@ message UniversalNode {
     string service_name = 3;
   }
 
+  message Agent {
+    // Unique Agent identifier.
+    string agent_id = 1;
+    // Agent type.
+    string agent_type = 2;
+    // Actual Agent status.
+    string status = 3;
+    // True if Agent is running and connected to pmm-managed.
+    bool is_connected = 4;
+  }
+
   // Unique Node identifier.
   string node_id = 1;
   // Node type.
@@ -63,7 +74,7 @@ message UniversalNode {
   // Last update timestamp.
   google.protobuf.Timestamp updated_at = 14;
   // List of agents related to this node.
-  repeated agent.v1beta1.UniversalAgent agents = 15;
+  repeated Agent agents = 15;
   // The health status of the node.
   Status status = 16;
   // List of services running on this node.

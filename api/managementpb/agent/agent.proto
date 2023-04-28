@@ -60,7 +60,7 @@ message UniversalAgent {
     bool is_ssl_key_set = 3;
   }
 
-  // Unique randomly generated instance identifier.
+  // Unique agent identifier.
   string agent_id = 1;
   // True if the agent password is set.
   bool is_agent_password_set = 2;
