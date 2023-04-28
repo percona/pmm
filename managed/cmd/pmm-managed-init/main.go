@@ -22,6 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/logger"
 )
@@ -34,7 +35,6 @@ func main() {
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
-
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s.", warn)
@@ -49,6 +49,13 @@ func main() {
 	err := models.ValidateSettings(envSettings)
 	if err != nil {
 		logrus.Errorf("Configuration error: %s.", err)
+		os.Exit(1)
+	}
+
+	pmmConfigParams := make(map[string]any)
+	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES"))
+	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
 }

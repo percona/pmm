@@ -8,31 +8,30 @@ endif
 
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose up -d
+	docker compose up -d
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose up --build -d
+	docker compose up --build -d
 
 env-update-image:					## Pull latest dev image
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose pull
+	docker compose pull
 
 env-compose-up: env-update-image
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose up --detach --renew-anon-volumes --remove-orphans
+	docker compose up --detach --renew-anon-volumes --remove-orphans
 
 env-devcontainer:
-	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
 
 env-down:							## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose down --remove-orphans
+	docker compose down --remove-orphans
 
 env-remove:
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker-compose down --volumes --remove-orphans
+	docker compose down --volumes --remove-orphans
 
 TARGET ?= _bash
 
