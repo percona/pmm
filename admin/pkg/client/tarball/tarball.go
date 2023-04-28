@@ -95,7 +95,6 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	extractedPath := path.Join(dir, fmt.Sprintf("pmm2-client-%s", b.Version))
-	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
 	if err := b.installTarball(ctx, extractedPath); err != nil {
 		return err
