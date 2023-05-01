@@ -55,14 +55,12 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 		return nil, err
 	}
 
-	serviceID := req.ServiceId
-	nodeID := req.NodeId
 	var agents []*agentv1beta1.UniversalAgent
 
-	if serviceID != "" {
-		agents, err = s.listAgentsByServiceID(serviceID)
+	if req.ServiceId != "" {
+		agents, err = s.listAgentsByServiceID(req.ServiceId)
 	} else {
-		agents, err = s.listAgentsByNodeID(nodeID)
+		agents, err = s.listAgentsByNodeID(req.NodeId)
 	}
 	if err != nil {
 		return nil, err

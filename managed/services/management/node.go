@@ -296,8 +296,6 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 }
 
 // GetNode returns a single Node by ID.
-//
-//nolint:unparam
 func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {

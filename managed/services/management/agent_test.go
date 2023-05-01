@@ -85,7 +85,7 @@ func TestAgentService(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "either service_id or node_id is expected, not both"), err)
 	})
 
-	t.Run("List of agents", func(t *testing.T) {
+	t.Run("ListAgents", func(t *testing.T) {
 		const (
 			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
 			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
