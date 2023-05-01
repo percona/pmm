@@ -17,7 +17,9 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/prometheus/common/model"
@@ -26,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -181,7 +184,7 @@ func TestNodeService(t *testing.T) {
 
 		const (
 			nodeExporterID      = "/agent_id/00000000-0000-4000-8000-000000000001"
-			postgresqlServiceId = "/service_id/00000000-0000-4000-8000-000000000002"
+			postgresqlServiceID = "/service_id/00000000-0000-4000-8000-000000000002"
 		)
 
 		t.Run("should output a list of all nodes, unfiltered", func(t *testing.T) {
@@ -237,7 +240,7 @@ func TestNodeService(t *testing.T) {
 						},
 						Services: []*nodev1beta1.UniversalNode_Service{
 							{
-								ServiceId:   postgresqlServiceId,
+								ServiceId:   postgresqlServiceID,
 								ServiceType: "postgresql",
 								ServiceName: "pmm-server-postgresql",
 							},
@@ -322,7 +325,7 @@ func TestNodeService(t *testing.T) {
 						},
 						Services: []*nodev1beta1.UniversalNode_Service{
 							{
-								ServiceId:   postgresqlServiceId,
+								ServiceId:   postgresqlServiceID,
 								ServiceType: "postgresql",
 								ServiceName: "pmm-server-postgresql",
 							},
@@ -334,6 +337,110 @@ func TestNodeService(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, expected, res)
+		})
+	})
+
+	t.Run("GetNode", func(t *testing.T) {
+		now, origNowF := models.Now(), models.Now
+		models.Now = func() time.Time {
+			return now
+		}
+
+		setup := func(t *testing.T) (ctx context.Context, s *MgmtNodeService, teardown func(t *testing.T)) {
+			t.Helper()
+
+			ctx = logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			vmClient := &mockVictoriaMetricsClient{}
+			vmClient.Test(t)
+
+			s = NewMgmtNodeService(db, ar, vmClient)
+
+			teardown = func(t *testing.T) {
+				models.Now = origNowF
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+				ar.AssertExpectations(t)
+			}
+
+			return
+		}
+
+		t.Run("should query the node by its id", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			metric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
+
+			expected := &nodev1beta1.GetNodeResponse{
+				Node: &nodev1beta1.UniversalNode{
+					NodeId:        "pmm-server",
+					NodeType:      "generic",
+					NodeName:      "pmm-server",
+					MachineId:     "",
+					Distro:        "",
+					NodeModel:     "",
+					ContainerId:   "",
+					ContainerName: "",
+					Address:       "127.0.0.1",
+					Region:        "",
+					Az:            "",
+					CustomLabels:  nil,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Status:        nodev1beta1.UniversalNode_UP,
+				},
+			}
+
+			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+				NodeId: models.PMMServerNodeID,
+			})
+
+			assert.NoError(t, err)
+			assert.Equal(t, expected, node)
+		})
+
+		t.Run("should throw an error if the node with such node_id doesn't exist", func(t *testing.T) {
+			const nodeID = "00000000-0000-4000-8000-000000000000"
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+				NodeId: nodeID,
+			})
+
+			assert.Nil(t, node)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+		})
+
+		t.Run("should throw an error if the node_id parameter is empty", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := s.GetNode(ctx, &nodev1beta1.GetNodeRequest{
+				NodeId: "",
+			})
+
+			assert.Nil(t, node)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Node ID."), err)
 		})
 	})
 }

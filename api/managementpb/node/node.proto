@@ -91,8 +91,8 @@ message ListNodeResponse {
 }
 
 message GetNodeRequest {
-  // Unique Node identifier.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // Unique Node identifier. Minimum length is enforced by the API.
+  string node_id = 1;
 }
 
 message GetNodeResponse {

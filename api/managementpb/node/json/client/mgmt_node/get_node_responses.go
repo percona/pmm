@@ -125,7 +125,7 @@ GetNodeBody get node body
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
-	// Unique Node identifier.
+	// Unique Node identifier. Minimum length is enforced by the API.
 	NodeID string `json:"node_id,omitempty"`
 }
 

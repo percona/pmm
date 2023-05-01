@@ -28065,7 +28065,7 @@
               "type": "object",
               "properties": {
                 "node_id": {
-                  "description": "Unique Node identifier.",
+                  "description": "Unique Node identifier. Minimum length is enforced by the API.",
                   "type": "string",
                   "x-order": 0
                 }

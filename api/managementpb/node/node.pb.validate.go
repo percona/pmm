@@ -549,16 +549,7 @@ func (m *GetNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := GetNodeRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for NodeId
 
 	if len(errors) > 0 {
 		return GetNodeRequestMultiError(errors)

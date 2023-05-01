@@ -304,6 +304,23 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		return nil, err
 	}
 
+	// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
+	query := fmt.Sprintf(`up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter",node_id=%q}`, req.NodeId)
+
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+	}
+
+	metrics := make(map[string]int, len(result.(model.Vector)))
+	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+
 	labels, err := node.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -324,6 +341,18 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		NodeModel:     node.NodeModel,
 		Region:        pointer.GetString(node.Region),
 		UpdatedAt:     timestamppb.New(node.UpdatedAt),
+	}
+
+	if metric, ok := metrics[node.NodeID]; ok {
+		switch metric {
+		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
+		case 0:
+			uNode.Status = nodev1beta1.UniversalNode_DOWN
+		case 1:
+			uNode.Status = nodev1beta1.UniversalNode_UP
+		}
+	} else {
+		uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
 	}
 
 	return &nodev1beta1.GetNodeResponse{
