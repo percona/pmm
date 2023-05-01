@@ -39,7 +39,7 @@ import (
 
 var now time.Time
 
-func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) { //nolint:unparam
 	t.Helper()
 
 	now = models.Now()
@@ -54,9 +54,6 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
-
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 
@@ -68,18 +65,17 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
-		vmdb.AssertExpectations(t)
 		state.AssertExpectations(t)
 		ar.AssertExpectations(t)
 	}
 	s := NewAgentService(db, ar)
 
-	return ctx, s, teardown, vmdb
+	return ctx, s, teardown
 }
 
 func TestAgentService(t *testing.T) {
 	t.Run("Should throw a validation error when no params passed", func(t *testing.T) {
-		ctx, s, teardown, _ := setup(t)
+		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
 		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
@@ -88,7 +84,7 @@ func TestAgentService(t *testing.T) {
 	})
 
 	t.Run("Should throw a validation error when both params passed", func(t *testing.T) {
-		ctx, s, teardown, _ := setup(t)
+		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
 		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
@@ -103,7 +99,7 @@ func TestAgentService(t *testing.T) {
 		)
 
 		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{
@@ -171,7 +167,7 @@ func TestAgentService(t *testing.T) {
 		})
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
@@ -179,6 +175,7 @@ func TestAgentService(t *testing.T) {
 				Address:  "test-address",
 				Region:   pointer.ToString("test-region"),
 			})
+			// node, err: = AddRemoteRDSNode
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -221,7 +218,7 @@ func TestAgentService(t *testing.T) {
 		})
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
