@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -35,8 +37,16 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
+var now time.Time
+
 func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
 	t.Helper()
+
+	now = models.Now()
+	origNowF := models.Now
+	models.Now = func() time.Time {
+		return now
+	}
 
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
@@ -54,6 +64,7 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 	ar.Test(t)
 
 	teardown := func(t *testing.T) {
+		models.Now = origNowF
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
@@ -99,7 +110,7 @@ func TestAgentService(t *testing.T) {
 				NodeID: models.PMMServerNodeID,
 			})
 
-			require.NoError(t, err)
+			assert.NoError(t, err)
 			assert.Len(t, services, 1)
 			service := services[0]
 
@@ -110,8 +121,53 @@ func TestAgentService(t *testing.T) {
 				ServiceId: service.ServiceID,
 			})
 
-			require.NoError(t, err)
-			assert.Len(t, response.Agents, 3) // 2 exporters + 1 agent
+			agents := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     pgExporterID,
+					AgentType:   "postgres_exporter",
+					PmmAgentId:  models.PMMServerAgentID,
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					Username:    "postgres",
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+						SslCa:       "",
+						SslCert:     "",
+						IsSslKeySet: false,
+					},
+					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:    "UNKNOWN",
+					Tls:       true,
+				},
+				{
+					AgentId:     pgStatStatementID,
+					AgentType:   "qan-postgresql-pgstatements-agent",
+					PmmAgentId:  models.PMMServerAgentID,
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					Username:    "postgres",
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+						SslCa:       "",
+						SslCert:     "",
+						IsSslKeySet: false,
+					},
+					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:    "UNKNOWN",
+					Tls:       true,
+				},
+				{
+					AgentId:      models.PMMServerAgentID,
+					AgentType:    "pmm-agent",
+					RunsOnNodeId: models.PMMServerAgentID,
+					IsConnected:  true,
+					CreatedAt:    timestamppb.New(now),
+					UpdatedAt:    timestamppb.New(now),
+				},
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, agents, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
@@ -142,14 +198,26 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once() // RDS exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
-			require.NoError(t, err)
-			assert.Len(t, response.Agents, 1)
+			agents := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     rdsExporter.AgentID,
+					AgentType:   "rds_exporter",
+					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					Status:      "UNKNOWN",
+				},
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, agents, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
@@ -180,14 +248,26 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once() // Azure exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
 
+			agents := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     azureExporter.AgentID,
+					AgentType:   "azure_database_exporter",
+					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					Status:      "UNKNOWN",
+				},
+			}
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 1)
+			assert.Equal(t, agents, response.Agents)
 		})
 	})
 }
