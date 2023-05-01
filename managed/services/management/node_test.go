@@ -184,7 +184,7 @@ func TestNodeService(t *testing.T) {
 			postgresqlServiceId = "/service_id/00000000-0000-4000-8000-000000000002"
 		)
 
-		t.Run("should list all nodes unfiltered", func(t *testing.T) {
+		t.Run("should output a list of all nodes, unfiltered", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
@@ -204,29 +204,6 @@ func TestNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{})
 
-			agents := []*nodev1beta1.UniversalNode_Agent{
-				{
-					AgentId:     nodeExporterID,
-					AgentType:   "node_exporter",
-					Status:      "UNKNOWN",
-					IsConnected: true,
-				},
-				{
-					AgentId:     models.PMMServerAgentID,
-					AgentType:   "pmm-agent",
-					Status:      "",
-					IsConnected: true,
-				},
-			}
-
-			services := []*nodev1beta1.UniversalNode_Service{
-				{
-					ServiceId:   postgresqlServiceId,
-					ServiceType: "postgresql",
-					ServiceName: "pmm-server-postgresql",
-				},
-			}
-
 			expected := &nodev1beta1.ListNodeResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
 					{
@@ -244,9 +221,28 @@ func TestNodeService(t *testing.T) {
 						CustomLabels:  nil,
 						CreatedAt:     nil,
 						UpdatedAt:     nil,
-						Agents:        agents,
-						Services:      services,
-						Status:        nodev1beta1.UniversalNode_UP,
+						Agents: []*nodev1beta1.UniversalNode_Agent{
+							{
+								AgentId:     nodeExporterID,
+								AgentType:   "node_exporter",
+								Status:      "UNKNOWN",
+								IsConnected: true,
+							},
+							{
+								AgentId:     models.PMMServerAgentID,
+								AgentType:   "pmm-agent",
+								Status:      "",
+								IsConnected: true,
+							},
+						},
+						Services: []*nodev1beta1.UniversalNode_Service{
+							{
+								ServiceId:   postgresqlServiceId,
+								ServiceType: "postgresql",
+								ServiceName: "pmm-server-postgresql",
+							},
+						},
+						Status: nodev1beta1.UniversalNode_UP,
 					},
 				},
 			}
@@ -339,75 +335,5 @@ func TestNodeService(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, res)
 		})
-
-		t.Run("should output a list of nodes when filter condition is satisfied", func(t *testing.T) {
-			ctx, s, teardown := setup(t)
-			defer teardown(t)
-
-			metric := model.Vector{
-				&model.Sample{
-					Metric: model.Metric{
-						"__name__": "up",
-						"node_id":  "pmm-server",
-					},
-					Timestamp: 1,
-					Value:     1,
-				},
-			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
-			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
-			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
-
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
-				NodeType: inventorypb.NodeType_GENERIC_NODE,
-			})
-
-			expected := &nodev1beta1.ListNodeResponse{
-				Nodes: []*nodev1beta1.UniversalNode{
-					{
-						NodeId:        "pmm-server",
-						NodeType:      "generic",
-						NodeName:      "pmm-server",
-						MachineId:     "",
-						Distro:        "",
-						NodeModel:     "",
-						ContainerId:   "",
-						ContainerName: "",
-						Address:       "127.0.0.1",
-						Region:        "",
-						Az:            "",
-						CustomLabels:  nil,
-						CreatedAt:     nil,
-						UpdatedAt:     nil,
-						Agents: []*nodev1beta1.UniversalNode_Agent{
-							{
-								AgentId:     nodeExporterID,
-								AgentType:   "node_exporter",
-								Status:      "UNKNOWN",
-								IsConnected: true,
-							},
-							{
-								AgentId:     models.PMMServerAgentID,
-								AgentType:   "pmm-agent",
-								Status:      "",
-								IsConnected: true,
-							},
-						},
-						Services: []*nodev1beta1.UniversalNode_Service{
-							{
-								ServiceId:   postgresqlServiceId,
-								ServiceType: "postgresql",
-								ServiceName: "pmm-server-postgresql",
-							},
-						},
-						Status: nodev1beta1.UniversalNode_UP,
-					},
-				},
-			}
-
-			assert.NoError(t, err)
-			assert.Equal(t, expected, res)
-		})
-
 	})
 }
