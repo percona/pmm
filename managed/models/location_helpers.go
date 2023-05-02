@@ -154,7 +154,7 @@ func FindBackupLocations(q *reform.Querier) ([]*BackupLocation, error) {
 
 	locations := make([]*BackupLocation, len(rows))
 	for i, s := range rows {
-		locations[i] = s.(*BackupLocation)
+		locations[i] = s.(*BackupLocation) //nolint:forcetypeassert
 	}
 
 	return locations, nil
@@ -197,7 +197,7 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 	locations := make(map[string]*BackupLocation, len(all))
 	for _, l := range all {
-		location := l.(*BackupLocation)
+		location := l.(*BackupLocation) //nolint:forcetypeassert
 		locations[location.ID] = location
 	}
 	return locations, nil

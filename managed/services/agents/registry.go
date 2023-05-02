@@ -282,7 +282,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime()
+	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
