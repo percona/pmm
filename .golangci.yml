@@ -109,7 +109,6 @@ linters:
     - maintidx
     - nestif
     - errorlint
-    - forcetypeassert
     - nonamedreturns
     - execinquery
     - interfacebloat
@@ -142,6 +141,7 @@ issues:
       linters:
         # keep sorted
         - exhaustivestruct # very annoying
+        - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers

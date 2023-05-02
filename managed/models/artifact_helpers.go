@@ -80,7 +80,7 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 
 	artifacts := make([]*Artifact, 0, len(rows))
 	for _, r := range rows {
-		artifacts = append(artifacts, r.(*Artifact))
+		artifacts = append(artifacts, r.(*Artifact)) //nolint:forcetypeassert
 	}
 
 	return artifacts, nil
@@ -106,7 +106,7 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 
 	artifacts := make(map[string]*Artifact, len(all))
 	for _, l := range all {
-		artifact := l.(*Artifact)
+		artifact := l.(*Artifact) //nolint:forcetypeassert
 		artifacts[artifact.ID] = artifact
 	}
 	return artifacts, nil
