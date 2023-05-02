@@ -12,9 +12,9 @@
     "pmm": "pmm"
   },
   "dependencies": {
-    "@playwright/test": "^1.32.3",
+    "@playwright/test": "^1.33.0",
     "dotenv": "^16.0.3",
-    "playwright": "^1.32.3",
+    "playwright": "^1.33.0",
     "promise-retry": "^2.0.1",
     "shelljs": "^0.8.5",
     "typescript": "^5.0.4"
