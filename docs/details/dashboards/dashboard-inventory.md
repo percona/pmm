@@ -41,7 +41,5 @@ To remove items from the inventory:
 1. Go to <i class="uil uil-cog"></i> **Configuration** > {{icon.inventory}} **Inventory**.
 
 2. In the first column, select the items to be removed.
-
-   ![!image](../../_images/PMM_Inventory_Item_Selection.png)
-
+        ![!image](../../_images/PMM_Inventory_Item_Selection.png)
 3. Click **Delete** and confirm the removal.
