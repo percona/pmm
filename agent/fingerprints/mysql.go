@@ -17,31 +17,51 @@ package fingerprints
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
-// GetMySQLFingerprintPlaceholders parse digest text and return fingerprint and placeholders count.
-func GetMySQLFingerprintPlaceholders(digestText string) (string, uint32, error) {
-	replacer := strings.NewReplacer("(?+)", "?", "(...)", "?")
-	fingerprint := replacer.Replace(digestText)
+// GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
+func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
+	r, err := regexp.Compile(`'.*?'|".*?"`)
+	if err != nil {
+		return "", 0, err
+	}
+	res := r.ReplaceAllString(query, "")
+
+	r2, err := regexp.Compile(`\(.*?\)`)
+	if err != nil {
+		return "", 0, err
+	}
+
+	new := map[int]string{}
+	rs := r2.FindAllString(res, -1)
+	for k, v := range rs {
+		count := strings.Count(v, ",")
+		new[k] = fmt.Sprintf("(%s?)", strings.Repeat("?, ", count))
+	}
+	r3, err := regexp.Compile(`\(\?\+\)|\(\.\.\.\)`)
+	if err != nil {
+		return "", 0, err
+	}
+
+	i := 0
+	rs2 := r3.ReplaceAllStringFunc(digestText, func(s string) string {
+		val := new[i]
+		i++
+		return val
+	})
 
 	var count uint32
 	for {
-		i := strings.Index(fingerprint, "?")
+		i := strings.Index(rs2, "?")
 		if i == -1 {
 			break
 		}
 
 		count++
-		fingerprint = strings.Replace(fingerprint, "?", fmt.Sprintf(":%d", count), 1)
+		rs2 = strings.Replace(rs2, "?", fmt.Sprintf(":%d", count), 1)
 	}
 
-	return fingerprint, count, nil
-}
-
-func testo() (string, uint32, error) {
-	query := "INSERT INTO sbtest1 (id, k, c, pad) VALUES ( 0, 561, 'y', 'x')"
-	normalized := "insert into sbtest1 (id, k, c, pad) values(?+)"
-
-	return fingerprint, count, nil
+	return rs2, uint32(count), nil
 }
