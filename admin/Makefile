@@ -11,6 +11,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+PMM_SERVER_UPGRADE_DOCKER_TAG ?= percona/pmm-server-upgrade:$(PMM_RELEASE_VERSION)
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
@@ -31,17 +32,28 @@ clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 	find . -name mock_*.go -delete
 
-release:                        ## Build pmm-admin release binary
+release:                        ## Build release pmm, pmm-admin, pmm-server-upgrade binaries
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
 
-install:                        ## Install pmm & pmm-admin binary
+install:                        ## Install pmm, pmm-admin, pmm-server-upgrade binaries
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm ./cmd/pmm/
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
 
-install-race:                   ## Install pmm & pmm-admin binary with race detector
+install-race:                   ## Install pmm, pmm-admin, pmm-server-upgrade binaries with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-server-upgrade ./cmd/pmm-server-upgrade/
+
+build-docker: release			## Build docker image for pmm-server-upgrade
+	docker build \
+		-t $(PMM_SERVER_UPGRADE_DOCKER_TAG) \
+		-f ../build/docker/pmm-server-upgrade/Dockerfile \
+		--build-arg VERSION=$(PMM_RELEASE_VERSION) \
+		--build-arg BUILD_DATE=$(PMM_RELEASE_TIMESTAMP) \
+		$(PMM_RELEASE_PATH)/
 
 TEST_FLAGS ?= -timeout=20s
 

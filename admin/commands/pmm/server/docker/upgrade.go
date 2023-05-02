@@ -40,8 +40,11 @@ type UpgradeCommand struct {
 	ContainerID            string `default:"pmm-server" help:"Container ID of the PMM Server to upgrade"`
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`
-	AssumeYes              bool   `name:"yes" short:"y" help:"Assume yes for all prompts"`
-	dockerFn               Functions
+
+	AssumeYes               bool `name:"yes" short:"y" help:"Assume yes for all prompts"`
+	docker                  containerManager
+	l                       *logrus.Entry
+	waitBeforeContainerStop time.Duration
 }
 
 const (
@@ -73,17 +76,28 @@ func (u *upgradeResult) String() string {
 	return "ok"
 }
 
-// RunCmdWithContext runs upgrade command.
-func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
-	logrus.Info("Starting PMM Server upgrade via Docker")
+func NewUpgradeCommand(l *logrus.Entry, waitBeforeContainerStop time.Duration) *UpgradeCommand {
+	return &UpgradeCommand{
+		l:                       l,
+		waitBeforeContainerStop: waitBeforeContainerStop,
+	}
+}
 
-	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})
+// RunCmdWithContext runs upgrade command.
+func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
+	if c.l == nil {
+		c.l = logrus.NewEntry(logrus.StandardLogger())
+	}
+
+	c.l.Info("Starting PMM Server upgrade via Docker")
+
+	d, err := prepareDocker(ctx, c.docker, prepareOpts{install: false})
 	if err != nil {
 		return nil, err
 	}
-	c.dockerFn = d
+	c.docker = d
 
-	currentContainer, err := c.dockerFn.ContainerInspect(ctx, c.ContainerID)
+	currentContainer, err := c.docker.ContainerInspect(ctx, c.ContainerID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,14 +108,27 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		}
 	}
 
-	logrus.Infof("Downloading PMM Server %s", c.DockerImage)
+	c.l.Infof("Downloading PMM Server %s", c.DockerImage)
 	if err := c.pullImage(ctx, c.DockerImage); err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Stopping PMM Server in container %q", currentContainer.Name)
+	c.l.Infof("Stopping PMM Server in container %q", currentContainer.Name)
+
+	// We wait a bit so the logs can be requested by pmm-managed before the container is stopped.
+	select {
+	case <-time.After(c.waitBeforeContainerStop):
+	case <-ctx.Done():
+		msg := "upgrade has been cancelled"
+		if err = ctx.Err(); err != nil {
+			msg = fmt.Sprintf(msg+". Error: %s", err)
+		}
+
+		return nil, errors.New(msg)
+	}
+
 	noTimeout := -1 * time.Second
-	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
+	if err = c.docker.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
 	}
 
@@ -114,26 +141,28 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	// Disable restart policy in the old container
-	_, err = c.dockerFn.ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
+	_, err = c.docker.ContainerUpdate(ctx, currentContainer.ID, container.UpdateConfig{
 		RestartPolicy: container.RestartPolicy{Name: "no"},
 	})
 	if err != nil {
-		logrus.Info("We could not disable restart policy in the old container.")
-		logrus.Infof(`We strongly recommend removing the old container manually with "docker rm %s"`, currentContainer.Name)
-		logrus.Errorf("Error for reference: %#v", err)
+		c.l.Info("We could not disable restart policy in the old container.")
+		c.l.Infof(`We strongly recommend removing the old container manually with "docker rm %s"`, currentContainer.Name)
+		c.l.Errorf("Error for reference: %#v", err)
 	}
+
+	c.l.Info("PMM Server update finished successfully")
 
 	return &upgradeResult{}, nil
 }
 
 func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
-	for k, v := range container.Config.Labels {
-		if k == "percona.pmm" && v == "server" {
-			return true
-		}
+	if container.Config == nil {
+		return false
 	}
 
-	return false
+	v := container.Config.Labels["percona.pmm.source"]
+
+	return v == "cli"
 }
 
 func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
@@ -164,9 +193,9 @@ The container %[1]q will NOT be removed. You can remove it manually later, if ne
 }
 
 func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.ContainerJSON) error {
-	logrus.Info("Starting backup of volumes")
+	c.l.Info("Starting backup of volumes")
 
-	logrus.Infof("Downloading %q", volumeCopyImage)
+	c.l.Infof("Downloading %q", volumeCopyImage)
 	if err := c.pullImage(ctx, volumeCopyImage); err != nil {
 		return err
 	}
@@ -188,12 +217,12 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 		labels["percona.pmm.created"] = now.Format(dateSuffixFormat)
 
 		backupName := fmt.Sprintf("%s-backup-%s", m.Name, now.Format(dateSuffixFormat))
-		_, err := c.dockerFn.CreateVolume(ctx, backupName, labels)
+		_, err := c.docker.CreateVolume(ctx, backupName, labels)
 		if err != nil {
 			return err
 		}
 
-		logrus.Infof("Backing up volume %q to %q", m.Name, backupName)
+		c.l.Infof("Backing up volume %q to %q", m.Name, backupName)
 		if err = c.backupVolumeViaContainer(ctx, m.Name, backupName); err != nil {
 			return err
 		}
@@ -203,26 +232,26 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 }
 
 func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
-	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
+	reader, err := c.docker.PullImage(ctx, imageName, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}
 
 	_, err = io.Copy(os.Stdout, reader)
 	if err != nil {
-		logrus.Error(err)
+		c.l.Error(err)
 	}
 
 	return nil
 }
 
 func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume, dstVolume string) error {
-	logrus.Infof("Starting container to backup %q to %q", srcVolume, dstVolume)
-	containerID, err := c.dockerFn.RunContainer(ctx, &container.Config{
+	c.l.Infof("Starting container to backup %q to %q", srcVolume, dstVolume)
+	containerID, err := c.docker.RunContainer(ctx, &container.Config{
 		Image: volumeCopyImage,
 		Cmd:   strslice.StrSlice{"cp", "-prT", "/srv-original", "/srv-backup"},
 		Labels: map[string]string{
-			"percona.pmm": "backup-container",
+			"percona.pmm.source": "cli-backup-container",
 		},
 	}, &container.HostConfig{
 		Binds: []string{
@@ -235,8 +264,8 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 		return err
 	}
 
-	logrus.Info("Backing up volume data")
-	waitC, errC := c.dockerFn.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
+	c.l.Info("Backing up volume data")
+	waitC, errC := c.docker.ContainerWait(ctx, containerID, container.WaitConditionNotRunning)
 	select {
 	case res := <-waitC:
 		if res.Error != nil {
@@ -254,7 +283,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 }
 
 func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer types.ContainerJSON) error {
-	logrus.Info("Starting PMM Server")
+	c.l.Info("Starting PMM Server")
 
 	containerName := fmt.Sprintf("%s-%s", c.NewContainerNamePrefix, time.Now().Format(dateSuffixFormat))
 	if c.NewContainerName != "" {
@@ -263,12 +292,13 @@ func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer type
 
 	containerID, err := startPMMServer(
 		ctx, nil, currentContainer.ID, c.DockerImage,
-		c.dockerFn, currentContainer.HostConfig.PortBindings, containerName)
+		c.docker, currentContainer.HostConfig.PortBindings, containerName,
+		currentContainer.Config.Env)
 	if err != nil {
 		return err
 	}
 
-	logrus.Debugf("Started PMM Server in container %q", containerID)
+	c.l.Debugf("Started PMM Server in container %q", containerID)
 
 	return nil
 }

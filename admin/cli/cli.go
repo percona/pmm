@@ -31,6 +31,8 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
+	"github.com/percona/pmm/admin/commands/pmm_server_upgrade/health"
+	runCmd "github.com/percona/pmm/admin/commands/pmm_server_upgrade/run"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -59,7 +61,7 @@ type PMMAdminCommands struct {
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
-	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
+	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 // Run function is a top-level function which handles running all commands
@@ -78,7 +80,7 @@ type PMMCommands struct {
 
 	Server     server.BaseCommand         `cmd:"" help:"PMM server related commands"`
 	Client     client.BaseCommand         `cmd:"" help:"PMM client related commands"`
-	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
@@ -88,6 +90,27 @@ func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
 func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return run(ctx, globals)
+}
+
+// PMMServerUpgradeCommands stores all commands, flags and arguments for the "pmm-server-upgrade" binary.
+type PMMServerUpgradeCommands struct {
+	flags.GlobalFlagsBase
+
+	RunCmd        runCmd.RunCommand          `cmd:"" name:"run" help:"Run daemon"`
+	HealthCommand health.HealthCommand       `cmd:"" name:"health" help:"Returns exit code 0 if pmm-server-upgrade is considered healthy"`
+	Completion    commands.CompletionCommand `cmd:"" help:"Outputs shell code for initializing tab completions"`
+}
+
+func (c *PMMServerUpgradeCommands) GetGlobalFlags() *flags.GlobalFlags {
+	return &flags.GlobalFlags{
+		GlobalFlagsBase: c.GlobalFlagsBase,
+	}
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *PMMServerUpgradeCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return run(ctx, globals)
 }
 

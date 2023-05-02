@@ -35,10 +35,10 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall properly upgrade", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
@@ -49,7 +49,7 @@ func TestUpgradeCmd(t *testing.T) {
 				HostConfig: &container.HostConfig{},
 			},
 			Config: &container.Config{
-				Labels: map[string]string{"percona.pmm": "server"},
+				Labels: map[string]string{"percona.pmm.source": "cli"},
 			},
 		}, nil)
 		m.Mock.On("PullImage", mock.Anything, c.DockerImage, mock.Anything).Return(&bytes.Buffer{}, nil)
@@ -67,10 +67,10 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall stop on PMM Server container not found", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
 		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(types.ContainerJSON{
@@ -85,10 +85,10 @@ func TestUpgradeCmd(t *testing.T) {
 
 	t.Run("shall backup all volumes", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
-		c := UpgradeCommand{dockerFn: m}
+		c := UpgradeCommand{docker: m}
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
@@ -99,7 +99,7 @@ func TestUpgradeCmd(t *testing.T) {
 				HostConfig: &container.HostConfig{},
 			},
 			Config: &container.Config{
-				Labels: map[string]string{"percona.pmm": "server"},
+				Labels: map[string]string{"percona.pmm.source": "cli"},
 			},
 			Mounts: []types.MountPoint{
 				{Type: mount.TypeVolume, Name: "vol1"},
@@ -132,7 +132,7 @@ func TestUpgradeCmd(t *testing.T) {
 	})
 }
 
-func setWaitForContainerMock(m *MockFunctions) {
+func setWaitForContainerMock(m *mockContainerManager) {
 	ch := func() <-chan container.ContainerWaitOKBody {
 		c := make(chan container.ContainerWaitOKBody)
 		close(c)

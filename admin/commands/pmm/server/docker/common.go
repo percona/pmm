@@ -28,16 +28,17 @@ func startPMMServer(
 	volume *types.Volume,
 	volumesFromContainerID string,
 	dockerImage string,
-	dockerFn Functions,
+	docker containerManager,
 	portBindings nat.PortMap,
 	containerName string,
+	env []string,
 ) (string, error) {
 	if volume == nil && volumesFromContainerID == "" {
-		logrus.Panic("Both volume and volumesFromContainer are empty")
+		logrus.Panic("Both volume and volumesFromContainerID are empty")
 	}
 
 	if volume != nil && volumesFromContainerID != "" {
-		logrus.Panic("Both volume and volumesFromContainer are defined")
+		logrus.Panic("Both volume and volumesFromContainerID are defined")
 	}
 
 	hostConfig := &container.HostConfig{
@@ -51,10 +52,11 @@ func startPMMServer(
 		hostConfig.VolumesFrom = []string{volumesFromContainerID + ":rw"}
 	}
 
-	return dockerFn.RunContainer(ctx, &container.Config{
+	return docker.RunContainer(ctx, &container.Config{
 		Image: dockerImage,
 		Labels: map[string]string{
-			"percona.pmm": "server",
+			"percona.pmm.source": "cli",
 		},
+		Env: env,
 	}, hostConfig, containerName)
 }

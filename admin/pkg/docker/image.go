@@ -26,11 +26,6 @@ import (
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
 )
 
-// PullImage pulls image from Docker registry.
-func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
-	return b.Cli.ImagePull(ctx, dockerImage, opts)
-}
-
 // StatusMsg is a struct to unmarshal Docker json status to.
 type StatusMsg struct {
 	Status         string `json:"status"`
@@ -39,6 +34,11 @@ type StatusMsg struct {
 		Current *int `json:"current"`
 		Total   *int `json:"total"`
 	} `json:"progressDetail"`
+}
+
+// PullImage pulls image from Docker registry.
+func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
+	return b.Cli.ImagePull(ctx, dockerImage, opts)
 }
 
 // ParsePullImageProgress parses Docker json status from reader and sends
@@ -88,4 +88,9 @@ func (b *Base) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struc
 	}()
 
 	return doneChan, errChan
+}
+
+// ImageInspectWithRaw returns the image information and its raw representation.
+func (b *Base) ImageInspectWithRaw(ctx context.Context, imageID string) (types.ImageInspect, []byte, error) {
+	return b.Cli.ImageInspectWithRaw(ctx, imageID)
 }

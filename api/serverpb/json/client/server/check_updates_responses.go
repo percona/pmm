@@ -425,6 +425,12 @@ type CheckUpdatesOKBody struct {
 	// Format: date-time
 	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
 
+	// True if pmm-update can be used for an update.
+	PMMUpdateAvailable bool `json:"pmm_update_available,omitempty"`
+
+	// True if pmm-server-upgrade can be used for an update.
+	ServerUpgradeServiceAvailable bool `json:"server_upgrade_service_available,omitempty"`
+
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
 

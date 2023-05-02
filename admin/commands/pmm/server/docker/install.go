@@ -40,6 +40,7 @@ const defaultGrafanaAdminPassword = "admin"
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
 	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
+	DisableImagePull   bool   `help:"Do not pull new version of the Docker image"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
@@ -47,7 +48,7 @@ type InstallCommand struct {
 	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
-	dockerFn Functions
+	docker containerManager
 }
 
 type installResult struct {
@@ -76,21 +77,25 @@ var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server installation in Docker")
 
-	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: !c.SkipDockerInstall})
+	d, err := prepareDocker(ctx, c.docker, prepareOpts{install: !c.SkipDockerInstall})
 	if err != nil {
 		return nil, err
 	}
-	c.dockerFn = d
+	c.docker = d
 
-	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName, nil)
+	volume, err := c.docker.CreateVolume(ctx, c.VolumeName, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Downloading %q", c.DockerImage)
-	res, err := c.pullImage(ctx, globals)
-	if res != nil || err != nil {
-		return res, err
+	if !c.DisableImagePull {
+		logrus.Infof("Downloading %q", c.DockerImage)
+		res, err := c.pullImage(ctx, globals)
+		if res != nil || err != nil {
+			return res, err
+		}
+	} else {
+		logrus.Infof("Download of latest Docker image %q is disabled", c.DockerImage)
 	}
 
 	containerID, err := c.runContainer(ctx, volume, c.DockerImage)
@@ -99,14 +104,14 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Info("Waiting until PMM boots")
-	healthy := <-c.dockerFn.WaitForHealthyContainer(ctx, containerID)
+	healthy := <-c.docker.WaitForHealthyContainer(ctx, containerID)
 	if healthy.Error != nil {
 		return nil, healthy.Error
 	}
 
 	finalPassword := c.AdminPassword
 	if !c.SkipChangePassword && c.AdminPassword != defaultGrafanaAdminPassword {
-		err = c.dockerFn.ChangeServerPassword(ctx, containerID, c.AdminPassword)
+		err = c.docker.ChangeServerPassword(ctx, containerID, c.AdminPassword)
 		if err != nil {
 			if !errors.Is(err, docker.ErrPasswordChangeFailed) {
 				return nil, err
@@ -132,7 +137,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
 	}
 
-	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)
+	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.docker, ports, c.ContainerName, nil)
 	if err != nil {
 		return "", err
 	}
@@ -144,7 +149,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 
 // pullImage pulls a docker image and displays progress.
 func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
-	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
+	reader, err := c.docker.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +167,7 @@ func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFla
 
 func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result, error) {
 	p := tea.NewProgram(progress.NewSize())
-	doneC, errC := c.dockerFn.ParsePullImageProgress(reader, p)
+	doneC, errC := c.docker.ParsePullImageProgress(reader, p)
 	go func() {
 		<-doneC
 		p.Send(tea.Quit())

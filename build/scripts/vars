@@ -44,8 +44,10 @@ binary_dir=${root_dir}/tmp/binary/pmm2-client-${pmm_version}
 client_properties=${root_dir}/results/pmm-client.properties
 docker_tag_file=${root_dir}/results/docker/TAG
 docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
+docker_server_upgrade_tag_file=${root_dir}/results/docker/SERVER_UPGRADE_TAG
 docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
 docker_client_tarball=${root_dir}/results/docker/pmm2-client-${pmm_version}.docker
+docker_server_upgrade_tarball=${root_dir}/results/docker/pmm-server-upgrade-${pmm_version}.docker
 source_tarball=${root_dir}/results/source_tarball/pmm2-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm2-client-${pmm_version}.tar.gz
 

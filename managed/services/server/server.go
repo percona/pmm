@@ -35,17 +35,23 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/updatepb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
+
+const updaterSocketPath = "/srv/pmm-server-upgrade.sock"
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
@@ -263,6 +269,7 @@ func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.Che
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
+	legacyUpdatesDisabled := s.envSettings.DisableLegacyUpdates
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
@@ -289,8 +296,9 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
-		UpdateAvailable: v.UpdateAvailable,
-		LatestNewsUrl:   v.LatestNewsURL,
+		UpdateAvailable:    v.UpdateAvailable,
+		LatestNewsUrl:      v.LatestNewsURL,
+		PmmUpdateAvailable: !legacyUpdatesDisabled,
 	}
 
 	if updatesDisabled {
@@ -309,7 +317,45 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
+	// TODO: when checking if pmm-server-upgrade is available, we only check if it's running.
+	// Once pmm-update is removed and we stop distributing rpm packages, we shall add this check
+	// to pmm-server-upgrade.
+	if res.UpdateAvailable {
+		available, err := s.isUpdaterAvailable(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		res.ServerUpgradeServiceAvailable = available
+	}
+
 	return res, nil
+}
+
+func (s *Server) isUpdaterAvailable(ctx context.Context) (bool, error) {
+	ctxConn, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	conn, err := s.getGRPCConnection(ctxConn)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return false, nil
+		}
+
+		return false, err
+	}
+	defer conn.Close()
+
+	c := updatepb.NewStatusClient(conn)
+
+	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	if _, err := c.Available(ctxAPI, &updatepb.AvailableRequest{}); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // StartUpdate starts PMM Server update.
@@ -320,6 +366,26 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 	if updatesDisabled {
 		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+	}
+
+	switch req.Method {
+	case serverpb.UpdateMethod_PMM_UPDATE:
+		return s.startUpdateViaPMMUpdate()
+	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
+		return s.startUpdateViaServerUpgrade(ctx)
+	default:
+		s.l.Warn("Update method has not been provided in the API call. Defaulting to PMM Update.")
+		return s.startUpdateViaPMMUpdate()
+	}
+}
+
+func (s *Server) startUpdateViaPMMUpdate() (*serverpb.StartUpdateResponse, error) {
+	s.envRW.RLock()
+	legacyUpdatesDisabled := s.envSettings.DisableLegacyUpdates
+	s.envRW.RUnlock()
+
+	if legacyUpdatesDisabled {
+		return nil, status.Error(codes.FailedPrecondition, "Legacy updates are disabled via DISABLE_LEGACY_UPDATES environment variable.")
 	}
 
 	offset, err := s.supervisord.StartUpdate()
@@ -338,8 +404,49 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	}, nil
 }
 
-// UpdateStatus returns PMM Server update status.
+func (s *Server) startUpdateViaServerUpgrade(ctx context.Context) (*serverpb.StartUpdateResponse, error) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := s.getGRPCConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	c := updatepb.NewUpdateClient(conn)
+
+	ctxAPI, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	res, err := c.StartUpdate(ctxAPI, &updatepb.StartUpdateRequest{ContainerId: hostname})
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverpb.StartUpdateResponse{
+		AuthToken: res.LogsToken,
+		LogOffset: 0,
+	}, nil
+}
+
+// UpdateStatus returns PMM Server update status from pmm-server-upgrade.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+	switch req.Method {
+	case serverpb.UpdateMethod_PMM_UPDATE:
+		return s.updateStatusViaPMMUpdate(ctx, req)
+	case serverpb.UpdateMethod_PMM_SERVER_UPGRADE:
+		return s.updateStatusViaServerUpgrade(ctx, req)
+	default:
+		s.l.Warn("Update method has not been provided in the API call. Defaulting to PMM Update.")
+		return s.updateStatusViaPMMUpdate(ctx, req)
+	}
+}
+
+// UpdateStatus returns PMM Server update status.
+func (s *Server) updateStatusViaPMMUpdate(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
 	token, err := s.readUpdateAuthToken()
 	if err != nil {
 		return nil, err
@@ -378,6 +485,55 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 		LogOffset: newOffset,
 		Done:      done,
 	}, nil
+}
+
+func (s *Server) updateStatusViaServerUpgrade(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+	conn, err := s.getGRPCConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	c := updatepb.NewUpdateClient(conn)
+
+	// The request can wait for up to 30 seconds before returning
+	ctxAPI, cancel := context.WithTimeout(ctx, 35*time.Second)
+	defer cancel()
+
+	res, err := c.UpdateStatus(ctxAPI, &updatepb.UpdateStatusRequest{
+		LogsToken: req.AuthToken,
+		Offset:    req.LogOffset,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverpb.UpdateStatusResponse{
+		LogLines:  res.Lines,
+		LogOffset: res.Offset,
+		Done:      res.Done,
+	}, nil
+}
+
+func (s *Server) getGRPCConnection(ctx context.Context) (*grpc.ClientConn, error) {
+	backoffConfig := backoff.DefaultConfig
+	backoffConfig.MaxDelay = 10 * time.Second
+	opts := []grpc.DialOption{
+		grpc.WithBlock(), // Dial blocks, we do not connect in background.
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff:           backoffConfig,
+			MinConnectTimeout: 10 * time.Second,
+		}),
+		grpc.WithUserAgent("pmm-managed/" + version.Version),
+	}
+
+	conn, err := grpc.DialContext(ctx, "unix:"+updaterSocketPath, opts...)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to connect to pmm-server-upgrade API: %v", err)
+	}
+
+	return conn, nil
 }
 
 // writeUpdateAuthToken writes authentication token for getting update status and logs to the file.

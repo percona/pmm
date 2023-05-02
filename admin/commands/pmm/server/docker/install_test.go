@@ -32,7 +32,7 @@ func TestRunContainer(t *testing.T) {
 
 	t.Run("shall run container", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On(
@@ -40,7 +40,7 @@ func TestRunContainer(t *testing.T) {
 		).Return("container-id", nil)
 
 		c := InstallCommand{
-			dockerFn:      m,
+			docker:        m,
 			ContainerName: "my-container",
 		}
 		containerID, err := c.runContainer(context.Background(), &types.Volume{}, "docker-image")
@@ -56,7 +56,7 @@ func TestRunCmd(t *testing.T) {
 	t.Run("shall run command successfully", func(t *testing.T) {
 		t.Parallel()
 
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -70,29 +70,29 @@ func TestRunCmd(t *testing.T) {
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
-			dockerFn:      m,
+			docker:        m,
 			AdminPassword: "admin123",
 			VolumeName:    "volume-name",
 			DockerImage:   "docker-image",
 			ContainerName: "container-name",
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.NoError(t, err)
 	})
 
 	t.Run("shall return error without Docker access", func(t *testing.T) {
 		t.Parallel()
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(false)
 
-		c := InstallCommand{dockerFn: m}
+		c := InstallCommand{docker: m}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.Error(t, err)
 	})
@@ -100,7 +100,7 @@ func TestRunCmd(t *testing.T) {
 	t.Run("shall skip password change", func(t *testing.T) {
 		t.Parallel()
 
-		m := &MockFunctions{}
+		m := &mockContainerManager{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -113,7 +113,7 @@ func TestRunCmd(t *testing.T) {
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
-			dockerFn:           m,
+			docker:             m,
 			AdminPassword:      "admin123",
 			VolumeName:         "volume-name",
 			DockerImage:        "docker-image",
@@ -121,7 +121,7 @@ func TestRunCmd(t *testing.T) {
 			SkipChangePassword: true,
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{GlobalFlagsBase: flags.GlobalFlagsBase{JSON: true}})
 
 		require.NoError(t, err)
 	})
@@ -134,7 +134,7 @@ func TestInstallResult(t *testing.T) {
 	require.NotEmpty(t, r.String())
 }
 
-func setWaitForHealthyContainerMock(m *MockFunctions) {
+func setWaitForHealthyContainerMock(m *mockContainerManager) {
 	ch := func() <-chan docker.WaitHealthyResponse {
 		c := make(chan docker.WaitHealthyResponse)
 		close(c)

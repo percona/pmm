@@ -129,6 +129,9 @@ main() {
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
     
+    # Do not ship pmm-server-upgrade with the client
+    rm -f "${binary_dir}/bin/pmm-server-upgrade"
+
     # Removes pmm binary in case this is not a PR build - such as RC/GA build
     if [[ "$(basename ${root_dir})" != pmm2-submodules_PR-* ]]; then
         rm -f "${binary_dir}/bin/pmm"
