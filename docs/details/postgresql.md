@@ -7,7 +7,7 @@ You can use an external PostgreSQL database instance outside the PMM Server cont
 PMM predefines certain flags that allow you to use PostgreSQL parameters as environment variables:
 
 !!! caution alert alert-warning "Warning"
-The `PERCONA_TEST_*` environment variables are experimental and subject to change. It is recommended that you use these variables for testing purposes only and not on production. The minimum supported PostgreSQL server version is 14.
+    The `PERCONA_TEST_*` environment variables are experimental and subject to change. It is recommended that you use these variables for testing purposes only and not on production. The minimum supported PostgreSQL server version is 14.
 
 To use PostgreSQL as an external database instance, use the following environment variables:
 

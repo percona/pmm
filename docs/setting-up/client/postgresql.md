@@ -228,7 +228,7 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory* → {{icon.addinstance}} *Add Service*.
 
 2. Select *PostgreSQL -- Add a remote instance*.
 
@@ -236,11 +236,11 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 4. Click *Add service*.
 
-![!](../../_images/PMM_Add_Instance_PostgreSQL.jpg)
+![!](../../_images/PMM_Add_Instance_PostgreSQL.png)
 
 If your PostgreSQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
 
-![!](../../_images/PMM_Add_Instance_PostgreSQL_TLS.jpg)
+![!](../../_images/PMM_Add_Instance_PostgreSQL_TLS.png)
 
 !!! hint alert alert-success "Note"
     For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. (See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].)
@@ -314,11 +314,9 @@ where:
 
 ### Check service - PMM user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*.
-
-2. Look in the *Services* tab for a matching *Service Type* (PostgreSQL), *Service name*, *Addresses*, and any other details entered in the form.
-
-3. Look in the *Agents* tab to check the desired data source is being used.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+2. In the *Services* tab, verify the *Service name*, *Address* and any other relevant details.
+3. In the *Options* column, expand the *Details* section and check that the Agents are using the desired data source.
 
 ### Check service - Command line
 

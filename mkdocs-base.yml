@@ -92,7 +92,7 @@ plugins:
   with-pdf:
     output_path: '_pdf/PerconaMonitoringAndManagement-2.36.0.pdf'
     cover_title: 'Percona Monitoring and Management Documentation'
-    cover_subtitle: 2.36.0 (Mar 23, 2023)
+    cover_subtitle: 2.37.0 (May 02, 2023)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/Percona_Logo_Color.png
     custom_template_path: _resources/templates
@@ -208,6 +208,10 @@ nav:
                   - details/dashboards/dashboard-advanced-data-exploration.md
                   - details/dashboards/dashboard-victoriametrics.md
                   - details/dashboards/dashboard-victoriametrics-agents-overview.md
+              - Kubernetes:
+                  - details/dashboards/kubernetes_cluster_summary.md
+                  - details/dashboards/kubernetes_pods_status.md
+                  - details/dashboards/kubernetes_volume.md
               - PMM Inventory:
                   - details/dashboards/dashboard-inventory.md
                   - details/dashboards/dashboard-env-overview.md
@@ -304,6 +308,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.37.0": release-notes/2.37.0.md
       - "PMM 2.36.0": release-notes/2.36.0.md
       - "PMM 2.35.0": release-notes/2.35.0.md
       - "PMM 2.34.0": release-notes/2.34.0.md

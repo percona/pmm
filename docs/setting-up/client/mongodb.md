@@ -198,7 +198,7 @@ When you have configured your database server, you can add a MongoDB service wit
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
 
 2. Select *MongoDB -- Add a remote instance*.
 
@@ -206,7 +206,7 @@ When you have configured your database server, you can add a MongoDB service wit
 
 4. Click *Add service*.
 
-![!](../../_images/PMM_Add_Instance_MongoDB.jpg)
+![!](../../_images/PMM_Add_Instance_MongoDB.png)
 
 ### On the command line
 
@@ -268,11 +268,11 @@ where:
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory list*.
-2. Look in the *Services* tab for a matching *Service Type* (MongoDB), *Service name*, *Addresses*, and any other values used when adding the service.
-3. Look in the *Agents* tab to check the desired data source is being used.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+2. In the *Services* tab, verify the *Service name*, *Addresses*, and any other relevant values used when adding the service.
+3. In the *Options* column, expand the *Details* section and check that the Agents are using the desired data source.
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** check box and fill in TLS certificates and keys.
-    1. If you use TLS, the authentication mechanism is automatically set to `MONGODB-X509`.
+If you use TLS, the authentication mechanism is automatically set to `MONGODB-X509`.
 
 ![!](../../_images/PMM_Add_Instance_MongoDB_TLS.jpg)
 
@@ -300,7 +300,7 @@ pmm-admin inventory list services --service-type=mongodb
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.inventory}} *Inventory List*.
+1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
 2. In the first column, click the tick box for the service you want to remove.
 3. Click <i class="uil uil-trash-alt"></i> *Delete*.
 4. On the *Confirm action* dialog window:
