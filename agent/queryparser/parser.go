@@ -19,31 +19,17 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"sync"
 )
 
 var (
-	allStringsRegexp           *regexp.Regexp
-	braceletsRegexp            *regexp.Regexp
-	braceletsMultiformRegexp   *regexp.Regexp
-	decimalsPlaceholdersRegexp *regexp.Regexp
-
-	once sync.Once
+	allStringsRegexp           = regexp.MustCompile(`'.*?'|".*?"`)
+	braceletsRegexp            = regexp.MustCompile(`\(.*?\)`)
+	braceletsMultiformRegexp   = regexp.MustCompile(`\(\?\+\)|\(\.\.\.\)`)
+	decimalsPlaceholdersRegexp = regexp.MustCompile(`:\d+`)
 )
-
-func prepareRegexps() {
-	once.Do(func() {
-		allStringsRegexp = regexp.MustCompile(`'.*?'|".*?"`)
-		braceletsRegexp = regexp.MustCompile(`\(.*?\)`)
-		braceletsMultiformRegexp = regexp.MustCompile(`\(\?\+\)|\(\.\.\.\)`)
-		decimalsPlaceholdersRegexp = regexp.MustCompile(`:\d+`)
-	})
-}
 
 // GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
 func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
-	prepareRegexps()
-
 	queryWithoutStrings := allStringsRegexp.ReplaceAllString(query, "")
 	contents := make(map[int]string)
 	bracelets := braceletsRegexp.FindAllString(queryWithoutStrings, -1)
@@ -76,7 +62,5 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 // GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
 // to make it compatible with sql.Query functions.
 func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) (string, error) {
-	prepareRegexps()
-
 	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?"), nil
 }
