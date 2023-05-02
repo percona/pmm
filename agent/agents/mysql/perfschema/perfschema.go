@@ -335,17 +335,13 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if esh.SQLText != nil {
-				explainFingerprint, placeholdersCount, err := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
-				if err != nil {
-					m.l.Debugf("cannot parse query: %s", *esh.SQLText)
-				} else {
-					explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
-					if truncated {
-						b.Common.IsTruncated = truncated
-					}
-					b.Common.ExplainFingerprint = explainFingerprint
-					b.Common.PlaceholdersCount = placeholdersCount
+				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
+				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
+				if truncated {
+					b.Common.IsTruncated = truncated
 				}
+				b.Common.ExplainFingerprint = explainFingerprint
+				b.Common.PlaceholdersCount = placeholdersCount
 
 				if !m.disableQueryExamples {
 					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
