@@ -23,8 +23,8 @@ import (
 )
 
 var (
-	removeStringsRegexp *regexp.Regexp
-	errRemoveStrings    error
+	allStringsRegexp *regexp.Regexp
+	errAllStrings    error
 
 	braceletsRegexp *regexp.Regexp
 	errBracelets    error
@@ -32,27 +32,43 @@ var (
 	braceletsMultiformRegexp *regexp.Regexp
 	errBraceletsMultiform    error
 
+	decimalsPlaceholdersRegexp *regexp.Regexp
+	errDecimalsPlaceholders    error
+
 	once sync.Once
 )
 
-// GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
-func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
+func prepareRegexps() error {
 	once.Do(func() {
-		removeStringsRegexp, errRemoveStrings = regexp.Compile(`'.*?'|".*?"`)
+		allStringsRegexp, errAllStrings = regexp.Compile(`'.*?'|".*?"`)
 		braceletsRegexp, errBracelets = regexp.Compile(`\(.*?\)`)
 		braceletsMultiformRegexp, errBraceletsMultiform = regexp.Compile(`\(\?\+\)|\(\.\.\.\)`)
+		decimalsPlaceholdersRegexp, errDecimalsPlaceholders = regexp.Compile(`:\d+`)
 	})
-	if errRemoveStrings != nil {
-		return "", 0, errRemoveStrings
+	if errAllStrings != nil {
+		return errAllStrings
 	}
 	if errBracelets != nil {
-		return "", 0, errBracelets
+		return errBracelets
 	}
 	if errBraceletsMultiform != nil {
-		return "", 0, errBraceletsMultiform
+		return errBraceletsMultiform
+	}
+	if errDecimalsPlaceholders != nil {
+		return errDecimalsPlaceholders
 	}
 
-	queryWithoutStrings := removeStringsRegexp.ReplaceAllString(query, "")
+	return nil
+}
+
+// GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
+func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
+	err := prepareRegexps()
+	if err != nil {
+		return "", 0, err
+	}
+
+	queryWithoutStrings := allStringsRegexp.ReplaceAllString(query, "")
 	contents := map[int]string{}
 	bracelets := braceletsRegexp.FindAllString(queryWithoutStrings, -1)
 	for k, v := range bracelets {
@@ -79,4 +95,15 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 	}
 
 	return result, uint32(count), nil
+}
+
+// GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
+// to make it compatible with sql.Query functions.
+func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) (string, error) {
+	err := prepareRegexps()
+	if err != nil {
+		return "", err
+	}
+
+	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?"), nil
 }

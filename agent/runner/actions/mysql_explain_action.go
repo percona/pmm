@@ -26,6 +26,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/sqlrows"
@@ -86,6 +87,12 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(a.params.Query) {
 		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
+	}
+
+	var err error
+	a.params.Query, err = queryparser.GetMySQLFingerprintFromExplainFingerprint(a.params.Query)
+	if err != nil {
+		return nil, err
 	}
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
