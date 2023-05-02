@@ -485,8 +485,8 @@ func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	return variant.String()
 }
 
-// NodeTypes maps protobuf types to their string types.
-var NodeTypes = map[inventorypb.NodeType]models.NodeType{
+// nodeTypes maps protobuf types to their string types.
+var nodeTypes = map[inventorypb.NodeType]models.NodeType{
 	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
 	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
 	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
@@ -498,7 +498,7 @@ func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
 	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
 		return nil
 	}
-	result := NodeTypes[nodeType]
+	result := nodeTypes[nodeType]
 	return &result
 }
 

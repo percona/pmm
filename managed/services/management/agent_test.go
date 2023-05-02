@@ -106,7 +106,7 @@ func TestAgentService(t *testing.T) {
 				NodeID: models.PMMServerNodeID,
 			})
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, services, 1)
 			service := services[0]
 
@@ -162,7 +162,7 @@ func TestAgentService(t *testing.T) {
 				},
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, agents, response.Agents)
 		})
 
@@ -175,7 +175,6 @@ func TestAgentService(t *testing.T) {
 				Address:  "test-address",
 				Region:   pointer.ToString("test-region"),
 			})
-			// node, err: = AddRemoteRDSNode
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -213,7 +212,7 @@ func TestAgentService(t *testing.T) {
 					Status:      "UNKNOWN",
 				},
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, agents, response.Agents)
 		})
 
