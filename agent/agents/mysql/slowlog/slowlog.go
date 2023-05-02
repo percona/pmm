@@ -434,7 +434,7 @@ func makeBuckets(
 		}
 
 		if q != "" {
-			explainFingerprint, placeholdersCount, err := fingerprints.GetMySQLFingerprintPlaceholders(fingerprint)
+			explainFingerprint, placeholdersCount, err := fingerprints.GetMySQLFingerprintPlaceholders(q, fingerprint)
 			if err != nil {
 				l.Debugf("cannot parse query: %s", v.Example.Query)
 			} else {

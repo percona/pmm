@@ -335,7 +335,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if esh.SQLText != nil {
-				explainFingerprint, placeholdersCount, err := fingerprints.GetMySQLFingerprintPlaceholders(b.Common.Fingerprint)
+				explainFingerprint, placeholdersCount, err := fingerprints.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
 				if err != nil {
 					m.l.Debugf("cannot parse query: %s", *esh.SQLText)
 				} else {
