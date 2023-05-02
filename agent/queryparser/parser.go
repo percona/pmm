@@ -94,7 +94,7 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 		result = strings.Replace(result, "?", fmt.Sprintf(":%d", count), 1)
 	}
 
-	return result, count, nil
+	return strings.TrimSpace(result), count, nil
 }
 
 // GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
