@@ -39,7 +39,7 @@ import (
 
 var now time.Time
 
-func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) { //nolint:unparam
+func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 	t.Helper()
 
 	now = models.Now()
