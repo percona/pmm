@@ -26,14 +26,7 @@ test.describe('PMM Server Install tests', async () => {
         --container-name=${containerName}
         --volume-name=${volumeName}`);
     await output.assertSuccess();
-
-    await expect(async () => {
-      expect(output.stderr).toContain('Starting PMM Server');
-    }).toPass({
-      // Probe, wait 1s, probe, wait 2s, probe, wait 2s, probe, wait 2s, probe, ....
-      intervals: [1_000, 2_000, 2_000],
-      timeout: 20_000,
-    });
+    expect(output.stderr).toContain('Starting PMM Server');
 
     // verify --http-listen-port
     await (new PMMRestClient('admin', adminPassword, 1080)).works();
@@ -50,14 +43,14 @@ test.describe('PMM Server Install tests', async () => {
 
     // verify --container-name
     output = await cli.exec('docker ps --format="{{.Names}}"');
-    expect(output.getStdOutLines()).toContainEqual(containerName);
+    await output.outHasLine(containerName);
 
     // verify --volume-name
     output = await cli.exec('docker volume ls --format="{{.Name}}"');
-    await output.outContains(volumeName);
+    await output.outHasLine(volumeName);
 
     // verify --docker-image
     output = await cli.exec('docker ps --format="{{.Names}} {{.Image}}"');
-    await output.outContains(`${containerName} ${imageName}`);
+    await output.outHasLine(`${containerName} ${imageName}`);
   });
 });

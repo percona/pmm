@@ -13,6 +13,10 @@ class Output {
     this.stderr = stdErr;
   }
 
+  getStdOutLines(): string[] {
+    return this.stdout.trim().split('\n').filter((item) => item.trim().length > 0);
+  }
+
   async assertSuccess() {
     await test.step(`Verify "${this.command}" command executed successfully`, async () => {
       expect(this.code, `"${this.command}" expected to exit with 0!\nStdout: ${this.stdout}\nStderr: "${this.stderr}"`).toEqual(0);
@@ -27,14 +31,14 @@ class Output {
 
   async outContains(expectedValue: string) {
     await test.step(`Verify command output contains ${expectedValue}`, async () => {
-      expect(this.stdout, `Stdout does not contain ${expectedValue}!`).toContain(expectedValue);
+      expect(this.stdout, `Stdout should contain ${expectedValue}!`).toContain(expectedValue);
     });
   }
 
   async outContainsMany(expectedValues: string[]) {
     for (const val of expectedValues) {
       await test.step(`Verify command output contains ${val}`, async () => {
-        expect.soft(this.stdout, `Stdout does not contain '${val}'!`).toContain(val);
+        expect.soft(this.stdout, `Stdout should contain '${val}'`).toContain(val);
       });
     }
     expect(
@@ -43,9 +47,12 @@ class Output {
     ).toHaveLength(0);
   }
 
-  getStdOutLines(): string[] {
-    return this.stdout.trim().split('\n').filter((item) => item.trim().length > 0);
+  async outHasLine(expectedValue: string) {
+    await test.step(`Verify command output has line: '${expectedValue}'`, async () => {
+      expect(this.getStdOutLines(), `Stdout must have line: '${expectedValue}'`).toContainEqual(expectedValue);
+    });
   }
+
   private getErrors(): string {
     const errors: string[] = [];
     for (const obj of test.info().errors) {
