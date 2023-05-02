@@ -23,50 +23,26 @@ import (
 )
 
 var (
-	allStringsRegexp *regexp.Regexp
-	errAllStrings    error
-
-	braceletsRegexp *regexp.Regexp
-	errBracelets    error
-
-	braceletsMultiformRegexp *regexp.Regexp
-	errBraceletsMultiform    error
-
+	allStringsRegexp           *regexp.Regexp
+	braceletsRegexp            *regexp.Regexp
+	braceletsMultiformRegexp   *regexp.Regexp
 	decimalsPlaceholdersRegexp *regexp.Regexp
-	errDecimalsPlaceholders    error
 
 	once sync.Once
 )
 
-func prepareRegexps() error {
+func prepareRegexps() {
 	once.Do(func() {
-		allStringsRegexp, errAllStrings = regexp.Compile(`'.*?'|".*?"`)
-		braceletsRegexp, errBracelets = regexp.Compile(`\(.*?\)`)
-		braceletsMultiformRegexp, errBraceletsMultiform = regexp.Compile(`\(\?\+\)|\(\.\.\.\)`)
-		decimalsPlaceholdersRegexp, errDecimalsPlaceholders = regexp.Compile(`:\d+`)
+		allStringsRegexp = regexp.MustCompile(`'.*?'|".*?"`)
+		braceletsRegexp = regexp.MustCompile(`\(.*?\)`)
+		braceletsMultiformRegexp = regexp.MustCompile(`\(\?\+\)|\(\.\.\.\)`)
+		decimalsPlaceholdersRegexp = regexp.MustCompile(`:\d+`)
 	})
-	if errAllStrings != nil {
-		return errAllStrings
-	}
-	if errBracelets != nil {
-		return errBracelets
-	}
-	if errBraceletsMultiform != nil {
-		return errBraceletsMultiform
-	}
-	if errDecimalsPlaceholders != nil {
-		return errDecimalsPlaceholders
-	}
-
-	return nil
 }
 
 // GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
 func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
-	err := prepareRegexps()
-	if err != nil {
-		return "", 0, err
-	}
+	prepareRegexps()
 
 	queryWithoutStrings := allStringsRegexp.ReplaceAllString(query, "")
 	contents := make(map[int]string)
@@ -100,10 +76,7 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 // GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
 // to make it compatible with sql.Query functions.
 func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) (string, error) {
-	err := prepareRegexps()
-	if err != nil {
-		return "", err
-	}
+	prepareRegexps()
 
 	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?"), nil
 }
