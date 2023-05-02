@@ -36,7 +36,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
-	"github.com/percona/pmm/agent/fingerprints"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -434,7 +434,7 @@ func makeBuckets(
 		}
 
 		if q != "" {
-			explainFingerprint, placeholdersCount, err := fingerprints.GetMySQLFingerprintPlaceholders(q, fingerprint)
+			explainFingerprint, placeholdersCount, err := queryparser.GetMySQLFingerprintPlaceholders(q, fingerprint)
 			if err != nil {
 				l.Debugf("cannot parse query: %s", v.Example.Query)
 			} else {
