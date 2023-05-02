@@ -19,49 +19,64 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
+)
+
+var (
+	removeStringsRegexp *regexp.Regexp
+	errRemoveStrings    error
+
+	braceletsRegexp *regexp.Regexp
+	errBracelets    error
+
+	braceletsMultiformRegexp *regexp.Regexp
+	errBraceletsMultiform    error
+
+	once sync.Once
 )
 
 // GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
 func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
-	r, err := regexp.Compile(`'.*?'|".*?"`)
-	if err != nil {
-		return "", 0, err
+	once.Do(func() {
+		removeStringsRegexp, errRemoveStrings = regexp.Compile(`'.*?'|".*?"`)
+		braceletsRegexp, errBracelets = regexp.Compile(`\(.*?\)`)
+		braceletsMultiformRegexp, errBraceletsMultiform = regexp.Compile(`\(\?\+\)|\(\.\.\.\)`)
+	})
+	if errRemoveStrings != nil {
+		return "", 0, errRemoveStrings
 	}
-	res := r.ReplaceAllString(query, "")
-
-	r2, err := regexp.Compile(`\(.*?\)`)
-	if err != nil {
-		return "", 0, err
+	if errBracelets != nil {
+		return "", 0, errBracelets
+	}
+	if errBraceletsMultiform != nil {
+		return "", 0, errBraceletsMultiform
 	}
 
-	new := map[int]string{}
-	rs := r2.FindAllString(res, -1)
-	for k, v := range rs {
+	queryWithoutStrings := removeStringsRegexp.ReplaceAllString(query, "")
+	contents := map[int]string{}
+	bracelets := braceletsRegexp.FindAllString(queryWithoutStrings, -1)
+	for k, v := range bracelets {
 		count := strings.Count(v, ",")
-		new[k] = fmt.Sprintf("(%s?)", strings.Repeat("?, ", count))
-	}
-	r3, err := regexp.Compile(`\(\?\+\)|\(\.\.\.\)`)
-	if err != nil {
-		return "", 0, err
+		contents[k] = fmt.Sprintf("(%s?)", strings.Repeat("?, ", count))
 	}
 
 	i := 0
-	rs2 := r3.ReplaceAllStringFunc(digestText, func(s string) string {
-		val := new[i]
+	result := braceletsMultiformRegexp.ReplaceAllStringFunc(digestText, func(s string) string {
+		c := contents[i]
 		i++
-		return val
+		return c
 	})
 
 	var count uint32
 	for {
-		i := strings.Index(rs2, "?")
-		if i == -1 {
+		index := strings.Index(result, "?")
+		if index == -1 {
 			break
 		}
 
 		count++
-		rs2 = strings.Replace(rs2, "?", fmt.Sprintf(":%d", count), 1)
+		result = strings.Replace(result, "?", fmt.Sprintf(":%d", count), 1)
 	}
 
-	return rs2, uint32(count), nil
+	return result, uint32(count), nil
 }

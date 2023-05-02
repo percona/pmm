@@ -31,7 +31,7 @@ type test struct {
 func TestMySQL(t *testing.T) {
 	sqls := []test{
 		{
-			Query:                     "SELECT `city` . `CountryCode` , `city` . `Name` FROM `world` . `city` WHERE NAME IN ('?? ??? (...)', \"(?+)\") LIMIT ?",
+			Query:                     "SELECT `city` . `CountryCode` , `city` . `Name` FROM `world` . `city` WHERE NAME IN ('? ? ??? (...)', \"(?+)\") LIMIT ?",
 			DigestText:                "SELECT `city` . `CountryCode` , `city` . `Name` FROM `world` . `city` WHERE NAME IN (...) LIMIT ?",
 			ExpectedFingerprint:       "SELECT `city` . `CountryCode` , `city` . `Name` FROM `world` . `city` WHERE NAME IN (:1, :2) LIMIT :3",
 			ExpectedPlaceHoldersCount: 3,
