@@ -69,7 +69,7 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 	}
 
 	queryWithoutStrings := allStringsRegexp.ReplaceAllString(query, "")
-	contents := map[int]string{}
+	contents := make(map[int]string)
 	bracelets := braceletsRegexp.FindAllString(queryWithoutStrings, -1)
 	for k, v := range bracelets {
 		count := strings.Count(v, ",")
