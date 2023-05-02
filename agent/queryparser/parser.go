@@ -29,7 +29,7 @@ var (
 )
 
 // GetMySQLFingerprintPlaceholders parse query and digest text and return fingerprint and placeholders count.
-func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, error) {
+func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32) {
 	queryWithoutStrings := allStringsRegexp.ReplaceAllString(query, "")
 	contents := make(map[int]string)
 	bracelets := braceletsRegexp.FindAllString(queryWithoutStrings, -1)
@@ -56,11 +56,11 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32, 
 		result = strings.Replace(result, "?", fmt.Sprintf(":%d", count), 1)
 	}
 
-	return strings.TrimSpace(result), count, nil
+	return strings.TrimSpace(result), count
 }
 
 // GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
 // to make it compatible with sql.Query functions.
-func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) (string, error) {
-	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?"), nil
+func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) string {
+	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?")
 }

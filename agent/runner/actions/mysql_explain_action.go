@@ -89,11 +89,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
 	}
 
-	var err error
-	a.params.Query, err = queryparser.GetMySQLFingerprintFromExplainFingerprint(a.params.Query)
-	if err != nil {
-		return nil, err
-	}
+	a.params.Query = queryparser.GetMySQLFingerprintFromExplainFingerprint(a.params.Query)
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.

@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 type test struct {
@@ -75,8 +74,7 @@ func TestMySQL(t *testing.T) {
 	}
 
 	for _, sql := range sqls {
-		query, placeholdersCount, err := GetMySQLFingerprintPlaceholders(sql.Query, sql.DigestText)
-		require.NoError(t, err)
+		query, placeholdersCount := GetMySQLFingerprintPlaceholders(sql.Query, sql.DigestText)
 		assert.Equal(t, sql.ExpectedFingerprint, query)
 		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
 	}
