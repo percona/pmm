@@ -50,11 +50,6 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
-  staticcheck:
-    checks:
-      - all
-      - "-SA1019"
-
   tagliatelle:
     # Check the struck tag name case.
     case:
