@@ -18,6 +18,8 @@ package backup
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -79,6 +81,14 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 
 	if req.RetryInterval.AsDuration() > maxRetryInterval {
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
+	}
+
+	if err := isPathSafe(req.Folder); err != nil {
+		return nil, err
+	}
+
+	if err := isNameSafe(req.Name); err != nil {
+		return nil, err
 	}
 
 	dataModel, err := convertModelToBackupModel(req.DataModel)
@@ -156,6 +166,14 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 
 	if req.RetryInterval.AsDuration() > maxRetryInterval {
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
+	}
+
+	if err := isPathSafe(req.Folder); err != nil {
+		return nil, err
+	}
+
+	if err := isNameSafe(req.Name); err != nil {
+		return nil, err
 	}
 
 	mode, err := convertBackupModeToModel(req.Mode)
@@ -726,6 +744,35 @@ func convertModelError(modelError error) error {
 	default:
 		return modelError
 	}
+}
+
+// isPathSafe checks if specified path is safe against traversal attacks.
+func isPathSafe(path string) error {
+	if path == "" {
+		return nil
+	}
+
+	canonical := filepath.Clean(path)
+	if canonical != path {
+		return status.Errorf(codes.InvalidArgument, "Specified folder in non-canonical format, canonical would be: %q.", canonical)
+	}
+
+	if strings.HasPrefix(path, "/") {
+		return status.Error(codes.InvalidArgument, "Folder should be a relative path (shouldn't contain leading slashes).")
+	}
+
+	if path == ".." || strings.HasPrefix(path, "../") {
+		return status.Error(codes.InvalidArgument, "Specified folder refers to a parent directory.")
+	}
+
+	return nil
+}
+
+func isNameSafe(name string) error {
+	if strings.Contains(name, "/") {
+		return status.Error(codes.InvalidArgument, "Backup name shouldn't be a path (shouldn't contain slashes).")
+	}
+	return nil
 }
 
 // Check interfaces.

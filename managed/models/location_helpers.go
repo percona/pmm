@@ -18,6 +18,7 @@ package models
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -66,6 +67,16 @@ func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 	if c.Path == "" {
 		return status.Error(codes.InvalidArgument, "PMM client config path field is empty.")
 	}
+
+	canonical := filepath.Clean(c.Path)
+	if canonical != c.Path {
+		return status.Errorf(codes.InvalidArgument, "Specified folder in non-canonical format, canonical would be: %q.", canonical)
+	}
+
+	if !strings.HasPrefix(c.Path, "/") {
+		return status.Error(codes.InvalidArgument, "Folder should be an absolute path (should contain leading slash).")
+	}
+
 	return nil
 }
 
