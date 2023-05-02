@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package fingerprints provides functionality for queries fingerprint and placeholders parsing.
-package fingerprints
+// Package queryparser provides functionality for queries fingerprint and placeholders parsing.
+package queryparser
 
 import (
 	"fmt"
