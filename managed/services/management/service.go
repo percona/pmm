@@ -232,8 +232,8 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}
 
-	metrics := make(map[string]statusMetrics, len(result.(model.Vector)))
-	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                             //nolint:forcetypeassert
 		serviceID := string(v.Metric[model.LabelName("service_id")])
 		serviceType := string(v.Metric[model.LabelName("service_type")])
 		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}

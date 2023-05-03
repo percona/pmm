@@ -969,11 +969,11 @@ func main() { //nolint:cyclop
 			select {
 			case s := <-terminationSignals:
 				signal.Stop(terminationSignals)
-				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				cancel()
 				return
 			case s := <-updateSignals:
-				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal)))
+				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				err := server.UpdateConfigurations(ctx)
 				if err != nil {
 					l.Warnf("Couldn't reload configuration: %s", err)
