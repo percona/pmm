@@ -69,7 +69,6 @@ var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"aurora":       managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.6-compatible Aurora
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
 		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
@@ -78,7 +77,6 @@ var (
 		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
 	}
 	rdsEnginesKeys = []*string{
-		pointer.ToString("aurora"),
 		pointer.ToString("aurora-mysql"),
 		pointer.ToString("mariadb"),
 		pointer.ToString("mysql"),
@@ -279,7 +277,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		if err != nil {
 			return err
 		}
-		res.Node = invNode.(*inventorypb.RemoteRDSNode)
+		res.Node = invNode.(*inventorypb.RemoteRDSNode) //nolint:forcetypeassert
 
 		// add RDSExporter Agent
 		if req.RdsExporter {
@@ -298,7 +296,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter)
+			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter) //nolint:forcetypeassert
 		}
 
 		switch req.Engine {
@@ -321,7 +319,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Mysql = invService.(*inventorypb.MySQLService)
+			res.Mysql = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -345,7 +343,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter)
+			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
@@ -373,7 +371,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent)
+				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 			}
 
 			return nil
@@ -397,7 +395,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Postgresql = invService.(*inventorypb.PostgreSQLService)
+			res.Postgresql = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -421,7 +419,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.PostgresqlExporter = invPostgresExporter.(*inventorypb.PostgresExporter)
+			res.PostgresqlExporter = invPostgresExporter.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
@@ -447,7 +445,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanPostgresqlPgstatements = invQANAgent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+				res.QanPostgresqlPgstatements = invQANAgent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 			}
 
 			return nil

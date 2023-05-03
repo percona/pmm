@@ -706,7 +706,7 @@ func (o *AddHAProxyOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddHAProxyParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddHAProxyParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddHAProxyParamsBodyAddNode
 */
 type AddHAProxyParamsBodyAddNode struct {

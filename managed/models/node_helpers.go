@@ -106,7 +106,7 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 
 	nodes := make([]*Node, len(structs))
 	for i, s := range structs {
-		nodes[i] = s.(*Node)
+		nodes[i] = s.(*Node) //nolint:forcetypeassert
 	}
 
 	return nodes, nil
@@ -148,7 +148,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 
 	res := make([]*Node, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Node)
+		res[i] = s.(*Node) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -262,7 +262,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
+				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
@@ -283,7 +283,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has pmm-agent.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
+				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
@@ -304,7 +304,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has services.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				serviceID := str.(*Service).ServiceID
+				serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
 				if err = RemoveService(q, serviceID, RemoveCascade); err != nil {
 					return err
 				}

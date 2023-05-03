@@ -167,7 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		require.Error(t, err)
-		assert.Regexp(t, `Error 1045 \(28000\): Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`, err.Error())
+		assert.Regexp(t, `Query to EXPLAIN is empty`, err.Error())
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
@@ -284,4 +284,34 @@ func TestMySQLExplain(t *testing.T) {
 			check(t)
 		})
 	})
+}
+
+func TestParseRealTableNameMySQL(t *testing.T) {
+	type testCase struct {
+		Query    string
+		Expected string
+	}
+
+	tests := []testCase{
+		{"SELECT;", ""},
+		{"SELECT `district` FROM `people`;", "people"},
+		{"SELECT `district` FROM `people`", "people"},
+		{"SELECT `district` FROM people", "people"},
+		{"SELECT name FROM people WHERE city = 'Paris'", "people"},
+		{"SELECT name FROM world.people WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "world.people"},
+		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "world.people"},
+		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "people"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Query, func(t *testing.T) {
+			assert.Equal(t, test.Expected, parseRealTableName(test.Query))
+		})
+	}
 }
