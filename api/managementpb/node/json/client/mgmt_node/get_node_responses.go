@@ -436,9 +436,6 @@ type GetNodeOKBodyNode struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
 
-	// List of agents related to this node.
-	Agents []*GetNodeOKBodyNodeAgentsItems0 `json:"agents"`
-
 	// Node status.
 	//
 	//  - STATUS_INVALID: Invalid status.
@@ -447,6 +444,9 @@ type GetNodeOKBodyNode struct {
 	//  - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// List of agents related to this node.
+	Agents []*GetNodeOKBodyNodeAgentsItems0 `json:"agents"`
 
 	// List of services running on this node.
 	Services []*GetNodeOKBodyNodeServicesItems0 `json:"services"`
@@ -464,11 +464,11 @@ func (o *GetNodeOKBodyNode) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateAgents(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateStatus(formats); err != nil {
+	if err := o.validateAgents(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -501,32 +501,6 @@ func (o *GetNodeOKBodyNode) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("getNodeOk"+"."+"node"+"."+"updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (o *GetNodeOKBodyNode) validateAgents(formats strfmt.Registry) error {
-	if swag.IsZero(o.Agents) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Agents); i++ {
-		if swag.IsZero(o.Agents[i]) { // not required
-			continue
-		}
-
-		if o.Agents[i] != nil {
-			if err := o.Agents[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
 	}
 
 	return nil
@@ -575,6 +549,32 @@ func (o *GetNodeOKBodyNode) validateStatus(formats strfmt.Registry) error {
 	// value enum
 	if err := o.validateStatusEnum("getNodeOk"+"."+"node"+"."+"status", "body", *o.Status); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBodyNode) validateAgents(formats strfmt.Registry) error {
+	if swag.IsZero(o.Agents) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Agents); i++ {
+		if swag.IsZero(o.Agents[i]) { // not required
+			continue
+		}
+
+		if o.Agents[i] != nil {
+			if err := o.Agents[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getNodeOk" + "." + "node" + "." + "agents" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

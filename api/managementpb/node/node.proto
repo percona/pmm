@@ -73,10 +73,10 @@ message UniversalNode {
   google.protobuf.Timestamp created_at = 13;
   // Last update timestamp.
   google.protobuf.Timestamp updated_at = 14;
-  // List of agents related to this node.
-  repeated Agent agents = 15;
   // The health status of the node.
-  Status status = 16;
+  Status status = 15;
+  // List of agents related to this node.
+  repeated Agent agents = 16;
   // List of services running on this node.
   repeated Service services = 17;
 }

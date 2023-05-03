@@ -143,6 +143,8 @@ func (m *UniversalNode) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Status
+
 	for idx, item := range m.GetAgents() {
 		_, _ = idx, item
 
@@ -176,8 +178,6 @@ func (m *UniversalNode) validate(all bool) error {
 		}
 
 	}
-
-	// no validation rules for Status
 
 	for idx, item := range m.GetServices() {
 		_, _ = idx, item

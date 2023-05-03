@@ -82,7 +82,7 @@
                           }
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "az": {
                       "description": "Node availability zone.",
@@ -184,7 +184,7 @@
                         "DOWN",
                         "UNKNOWN"
                       ],
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "updated_at": {
                       "description": "Last update timestamp.",
@@ -310,7 +310,7 @@
                             }
                           }
                         },
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "az": {
                         "description": "Node availability zone.",
@@ -412,7 +412,7 @@
                           "DOWN",
                           "UNKNOWN"
                         ],
-                        "x-order": 15
+                        "x-order": 14
                       },
                       "updated_at": {
                         "description": "Last update timestamp.",

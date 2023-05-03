@@ -155,8 +155,15 @@ func TestNodeService(t *testing.T) {
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {
+		now = models.Now()
+
 		setup := func(t *testing.T) (ctx context.Context, s *MgmtNodeService, teardown func(t *testing.T)) {
 			t.Helper()
+
+			origNowF := models.Now
+			models.Now = func() time.Time {
+				return now
+			}
 
 			ctx = logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
@@ -173,6 +180,7 @@ func TestNodeService(t *testing.T) {
 			s = NewMgmtNodeService(db, ar, vmClient)
 
 			teardown = func(t *testing.T) {
+				models.Now = origNowF
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())
@@ -187,7 +195,7 @@ func TestNodeService(t *testing.T) {
 			postgresqlServiceID = "/service_id/00000000-0000-4000-8000-000000000002"
 		)
 
-		t.Run("should output a list of all nodes, unfiltered", func(t *testing.T) {
+		t.Run("should output an unfiltered list of all nodes", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
@@ -222,8 +230,8 @@ func TestNodeService(t *testing.T) {
 						Region:        "",
 						Az:            "",
 						CustomLabels:  nil,
-						CreatedAt:     nil,
-						UpdatedAt:     nil,
+						CreatedAt:     timestamppb.New(now),
+						UpdatedAt:     timestamppb.New(now),
 						Agents: []*nodev1beta1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -307,8 +315,8 @@ func TestNodeService(t *testing.T) {
 						Region:        "",
 						Az:            "",
 						CustomLabels:  nil,
-						CreatedAt:     nil,
-						UpdatedAt:     nil,
+						CreatedAt:     timestamppb.New(now),
+						UpdatedAt:     timestamppb.New(now),
 						Agents: []*nodev1beta1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -341,14 +349,15 @@ func TestNodeService(t *testing.T) {
 	})
 
 	t.Run("GetNode", func(t *testing.T) {
-		now, origNowF := models.Now(), models.Now
-		models.Now = func() time.Time {
-			return now
-		}
+		now := models.Now()
 
 		setup := func(t *testing.T) (ctx context.Context, s *MgmtNodeService, teardown func(t *testing.T)) {
 			t.Helper()
 
+			origNowF := models.Now
+			models.Now = func() time.Time {
+				return now
+			}
 			ctx = logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
@@ -418,7 +427,7 @@ func TestNodeService(t *testing.T) {
 			assert.Equal(t, expected, node)
 		})
 
-		t.Run("should throw an error if the node with such node_id doesn't exist", func(t *testing.T) {
+		t.Run("should return an error if such node_id doesn't exist", func(t *testing.T) {
 			const nodeID = "00000000-0000-4000-8000-000000000000"
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
@@ -431,7 +440,7 @@ func TestNodeService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
 		})
 
-		t.Run("should throw an error if the node_id parameter is empty", func(t *testing.T) {
+		t.Run("should return an error if the node_id parameter is empty", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
 

@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -244,7 +243,7 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 	var agents []*models.Agent
 	var nodes []*models.Node
 
-	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, filters)
 		if err != nil {

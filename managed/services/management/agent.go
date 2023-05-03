@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -74,7 +73,7 @@ func (s *AgentService) listAgentsByServiceID(serviceID string) ([]*agentv1beta1.
 	var agents []*models.Agent
 	var service *models.Service
 
-	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(s.db.Querier.Context(), nil, func(tx *reform.TX) error {
 		var err error
 
 		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})

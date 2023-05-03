@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"math/rand"
 	"time"
@@ -179,7 +178,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 	var agents []*models.Agent
 	var services []*models.Service
 
-	errTX := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
 		nodes, err = models.FindNodes(s.db.Querier, filters)
@@ -260,11 +259,20 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 
 		uNode := &nodev1beta1.UniversalNode{
-			Address:      node.Address,
-			CustomLabels: labels,
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			NodeType:     string(node.NodeType),
+			Address:       node.Address,
+			CustomLabels:  labels,
+			NodeId:        node.NodeID,
+			NodeName:      node.NodeName,
+			NodeType:      string(node.NodeType),
+			Az:            node.AZ,
+			CreatedAt:     timestamppb.New(node.CreatedAt),
+			ContainerId:   pointer.GetString(node.ContainerID),
+			ContainerName: pointer.GetString(node.ContainerName),
+			Distro:        node.Distro,
+			MachineId:     pointer.GetString(node.MachineID),
+			NodeModel:     node.NodeModel,
+			Region:        pointer.GetString(node.Region),
+			UpdatedAt:     timestamppb.New(node.UpdatedAt),
 		}
 
 		if metric, ok := metrics[node.NodeID]; ok {

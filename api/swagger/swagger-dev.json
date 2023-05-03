@@ -28157,6 +28157,18 @@
                       "format": "date-time",
                       "x-order": 13
                     },
+                    "status": {
+                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                      "type": "string",
+                      "default": "STATUS_INVALID",
+                      "enum": [
+                        "STATUS_INVALID",
+                        "UP",
+                        "DOWN",
+                        "UNKNOWN"
+                      ],
+                      "x-order": 14
+                    },
                     "agents": {
                       "description": "List of agents related to this node.",
                       "type": "array",
@@ -28185,18 +28197,6 @@
                           }
                         }
                       },
-                      "x-order": 14
-                    },
-                    "status": {
-                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
-                      "type": "string",
-                      "default": "STATUS_INVALID",
-                      "enum": [
-                        "STATUS_INVALID",
-                        "UP",
-                        "DOWN",
-                        "UNKNOWN"
-                      ],
                       "x-order": 15
                     },
                     "services": {
@@ -28385,6 +28385,18 @@
                         "format": "date-time",
                         "x-order": 13
                       },
+                      "status": {
+                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "UP",
+                          "DOWN",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 14
+                      },
                       "agents": {
                         "description": "List of agents related to this node.",
                         "type": "array",
@@ -28413,18 +28425,6 @@
                             }
                           }
                         },
-                        "x-order": 14
-                      },
-                      "status": {
-                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
-                        "type": "string",
-                        "default": "STATUS_INVALID",
-                        "enum": [
-                          "STATUS_INVALID",
-                          "UP",
-                          "DOWN",
-                          "UNKNOWN"
-                        ],
                         "x-order": 15
                       },
                       "services": {
