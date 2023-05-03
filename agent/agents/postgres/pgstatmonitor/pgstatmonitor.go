@@ -388,17 +388,17 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	for _, row := range settingsRows {
 		if settingsValuesAreText {
 			if pgsmVersion >= pgStatMonitorVersion20PG12 {
-				setting := row.(*pgStatMonitorSettingsTextValue20)
+				setting := row.(*pgStatMonitorSettingsTextValue20) //nolint:forcetypeassert
 				settings[setting.Name] = &pgStatMonitorSettingsTextValue{
 					Name:  setting.Name,
 					Value: setting.Setting,
 				}
 			} else {
-				setting := row.(*pgStatMonitorSettingsTextValue)
+				setting := row.(*pgStatMonitorSettingsTextValue) //nolint:forcetypeassert
 				settings[setting.Name] = setting
 			}
 		} else {
-			setting := row.(*pgStatMonitorSettings)
+			setting := row.(*pgStatMonitorSettings) //nolint:forcetypeassert
 			name := setting.Name
 			settings[name] = &pgStatMonitorSettingsTextValue{
 				Name:  name,

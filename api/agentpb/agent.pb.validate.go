@@ -39,7 +39,7 @@ var (
 
 	_ = backupv1.DataModel(0)
 
-	_ = inventorypb.AgentType(0)
+	_ = inventorypb.AgentStatus(0)
 )
 
 // Validate checks the field values on TextFiles with the rules defined in the

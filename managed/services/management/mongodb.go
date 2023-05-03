@@ -73,7 +73,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MongoDBService)
+		res.Service = invService.(*inventorypb.MongoDBService) //nolint:forcetypeassert
 
 		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
 
@@ -109,7 +109,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
+		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -132,7 +132,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent)
+			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil
