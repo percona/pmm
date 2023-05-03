@@ -59,6 +59,8 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
+rm -rf $RPM_BUILD_ROOT
+
 %files
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
@@ -70,9 +72,6 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %pre
 getent group grafana >/dev/null || groupadd -r grafana
