@@ -49,7 +49,7 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
 	var err error
-	err = s.validateRequest(req)
+	err = s.validateListAgentRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +110,6 @@ func (s *AgentService) listAgentsByServiceID(serviceID string) ([]*agentv1beta1.
 
 // listAgentsByNodeID returns a list of Agents filtered by NodeID.
 func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
-	var agents []*models.Agent
-
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
 	if err != nil {
 		return nil, err
@@ -217,7 +215,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	return ua, nil
 }
 
-func (s *AgentService) validateRequest(req *agentv1beta1.ListAgentRequest) error {
+func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentRequest) error {
 	if req.ServiceId == "" && req.NodeId == "" {
 		return status.Error(codes.InvalidArgument, "either service_id or node_id is expected")
 	}

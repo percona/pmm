@@ -242,8 +242,8 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector)))
-	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
 		nodeID := string(v.Metric[model.LabelName("node_id")])
 		// Sometimes we may see several metrics for the same node, so we just take the first one.
 		if _, ok := metrics[nodeID]; !ok {
@@ -318,8 +318,8 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector)))
-	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
+	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
 		nodeID := string(v.Metric[model.LabelName("node_id")])
 		// Sometimes we may see several metrics for the same node, so we just take the first one.
 		if _, ok := metrics[nodeID]; !ok {
