@@ -28,7 +28,7 @@ import (
 var extractTablesRecover = true
 
 // ExtractTables extracts table names from query.
-func ExtractTables(query string) (tables []string, err error) {
+func ExtractTables(query string) (tables []string, err error) { //nolint:nonamedreturns
 	if extractTablesRecover {
 		defer func() {
 			if r := recover(); r != nil {

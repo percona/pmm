@@ -150,7 +150,7 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
+func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) { //nolint:nonamedreturns
 	var v string
 	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {

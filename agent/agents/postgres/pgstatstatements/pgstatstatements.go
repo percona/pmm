@@ -105,7 +105,7 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 	}, nil
 }
 
-func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) {
+func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) { //nolint:nonamedreturns
 	var v string
 	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
 	if err != nil {
@@ -209,7 +209,11 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int32) (current, prev statementsMap, err error) {
+func (m *PGStatStatementsQAN) getStatStatementsExtended( //nolint:nonamedreturns
+	ctx context.Context,
+	q *reform.Querier,
+	maxQueryLength int32,
+) (current, prev statementsMap, err error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {

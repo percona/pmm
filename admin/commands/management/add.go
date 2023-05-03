@@ -60,7 +60,10 @@ type connectionGetter interface {
 // - addPostgreSQLCommand
 // - addMongoDBCommand
 // Returns service name, socket, host, port, error.
-func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) (serviceName string, socket string, host string, port uint16, err error) {
+func processGlobalAddFlagsWithSocket( //nolint:nonamedreturns
+	cmd connectionGetter,
+	opts AddCommonFlags,
+) (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
 	if opts.AddServiceNameFlag != "" {
 		serviceName = opts.AddServiceNameFlag

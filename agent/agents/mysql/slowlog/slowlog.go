@@ -165,7 +165,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 }
 
 // recheck returns new slowlog information, and rotates slowlog file if needed.
-func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
+func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) { //nolint:nonamedreturns
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
 		s.l.Errorf("Cannot open database connection: %s", err)

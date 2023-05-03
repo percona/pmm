@@ -32,7 +32,7 @@ func SetupGlobalLogger() {
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
-		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) { //nolint:nonamedreturns
 			_, function = filepath.Split(f.Function)
 
 			// keep a single directory name as a compromise between brevity and unambiguity

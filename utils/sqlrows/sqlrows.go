@@ -19,7 +19,7 @@ package sqlrows
 import "database/sql"
 
 // ReadRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
-func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err error) {
+func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err error) { //nolint:nonamedreturns
 	defer func() {
 		// overwrite err with e only if err does not already contain (a more interesting) error
 		if e := rows.Close(); err == nil {

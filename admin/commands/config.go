@@ -59,7 +59,7 @@ type ConfigCommand struct {
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
-func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
+func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) { //nolint:nonamedreturns
 	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"

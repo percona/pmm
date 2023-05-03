@@ -35,6 +35,8 @@ func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer 
 }
 
 // RegisterNode do registration of new Node.
-func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
+func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) ( //nolint:nonamedreturns
+	res *managementpb.RegisterNodeResponse, err error,
+) {
 	return s.svc.Register(ctx, req)
 }

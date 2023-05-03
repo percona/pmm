@@ -109,7 +109,6 @@ linters:
     - maintidx
     - nestif
     - errorlint
-    - nonamedreturns
     - execinquery
     - interfacebloat
     - gosimple
@@ -146,5 +145,6 @@ issues:
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
         - lll              # tests often require long lines
+        - nonamedreturns   # it's not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
