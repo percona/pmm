@@ -134,12 +134,13 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	}
 
 	total := results[0]
-	resp.TotalRows = uint32(total["total_rows"].(uint64))
+	resp.TotalRows = uint32(total["total_rows"].(uint64)) //nolint:forcetypeassert
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
 	for i, res := range results {
 		numQueries := interfaceToFloat32(res["num_queries"])
+		//nolint:forcetypeassert
 		row := &qanpb.Row{
 			Rank:        uint32(i) + in.Offset,
 			Dimension:   res["dimension"].(string),

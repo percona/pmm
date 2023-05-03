@@ -217,7 +217,7 @@ func FindServicesSoftwareVersions(
 
 	versions := make([]*ServiceSoftwareVersions, len(structs))
 	for i, s := range structs {
-		versions[i] = s.(*ServiceSoftwareVersions)
+		versions[i] = s.(*ServiceSoftwareVersions) //nolint:forcetypeassert
 	}
 
 	return versions, nil

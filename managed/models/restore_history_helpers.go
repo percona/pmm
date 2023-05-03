@@ -77,7 +77,7 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 
 	items := make([]*RestoreHistoryItem, 0, len(rows))
 	for _, r := range rows {
-		items = append(items, r.(*RestoreHistoryItem))
+		items = append(items, r.(*RestoreHistoryItem)) //nolint:forcetypeassert
 	}
 
 	return items, nil
