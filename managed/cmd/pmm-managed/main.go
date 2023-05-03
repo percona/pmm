@@ -306,9 +306,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 
-	if deps.ha.ActiveMode() {
+	deps.ha.AddLeaderService(highavailability.NewContextService("dbaas-register", func(ctx context.Context) error {
 		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
-	}
+		return nil
+	}))
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -587,27 +588,21 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
 		return false
 	}
-	if deps.ha.ActiveMode() {
-		deps.vmdb.RequestConfigurationUpdate()
-	}
+	deps.vmdb.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking VMAlert...")
 	if err = deps.vmalert.IsReady(ctx); err != nil {
 		deps.l.Warnf("VMAlert problem: %+v.", err)
 		return false
 	}
-	if deps.ha.ActiveMode() {
-		deps.vmalert.RequestConfigurationUpdate()
-	}
+	deps.vmalert.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking Alertmanager...")
 	if err = deps.alertmanager.IsReady(ctx); err != nil {
 		deps.l.Warnf("Alertmanager problem: %+v.", err)
 		return false
 	}
-	if deps.ha.ActiveMode() {
-		deps.alertmanager.RequestConfigurationUpdate()
-	}
+	deps.alertmanager.RequestConfigurationUpdate()
 
 	deps.l.Info("Setup completed.")
 	return true
@@ -730,9 +725,33 @@ func main() {
 		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
 		String()
 
-	passiveModeF := kingpin.Flag("ha-passive-mode", "Run in Passive mode").
-		Envar("PERCONA_TEST_HA_PASSIVE").
+	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
+		Envar("PERCONA_TEST_HA_ENABLE").
 		Bool()
+	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
+		Envar("PERCONA_TEST_HA_BOOTSTRAP").
+		Bool()
+	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
+		Envar("PERCONA_TEST_HA_NODE_ID").
+		String()
+	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
+		Envar("PERCONA_TEST_HA_ADVERTISE_ADDRESS").
+		String()
+	haGossipNodes := kingpin.Flag("ha-peers", "HA Peers").
+		Envar("PERCONA_TEST_HA_PEERS").
+		String()
+	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
+		Envar("PERCONA_TEST_HA_RAFT_PORT").
+		Default("9760").
+		Int()
+	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
+		Envar("PERCONA_TEST_HA_GOSSIP_PORT").
+		Default("9761").
+		Int()
+	//haGrafanaPort := kingpin.Flag("ha-grafana-port", "HA grafana port").
+	//	Envar("PERCONA_TEST_HA_GRAFANA_PORT").
+	//	Default("9760").
+	//	Int()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -763,7 +782,22 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	ha := highavailability.New(passiveModeF)
+	haParams := &highavailability.Params{
+		Enabled:          *haEnabled,
+		Bootstrap:        *haBootstrap,
+		NodeID:           *haNodeID,
+		AdvertiseAddress: *haAdvertiseAddress,
+		Nodes:            strings.Split(*haGossipNodes, ","),
+		RaftPort:         *haRaftPort,
+		GossipPort:       *haGossipPort,
+	}
+	ha := highavailability.New(haParams)
+	go func() {
+		err := ha.Run(ctx)
+		if err != nil {
+			l.Panicf("cannot start high availability service: %+v", err)
+		}
+	}()
 
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
@@ -821,7 +855,7 @@ func main() {
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	if ha.ActiveMode() {
+	if ha.Bootstrap() {
 		migrateDB(ctx, sqlDB, setupParams)
 	}
 
@@ -830,7 +864,7 @@ func main() {
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	if ha.ActiveMode() {
+	if ha.Bootstrap() {
 		// Generate unique PMM Server ID if it's not already set.
 		err = models.SetPMMServerID(db)
 		if err != nil {
@@ -939,7 +973,9 @@ func main() {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
+	if ha.Bootstrap() {
+		templatesService.CollectTemplates(ctx)
+	}
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
@@ -1039,7 +1075,7 @@ func main() {
 		}()
 	}
 
-	if ha.ActiveMode() {
+	if !*haEnabled {
 		// Set all agents status to unknown at startup. The ones that are alive
 		// will get their status updated after they connect to the pmm-managed.
 		err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
@@ -1081,13 +1117,10 @@ func main() {
 		alertManager.Run(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if ha.ActiveMode() {
-			checksService.Run(ctx)
-		}
-	}()
+	ha.AddLeaderService(highavailability.NewContextService("checks", func(ctx context.Context) error {
+		checksService.Run(ctx)
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
@@ -1096,26 +1129,21 @@ func main() {
 	}()
 
 	wg.Add(1)
-	go func() {
+	ha.AddLeaderService(highavailability.NewContextService("telemetry", func(ctx context.Context) error {
 		defer wg.Done()
-		if ha.ActiveMode() {
-			telemetry.Run(ctx)
-		}
-	}()
+		telemetry.Run(ctx)
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if ha.ActiveMode() {
-			schedulerService.Run(ctx)
-		}
-	}()
+	ha.AddLeaderService(highavailability.NewContextService("scheduler", func(ctx context.Context) error {
+		schedulerService.Run(ctx)
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	ha.AddLeaderService(highavailability.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
@@ -1176,11 +1204,10 @@ func main() {
 		runDebugServer(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	ha.AddLeaderService(highavailability.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
-	}()
+		return nil
+	}))
 	if settings.DBaaS.Enabled {
 		err = supervisord.RestartSupervisedService("dbaas-controller")
 		if err != nil {
@@ -1200,6 +1227,7 @@ func main() {
 		}
 	}
 
+	ha.Wait()
 	wg.Wait()
 }
 

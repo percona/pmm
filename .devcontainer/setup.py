@@ -102,7 +102,7 @@ def setup():
 def main():
     install_packages()
     install_go()
-    make_init()
+    # make_init()
 
     # do basic setup
     setup()

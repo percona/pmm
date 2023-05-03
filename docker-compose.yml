@@ -210,8 +210,14 @@ services:
 #      - PMM_DEBUG=1
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
-      - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=192.168.48.5:9094
-      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9094,pmm-managed-server-passive:9094
+      - PERCONA_TEST_HA_ENABLE=1
+      - PERCONA_TEST_HA_BOOTSTRAP=1
+      - PERCONA_TEST_HA_NODE_ID=pmm-managed-server
+      - PERCONA_TEST_HA_ADVERTISE_ADDRESS=pmm-managed-server
+      - PERCONA_TEST_HA_PEERS=pmm-managed-server,pmm-managed-server-passive
+      - PERCONA_TEST_HA_GOSSIP_PORT=9096
+      - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=pmm-managed-server:9095
+      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9095,pmm-managed-server-passive:9095
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -286,8 +292,13 @@ services:
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
       - PERCONA_TEST_HA_PASSIVE=true
-      - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=192.168.48.6:9094
-      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9094,pmm-managed-server-passive:9094
+      - PERCONA_TEST_HA_ENABLE=1
+      - PERCONA_TEST_HA_NODE_ID=pmm-managed-server-passive
+      - PERCONA_TEST_HA_ADVERTISE_ADDRESS=pmm-managed-server-passive
+      - PERCONA_TEST_HA_PEERS=pmm-managed-server,pmm-managed-server-passive
+      - PERCONA_TEST_HA_GOSSIP_PORT=9096
+      - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=pmm-managed-server-passive:9095
+      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9095,pmm-managed-server-passive:9095
 
     extra_hosts:
       - host.docker.internal:host-gateway

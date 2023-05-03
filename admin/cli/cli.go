@@ -49,6 +49,7 @@ type PMMAdminCommands struct {
 	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
+	Reload     commands.ReloadCommand       `cmd:"" help:"Show information about local pmm-agent"`
 	Summary    commands.SummaryCommand      `cmd:"" help:"Fetch system data for diagnostics"`
 	List       commands.ListCommand         `cmd:"" help:"Show Services and Agents running on this Node"`
 	Config     commands.ConfigCommand       `cmd:"" help:"Configure local pmm-agent"`

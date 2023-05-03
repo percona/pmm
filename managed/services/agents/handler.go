@@ -63,9 +63,6 @@ func NewHandler(db *reform.DB, ha highAvailablityService, qanClient qanClient, v
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
 func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
-	if h.ha.PassiveMode() {
-		return status.Errorf(codes.FailedPrecondition, "Current PMM Server is running in passive mode.")
-	}
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()

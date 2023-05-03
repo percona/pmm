@@ -65,5 +65,6 @@ type victoriaMetricsParams interface {
 
 // highAvailablityService is an interface to get information related to High Availability.
 type highAvailablityService interface {
-	PassiveMode() bool
+	//TODO: extend by send message
+	BroadcastMessage(message []byte)
 }
