@@ -54,7 +54,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	agentlocalpb.Default.SetTransport(transport)
@@ -124,7 +124,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if u.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()

@@ -113,7 +113,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if baseURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
@@ -184,7 +184,7 @@ func init() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal)))
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 

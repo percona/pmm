@@ -147,7 +147,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent

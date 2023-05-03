@@ -22,7 +22,7 @@ import (
 )
 
 // ClientOptionsForDSN applies URI to Client.
-func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) { //nolint:unparam
+func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 	clientOptions := options.Client().ApplyURI(dsn)
 	if e := clientOptions.Validate(); e != nil {
 		return nil, e
