@@ -103,7 +103,7 @@ func TestPerformBackup(t *testing.T) {
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
 			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data/",
+				Path: "/opt/data",
 			},
 		},
 	})
@@ -279,7 +279,7 @@ func TestRestoreBackup(t *testing.T) {
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
 			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data/",
+				Path: "/opt/data",
 			},
 		},
 	})

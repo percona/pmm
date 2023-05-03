@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -57,6 +58,11 @@ const (
 	maxRetryInterval   = 8 * time.Hour
 )
 
+var (
+	folderRe = regexp.MustCompile(`^[\.:\/\w-]*$`) // Dots, colons, slashes, letters, digits, underscores, dashes.
+	nameRe   = regexp.MustCompile(`^[\.:\w-]*$`)   // Dots, colons, letters, digits, underscores, dashes.
+)
+
 // NewBackupsService creates new backups API service.
 func NewBackupsService(
 	db *reform.DB,
@@ -83,7 +89,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isPathSafe(req.Folder); err != nil {
+	if err := isFolderSafe(req.Folder); err != nil {
 		return nil, err
 	}
 
@@ -168,7 +174,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isPathSafe(req.Folder); err != nil {
+	if err := isFolderSafe(req.Folder); err != nil {
 		return nil, err
 	}
 
@@ -746,8 +752,8 @@ func convertModelError(modelError error) error {
 	}
 }
 
-// isPathSafe checks if specified path is safe against traversal attacks.
-func isPathSafe(path string) error {
+// isFolderSafe checks if specified path is safe against traversal attacks.
+func isFolderSafe(path string) error {
 	if path == "" {
 		return nil
 	}
@@ -765,12 +771,16 @@ func isPathSafe(path string) error {
 		return status.Error(codes.InvalidArgument, "Specified folder refers to a parent directory.")
 	}
 
+	if !folderRe.Match([]byte(path)) {
+		return status.Error(codes.InvalidArgument, "Folder name can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
+	}
+
 	return nil
 }
 
 func isNameSafe(name string) error {
-	if strings.Contains(name, "/") {
-		return status.Error(codes.InvalidArgument, "Backup name shouldn't be a path (shouldn't contain slashes).")
+	if !nameRe.Match([]byte(name)) {
+		return status.Error(codes.InvalidArgument, "Backup name can contain only dots, colons, letters, digits, underscores and dashes.")
 	}
 	return nil
 }

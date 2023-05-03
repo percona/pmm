@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -27,6 +28,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+var pathRe = regexp.MustCompile(`^[\.:\/\w-]*$`) // Dots, slashes, letters, digits, underscores, dashes.
 
 func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	if id == "" {
@@ -75,6 +78,10 @@ func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 
 	if !strings.HasPrefix(c.Path, "/") {
 		return status.Error(codes.InvalidArgument, "Folder should be an absolute path (should contain leading slash).")
+	}
+
+	if !pathRe.Match([]byte(c.Path)) {
+		return status.Error(codes.InvalidArgument, "Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
 	}
 
 	return nil
