@@ -71,6 +71,9 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
 %pre
 getent group grafana >/dev/null || groupadd -r grafana
 getent passwd grafana >/dev/null || \
