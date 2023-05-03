@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/node/node.proto
 
-package node
+package nodev1beta1
 
 import (
 	context "context"
@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MgmtNode_ListNodes_FullMethodName = "/management.MgmtNode/ListNodes"
-	MgmtNode_GetNode_FullMethodName   = "/management.MgmtNode/GetNode"
+	MgmtNode_ListNodes_FullMethodName = "/node.v1beta1.MgmtNode/ListNodes"
+	MgmtNode_GetNode_FullMethodName   = "/node.v1beta1.MgmtNode/GetNode"
 )
 
 // MgmtNodeClient is the client API for MgmtNode service.
@@ -134,7 +134,7 @@ func _MgmtNode_GetNode_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MgmtNode_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.MgmtNode",
+	ServiceName: "node.v1beta1.MgmtNode",
 	HandlerType: (*MgmtNodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -217,11 +217,11 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 
 func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentRequest) error {
 	if req.ServiceId == "" && req.NodeId == "" {
-		return status.Error(codes.InvalidArgument, "either service_id or node_id is expected")
+		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected.")
 	}
 
 	if req.ServiceId != "" && req.NodeId != "" {
-		return status.Error(codes.InvalidArgument, "either service_id or node_id is expected, not both")
+		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected, not both.")
 	}
 
 	return nil

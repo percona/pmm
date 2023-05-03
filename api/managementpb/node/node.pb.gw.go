@@ -2,11 +2,11 @@
 // source: managementpb/node/node.proto
 
 /*
-Package node is a reverse proxy.
+Package nodev1beta1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package node
+package nodev1beta1
 
 import (
 	"context"
@@ -110,7 +110,7 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -134,7 +134,7 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -196,7 +196,7 @@ func RegisterMgmtNodeHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -217,7 +217,7 @@ func RegisterMgmtNodeHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

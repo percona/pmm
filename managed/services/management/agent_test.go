@@ -74,22 +74,22 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 }
 
 func TestAgentService(t *testing.T) {
-	t.Run("Should throw a validation error when no params passed", func(t *testing.T) {
+	t.Run("Should return a validation error when no params passed", func(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
 		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
 		assert.Nil(t, response)
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "either service_id or node_id is expected"), err)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
 	})
 
-	t.Run("Should throw a validation error when both params passed", func(t *testing.T) {
+	t.Run("Should return a validation error when both params passed", func(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
 		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
 		assert.Nil(t, response)
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "either service_id or node_id is expected, not both"), err)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
 	})
 
 	t.Run("ListAgents", func(t *testing.T) {
