@@ -419,6 +419,7 @@ func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scra
 		"custom_query.hr",
 		"standard.go",
 		"standard.process",
+		"postgres",
 	}
 	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
 	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, hrOptions)

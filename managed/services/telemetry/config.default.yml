@@ -284,6 +284,40 @@ telemetry:
       - metric_name: "postgresql_version"
         label: "short_version"
 
+  - id: PostgresDBInstalledExtensions
+    source: VM
+    query: pg_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_installed_extensions
+    summary: "Installed extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "extname"
+      - metric_name: "2"
+        label: "extversion"
+      - metric_name: "3"
+        label: "extrelocatable"
+      - metric_name: "4"
+        label: "service_name"
+
+  - id: PostgresDBAvailableExtensions
+    source: VM
+    query: pg_available_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_available_extensions
+    summary: "Available extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "name"
+      - metric_name: "2"
+        label: "default_version"
+      - metric_name: "3"
+        label: "installed_version"
+      - metric_name: "4"
+        label: "service_name"
+
   - id: HAProxyVersion
     source: VM
     query: haproxy_process_build_info

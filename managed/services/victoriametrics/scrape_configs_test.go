@@ -863,6 +863,7 @@ func TestScrapeConfig(t *testing.T) {
 				Params: url.Values{"collect[]": []string{
 					"custom_query.hr",
 					"exporter",
+					"postgres",
 					"standard.go",
 				}},
 			}, {
