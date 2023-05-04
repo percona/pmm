@@ -59,6 +59,7 @@ mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
+%clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
