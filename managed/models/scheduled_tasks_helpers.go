@@ -130,7 +130,7 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 	}
 	tasks := make([]*ScheduledTask, len(structs))
 	for i, s := range structs {
-		tasks[i] = s.(*ScheduledTask)
+		tasks[i] = s.(*ScheduledTask) //nolint:forcetypeassert
 	}
 	return tasks, nil
 }
