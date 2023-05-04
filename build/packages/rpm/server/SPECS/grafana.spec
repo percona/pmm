@@ -33,6 +33,8 @@ rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 
 %build
+export QA_SKIP_BUILD_ROOT=1
+
 mkdir -p _build/src
 export GOPATH="$(pwd)/_build"
 
@@ -58,9 +60,6 @@ cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, grafana, grafana, -)
