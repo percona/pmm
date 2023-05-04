@@ -326,6 +326,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		b.Common.PeriodStartUnixSecs = startS
 		b.Common.PeriodLengthSecs = periodLengthSecs
 
+		//nolint:nestif
 		if esh := history[b.Common.Queryid]; esh != nil {
 			// TODO test if we really need that
 			// If we don't need it, we can avoid polling events_statements_history completely
