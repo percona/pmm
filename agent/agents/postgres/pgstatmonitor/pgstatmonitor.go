@@ -411,7 +411,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 				return nil, err
 			}
 			for _, row := range settingsRows {
-				setting := row.(*pgStatMonitorSettingsTextValue)
+				setting := row.(*pgStatMonitorSettingsTextValue) //nolint:forcetypeassert
 				result[setting.Name] = setting
 			}
 		}
@@ -421,7 +421,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 			return nil, err
 		}
 		for _, row := range settingsRows {
-			setting := row.(*pgStatMonitorSettings)
+			setting := row.(*pgStatMonitorSettings) //nolint:forcetypeassert
 			name := setting.Name
 			result[name] = &pgStatMonitorSettingsTextValue{
 				Name:  name,

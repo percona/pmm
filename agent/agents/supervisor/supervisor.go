@@ -462,6 +462,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
 		cancel:          cancel,
 		done:            done,
@@ -590,6 +591,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.builtinAgents[agentID] = &builtinAgentInfo{
 		cancel:         cancel,
 		done:           done,

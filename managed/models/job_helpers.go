@@ -102,7 +102,7 @@ func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
 	}
 	jobs := make([]*Job, len(structs))
 	for i, s := range structs {
-		jobs[i] = s.(*Job)
+		jobs[i] = s.(*Job) //nolint:forcetypeassert
 	}
 	return jobs, nil
 }
@@ -205,7 +205,7 @@ func FindJobLogs(q *reform.Querier, filters JobLogsFilter) ([]*JobLog, error) {
 
 	logs := make([]*JobLog, 0, len(rows))
 	for _, r := range rows {
-		logs = append(logs, r.(*JobLog))
+		logs = append(logs, r.(*JobLog)) //nolint:forcetypeassert
 	}
 	return logs, nil
 }

@@ -51,7 +51,7 @@ func FindRules(q *reform.Querier) ([]*Rule, error) {
 
 	rules := make([]*Rule, len(rows))
 	for i, s := range rows {
-		rules[i] = s.(*Rule)
+		rules[i] = s.(*Rule) //nolint:forcetypeassert
 	}
 
 	return rules, nil
@@ -66,7 +66,7 @@ func FindRulesOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Rule, error
 
 	rules := make([]*Rule, len(rows))
 	for i, s := range rows {
-		rules[i] = s.(*Rule)
+		rules[i] = s.(*Rule) //nolint:forcetypeassert
 	}
 
 	return rules, nil

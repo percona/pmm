@@ -332,7 +332,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal)))
+		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
