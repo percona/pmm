@@ -475,6 +475,7 @@ message FilesystemLocationConfig {
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
     reserved 11;
     reserved "filesystem_config";
 
@@ -499,6 +500,7 @@ message StartJobRequest {
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
     reserved 11;
     reserved "filesystem_config";
 
