@@ -44,6 +44,8 @@ make deps-js
 make build-js
 
 %install
+rm -rf $RPM_BUILD_ROOT
+
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
