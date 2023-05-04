@@ -44,7 +44,6 @@ make deps-js
 make build-js
 
 %install
-rm -rf $RPM_BUILD_ROOT
 
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
@@ -62,6 +61,7 @@ cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
 
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
+rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, grafana, grafana, -)
