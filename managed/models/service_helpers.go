@@ -128,7 +128,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 
 	services := make([]*Service, len(structs))
 	for i, s := range structs {
-		services[i] = s.(*Service)
+		services[i] = s.(*Service) //nolint:forcetypeassert
 	}
 
 	return services, nil
@@ -198,7 +198,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	services := make(map[string]*Service, len(all))
 	for _, s := range all {
-		service := s.(*Service)
+		service := s.(*Service) //nolint:forcetypeassert
 		services[service.ServiceID] = service
 	}
 
