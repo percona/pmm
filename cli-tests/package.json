@@ -27,7 +27,7 @@
     "eslint": "8.39",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-playwright": "^0.12.0"
   }
 }
