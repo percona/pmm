@@ -299,7 +299,7 @@ telemetry:
       - metric_name: "3"
         label: "extrelocatable"
       - metric_name: "4"
-        label: "service_name"
+        label: "service_id"
 
   - id: PostgresDBAvailableExtensions
     source: VM
@@ -316,7 +316,7 @@ telemetry:
       - metric_name: "3"
         label: "installed_version"
       - metric_name: "4"
-        label: "service_name"
+        label: "service_id"
 
   - id: HAProxyVersion
     source: VM
