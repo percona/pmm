@@ -50,6 +50,9 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  nestif:
+    min-complexity: 7
+
   tagliatelle:
     # Check the struck tag name case.
     case:
@@ -107,7 +110,6 @@ linters:
     - ireturn
     - gocognit
     - maintidx
-    - nestif
     - errorlint
     - execinquery
     - interfacebloat
