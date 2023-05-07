@@ -30,7 +30,7 @@ var extractTablesRecover = true
 // ExtractTables extracts table names from query.
 func ExtractTables(query string) ([]string, error) {
 	var err error
-	tables := []string{}
+	var tables []string //nolint:prealloc
 
 	if extractTablesRecover {
 		defer func() {
