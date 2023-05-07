@@ -179,7 +179,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *pmmAgentSetup {
+	if *pmmAgentSetup { //nolint:nestif
 		var agent *exec.Cmd
 		restartPolicy := doNotRestart
 		if *pmmAgentSidecar {
@@ -204,7 +204,7 @@ func main() {
 	}
 
 	status = 0
-	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" {
+	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
 		l.Info("Starting pmm-agent for prerun...")
 		agent := commandPmmAgent([]string{"run"})
 		err := agent.Start()
