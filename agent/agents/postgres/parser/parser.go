@@ -44,21 +44,21 @@ func ExtractTables(query string) ([]string, error) {
 	var jsonTree string
 	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
 		err = errors.Wrap(err, "error on parsing sql query")
-		return tables, err
+		return nil, err
 	}
 
 	var res []string
 	tableNames := make(map[string]struct{})
 	res, err = extract(jsonTree, `"relname":"`, `"`)
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 	for _, v := range res {
 		tableNames[v] = struct{}{}
 	}
 	res, err = extract(jsonTree, `"ctename":"`, `"`)
 	if err != nil {
-		return tables, err
+		return nil, err
 	}
 	for _, v := range res {
 		delete(tableNames, v)
