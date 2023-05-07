@@ -33,6 +33,8 @@ rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 
 %build
+export QA_SKIP_BUILD_ROOT=1
+
 mkdir -p _build/src
 export GOPATH="$(pwd)/_build"
 
