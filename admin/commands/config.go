@@ -59,16 +59,21 @@ type ConfigCommand struct {
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
-func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) { //nolint:nonamedreturns
+func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"
 	}
+
+	var switchedToTLS bool
+	var res []string
+
 	if globals.ServerURL.Scheme == "http" {
 		port = "443"
 		switchedToTLS = true
 		globals.SkipTLSCertificateCheck = true
 	}
+
 	res = append(res, fmt.Sprintf("--server-address=%s:%s", globals.ServerURL.Hostname(), port))
 
 	if globals.ServerURL.User != nil {
@@ -137,7 +142,7 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
 
-	return //nolint:nakedret
+	return res, switchedToTLS
 }
 
 // RunCmd runs config command.

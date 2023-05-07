@@ -132,7 +132,7 @@ func replacer(redactWords []string) *strings.Replacer {
 
 var extractLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 
-func extractLogLevel(line string) (level logrus.Level, found bool, err error) { //nolint:nonamedreturns
+func extractLogLevel(line string) (logrus.Level, bool, error) {
 	matches := extractLogLevelRegex.FindStringSubmatch(line)
 
 	noMatches := len(matches) < 2
@@ -140,7 +140,7 @@ func extractLogLevel(line string) (level logrus.Level, found bool, err error) { 
 		return 0, false, nil
 	}
 
-	level, err = logrus.ParseLevel(matches[1])
+	level, err := logrus.ParseLevel(matches[1])
 	if err != nil {
 		return 0, false, err
 	}

@@ -234,7 +234,8 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 }
 
 // getOrderBy creates an order by string to use in query and column name to check if it in select column list.
-func getOrderBy(reqOrder, defaultOrder string) (queryOrder string, orderCol string) { //nolint:nonamedreturns
+func getOrderBy(reqOrder, defaultOrder string) (string, string) {
+	var queryOrder, orderCol string
 	direction := "ASC"
 	if strings.HasPrefix(reqOrder, "-") {
 		reqOrder = strings.TrimPrefix(reqOrder, "-")

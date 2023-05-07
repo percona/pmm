@@ -164,11 +164,11 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	}, nil
 }
 
-func (cmd *AddExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) { //nolint:nonamedreturns
-	scheme = cmd.Scheme
-	address = cmd.Host
-	port = cmd.ListenPort
-	metricsPath = cmd.MetricsPath
+func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, string, uint16, error) {
+	scheme := cmd.Scheme
+	address := cmd.Host
+	port := cmd.ListenPort
+	metricsPath := cmd.MetricsPath
 
 	switch {
 	case cmd.URL != "":

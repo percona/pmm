@@ -286,16 +286,16 @@ func main() {
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
-		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) { //nolint:nonamedreturns
-			_, function = filepath.Split(f.Function)
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			_, function := filepath.Split(f.Function)
 
 			// keep a single directory name as a compromise between brevity and unambiguity
 			var dir string
-			dir, file = filepath.Split(f.File)
+			dir, file := filepath.Split(f.File)
 			dir = filepath.Base(dir)
 			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
 
-			return
+			return function, file
 		},
 	})
 

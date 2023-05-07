@@ -28,7 +28,10 @@ import (
 var extractTablesRecover = true
 
 // ExtractTables extracts table names from query.
-func ExtractTables(query string) (tables []string, err error) { //nolint:nonamedreturns
+func ExtractTables(query string) ([]string, error) {
+	var tables []string
+	var err error
+
 	if extractTablesRecover {
 		defer func() {
 			if r := recover(); r != nil {
@@ -41,21 +44,21 @@ func ExtractTables(query string) (tables []string, err error) { //nolint:nonamed
 	var jsonTree string
 	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
 		err = errors.Wrap(err, "error on parsing sql query")
-		return
+		return tables, err
 	}
 
 	var res []string
 	tableNames := make(map[string]struct{})
 	res, err = extract(jsonTree, `"relname":"`, `"`)
 	if err != nil {
-		return
+		return tables, err
 	}
 	for _, v := range res {
 		tableNames[v] = struct{}{}
 	}
 	res, err = extract(jsonTree, `"ctename":"`, `"`)
 	if err != nil {
-		return
+		return tables, err
 	}
 	for _, v := range res {
 		delete(tableNames, v)
@@ -66,7 +69,7 @@ func ExtractTables(query string) (tables []string, err error) { //nolint:nonamed
 	}
 	sort.Strings(tables)
 
-	return
+	return tables, nil
 }
 
 func extract(query, pre, post string) ([]string, error) {

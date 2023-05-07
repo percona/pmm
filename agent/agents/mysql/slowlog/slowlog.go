@@ -165,11 +165,13 @@ func (s *SlowLog) Run(ctx context.Context) {
 }
 
 // recheck returns new slowlog information, and rotates slowlog file if needed.
-func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) { //nolint:nonamedreturns
+func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
+	var newInfo *slowLogInfo
+
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
 		s.l.Errorf("Cannot open database connection: %s", err)
-		return
+		return newInfo
 	}
 	defer db.Close() //nolint:errcheck
 
@@ -177,17 +179,17 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) { //nolint
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
 	if err := row.Scan(&grants); err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
-		return
+		return newInfo
 	}
 
 	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
 		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
-		return
+		return newInfo
 	}
 
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
-		return
+		return newInfo
 	}
 	if s.params.SlowLogFilePrefix != "" {
 		newInfo.path = filepath.Join(s.params.SlowLogFilePrefix, newInfo.path)
@@ -195,13 +197,13 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) { //nolint
 
 	maxSize := s.params.MaxSlowlogFileSize
 	if maxSize <= 0 {
-		return
+		return newInfo
 	}
 
 	fi, err := os.Stat(newInfo.path)
 	if err != nil {
 		s.l.Errorf("Failed to stat file: %s", err)
-		return
+		return newInfo
 	}
 	if size := fi.Size(); size > maxSize {
 		s.l.Infof("Rotating slowlog file: %d > %d.", size, maxSize)
@@ -209,7 +211,8 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) { //nolint
 			s.l.Error(err)
 		}
 	}
-	return
+
+	return newInfo
 }
 
 // getSlowLogInfo returns information about slowlog settings.
