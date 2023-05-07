@@ -1,4 +1,4 @@
-name: Agent
+name: 'Client: pmm-agent'
 
 on:
   push:

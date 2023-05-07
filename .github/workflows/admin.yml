@@ -1,4 +1,4 @@
-name: Admin
+name: 'Client: pmm'
 
 on:
   push:
@@ -146,12 +146,11 @@ jobs:
 
       - name: Install Playwright
         run: |
-          npm ci
+          npm install
           npx playwright install
-          npm install -D @playwright/test
 
       - name: Run tests
-        run: npx playwright test --reporter=list tests/pmm-cli/
+        run: npx playwright test tests/pmm-cli/
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

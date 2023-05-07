@@ -154,6 +154,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			}
 		}
 
+		//nolint:nestif
 		if c.Fingerprint == "" {
 			newN++
 			fingerprint := c.Query
