@@ -434,17 +434,13 @@ func makeBuckets(
 		}
 
 		if q != "" {
-			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
-			if err != nil {
-				l.Debugf("cannot parse query: %s", v.Example.Query)
-			} else {
-				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.ExplainFingerprint = explainFingerprint
-				mb.Common.PlaceholdersCount = placeholdersCount
+			explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(q, fingerprint)
+			explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
 			}
+			mb.Common.ExplainFingerprint = explainFingerprint
+			mb.Common.PlaceholdersCount = placeholdersCount
 		}
 
 		if v.Example != nil {
