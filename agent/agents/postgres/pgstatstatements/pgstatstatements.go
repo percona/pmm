@@ -226,7 +226,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	current := make(statementsMap, m.statementsCache.cache.Len())
 	prev := make(statementsMap, m.statementsCache.cache.Len())
 	if err := m.statementsCache.Get(prev); err != nil {
-		return current, prev, err
+		return nil, nil, err
 	}
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
@@ -236,7 +236,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
 	if e != nil {
 		err = e
-		return current, prev, err
+		return nil, nil, err
 	}
 	defer rows.Close() //nolint:errcheck
 
