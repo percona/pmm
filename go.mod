@@ -23,7 +23,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.256
+	github.com/aws/aws-sdk-go v1.44.258
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
@@ -33,7 +33,7 @@ require (
 	github.com/docker/docker v20.10.23+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.0
-	github.com/go-co-op/gocron v1.23.0
+	github.com/go-co-op/gocron v1.25.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.26.0
 	github.com/go-openapi/strfmt v0.21.7
@@ -43,7 +43,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
-	github.com/grafana/grafana-api-golang-client v0.20.1
+	github.com/grafana/grafana-api-golang-client v0.21.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
@@ -75,8 +75,8 @@ require (
 	go.mongodb.org/mongo-driver v1.11.6
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.6.0
-	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.7.0
+	golang.org/x/sync v0.2.0
+	golang.org/x/sys v0.8.0
 	golang.org/x/text v0.9.0
 	golang.org/x/tools v0.8.0
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
