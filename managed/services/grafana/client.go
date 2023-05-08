@@ -342,7 +342,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
-	userID := int(m["id"].(float64))
+	userID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// settings in grafana.ini should make a viewer by default
 	if role < editor {
@@ -559,7 +559,7 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	key := m["key"].(string)
+	key := m["key"].(string) //nolint:forcetypeassert
 
 	apiAuthHeaders := http.Header{}
 	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))

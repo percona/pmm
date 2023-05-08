@@ -94,7 +94,7 @@ func (v *Versioner) binaryVersion(
 	defer cancel()
 
 	if _, err := v.ef.LookPath(binaryName); err != nil {
-		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) {
+		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert
 			return "", ErrNotFound
 		}
 

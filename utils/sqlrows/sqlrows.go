@@ -48,7 +48,7 @@ func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
 		// them as base64 strings.
 		for i, d := range dest {
-			ei := *(d.(*interface{}))
+			ei := *(d.(*interface{})) //nolint:forcetypeassert
 			dest[i] = ei
 			if b, ok := (ei).([]byte); ok {
 				dest[i] = string(b)

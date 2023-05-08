@@ -967,6 +967,7 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 		}
 
 		for _, templateCR := range templateCRs.Items {
+			//nolint:forcetypeassert
 			templates = append(templates, &dbaasv1beta1.Template{
 				Name: templateCR.Object["metadata"].(map[string]interface{})["name"].(string),
 				Kind: templateCR.Object["kind"].(string),
