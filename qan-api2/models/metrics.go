@@ -978,7 +978,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT fingerprint, placeholders_count FROM metrics
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
