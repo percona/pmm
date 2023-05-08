@@ -293,11 +293,11 @@ telemetry:
     summary: "Installed extensions on the PostgresSQL instance"
     data:
       - metric_name: "1"
-        label: "extname"
+        label: "name"
       - metric_name: "2"
-        label: "extversion"
+        label: "version"
       - metric_name: "3"
-        label: "extrelocatable"
+        label: "relocatable"
       - metric_name: "4"
         label: "service_id"
 
