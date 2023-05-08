@@ -171,7 +171,7 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
 		s.l.Errorf("Cannot open database connection: %s", err)
-		return newInfo
+		return nil
 	}
 	defer db.Close() //nolint:errcheck
 
@@ -179,17 +179,17 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
 	if err := row.Scan(&grants); err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
-		return newInfo
+		return nil
 	}
 
 	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
 		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
-		return newInfo
+		return nil
 	}
 
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
-		return newInfo
+		return nil
 	}
 	if s.params.SlowLogFilePrefix != "" {
 		newInfo.path = filepath.Join(s.params.SlowLogFilePrefix, newInfo.path)
