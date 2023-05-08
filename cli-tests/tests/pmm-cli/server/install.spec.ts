@@ -38,7 +38,7 @@ const verifyPmmServerProperties = async (checks: {
       .outHasLine(`${checks.containerName} ${checks.imageName}`);
   }
   // verify --http-listen-port
-  // TODO: improve error messaging and logs for exapmple for incorrect password
+  // TODO: improve error messaging and logs for example for incorrect password
   if (checks.httpPort !== undefined && checks.adminPassword !== undefined) {
     await (new PMMRestClient('admin', checks.adminPassword, checks.httpPort)).works();
   }
@@ -114,7 +114,8 @@ test.describe('PMM Server Install tests', async () => {
     const httpsPort = 1444;
 
     const output = await cli.exec(`
-      pmm server docker install 
+      pmm server docker install
+        --json
         --admin-password="test"
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
@@ -140,6 +141,7 @@ test.describe('PMM Server Install tests', async () => {
     await (await cli.exec(`docker volume create ${volumeName}`)).assertSuccess();
     const output = await cli.exec(`
       pmm server docker install 
+        --json
         --volume-name=${volumeName}`);
     await output.exitCodeEquals(1);
     await output.outContains(`VolumeExists: docker volume with name "${volumeName}" already exists`);
@@ -151,6 +153,7 @@ test.describe('PMM Server Install tests', async () => {
     const httpPort = 1082;
     await (await cli.exec(`
       pmm server docker install 
+        --json
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
         --container-name=${containerName}
@@ -171,6 +174,7 @@ test.describe('PMM Server Install tests', async () => {
     const httpPort = 1888;
     const output = await cli.exec(`
       pmm server docker install 
+        --json
         --skip-change-password
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
@@ -195,6 +199,7 @@ test.describe('PMM Server Install tests', async () => {
     const httpPort = 1889;
     const output = await cli.exec(`
       pmm server docker install 
+        --json
         --skip-change-password
         --admin-password=${adminPassword}
         --https-listen-port=${httpsPort}
