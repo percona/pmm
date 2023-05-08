@@ -158,7 +158,7 @@ jobs:
 
       - name: Install Playwright
         run: |
-          npm install
+          npm ci
           npx playwright install
 
       - name: Run "pmm" common tests
