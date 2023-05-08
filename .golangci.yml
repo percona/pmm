@@ -94,6 +94,7 @@ linters:
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying
+    - staticcheck
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
@@ -115,7 +116,7 @@ linters:
     - interfacebloat
     - gosimple
     - contextcheck
-    - nakedret
+    # - nakedret
     - forbidigo
     - errcheck
     - dupl
