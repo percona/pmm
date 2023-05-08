@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import * as cli from '@helpers/cliHelper';
 import PMMRestClient from '@tests/support/types/request';
+import { DateTime } from 'luxon';
 
 const defaultAdminPassword = 'admin';
 const defaultServImage = 'percona/pmm-server:2';
@@ -25,8 +26,7 @@ const generateContainerNameFromLogs = (logs: string[], prefix = 'pmm-server'): s
   expect(foundLine, 'Specified logs should have "Starting PMM Server" with time').not.toBeUndefined();
   type LogLine = { level: string, msg: string, time: string };
   const startDateTime: string = (JSON.parse(foundLine) as LogLine).time;
-  const startTime = startDateTime.split('T')[1].split('-')[0].split(':').join('-');
-  return `${prefix}-${startDateTime.split('T')[0]}-${startTime}`;
+  return `${prefix}-${DateTime.fromISO(startDateTime).toFormat('yyyy-MM-dd-hh-mm-ss')}`;
 };
 
 /**

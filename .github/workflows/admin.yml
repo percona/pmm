@@ -153,7 +153,7 @@ jobs:
         if: ${{ matrix.test-type == 'pmm-docker-test' }}
         run: |
           dpkg -l | grep -i docker
-          sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-compose-plugin
+          sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-compose-plugin || true
           sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce docker-compose-plugin
 
       - name: Install Playwright
@@ -182,7 +182,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: "report-${{ matrix.test-type }}"
-          path: ./cli-tests/playwright-report
+          path: ./playwright-report
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

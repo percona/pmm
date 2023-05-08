@@ -22,4 +22,8 @@ setup('Set default env.VARs', async () => {
     process.env.server_image = newImage;
     process.env.old_server_image = oldImage;
   });
+
+  // Download main images to reduce threads of download progress logs
+  await cli.exec(`docker pull ${oldImage}`);
+  await cli.exec(`docker pull ${newImage}`);
 });
