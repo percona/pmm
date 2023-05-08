@@ -389,7 +389,7 @@ func (c *VersionServiceClient) NextOperatorVersion(
 	installedVersion string,
 ) (*goversion.Version, error) {
 	if installedVersion == "" {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 	// Get all operator versions
 	params := componentsParams{
@@ -400,7 +400,7 @@ func (c *VersionServiceClient) NextOperatorVersion(
 		return nil, err
 	}
 	if len(matrix.Versions) == 0 {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	// Convert slice of version structs to slice of strings so it can be used in generic function next.
@@ -413,7 +413,7 @@ func (c *VersionServiceClient) NextOperatorVersion(
 	if installedVersion != "" {
 		return next(versions, installedVersion)
 	}
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }
 
 // next direct successor of given installed version, returns nil if there is none.
