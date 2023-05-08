@@ -159,7 +159,8 @@ test.describe('PMM Server Install tests', async () => {
         --container-name=${containerName}
         --volume-name=pmm-data-123`)).assertSuccess();
     const output = await cli.exec(`
-      pmm server docker install 
+      pmm server docker install
+        --json 
         --container-name=${containerName}
         --volume-name=pmm-data-124`);
     await output.exitCodeEquals(1);
