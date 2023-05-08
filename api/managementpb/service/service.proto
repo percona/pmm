@@ -20,7 +20,7 @@ message UniversalService {
     UP = 1;
     // The service is down.
     DOWN = 2;
-    // The service's status cannot be known (p.e. there are no metrics yet).
+    // The service's status cannot be known (e.g. there are no metrics yet).
     UNKNOWN = 3;
   }
 

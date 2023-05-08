@@ -168,15 +168,20 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	return res, nil
 }
 
+// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
+const upQuery = `up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter"}`
+
 // ListNodes returns a filtered list of Nodes.
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
 
-	var nodes []*models.Node
-	var agents []*models.Agent
-	var services []*models.Service
+	var (
+		nodes    []*models.Node
+		agents   []*models.Agent
+		services []*models.Service
+	)
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
@@ -234,10 +239,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		})
 	}
 
-	// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
-	query := `up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter"}`
-
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	result, _, err := s.vmClient.Query(ctx, upQuery, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}

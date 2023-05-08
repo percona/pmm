@@ -116,6 +116,7 @@ func TestAgentService(t *testing.T) {
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
+			require.NoError(t, err)
 
 			agents := []*agentv1beta1.UniversalAgent{
 				{
@@ -162,7 +163,6 @@ func TestAgentService(t *testing.T) {
 				},
 			}
 
-			require.NoError(t, err)
 			assert.Equal(t, agents, response.Agents)
 		})
 
@@ -199,6 +199,7 @@ func TestAgentService(t *testing.T) {
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
+			require.NoError(t, err)
 
 			agents := []*agentv1beta1.UniversalAgent{
 				{
@@ -212,7 +213,6 @@ func TestAgentService(t *testing.T) {
 					Status:      "UNKNOWN",
 				},
 			}
-			require.NoError(t, err)
 			assert.Equal(t, agents, response.Agents)
 		})
 
@@ -249,6 +249,7 @@ func TestAgentService(t *testing.T) {
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
+			require.NoError(t, err)
 
 			agents := []*agentv1beta1.UniversalAgent{
 				{
@@ -262,7 +263,6 @@ func TestAgentService(t *testing.T) {
 					Status:      "UNKNOWN",
 				},
 			}
-			require.NoError(t, err)
 			assert.Equal(t, agents, response.Agents)
 		})
 	})

@@ -21,7 +21,7 @@ message UniversalNode {
     UP = 1;
     // The node is down.
     DOWN = 2;
-    // The node's status cannot be known (p.e. there are no metrics yet).
+    // The node's status cannot be known (e.g. there are no metrics yet).
     UNKNOWN = 3;
   }
   // Service represents a service running on a node.
@@ -82,7 +82,7 @@ message UniversalNode {
 }
 
 message ListNodeRequest {
-  // Node type of nodes to be filtered out.
+  // Node type to be filtered out.
   inventory.NodeType node_type = 1;
 }
 
@@ -91,7 +91,7 @@ message ListNodeResponse {
 }
 
 message GetNodeRequest {
-  // Unique Node identifier. Minimum length is enforced by the API.
+  // Unique Node identifier.
   string node_id = 1;
 }
 

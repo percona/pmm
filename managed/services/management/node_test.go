@@ -214,6 +214,7 @@ func TestNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{})
+			require.NoError(t, err)
 
 			expected := &nodev1beta1.ListNodeResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
@@ -258,7 +259,6 @@ func TestNodeService(t *testing.T) {
 				},
 			}
 
-			assert.NoError(t, err)
 			assert.Equal(t, expected, res)
 		})
 
@@ -274,7 +274,7 @@ func TestNodeService(t *testing.T) {
 				NodeType: inventorypb.NodeType_REMOTE_NODE,
 			})
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Empty(t, res.Nodes)
 		})
 
@@ -299,6 +299,7 @@ func TestNodeService(t *testing.T) {
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
 			})
+			require.NoError(t, err)
 
 			expected := &nodev1beta1.ListNodeResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
@@ -343,7 +344,6 @@ func TestNodeService(t *testing.T) {
 				},
 			}
 
-			assert.NoError(t, err)
 			assert.Equal(t, expected, res)
 		})
 	})
@@ -423,7 +423,7 @@ func TestNodeService(t *testing.T) {
 				NodeId: models.PMMServerNodeID,
 			})
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, expected, node)
 		})
 

@@ -494,6 +494,7 @@ var nodeTypes = map[inventorypb.NodeType]models.NodeType{
 	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
+// ProtoToModelNodeType converts a NodeType from protobuf to model.
 func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
 	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
 		return nil
@@ -512,6 +513,7 @@ var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
+// ProtoToModelServiceType converts a ServiceType from protobuf to model.
 func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
 		return nil

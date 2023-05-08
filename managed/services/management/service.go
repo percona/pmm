@@ -239,9 +239,11 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
 	}
 
-	var services []*models.Service
-	var agents []*models.Agent
-	var nodes []*models.Node
+	var (
+		services []*models.Service
+		agents   []*models.Agent
+		nodes    []*models.Node
+	)
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
