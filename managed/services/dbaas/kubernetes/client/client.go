@@ -417,7 +417,7 @@ func (c *Client) applyObject(helper *resource.Helper, namespace, name string, ob
 	return nil
 }
 
-func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name string, err error) {
+func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name string, err error) { //nolint:nonamedreturns
 	name, err = meta.NewAccessor().Name(obj)
 	if err != nil {
 		return
