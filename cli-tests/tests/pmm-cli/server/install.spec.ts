@@ -63,7 +63,7 @@ test.describe('PMM Server Install tests', async () => {
   const defaultVolumeName = 'pmm-data';
   const adminPassword = 'admin123';
 
-  test('"pmm server docker install" works with no flags @pmm-cli', async ({ }) => {
+  test('PMM-T1570 "pmm server docker install" works with no flags @pmm-cli', async ({ }) => {
     const output = await cli.exec('pmm server docker install --json');
     await output.assertSuccess();
     expect(output.stderr, 'stderr should contain \'Starting PMM Server\'').toContain('Starting PMM Server');

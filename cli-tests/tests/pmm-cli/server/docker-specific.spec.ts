@@ -9,4 +9,11 @@ test.describe('PMM Server Install Docker specific tests', async () => {
     await output.exitCodeEquals(1);
     await output.outContains(expectedErrorMessage);
   });
+
+  // next tests in chain to keep docker working after tests on local run:
+  // PMM-T1574 Verifying server will not install if user does not have privileges to use docker
+  // change privileges for test
+
+  // PMM-T1569 CLI installation of server using command pmm (docker not installed)
+  // remove docker and run pmm 'pmm server docker install'
 });
