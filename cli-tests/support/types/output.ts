@@ -17,6 +17,10 @@ class Output {
     return this.stdout.trim().split('\n').filter((item) => item.trim().length > 0);
   }
 
+  getStdErrLines(): string[] {
+    return this.stderr.trim().split('\n').filter((item) => item.trim().length > 0);
+  }
+
   async assertSuccess() {
     await test.step(`Verify "${this.command}" command executed successfully`, async () => {
       expect(this.code, `"${this.command}" expected to exit with 0!\nStdout: ${this.stdout}\nStderr: "${this.stderr}"`).toEqual(0);
@@ -51,6 +55,16 @@ class Output {
     await test.step(`Verify command output has line: '${expectedValue}'`, async () => {
       expect(this.getStdOutLines(), `Stdout must have line: '${expectedValue}'`).toContainEqual(expectedValue);
     });
+  }
+
+  async errContainsMany(expectedValues: string[]) {
+    for (const val of expectedValues) {
+      expect.soft(this.stderr, `Stderr should contain '${val}'`).toContain(val);
+    }
+    expect(
+      test.info().errors,
+      `'Contains all elements' failed with ${test.info().errors.length} error(s):\n${this.getErrors()}`,
+    ).toHaveLength(0);
   }
 
   private getErrors(): string {

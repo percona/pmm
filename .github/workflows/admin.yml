@@ -102,6 +102,7 @@ jobs:
       fail-fast: false
       matrix:
         go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
+        test-type: [ pmm-common, pmm-serv-install, pmm-serv-update, pmm-docker-test ]
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
@@ -144,13 +145,44 @@ jobs:
       - name: Build and install
         run: make -C ../admin install
 
+      - name: Setup tools
+        run: |
+          sudo apt-get install -y wget jq
+
+      - name: Remove docker for test
+        if: ${{ matrix.test-type == 'pmm-docker-test' }}
+        run: |
+          dpkg -l | grep -i docker
+          sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-compose-plugin
+          sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce docker-compose-plugin
+
       - name: Install Playwright
         run: |
           npm install
           npx playwright install
 
-      - name: Run tests
-        run: npx playwright test tests/pmm-cli/
+      - name: Run "pmm" common tests
+        if: ${{ matrix.test-type == 'pmm-common' }}
+        run: npx playwright test tests/pmm-cli/pmm.spec.ts
+
+      - name: Run "pmm server install" tests
+        if: ${{ matrix.test-type == 'pmm-serv-install' }}
+        run: npx playwright test tests/pmm-cli/server/install.spec.ts
+
+      - name: Run "pmm server upgrade" tests
+        if: ${{ matrix.test-type == 'pmm-serv-update' }}
+        run: npx playwright test tests/pmm-cli/server/upgrade.spec.ts
+
+      - name: Run specific docker  tests
+        if: ${{ matrix.test-type == 'pmm-docker-test' }}
+        run: npx playwright test tests/pmm-cli/server/docker-specific.spec.ts
+
+      - name: Attach the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: "report-${{ matrix.test-type }}"
+          path: ./cli-tests/playwright-report
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
