@@ -64,7 +64,7 @@ test.describe('PMM Server Install tests', async () => {
   const adminPassword = 'admin123';
 
   test('PMM-T1570 "pmm server docker install" works with no flags @pmm-cli', async ({ }) => {
-    const output = await cli.exec('pmm server docker install --json');
+    const output = await cli.exec('pmm server docker install');
     await output.assertSuccess();
     expect(output.stderr, 'stderr should contain \'Starting PMM Server\'').toContain('Starting PMM Server');
 
@@ -87,7 +87,6 @@ test.describe('PMM Server Install tests', async () => {
 
     const output = await cli.exec(`
       pmm server docker install 
-        --json
         --admin-password=${adminPassword}
         --docker-image="${process.env.server_image}"
         --https-listen-port=${httpsPort}
@@ -115,7 +114,6 @@ test.describe('PMM Server Install tests', async () => {
 
     const output = await cli.exec(`
       pmm server docker install
-        --json
         --admin-password="test"
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
@@ -141,7 +139,6 @@ test.describe('PMM Server Install tests', async () => {
     await (await cli.exec(`docker volume create ${volumeName}`)).assertSuccess();
     const output = await cli.exec(`
       pmm server docker install 
-        --json
         --volume-name=${volumeName}`);
     await output.exitCodeEquals(1);
     await output.outContains(`VolumeExists: docker volume with name "${volumeName}" already exists`);
@@ -159,7 +156,6 @@ test.describe('PMM Server Install tests', async () => {
         --volume-name=pmm-data-123`)).assertSuccess();
     const output = await cli.exec(`
       pmm server docker install
-        --json 
         --container-name=${containerName}
         --volume-name=pmm-data-124`);
     await output.exitCodeEquals(1);
@@ -174,7 +170,6 @@ test.describe('PMM Server Install tests', async () => {
     const httpPort = 1888;
     const output = await cli.exec(`
       pmm server docker install 
-        --json
         --skip-change-password
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
@@ -199,7 +194,6 @@ test.describe('PMM Server Install tests', async () => {
     const httpPort = 1889;
     const output = await cli.exec(`
       pmm server docker install 
-        --json
         --skip-change-password
         --admin-password=${adminPassword}
         --https-listen-port=${httpsPort}
