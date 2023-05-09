@@ -168,8 +168,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	return res, nil
 }
 
-// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
-const upQuery = `up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter"}`
+const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
 func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
@@ -312,8 +311,7 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		return nil, err
 	}
 
-	// NOTE: this query will need to be updated if we start supporting more exporters (ex: gcp_exporter).
-	query := fmt.Sprintf(`up{job=~".*_hr$",agent_type=~"node_exporter|rds_exporter|external-exporter",node_id=%q}`, req.NodeId)
+	query := fmt.Sprintf(`up{job=~".*_hr$",node_id=%q}`, req.NodeId)
 
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
