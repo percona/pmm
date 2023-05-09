@@ -26,7 +26,7 @@ const generateContainerNameFromLogs = (logs: string[], prefix = 'pmm-server'): s
   expect(foundLine, 'Specified logs should have "Starting PMM Server" with time').not.toBeUndefined();
   type LogLine = { level: string, msg: string, time: string };
   const startDateTime: string = (JSON.parse(foundLine) as LogLine).time;
-  return `${prefix}-${DateTime.fromISO(startDateTime).toFormat('yyyy-MM-dd-hh-mm-ss')}`;
+  return `${prefix}-${DateTime.fromISO(startDateTime).toFormat('yyyy-MM-dd-HH-mm-ss')}`;
 };
 
 /**
@@ -178,7 +178,40 @@ test.describe('pmm-bin: server upgrade tests', async () => {
     });
   });
 
-  // PMM-T1680 Verify pmm server docker upgrade will upgrade non-CLI containers
+  test('PMM-T1680 "pmm server docker upgrade" upgrades non-CLI containers prefix', async () => {
+    const oldContainerName = 'pmm-server-upgrade-2';
+    const newContainerPrefix = 'pmm-server-upg';
+    const volumeName = 'pmm-data-upgrade-2';
+    const httpPort = 4080;
+    const httpsPort = 4443;
+
+    await (await cli.exec(`
+      docker run --detach --restart always
+         --publish ${httpPort}:80 
+        --publish ${httpsPort}:443 
+        -v ${volumeName}:/srv 
+        --name ${oldContainerName} 
+        ${process.env.old_server_image}`)).assertSuccess();
+
+    const output = await cli.exec(`
+      pmm server docker upgrade -y 
+        --json
+        --container-id=${oldContainerName}`);
+    await output.assertSuccess();
+    expect(output.stderr, 'stderr should contain "Starting PMM Server"').toContain('Starting PMM Server');
+
+    await verifyPmmServerProperties({
+      containerName: generateContainerNameFromLogs(output.getStdErrLines(), newContainerPrefix),
+      imageName: process.env.server_image,
+      volumeName,
+      httpPort,
+      httpsPort,
+      adminPassword: defaultAdminPassword,
+    });
+  });
+
+
+
   // PMM-T1682 Verify pmm server docker upgrade will give warning for upgrade of non-CLI containers
   // PMM-T1685 Verify CLI command "pmm server docker upgrade" flags are respected for non-CLI server
   // PMM-T1687 Verify pmm server docker upgrade flag "--new-container-name-prefix" non-CLI server

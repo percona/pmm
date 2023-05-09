@@ -152,8 +152,7 @@ test.describe('PMM Server Install tests', async () => {
     const httpsPort = 1445;
     const httpPort = 1082;
     await (await cli.exec(`
-      pmm server docker install 
-        --json
+      sudo pmm server docker install 
         --https-listen-port=${httpsPort}
         --http-listen-port=${httpPort}
         --container-name=${containerName}
