@@ -149,11 +149,11 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
+func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
-		return
+		return pgVersion(0), err
 	}
 	v = version.ParsePostgreSQLVersion(v)
 
@@ -399,7 +399,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	}
 
 	result := make(settings)
-	if settingsValuesAreText {
+	if settingsValuesAreText { //nolint:nestif
 		if pgsmVersion >= pgStatMonitorVersion20PG12 {
 			result, err = getPGSM20Settings(m.q)
 			if err != nil {

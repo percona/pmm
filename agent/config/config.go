@@ -179,7 +179,7 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) {
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
