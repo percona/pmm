@@ -148,6 +148,9 @@ jobs:
       - name: Setup tools
         run: |
           sudo apt-get install -y wget jq
+          ln -sf /home/runner/go/bin/pmm /usr/bin/pmm
+          # sudo usermod -a -G pmm-agent $USER
+          sudo chown -R runner:docker /usr/bin/pmm
 
       - name: Remove docker for test
         if: ${{ matrix.test-type == 'pmm-docker-test' }}
@@ -176,6 +179,12 @@ jobs:
       - name: Run specific docker  tests
         if: ${{ matrix.test-type == 'pmm-docker-test' }}
         run: npx playwright test tests/pmm-cli/server/docker-specific.spec.ts
+
+      - name: Debug report path
+        if: failure()
+        run: |
+          ls -la
+          ls -la ../
 
       - name: Attach the report on failure
         if: failure()
