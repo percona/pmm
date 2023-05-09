@@ -148,7 +148,7 @@ jobs:
       - name: Setup tools
         run: |
           sudo apt-get install -y wget jq
-          ln -sf /home/runner/go/bin/pmm /usr/bin/pmm
+          sudo ln -sf /home/runner/go/bin/pmm /usr/bin/pmm
           # sudo usermod -a -G pmm-agent $USER
           sudo chown -R runner:docker /usr/bin/pmm
 
