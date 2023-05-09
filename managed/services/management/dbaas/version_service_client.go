@@ -386,7 +386,11 @@ func (c *VersionServiceClient) GetVersionServiceURL() string {
 // It returns nil if update is not available or error occurred. It does not take PMM version into consideration.
 // We need to upgrade to current + 1 version for upgrade to be successful. So even if dbaas-controller does not support the
 // operator, we need to upgrade to it on our way to supported one.
-func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operatorType, installedVersion string) (nextOperatorVersion *goversion.Version, err error) {
+func (c *VersionServiceClient) NextOperatorVersion( //nolint:nonamedreturns
+	ctx context.Context,
+	operatorType,
+	installedVersion string,
+) (nextOperatorVersion *goversion.Version, err error) {
 	if installedVersion == "" {
 		return
 	}

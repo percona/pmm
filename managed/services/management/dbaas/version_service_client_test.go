@@ -78,6 +78,7 @@ func (f fakeLatestVersionServer) ServeHTTP(w http.ResponseWriter, r *http.Reques
 			break
 		}
 	}
+	//nolint:nestif
 	if certainVersionRequested {
 		segments := strings.Split(r.URL.Path, "/")
 		version := segments[len(segments)-2]

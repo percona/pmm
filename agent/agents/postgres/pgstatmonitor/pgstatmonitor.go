@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -86,8 +85,8 @@ const (
 )
 
 const (
-	queryTag                = "pmm-agent:pgstatmonitor"
-	pgsm20SettingsViewQuery = "CREATE VIEW pg_stat_monitor_settings AS SELECT * FROM pg_settings WHERE name like 'pg_stat_monitor.%';"
+	queryTag            = "pmm-agent:pgstatmonitor"
+	pgsm20SettingsQuery = "SELECT name, setting FROM pg_settings WHERE name like 'pg_stat_monitor.%'"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
 	commandTypeSelect       = "SELECT"
@@ -150,11 +149,11 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
+func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
-		return
+		return pgVersion(0), err
 	}
 	v = version.ParsePostgreSQLVersion(v)
 
@@ -350,7 +349,43 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	return true
 }
 
-type settings map[string]*pgStatMonitorSettingsTextValue
+type (
+	settings       map[string]*pgStatMonitorSettingsTextValue
+	pgsm20Settings struct {
+		Name    string
+		Setting string
+	}
+)
+
+func getPGSM20Settings(q *reform.Querier) (settings, error) {
+	rows, err := q.Query(pgsm20SettingsQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make(settings)
+	for rows.Next() {
+		var setting pgsm20Settings
+		err = rows.Scan(
+			&setting.Name,
+			&setting.Setting)
+		if err != nil {
+			return nil, err
+		}
+
+		result[setting.Name] = &pgStatMonitorSettingsTextValue{
+			Name:  setting.Name,
+			Value: setting.Setting,
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	settingsValuesAreText, err := areSettingsTextValues(m.q)
@@ -363,51 +398,39 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 		return nil, err
 	}
 
-	var settingsRows []reform.Struct
+	result := make(settings)
 	if settingsValuesAreText {
 		if pgsmVersion >= pgStatMonitorVersion20PG12 {
-			// In case of PGSM 2.0 and above we need create view first.
-			_, errSettings := m.q.Exec(pgsm20SettingsViewQuery)
-			// If it is already existing we just igroning error.
-			if errSettings != nil && !strings.Contains(errSettings.Error(), "already exists") {
-				return nil, errSettings
+			result, err = getPGSM20Settings(m.q)
+			if err != nil {
+				return nil, err
 			}
-
-			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValue20View, "")
 		} else {
-			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+			settingsRows, err := m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+			if err != nil {
+				return nil, err
+			}
+			for _, row := range settingsRows {
+				setting := row.(*pgStatMonitorSettingsTextValue) //nolint:forcetypeassert
+				result[setting.Name] = setting
+			}
 		}
 	} else {
-		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get settings")
-	}
-
-	settings := make(settings)
-	for _, row := range settingsRows {
-		if settingsValuesAreText {
-			if pgsmVersion >= pgStatMonitorVersion20PG12 {
-				setting := row.(*pgStatMonitorSettingsTextValue20)
-				settings[setting.Name] = &pgStatMonitorSettingsTextValue{
-					Name:  setting.Name,
-					Value: setting.Setting,
-				}
-			} else {
-				setting := row.(*pgStatMonitorSettingsTextValue)
-				settings[setting.Name] = setting
-			}
-		} else {
-			setting := row.(*pgStatMonitorSettings)
+		settingsRows, err := m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
+		if err != nil {
+			return nil, err
+		}
+		for _, row := range settingsRows {
+			setting := row.(*pgStatMonitorSettings) //nolint:forcetypeassert
 			name := setting.Name
-			settings[name] = &pgStatMonitorSettingsTextValue{
+			result[name] = &pgStatMonitorSettingsTextValue{
 				Name:  name,
 				Value: fmt.Sprintf("%d", setting.Value),
 			}
 		}
 	}
 
-	return settings, nil
+	return result, nil
 }
 
 func (s settings) getNormalizedQueryValue() (bool, error) {

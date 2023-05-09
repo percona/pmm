@@ -147,7 +147,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent
@@ -179,7 +179,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *pmmAgentSetup {
+	if *pmmAgentSetup { //nolint:nestif
 		var agent *exec.Cmd
 		restartPolicy := doNotRestart
 		if *pmmAgentSidecar {
@@ -204,7 +204,7 @@ func main() {
 	}
 
 	status = 0
-	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" {
+	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
 		l.Info("Starting pmm-agent for prerun...")
 		agent := commandPmmAgent([]string{"run"})
 		err := agent.Start()
