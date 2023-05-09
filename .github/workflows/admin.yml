@@ -181,8 +181,8 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: "report-${{ matrix.test-type }}"
-          path: ./playwright-report
+          name: "report-${{ go-version }}-${{ matrix.test-type }}"
+          path: playwright-report
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
