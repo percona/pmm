@@ -41,7 +41,6 @@ import (
 )
 
 func TestMgmtNodeService(t *testing.T) {
-
 	t.Run("ListNodes", func(t *testing.T) {
 		now = models.Now()
 
