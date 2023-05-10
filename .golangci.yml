@@ -50,6 +50,9 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  nestif:
+    min-complexity: 7
+
   tagliatelle:
     # Check the struck tag name case.
     case:
@@ -107,14 +110,11 @@ linters:
     - ireturn
     - gocognit
     - maintidx
-    - nestif
     - errorlint
-    - nonamedreturns
     - execinquery
     - interfacebloat
     - gosimple
     - contextcheck
-    - nakedret
     - forbidigo
     - errcheck
     - dupl
@@ -146,5 +146,6 @@ issues:
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
         - lll              # tests often require long lines
+        - nonamedreturns   # it's not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791

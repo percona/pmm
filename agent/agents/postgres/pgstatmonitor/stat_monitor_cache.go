@@ -62,7 +62,12 @@ func newStatMonitorCache(l *logrus.Entry) *statMonitorCache {
 
 // getStatMonitorExtended returns the current state of pg_stat_monitor table with extended information (database, username)
 // and the previous cashed state grouped by bucket start time.
-func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *reform.Querier, normalizedQuery bool, maxQueryLength int32) (current, cache map[time.Time]map[string]*pgStatMonitorExtended, err error) { //nolint:lll
+func (ssc *statMonitorCache) getStatMonitorExtended(
+	ctx context.Context,
+	q *reform.Querier,
+	normalizedQuery bool,
+	maxQueryLength int32,
+) (map[time.Time]map[string]*pgStatMonitorExtended, map[time.Time]map[string]*pgStatMonitorExtended, error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {
@@ -71,8 +76,8 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	}()
 
 	ssc.rw.RLock()
-	current = make(map[time.Time]map[string]*pgStatMonitorExtended)
-	cache = make(map[time.Time]map[string]*pgStatMonitorExtended)
+	current := make(map[time.Time]map[string]*pgStatMonitorExtended)
+	cache := make(map[time.Time]map[string]*pgStatMonitorExtended)
 	for k, v := range ssc.items {
 		cache[k] = v
 	}
@@ -85,14 +90,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	vPG, err := getPGVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get PG version")
-		return
+		return current, cache, err
 	}
 	ssc.l.Infof("pg version = %f", vPG)
 
 	vPGSM, _, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
-		return
+		return current, cache, err
 	}
 	ssc.l.Infof("pg monitor version = %d", vPGSM)
 
@@ -111,7 +116,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
 		err = errors.Wrap(e, "failed to query pg_stat_monitor")
-		return
+		return current, cache, err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -154,6 +159,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			}
 		}
 
+		//nolint:nestif
 		if c.Fingerprint == "" {
 			newN++
 			fingerprint := c.Query
