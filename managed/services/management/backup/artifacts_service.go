@@ -145,7 +145,11 @@ func (s *ArtifactsService) ListPitrTimeranges(
 	}
 
 	if artifact.Mode != models.PITR {
-		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact.")
+	}
+
+	if artifact.IsShardedCluster {
+		return nil, status.Errorf(codes.FailedPrecondition, "Getting PITR timeranges is not supported for sharded cluster artifacts.")
 	}
 
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
@@ -242,19 +246,20 @@ func convertArtifact(
 	}
 
 	return &backuppb.Artifact{
-		ArtifactId:   a.ID,
-		Name:         a.Name,
-		Vendor:       a.Vendor,
-		LocationId:   a.LocationID,
-		LocationName: l.Name,
-		ServiceId:    a.ServiceID,
-		ServiceName:  serviceName,
-		DataModel:    dataModel,
-		Mode:         backupMode,
-		Status:       backupStatus,
-		CreatedAt:    createdAt,
-		Folder:       a.Folder,
-		MetadataList: artifactMetadataListToProto(a),
+		ArtifactId:       a.ID,
+		Name:             a.Name,
+		Vendor:           a.Vendor,
+		LocationId:       a.LocationID,
+		LocationName:     l.Name,
+		ServiceId:        a.ServiceID,
+		ServiceName:      serviceName,
+		DataModel:        dataModel,
+		Mode:             backupMode,
+		Status:           backupStatus,
+		CreatedAt:        createdAt,
+		IsShardedCluster: a.IsShardedCluster,
+		Folder:           a.Folder,
+		MetadataList:     artifactMetadataListToProto(a),
 	}, nil
 }
 

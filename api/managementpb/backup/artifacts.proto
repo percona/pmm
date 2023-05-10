@@ -45,10 +45,12 @@ message Artifact {
   google.protobuf.Timestamp created_at = 10;
   // Backup mode.
   BackupMode mode = 11;
+  // Source database setup type.
+  bool is_sharded_cluster = 12;
   // Folder to store artifact on a storage.
-  string folder = 12;
+  string folder = 13;
   // List of artifact metadata.
-  repeated backup.v1.Metadata metadata_list = 13;
+  repeated backup.v1.Metadata metadata_list = 14;
 }
 
 message ListArtifactsRequest {}

@@ -164,16 +164,17 @@ func checkUniqueArtifactName(q *reform.Querier, name string) error {
 
 // CreateArtifactParams are params for creating a new artifact.
 type CreateArtifactParams struct {
-	Name       string
-	Vendor     string
-	DBVersion  string
-	LocationID string
-	ServiceID  string
-	DataModel  DataModel
-	Mode       BackupMode
-	Status     BackupStatus
-	ScheduleID string
-	Folder     string
+	Name             string
+	Vendor           string
+	DBVersion        string
+	LocationID       string
+	ServiceID        string
+	DataModel        DataModel
+	Mode             BackupMode
+	Status           BackupStatus
+	ScheduleID       string
+	IsShardedCluster bool
+	Folder           string
 }
 
 // Validate validates params used for creating an artifact entry.
@@ -223,18 +224,19 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	}
 
 	row := &Artifact{
-		ID:         id,
-		Name:       params.Name,
-		Vendor:     params.Vendor,
-		DBVersion:  params.DBVersion,
-		LocationID: params.LocationID,
-		ServiceID:  params.ServiceID,
-		DataModel:  params.DataModel,
-		Mode:       params.Mode,
-		Status:     params.Status,
-		Type:       OnDemandArtifactType,
-		ScheduleID: params.ScheduleID,
-		Folder:     params.Folder,
+		ID:               id,
+		Name:             params.Name,
+		Vendor:           params.Vendor,
+		DBVersion:        params.DBVersion,
+		LocationID:       params.LocationID,
+		ServiceID:        params.ServiceID,
+		DataModel:        params.DataModel,
+		Mode:             params.Mode,
+		Status:           params.Status,
+		Type:             OnDemandArtifactType,
+		ScheduleID:       params.ScheduleID,
+		IsShardedCluster: params.IsShardedCluster,
+		Folder:           params.Folder,
 	}
 
 	if params.ScheduleID != "" {
@@ -250,11 +252,12 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 
 // UpdateArtifactParams are params for changing existing artifact.
 type UpdateArtifactParams struct {
-	ServiceID  *string
-	Status     *BackupStatus
-	ScheduleID *string
-	Metadata   *Metadata
-	Folder     *string
+	ServiceID        *string
+	Status           *BackupStatus
+	ScheduleID       *string
+	IsShardedCluster bool
+	Metadata         *Metadata
+	Folder           *string
 }
 
 // UpdateArtifact updates existing artifact.
@@ -271,6 +274,10 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 	}
 	if params.ScheduleID != nil {
 		row.ScheduleID = *params.ScheduleID
+	}
+
+	if params.IsShardedCluster && !row.IsShardedCluster {
+		row.IsShardedCluster = true
 	}
 
 	if params.Metadata != nil {

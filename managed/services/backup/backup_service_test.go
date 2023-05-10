@@ -684,6 +684,21 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				},
 				err: nil,
 			},
+			{
+				name:      "sharded cluster restore not supported",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:             "mongo-artifact-name-7",
+					Vendor:           string(models.MongoDBServiceType),
+					LocationID:       locationRes.ID,
+					ServiceID:        *agent.ServiceID,
+					DataModel:        models.LogicalDataModel,
+					Mode:             models.Snapshot,
+					Status:           models.SuccessBackupStatus,
+					IsShardedCluster: true,
+				},
+				err: ErrIncompatibleService,
+			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)

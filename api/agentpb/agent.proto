@@ -600,8 +600,9 @@ message JobResult {
   }
   // MongoDBBackup contains result for MongoDB backup job.
   message MongoDBBackup {
+    bool is_sharded_cluster = 1;
     // Contains additional data describing artifact.
-    backup.v1.Metadata metadata = 1;
+    backup.v1.Metadata metadata = 2;
   }
 
   // MySQLBackup contains result for MySQL backup job.

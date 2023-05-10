@@ -154,21 +154,22 @@ func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
 //
 //reform:artifacts
 type Artifact struct {
-	ID           string       `reform:"id,pk"`
-	Name         string       `reform:"name"`
-	Vendor       string       `reform:"vendor"`
-	DBVersion    string       `reform:"db_version"`
-	LocationID   string       `reform:"location_id"`
-	ServiceID    string       `reform:"service_id"`
-	DataModel    DataModel    `reform:"data_model"`
-	Mode         BackupMode   `reform:"mode"`
-	Status       BackupStatus `reform:"status"`
-	Type         ArtifactType `reform:"type"`
-	ScheduleID   string       `reform:"schedule_id"`
-	Folder       string       `reform:"folder"`
-	MetadataList MetadataList `reform:"metadata_list"`
-	CreatedAt    time.Time    `reform:"created_at"`
-	UpdatedAt    time.Time    `reform:"updated_at"`
+	ID               string       `reform:"id,pk"`
+	Name             string       `reform:"name"`
+	Vendor           string       `reform:"vendor"`
+	DBVersion        string       `reform:"db_version"`
+	LocationID       string       `reform:"location_id"`
+	ServiceID        string       `reform:"service_id"`
+	DataModel        DataModel    `reform:"data_model"`
+	Mode             BackupMode   `reform:"mode"`
+	Status           BackupStatus `reform:"status"`
+	Type             ArtifactType `reform:"type"`
+	ScheduleID       string       `reform:"schedule_id"`
+	CreatedAt        time.Time    `reform:"created_at"`
+	UpdatedAt        time.Time    `reform:"updated_at"`
+	IsShardedCluster bool         `reform:"is_sharded_cluster"`
+	Folder           string       `reform:"folder"`
+	MetadataList     MetadataList `reform:"metadata_list"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

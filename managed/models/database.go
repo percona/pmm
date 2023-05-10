@@ -893,6 +893,10 @@ var databaseSchema = [][]string{
 	},
 	81: {
 		`ALTER TABLE artifacts
+		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
+	82: {
+		`ALTER TABLE artifacts
     		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
 			ADD COLUMN metadata_list JSONB;
 

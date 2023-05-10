@@ -39,10 +39,9 @@ func (v *artifactTableType) Columns() []string {
 		"status",
 		"type",
 		"schedule_id",
-		"folder",
-		"metadata_list",
 		"created_at",
 		"updated_at",
+		"is_sharded_cluster",
 	}
 }
 
@@ -78,10 +77,9 @@ var ArtifactTable = &artifactTableType{
 			{Name: "Status", Type: "BackupStatus", Column: "status"},
 			{Name: "Type", Type: "ArtifactType", Column: "type"},
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
-			{Name: "Folder", Type: "string", Column: "folder"},
-			{Name: "MetadataList", Type: "MetadataList", Column: "metadata_list"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "IsShardedCluster", Type: "bool", Column: "is_sharded_cluster"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -90,7 +88,7 @@ var ArtifactTable = &artifactTableType{
 
 // String returns a string representation of this struct or record.
 func (s Artifact) String() string {
-	res := make([]string, 15)
+	res := make([]string, 14)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Vendor: " + reform.Inspect(s.Vendor, true)
@@ -102,10 +100,9 @@ func (s Artifact) String() string {
 	res[8] = "Status: " + reform.Inspect(s.Status, true)
 	res[9] = "Type: " + reform.Inspect(s.Type, true)
 	res[10] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
-	res[11] = "Folder: " + reform.Inspect(s.Folder, true)
-	res[12] = "MetadataList: " + reform.Inspect(s.MetadataList, true)
-	res[13] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[14] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[13] = "IsShardedCluster: " + reform.Inspect(s.IsShardedCluster, true)
 	return strings.Join(res, ", ")
 }
 
@@ -124,10 +121,9 @@ func (s *Artifact) Values() []interface{} {
 		s.Status,
 		s.Type,
 		s.ScheduleID,
-		s.Folder,
-		s.MetadataList,
 		s.CreatedAt,
 		s.UpdatedAt,
+		s.IsShardedCluster,
 	}
 }
 
@@ -146,10 +142,9 @@ func (s *Artifact) Pointers() []interface{} {
 		&s.Status,
 		&s.Type,
 		&s.ScheduleID,
-		&s.Folder,
-		&s.MetadataList,
 		&s.CreatedAt,
 		&s.UpdatedAt,
+		&s.IsShardedCluster,
 	}
 }
 

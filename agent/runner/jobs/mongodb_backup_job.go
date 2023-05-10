@@ -155,6 +155,12 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
 
+	sharded, err := isShardedCluster(ctx, j.dbURL)
+	if err != nil {
+		return err
+	}
+
+
 	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
 	if err != nil {
 		return err
@@ -174,6 +180,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
 			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				IsShardedCluster: sharded,
 				Metadata: &backuppb.Metadata{
 					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
 					RestoreTo: timestamppb.New(*backupTimestamp),
