@@ -314,7 +314,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           t.Name(),
+					Name:           "some_backup_name",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
