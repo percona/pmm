@@ -88,7 +88,7 @@ func TestArtifacts(t *testing.T) {
 		}
 	}
 
-	t.Run("create", func(t *testing.T) {
+	t.Run("create and update", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -98,7 +98,7 @@ func TestArtifacts(t *testing.T) {
 		q := tx.Querier
 		prepareLocationsAndService(q)
 
-		params := models.CreateArtifactParams{
+		createParams := models.CreateArtifactParams{
 			Name:       "backup_name",
 			Vendor:     "MySQL",
 			LocationID: locationID1,
@@ -108,15 +108,32 @@ func TestArtifacts(t *testing.T) {
 			Mode:       models.Snapshot,
 		}
 
-		a, err := models.CreateArtifact(q, params)
+		a, err := models.CreateArtifact(q, createParams)
 		require.NoError(t, err)
-		assert.Equal(t, params.Name, a.Name)
-		assert.Equal(t, params.Vendor, a.Vendor)
-		assert.Equal(t, params.LocationID, a.LocationID)
-		assert.Equal(t, params.ServiceID, a.ServiceID)
-		assert.Equal(t, params.DataModel, a.DataModel)
-		assert.Equal(t, params.Status, a.Status)
+		require.NotNil(t, a)
+		assert.Equal(t, createParams.Name, a.Name)
+		assert.Equal(t, createParams.Vendor, a.Vendor)
+		assert.Equal(t, createParams.LocationID, a.LocationID)
+		assert.Equal(t, createParams.ServiceID, a.ServiceID)
+		assert.Equal(t, createParams.DataModel, a.DataModel)
+		assert.Equal(t, createParams.Status, a.Status)
 		assert.Less(t, time.Now().UTC().Unix()-a.CreatedAt.Unix(), int64(5))
+
+		updateParams := models.UpdateArtifactParams{
+			Status:           models.BackupStatusPointer(models.SuccessBackupStatus),
+			ScheduleID:       pointer.ToString("schedule_id"),
+			ServiceID:        &serviceID2,
+			IsShardedCluster: true,
+		}
+
+		a, err = models.UpdateArtifact(q, a.ID, updateParams)
+		require.NoError(t, err)
+		require.NotNil(t, a)
+		assert.Equal(t, *updateParams.Status, a.Status)
+		assert.Equal(t, *updateParams.ScheduleID, a.ScheduleID)
+		assert.Equal(t, *updateParams.ServiceID, a.ServiceID)
+		assert.Equal(t, updateParams.IsShardedCluster, a.IsShardedCluster)
+		assert.Less(t, time.Now().UTC().Unix()-a.UpdatedAt.Unix(), int64(5))
 	})
 
 	t.Run("list", func(t *testing.T) {
