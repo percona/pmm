@@ -90,7 +90,7 @@ func (l *Store) GetLogs() ([]string, uint) {
 	replacer := getColorReplacer()
 	l.log.Do(func(p interface{}) {
 		if p != nil {
-			logs = append(logs, replacer.Replace(p.(string)))
+			logs = append(logs, replacer.Replace(p.(string))) //nolint:forcetypeassert
 		}
 	})
 

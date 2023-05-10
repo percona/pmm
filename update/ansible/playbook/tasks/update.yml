@@ -15,6 +15,8 @@
       - pmm2-client
       - pmm-dump
       - vmproxy
+# TODO return before merge
+#      - grafana-db-migrator
   pre_tasks:
     - name: detect /srv/pmm-distribution
       stat:
@@ -119,9 +121,16 @@
       when: is_docker and not is_supervisor_running.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
 
+    - name: Wait until postgres port is present before continuing
+      wait_for:
+        host: localhost
+        port: 5432
+
     - name: Run initialization playbook
       include_role:
         name: initialization
+      vars:
+        ui_upgrade: True
 
     - name: Enable crond service
       when: not is_docker
@@ -313,6 +322,29 @@
 
     - name: Check other services
       debug: var=update_result.stdout_lines
+
+    - name: Check that the SQLite grafana database exists
+      stat:
+        path: /srv/grafana/grafana.db
+      register: is_database_sqlite
+
+    - name: Migrate Grafana database from SQLite to Postgresql
+      include_role:
+        name: sqlite-to-postgres
+      when: is_database_sqlite.stat.exists
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+    - name: Fix grafana fields type
+      postgresql_query:
+        db: grafana
+        query: "{{ item }}"
+      loop:
+        - ALTER TABLE tag ALTER COLUMN key TYPE text;
+        - ALTER TABLE tag ALTER COLUMN value TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
+      when: not ansible_check_mode
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.

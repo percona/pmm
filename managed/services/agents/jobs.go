@@ -380,7 +380,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MySQL backup job: %s", e)
 	}
 
@@ -460,7 +460,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MongoDB backup job: %s", e)
 	}
 
@@ -508,7 +508,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MySQL restore backup job: %s", e)
 	}
 
@@ -595,7 +595,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MonogDB restore backup job: %s", e)
 	}
 
