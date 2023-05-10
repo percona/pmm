@@ -402,6 +402,7 @@ func makeBuckets(
 	disableCommentsParsing bool,
 	disableQueryExamples bool,
 	maxQueryLength int32,
+	l *logrus.Entry,
 ) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
