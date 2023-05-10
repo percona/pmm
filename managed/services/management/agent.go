@@ -57,7 +57,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 	var agents []*agentv1beta1.UniversalAgent
 
 	if req.ServiceId != "" {
-		agents, err = s.listAgentsByServiceID(req.ServiceId)
+		agents, err = s.listAgentsByServiceID(ctx, req.ServiceId)
 	} else {
 		agents, err = s.listAgentsByNodeID(req.NodeId)
 	}
@@ -69,11 +69,11 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 }
 
 // listAgentsByServiceID returns a list of Agents filtered by ServiceID.
-func (s *AgentService) listAgentsByServiceID(serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
+func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
-	errTX := s.db.InTransactionContext(s.db.Querier.Context(), nil, func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
 		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
