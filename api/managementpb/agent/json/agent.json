@@ -25,10 +25,12 @@
         "operationId": "ListAgents",
         "parameters": [
           {
+            "description": "Only one of the parameters below must be set.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "Only one of the parameters below must be set.",
               "type": "object",
               "properties": {
                 "node_id": {

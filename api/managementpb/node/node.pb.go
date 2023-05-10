@@ -38,7 +38,7 @@ const (
 	UniversalNode_UP UniversalNode_Status = 1
 	// The node is down.
 	UniversalNode_DOWN UniversalNode_Status = 2
-	// The node's status cannot be known (p.e. there are no metrics yet).
+	// The node's status cannot be known (e.g. there are no metrics yet).
 	UniversalNode_UNKNOWN UniversalNode_Status = 3
 )
 
@@ -282,7 +282,7 @@ type ListNodeRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Node type of nodes to be filtered out.
+	// Node type to be filtered out.
 	NodeType inventorypb.NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.NodeType" json:"node_type,omitempty"`
 }
 
@@ -377,7 +377,7 @@ type GetNodeRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Unique Node identifier. Minimum length is enforced by the API.
+	// Unique Node identifier.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 }
 

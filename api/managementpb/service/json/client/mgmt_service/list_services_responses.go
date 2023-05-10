@@ -535,7 +535,7 @@ type ListServicesOKBodyServicesItems0 struct {
 	//  - STATUS_INVALID: In case we don't support the db vendor yet.
 	//  - UP: The service is up.
 	//  - DOWN: The service is down.
-	//  - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).
+	//  - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }

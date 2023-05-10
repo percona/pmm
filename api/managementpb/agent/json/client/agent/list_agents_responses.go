@@ -120,7 +120,7 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 }
 
 /*
-ListAgentsBody list agents body
+ListAgentsBody Only one of the parameters below must be set.
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {

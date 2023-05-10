@@ -141,6 +141,8 @@ message UniversalAgent {
 }
 
 message ListAgentRequest {
+  // Only one of the parameters below must be set.
+
   // Return only Agents that relate to a specific ServiceID.
   string service_id = 1;
   // Return only Agents that relate to a specific NodeID.

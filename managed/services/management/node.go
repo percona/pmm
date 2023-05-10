@@ -216,7 +216,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		}
 	}
 
-	aMap := make(map[string][]*nodev1beta1.UniversalNode_Agent)
+	aMap := make(map[string][]*nodev1beta1.UniversalNode_Agent, len(nodes))
 	for _, a := range agents {
 		if a.NodeID != nil || a.RunsOnNodeID != nil {
 			var nodeID string
@@ -304,6 +304,8 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 	}, nil
 }
 
+const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
+
 // GetNode returns a single Node by ID.
 func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeRequest) (*nodev1beta1.GetNodeResponse, error) {
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
@@ -311,9 +313,7 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		return nil, err
 	}
 
-	query := fmt.Sprintf(`up{job=~".*_hr$",node_id=%q}`, req.NodeId)
-
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	result, _, err := s.vmClient.Query(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute an instant VM query")
 	}

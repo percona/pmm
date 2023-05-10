@@ -514,7 +514,7 @@ type ListNodesOKBodyNodesItems0 struct {
 	//  - STATUS_INVALID: Invalid status.
 	//  - UP: The node is up.
 	//  - DOWN: The node is down.
-	//  - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).
+	//  - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 

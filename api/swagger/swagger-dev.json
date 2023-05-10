@@ -18226,10 +18226,12 @@
         "operationId": "ListAgentsMixin10",
         "parameters": [
           {
+            "description": "Only one of the parameters below must be set.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "Only one of the parameters below must be set.",
               "type": "object",
               "properties": {
                 "service_id": {
@@ -28065,7 +28067,7 @@
               "type": "object",
               "properties": {
                 "node_id": {
-                  "description": "Unique Node identifier. Minimum length is enforced by the API.",
+                  "description": "Unique Node identifier.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -28158,7 +28160,7 @@
                       "x-order": 13
                     },
                     "status": {
-                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                       "type": "string",
                       "default": "STATUS_INVALID",
                       "enum": [
@@ -28386,7 +28388,7 @@
                         "x-order": 13
                       },
                       "status": {
-                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
                         "default": "STATUS_INVALID",
                         "enum": [
@@ -32693,7 +32695,7 @@
                         "x-order": 16
                       },
                       "status": {
-                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).",
+                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
                         "default": "STATUS_INVALID",
                         "enum": [

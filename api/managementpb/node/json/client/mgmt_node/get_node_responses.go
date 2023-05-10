@@ -125,7 +125,7 @@ GetNodeBody get node body
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
-	// Unique Node identifier. Minimum length is enforced by the API.
+	// Unique Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 }
 
@@ -441,7 +441,7 @@ type GetNodeOKBodyNode struct {
 	//  - STATUS_INVALID: Invalid status.
 	//  - UP: The node is up.
 	//  - DOWN: The node is down.
-	//  - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).
+	//  - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 

@@ -32,7 +32,7 @@
               "type": "object",
               "properties": {
                 "node_id": {
-                  "description": "Unique Node identifier. Minimum length is enforced by the API.",
+                  "description": "Unique Node identifier.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -175,7 +175,7 @@
                       "x-order": 16
                     },
                     "status": {
-                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                       "type": "string",
                       "default": "STATUS_INVALID",
                       "enum": [
@@ -403,7 +403,7 @@
                         "x-order": 16
                       },
                       "status": {
-                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (p.e. there are no metrics yet).",
+                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
                         "default": "STATUS_INVALID",
                         "enum": [
