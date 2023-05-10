@@ -23,6 +23,6 @@ setup('Set default env.VARs', async () => {
   });
 
   // Download main images to reduce threads of download progress logs
-  await cli.exec(`docker pull ${oldImage}`);
-  await cli.exec(`docker pull ${newImage}`);
+  await cli.exec(`docker pull ${oldImage} -q`);
+  await cli.exec(`docker pull ${newImage} -q`);
 });

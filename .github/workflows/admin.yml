@@ -1,4 +1,4 @@
-name: 'Client: pmm'
+name: 'Client: pmm and pmm-admin'
 
 on:
   push:
@@ -148,8 +148,7 @@ jobs:
       - name: Setup tools
         run: |
           sudo apt-get install -y wget jq
-          sudo ln -sf /home/runner/go/bin/pmm /usr/bin/pmm
-          # sudo usermod -a -G pmm-agent $USER
+          sudo ln -sf /home/runner/go/bin/pmm /usr/bin
           sudo chown -R runner:docker /usr/bin/pmm
 
       - name: Remove docker for test
