@@ -141,55 +141,6 @@ func (c *VersionServiceClient) Collect(ch chan<- prom.Metric) {
 
 // Matrix calls version service with given params and returns components matrix.
 func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsParams) (*VersionServiceResponse, error) {
-	// FIXME using hardcoded values for PG until version service supports it
-	// https://jira.percona.com/browse/K8SPG-315
-	if params.product == pgOperator {
-		return &VersionServiceResponse{
-			Versions: []Version{
-				{
-					Product:        pgOperator,
-					ProductVersion: "main",
-					Matrix: matrix{
-						Pmm: map[string]componentVersion{
-							"2.32.0": {
-								ImagePath: "percona/pmm-client:2.32.0",
-								ImageHash: "ee2f3db541857e0a71633270596933441c4be579ce8e33c22cf150ead4f3622f",
-								Status:    "recommended",
-							},
-						},
-						Operator: map[string]componentVersion{
-							"main": {
-								ImagePath: "perconalab/percona-postgresql-operator:main",
-								ImageHash: "",
-								Status:    "recommended",
-							},
-						},
-						Postgresql: map[string]componentVersion{
-							"14.7": {
-								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-postgres",
-								ImageHash: "bf47531669ab49a26479f46efc78ed42b9393325cfac1b00c3e340987c8869f0",
-								Status:    "recommended",
-							},
-						},
-						Pgbouncer: map[string]componentVersion{
-							"14.7": {
-								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-pgbouncer",
-								ImageHash: "64de9cd659e2d6f75bea9263b23a72e5aa9b00560ae403249c92a3439a2fd527",
-								Status:    "recommended",
-							},
-						},
-						Pgbackrest: map[string]componentVersion{
-							"14.7": {
-								ImagePath: "perconalab/percona-postgresql-operator:main-ppg14-pgbackrest",
-								ImageHash: "9bcac75e97204eb78296f4befff555cad1600373ed5fd76576e0401a8c8eb4e6",
-								Status:    "recommended",
-							},
-						},
-					},
-				},
-			},
-		}, nil
-	}
 	paths := []string{c.url, params.product}
 	if params.productVersion != "" {
 		paths = append(paths, params.productVersion)
@@ -275,12 +226,9 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 		operatorVersions[psmdbOperator] = append(operatorVersions[psmdbOperator], v)
 	}
 
-	// FIXME using hardcoded values for PG until version service supports it
-	// https://jira.percona.com/browse/K8SPG-315
-	//	for v := range resp.Versions[0].Matrix.PGOperator {
-	//		operatorVersions[pgOperator] = append(operatorVersions[pgOperator], v)
-	//	}
-	operatorVersions[pgOperator] = []string{"main"}
+	for v := range resp.Versions[0].Matrix.PGOperator {
+		operatorVersions[pgOperator] = append(operatorVersions[pgOperator], v)
+	}
 
 	return operatorVersions, nil
 }
@@ -351,6 +299,8 @@ func (c *VersionServiceClient) GetNextDatabaseImage(ctx context.Context, operato
 		versions = operatorDependencies.Matrix.Mongod
 	case pxcOperator:
 		versions = operatorDependencies.Matrix.Pxc
+	case pgOperator:
+		versions = operatorDependencies.Matrix.Postgresql
 	default:
 		return "", errors.Errorf("%q operator not supported", operatorType)
 	}

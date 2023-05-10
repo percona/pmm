@@ -18,9 +18,12 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -115,7 +118,7 @@ func (s PostgresqlClustersService) CreatePostgresqlCluster(ctx context.Context,
 		return nil, err
 	}
 
-	if err := s.fillDefaults(req); err != nil {
+	if err := s.fillDefaults(ctx, req); err != nil {
 		return nil, errors.Wrap(err, "cannot create postgresql cluster")
 	}
 
@@ -144,7 +147,7 @@ func (s PostgresqlClustersService) CreatePostgresqlCluster(ctx context.Context,
 	return &dbaasv1beta1.CreatePostgresqlClusterResponse{}, nil
 }
 
-func (s PostgresqlClustersService) fillDefaults(req *dbaasv1beta1.CreatePostgresqlClusterRequest) error {
+func (s PostgresqlClustersService) fillDefaults(ctx context.Context, req *dbaasv1beta1.CreatePostgresqlClusterRequest) error {
 	if req.Name != "" {
 		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
 		if !r.MatchString(req.Name) {
@@ -189,23 +192,61 @@ func (s PostgresqlClustersService) fillDefaults(req *dbaasv1beta1.CreatePostgres
 		}
 	}
 
-	if req.Params.Pgbouncer != nil {
-		if req.Params.Pgbouncer.ComputeResources == nil {
-			req.Params.Pgbouncer.ComputeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        pgBouncerDefaultCPUM,
-				MemoryBytes: pgBouncerDefaultMemoryBytes,
+	if req.Params.Pgbouncer.ComputeResources == nil {
+		req.Params.Pgbouncer.ComputeResources = &dbaasv1beta1.ComputeResources{
+			CpuM:        pgBouncerDefaultCPUM,
+			MemoryBytes: pgBouncerDefaultMemoryBytes,
+		}
+	}
+	if req.Params.Pgbouncer.ComputeResources.CpuM == 0 {
+		req.Params.Pgbouncer.ComputeResources.CpuM = pgBouncerDefaultCPUM
+	}
+	if req.Params.Pgbouncer.ComputeResources.MemoryBytes == 0 {
+		req.Params.Pgbouncer.ComputeResources.MemoryBytes = pgBouncerDefaultMemoryBytes
+	}
+
+	// Only call the version service if it is really needed.
+	if req.Params.Instance.Image == ""  ||
+		req.Params.Pgbouncer.Image == "" {
+		pgComponents, err := s.componentsService.GetPGComponents(ctx, &dbaasv1beta1.GetPGComponentsRequest{
+			KubernetesClusterName: req.KubernetesClusterName,
+		})
+		if err != nil {
+			return errors.New("cannot get the list of PG components")
+		}
+
+		if req.Params.Instance.Image == "" {
+			postgresqlComponent, err := DefaultComponent(pgComponents.Versions[0].Matrix.Postgresql)
+			if err != nil {
+				return errors.Wrap(err, "cannot get the recommended Postgresql image name")
 			}
+			req.Params.Instance.Image = postgresqlComponent.ImagePath
 		}
-		if req.Params.Pgbouncer.ComputeResources.CpuM == 0 {
-			req.Params.Pgbouncer.ComputeResources.CpuM = pgBouncerDefaultCPUM
-		}
-		if req.Params.Pgbouncer.ComputeResources.MemoryBytes == 0 {
-			req.Params.Pgbouncer.ComputeResources.MemoryBytes = pgBouncerDefaultMemoryBytes
-		}
-		// FIXME using hardcoded values for PGBouncer until version service
-		// supports it https://jira.percona.com/browse/K8SPG-315
+
 		if req.Params.Pgbouncer.Image == "" {
-			req.Params.Pgbouncer.Image = "perconalab/percona-postgresql-operator:main-ppg14-pgbouncer"
+			pgbouncerComponent, err := DefaultComponent(pgComponents.Versions[0].Matrix.Pgbouncer)
+			if err != nil {
+				return errors.Wrap(err, "cannot get the recommended pgbouncer image name")
+			}
+			req.Params.Pgbouncer.Image = pgbouncerComponent.ImagePath
+		}
+	}
+
+	if req.Name == "" {
+		// Image is a string like this: percona/percona-postgresql-operator:2.1.0-ppg15-postgres
+		// We need only the version part to build the cluster name.
+		pgVersionMatch := regexp.MustCompile(`-ppg(\d+)-`).FindStringSubmatch(req.Params.Instance.Image)
+		if len(pgVersionMatch) < 2 {
+			return errors.Errorf("failed to extract the PostgresVersion from %s", req.Params.Instance.Image)
+		}
+
+		// This is to generate an unique name.
+		uuids := strings.ReplaceAll(uuid.New().String(), "-", "")
+		uuids = uuids[len(uuids)-5:]
+
+		req.Name = fmt.Sprintf("psmdb-%s-%s", pgVersionMatch[1], uuids)
+		if len(req.Name) > 22 { // Kubernetes limitation
+			req.Name = req.Name[:21]
 		}
 	}
 
