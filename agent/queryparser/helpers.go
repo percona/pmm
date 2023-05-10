@@ -273,12 +273,13 @@ func removeSpaces(s string) (string, error) {
 	return strings.TrimRight(value, " "), nil
 }
 
-func stringToLines(s string) (lines []string, err error) {
+func stringToLines(s string) ([]string, error) {
+	var lines []string
 	scanner := bufio.NewScanner(strings.NewReader(s))
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
-	err = scanner.Err()
+	err := scanner.Err()
 
-	return
+	return lines, err
 }
