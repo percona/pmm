@@ -447,13 +447,12 @@ func makeBuckets(
 			mb.Common.PlaceholdersCount = placeholdersCount
 		}
 
-			if !disableCommentsParsing {
-				comments, err := queryparser.MySQLComments(q)
-				if err != nil {
-					l.Infof("cannot parse comments from query: %s", q)
-				}
-				mb.Common.Comments = comments
+		if !disableCommentsParsing {
+			comments, err := queryparser.MySQLComments(q)
+			if err != nil {
+				l.Infof("cannot parse comments from query: %s", q)
 			}
+			mb.Common.Comments = comments
 		}
 
 		if v.Example != nil && !disableQueryExamples {
