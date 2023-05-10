@@ -40,6 +40,7 @@ import (
 const (
 	psmdbOperatorName = "percona-server-mongodb-operator"
 	pxcOperatorName   = "percona-xtradb-cluster-operator"
+	pgOperatorName    = "percona-postgresql-operator"
 	defaultNamespace  = "default"
 	// Dev-latest docker image.
 	devLatest = "perconalab/pmm-client:dev-latest"
@@ -61,6 +62,7 @@ type installedComponentsVersion struct {
 	kuberentesClusterName string
 	pxcOperatorVersion    string
 	psmdbOperatorVersion  string
+	pgOperatorVersion     string
 }
 
 // NewComponentsService creates Components Service.
@@ -315,11 +317,16 @@ func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	if err != nil {
 		c.l.Errorf("failed to get pxc operator version: %v", err)
 	}
+	pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
+	if err != nil {
+		c.l.Errorf("failed to get pg operator version: %v", err)
+	}
 
 	responseCh <- installedComponentsVersion{
 		kuberentesClusterName: kuberentesCluster.KubernetesClusterName,
-		pxcOperatorVersion:    psmdbVersion,
-		psmdbOperatorVersion:  pxcVersion,
+		pxcOperatorVersion:    pxcVersion,
+		psmdbOperatorVersion:  psmdbVersion,
+		pgOperatorVersion:     pgVersion,
 	}
 }
 
@@ -366,6 +373,7 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 			ComponentToUpdateInformation: map[string]*dbaasv1beta1.ComponentUpdateInformation{
 				psmdbOperator: {},
 				pxcOperator:   {},
+				pgOperator:    {},
 			},
 		}
 
@@ -381,6 +389,10 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv
 						}
 					case pxcOperatorName:
 						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[pxcOperator] = &dbaasv1beta1.ComponentUpdateInformation{
+							AvailableVersion: matches[1],
+						}
+					case pgOperatorName:
+						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[pgOperator] = &dbaasv1beta1.ComponentUpdateInformation{
 							AvailableVersion: matches[1],
 						}
 					}
@@ -534,6 +546,11 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 			return kubeClient.UpgradeOperator(ctx, defaultNamespace, psmdbOperatorName)
 		}
 		component = kubernetesCluster.Mongod
+	case pgOperator:
+		installFunc = func() error {
+			return kubeClient.UpgradeOperator(ctx, defaultNamespace, pgOperatorName)
+		}
+		component = kubernetesCluster.Postgresql
 	default:
 		return nil, errors.Errorf("%q is not supported operator", req.OperatorType)
 	}
