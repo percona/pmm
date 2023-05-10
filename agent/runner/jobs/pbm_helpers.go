@@ -224,9 +224,9 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	for {
 		select {
 		case <-ticker.C:
-			var status pbmStatus
-			if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
-				return errors.Wrapf(err, "pbm status error")
+			status, err := getPBMStatus(ctx, dbURL)
+			if err != nil {
+				return err
 			}
 			if status.Running.Type == "" {
 				return nil
@@ -235,6 +235,27 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 			return ctx.Err()
 		}
 	}
+}
+
+func isShardedCluster(ctx context.Context, dbURL *url.URL) (bool, error) {
+	status, err := getPBMStatus(ctx, dbURL)
+	if err != nil {
+		return false, err
+	}
+
+	if len(status.Cluster) > 1 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func getPBMStatus(ctx context.Context, dbURL *url.URL) (*pbmStatus, error) {
+	var status pbmStatus
+	if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
+		return nil, errors.Wrap(err, "pbm status error")
+	}
+	return &status, nil
 }
 
 func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
