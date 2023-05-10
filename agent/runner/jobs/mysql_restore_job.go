@@ -83,7 +83,7 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 }
 
 // Run executes backup restore steps.
-func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
+func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	if j.locationConfig.S3Config == nil {
 		return errors.New("S3 config is not set")
 	}
@@ -165,7 +165,7 @@ func (j *MySQLRestoreJob) binariesInstalled() error {
 	return nil
 }
 
-func prepareRestoreCommands(
+func prepareRestoreCommands( //nolint:nonamedreturns
 	ctx context.Context,
 	folder string,
 	config *BackupLocationConfig,
