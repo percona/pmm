@@ -67,7 +67,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
-				ExplainFingerprint:  "select /* controller='test' */ * from contacts as t0 where t0.person_id = :1",
+				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
 				Comments:            []string{"controller='test'"},
 				AgentId:             agentID,
