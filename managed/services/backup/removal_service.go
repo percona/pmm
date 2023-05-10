@@ -77,45 +77,46 @@ func (s *RemovalService) DeleteArtifact(storage Storage, artifactID string, remo
 		}
 	}
 
-	if removeFiles {
-		go func() {
-			var err error
-			defer func() {
-				if err != nil {
-					_ = s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
-				}
-			}()
-
-			location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	removeFilesHelper := func() {
+		var err error
+		defer func() {
 			if err != nil {
-				s.l.WithError(err).Error("couldn't get location")
-				return
-			}
-
-			service, err := models.FindServiceByID(s.db.Querier, artifact.ServiceID)
-			if err != nil {
-				s.l.WithError(err).Error("couldn't get service")
-				return
-			}
-
-			if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList)); err != nil {
-				s.l.WithError(err).Error("couldn't delete artifact files")
-				return
-			}
-
-			if service.ServiceType == models.MongoDBServiceType && artifact.Mode == models.PITR {
-				if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil); err != nil {
-					s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
-					return
-				}
-			}
-
-			err = models.DeleteArtifact(s.db.Querier, artifactID)
-			if err != nil {
-				s.l.WithError(err).Error("couldn't delete artifact")
+				_ = s.setArtifactStatus(artifactID, models.FailedToDeleteBackupStatus)
 			}
 		}()
 
+		location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+		if err != nil {
+			s.l.WithError(err).Error("couldn't get location")
+			return
+		}
+
+		service, err := models.FindServiceByID(s.db.Querier, artifact.ServiceID)
+		if err != nil {
+			s.l.WithError(err).Error("couldn't get service")
+			return
+		}
+
+		if err = s.deleteArtifactFiles(context.Background(), storage, location, artifact, len(artifact.MetadataList)); err != nil {
+			s.l.WithError(err).Error("couldn't delete artifact files")
+			return
+		}
+
+		if service.ServiceType == models.MongoDBServiceType && artifact.Mode == models.PITR {
+			if err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, nil); err != nil {
+				s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
+				return
+			}
+		}
+
+		err = models.DeleteArtifact(s.db.Querier, artifactID)
+		if err != nil {
+			s.l.WithError(err).Error("couldn't delete artifact")
+		}
+	}
+
+	if removeFiles {
+		go removeFilesHelper()
 		return nil
 	}
 
