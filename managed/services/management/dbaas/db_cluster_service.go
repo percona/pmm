@@ -112,7 +112,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 			}
 			psmdbClusters = append(psmdbClusters, c)
 		case kubernetes.DatabaseTypePostgresql:
-			c, err := s.getPostgresqlCluster(cluster, pgOperatorVersion)
+			c, err := s.getPostgresqlCluster(ctx, cluster, pgOperatorVersion)
 			if err != nil {
 				s.l.Errorf("failed getting Postgresql cluster: %v", err)
 			}
@@ -329,7 +329,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	return c, nil
 }
 
-func (s DBClusterService) getPostgresqlCluster(cluster dbaasv1.DatabaseCluster, _ string) (*dbaasv1beta1.PostgresqlCluster, error) {
+func (s DBClusterService) getPostgresqlCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PostgresqlCluster, error) {
 	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
 	if err != nil {
@@ -371,6 +371,28 @@ func (s DBClusterService) getPostgresqlCluster(cluster dbaasv1.DatabaseCluster, 
 		Image:            cluster.Spec.LoadBalancer.Image,
 	}
 
+	matrix, err := s.versionServiceClient.Matrix(ctx, componentsParams{
+		product:        pgOperator,
+		productVersion: operatorVersion,
+	})
+	if err != nil {
+		return nil, err
+	}
+	var currentDBVersion string
+	for k, v := range matrix.Versions[0].Matrix.Postgresql {
+		if v.ImagePath == cluster.Spec.DatabaseImage {
+			currentDBVersion = k
+		}
+	}
+	if currentDBVersion == "" {
+		return nil, errors.Errorf("failed to find Postgresql version of %s", cluster.Spec.DatabaseImage)
+	}
+
+	nextVersionImage, err := s.versionServiceClient.GetNextDatabaseImage(ctx, pgOperator, operatorVersion, currentDBVersion)
+	if err != nil {
+		return nil, err
+	}
+	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
 
 	if cluster.ObjectMeta.Annotations != nil {
@@ -426,7 +448,7 @@ func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.Ge
 		resp.PsmdbCluster = c
 	}
 	if dbCluster.Spec.Database == kubernetes.DatabaseTypePostgresql && pgOperatorVersion != "" {
-		c, err := s.getPostgresqlCluster(*dbCluster, pgOperatorVersion)
+		c, err := s.getPostgresqlCluster(ctx, *dbCluster, pgOperatorVersion)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed getting Postgresql cluster")
 		}
