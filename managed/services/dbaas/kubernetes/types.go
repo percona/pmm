@@ -608,6 +608,7 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	if updateRequest.Params.Image != "" {
 		dbCluster.Spec.DatabaseImage = updateRequest.Params.Image
 	}
+	//nolint:nestif
 	if updateRequest.Params.Replicaset != nil {
 		if updateRequest.Params.Replicaset.ComputeResources != nil {
 			if updateRequest.Params.Replicaset.ComputeResources.CpuM > 0 {
