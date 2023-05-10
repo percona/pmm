@@ -17,16 +17,6 @@ setup('Set default env.VARs', async () => {
   // rc_latest=$(wget -q "https://registry.hub.docker.com/v2/repositories/perconalab/pmm-server/tags?page_size=25&name=rc" -O - | jq -r .results[].name  | grep 2.*.*-rc$ | sort -V | tail -n1)
   // rc_minor=$(echo $rc_latest | awk -F. '{print $2}')
   // dev_latest="2.$((++rc_minor)).0"
-
-  await cli.exec('ls -la');
-  await cli.exec('ls -la ../');
-  await cli.exec('which pmm');
-  await cli.exec('echo $USER');
-  await cli.exec('groups');
-  await cli.exec('id -G');
-  await cli.exec('id -Gn');
-  await cli.exec('id -g');
-
   await setup.step('Set pmm-server versions', async () => {
     process.env.server_image = newImage;
     process.env.old_server_image = oldImage;

@@ -179,9 +179,9 @@ test.describe('pmm-bin: server upgrade tests', async () => {
   });
 
   test('PMM-T1680 "pmm server docker upgrade" upgrades non-CLI containers prefix', async () => {
-    const oldContainerName = 'pmm-server-upgrade-2';
-    const newContainerPrefix = 'pmm-server-upg';
-    const volumeName = 'pmm-data-upgrade-2';
+    const oldContainerName = 'pmm-server-non-cli';
+    const newContainerPrefix = 'pmm-server-upgr';
+    const volumeName = 'pmm-data-non-cli';
     const httpPort = 4080;
     const httpsPort = 4443;
 
@@ -209,8 +209,6 @@ test.describe('pmm-bin: server upgrade tests', async () => {
       adminPassword: defaultAdminPassword,
     });
   });
-
-
 
   // PMM-T1682 Verify pmm server docker upgrade will give warning for upgrade of non-CLI containers
   // PMM-T1685 Verify CLI command "pmm server docker upgrade" flags are respected for non-CLI server

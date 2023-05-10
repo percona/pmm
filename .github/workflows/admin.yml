@@ -176,15 +176,9 @@ jobs:
         if: ${{ matrix.test-type == 'pmm-serv-update' }}
         run: npx playwright test tests/pmm-cli/server/upgrade.spec.ts
 
-      - name: Run specific docker  tests
+      - name: Run specific docker tests
         if: ${{ matrix.test-type == 'pmm-docker-test' }}
         run: npx playwright test tests/pmm-cli/server/docker-specific.spec.ts
-
-      - name: Debug report path
-        if: failure()
-        run: |
-          ls -la
-          ls -la ../
 
       - name: Attach the report on failure
         if: failure()
