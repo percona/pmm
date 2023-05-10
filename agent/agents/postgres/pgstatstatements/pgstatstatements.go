@@ -109,11 +109,12 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 	}, nil
 }
 
-func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) {
+func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
+	var pgVersion semver.Version
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
 	if err != nil {
-		return
+		return pgVersion, err
 	}
 
 	switch strings.Count(v, ".") {
@@ -213,18 +214,23 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int32) (current, prev statementsMap, err error) {
+func (m *PGStatStatementsQAN) getStatStatementsExtended(
+	ctx context.Context,
+	q *reform.Querier,
+	maxQueryLength int32,
+) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
+	var err error
 	start := time.Now()
 	defer func() {
 		dur := time.Since(start)
 		m.l.Debugf("Selected %d rows from pg_stat_statements in %s: %d new (%d shared tables), %d old.", totalN, dur, newN, newSharedN, oldN)
 	}()
 
-	current = make(statementsMap, m.statementsCache.cache.Len())
-	prev = make(statementsMap, m.statementsCache.cache.Len())
-	if err = m.statementsCache.Get(prev); err != nil {
-		return
+	current := make(statementsMap, m.statementsCache.cache.Len())
+	prev := make(statementsMap, m.statementsCache.cache.Len())
+	if err := m.statementsCache.Get(prev); err != nil {
+		return nil, nil, err
 	}
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
@@ -234,7 +240,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
 	if e != nil {
 		err = e
-		return
+		return nil, nil, err
 	}
 	defer rows.Close() //nolint:errcheck
 

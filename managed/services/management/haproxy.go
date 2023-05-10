@@ -76,7 +76,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.HAProxyService)
+		res.Service = invService.(*inventorypb.HAProxyService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementpb.MetricsMode_AUTO {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
@@ -117,7 +117,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter)
+		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil

@@ -95,7 +95,7 @@ func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
 	}
 	tips := make([]*models.OnboardingSystemTip, len(structs))
 	for i, s := range structs {
-		tips[i] = s.(*models.OnboardingSystemTip)
+		tips[i] = s.(*models.OnboardingSystemTip) //nolint:forcetypeassert
 	}
 
 	for _, tip := range tips {
@@ -222,7 +222,7 @@ func (t *TipsService) retrieveUserTip(tx *reform.TX, userID int, tipID int64) (*
 		return nil, errors.Wrap(err, "failed to retrieve system tip by id")
 	}
 
-	return res.(*models.OnboardingUserTip), nil
+	return res.(*models.OnboardingUserTip), nil //nolint:forcetypeassert
 }
 
 func (t *TipsService) createUserTip(tx *reform.TX, userID int, tipID int64) (*models.OnboardingUserTip, error) {

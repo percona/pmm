@@ -19,7 +19,11 @@ package sqlrows
 import "database/sql"
 
 // ReadRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
-func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err error) {
+func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
+	var columns []string
+	var dataRows [][]interface{}
+	var err error
+
 	defer func() {
 		// overwrite err with e only if err does not already contain (a more interesting) error
 		if e := rows.Close(); err == nil {
@@ -29,7 +33,7 @@ func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 
 	columns, err = rows.Columns()
 	if err != nil {
-		return
+		return columns, dataRows, err
 	}
 
 	for rows.Next() {
@@ -39,7 +43,7 @@ func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 			dest[i] = &ei
 		}
 		if err = rows.Scan(dest...); err != nil {
-			return
+			return columns, dataRows, err
 		}
 
 		// Each dest element is an *interface{} (&ei above) which always contain some typed data
@@ -48,7 +52,7 @@ func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
 		// them as base64 strings.
 		for i, d := range dest {
-			ei := *(d.(*interface{}))
+			ei := *(d.(*interface{})) //nolint:forcetypeassert
 			dest[i] = ei
 			if b, ok := (ei).([]byte); ok {
 				dest[i] = string(b)
@@ -58,5 +62,6 @@ func ReadRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 		dataRows = append(dataRows, dest)
 	}
 	err = rows.Err()
-	return //nolint:nakedret
+
+	return columns, dataRows, err
 }
