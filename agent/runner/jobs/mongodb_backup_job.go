@@ -160,7 +160,6 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return err
 	}
 
-
 	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
 	if err != nil {
 		return err
