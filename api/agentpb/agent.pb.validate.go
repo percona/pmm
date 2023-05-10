@@ -39,7 +39,7 @@ var (
 
 	_ = backupv1.DataModel(0)
 
-	_ = inventorypb.AgentType(0)
+	_ = inventorypb.AgentStatus(0)
 )
 
 // Validate checks the field values on TextFiles with the rules defined in the
@@ -11848,6 +11848,8 @@ func (m *JobResult_MongoDBBackup) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for IsShardedCluster
 
 	if len(errors) > 0 {
 		return JobResult_MongoDBBackupMultiError(errors)

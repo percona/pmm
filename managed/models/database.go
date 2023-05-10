@@ -891,6 +891,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbouncer JSONB`,
 		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbackrest JSONB`,
 	},
+	81: {
+		`ALTER TABLE artifacts
+		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
