@@ -106,6 +106,8 @@ func (m *Artifact) validate(all bool) error {
 
 	// no validation rules for Mode
 
+	// no validation rules for IsShardedCluster
+
 	if len(errors) > 0 {
 		return ArtifactMultiError(errors)
 	}
