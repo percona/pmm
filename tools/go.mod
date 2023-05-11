@@ -10,7 +10,7 @@ require (
 	github.com/apache/skywalking-eyes v0.4.0
 	github.com/bufbuild/buf v1.18.0
 	github.com/daixiang0/gci v0.10.1
-	github.com/envoyproxy/protoc-gen-validate v1.0.0
+	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-delve/delve v1.20.2
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
@@ -22,7 +22,7 @@ require (
 	github.com/vburenin/ifacemaker v1.2.0
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.8.0
+	golang.org/x/tools v0.9.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/reform.v1 v1.5.1
@@ -180,7 +180,7 @@ require (
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
