@@ -220,7 +220,7 @@ test.describe('pmm-bin: server upgrade tests', async () => {
     const oldContainerName = 'pmm-server-non-cli-flags';
     const newContainerName = 'pmm-server-non-cli-flags-new';
     const volumeName = 'pmm-data-non-cli-flags';
-    const httpPort = 4082;
+    const httpPort = 4182;
     const httpsPort = 4446;
     await runOldPmmServer(httpPort, httpsPort, volumeName, oldContainerName);
 
