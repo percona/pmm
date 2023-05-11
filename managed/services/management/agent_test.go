@@ -118,7 +118,7 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			agents := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     pgExporterID,
 					AgentType:   "postgres_exporter",
@@ -163,7 +163,7 @@ func TestAgentService(t *testing.T) {
 				},
 			}
 
-			assert.Equal(t, agents, response.Agents)
+			assert.Equal(t, expected, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
@@ -201,7 +201,7 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			agents := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
@@ -213,7 +213,7 @@ func TestAgentService(t *testing.T) {
 					Status:      "UNKNOWN",
 				},
 			}
-			assert.Equal(t, agents, response.Agents)
+			assert.Equal(t, expected, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
@@ -251,7 +251,7 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			agents := []*agentv1beta1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     azureExporter.AgentID,
 					AgentType:   "azure_database_exporter",
@@ -263,7 +263,7 @@ func TestAgentService(t *testing.T) {
 					Status:      "UNKNOWN",
 				},
 			}
-			assert.Equal(t, agents, response.Agents)
+			assert.Equal(t, expected, response.Agents)
 		})
 	})
 }
