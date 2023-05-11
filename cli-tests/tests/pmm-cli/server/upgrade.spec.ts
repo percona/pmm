@@ -1,72 +1,11 @@
 import { expect, test } from '@playwright/test';
 import * as cli from '@helpers/cliHelper';
-import PMMRestClient from '@tests/support/types/request';
+import { verifyPmmServerProperties } from '@helpers/customAssertions';
+import { runOldPmmServer } from '@helpers/containers';
 
 const defaultAdminPassword = 'admin';
 const defaultServImage = 'percona/pmm-server:2';
 const defaultVolumeName = 'pmm-data';
-
-/**
- * Encapsulates all running "PMM Server" container in docker.
- * All verifications are taken based on specified parameters.
- * Object properties are optional and verifies each "pmm docker command" flag:
- * {
- *   containerName: "verifies --container-name",
- *   imageName: "verifies --docker-image, requires containerName",
- *   volumeName: "verifies --volume-name",
- *   httpPort: "verifies --http-listen-port, requires adminPassword",
- *   httpsPort: "verifies --https-listen-port, requires adminPassword",
- *   adminPassword: "verifies --admin-password, embedded into ports check"
- * }
- *
- * @param   checks  Object with checks to execute:
- */
-const verifyPmmServerProperties = async (checks: {
-  containerName?: string,
-  imageName?: string,
-  volumeName?: string,
-  httpPort?: number,
-  httpsPort?: number,
-  adminPassword?: string }) => {
-  // verify --container-name
-  if (checks.containerName !== undefined) {
-    await (await cli.exec('docker ps --format="{{.Names}}"')).outHasLine(checks.containerName);
-  }
-  // verify --volume-name
-  if (checks.volumeName !== undefined) {
-    await (await cli.exec('docker volume ls --format="{{.Name}}"')).outHasLine(checks.volumeName);
-  }
-  // verify --docker-image
-  if (checks.imageName !== undefined && checks.containerName !== undefined) {
-    await (await cli.exec('docker ps --format="{{.Names}} {{.Image}}"'))
-      .outHasLine(`${checks.containerName} ${checks.imageName}`);
-  }
-  // verify --http-listen-port
-  // TODO: improve error messaging and logs for exapmple for incorrect password
-  if (checks.httpPort !== undefined && checks.adminPassword !== undefined) {
-    await (new PMMRestClient('admin', checks.adminPassword, checks.httpPort)).works();
-  }
-  // verify --https-listen-port
-  if (checks.httpsPort !== undefined && checks.adminPassword !== undefined) {
-    const client = new PMMRestClient('admin', checks.adminPassword, checks.httpsPort, {
-      baseURL: `https://localhost:${checks.httpsPort}`,
-      ignoreHTTPSErrors: true,
-    });
-    const resp = await client.doPost('/v1/Settings/Get');
-
-    await expect(resp, 'https port and password should work').toBeOK();
-    expect(await resp.json()).toHaveProperty('settings');
-  }
-};
-
-const runOldPmmServer = async (httpPort: number, httpsPort: number, volumeName: string, oldContainerName: string) => {
-  await (await cli.exec(`docker run --detach --restart always
-        --publish ${httpPort}:80 
-        --publish ${httpsPort}:443 
-        -v ${volumeName}:/srv 
-        --name ${oldContainerName} 
-        ${process.env.old_server_image}`)).assertSuccess();
-};
 
 test.describe.configure({ mode: 'parallel' });
 
