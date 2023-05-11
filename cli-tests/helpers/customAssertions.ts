@@ -51,7 +51,7 @@ export const verifyPmmServerProperties = async (checks: {
     }).toPass({
       // Probe, wait 1s, probe, wait 2s, probe, wait 2s, probe, wait 2s, probe, ....
       intervals: [1_000, 2_000, 2_000],
-      timeout: 30_000,
+      timeout: 60_000,
     });
   }
 
@@ -66,7 +66,7 @@ export const verifyPmmServerProperties = async (checks: {
     }).toPass({
       // Probe, wait 1s, probe, wait 1s, probe, wait 2s, probe, wait 2s, probe, ....
       intervals: [1_000, 2_000, 2_000],
-      timeout: 60_000,
+      timeout: 30_000,
     });
   }
 };
