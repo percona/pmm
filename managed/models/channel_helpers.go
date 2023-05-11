@@ -117,7 +117,7 @@ func FindChannels(q *reform.Querier) ([]*Channel, error) {
 
 	channels := make([]*Channel, len(rows))
 	for i, s := range rows {
-		channels[i] = s.(*Channel)
+		channels[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 
 	return channels, nil
@@ -132,7 +132,7 @@ func FindChannelsOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Channel,
 
 	channels := make([]*Channel, len(rows))
 	for i, s := range rows {
-		channels[i] = s.(*Channel)
+		channels[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 
 	return channels, nil
@@ -185,7 +185,7 @@ func FindChannelsByIDs(q *reform.Querier, ids []string) ([]*Channel, error) {
 
 	res := make([]*Channel, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Channel)
+		res[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 	return res, nil
 }

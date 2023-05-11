@@ -6,8 +6,9 @@ header:
       - "**/admin/**"
       - "**/mock_*"
       - "**/*.pb.go"
-      - "**/*_reform.go"
       - "**/*.pb.gw.go"
+      - "**/*.pb.validate.go"
+      - "**/*_reform.go"
       - "**/json/client/**"
       - "**/amclient/**"
       - "**/ammodels/**"
@@ -34,11 +35,12 @@ header:
         // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
   - paths:
-      - "**/agent/**/*.go"
-      - "**/admin/**/.go"
+      - "./agent/**/*.go"
+      - "./admin/**/.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
+      - "**/json/client/**"
     license:
       content: |
         // Copyright (C) 2019 Percona LLC

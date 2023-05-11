@@ -37,6 +37,7 @@ import (
 const (
 	psmdbOperator = "psmdb-operator"
 	pxcOperator   = "pxc-operator"
+	pgOperator    = "pg-operator"
 )
 
 var errNoVersionsFound = errors.New("no versions to compare current version with found")
@@ -60,6 +61,10 @@ type matrix struct {
 	LogCollector  map[string]componentVersion `json:"logCollector"`
 	PXCOperator   map[string]componentVersion `json:"pxcOperator,omitempty"`
 	PSMDBOperator map[string]componentVersion `json:"psmdbOperator,omitempty"`
+	PGOperator    map[string]componentVersion `json:"pgOperator,omitempty"`
+	Postgresql    map[string]componentVersion `json:"postgresql,omitempty"`
+	Pgbouncer     map[string]componentVersion `json:"pgbouncer,omitempty"`
+	Pgbackrest    map[string]componentVersion `json:"pgbackrest,omitempty"`
 }
 
 type Version struct {
@@ -136,6 +141,55 @@ func (c *VersionServiceClient) Collect(ch chan<- prom.Metric) {
 
 // Matrix calls version service with given params and returns components matrix.
 func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsParams) (*VersionServiceResponse, error) {
+	// FIXME using hardcoded values for PG until version service supports it
+	// https://jira.percona.com/browse/K8SPG-315
+	if params.product == pgOperator {
+		return &VersionServiceResponse{
+			Versions: []Version{
+				{
+					Product:        pgOperator,
+					ProductVersion: "2.0.0",
+					Matrix: matrix{
+						Pmm: map[string]componentVersion{
+							"2.32.0": {
+								ImagePath: "percona/pmm-client:2.32.0",
+								ImageHash: "ee2f3db541857e0a71633270596933441c4be579ce8e33c22cf150ead4f3622f",
+								Status:    "recommended",
+							},
+						},
+						Operator: map[string]componentVersion{
+							"2.0.0": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0",
+								ImageHash: "",
+								Status:    "recommended",
+							},
+						},
+						Postgresql: map[string]componentVersion{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-postgres",
+								ImageHash: "bf47531669ab49a26479f46efc78ed42b9393325cfac1b00c3e340987c8869f0",
+								Status:    "recommended",
+							},
+						},
+						Pgbouncer: map[string]componentVersion{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbouncer",
+								ImageHash: "64de9cd659e2d6f75bea9263b23a72e5aa9b00560ae403249c92a3439a2fd527",
+								Status:    "recommended",
+							},
+						},
+						Pgbackrest: map[string]componentVersion{
+							"14.7": {
+								ImagePath: "percona/percona-postgresql-operator:2.0.0-ppg14-pgbackrest",
+								ImageHash: "9bcac75e97204eb78296f4befff555cad1600373ed5fd76576e0401a8c8eb4e6",
+								Status:    "recommended",
+							},
+						},
+					},
+				},
+			},
+		}, nil
+	}
 	paths := []string{c.url, params.product}
 	if params.productVersion != "" {
 		paths = append(paths, params.productVersion)
@@ -210,6 +264,7 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 	operatorVersions := map[string][]string{
 		pxcOperator:   {},
 		psmdbOperator: {},
+		pgOperator:    {},
 	}
 
 	for v := range resp.Versions[0].Matrix.PXCOperator {
@@ -219,6 +274,11 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 	for v := range resp.Versions[0].Matrix.PSMDBOperator {
 		operatorVersions[psmdbOperator] = append(operatorVersions[psmdbOperator], v)
 	}
+
+	// FIXME using hardcoded values for PG until version service supports it
+	// https://jira.percona.com/browse/K8SPG-315
+	operatorVersions[pgOperator] = []string{"2.0.0"}
+
 	return operatorVersions, nil
 }
 
@@ -323,9 +383,13 @@ func (c *VersionServiceClient) GetVersionServiceURL() string {
 // It returns nil if update is not available or error occurred. It does not take PMM version into consideration.
 // We need to upgrade to current + 1 version for upgrade to be successful. So even if dbaas-controller does not support the
 // operator, we need to upgrade to it on our way to supported one.
-func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operatorType, installedVersion string) (nextOperatorVersion *goversion.Version, err error) {
+func (c *VersionServiceClient) NextOperatorVersion(
+	ctx context.Context,
+	operatorType,
+	installedVersion string,
+) (*goversion.Version, error) {
 	if installedVersion == "" {
-		return
+		return nil, nil //nolint:nilnil
 	}
 	// Get all operator versions
 	params := componentsParams{
@@ -333,10 +397,10 @@ func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operator
 	}
 	matrix, err := c.Matrix(ctx, params)
 	if err != nil {
-		return
+		return nil, err
 	}
 	if len(matrix.Versions) == 0 {
-		return
+		return nil, nil //nolint:nilnil
 	}
 
 	// Convert slice of version structs to slice of strings so it can be used in generic function next.
@@ -349,7 +413,7 @@ func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operator
 	if installedVersion != "" {
 		return next(versions, installedVersion)
 	}
-	return
+	return nil, nil //nolint:nilnil
 }
 
 // next direct successor of given installed version, returns nil if there is none.

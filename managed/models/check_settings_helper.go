@@ -29,7 +29,7 @@ func FindCheckSettings(q *reform.Querier) (map[string]Interval, error) {
 	case nil:
 		cs := make(map[string]Interval)
 		for _, r := range rows {
-			state := r.(*CheckSettings)
+			state := r.(*CheckSettings) //nolint:forcetypeassert
 			cs[state.Name] = state.Interval
 		}
 		return cs, nil

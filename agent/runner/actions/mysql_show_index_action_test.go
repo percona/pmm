@@ -124,7 +124,7 @@ func TestMySQLShowIndex(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		expected := "Error 1146 (42S02): Table 'world.city\"; DROP TABLE city; --' doesn't exist"
+		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
 		assert.EqualError(t, err, expected)
 
 		var count int

@@ -314,7 +314,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	res := make([]byte, 0, maxBytes)
 	r.Do(func(v interface{}) {
 		if v != nil {
-			res = append(res, v.([]byte)...)
+			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
 	})
 	return res, m, nil

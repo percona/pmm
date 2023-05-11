@@ -63,7 +63,7 @@ func FindAllKubernetesClusters(q *reform.Querier) ([]*KubernetesCluster, error) 
 
 	clusters := make([]*KubernetesCluster, len(structs))
 	for i, s := range structs {
-		clusters[i] = s.(*KubernetesCluster)
+		clusters[i] = s.(*KubernetesCluster) //nolint:forcetypeassert
 	}
 
 	return clusters, nil
@@ -77,7 +77,7 @@ func FindKubernetesClusterByName(q *reform.Querier, name string) (*KubernetesClu
 
 	switch cluster, err := q.FindOneFrom(KubernetesClusterTable, "kubernetes_cluster_name", name); err {
 	case nil:
-		return cluster.(*KubernetesCluster), nil
+		return cluster.(*KubernetesCluster), nil //nolint:forcetypeassert
 	case reform.ErrNoRows:
 		return nil, status.Errorf(codes.NotFound, "Kubernetes Cluster with name %q not found.", name)
 	default:
