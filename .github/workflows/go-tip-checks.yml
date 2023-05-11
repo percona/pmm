@@ -7,7 +7,7 @@ on:
 
 jobs:
   common:
-    uses: percona/pmm/.github/workflows/common.yml@main
+    uses: percona/pmm/.github/workflows/main.yml@main
 
   admin:
     uses: percona/pmm/.github/workflows/admin.yml@main
@@ -15,8 +15,11 @@ jobs:
   agent:
     uses: percona/pmm/.github/workflows/agent.yml@main
 
-  api:
-    uses: percona/pmm/.github/workflows/api.yml@main
-
   managed:
     uses: percona/pmm/.github/workflows/managed.yml@main
+
+  qan-api2:
+    uses: percona/pmm/.github/workflows/qan-api2.yml@main
+
+  vmproxy:
+    uses: percona/pmm/.github/workflows/vmproxy.yml@main
