@@ -10,7 +10,7 @@ require (
 	github.com/apache/skywalking-eyes v0.4.0
 	github.com/bufbuild/buf v1.18.0
 	github.com/daixiang0/gci v0.10.1
-	github.com/envoyproxy/protoc-gen-validate v1.0.0
+	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-delve/delve v1.20.2
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
