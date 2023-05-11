@@ -134,7 +134,7 @@ test.describe('pmm-bin: server upgrade tests', async () => {
     const oldContainerName = 'pmm-server-non-cli-warn';
     const newContainerPrefix = 'pmm-server-warn';
     const volumeName = 'pmm-data-non-cli-warn';
-    const httpPort = 4081;
+    const httpPort = 4078;
     const httpsPort = 4445;
     await runOldPmmServer(httpPort, httpsPort, volumeName, oldContainerName);
 
@@ -159,7 +159,7 @@ test.describe('pmm-bin: server upgrade tests', async () => {
     const oldContainerName = 'pmm-server-non-cli-flags';
     const newContainerName = 'pmm-server-non-cli-flags-new';
     const volumeName = 'pmm-data-non-cli-flags';
-    const httpPort = 4182;
+    const httpPort = 4081;
     const httpsPort = 4446;
     await runOldPmmServer(httpPort, httpsPort, volumeName, oldContainerName);
 
