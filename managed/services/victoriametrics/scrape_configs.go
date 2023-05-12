@@ -239,6 +239,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 			"entropy",
 			"textfile.lr",
 			"uname",
+			"os",
 		}
 		lrCollect = collectors.FilterOutCollectors("", lrCollect, params.agent.DisabledCollectors)
 		lr, err = scrapeConfigForStandardExporter("lr", s.LR, params, lrCollect)
