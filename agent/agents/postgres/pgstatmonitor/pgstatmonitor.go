@@ -399,7 +399,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	}
 
 	result := make(settings)
-	if settingsValuesAreText {
+	if settingsValuesAreText { //nolint:nestif
 		if pgsmVersion >= pgStatMonitorVersion20PG12 {
 			result, err = getPGSM20Settings(m.q)
 			if err != nil {
