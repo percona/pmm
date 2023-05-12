@@ -1,9 +1,7 @@
 name: Go-tip
 
 on:
-  schedule:
-    # Every Sunday at 13:00
-    - cron: "0 13 * * 0"
+  pull_request:
 
 jobs:
   common:
