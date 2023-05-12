@@ -462,9 +462,6 @@ func DatabaseClusterForPostgresql(cluster *dbaasv1beta1.CreatePostgresqlClusterR
 			return dbCluster, nil, fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
-		if cluster.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
-		}
 	}
 	var sourceRanges []string
 	for _, sourceRange := range cluster.SourceRanges {
@@ -732,9 +729,6 @@ func UpdatePatchForPostgresql(dbCluster *dbaasv1.DatabaseCluster, updateRequest 
 			return fmt.Errorf("failed to recognize expose annotations for %s cluster type", clusterType)
 		}
 		dbCluster.Spec.LoadBalancer.Annotations = annotations
-		if updateRequest.InternetFacing && clusterType == ClusterTypeEKS {
-			dbCluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"] = externalNLB
-		}
 	}
 	var sourceRanges []string
 	for _, sourceRange := range updateRequest.SourceRanges {
