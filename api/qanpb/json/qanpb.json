@@ -1232,6 +1232,61 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "metadata": {
+                  "description": "GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "database": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "environment": {
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "node_name": {
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "replication_set": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "schema": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "service_name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "username": {
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 5
+                },
                 "metrics": {
                   "type": "object",
                   "additionalProperties": {

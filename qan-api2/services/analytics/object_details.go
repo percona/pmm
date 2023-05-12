@@ -136,6 +136,18 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		resp.Fingerprint = fp
 	}
 
+	metadata, err := s.mm.GetSelectedQueryMetadata(ctx, periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy, // filter by queryid, or other.
+		in.GroupBy,
+		dimensions,
+		labels,
+		in.Totals)
+	if err != nil {
+		return resp, err
+	}
+	resp.Metadata = metadata
+
 	return resp, err
 }
 

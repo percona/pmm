@@ -164,15 +164,16 @@ func checkUniqueArtifactName(q *reform.Querier, name string) error {
 
 // CreateArtifactParams are params for creating a new artifact.
 type CreateArtifactParams struct {
-	Name       string
-	Vendor     string
-	DBVersion  string
-	LocationID string
-	ServiceID  string
-	DataModel  DataModel
-	Mode       BackupMode
-	Status     BackupStatus
-	ScheduleID string
+	Name             string
+	Vendor           string
+	DBVersion        string
+	LocationID       string
+	ServiceID        string
+	DataModel        DataModel
+	Mode             BackupMode
+	Status           BackupStatus
+	ScheduleID       string
+	IsShardedCluster bool
 }
 
 // Validate validates params used for creating an artifact entry.
@@ -222,17 +223,18 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	}
 
 	row := &Artifact{
-		ID:         id,
-		Name:       params.Name,
-		Vendor:     params.Vendor,
-		DBVersion:  params.DBVersion,
-		LocationID: params.LocationID,
-		ServiceID:  params.ServiceID,
-		DataModel:  params.DataModel,
-		Mode:       params.Mode,
-		Status:     params.Status,
-		Type:       OnDemandArtifactType,
-		ScheduleID: params.ScheduleID,
+		ID:               id,
+		Name:             params.Name,
+		Vendor:           params.Vendor,
+		DBVersion:        params.DBVersion,
+		LocationID:       params.LocationID,
+		ServiceID:        params.ServiceID,
+		DataModel:        params.DataModel,
+		Mode:             params.Mode,
+		Status:           params.Status,
+		Type:             OnDemandArtifactType,
+		ScheduleID:       params.ScheduleID,
+		IsShardedCluster: params.IsShardedCluster,
 	}
 
 	if params.ScheduleID != "" {
@@ -248,9 +250,10 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 
 // UpdateArtifactParams are params for changing existing artifact.
 type UpdateArtifactParams struct {
-	ServiceID  *string
-	Status     *BackupStatus
-	ScheduleID *string
+	ServiceID        *string
+	Status           *BackupStatus
+	ScheduleID       *string
+	IsShardedCluster bool
 }
 
 // UpdateArtifact updates existing artifact.
@@ -267,6 +270,10 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 	}
 	if params.ScheduleID != nil {
 		row.ScheduleID = *params.ScheduleID
+	}
+
+	if params.IsShardedCluster && !row.IsShardedCluster {
+		row.IsShardedCluster = true
 	}
 
 	if err := q.Update(row); err != nil {

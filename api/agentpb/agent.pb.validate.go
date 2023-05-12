@@ -11849,6 +11849,8 @@ func (m *JobResult_MongoDBBackup) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for IsShardedCluster
+
 	if len(errors) > 0 {
 		return JobResult_MongoDBBackupMultiError(errors)
 	}

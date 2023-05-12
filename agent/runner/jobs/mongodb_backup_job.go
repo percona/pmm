@@ -149,11 +149,19 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
+
+	sharded, err := isShardedCluster(ctx, j.dbURL)
+	if err != nil {
+		return err
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{},
+			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				IsShardedCluster: sharded,
+			},
 		},
 	})
 
