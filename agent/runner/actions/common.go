@@ -102,10 +102,10 @@ func parseRealTableName(query string) string {
 	parsed = strings.ReplaceAll(parsed, ";", "")
 	index = strings.Index(parsed, " ")
 	if index == -1 {
-		return parsed
+		return strings.TrimSpace(parsed)
 	}
 
-	return parsed[:index+1]
+	return strings.TrimSpace(parsed[:index+1])
 }
 
 func prepareQueryWithDatabaseTableName(query, name string) string {
