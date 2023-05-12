@@ -106,7 +106,6 @@ func (s PostgresqlClustersService) GetPostgresqlClusterCredentials(ctx context.C
 func (s PostgresqlClustersService) CreatePostgresqlCluster(ctx context.Context,
 	req *dbaasv1beta1.CreatePostgresqlClusterRequest,
 ) (*dbaasv1beta1.CreatePostgresqlClusterResponse, error) {
-
 	if req.Params == nil {
 		req.Params = &dbaasv1beta1.PostgresqlClusterParams{}
 	}
