@@ -583,7 +583,9 @@ message JobResult {
     string message = 1;
   }
   // MongoDBBackup contains result for MongoDB backup job.
-  message MongoDBBackup {}
+  message MongoDBBackup {
+    bool is_sharded_cluster = 1;
+  }
 
   // MySQLBackup contains result for MySQL backup job.
   message MySQLBackup {}
