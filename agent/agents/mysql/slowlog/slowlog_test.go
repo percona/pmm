@@ -62,7 +62,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
@@ -94,7 +94,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 
 	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)

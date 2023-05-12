@@ -518,7 +518,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws"},
+						// We're expecting that 10 elements will be more than number of default partitions, which currently equals 6.
+						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws"},
 					},
 					Context: pmmapitests.Context,
 				})
