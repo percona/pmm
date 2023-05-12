@@ -83,6 +83,7 @@ message MetricsReply {
   repeated Point sparkline = 4;
   map<string, MetricValues> totals = 5;
   string fingerprint = 6;
+  GetSelectedQueryMetadataReply metadata = 8;
 }
 
 // MetricValues is statistics of specific metric.
@@ -204,4 +205,20 @@ message ExplainFingerprintByQueryIDRequest {
 message ExplainFingerprintByQueryIDReply {
   string explain_fingerprint = 1;
   uint32 placeholders_count = 2;
+}
+
+// GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.
+message GetSelectedQueryMetadataReply {
+  string service_name = 1;
+  string database = 2;
+  string schema = 3;
+  string username = 4;
+  string replication_set = 5;
+  string cluster = 6;
+  string service_type = 7;
+  string service_id = 8;
+  string environment = 9;
+  string node_id = 10;
+  string node_name = 11;
+  string node_type = 12;
 }
