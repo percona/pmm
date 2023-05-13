@@ -15,8 +15,7 @@
       - pmm2-client
       - pmm-dump
       - vmproxy
-# TODO return before merge
-#      - grafana-db-migrator
+      - grafana-db-migrator
   pre_tasks:
     - name: detect /srv/pmm-distribution
       stat:
