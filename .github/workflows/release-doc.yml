@@ -16,6 +16,7 @@ jobs:
           wget https://raw.githubusercontent.com/percona/pmm-doc/main/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
         env:
           release_tag: ${{ github.ref }}
+
       - name: Convert mkdocs
         shell: bash --noprofile --norc -ex {0}
         run: |
@@ -24,6 +25,7 @@ jobs:
           grep -rl '!!! alert alert-info' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! alert alert-info/\>/g'
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
