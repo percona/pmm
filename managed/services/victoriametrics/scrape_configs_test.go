@@ -153,6 +153,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 				Params: url.Values{"collect[]": []string{
 					"bonding",
+					"os",
 					"textfile.lr",
 					"uname",
 				}},
