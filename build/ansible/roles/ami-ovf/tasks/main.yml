@@ -5,7 +5,7 @@
     state: absent
 
 - name: Packages                   | Clean up yum metadata
-  command: yum clean metadata
+  shell: yum clean metadata
   args:
     warn: no
 
