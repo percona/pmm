@@ -126,7 +126,7 @@
   when: create_admin == "true"
   replace:
     dest: /etc/cloud/cloud.cfg
-    regexp: "name: centos"
+    regexp: "name: ec2-user"
     replace: "name: admin"
 
 - name: cloud-init configuration   | stat /etc/waagent.conf
