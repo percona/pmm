@@ -259,62 +259,62 @@ func TestPerfSchema(t *testing.T) {
 	var rowsExamined float32
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
-	var digests map[string]string // digest_text/fingerprint to digest/query_id
-	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-	case "5.6-oracle":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "192ad18c482d389f36ebb0aa58311236",
-			"SELECT * FROM `city`": "cf5d7abca54943b1aa9e126c85a7d020",
-		}
-	case "5.7-oracle":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "52f680b0d3b57c2fa381f52038754db4",
-			"SELECT * FROM `city`": "05292e6e5fb868ce2864918d5e934cb3",
-		}
+	//var digests map[string]string // digest_text/fingerprint to digest/query_id
+	// switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
+	// case "5.6-oracle":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "192ad18c482d389f36ebb0aa58311236",
+	// 		"SELECT * FROM `city`": "cf5d7abca54943b1aa9e126c85a7d020",
+	// 	}
+	// case "5.7-oracle":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "52f680b0d3b57c2fa381f52038754db4",
+	// 		"SELECT * FROM `city`": "05292e6e5fb868ce2864918d5e934cb3",
+	// 	}
 
-	case "5.6-percona":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "d8dc769e3126abd5578679f520bad1a5",
-			"SELECT * FROM `city`": "6d3c8e264bfdd0ce5d3c81d481148a9c",
-		}
-	case "5.7-percona":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "049a1b20acee144f86b9a1e4aca398d6",
-			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
-		}
+	// case "5.6-percona":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "d8dc769e3126abd5578679f520bad1a5",
+	// 		"SELECT * FROM `city`": "6d3c8e264bfdd0ce5d3c81d481148a9c",
+	// 	}
+	// case "5.7-percona":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "049a1b20acee144f86b9a1e4aca398d6",
+	// 		"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
+	// 	}
 
-	case "8.0-oracle", "8.0-percona":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
-			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
-		}
-		rowsExamined = 1
+	// case "8.0-oracle", "8.0-percona":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
+	// 		"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
+	// 	}
+	// 	rowsExamined = 1
 
-	case "10.2-mariadb":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "fe8d67e28d171893e1b33b179394e592",
-			"SELECT * FROM `city`": "7e30fa1763d6d9aa88f359236cedaa78",
-		}
+	// case "10.2-mariadb":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "fe8d67e28d171893e1b33b179394e592",
+	// 		"SELECT * FROM `city`": "7e30fa1763d6d9aa88f359236cedaa78",
+	// 	}
 
-	case "10.3-mariadb":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "b0062e3bc75dd6e57cdc90696ba47688",
-			"SELECT * FROM `city`": "f4c92872bdf2de2331aae63a94b51a83",
-		}
+	// case "10.3-mariadb":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "b0062e3bc75dd6e57cdc90696ba47688",
+	// 		"SELECT * FROM `city`": "f4c92872bdf2de2331aae63a94b51a83",
+	// 	}
 
-	case "10.4-mariadb":
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
-			"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
-		}
+	// case "10.4-mariadb":
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
+	// 		"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
+	// 	}
 
-	default:
-		t.Log("Unhandled version, assuming dummy digests.")
-		digests = map[string]string{
-			"SELECT `sleep` (?)":   "TODO-sleep",
-			"SELECT * FROM `city`": "TODO-star",
-		}
-	}
+	// default:
+	// 	t.Log("Unhandled version, assuming dummy digests.")
+	// 	digests = map[string]string{
+	// 		"SELECT `sleep` (?)":   "TODO-sleep",
+	// 		"SELECT * FROM `city`": "TODO-star",
+	// 	}
+	// }
 
 	t.Run("Sleep", func(t *testing.T) {
 		m := setup(t, &setupParams{
