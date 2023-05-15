@@ -186,10 +186,26 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 }
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	e := h.db.InTransaction(func(tx *reform.TX) error {
+	PMMAgentID := req.AgentId
+
+	errTX := h.db.InTransaction(func(tx *reform.TX) error {
 		agentIDs := h.r.roster.get(req.AgentId)
 		if agentIDs == nil {
-			agentIDs = []string{req.AgentId}
+			suffix := "/" + string(rdsGroup)
+			if !strings.HasSuffix(req.AgentId, suffix) {
+				agentIDs = []string{req.AgentId}
+			} else {
+				PMMAgentID, _ = strings.CutSuffix(req.AgentId, suffix)
+				rdsExporterType := models.RDSExporterType
+				agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType})
+				if err != nil {
+					return err
+				}
+				agentIDs = make([]string, 0, len(agents))
+				for _, agent := range agents {
+					agentIDs = append(agentIDs, agent.AgentID)
+				}
+			}
 		}
 
 		for _, agentID := range agentIDs {
@@ -200,24 +216,27 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version))
+				pointer.ToStringOrNil(req.Version),
+			)
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	})
-	if e != nil {
-		return e
+	if errTX != nil {
+		return errTX
 	}
+
 	h.vmdb.RequestConfigurationUpdate()
-	agent, err := models.FindAgentByID(h.db.Querier, req.AgentId)
+	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
 	if err != nil {
 		return err
 	}
 	if agent.PMMAgentID == nil {
 		return nil
 	}
+
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
 }
