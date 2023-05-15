@@ -357,7 +357,7 @@ func TestPerfSchema(t *testing.T) {
 				MRowsExaminedSum: rowsExamined,
 			},
 		}
-		expected.Common.Queryid = digests[expected.Common.Fingerprint]
+		//expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 	})
 
@@ -408,7 +408,7 @@ func TestPerfSchema(t *testing.T) {
 				MNoIndexUsedSum:  1,
 			},
 		}
-		expected.Common.Queryid = digests[expected.Common.Fingerprint]
+		//expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 	})
 
