@@ -102,7 +102,7 @@ jobs:
       fail-fast: false
       matrix:
         go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
-        test-type: [ pmm-common, pmm-serv-install, pmm-serv-update, pmm-docker-test ]
+        test-type: [ pmm-common, pmm-server-install, pmm-server-update, pmm-docker-test ]
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
