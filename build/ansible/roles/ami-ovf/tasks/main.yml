@@ -5,9 +5,7 @@
     state: absent
 
 - name: Packages                   | Clean up yum metadata
-  shell: yum clean metadata
-  args:
-    warn: no
+  command: yum clean metadata
 
 - name: Packages                   | Add PMM2 Server release repository for EL7
   when:
