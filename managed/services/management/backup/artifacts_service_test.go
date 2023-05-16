@@ -120,7 +120,7 @@ func TestListPitrTimelines(t *testing.T) {
 		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact."), err)
 		assert.Nil(t, response)
 	})
 	mock.AssertExpectationsForObjects(t, mockedPitrStorageSvc)

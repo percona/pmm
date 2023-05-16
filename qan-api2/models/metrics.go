@@ -978,7 +978,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT fingerprint, placeholders_count FROM metrics
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
@@ -1022,6 +1022,118 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 		}
 
 		return res, nil //nolint:staticcheck
+	}
+
+	return res, errors.New("query_id doesnt exists")
+}
+
+const selectedQueryMetadataTmpl = `
+SELECT any(service_name),
+         any(database),
+         any(schema),
+         any(username),
+         any(replication_set),
+         any(cluster),
+         any(service_type),
+         any(service_id),
+         any(environment),
+         any(node_id),
+         any(node_name),
+         any(node_type)
+FROM metrics
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to 
+{{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' 
+{{ end }} 
+{{ if .Dimensions }} 
+	{{range $key, $vals := .Dimensions }}
+    	AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ) 
+	{{ end }} 
+{{ end }} 
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} 
+		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')]) 
+	{{ end }}) 
+{{ end }} 
+{{ if not .Totals }} GROUP BY {{ .Group }} 
+{{ end }}
+WITH TOTALS;
+`
+
+// GetSelectedQueryMetadata returns metadata for given query ID.
+func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
+	dimensions, labels map[string][]string, totals bool,
+) (*qanpb.GetSelectedQueryMetadataReply, error) {
+	arg := map[string]interface{}{
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
+	}
+
+	tmplArgs := struct {
+		PeriodStartFrom int64
+		PeriodStartTo   int64
+		PeriodDuration  int64
+		Dimensions      map[string][]string
+		Labels          map[string][]string
+		DimensionVal    string
+		Group           string
+		Totals          bool
+	}{
+		PeriodStartFrom: periodStartFromSec,
+		PeriodStartTo:   periodStartToSec,
+		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		Dimensions:      escapeColonsInMap(dimensions),
+		Labels:          escapeColonsInMap(labels),
+		DimensionVal:    escapeColons(filter),
+		Group:           group,
+		Totals:          totals,
+	}
+
+	res := &qanpb.GetSelectedQueryMetadataReply{}
+	var queryBuffer bytes.Buffer
+	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return res, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(
+			&res.ServiceName,
+			&res.Database,
+			&res.Schema,
+			&res.Username,
+			&res.ReplicationSet,
+			&res.Cluster,
+			&res.ServiceType,
+			&res.ServiceId,
+			&res.Environment,
+			&res.NodeId,
+			&res.NodeName,
+			&res.NodeType)
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		} else {
+			return res, nil
+		}
 	}
 
 	return res, errors.New("query_id doesnt exists")

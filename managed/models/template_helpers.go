@@ -51,7 +51,7 @@ func FindTemplates(q *reform.Querier) ([]Template, error) {
 
 	templates := make([]Template, len(structs))
 	for i, s := range structs {
-		c := s.(*Template)
+		c := s.(*Template) //nolint:forcetypeassert
 
 		templates[i] = *c
 	}
