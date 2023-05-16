@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"runtime/pprof"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
