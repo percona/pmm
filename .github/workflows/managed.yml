@@ -62,8 +62,8 @@ jobs:
       - name: Download Go modules
         if: matrix.use-cache
         run: |
-          pushd tools && go mod download
-          popd        && go mod download
+          pushd tools && go mod download -x
+          popd        && go mod download -x
 
       - name: Initialize CI environment
         run: make env-compose-up

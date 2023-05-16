@@ -47,7 +47,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: go mod download
+        run: go mod download -x
 
       - name: Build and install
         run: make install
@@ -99,7 +99,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: go mod download
+        run: go mod download -x
 
       - name: Build and install
         run: make -C ../admin install
