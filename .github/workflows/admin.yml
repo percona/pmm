@@ -10,13 +10,13 @@ on:
 
   pull_request:
     paths-ignore:
-      - "agent/**"
-      - "api-tests/**"
-      - "docs/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
+      - 'agent/**'
+      - 'api-tests/**'
+      - 'docs/**'
+      - 'managed/**'
+      - 'qan-api2/**'
+      - 'update/**'
+      - 'vmproxy/**'
 
   workflow_call:
     inputs:
@@ -24,7 +24,7 @@ on:
         description: An array of Go versions to be tested against, in a format of json string.
         required: false
         type: string
-        default: '["tip"]'
+        default: '["1.21.x"]'
 
 jobs:
   test:
@@ -47,29 +47,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Go release
-        if: env.GO_VERSION != 'tip'
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
-
-      - name: Set up Go tip
-        if: env.GO_VERSION == 'tip'
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
-          echo "$GOBIN" >> $GITHUB_PATH
-
-      - name: Enable Go modules cache
-        if: env.GO_VERSION == 'tip'
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
@@ -116,29 +96,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Go release
-        if: env.GO_VERSION != 'tip'
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
-
-      - name: Set up Go tip
-        if: env.GO_VERSION == 'tip'
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
-          echo "$GOBIN" >> $GITHUB_PATH
-
-      - name: Enable Go modules cache
-        if: env.GO_VERSION == 'tip'
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
