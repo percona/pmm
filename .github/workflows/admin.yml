@@ -37,6 +37,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
 
       - name: Enable Go modules cache
         uses: actions/cache@v3
@@ -88,6 +89,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
 
       - name: Enable Go modules cache
         uses: actions/cache@v3
