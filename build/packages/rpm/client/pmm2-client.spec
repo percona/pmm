@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name:           pmm2-client
-Summary:        Percona Monitoring and Management Client
+Summary:        Percona Monitoring and Management Client (pmm-agent)
 Version:        %{version}
 Release:        %{release}%{?dist}
 Group:          Applications/Databases
@@ -10,7 +10,6 @@ Vendor:         Percona LLC
 URL:            https://percona.com
 Source:         pmm2-client-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
-Summary:        PMM-agent
 
 BuildRequires:    systemd
 BuildRequires:    pkgconfig(systemd)
