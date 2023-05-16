@@ -16,9 +16,9 @@
 package mongo_fix
 
 import (
-	"github.com/AlekSi/pointer"
 	"net/url"
 
+	"github.com/AlekSi/pointer"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
