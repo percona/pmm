@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
   postgres-pgmonitor:
-    image: ${POSTGRES_IMAGE:-perconalab/percona-distribution-postgresql:13.3}
+    image: ${POSTGRES_IMAGE:-perconalab/percona-distribution-postgresql:14.7}
     container_name: pmm-agent-postgres-pgmonitor
     command: >
       -c shared_preload_libraries=pg_stat_monitor
@@ -21,7 +21,7 @@ services:
       - test_db_postgres:/docker-entrypoint-initdb.d/
 
   postgres-load:
-    image: ${POSTGRES_IMAGE:-perconalab/percona-distribution-postgresql:13.3}
+    image: ${POSTGRES_IMAGE:-perconalab/percona-distribution-postgresql:14.7}
     container_name: pmm-agent-postgres-load
     depends_on:
       - postgres-pgmonitor
