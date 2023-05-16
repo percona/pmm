@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
-      matrix:
-        may-fail: false
 
     steps:
       - name: Check out code
