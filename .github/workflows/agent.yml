@@ -19,23 +19,12 @@ on:
       - "update/**"
       - "vmproxy/**"
 
-  workflow_call:
-    inputs:
-      go-version:
-        description: An array of Go versions to be tested against, in a format of json string.
-        required: false
-        type: string
-        default: '["tip"]'
-
 jobs:
   test:
     name: Tests
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
-        may-fail: [ true ]
-
         images:
           - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
           - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:11', pmm_server: 'percona/pmm-server:2.0.1' }
@@ -59,10 +48,9 @@ jobs:
           - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
           - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
 
-    continue-on-error: ${{ matrix.may-fail }}
+    continue-on-error: true
 
     env:
-      GO_VERSION: ${{ matrix.go-version }}
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -78,27 +66,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Go release
-        if: env.GO_VERSION != 'tip'
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - name: Set up Go tip
-        if: env.GO_VERSION == 'tip'
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false}
 
       - name: Enable Go modules cache
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
         run: |
@@ -121,7 +99,7 @@ jobs:
         with:
           file: cover.out
           flags: agent
-          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Run debug commands on failure
