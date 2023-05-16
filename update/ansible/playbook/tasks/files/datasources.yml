@@ -48,3 +48,9 @@ datasources:
   url: http://localhost:9093/alertmanager/
   jsonData:
     keepCookies: []
+- name: ClickHouse (New)
+  type: grafana-clickhouse-datasource
+  jsonData:
+    port: ${PERCONA_TEST_PMM_CLICKHOUSE_PORT}
+    server: ${PERCONA_TEST_PMM_CLICKHOUSE_HOST}
+    tlsSkipVerify: true
