@@ -491,6 +491,11 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 11;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
@@ -506,15 +511,15 @@ message StartJobRequest {
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Enable Point-in-Time recovery feature.
@@ -526,19 +531,24 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 12;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 13;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Point-in-Time recovery timestamp.
@@ -548,6 +558,11 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 12;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 13;
   }
 
   string job_id = 1;

@@ -210,7 +210,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig,
+		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
@@ -240,11 +240,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 type restoreJobParams struct {
 	JobID         string
-	ServiceID     string
+	Service       *models.Service
 	AgentID       string
 	ArtifactName  string
 	LocationModel *models.BackupLocation
-	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
 	PITRTimestamp time.Time
@@ -348,11 +347,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 
 		params = restoreJobParams{
 			JobID:         job.ID,
-			ServiceID:     serviceID,
+			Service:       service,
 			AgentID:       agentID,
 			ArtifactName:  artifact.Name,
 			LocationModel: location,
-			ServiceType:   service.ServiceType,
 			DBConfig:      dbConfig,
 			DataModel:     artifact.DataModel,
 			PITRTimestamp: pitrTimestamp,
@@ -421,17 +419,18 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 		S3Config:         params.LocationModel.S3Config,
 	}
 
-	switch params.ServiceType {
+	switch params.Service.ServiceType {
 	case models.MySQLServiceType:
 		return s.jobsService.StartMySQLRestoreBackupJob(
 			params.JobID,
 			params.AgentID,
-			params.ServiceID, // TODO: It seems that this parameter is redundant
+			params.Service.ServiceID, // TODO: It seems that this parameter is redundant
 			0,
 			params.ArtifactName,
 			locationConfig)
 	case models.MongoDBServiceType:
 		return s.jobsService.StartMongoDBRestoreBackupJob(
+			params.Service,
 			params.JobID,
 			params.AgentID,
 			0,
@@ -444,9 +443,9 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.ServiceType)
+		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.Service.ServiceType)
 	default:
-		return status.Errorf(codes.Unknown, "Unknown service: %s", params.ServiceType)
+		return status.Errorf(codes.Unknown, "Unknown service: %s", params.Service.ServiceType)
 	}
 }
 

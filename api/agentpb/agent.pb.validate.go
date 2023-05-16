@@ -11004,6 +11004,37 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 
 	// no validation rules for Name
 
+	// no validation rules for Dsn
+
+	if all {
+		switch v := interface{}(m.GetTextFiles()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_MySQLBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_MySQLBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_MySQLBackupValidationError{
+				field:  "TextFiles",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLBackup_S3Config:
 		if v == nil {
@@ -11324,6 +11355,37 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 
 	// no validation rules for DataModel
 
+	// no validation rules for Dsn
+
+	if all {
+		switch v := interface{}(m.GetTextFiles()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_MongoDBBackupValidationError{
+				field:  "TextFiles",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBBackup_S3Config:
 		if v == nil {
@@ -11550,6 +11612,37 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
 				field:  "PitrTimestamp",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Dsn
+
+	if all {
+		switch v := interface{}(m.GetTextFiles()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_MongoDBRestoreBackupValidationError{
+				field:  "TextFiles",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
