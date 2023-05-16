@@ -54,7 +54,7 @@
         --server-insecure-tls
 
     - name: Reread supervisord configuration
-      command: supervisorctl reread
+      command: /usr/local/bin/supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -65,7 +65,9 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
-      ignore_errors: True
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      # become: true
+      # ignore_errors: True
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
@@ -79,10 +81,18 @@
       # so a temporary solution was to start it without supervisord and remove the
       # pmm-managed database/role. However, a complete overhaul of the pipeline is
       # necessary for a permanent fix.
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+    
     - name: Start PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become: yes
       become_user: postgres
+      ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
     - name: Remove pmm-managed database
@@ -97,6 +107,7 @@
         msg: "pmm-managed database was removed"
       when: db_check_result.changed == True
 
+
     - name: Remove pmm-managed role from postgres
       postgresql_user:
         name: pmm-managed
@@ -106,7 +117,16 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
       become_user: postgres
+      ignore_errors: yes
       when: ansible_virtualization_type != "docker"
+
+    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
+
+    - name: Supervisord stop           | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker"
+      shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all
