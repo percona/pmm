@@ -151,8 +151,6 @@ jobs:
           sudo ln -sf /home/runner/go/bin/pmm /usr/bin
           sudo chown -R runner:docker /usr/bin/pmm
 
-
-
       - name: Install Playwright
         run: |
           npm ci
@@ -163,11 +161,11 @@ jobs:
         run: npx playwright test tests/pmm-cli/pmm.spec.ts
 
       - name: Run "pmm server install" tests
-        if: ${{ matrix.test-type == 'pmm-serv-install' }}
+        if: ${{ matrix.test-type == 'pmm-server-install' }}
         run: npx playwright test tests/pmm-cli/server/install.spec.ts
 
       - name: Run "pmm server upgrade" tests
-        if: ${{ matrix.test-type == 'pmm-serv-update' }}
+        if: ${{ matrix.test-type == 'pmm-server-update' }}
         run: npx playwright test tests/pmm-cli/server/upgrade.spec.ts
 
       - name: Run specific docker tests
