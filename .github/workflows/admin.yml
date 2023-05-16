@@ -10,13 +10,13 @@ on:
 
   pull_request:
     paths-ignore:
-      - 'agent/**'
-      - 'api-tests/**'
-      - 'docs/**'
-      - 'managed/**'
-      - 'qan-api2/**'
-      - 'update/**'
-      - 'vmproxy/**'
+      - "agent/**"
+      - "api-tests/**"
+      - "docs/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "update/**"
+      - "vmproxy/**"
 
   workflow_call:
     inputs:
