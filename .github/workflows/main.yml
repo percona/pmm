@@ -27,6 +27,16 @@ jobs:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
+      - name: Enable Go build cache
+        if: matrix.use-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
       - name: Enable Go modules cache
         uses: actions/cache@v3
         with:
