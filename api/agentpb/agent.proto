@@ -491,11 +491,6 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
-    // DSN for the MongoDB service. May contain connection (dial) timeout.
-    // May contain placeholders for file paths in DSN.
-    string dsn = 11;
-    // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {

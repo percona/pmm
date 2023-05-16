@@ -18,7 +18,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/agent/utils/templates"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -45,6 +44,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
+	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
