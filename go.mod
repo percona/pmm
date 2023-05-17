@@ -69,7 +69,7 @@ require (
 	github.com/prometheus/common v0.43.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.1
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.2
 	go.mongodb.org/mongo-driver v1.11.6
