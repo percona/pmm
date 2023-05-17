@@ -121,7 +121,7 @@
     - started
 
 - name: Start clickhouse EL7
-  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
   supervisorctl:
     name: clickhouse
     state: "{{ item }}"
