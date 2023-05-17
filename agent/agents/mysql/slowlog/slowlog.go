@@ -72,7 +72,7 @@ type Params struct {
 	TLSSkipVerify          bool
 }
 
-const queryTag = "pmm-agent:slowlog"
+const queryTag = "pmm-agent='slowlog'"
 
 type slowLogInfo struct {
 	path        string

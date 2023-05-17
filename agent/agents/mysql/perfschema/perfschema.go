@@ -117,7 +117,7 @@ type newPerfSchemaParams struct {
 	LogEntry               *logrus.Entry
 }
 
-const queryTag = "pmm-agent:perfschema"
+const queryTag = "pmm-agent='perfschema'"
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {

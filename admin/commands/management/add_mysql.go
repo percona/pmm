@@ -111,7 +111,7 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	DisableCommentsParsing bool              `help:"Disable parsing comments from queries and showing them in QAN"`
+	CommentsParsing        string            `enum:"on,off" default:"off" help:"Service logging level. One of: [on, off]"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
@@ -170,6 +170,11 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
+	var commentsParsing bool
+	if cmd.CommentsParsing == "on" {
+		commentsParsing = true
+	}
+
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -217,7 +222,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: cmd.DisableCommentsParsing,
+			DisableCommentsParsing: commentsParsing,
 			MaxQueryLength:         cmd.MaxQueryLength,
 			DisableQueryExamples:   cmd.DisableQueryExamples,
 

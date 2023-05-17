@@ -47,21 +47,21 @@ func (res *addAgentQANPostgreSQLPgStatMonitorAgentResult) String() string {
 
 // AddAgentQANPostgreSQLPgStatMonitorAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
-	PMMAgentID             string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID              string            `arg:"" help:"Service identifier"`
-	Username               string            `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
-	Password               string            `help:"PostgreSQL password for QAN agent"`
-	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	DisableCommentsParsing bool              `help:"Disable parsing comments from queries and showing them in QAN"`
-	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	QueryExamplesDisabled  bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	TLS                    bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
-	TLSCAFile              string            `name:"tls-ca-file" help:"TLS CA certificate file"`
-	TLSCertFile            string            `help:"TLS certificate file"`
-	TLSKeyFile             string            `help:"TLS certificate key file"`
-	LogLevel               string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+	PMMAgentID            string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID             string            `arg:"" help:"Service identifier"`
+	Username              string            `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
+	Password              string            `help:"PostgreSQL password for QAN agent"`
+	CustomLabels          map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck   bool              `help:"Skip connection check"`
+	CommentsParsing       string            `enum:"on,off" default:"off" help:"Service logging level. One of: [on, off]"`
+	MaxQueryLength        int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	QueryExamplesDisabled bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	TLS                   bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify         bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile             string            `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile           string            `help:"TLS certificate file"`
+	TLSKeyFile            string            `help:"TLS certificate key file"`
+	LogLevel              string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Result, error) {
@@ -88,6 +88,11 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 		}
 	}
 
+	var commentsParsing bool
+	if cmd.CommentsParsing == "on" {
+		commentsParsing = true
+	}
+
 	params := &agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 		Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 			PMMAgentID:             cmd.PMMAgentID,
@@ -96,7 +101,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 			Password:               cmd.Password,
 			CustomLabels:           customLabels,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: cmd.DisableCommentsParsing,
+			DisableCommentsParsing: commentsParsing,
 			MaxQueryLength:         cmd.MaxQueryLength,
 			DisableQueryExamples:   cmd.QueryExamplesDisabled,
 

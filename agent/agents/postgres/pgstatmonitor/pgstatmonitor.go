@@ -88,7 +88,7 @@ const (
 )
 
 const (
-	queryTag            = "pmm-agent:pgstatmonitor"
+	queryTag            = "pmm-agent='pgstatmonitor'"
 	pgsm20SettingsQuery = "SELECT name, setting FROM pg_settings WHERE name like 'pg_stat_monitor.%'"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""

@@ -73,7 +73,7 @@ type Params struct {
 	TextFiles              *agentpb.TextFiles
 }
 
-const queryTag = "pmm-agent:pgstatstatements"
+const queryTag = "pmm-agent='pgstatstatements'"
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
