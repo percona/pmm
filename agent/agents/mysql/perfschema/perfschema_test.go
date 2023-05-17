@@ -204,11 +204,11 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Example, "/* pmm-agent:perfschema */"):
+		case strings.Contains(b.Common.Example, "/* pmm-agent='perfschema' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent:slowlog */"):
+		case strings.Contains(b.Common.Example, "/* pmm-agent='slowlog' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent:connectionchecker */"):
+		case strings.Contains(b.Common.Example, "/* pmm-agent='connectionchecker' */"):
 			continue
 
 		case strings.Contains(b.Common.Example, "/* pmm-agent-tests:MySQLVersion */"):
@@ -330,6 +330,9 @@ func TestPerfSchema(t *testing.T) {
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
 		buckets = filter(buckets)
+		for _, v := range buckets {
+			fmt.Println(v)
+		}
 		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
 
 		actual := buckets[0]
