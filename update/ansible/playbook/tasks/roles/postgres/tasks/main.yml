@@ -2,6 +2,13 @@
 # Install Postgres
 - name: Install Postgres for EL7
   block:
+    - name: Get system info
+      shell: "env > /tmp/env.txt"
+      register: env_file
+
+    - debug:
+        msg: "{{ env_file.stdout_lines }}"
+
     - name: Add PostgreSQL 14 YUM repository for EL7
       yum_repository:
         name: percona-ppg-14
@@ -122,7 +129,7 @@
       supervisorctl:
         name: "{{ item }}"
         state: stopped
-        supervisorctl_path: supervisorctl
+        supervisorctl_path: /usr/bin/supervisorctl
       loop:
         - pmm-managed
         - postgresql
