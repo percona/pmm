@@ -118,19 +118,7 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_upgrade
 
-    - name: Stop pmm-managed and postgres before backup database | EL7
-      supervisorctl:
-        name: "{{ item }}"
-        state: stopped
-      loop:
-        - pmm-managed
-        - postgresql
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-
-    - name: Stop pmm-managed and postgres before backup database | EL9
+    - name: Stop pmm-managed and postgres before backup database
       supervisorctl:
         name: "{{ item }}"
         state: stopped
@@ -139,9 +127,7 @@
         - pmm-managed
         - postgresql
       become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
+      when: is_upgrade.stat.exists
 
     - name: Run Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
@@ -211,7 +197,7 @@
         dest: /srv/postgres11
       when: is_upgrade.stat.exists
 
-    - name: Remove old Postgres directory
+    - name: Remove old Postgres direcroty
       file:
         path: /srv/postgres
         state: absent
@@ -232,22 +218,11 @@
         - add
       when: is_upgrade.stat.exists
 
-    - name: Run pmm-managed again | EL7
-      supervisorctl:
-        name: pmm-managed
-        state: started
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-
-    - name: Run pmm-managed again | EL9
+    - name: Run pmm-managed again
       supervisorctl:
         name: pmm-managed
         state: started
         supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
+      when: is_upgrade.stat.exists
   when: not is_postgres_14.stat.exists
