@@ -330,9 +330,6 @@ func TestPerfSchema(t *testing.T) {
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
 		buckets = filter(buckets)
-		for _, v := range buckets {
-			fmt.Println(v)
-		}
 		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
 
 		actual := buckets[0]
