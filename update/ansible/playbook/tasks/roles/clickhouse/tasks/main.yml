@@ -131,5 +131,4 @@
 - name: Start clickhouse EL7
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
   command: supervisorctl add clickhouse
-  verbosity: 3
   changed_when: True
