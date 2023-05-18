@@ -20,9 +20,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 type agentGroup string

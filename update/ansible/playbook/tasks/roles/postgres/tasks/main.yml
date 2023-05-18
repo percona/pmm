@@ -7,7 +7,9 @@
       register: env_file
 
     - debug:
-        msg: "{{ env_file.stdout_lines }}"
+        msg:
+          - "{{ env_file.stdout_lines }}"
+          - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
 
     - name: Add PostgreSQL 14 YUM repository for EL7
       yum_repository:
