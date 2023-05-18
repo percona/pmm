@@ -80,7 +80,10 @@
     msg:
       - "ENV SHELL: {{ lookup('ansible.builtin.env', 'SHELL') }}"
       - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
-      - "ENV ALL: {{ ansible.builtin.env }}"
+
+- name: Debug ENV
+  debug:
+    var: hostvars[inventory_hostname]
 
 - name: Create Postgres log file
   file:
