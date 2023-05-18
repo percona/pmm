@@ -672,7 +672,7 @@ func (c *Client) getMongoDSN(dsn string, files *agentpb.TextFiles, jobID string)
 		dsn,
 		files,
 		filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)),
-	)
+		)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
