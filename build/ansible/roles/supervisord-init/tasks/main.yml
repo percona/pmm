@@ -4,7 +4,7 @@
   pip:
     name: supervisor==3.4.0
 
-- name: Install supervisor EL9        | Install supervisor 4.2.4 (3.4.0 is for CentOS 7)
+- name: Install supervisor        | EL9
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
   pip:
     name: supervisor==4.2.4
