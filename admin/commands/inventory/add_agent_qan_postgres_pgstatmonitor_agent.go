@@ -88,9 +88,9 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 		}
 	}
 
-	var commentsParsing bool
-	if cmd.CommentsParsing == "on" {
-		commentsParsing = true
+	var disableCommentsParsing bool
+	if cmd.CommentsParsing == "off" {
+		disableCommentsParsing = true
 	}
 
 	params := &agents.AddQANPostgreSQLPgStatMonitorAgentParams{
@@ -101,7 +101,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 			Password:               cmd.Password,
 			CustomLabels:           customLabels,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: commentsParsing,
+			DisableCommentsParsing: disableCommentsParsing,
 			MaxQueryLength:         cmd.MaxQueryLength,
 			DisableQueryExamples:   cmd.QueryExamplesDisabled,
 

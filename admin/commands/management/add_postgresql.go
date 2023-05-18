@@ -158,9 +158,9 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	var commentsParsing bool
-	if cmd.CommentsParsing == "on" {
-		commentsParsing = true
+	var disableCommentsParsing bool
+	if cmd.CommentsParsing == "off" {
+		disableCommentsParsing = true
 	}
 
 	if cmd.CredentialsSource != "" {
@@ -182,7 +182,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			AgentPassword:          cmd.AgentPassword,
 			Socket:                 socket,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: commentsParsing,
+			DisableCommentsParsing: disableCommentsParsing,
 
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,

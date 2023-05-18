@@ -170,9 +170,9 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	var commentsParsing bool
-	if cmd.CommentsParsing == "on" {
-		commentsParsing = true
+	var disableCommentsParsing bool
+	if cmd.CommentsParsing == "off" {
+		disableCommentsParsing = true
 	}
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
@@ -222,7 +222,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: commentsParsing,
+			DisableCommentsParsing: disableCommentsParsing,
 			MaxQueryLength:         cmd.MaxQueryLength,
 			DisableQueryExamples:   cmd.DisableQueryExamples,
 

@@ -95,9 +95,9 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 		}
 	}
 
-	var commentsParsing bool
-	if cmd.CommentsParsing == "on" {
-		commentsParsing = true
+	var disableCommentsParsing bool
+	if cmd.CommentsParsing == "off" {
+		disableCommentsParsing = true
 	}
 
 	params := &agents.AddQANMySQLPerfSchemaAgentParams{
@@ -108,7 +108,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 			Password:               cmd.Password,
 			CustomLabels:           customLabels,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: commentsParsing,
+			DisableCommentsParsing: disableCommentsParsing,
 			MaxQueryLength:         cmd.MaxQueryLength,
 			DisableQueryExamples:   cmd.DisableQueryExamples,
 			TLS:                    cmd.TLS,
