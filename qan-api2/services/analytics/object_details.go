@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	qanpb "github.com/percona/pmm/api/qanpb"
@@ -74,7 +75,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		}
 
 		if len(metricsList) < 2 {
-			return nil, fmt.Errorf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			logrus.Debugf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			return &qanpb.MetricsReply{}, nil
 		}
 		// Get metrics of one queryid, server etc. without totals
 		metrics = metricsList[0]
@@ -95,7 +97,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 	totalLen := len(totalsList)
 	if totalLen < 2 {
-		return nil, fmt.Errorf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		logrus.Debugf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		return &qanpb.MetricsReply{}, nil
 	}
 
 	// Get totals for given filter
@@ -132,6 +135,18 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		}
 		resp.Fingerprint = fp
 	}
+
+	metadata, err := s.mm.GetSelectedQueryMetadata(ctx, periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy, // filter by queryid, or other.
+		in.GroupBy,
+		dimensions,
+		labels,
+		in.Totals)
+	if err != nil {
+		return resp, err
+	}
+	resp.Metadata = metadata
 
 	return resp, err
 }

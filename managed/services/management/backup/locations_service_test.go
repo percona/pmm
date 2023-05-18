@@ -137,6 +137,7 @@ func TestListBackupLocations(t *testing.T) {
 		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
 			return func() bool {
 				for _, loc := range res.Locations {
+					//nolint:nestif
 					if loc.LocationId == id {
 						if loc.Name != req.Name || loc.Description != req.Description {
 							return false

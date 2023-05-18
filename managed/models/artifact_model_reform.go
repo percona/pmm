@@ -41,6 +41,7 @@ func (v *artifactTableType) Columns() []string {
 		"schedule_id",
 		"created_at",
 		"updated_at",
+		"is_sharded_cluster",
 	}
 }
 
@@ -78,6 +79,7 @@ var ArtifactTable = &artifactTableType{
 			{Name: "ScheduleID", Type: "string", Column: "schedule_id"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "IsShardedCluster", Type: "bool", Column: "is_sharded_cluster"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -86,7 +88,7 @@ var ArtifactTable = &artifactTableType{
 
 // String returns a string representation of this struct or record.
 func (s Artifact) String() string {
-	res := make([]string, 13)
+	res := make([]string, 14)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Vendor: " + reform.Inspect(s.Vendor, true)
@@ -100,6 +102,7 @@ func (s Artifact) String() string {
 	res[10] = "ScheduleID: " + reform.Inspect(s.ScheduleID, true)
 	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[13] = "IsShardedCluster: " + reform.Inspect(s.IsShardedCluster, true)
 	return strings.Join(res, ", ")
 }
 
@@ -120,6 +123,7 @@ func (s *Artifact) Values() []interface{} {
 		s.ScheduleID,
 		s.CreatedAt,
 		s.UpdatedAt,
+		s.IsShardedCluster,
 	}
 }
 
@@ -140,6 +144,7 @@ func (s *Artifact) Pointers() []interface{} {
 		&s.ScheduleID,
 		&s.CreatedAt,
 		&s.UpdatedAt,
+		&s.IsShardedCluster,
 	}
 }
 

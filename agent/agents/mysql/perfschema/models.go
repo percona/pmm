@@ -74,9 +74,9 @@ type eventsStatementsHistory struct {
 	// TimerEnd   *int64  `reform:"TIMER_END"`
 	// TimerWait  *int64  `reform:"TIMER_WAIT"`
 	// LockTime   int64   `reform:"LOCK_TIME"`
-	SQLText *string `reform:"SQL_TEXT"`
-	Digest  *string `reform:"DIGEST"`
-	// DigestText    *string `reform:"DIGEST_TEXT"`
+	SQLText       *string `reform:"SQL_TEXT"`
+	Digest        *string `reform:"DIGEST"`
+	DigestText    *string `reform:"DIGEST_TEXT"`
 	CurrentSchema *string `reform:"CURRENT_SCHEMA"`
 	// ObjectType           *string `reform:"OBJECT_TYPE"`
 	// ObjectSchema         *string `reform:"OBJECT_SCHEMA"`
