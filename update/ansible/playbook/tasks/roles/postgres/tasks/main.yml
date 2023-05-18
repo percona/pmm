@@ -2,10 +2,6 @@
 # Install Postgres
 - name: Install Postgres for EL7
   block:
-    - debug:
-        msg:
-          - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
-
     - name: Add PostgreSQL 14 YUM repository for EL7
       yum_repository:
         name: percona-ppg-14
@@ -79,6 +75,17 @@
   when:
     - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
+- name: Output env
+  shell: echo env
+  register: env_output
+
+- name: Debug ENV PATH
+  debug:
+    msg:
+      - "ENV SHELL: {{ lookup('ansible.builtin.env', 'SHELL') }}"
+      - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
+      - "PATH: {{ env_output.stdout }}"
+
 - name: Create Postgres log file
   file:
     path: /srv/logs/postgresql14.log
@@ -126,7 +133,6 @@
       supervisorctl:
         name: "{{ item }}"
         state: stopped
-        supervisorctl_path: /usr/bin/supervisorctl
       loop:
         - pmm-managed
         - postgresql
@@ -216,7 +222,7 @@
         dest: /srv/postgres11
       when: is_upgrade.stat.exists
 
-    - name: Remove old Postgres direcroty
+    - name: Remove old Postgres directory
       file:
         path: /srv/postgres
         state: absent
@@ -237,11 +243,22 @@
         - add
       when: is_upgrade.stat.exists
 
-    - name: Run pmm-managed again
+    - name: Run pmm-managed again | EL7
+      supervisorctl:
+        name: pmm-managed
+        state: started
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Run pmm-managed again | EL9
       supervisorctl:
         name: pmm-managed
         state: started
         supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
-      when: is_upgrade.stat.exists
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
   when: not is_postgres_14.stat.exists
