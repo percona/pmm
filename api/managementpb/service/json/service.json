@@ -129,6 +129,11 @@
                               },
                               "x-order": 5
                             },
+                            "comments_parsing_disabled": {
+                              "description": "True if query comments parsing is disabled.",
+                              "type": "boolean",
+                              "x-order": 25
+                            },
                             "created_at": {
                               "description": "Creation timestamp.",
                               "type": "string",
@@ -169,7 +174,7 @@
                             "is_connected": {
                               "description": "True if Agent is running and connected to pmm-managed.",
                               "type": "boolean",
-                              "x-order": 37
+                              "x-order": 38
                             },
                             "is_password_set": {
                               "description": "True if password for connecting the agent to the database is set.",
@@ -329,65 +334,65 @@
                             "rds_basic_metrics_disabled": {
                               "description": "True if RDS basic metrics are disdabled.",
                               "type": "boolean",
-                              "x-order": 25
+                              "x-order": 26
                             },
                             "rds_enhanced_metrics_disabled": {
                               "description": "True if RDS enhanced metrics are disdabled.",
                               "type": "boolean",
-                              "x-order": 26
+                              "x-order": 27
                             },
                             "runs_on_node_id": {
                               "description": "Node identifier where this instance runs.",
                               "type": "string",
-                              "x-order": 27
+                              "x-order": 28
                             },
                             "service_id": {
                               "description": "Service identifier.",
                               "type": "string",
-                              "x-order": 28
+                              "x-order": 29
                             },
                             "status": {
                               "description": "Actual Agent status.",
                               "type": "string",
-                              "x-order": 29
+                              "x-order": 30
                             },
                             "table_count": {
                               "description": "Last known table count.",
                               "type": "integer",
                               "format": "int32",
-                              "x-order": 30
+                              "x-order": 31
                             },
                             "table_count_tablestats_group_limit": {
                               "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                               "type": "integer",
                               "format": "int32",
-                              "x-order": 31
+                              "x-order": 32
                             },
                             "tls": {
                               "description": "Use TLS for database connections.",
                               "type": "boolean",
-                              "x-order": 32
+                              "x-order": 33
                             },
                             "tls_skip_verify": {
                               "description": "Skip TLS certificate and hostname validation.",
                               "type": "boolean",
-                              "x-order": 33
+                              "x-order": 34
                             },
                             "updated_at": {
                               "description": "Last update timestamp.",
                               "type": "string",
                               "format": "date-time",
-                              "x-order": 35
+                              "x-order": 36
                             },
                             "username": {
                               "description": "HTTP basic auth username for collecting metrics.",
                               "type": "string",
-                              "x-order": 34
+                              "x-order": 35
                             },
                             "version": {
                               "description": "Agent version.",
                               "type": "string",
-                              "x-order": 36
+                              "x-order": 37
                             }
                           }
                         },

@@ -895,6 +895,13 @@ var databaseSchema = [][]string{
 		`ALTER TABLE artifacts
 		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
 	},
+	82: {
+		`ALTER TABLE agents 
+		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

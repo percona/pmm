@@ -116,6 +116,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		ProcessExecPath:                pointer.GetString(agent.ProcessExecPath),
 		PushMetrics:                    agent.PushMetrics,
 		QueryExamplesDisabled:          agent.QueryExamplesDisabled,
+		CommentsParsingDisabled:        agent.CommentsParsingDisabled,
 		RdsBasicMetricsDisabled:        agent.RDSBasicMetricsDisabled,
 		RdsEnhancedMetricsDisabled:     agent.RDSEnhancedMetricsDisabled,
 		RunsOnNodeId:                   pointer.GetString(agent.RunsOnNodeID),

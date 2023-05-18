@@ -240,6 +240,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for QueryExamplesDisabled
 
+	// no validation rules for CommentsParsingDisabled
+
 	// no validation rules for RdsBasicMetricsDisabled
 
 	// no validation rules for RdsEnhancedMetricsDisabled
