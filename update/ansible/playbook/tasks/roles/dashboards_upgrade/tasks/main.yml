@@ -63,7 +63,7 @@
         state: stopped
         supervisorctl_path: supervisorctl
       become: true
-      when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       ignore_errors: true
 
     - name: Restart grafana before deleting data EL9
@@ -104,7 +104,7 @@
     supervisorctl_path: supervisorctl
   become: true
   ignore_errors: true
-  when: ansible_distribution == 'Centos' and ansible_distribution_major_version == '7'
+  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
 
