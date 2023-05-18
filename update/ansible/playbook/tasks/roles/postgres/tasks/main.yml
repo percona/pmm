@@ -75,16 +75,12 @@
   when:
     - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
-- name: Output env
-  shell: env
-  register: env_output
-
 - name: Debug ENV PATH
   debug:
     msg:
       - "ENV SHELL: {{ lookup('ansible.builtin.env', 'SHELL') }}"
       - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
-      - "PATH: {{ env_output }}"
+      - "ENV ALL: {{ ansible.builtin.env }}"
 
 - name: Create Postgres log file
   file:
