@@ -13,7 +13,7 @@
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
   shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
 
-- name: Configure supervisor EL7      | Create a defult configuration file for supervisord
+- name: Configure supervisor EL7      | Create a default configuration file for supervisord
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
   shell: echo_supervisord_conf > /etc/supervisord.conf
 
