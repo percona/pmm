@@ -118,7 +118,20 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_upgrade
 
-    - name: Stop pmm-managed and postgres before backup database
+    - name: Stop pmm-managed and postgres before backup database | EL7
+      supervisorctl:
+        name: "{{ item }}"
+        state: stopped
+        supervisorctl_path: supervisorctl
+      loop:
+        - pmm-managed
+        - postgresql
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Stop pmm-managed and postgres before backup database | EL9
       supervisorctl:
         name: "{{ item }}"
         state: stopped
@@ -127,7 +140,9 @@
         - pmm-managed
         - postgresql
       become: true
-      when: is_upgrade.stat.exists
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
 
     - name: Run Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres

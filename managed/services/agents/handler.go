@@ -18,7 +18,6 @@ package agents
 import (
 	"context"
 	"runtime/pprof"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -187,26 +186,16 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 }
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	PMMAgentID := req.AgentId
+	var (
+		PMMAgentID string
+		agentIDs   []string
+		err        error
+	)
 
 	errTX := h.db.InTransaction(func(tx *reform.TX) error {
-		agentIDs := h.r.roster.get(req.AgentId)
-		if agentIDs == nil {
-			suffix := "/" + string(rdsGroup)
-			if !strings.HasSuffix(req.AgentId, suffix) {
-				agentIDs = []string{req.AgentId}
-			} else {
-				PMMAgentID, _ = strings.CutSuffix(req.AgentId, suffix)
-				rdsExporterType := models.RDSExporterType
-				agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType})
-				if err != nil {
-					return err
-				}
-				agentIDs = make([]string, 0, len(agents))
-				for _, agent := range agents {
-					agentIDs = append(agentIDs, agent.AgentID)
-				}
-			}
+		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
+		if err != nil {
+			return err
 		}
 
 		for _, agentID := range agentIDs {
