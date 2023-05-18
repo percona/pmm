@@ -68,7 +68,14 @@
     - name: See what services are running
       debug: var=reread_result.stdout_lines
 
-    - name: Stop pmm-managed before deleting the database
+    - name: Stop pmm-managed before deleting the database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      supervisorctl:
+        name: pmm-managed
+        state: stopped
+
+    - name: Stop pmm-managed before deleting the database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       supervisorctl:
         name: pmm-managed
         state: stopped
@@ -131,8 +138,12 @@
       when: ansible_virtualization_type != "docker"
       service: name=supervisord state=stopped enabled=yes
 
-    - name: Supervisord stop           | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker"
+    - name: Supervisord stop EL7       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      shell: supervisorctl shutdown
+
+    - name: Supervisord stop EL9       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
