@@ -85,7 +85,7 @@ exit 0
 
 %changelog
 * Thu May 18 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.18-1
-- PMM-11762 Grafana 9.2.18
+- PMM-12114 Grafana 9.2.18
 
 * Fri Mar 10 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.13-1
 - PMM-11762 Grafana 9.2.13
