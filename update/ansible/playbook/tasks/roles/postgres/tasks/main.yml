@@ -2,13 +2,8 @@
 # Install Postgres
 - name: Install Postgres for EL7
   block:
-    - name: Get system info
-      shell: "env > /tmp/env.txt"
-      register: env_file
-
     - debug:
         msg:
-          - "{{ env_file.stdout_lines }}"
           - "ENV PATH: {{ lookup('ansible.builtin.env', 'PATH') }}"
 
     - name: Add PostgreSQL 14 YUM repository for EL7
