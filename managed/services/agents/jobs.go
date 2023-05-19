@@ -436,7 +436,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 			TemplateRightDelim: delimiters.Right,
 		},
 
-		// Following group of parameters used only for legacy agents.
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
 		User:     dbConfig.User,
 		Password: dbConfig.Password,
 		Address:  dbConfig.Address,
@@ -589,7 +589,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			TemplateRightDelim: delimiters.Right,
 		},
 
-		// Following group of parameters used only for legacy agents.
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
 		User:     dbConfig.User,
 		Password: dbConfig.Password,
 		Address:  dbConfig.Address,
