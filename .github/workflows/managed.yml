@@ -22,14 +22,6 @@ on:
       - "update/**"
       - "vmproxy/**"
 
-  workflow_call:
-    inputs:
-      go-version:
-        description: An array of Go versions to be tested against, in a format of json string.
-        required: false
-        type: string
-        default: '["tip"]'
-
 jobs:
   test:
     name: Tests
@@ -37,12 +29,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix:
-        use-cache: [ false ]
-        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
 
     env:
-      GO_VERSION: ${{ matrix.go-version }}
       PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -58,25 +46,24 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-${{ hashFiles('**') }}
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
         if: matrix.use-cache
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
         if: matrix.use-cache
         run: |
-          pushd tools && go mod download
-          popd        && go mod download
+          pushd tools && go mod download -x
+          popd        && go mod download -x
 
       - name: Initialize CI environment
         run: make env-compose-up
@@ -105,7 +92,7 @@ jobs:
         with:
           file: managed/cover.out
           flags: managed
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
+          env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Cache

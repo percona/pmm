@@ -400,6 +400,9 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
+
+	// Source database setup type.
+	IsShardedCluster bool `json:"is_sharded_cluster,omitempty"`
 }
 
 // Validate validates this list artifacts OK body artifacts items0

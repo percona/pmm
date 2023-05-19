@@ -642,6 +642,14 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMOSNameAndVersion
+    source: VM
+    query: node_os_info{node_id=~"pmm-server"}
+    summary: "PMM node OS name and version"
+    data:
+      - metric_name: "pmm_server_node_os_pretty_name_and_version"
+        label: "pretty_name"
+
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
