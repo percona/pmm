@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,14 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 )
+
+// AgentRequest represents an request from agent.
+// It is similar to agentpb.AgentMessage except it can contain only requests,
+// and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
+type AgentRequest struct {
+	ID      uint32
+	Payload agentpb.AgentRequestPayload
+}
 
 // AgentResponse represents agent's response.
 // It is similar to agentpb.AgentMessage except it can contain only responses,
