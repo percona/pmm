@@ -65,7 +65,7 @@ func (r *roster) add(pmmAgentID string, group agentGroup, exporters map[*models.
 	sort.Strings(exporterIDs)
 
 	r.m[groupID] = exporterIDs
-	r.l.Infof("add: %s = %v", groupID, exporterIDs)
+	r.l.Debugf("add: %s = %v", groupID, exporterIDs)
 	return groupID
 }
 
@@ -73,14 +73,11 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	PMMAgentID := groupID
+	suffix := "/" + string(rdsGroup)
+	PMMAgentID, ok := strings.CutSuffix(groupID, suffix)
 	agentIDs := r.m[groupID]
 
 	if agentIDs == nil {
-		var ok bool
-		suffix := "/" + string(rdsGroup)
-
-		PMMAgentID, ok = strings.CutSuffix(groupID, suffix)
 		if !ok {
 			agentIDs = []string{PMMAgentID}
 		} else {
@@ -96,7 +93,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 		}
 	}
 
-	r.l.Infof("get: %s = %v", groupID, agentIDs)
+	r.l.Debugf("get: %s = %v", groupID, agentIDs)
 	return PMMAgentID, agentIDs, nil
 }
 
