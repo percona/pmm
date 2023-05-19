@@ -1,9 +1,5 @@
 name: Managed
 on:
-  schedule:
-    # run every Sunday to re-populate caches after they are cleaned on Saturday
-    - cron: "0 12 * * 0"
-
   push:
     branches:
       - main
@@ -42,7 +38,6 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Enable Go build cache
-        if: matrix.use-cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
@@ -52,7 +47,6 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        if: matrix.use-cache
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
@@ -60,7 +54,6 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        if: matrix.use-cache
         run: |
           pushd tools && go mod download -x
           popd        && go mod download -x
@@ -69,12 +62,10 @@ jobs:
         run: make env-compose-up
 
       - name: Restore Go build cache
-        if: matrix.use-cache
         continue-on-error: true
         run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
-        if: matrix.use-cache
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
@@ -96,7 +87,6 @@ jobs:
           fail_ci_if_error: false
 
       - name: Cache
-        if: matrix.use-cache
         run: |
           docker exec pmm-managed-server go clean -testcache
           docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
