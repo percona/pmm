@@ -92,7 +92,7 @@ func (s PostgresqlClustersService) GetPostgresqlClusterCredentials(ctx context.C
 		ConnectionCredentials: &dbaasv1beta1.PostgresqlClusterConnectionCredentials{
 			Username: string(secret.Data["user"]),
 			Password: string(secret.Data["password"]),
-			Host:     string(secret.Data["host"]),
+			Host:     dbCluster.Status.Host,
 			Port:     int32(port),
 		},
 	}
