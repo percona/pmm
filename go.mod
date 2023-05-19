@@ -90,7 +90,7 @@ require (
 	k8s.io/apimachinery v0.27.2
 	k8s.io/cli-runtime v0.27.2
 	k8s.io/client-go v0.27.2
-	k8s.io/kubectl v0.27.1
+	k8s.io/kubectl v0.27.2
 	modernc.org/sqlite v1.22.1
 	sigs.k8s.io/controller-runtime v0.14.6
 )
