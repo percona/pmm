@@ -186,13 +186,11 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 }
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	var (
-		PMMAgentID string
-		agentIDs   []string
-		err        error
-	)
+	var PMMAgentID string
 
 	errTX := h.db.InTransaction(func(tx *reform.TX) error {
+		var agentIDs []string
+		var err error
 		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
 		if err != nil {
 			return err

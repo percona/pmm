@@ -200,6 +200,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return err
 			}
 			rdsExporters[node] = row
+
 		case models.ExternalExporterType:
 			// ignore
 
