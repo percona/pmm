@@ -73,6 +73,7 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
+      ignore_errors: True
 
     - name: Stop pmm-managed before deleting the database EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
