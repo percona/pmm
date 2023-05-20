@@ -7,21 +7,35 @@ on:
 
 jobs:
   sbom:
-    name: Create and publish SBOM
     runs-on: ubuntu-22.04
-
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Create SBOM assets
+      - name: Create SBOM for PMM
         uses: anchore/sbom-action@v0
         with:
           file: go.mod
           artifact-name: pmm.spdx.json
 
-      - name: Publish SBOM assets
+      - name: Publish SBOM for PMM
         uses: anchore/sbom-action/publish-sbom@v0
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"
 
+  vmproxy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Create vmproxy SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./vmproxy
+          artifact-name: vmproxy.spdx.json
+
+      - name: Publish vmproxy SBOM
+        uses: anchore/sbom-action/publish-sbom@v0
+        with:
+          sbom-artifact-match: ".*\\.spdx\\.json$"
