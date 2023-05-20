@@ -29,13 +29,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Create vmproxy SBOM
+      - name: Create SBOM for vmproxy
         uses: anchore/sbom-action@v0
         with:
           path: ./vmproxy
           artifact-name: vmproxy.spdx.json
 
-      - name: Publish vmproxy SBOM
+      - name: Publish SBOM for vmproxy
         uses: anchore/sbom-action/publish-sbom@v0
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"
