@@ -315,10 +315,10 @@ func GetEnv(key, fallback string) string {
 }
 
 func formatEnvVariableError(err error, env, value string) error {
-	var invalidDurationError *InvalidDurationError
-	if errors.As(err, &invalidDurationError) {
+	switch e := err.(type) { //nolint:errorlint
+	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
+	default:
+		return errors.Wrap(e, "unknown error")
 	}
-
-	return errors.Wrap(err, "unknown error")
 }
