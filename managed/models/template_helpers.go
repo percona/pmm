@@ -43,17 +43,15 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 }
 
 // FindTemplates returns saved notification rule templates.
-func FindTemplates(q *reform.Querier) ([]Template, error) {
+func FindTemplates(q *reform.Querier) ([]*Template, error) {
 	structs, err := q.SelectAllFrom(TemplateTable, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select notification rule templates")
 	}
 
-	templates := make([]Template, len(structs))
+	templates := make([]*Template, len(structs))
 	for i, s := range structs {
-		c := s.(*Template) //nolint:forcetypeassert
-
-		templates[i] = *c
+		templates[i] = s.(*Template) //nolint:forcetypeassert
 	}
 
 	return templates, nil
@@ -90,33 +88,13 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	if err := checkUniqueTemplateName(q, params.Template.Name); err != nil {
+	if err := checkUniqueTemplateName(q, template.Name); err != nil {
 		return nil, err
 	}
 
-	p, err := ConvertParamsDefinitions(params.Template.Params)
+	row, err := ConvertTemplate(template, params.Yaml, params.Source)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
-	}
-
-	row := &Template{
-		Name:     template.Name,
-		Version:  template.Version,
-		Summary:  template.Summary,
-		Expr:     template.Expr,
-		Params:   p,
-		For:      time.Duration(template.For),
-		Severity: Severity(template.Severity),
-		Source:   params.Source,
-		Yaml:     params.Yaml,
-	}
-
-	if err := row.SetLabels(template.Labels); err != nil {
-		return nil, err
-	}
-
-	if err := row.SetAnnotations(template.Annotations); err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
 	if err = q.Insert(row); err != nil {
@@ -191,6 +169,35 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
+func ConvertTemplate(template *alert.Template, yaml string, source Source) (*Template, error) {
+	p, err := ConvertParamsDefinitions(template.Params)
+	if err != nil {
+		return nil, errors.Errorf("invalid rule template parameters: %v.", err)
+	}
+
+	res := &Template{
+		Name:     template.Name,
+		Version:  template.Version,
+		Summary:  template.Summary,
+		Expr:     template.Expr,
+		Params:   p,
+		For:      time.Duration(template.For),
+		Severity: Severity(template.Severity),
+		Source:   source,
+		Yaml:     yaml,
+	}
+
+	if err := res.SetLabels(template.Labels); err != nil {
+		return nil, err
+	}
+
+	if err := res.SetAnnotations(template.Annotations); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // ConvertParamsDefinitions converts parameters definitions to the model.
 func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefinitions, error) {
 	res := make(AlertExprParamsDefinitions, 0, len(params))
@@ -198,7 +205,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 		p := AlertExprParamDefinition{
 			Name:    param.Name,
 			Summary: param.Summary,
-			Unit:    string(param.Unit),
+			Unit:    ParamUnit(param.Unit),
 			Type:    ParamType(param.Type),
 		}
 

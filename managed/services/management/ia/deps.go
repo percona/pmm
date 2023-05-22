@@ -19,8 +19,8 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/management/alerting"
 )
 
 //go:generate ../../../../bin/mockery -name=alertManager -case=snake -inpkg -testonly
@@ -44,5 +44,5 @@ type vmAlert interface {
 }
 
 type templatesService interface {
-	GetTemplates() map[string]alerting.TemplateInfo
+	GetTemplates() map[string]models.Template
 }
