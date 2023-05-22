@@ -44,6 +44,7 @@ type roster struct {
 	m  map[string][]string
 }
 
+// newRoster creates a new roster instance.
 func newRoster(db *reform.DB) *roster {
 	return &roster{
 		db: db,
@@ -52,6 +53,7 @@ func newRoster(db *reform.DB) *roster {
 	}
 }
 
+// add adds a new group of exporter IDs to the roster.
 func (r *roster) add(pmmAgentID string, group agentGroup, exporters map[*models.Node]*models.Agent) string {
 	r.rw.Lock()
 	defer r.rw.Unlock()
@@ -69,6 +71,7 @@ func (r *roster) add(pmmAgentID string, group agentGroup, exporters map[*models.
 	return groupID
 }
 
+// get returns a PMMAgentID and a group of exporter IDs for a given Group ID.
 func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
@@ -97,6 +100,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	return PMMAgentID, agentIDs, nil
 }
 
+// clear removes the group of exporter IDs for a given PMM Agent ID.
 func (r *roster) clear(pmmAgentID string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
