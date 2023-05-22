@@ -148,14 +148,15 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err { //nolint:errorlint
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
 }
 
 // AgentFilters represents filters for agents list.
@@ -228,14 +229,15 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err { //nolint:errorlint
-	case nil:
-		return agent, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return agent, nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.

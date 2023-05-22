@@ -360,7 +360,7 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 		in.Serviceid,
 		in.Query)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return wrapperspb.Bool(resp), nil
@@ -373,7 +373,7 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 		in.Serviceid,
 		in.QueryId)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return res, nil

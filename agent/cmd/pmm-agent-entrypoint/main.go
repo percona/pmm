@@ -17,7 +17,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -25,6 +24,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	reaper "github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"

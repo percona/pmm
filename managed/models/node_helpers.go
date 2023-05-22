@@ -33,14 +33,15 @@ func checkUniqueNodeID(q *reform.Querier, id string) error {
 	}
 
 	node := &Node{NodeID: id}
-	switch err := q.Reload(node); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(node)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
 }
 
 func checkUniqueNodeName(q *reform.Querier, name string) error {
@@ -49,14 +50,14 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 	}
 
 	_, err := q.FindOneFrom(NodeTable, "node_name", name)
-	switch err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
 }
 
 // CheckUniqueNodeInstanceRegion checks for uniqueness of instance address and region.
@@ -75,14 +76,14 @@ func CheckUniqueNodeInstanceRegion(q *reform.Querier, instance string, region *s
 
 	var node Node
 	err := q.SelectOneTo(&node, "WHERE address = $1 AND region = $2 LIMIT 1", instance, region)
-	switch err {
-	case nil:
-		return &node, status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, *region)
-	case reform.ErrNoRows:
-		return nil, nil //nolint:nilnil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil //nolint:nilnil
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &node, status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, *region)
 }
 
 // NodeFilters represents filters for nodes list.
@@ -119,14 +120,14 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	}
 
 	node := &Node{NodeID: id}
-	switch err := q.Reload(node); err {
-	case nil:
-		return node, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
-	default:
+	err := q.Reload(node)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+	return node, nil
 }
 
 // FindNodesByIDs finds Nodes by IDs.
@@ -160,14 +161,15 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 	}
 
 	var node Node
-	switch err := q.FindOneTo(&node, "node_name", name); err {
-	case nil:
-		return &node, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
-	default:
+	err := q.FindOneTo(&node, "node_name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &node, nil
 }
 
 // CreateNodeParams contains parameters for creating Nodes.

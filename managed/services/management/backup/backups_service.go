@@ -703,7 +703,7 @@ func convertRestoreBackupError(restoreError error) error {
 		Code: code,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+		return fmt.Errorf("failed to construct status error: %w, restore error: %w", err, restoreError)
 	}
 
 	return st.Err()
