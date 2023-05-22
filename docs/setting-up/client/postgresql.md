@@ -35,7 +35,7 @@ We recommend creating a PMM database account that can connect to the `postgres` 
     So we have to create the user first and then grant the `rds_superuser` role to it.
 
     ```sql
-    CREATE USER pmm WITH PASSWORD '******';
+    CREATE USER pmm WITH ENCRYPTED PASSWORD '******';
     GRANT rds_superuser TO pmm;
     ```
     Optionally, you can also set up a connection limit (only if the user is not a SUPERUSER):
