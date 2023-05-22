@@ -51,7 +51,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
-	github.com/minio/minio-go/v7 v7.0.52
+	github.com/minio/minio-go/v7 v7.0.53
 	github.com/operator-framework/api v0.17.5
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
