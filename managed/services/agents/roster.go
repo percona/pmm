@@ -30,7 +30,7 @@ type agentGroup string
 
 const (
 	rdsGroup  = agentGroup("rds")
-	rdsSuffix = "/" + string(rdsGroup)
+	rdsSuffix = string("/" + rdsGroup)
 )
 
 // roster groups several Agent IDs from an Inventory model to a single Group ID, as seen by pmm-agent.
