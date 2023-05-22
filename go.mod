@@ -23,14 +23,14 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.265
+	github.com/aws/aws-sdk-go v1.44.266
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.24.0
 	github.com/charmbracelet/lipgloss v0.7.1
 	github.com/davecgh/go-spew v1.1.1
-	github.com/docker/docker v20.10.23+incompatible
+	github.com/docker/docker v23.0.4+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-co-op/gocron v1.27.1
@@ -71,7 +71,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.2
 	github.com/stretchr/objx v0.5.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	go.mongodb.org/mongo-driver v1.11.6
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.7.0
@@ -88,9 +88,9 @@ require (
 	k8s.io/api v0.27.2
 	k8s.io/apiextensions-apiserver v0.26.2
 	k8s.io/apimachinery v0.27.2
-	k8s.io/cli-runtime v0.27.1
-	k8s.io/client-go v0.27.1
-	k8s.io/kubectl v0.27.1
+	k8s.io/cli-runtime v0.27.2
+	k8s.io/client-go v0.27.2
+	k8s.io/kubectl v0.27.2
 	modernc.org/sqlite v1.22.1
 	sigs.k8s.io/controller-runtime v0.14.6
 )
