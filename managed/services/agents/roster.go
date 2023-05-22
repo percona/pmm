@@ -29,7 +29,8 @@ import (
 type agentGroup string
 
 const (
-	rdsGroup = agentGroup("rds")
+	rdsGroup  = agentGroup("rds")
+	rdsSuffix = "/" + string(rdsGroup)
 )
 
 // roster groups several Agent IDs from an Inventory model to a single Group ID, as seen by pmm-agent.
@@ -76,8 +77,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	suffix := "/" + string(rdsGroup)
-	PMMAgentID, ok := strings.CutSuffix(groupID, suffix)
+	PMMAgentID, ok := strings.CutSuffix(groupID, rdsSuffix)
 	agentIDs := r.m[groupID]
 
 	if agentIDs == nil {
