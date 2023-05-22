@@ -6,6 +6,8 @@
 
 - [PMM components and versions](pmm_components_and_versions.md): PMM components and their version used in PMM.
 
+- [Data handling in PMM](personal_data_handling): Personal and confidential data handling in PMM.
+
 - [Developing Advisor checks](develop-checks/index.md): Database health assessments.
 
 - [Dashboards reference](dashboards/index.md): A complete list of dashboards by category, with screenshots.

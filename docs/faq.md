@@ -184,3 +184,7 @@ If you are using OVF/AMI, you can change the default password through SSH by usi
 ```sh
 change-admin-password <new_password>
 ```
+
+## How PMM handles personal and confidential data
+
+Read our [Privacy Policy](https://www.percona.com/privacy-policy) to learn how PMM manages personal and confidential data. More technical details can be found in [Data handling in PMM](details/personal_data_handling.md).

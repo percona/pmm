@@ -200,6 +200,7 @@ nav:
       - details/architecture.md
       - details/interface.md
       - details/pmm_components_and_versions.md
+      - details/personal_data_handling.md
       - Develop Advisor checks:
           - details/develop-checks/index.md
       - Dashboards:
@@ -310,7 +311,6 @@ nav:
       - "Create a database cluster from a template": dbaas/DBaaS_template.md
     - "Backup and restore": dbaas/backup_restore.md
   - faq.md
-  - personal_data_handling.md
   - Release Notes:
       - release-notes/index.md
       - "PMM 2.37.0": release-notes/2.37.0.md

@@ -1,4 +1,4 @@
-# Data handling in PMM - FAQ
+# Data handling in PMM
 
 
 The following questions are being answered related to personal and confidential data handling in PMM:
@@ -11,7 +11,6 @@ The following questions are being answered related to personal and confidential 
       | PMM to DB Host                                                  | DSN and credentials for database access. A separate DB user is used (limited access) to retreive metrics from the database.
       | DB Host to S3 compatible storage location                       | Database backup - optional if PMM Administrator configures it with Public Cloud (AWS, GCP, etc) as a possible storage location.
       | PMM Server to Percona Cloud                                     | Telemetry data is collected. </br/> PMM Server collects varying amounts of data from version to version, and no personal or confidential information is collected. See [here](https://docs.percona.com/percona-monitoring-and-management/how-to/configure.html#telemetry) for details on the data being transmitted.
-
 
 
 2. Where is the data obtained from the DB host transmitted?
