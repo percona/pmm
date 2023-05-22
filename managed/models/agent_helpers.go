@@ -148,7 +148,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err {
+	switch err := q.Reload(agent); err { //nolint:errorlint
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
 	case reform.ErrNoRows:
@@ -228,7 +228,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err {
+	switch err := q.Reload(agent); err { //nolint:errorlint
 	case nil:
 		return agent, nil
 	case reform.ErrNoRows:

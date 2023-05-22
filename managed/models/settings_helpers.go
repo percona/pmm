@@ -398,14 +398,20 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
-			switch err.(type) {
-			case validators.DurationNotAllowedError:
+			var (
+				durationNotAllowedError *validators.DurationNotAllowedError
+				minDurationError        *validators.MinDurationError
+			)
+
+			if errors.As(err, &durationNotAllowedError) {
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
-			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
-			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
 			}
+
+			if errors.As(err, &minDurationError) {
+				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+			}
+
+			return errors.Errorf("%s: unknown error for", v.fieldName)
 		}
 	}
 
@@ -423,27 +429,39 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
-			switch err.(type) {
-			case validators.DurationNotAllowedError:
+			var (
+				durationNotAllowedError *validators.DurationNotAllowedError
+				minDurationError        *validators.MinDurationError
+			)
+
+			if errors.As(err, &durationNotAllowedError) {
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
-			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
-			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
 			}
+
+			if errors.As(err, &minDurationError) {
+				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+			}
+
+			return errors.Errorf("%s: unknown error for", v.fieldName)
 		}
 	}
 
 	if params.DataRetention != 0 {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
-			switch err.(type) {
-			case validators.DurationNotAllowedError:
+			var (
+				durationNotAllowedError *validators.DurationNotAllowedError
+				minDurationError        *validators.MinDurationError
+			)
+
+			if errors.As(err, &durationNotAllowedError) {
 				return errors.New("data_retention: should be a natural number of days")
-			case validators.MinDurationError:
-				return errors.New("data_retention: minimal resolution is 24h")
-			default:
-				return errors.New("data_retention: unknown error")
 			}
+
+			if errors.As(err, &minDurationError) {
+				return errors.New("data_retention: minimal resolution is 24h")
+			}
+
+			return errors.New("data_retention: unknown error")
 		}
 	}
 
