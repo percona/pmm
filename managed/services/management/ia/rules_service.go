@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
@@ -384,8 +383,8 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		params.TemplateName = template.Name
 		params.Summary = template.Summary
 		params.ExprTemplate = template.Expr
-		params.DefaultFor = time.Duration(template.For)
-		params.DefaultSeverity = models.Severity(template.Severity)
+		params.DefaultFor = template.For
+		params.DefaultSeverity = template.Severity
 		params.ParamsDefinitions = template.Params
 
 		params.Labels, err = template.GetLabels()

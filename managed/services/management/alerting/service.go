@@ -267,7 +267,8 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+			t := t
+			if err = validateUserTemplate(&t); err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
@@ -333,6 +334,7 @@ func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, er
 
 	res := make([]*models.Template, 0, len(templates))
 	for _, t := range templates {
+		t := t
 		tm, err := models.ConvertTemplate(&t, "", models.SAASSource)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert alert rule template")
@@ -578,7 +580,7 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		Name:        template.Name,
 		Summary:     template.Summary,
 		Expr:        template.Expr,
-		Params:      make([]*alerting.ParamDefinition, 0, len(template.Params)),
+		Params:      convertParamDefinitions(l, template.Params),
 		For:         durationpb.New(template.For),
 		Severity:    managementpb.Severity(template.Severity),
 		Labels:      labels,
@@ -592,15 +594,10 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		return nil, err
 	}
 
-	t.Params, err = convertParamDefinitions(l, template.Params)
-	if err != nil {
-		return nil, err
-	}
-
 	return t, nil
 }
 
-func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefinitions) ([]*alerting.ParamDefinition, error) {
+func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefinitions) []*alerting.ParamDefinition {
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
@@ -640,7 +637,7 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 		// do not add `default:` to make exhaustive linter do its job
 	}
 
-	return res, nil
+	return res
 }
 
 // CreateRule creates alert rule from the given template.
@@ -681,7 +678,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	forDuration := time.Duration(template.For)
+	forDuration := template.For
 	if req.For != nil {
 		forDuration = req.For.AsDuration()
 	}
