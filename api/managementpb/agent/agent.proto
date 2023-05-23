@@ -60,7 +60,7 @@ message UniversalAgent {
     bool is_ssl_key_set = 3;
   }
 
-  // Unique randomly generated instance identifier.
+  // Unique agent identifier.
   string agent_id = 1;
   // True if the agent password is set.
   bool is_agent_password_set = 2;
@@ -141,8 +141,12 @@ message UniversalAgent {
 }
 
 message ListAgentRequest {
+  // Only one of the parameters below must be set.
+
   // Return only Agents that relate to a specific ServiceID.
-  string service_id = 1 [(validate.rules).string.min_len = 1];
+  string service_id = 1;
+  // Return only Agents that relate to a specific NodeID.
+  string node_id = 2;
 }
 
 message ListAgentResponse {

@@ -60,7 +60,10 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
-	// Body.
+	/* Body.
+
+	   Only one of the parameters below must be set.
+	*/
 	Body ListAgentsBody
 
 	timeout    time.Duration
