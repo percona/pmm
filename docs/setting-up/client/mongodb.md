@@ -27,7 +27,7 @@ Run the example codes below in a `mongo` session to:
 ### Create roles with privileges for backups and QAN
 
 ```{.javascript data-prompt=">"}
-> db.getSiblingDB("admin").createRole({
+ db.getSiblingDB("admin").createRole({
     role: "explainRole",
     privileges: [{
         resource: {
@@ -48,7 +48,7 @@ Run the example codes below in a `mongo` session to:
 ```    
 
 ```{.javascript data-prompt=">"}
-> db.getSiblingDB("admin").createRole({
+ db.getSiblingDB("admin").createRole({
     "role": "pbmAnyAction",
     "privileges": [{
         "resource": {
@@ -65,7 +65,7 @@ Run the example codes below in a `mongo` session to:
 ### Ceate/update user and assign created roles
 
 ```{.javascript data-prompt=">"}
-> db.getSiblingDB("admin").createUser({
+ db.getSiblingDB("admin").createUser({
     user: "pmm",
     pwd: "pmm",
     roles: [
@@ -79,7 +79,7 @@ Run the example codes below in a `mongo` session to:
         { "db" : "admin", "role" : "pbmAnyAction" }
     ]
 })
-> db.getSiblingDB("admin").updateUser("pmm", {
+ db.getSiblingDB("admin").updateUser("pmm", {
     roles: [
         { role: "explainRole", db: "admin" },
         { role: "clusterMonitor", db: "admin" },
@@ -114,7 +114,7 @@ actions : [
 If the role `explainRole` already exists, then you can use the following command to provide additional privileges:
 
 ```{.javascript data-prompt=">"}
-> db.runCommand({
+ db.runCommand({
     grantPrivilegesToRole: "explainRole",
     privileges: [{
         "resource": {
