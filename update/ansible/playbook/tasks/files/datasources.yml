@@ -53,4 +53,4 @@ datasources:
   jsonData:
     port: ${PERCONA_TEST_PMM_CLICKHOUSE_PORT}
     server: ${PERCONA_TEST_PMM_CLICKHOUSE_HOST}
-    tlsSkipVerify: true
+    tlsSkipVerify: false
