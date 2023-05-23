@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -192,7 +193,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
-			Comments:             m.Common.Comments,
 			ExplainFingerprint:   m.Common.ExplainFingerprint,
 			PlaceholdersCount:    m.Common.PlaceholdersCount,
 			Fingerprint:          m.Common.Fingerprint,
@@ -272,6 +272,14 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 		}
 
 		mb.Labels = labels
+
+		for _, v := range m.Common.Comments {
+			split := strings.Split(v, "=")
+			if len(split) < 2 {
+				continue
+			}
+			mb.Labels[split[0]] = strings.ReplaceAll(split[1], "'", "")
+		}
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}

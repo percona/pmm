@@ -483,69 +483,33 @@ func customLabelIsInArray(list []customLabel, k, v string) bool {
 func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
-	dimensionName := "comments"
 	subDimensions := make(map[string][]string)
-	for k, v := range dimensions {
-		if k == dimensionName {
-			continue
-		}
-		subDimensions[k] = v
-	}
 
-	values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, queryDimensionTmpl, subDimensions, labels)
+	labelKeys, _, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.key", mainMetricName, queryDimensionTmpl, subDimensions, labels)
 	if err != nil {
 		return totals, groupLabels
 	}
-	if mainMetricPerSec == 0 {
-		for _, label := range values {
-			totals[label.key] += label.mainMetricPerSec
-		}
+
+	labelValues, _, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.value", mainMetricName, queryDimensionTmpl, subDimensions, labels)
+	if err != nil {
+		return totals, groupLabels
 	}
 
-	commentsValues := []customLabel{}
-	for _, label := range values {
-		switch val := label.value.(type) {
-		case []string:
-			for _, v := range val {
-				split := strings.Split(strings.ReplaceAll(v, "'", ""), "=")
-				if len(split) < 2 {
-					continue
+	for k, label := range labelKeys {
+		for kk, v := range label.value.([]string) {
+			if _, ok := groupLabels[v]; !ok {
+				groupLabels[v] = &qanpb.ListLabels{
+					Name: []*qanpb.Values{},
 				}
-				if customLabelIsInArray(commentsValues, split[0], split[1]) {
-					continue
-				}
-
-				label.key = split[0]
-				label.value = split[1]
-				commentsValues = append(commentsValues, *label)
 			}
-		default:
-			continue
-		}
-	}
 
-	for _, label := range commentsValues {
-		if _, ok := groupLabels[label.key]; !ok {
-			groupLabels[label.key] = &qanpb.ListLabels{
-				Name: []*qanpb.Values{},
+			val := qanpb.Values{
+				Value:             labelValues[k].value.([]string)[kk],
+				MainMetricPerSec:  label.mainMetricPerSec,
+				MainMetricPercent: label.mainMetricPerSec / float32(len(labelValues)),
 			}
+			groupLabels[v].Name = append(groupLabels[v].Name, &val)
 		}
-		total := mainMetricPerSec
-		if mainMetricPerSec == 0 {
-			total = totals[label.key]
-		}
-
-		var value string
-		if s, ok := label.value.(string); ok {
-			value = s
-		}
-
-		val := qanpb.Values{
-			Value:             value,
-			MainMetricPerSec:  label.mainMetricPerSec,
-			MainMetricPercent: label.mainMetricPerSec / total,
-		}
-		groupLabels[label.key].Name = append(groupLabels[label.key].Name, &val)
 	}
 
 	return totals, groupLabels
