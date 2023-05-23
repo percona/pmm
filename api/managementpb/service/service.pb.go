@@ -37,7 +37,7 @@ const (
 	UniversalService_UP UniversalService_Status = 1
 	// The service is down.
 	UniversalService_DOWN UniversalService_Status = 2
-	// The service's status cannot be known (p.e. there are no metrics yet).
+	// The service's status cannot be known (e.g. there are no metrics yet).
 	UniversalService_UNKNOWN UniversalService_Status = 3
 )
 

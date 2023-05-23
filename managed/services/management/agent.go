@@ -19,6 +19,8 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -46,13 +48,32 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 //
 //nolint:unparam
 func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
-	serviceID := req.ServiceId
+	var err error
+	err = s.validateListAgentRequest(req)
+	if err != nil {
+		return nil, err
+	}
 
+	var agents []*agentv1beta1.UniversalAgent
+
+	if req.ServiceId != "" {
+		agents, err = s.listAgentsByServiceID(ctx, req.ServiceId)
+	} else {
+		agents, err = s.listAgentsByNodeID(req.NodeId)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
+}
+
+// listAgentsByServiceID returns a list of Agents filtered by ServiceID.
+func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
-	// TODO: provide a higher level of data consistency guarantee by using a locking mechanism.
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
 		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
@@ -72,7 +93,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 		return nil, errTX
 	}
 
-	var svcAgents []*agentv1beta1.UniversalAgent
+	var res []*agentv1beta1.UniversalAgent
 
 	for _, agent := range agents {
 		if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
@@ -80,11 +101,33 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 			if err != nil {
 				return nil, err
 			}
-			svcAgents = append(svcAgents, ag)
+			res = append(res, ag)
 		}
 	}
 
-	return &agentv1beta1.ListAgentResponse{Agents: svcAgents}, nil
+	return res, nil
+}
+
+// listAgentsByNodeID returns a list of Agents filtered by NodeID.
+func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*agentv1beta1.UniversalAgent
+
+	for _, agent := range agents {
+		if pointer.GetString(agent.NodeID) == nodeID || pointer.GetString(agent.RunsOnNodeID) == nodeID {
+			ag, err := s.agentToAPI(agent)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, ag)
+		}
+	}
+
+	return res, nil
 }
 
 func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalAgent, error) {
@@ -170,4 +213,16 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	}
 
 	return ua, nil
+}
+
+func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentRequest) error {
+	if req.ServiceId == "" && req.NodeId == "" {
+		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected.")
+	}
+
+	if req.ServiceId != "" && req.NodeId != "" {
+		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected, not both.")
+	}
+
+	return nil
 }
