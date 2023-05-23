@@ -25,12 +25,19 @@
         "operationId": "ListAgents",
         "parameters": [
           {
+            "description": "Only one of the parameters below must be set.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "Only one of the parameters below must be set.",
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Return only Agents that relate to a specific NodeID.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "service_id": {
                   "description": "Return only Agents that relate to a specific ServiceID.",
                   "type": "string",
@@ -53,7 +60,7 @@
                     "type": "object",
                     "properties": {
                       "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
+                        "description": "Unique agent identifier.",
                         "type": "string",
                         "x-order": 0
                       },

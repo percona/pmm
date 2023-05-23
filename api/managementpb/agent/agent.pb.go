@@ -30,7 +30,7 @@ type UniversalAgent struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Unique randomly generated instance identifier.
+	// Unique agent identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// True if the agent password is set.
 	IsAgentPasswordSet bool `protobuf:"varint,2,opt,name=is_agent_password_set,json=isAgentPasswordSet,proto3" json:"is_agent_password_set,omitempty"`
@@ -424,6 +424,8 @@ type ListAgentRequest struct {
 
 	// Return only Agents that relate to a specific ServiceID.
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Return only Agents that relate to a specific NodeID.
+	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 }
 
 func (x *ListAgentRequest) Reset() {
@@ -461,6 +463,13 @@ func (*ListAgentRequest) Descriptor() ([]byte, []int) {
 func (x *ListAgentRequest) GetServiceId() string {
 	if x != nil {
 		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *ListAgentRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
 	}
 	return ""
 }

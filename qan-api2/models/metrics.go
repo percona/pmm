@@ -978,7 +978,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT explain_fingerprint, placeholders_count FROM metrics
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
@@ -1012,13 +1012,19 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	}
 	defer rows.Close() //nolint:errcheck
 
+	var fingerprint string
 	for rows.Next() {
 		err = rows.Scan(
 			&res.ExplainFingerprint,
+			&fingerprint,
 			&res.PlaceholdersCount)
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		if res.ExplainFingerprint == "" {
+			res.ExplainFingerprint = fingerprint
 		}
 
 		return res, nil //nolint:staticcheck

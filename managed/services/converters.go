@@ -488,3 +488,40 @@ func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 
 	return variant.String()
 }
+
+// nodeTypes maps protobuf types to their string types.
+var nodeTypes = map[inventorypb.NodeType]models.NodeType{
+	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+}
+
+// ProtoToModelNodeType converts a NodeType from protobuf to model.
+func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+		return nil
+	}
+	result := nodeTypes[nodeType]
+	return &result
+}
+
+// ServiceTypes maps protobuf types to their string types.
+var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
+	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
+}
+
+// ProtoToModelServiceType converts a ServiceType from protobuf to model.
+func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		return nil
+	}
+	result := ServiceTypes[serviceType]
+	return &result
+}
