@@ -111,7 +111,7 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	CommentsParsing        string            `enum:"on,off" default:"off" help:"Service logging level. One of: [on, off]"`
+	CommentsParsing        string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`

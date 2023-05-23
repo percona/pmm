@@ -52,7 +52,7 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	Password            string            `help:"PostgreSQL password for QAN agent"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	CommentsParsing     string            `enum:"on,off" default:"off" help:"Service logging level. One of: [on, off]"`
+	CommentsParsing     string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength      int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`

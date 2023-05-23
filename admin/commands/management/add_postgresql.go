@@ -63,7 +63,7 @@ type AddPostgreSQLCommand struct {
 	ReplicationSet       string            `help:"Replication set name"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
-	CommentsParsing      string            `enum:"on,off" default:"off" help:"Service logging level. One of: [on, off]"`
+	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile          string            `help:"TLS certificate file"`
