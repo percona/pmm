@@ -895,6 +895,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE artifacts
 		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
 	},
+	82: {
+		`DROP TABLE IF EXISTS onboarding_system_tips`,
+		`DROP TABLE IF EXISTS onboarding_user_tips`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

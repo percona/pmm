@@ -80,9 +80,6 @@ var rules = map[string]role{
 
 	"/v0/qan/": viewer,
 
-	"/v1/onboarding":               viewer,
-	"/v1/onboarding/tips/complete": viewer,
-
 	// mustSetupRules group
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
