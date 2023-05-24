@@ -18,6 +18,12 @@ package agents
 import (
 	"sort"
 
+        "fmt"
+        "log"
+        "github.com/prometheus/procfs"
+        "regexp"
+        "strings"
+
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
@@ -63,6 +69,16 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 		return nil, errors.Wrap(err, "failed to merge labels")
 	}
 	return res, nil
+}
+
+func contains(s []string, str string) string {
+        for _, v := range s {
+                match, err := regexp.MatchString(str, v)
+                if err == nil && match == true {
+                        return strings.Split(v, "=")[1]
+                }
+        }
+        return ""
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
@@ -124,16 +140,44 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		return nil, errors.WithStack(err)
 	}
 
-	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_RDS_EXPORTER,
-		TemplateLeftDelim:  tdp.Left,
-		TemplateRightDelim: tdp.Right,
-		Args:               args,
-		TextFiles: map[string]string{
-			"config": "---\n" + string(b),
-		},
-		RedactWords: words,
-	}, nil
+        p, err := procfs.NewProc(1)
+        if err != nil {
+                log.Fatalf("could not get process: %s", err)
+        }
+
+        envs, err := p.Environ()
+        if err != nil {
+                log.Fatalf("could not get process stat: %s", err)
+        }
+
+        result := contains(envs, "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI.*")
+
+        if result != "" {
+		return &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_RDS_EXPORTER,
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+			Args:               args,
+			Env: []string{
+				fmt.Sprintf("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=%s", result),
+			},
+			TextFiles: map[string]string{
+				"config": "---\n" + string(b),
+			},
+			RedactWords: words,
+		}, nil
+        } else {
+		return &agentpb.SetStateRequest_AgentProcess{
+			Type:               inventorypb.AgentType_RDS_EXPORTER,
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+			Args:               args,
+			TextFiles: map[string]string{
+				"config": "---\n" + string(b),
+			},
+			RedactWords: words,
+		}, nil
+	}
 }
 
 // toOneLogLevel returns first if all equals.
