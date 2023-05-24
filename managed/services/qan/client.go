@@ -26,6 +26,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/exp/maps"
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
 
@@ -271,15 +272,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
-		mb.Labels = labels
-
-		for _, v := range m.Common.Comments {
-			split := strings.Split(v, "=")
-			if len(split) < 2 {
-				continue
-			}
-			mb.Labels[split[0]] = strings.ReplaceAll(split[1], "'", "")
-		}
+		mb.Labels = maps.Copy(mb.Labels, convertCommentsToLabels(m.Common.Comments))
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}
@@ -307,6 +300,19 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 	}
 
 	return nil
+}
+
+func convertCommentsToLabels(comments []string) map[string]string {
+	labels := make(map[string]string)
+	for _, v := range comments {
+		split := strings.Split(v, "=")
+		if len(split) < 2 {
+			continue
+		}
+		labels[split[0]] = strings.ReplaceAll(split[1], "'", "")
+	}
+
+	return labels
 }
 
 //nolint:staticcheck
