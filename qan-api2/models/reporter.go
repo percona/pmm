@@ -482,7 +482,7 @@ func prepareLabels(labels []*customLabel) []string {
 }
 
 // commentsIntoGroupLabels parse comments into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
 	subDimensions := make(map[string][]string)
@@ -532,7 +532,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimensions, labels)
+	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, mainMetricName, labels)
 	result := qanpb.FiltersReply{
 		Labels: groupLabels,
 	}
