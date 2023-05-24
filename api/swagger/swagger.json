@@ -21053,7 +21053,7 @@
               "type": "object",
               "properties": {
                 "yaml": {
-                  "description": "YAML (or JSON) template file content.",
+                  "description": "YAML template file content.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -21413,7 +21413,7 @@
                         "x-order": 9
                       },
                       "yaml": {
-                        "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
+                        "description": "YAML template file content. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "x-order": 10
                       }
@@ -21498,7 +21498,7 @@
                   "x-order": 0
                 },
                 "yaml": {
-                  "description": "YAML (or JSON) template file content.",
+                  "description": "YAML template file content.",
                   "type": "string",
                   "x-order": 1
                 }
