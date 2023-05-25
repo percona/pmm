@@ -75,6 +75,7 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
@@ -111,7 +112,6 @@ linters:
     - gocognit
     - maintidx
     - errorlint
-    - execinquery
     - interfacebloat
     - gosimple
     - contextcheck
