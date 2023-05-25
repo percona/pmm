@@ -96,7 +96,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 	}
 
 	var disableCommentsParsing bool
-	if cmd.CommentsParsing == "off" {
+	if cmd.CommentsParsing == "off" { //nolint:goconst
 		disableCommentsParsing = true
 	}
 
