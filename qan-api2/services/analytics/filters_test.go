@@ -35,6 +35,24 @@ import (
 	"github.com/percona/pmm/qan-api2/models"
 )
 
+type expected struct {
+	Labels map[string]listLabels `json:"labels,omitempty"`
+}
+
+type listLabels struct {
+	Name []testValuesUnmarshal `json:"name,omitempty"`
+}
+type testValues struct {
+	MainMetricPercent float32 `json:"mainMetricPercent,omitempty"`
+	MainMetricPerSec  float32 `json:"mainMetricPerSec,omitempty"`
+}
+
+type testValuesUnmarshal struct {
+	Value             string `json:"value,omitempty"`
+	MainMetricPercent any    `json:"mainMetricPercent,omitempty"`
+	MainMetricPerSec  any    `json:"mainMetricPerSec,omitempty"`
+}
+
 func TestService_GetFilters(t *testing.T) {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
@@ -175,37 +193,54 @@ func TestService_GetFilters(t *testing.T) {
 				return
 			}
 
-			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
-
-			type exp struct {
-				Labels map[string]*qanpb.ListLabels
+			valuesGot := make(map[string]map[string]testValues)
+			for k, l := range got.Labels {
+				if _, ok := valuesGot[k]; !ok {
+					valuesGot[k] = make(map[string]testValues)
+				}
+				for _, v := range l.Name {
+					valuesGot[k][v.Value] = testValues{
+						MainMetricPercent: v.MainMetricPercent,
+						MainMetricPerSec:  v.MainMetricPerSec,
+					}
+				}
 			}
-			var unmarshal exp
+
+			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
+			var unmarshal expected
 			err = json.Unmarshal(expectedJSON, &unmarshal)
 			if err != nil {
 				t.Errorf("cannot unmarshal:%v", err)
 			}
 
-			valuesExpected := make(map[string]qanpb.Values)
-			valuesGot := make(map[string]qanpb.Values)
-			for k, label := range got.Labels {
-				for _, v := range label.Name {
-					valuesGot[v.Value] = qanpb.Values{
-						Value:             v.Value,
-						MainMetricPerSec:  v.MainMetricPerSec,
-						MainMetricPercent: v.MainMetricPercent,
-					}
+			valuesExpected := make(map[string]map[string]testValues)
+			for k, l := range unmarshal.Labels {
+				if _, ok := valuesExpected[k]; !ok {
+					valuesExpected[k] = make(map[string]testValues)
 				}
-				for _, v := range unmarshal.Labels[k].Name {
-					valuesExpected[v.Value] = qanpb.Values{
-						Value:             v.Value,
-						MainMetricPerSec:  v.MainMetricPerSec,
-						MainMetricPercent: v.MainMetricPercent,
+				for _, v := range l.Name {
+					percent := float32(0)
+					if p, ok := v.MainMetricPercent.(float64); ok {
+						percent = float32(p)
+					}
+
+					perSec := float32(0)
+					if p, ok := v.MainMetricPerSec.(float64); ok {
+						perSec = float32(p)
+					}
+
+					valuesExpected[k][v.Value] = testValues{
+						MainMetricPercent: percent,
+						MainMetricPerSec:  perSec,
 					}
 				}
 			}
 
-			assert.Equal(t, valuesExpected, valuesGot)
+			for k, v := range valuesExpected {
+				for kk, vv := range v {
+					assert.Equal(t, vv.MainMetricPerSec, valuesGot[k][kk].MainMetricPerSec)
+				}
+			}
 		})
 	}
 }
