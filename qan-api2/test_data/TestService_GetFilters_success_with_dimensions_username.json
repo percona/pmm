@@ -199,6 +199,716 @@
 				}
 			]
 		},
+		"label0": {
+			"name": [
+				{
+					"value": "value51",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value32",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value65",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value22",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value43",
+					"mainMetricPercent": 0.07221691,
+					"mainMetricPerSec": 0.00028900002
+				},
+				{
+					"value": "value68",
+					"mainMetricPercent": 0.06684437,
+					"mainMetricPerSec": 0.0002675
+				},
+				{
+					"value": "value88",
+					"mainMetricPercent": 0.0039148727,
+					"mainMetricPerSec": 0.000015666667
+				},
+				{
+					"value": "value1",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value62",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value92",
+					"mainMetricPercent": 0.07275833,
+					"mainMetricPerSec": 0.00029116668
+				},
+				{
+					"value": "value95",
+					"mainMetricPercent": 0.004664529,
+					"mainMetricPerSec": 0.000018666668
+				},
+				{
+					"value": "value82",
+					"mainMetricPercent": 0.0043313485,
+					"mainMetricPerSec": 0.000017333334
+				}
+			]
+		},
+		"label1": {
+			"name": [
+				{
+					"value": "value0",
+					"mainMetricPercent": 0.09041689,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "value36",
+					"mainMetricPercent": 0.07288326,
+					"mainMetricPerSec": 0.00029166666
+				},
+				{
+					"value": "value13",
+					"mainMetricPercent": 0.06809379,
+					"mainMetricPerSec": 0.00027249998
+				},
+				{
+					"value": "value75",
+					"mainMetricPercent": 0.06755237,
+					"mainMetricPerSec": 0.00027033332
+				},
+				{
+					"value": "value10",
+					"mainMetricPercent": 0.003998168,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "value29",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value79",
+					"mainMetricPercent": 0.07488235,
+					"mainMetricPerSec": 0.00029966666
+				},
+				{
+					"value": "value11",
+					"mainMetricPercent": 0.07292491,
+					"mainMetricPerSec": 0.00029183333
+				},
+				{
+					"value": "value89",
+					"mainMetricPercent": 0.07000958,
+					"mainMetricPerSec": 0.00028016666
+				},
+				{
+					"value": "value92",
+					"mainMetricPercent": 0.06684437,
+					"mainMetricPerSec": 0.0002675
+				},
+				{
+					"value": "value39",
+					"mainMetricPercent": 0.004664529,
+					"mainMetricPerSec": 0.000018666668
+				},
+				{
+					"value": "value25",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				}
+			]
+		},
+		"label2": {
+			"name": [
+				{
+					"value": "value83",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value58",
+					"mainMetricPercent": 0.07275833,
+					"mainMetricPerSec": 0.00029116668
+				},
+				{
+					"value": "value24",
+					"mainMetricPercent": 0.07017618,
+					"mainMetricPerSec": 0.00028083334
+				},
+				{
+					"value": "value49",
+					"mainMetricPercent": 0.07000958,
+					"mainMetricPerSec": 0.00028016666
+				},
+				{
+					"value": "value3",
+					"mainMetricPercent": 0.003998168,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "value90",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value80",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value62",
+					"mainMetricPercent": 0.07221691,
+					"mainMetricPerSec": 0.00028900002
+				},
+				{
+					"value": "value27",
+					"mainMetricPercent": 0.07000958,
+					"mainMetricPerSec": 0.00028016666
+				},
+				{
+					"value": "value41",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value26",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value13",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				}
+			]
+		},
+		"label3": {
+			"name": [
+				{
+					"value": "value40",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value61",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value86",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value5",
+					"mainMetricPercent": 0.0036649872,
+					"mainMetricPerSec": 0.000014666667
+				},
+				{
+					"value": "value23",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value97",
+					"mainMetricPercent": 0.07342468,
+					"mainMetricPerSec": 0.00029383332
+				},
+				{
+					"value": "value12",
+					"mainMetricPercent": 0.07017618,
+					"mainMetricPerSec": 0.00028083334
+				},
+				{
+					"value": "value50",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value75",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value16",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value25",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value58",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value93",
+					"mainMetricPercent": 0.070551,
+					"mainMetricPerSec": 0.00028233332
+				},
+				{
+					"value": "value37",
+					"mainMetricPercent": 0.0019157887,
+					"mainMetricPerSec": 0.0000076666665
+				},
+				{
+					"value": "value52",
+					"mainMetricPercent": 0.000999542,
+					"mainMetricPerSec": 0.000004
+				}
+			]
+		},
+		"label4": {
+			"name": [
+				{
+					"value": "value64",
+					"mainMetricPercent": 0.0043313485,
+					"mainMetricPerSec": 0.000017333334
+				},
+				{
+					"value": "value8",
+					"mainMetricPercent": 0.005872309,
+					"mainMetricPerSec": 0.0000235
+				},
+				{
+					"value": "value28",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value48",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value33",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value41",
+					"mainMetricPercent": 0.0002498855,
+					"mainMetricPerSec": 0.000001
+				},
+				{
+					"value": "value83",
+					"mainMetricPercent": 0.0037066347,
+					"mainMetricPerSec": 0.000014833334
+				},
+				{
+					"value": "value85",
+					"mainMetricPercent": 0.0037066347,
+					"mainMetricPerSec": 0.000014833334
+				},
+				{
+					"value": "value42",
+					"mainMetricPercent": 0.0011661322,
+					"mainMetricPerSec": 0.0000046666664
+				}
+			]
+		},
+		"label5": {
+			"name": [
+				{
+					"value": "value9",
+					"mainMetricPercent": 0.07288326,
+					"mainMetricPerSec": 0.00029166666
+				},
+				{
+					"value": "value23",
+					"mainMetricPercent": 0.07130066,
+					"mainMetricPerSec": 0.00028533334
+				},
+				{
+					"value": "value46",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value21",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value60",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value57",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value90",
+					"mainMetricPercent": 0.09041689,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "value39",
+					"mainMetricPercent": 0.06771896,
+					"mainMetricPerSec": 0.00027099997
+				},
+				{
+					"value": "value3",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value56",
+					"mainMetricPercent": 0.0036649872,
+					"mainMetricPerSec": 0.000014666667
+				},
+				{
+					"value": "value93",
+					"mainMetricPercent": 0.0024572075,
+					"mainMetricPerSec": 0.000009833334
+				},
+				{
+					"value": "value26",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value28",
+					"mainMetricPercent": 0.09041689,
+					"mainMetricPerSec": 0.0003618333
+				}
+			]
+		},
+		"label6": {
+			"name": [
+				{
+					"value": "value23",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value70",
+					"mainMetricPercent": 0.0024572075,
+					"mainMetricPerSec": 0.000009833334
+				},
+				{
+					"value": "value49",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value14",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value61",
+					"mainMetricPercent": 0.07130066,
+					"mainMetricPerSec": 0.00028533334
+				},
+				{
+					"value": "value51",
+					"mainMetricPercent": 0.070551,
+					"mainMetricPerSec": 0.00028233332
+				},
+				{
+					"value": "value13",
+					"mainMetricPercent": 0.07017618,
+					"mainMetricPerSec": 0.00028083334
+				},
+				{
+					"value": "value98",
+					"mainMetricPercent": 0.0039148727,
+					"mainMetricPerSec": 0.000015666667
+				},
+				{
+					"value": "value0",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value26",
+					"mainMetricPercent": 0.06755237,
+					"mainMetricPerSec": 0.00027033332
+				},
+				{
+					"value": "value5",
+					"mainMetricPercent": 0.0043313485,
+					"mainMetricPerSec": 0.000017333334
+				},
+				{
+					"value": "value38",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value58",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				}
+			]
+		},
+		"label7": {
+			"name": [
+				{
+					"value": "value72",
+					"mainMetricPercent": 0.07488235,
+					"mainMetricPerSec": 0.00029966666
+				},
+				{
+					"value": "value55",
+					"mainMetricPercent": 0.06684437,
+					"mainMetricPerSec": 0.0002675
+				},
+				{
+					"value": "value35",
+					"mainMetricPercent": 0.00395652,
+					"mainMetricPerSec": 0.000015833333
+				},
+				{
+					"value": "value27",
+					"mainMetricPercent": 0.0037482823,
+					"mainMetricPerSec": 0.000015
+				},
+				{
+					"value": "value86",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value61",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value20",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value59",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value9",
+					"mainMetricPercent": 0.07067595,
+					"mainMetricPerSec": 0.00028283332
+				},
+				{
+					"value": "value23",
+					"mainMetricPercent": 0.004664529,
+					"mainMetricPerSec": 0.000018666668
+				},
+				{
+					"value": "value10",
+					"mainMetricPercent": 0.00395652,
+					"mainMetricPerSec": 0.000015833333
+				},
+				{
+					"value": "value66",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value74",
+					"mainMetricPercent": 0.00033318065,
+					"mainMetricPerSec": 0.0000013333333
+				},
+				{
+					"value": "value64",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value99",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value11",
+					"mainMetricPercent": 0.07288326,
+					"mainMetricPerSec": 0.00029166666
+				},
+				{
+					"value": "value16",
+					"mainMetricPercent": 0.06809379,
+					"mainMetricPerSec": 0.00027249998
+				},
+				{
+					"value": "value79",
+					"mainMetricPercent": 0.003998168,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "value45",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value36",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				}
+			]
+		},
+		"label8": {
+			"name": [
+				{
+					"value": "value28",
+					"mainMetricPercent": 0.0017491984,
+					"mainMetricPerSec": 0.000007
+				},
+				{
+					"value": "value76",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value52",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value63",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value61",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value70",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value81",
+					"mainMetricPercent": 0.07221691,
+					"mainMetricPerSec": 0.00028900002
+				},
+				{
+					"value": "value45",
+					"mainMetricPercent": 0.06809379,
+					"mainMetricPerSec": 0.00027249998
+				},
+				{
+					"value": "value42",
+					"mainMetricPercent": 0.007621507,
+					"mainMetricPerSec": 0.0000305
+				},
+				{
+					"value": "value37",
+					"mainMetricPercent": 0.0036649872,
+					"mainMetricPerSec": 0.000014666667
+				},
+				{
+					"value": "value62",
+					"mainMetricPercent": 0.0024572075,
+					"mainMetricPerSec": 0.000009833334
+				},
+				{
+					"value": "value75",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value58",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				}
+			]
+		},
+		"label9": {
+			"name": [
+				{
+					"value": "value35",
+					"mainMetricPercent": 0.00378993,
+					"mainMetricPerSec": 0.000015166666
+				},
+				{
+					"value": "value37",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value32",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value70",
+					"mainMetricPercent": 0.00012494274,
+					"mainMetricPerSec": 5e-7
+				},
+				{
+					"value": "value29",
+					"mainMetricPercent": 0.07342468,
+					"mainMetricPerSec": 0.00029383332
+				},
+				{
+					"value": "value71",
+					"mainMetricPercent": 0.0714256,
+					"mainMetricPerSec": 0.00028583335
+				},
+				{
+					"value": "value86",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				},
+				{
+					"value": "value95",
+					"mainMetricPercent": 0.07488235,
+					"mainMetricPerSec": 0.00029966666
+				},
+				{
+					"value": "value83",
+					"mainMetricPercent": 0.07342468,
+					"mainMetricPerSec": 0.00029383332
+				},
+				{
+					"value": "value28",
+					"mainMetricPercent": 0.0038315775,
+					"mainMetricPerSec": 0.000015333333
+				},
+				{
+					"value": "value43",
+					"mainMetricPercent": 0.00378993,
+					"mainMetricPerSec": 0.000015166666
+				},
+				{
+					"value": "value55",
+					"mainMetricPercent": 0.00395652,
+					"mainMetricPerSec": 0.000015833333
+				},
+				{
+					"value": "value46",
+					"mainMetricPercent": 0.0019157887,
+					"mainMetricPerSec": 0.0000076666665
+				},
+				{
+					"value": "value40",
+					"mainMetricPercent": 0.000999542,
+					"mainMetricPerSec": 0.000004
+				},
+				{
+					"value": "value38",
+					"mainMetricPercent": 0.00016659033,
+					"mainMetricPerSec": 6.6666666e-7
+				}
+			]
+		},
 		"machine_id": {
 			"name": [
 				{
