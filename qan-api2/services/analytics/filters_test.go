@@ -18,6 +18,7 @@ package analytics
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"testing"
@@ -25,7 +26,7 @@ import (
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
 	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
-	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
+	//nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -164,6 +165,7 @@ func TestService_GetFilters(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
+
 			got, err := s.Get(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
@@ -172,13 +174,38 @@ func TestService_GetFilters(t *testing.T) {
 				assert.Nil(t, got, "Service.GetFilters() return not nil")
 				return
 			}
+
 			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
-			marshaler := jsonpb.Marshaler{Indent: "	"}
-			gotJSON, err := marshaler.MarshalToString(got)
-			if err != nil {
-				t.Errorf("cannot marshal:%v", err)
+
+			type exp struct {
+				Labels map[string]*qanpb.ListLabels
 			}
-			assert.JSONEq(t, string(expectedJSON), gotJSON)
+			var unmarshal exp
+			err = json.Unmarshal(expectedJSON, &unmarshal)
+			if err != nil {
+				t.Errorf("cannot unmarshal:%v", err)
+			}
+
+			valuesExpected := make(map[string]qanpb.Values)
+			valuesGot := make(map[string]qanpb.Values)
+			for k, label := range got.Labels {
+				for _, v := range label.Name {
+					valuesGot[v.Value] = qanpb.Values{
+						Value:             v.Value,
+						MainMetricPerSec:  v.MainMetricPerSec,
+						MainMetricPercent: v.MainMetricPercent,
+					}
+				}
+				for _, v := range unmarshal.Labels[k].Name {
+					valuesExpected[v.Value] = qanpb.Values{
+						Value:             v.Value,
+						MainMetricPerSec:  v.MainMetricPerSec,
+						MainMetricPercent: v.MainMetricPercent,
+					}
+				}
+			}
+
+			assert.Equal(t, valuesExpected, valuesGot)
 		})
 	}
 }
