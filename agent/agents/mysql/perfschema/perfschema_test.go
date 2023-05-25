@@ -206,7 +206,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 		switch {
 		case strings.Contains(b.Common.Example, "/* pmm-agent='perfschema' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent='slowlog' */"):
+		case strings.Contains(b.Common.Example, "/* pmm-agent='perfschema' */"):
 			continue
 		case strings.Contains(b.Common.Example, "/* pmm-agent='connectionchecker' */"):
 			continue
@@ -231,7 +231,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 		case b.Common.Fingerprint == "CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": // tests for invalid characters
 			continue
 
-		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
+		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // perfschema
 			continue
 		}
 
@@ -338,7 +338,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT `sleep` (:1)",
 				PlaceholdersCount:   1,
-				Comments:            []string{"controller='test'"},
+				Comments:            []string{"controller='test'", "pmm-agent='perfschema'"},
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -385,7 +385,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT * FROM `city`",
 				Fingerprint:         "SELECT * FROM `city`",
-				Comments:            []string{"controller='test'"},
+				Comments:            []string{"controller='test'", "pmm-agent='perfschema'"},
 				Schema:              "world",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -458,7 +458,7 @@ func TestPerfSchema(t *testing.T) {
 				ExplainFingerprint:     "SELECT * FROM `t1` WHERE `col1` = :1",
 				PlaceholdersCount:      1,
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
-				Comments:               []string{"controller='test'"},
+				Comments:               []string{"controller='test'", "pmm-agent='perfschema'"},
 				Schema:                 "world",
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,
