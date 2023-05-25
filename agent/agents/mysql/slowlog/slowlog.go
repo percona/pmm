@@ -453,7 +453,7 @@ func makeBuckets(
 			if err != nil {
 				l.Infof("cannot parse comments from query: %s", q)
 			}
-			mb.Common.Comments = comments
+			mb.Common.Comments = append(comments, queryTag)
 		}
 
 		if v.Example != nil && !disableQueryExamples {

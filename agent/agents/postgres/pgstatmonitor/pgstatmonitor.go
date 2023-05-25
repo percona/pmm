@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -34,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -576,10 +576,11 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
-				value := strings.ReplaceAll(*currentPSM.Comments, "/*", "")
-				value = strings.ReplaceAll(value, "*/", "")
-				value = strings.TrimSpace(value)
-				mb.Common.Comments = []string{value}
+				c, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				if err != nil {
+					m.l.Errorf("failed to parse comments from: %s", currentPSM.Comments)
+				}
+				mb.Common.Comments = append(c, queryTag)
 			}
 
 			var cpuSysTime, cpuUserTime float64

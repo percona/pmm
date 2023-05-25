@@ -470,50 +470,15 @@ var (
 	}
 )
 
-func prepareLabels(labels []*customLabel) []string {
-	res := []string{}
-	for _, label := range labels {
-		if values, ok := label.value.([]string); ok {
-			res = append(res, values...)
-		}
-	}
-
-	return res
-}
-
-func prepareMetricLabels(labels []*customLabel) []float32 {
-	res := []float32{}
-	for _, label := range labels {
-		res = append(res, label.mainMetricPerSec)
-	}
-
-	return res
-}
-
-func getSameValueItems(source []*qanpb.Values, value string) []*qanpb.Values {
-	res := []*qanpb.Values{}
-	for _, s := range source {
-		if s.Value != value {
-			continue
-		}
-
-		res = append(res, s)
-	}
-
-	return res
-}
-
 // commentsIntoGroupLabels parse comments into filter groups and values.
 func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
-	//subDimensions := make(map[string][]string)
 
 	labelKeys, _, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.key", mainMetricName, queryDimensionTmpl, nil, labels)
 	if err != nil {
 		return totals, groupLabels
 	}
-
 	labelValues, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.value", mainMetricName, queryDimensionTmpl, nil, labels)
 	if err != nil {
 		return totals, groupLabels
@@ -525,11 +490,28 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		}
 	}
 
-	keys := prepareLabels(labelKeys)
-	values := prepareLabels(labelValues)
-	metrics := prepareMetricLabels(labelValues)
-	fmt.Println(len(keys) == len(values))
-	for index, key := range keys {
+	res := make(map[string]map[string]float32)
+	for keyIndex, keyLabel := range labelKeys {
+		var ok bool
+		var keys, values []string
+		if keys, ok = keyLabel.value.([]string); !ok {
+			continue
+		}
+		if values, ok = labelValues[keyIndex].value.([]string); !ok {
+			continue
+		}
+		for index, key := range keys {
+			if _, ok := res[key]; !ok {
+				res[key] = make(map[string]float32)
+				res[key][values[index]] = labelValues[keyIndex].mainMetricPerSec
+				continue
+			}
+
+			res[key][values[index]] += labelValues[keyIndex].mainMetricPerSec
+		}
+	}
+
+	for key, values := range res {
 		if _, ok := groupLabels[key]; !ok {
 			groupLabels[key] = &qanpb.ListLabels{
 				Name: []*qanpb.Values{},
@@ -541,37 +523,14 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 			total = totals[key]
 		}
 
-		if current := groupLabels[key].Name; current != nil {
-			var metricsPerSecSum float32
-			sameValueItems := getSameValueItems(current, values[index])
-			for _, v := range sameValueItems {
-				metricsPerSecSum += v.MainMetricPerSec
-			}
-
+		for k, v := range values {
 			val := qanpb.Values{
-				Value:             values[index],
-				MainMetricPerSec:  0.3,
-				MainMetricPercent: 0.3,
+				Value:             k,
+				MainMetricPerSec:  v,
+				MainMetricPercent: v / total,
 			}
 			groupLabels[key].Name = append(groupLabels[key].Name, &val)
-			continue
 		}
-
-		val := qanpb.Values{
-			Value:             values[index],
-			MainMetricPerSec:  metrics[index],
-			MainMetricPercent: metrics[index] / total,
-		}
-		groupLabels[key].Name = append(groupLabels[key].Name, &val)
-	}
-
-	// remove empty ones
-	for k, v := range groupLabels {
-		if v.Name != nil {
-			continue
-		}
-
-		delete(groupLabels, k)
 	}
 
 	return totals, groupLabels
