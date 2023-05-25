@@ -96,15 +96,15 @@ func TestVersion(t *testing.T) {
 }
 
 func TestPGStatMonitorSchema(t *testing.T) {
-	//t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
+	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	// if !supportedVersion(engineVersion) || !extensionExists(db) {
-	// 	t.Skip()
-	// }
+	if !supportedVersion(engineVersion) || !extensionExists(db) {
+		t.Skip()
+	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
 	assert.NoError(t, err)
