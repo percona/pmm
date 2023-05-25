@@ -271,7 +271,10 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
-		mb.Labels = convertCommentsToLabels(m.Common.Comments)
+		for k, l := range convertCommentsToLabels(m.Common.Comments) {
+			labels[k] = l
+		}
+		mb.Labels = labels
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}
