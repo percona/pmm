@@ -1,9 +1,5 @@
 name: Managed
 on:
-  schedule:
-    # run every Sunday to re-populate caches after they are cleaned on Saturday
-    - cron: "0 12 * * 0"
-
   push:
     branches:
       - main
@@ -36,13 +32,14 @@ jobs:
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
+      DEVCONTAINER_CACHE_ENABLED: false
 
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
       - name: Enable Go build cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
@@ -52,15 +49,15 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: ${{ runner.os }}-go-modules-
 
-      - name: Download Go modules
-        if: matrix.use-cache
+      - name: Download tools
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
           pushd tools && go mod download -x
           popd        && go mod download -x
@@ -69,12 +66,12 @@ jobs:
         run: make env-compose-up
 
       - name: Restore Go build cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
         run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
@@ -96,7 +93,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: Cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
           docker exec pmm-managed-server go clean -testcache
           docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +

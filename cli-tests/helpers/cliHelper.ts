@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import Output from '@support/types/output';
+import Output from '@support/types/Output';
 import * as shell from 'shelljs';
 
 /**

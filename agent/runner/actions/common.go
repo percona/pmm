@@ -19,6 +19,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -29,6 +30,8 @@ import (
 )
 
 const queryTag = "pmm-agent-tests:MySQLVersion"
+
+var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 
 // jsonRows converts input to JSON array:
 // [
@@ -84,6 +87,7 @@ func prepareRealTableName(name string) string {
 }
 
 func parseRealTableName(query string) string {
+	query = whiteSpacesRegExp.ReplaceAllString(query, " ")
 	// due to historical reasons we parsing only one table name
 	keyword := "FROM "
 
@@ -98,16 +102,16 @@ func parseRealTableName(query string) string {
 	parsed = strings.ReplaceAll(parsed, ";", "")
 	index = strings.Index(parsed, " ")
 	if index == -1 {
-		return prepareRealTableName(parsed)
+		return strings.TrimSpace(parsed)
 	}
 
-	return prepareRealTableName(parsed[:index+1])
+	return strings.TrimSpace(parsed[:index+1])
 }
 
 func prepareQueryWithDatabaseTableName(query, name string) string {
 	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
 	q := fmt.Sprintf("%s %#q", query, prepareRealTableName(name))
-	if strings.Index(q, ".") == -1 {
+	if !strings.Contains(q, ".") {
 		return q
 	}
 
