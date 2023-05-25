@@ -18,11 +18,15 @@ package management
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -33,17 +37,22 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+var now time.Time
+
+func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 	t.Helper()
+
+	now = models.Now()
+	origNowF := models.Now
+	models.Now = func() time.Time {
+		return now
+	}
 
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
 
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
@@ -52,27 +61,45 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T), *m
 	ar.Test(t)
 
 	teardown := func(t *testing.T) {
+		models.Now = origNowF
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
-		vmdb.AssertExpectations(t)
 		state.AssertExpectations(t)
 		ar.AssertExpectations(t)
 	}
 	s := NewAgentService(db, ar)
 
-	return ctx, s, teardown, vmdb
+	return ctx, s, teardown
 }
 
 func TestAgentService(t *testing.T) {
-	t.Run("List of agents", func(t *testing.T) {
+	t.Run("Should return a validation error when no params passed", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		defer teardown(t)
+
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
+		assert.Nil(t, response)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
+	})
+
+	t.Run("Should return a validation error when both params passed", func(t *testing.T) {
+		ctx, s, teardown := setup(t)
+		defer teardown(t)
+
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		assert.Nil(t, response)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
+	})
+
+	t.Run("ListAgents", func(t *testing.T) {
 		const (
 			pgExporterID      = "/agent_id/00000000-0000-4000-8000-000000000003"
 			pgStatStatementID = "/agent_id/00000000-0000-4000-8000-000000000004"
 		)
 
 		t.Run("should output a list of agents provisioned by default", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{
@@ -89,13 +116,58 @@ func TestAgentService(t *testing.T) {
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
-
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 3) // 2 exporters + 1 agent
+
+			expected := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     pgExporterID,
+					AgentType:   "postgres_exporter",
+					PmmAgentId:  models.PMMServerAgentID,
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					Username:    "postgres",
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+						SslCa:       "",
+						SslCert:     "",
+						IsSslKeySet: false,
+					},
+					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:    "UNKNOWN",
+					Tls:       true,
+				},
+				{
+					AgentId:     pgStatStatementID,
+					AgentType:   "qan-postgresql-pgstatements-agent",
+					PmmAgentId:  models.PMMServerAgentID,
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					Username:    "postgres",
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
+						SslCa:       "",
+						SslCert:     "",
+						IsSslKeySet: false,
+					},
+					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:    "UNKNOWN",
+					Tls:       true,
+				},
+				{
+					AgentId:      models.PMMServerAgentID,
+					AgentType:    "pmm-agent",
+					RunsOnNodeId: models.PMMServerAgentID,
+					IsConnected:  true,
+					CreatedAt:    timestamppb.New(now),
+					UpdatedAt:    timestamppb.New(now),
+				},
+			}
+
+			assert.Equal(t, expected, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for RDS service", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
@@ -122,18 +194,30 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once() // RDS exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
-
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 1)
+
+			expected := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     rdsExporter.AgentID,
+					AgentType:   "rds_exporter",
+					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					Status:      "UNKNOWN",
+				},
+			}
+			assert.Equal(t, expected, response.Agents)
 		})
 
 		t.Run("should output a list of agents provisioned for Azure service", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
@@ -160,14 +244,26 @@ func TestAgentService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once() // Azure exporter
+			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
 			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
 				ServiceId: service.ServiceID,
 			})
-
 			require.NoError(t, err)
-			assert.Len(t, response.Agents, 1)
+
+			expected := []*agentv1beta1.UniversalAgent{
+				{
+					AgentId:     azureExporter.AgentID,
+					AgentType:   "azure_database_exporter",
+					PmmAgentId:  "/agent_id/00000000-0000-4000-8000-000000000007",
+					IsConnected: false,
+					CreatedAt:   timestamppb.New(now),
+					UpdatedAt:   timestamppb.New(now),
+					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
+					Status:      "UNKNOWN",
+				},
+			}
+			assert.Equal(t, expected, response.Agents)
 		})
 	})
 }
