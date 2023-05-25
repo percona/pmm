@@ -109,7 +109,7 @@ func TestParseMySQLComments(t *testing.T) {
 		},
 		{
 			Name: "Multiline comment with new line",
-			Query: `SELECT * FROM people /* framework='Django', 
+			Query: `SELECT * FROM people /* Huh framework='Django', 
 			controller='unknown' */`,
 			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
 		},

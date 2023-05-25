@@ -26,7 +26,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/exp/maps"
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
 
@@ -272,7 +271,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
-		maps.Copy(mb.Labels, convertCommentsToLabels(m.Common.Comments))
+		mb.Labels = convertCommentsToLabels(m.Common.Comments)
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
 	}

@@ -104,8 +104,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
-	const selectAllCities = "SELECT /* controller='test' */ * FROM city"
-	const selectAllCitiesLong = "SELECT /* controller='test' */ * FROM city WHERE id IN " +
+	const selectAllCities = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
+	const selectAllCitiesLong = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -272,7 +272,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* controller='test' */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
+		q := fmt.Sprintf("SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
@@ -385,7 +385,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			go func() {
 				defer waitGroup.Done()
 				_, err := db.Exec(
-					fmt.Sprintf(`INSERT /* controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
 				require.NoError(t, err)
 			}()
 		}
@@ -400,10 +400,10 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		var fingerprint string
 		switch engineVersion {
 		case "9.4", "9.5", "9.6":
-			fingerprint = fmt.Sprintf(`INSERT /* controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
+			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
 
 		default:
-			fingerprint = fmt.Sprintf(`INSERT /* controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
+			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)

@@ -206,7 +206,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 		switch {
 		case strings.Contains(b.Common.Example, "/* pmm-agent='perfschema' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent='perfschema' */"):
+		case strings.Contains(b.Common.Example, "/* pmm-agent='slowlog' */"):
 			continue
 		case strings.Contains(b.Common.Example, "/* pmm-agent='connectionchecker' */"):
 			continue
@@ -231,7 +231,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 		case b.Common.Fingerprint == "CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": // tests for invalid characters
 			continue
 
-		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // perfschema
+		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
 			continue
 		}
 
@@ -322,7 +322,7 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
-		_, err := db.Exec("SELECT /* controller='test' */ sleep(0.1)")
+		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -345,7 +345,7 @@ func TestPerfSchema(t *testing.T) {
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-				Example:             "SELECT /* controller='test' */ sleep(0.1)",
+				Example:             "SELECT /* Sleep controller='test' */ sleep(0.1)",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -368,7 +368,7 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
-		_, err := db.Exec("SELECT /* controller='test' */ * FROM city")
+		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -391,7 +391,7 @@ func TestPerfSchema(t *testing.T) {
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-				Example:             "SELECT /* controller='test' */ * FROM city",
+				Example:             "SELECT /* AllCities controller='test' */ * FROM city",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -427,7 +427,7 @@ func TestPerfSchema(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		_, err = db.Exec("SELECT /* controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
+		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -435,9 +435,9 @@ func TestPerfSchema(t *testing.T) {
 		switch mySQLVersion.String() {
 		// Perf schema truncates queries with non-utf8 characters.
 		case "8.0":
-			example = "SELECT /* controller='test' */ * FROM t1 where col1='Bu"
+			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
 		default:
-			example = "SELECT /* controller='test' */ * FROM t1 where col1=..."
+			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."
 		}
 
 		var numQueriesWithWarnings float32
