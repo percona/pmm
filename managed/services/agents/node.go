@@ -30,8 +30,10 @@ import (
 // The node exporter prior 2.28 use exporter_shared and gets basic auth config from env.
 // Starting with pmm 2.28, the exporter uses Prometheus Web Toolkit and needs a config file
 // with the basic auth users.
-var v2_27_99 = version.MustParse("2.27.99")
-var v1_5_0 = version.MustParse("1.5.0")
+var (
+	v2_27_99 = version.MustParse("2.27.99")
+	v1_5_0   = version.MustParse("1.5.0")
+)
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
 	tdp := models.TemplateDelimsPair(
