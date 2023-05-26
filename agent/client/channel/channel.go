@@ -197,8 +197,9 @@ func (c *Channel) send(msg *agentpb.AgentMessage) error {
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
-		c.close(errors.Wrap(err, "failed to send message"))
-		return c.Wait()
+		err = errors.Wrap(err, "failed to send message")
+		c.close(err)
+		return agenterrors.NewChannelClosedError(err)
 	}
 	c.mSend.Inc()
 	return nil
