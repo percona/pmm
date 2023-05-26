@@ -30,7 +30,7 @@ func TestPackages(t *testing.T) {
 	if err != nil {
 		// This branch is required for tests with pmm-server:2.0.0
 		// In this case the exit code is 2.
-		e, ok := err.(*exec.ExitError)
+		e, ok := err.(*exec.ExitError) //nolint:errorlint
 		require.True(t, ok)
 
 		sb := string(b)

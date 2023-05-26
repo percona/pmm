@@ -44,7 +44,7 @@ type qanClient interface {
 // retentionService is a subset of methods of backup.Client used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type retentionService interface {
-	EnforceRetention(ctx context.Context, scheduleID string) error
+	EnforceRetention(scheduleID string) error
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.

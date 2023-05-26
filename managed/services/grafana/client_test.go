@@ -58,7 +58,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, nil)
 			role := u.role
-			clientError, _ := errors.Cause(err).(*clientError)
+			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
