@@ -23,6 +23,8 @@ var (
 
 	// ErrActionQueueOverflow is returned when the agent is already running the maximum number of actions.
 	ErrActionQueueOverflow = errors.New("action queue overflow")
+	// ErrChanConn is returned when the channel is closed
+	ErrChanConn ChannelClosedError
 )
 
 // NewChannelClosedError creates new channel connection closed error.
@@ -40,5 +42,5 @@ func (c ChannelClosedError) Error() string {
 }
 
 func (c ChannelClosedError) Unwrap() error {
-	return c.e
+	return c
 }
