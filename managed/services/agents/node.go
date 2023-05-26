@@ -143,14 +143,14 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		Args:               args,
 	}
 
-	if err := ensureAuthParams(exporter, params, agentVersion, v2_27_99, isNewTlsConfigSupported(exporter)); err != nil {
+	if err := ensureAuthParams(exporter, params, agentVersion, v2_27_99, isNewTLSConfigSupported(exporter)); err != nil {
 		return nil, err
 	}
 
 	return params, nil
 }
 
-func isNewTlsConfigSupported(exporter *models.Agent) bool {
+func isNewTLSConfigSupported(exporter *models.Agent) bool {
 	if agentVersion, err := version.Parse(pointer.GetString(exporter.Version)); err == nil {
 		if !agentVersion.Less(v1_5_0) {
 			return true
