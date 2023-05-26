@@ -21704,7 +21704,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },
@@ -21725,6 +21726,64 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -22395,6 +22454,11 @@
                           "PITR"
                         ],
                         "x-order": 17
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -22675,6 +22739,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 11
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -22784,6 +22853,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 6
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 }
               }
             }

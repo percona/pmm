@@ -97,7 +97,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MySQLService)
+		res.Service = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -133,7 +133,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
+		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
@@ -156,7 +156,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlPerfschema = agent.(*inventorypb.QANMySQLPerfSchemaAgent)
+			res.QanMysqlPerfschema = agent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanMysqlSlowlog {
@@ -181,7 +181,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlSlowlog = agent.(*inventorypb.QANMySQLSlowlogAgent)
+			res.QanMysqlSlowlog = agent.(*inventorypb.QANMySQLSlowlogAgent) //nolint:forcetypeassert
 		}
 
 		return nil

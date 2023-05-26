@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -38,12 +39,16 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func TestListPitrTimelines(t *testing.T) {
+func TestListPitrTimeranges(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	mockedPitrStorageSvc := &mockPitrTimerangeService{}
+	mockedPbmPITRService := &mockPbmPITRService{}
 
 	timelines := []backup.Timeline{
 		{
@@ -53,8 +58,8 @@ func TestListPitrTimelines(t *testing.T) {
 		},
 	}
 
-	mockedPitrStorageSvc.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	artifactsService := NewArtifactsService(db, nil, mockedPitrStorageSvc)
+	mockedPbmPITRService.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything, mock.Anything).Return(timelines, nil)
+	artifactsService := NewArtifactsService(db, nil, mockedPbmPITRService)
 	var locationID string
 
 	params := models.CreateBackupLocationParams{
@@ -120,8 +125,86 @@ func TestListPitrTimelines(t *testing.T) {
 		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact."), err)
 		assert.Nil(t, response)
 	})
-	mock.AssertExpectationsForObjects(t, mockedPitrStorageSvc)
+	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
+}
+
+func TestArtifactMetadataListToProto(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	params := models.CreateBackupLocationParams{
+		Name:        gofakeit.Name(),
+		Description: "",
+	}
+	params.S3Config = &models.S3LocationConfig{
+		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	loc, err := models.CreateBackupLocation(db.Querier, params)
+	require.NoError(t, err)
+	require.NotEmpty(t, loc.ID)
+
+	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+		Name:       "test_artifact",
+		Vendor:     "test_vendor",
+		LocationID: loc.ID,
+		ServiceID:  "test_service",
+		Mode:       models.PITR,
+		DataModel:  models.LogicalDataModel,
+		Status:     models.PendingBackupStatus,
+	})
+	assert.NoError(t, err)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
+		},
+	})
+	require.NoError(t, err)
+
+	restoreTo := time.Unix(123, 456)
+
+	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+		Metadata: &models.Metadata{
+			FileList:       []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
+			RestoreTo:      &restoreTo,
+			BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "backup tool data name"}},
+		},
+	})
+	require.NoError(t, err)
+
+	expected := []*backuppb.Metadata{
+		{
+			FileList: []*backuppb.File{
+				{Name: "dir1", IsDirectory: true},
+				{Name: "file1"},
+				{Name: "file2"},
+				{Name: "file3"},
+			},
+		},
+		{
+			FileList: []*backuppb.File{
+				{Name: "dir2", IsDirectory: true},
+				{Name: "file4"},
+				{Name: "file5"},
+				{Name: "file6"},
+			},
+			RestoreTo:          &timestamppb.Timestamp{Seconds: 123, Nanos: 456},
+			BackupToolMetadata: &backuppb.Metadata_PbmMetadata{PbmMetadata: &backuppb.PbmMetadata{Name: "backup tool data name"}},
+		},
+	}
+
+	actual := artifactMetadataListToProto(artifact)
+
+	assert.Equal(t, expected, actual)
 }

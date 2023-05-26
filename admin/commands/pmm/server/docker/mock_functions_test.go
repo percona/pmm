@@ -5,11 +5,11 @@ package docker
 import (
 	context "context"
 	io "io"
-	time "time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	types "github.com/docker/docker/api/types"
 	container "github.com/docker/docker/api/types/container"
+	volume "github.com/docker/docker/api/types/volume"
 	client "github.com/docker/docker/client"
 	mock "github.com/stretchr/testify/mock"
 
@@ -57,11 +57,11 @@ func (_m *MockFunctions) ContainerInspect(ctx context.Context, containerID strin
 }
 
 // ContainerStop provides a mock function with given fields: ctx, containerID, timeout
-func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, timeout *int) error {
 	ret := _m.Called(ctx, containerID, timeout)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *time.Duration) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, *int) error); ok {
 		r0 = rf(ctx, containerID, timeout)
 	} else {
 		r0 = ret.Error(0)
@@ -92,15 +92,15 @@ func (_m *MockFunctions) ContainerUpdate(ctx context.Context, containerID string
 }
 
 // ContainerWait provides a mock function with given fields: ctx, containerID, condition
-func (_m *MockFunctions) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
+func (_m *MockFunctions) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.WaitResponse, <-chan error) {
 	ret := _m.Called(ctx, containerID, condition)
 
-	var r0 <-chan container.ContainerWaitOKBody
-	if rf, ok := ret.Get(0).(func(context.Context, string, container.WaitCondition) <-chan container.ContainerWaitOKBody); ok {
+	var r0 <-chan container.WaitResponse
+	if rf, ok := ret.Get(0).(func(context.Context, string, container.WaitCondition) <-chan container.WaitResponse); ok {
 		r0 = rf(ctx, containerID, condition)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan container.ContainerWaitOKBody)
+			r0 = ret.Get(0).(<-chan container.WaitResponse)
 		}
 	}
 
@@ -117,15 +117,15 @@ func (_m *MockFunctions) ContainerWait(ctx context.Context, containerID string, 
 }
 
 // CreateVolume provides a mock function with given fields: ctx, volumeName, labels
-func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
+func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error) {
 	ret := _m.Called(ctx, volumeName, labels)
 
-	var r0 *types.Volume
-	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) *types.Volume); ok {
+	var r0 *volume.Volume
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) *volume.Volume); ok {
 		r0 = rf(ctx, volumeName, labels)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*types.Volume)
+			r0 = ret.Get(0).(*volume.Volume)
 		}
 	}
 

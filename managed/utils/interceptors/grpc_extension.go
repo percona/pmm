@@ -61,7 +61,7 @@ func getCallerOriginStr(ctx context.Context) string {
 	if v == nil {
 		return ""
 	}
-	return string(v.(callerOrigin))
+	return string(v.(callerOrigin)) //nolint:forcetypeassert
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
