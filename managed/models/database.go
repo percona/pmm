@@ -895,6 +895,15 @@ var databaseSchema = [][]string{
 		`ALTER TABLE artifacts
 		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
 	},
+	82: {
+		`ALTER TABLE artifacts
+    		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
+			ADD COLUMN metadata_list JSONB;
+
+		UPDATE scheduled_tasks 
+		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
+		WHERE type = 'mongodb_backup';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

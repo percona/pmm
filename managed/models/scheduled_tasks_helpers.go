@@ -210,7 +210,7 @@ type ChangeScheduledTaskParams struct {
 }
 
 // Validate checks if params for scheduled tasks are valid.
-func (p ChangeScheduledTaskParams) Validate() error {
+func (p *ChangeScheduledTaskParams) Validate() error {
 	if p.CronExpression != nil {
 		_, err := cron.ParseStandard(*p.CronExpression)
 		if err != nil {
@@ -337,5 +337,51 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
 		}
 	}
-	return "", nil
+	return "", errors.New("scheduled task name cannot be empty")
+}
+
+// Retention returns how many backup artifacts should be stored for the task.
+func (s *ScheduledTask) Retention() (uint32, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return 0, err
+	}
+	return data.Retention, nil
+}
+
+// Mode returns task backup mode.
+func (s *ScheduledTask) Mode() (BackupMode, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.Mode, nil
+}
+
+// LocationID returns task location.
+func (s *ScheduledTask) LocationID() (string, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.LocationID, nil
+}
+
+func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
+	if s.Data != nil {
+		switch s.Type {
+		case ScheduledMySQLBackupTask:
+			if s.Data.MySQLBackupTask != nil {
+				return &s.Data.MySQLBackupTask.CommonBackupTaskData, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if s.Data.MongoDBBackupTask != nil {
+				return &s.Data.MongoDBBackupTask.CommonBackupTaskData, nil
+			}
+		default:
+			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+		}
+	}
+
+	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
 }

@@ -322,6 +322,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 				Retention:     data.Retention,
 				Retries:       data.Retries,
 				RetryInterval: data.RetryInterval,
+				Folder:        data.Folder,
 			},
 		}
 	case models.ScheduledMongoDBBackupTask:
@@ -340,6 +341,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 				Retention:     data.Retention,
 				Retries:       data.Retries,
 				RetryInterval: data.RetryInterval,
+				Folder:        data.Folder,
 			},
 		}
 
