@@ -111,7 +111,6 @@ linters:
     - ireturn
     - gocognit
     - maintidx
-    - errorlint
     - interfacebloat
     - gosimple
     - contextcheck

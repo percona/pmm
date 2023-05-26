@@ -86,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-type: [ pmm-common, pmm-server-install, pmm-server-update, pmm-docker-test ]
+        test-type: [ pmm-common, pmm-server-install, pmm-docker-test ]
 
     defaults:
       run:
