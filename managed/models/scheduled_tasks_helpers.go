@@ -35,14 +35,15 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	}
 
 	res := &ScheduledTask{ID: id}
-	switch err := q.Reload(res); err {
-	case nil:
-		return res, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
-	default:
+	err := q.Reload(res)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return res, nil
 }
 
 // ScheduledTasksFilter represents filters for scheduled tasks.
@@ -299,14 +300,15 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 	}
 
 	task := &ScheduledTask{ID: id}
-	switch err := q.Reload(task); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(task)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
 }
 
 func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {

@@ -23,7 +23,7 @@ require (
 	github.com/alecthomas/kong v0.7.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/aws/aws-sdk-go v1.44.269
+	github.com/aws/aws-sdk-go v1.44.270
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.21.0
 	github.com/charmbracelet/bubbles v0.15.0
@@ -51,7 +51,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
-	github.com/minio/minio-go/v7 v7.0.54
+	github.com/minio/minio-go/v7 v7.0.55
 	github.com/operator-framework/api v0.17.5
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
