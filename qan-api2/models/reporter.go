@@ -500,14 +500,17 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		if values, ok = labelValues[keyIndex].value.([]string); !ok {
 			continue
 		}
-		for index, key := range keys {
-			if _, ok := res[key]; !ok {
-				res[key] = make(map[string]float32)
-				res[key][values[index]] = labelValues[keyIndex].mainMetricPerSec
-				continue
-			}
 
-			res[key][values[index]] += labelValues[keyIndex].mainMetricPerSec
+		for _, key := range keys {
+			for _, value := range values {
+				if _, ok := res[key]; !ok {
+					res[key] = make(map[string]float32)
+					res[key][value] = labelValues[keyIndex].mainMetricPerSec
+					continue
+				}
+
+				res[key][value] += labelValues[keyIndex].mainMetricPerSec
+			}
 		}
 	}
 
