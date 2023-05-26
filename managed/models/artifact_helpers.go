@@ -119,14 +119,15 @@ func FindArtifactByID(q *reform.Querier, id string) (*Artifact, error) {
 	}
 
 	artifact := &Artifact{ID: id}
-	switch err := q.Reload(artifact); err {
-	case nil:
-		return artifact, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "artifact by id '%s'", id)
-	default:
+	err := q.Reload(artifact)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "artifact by id '%s'", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return artifact, nil
 }
 
 // FindArtifactByName returns artifact by given name if found, ErrNotFound if not.
@@ -136,14 +137,14 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 	}
 	artifact := &Artifact{}
 	err := q.FindOneTo(artifact, "name", name)
-	switch err {
-	case nil:
-		return artifact, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name)
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return artifact, nil
 }
 
 func checkUniqueArtifactName(q *reform.Querier, name string) error {
@@ -152,14 +153,15 @@ func checkUniqueArtifactName(q *reform.Querier, name string) error {
 	}
 
 	var artifact Artifact
-	switch err := q.FindOneTo(&artifact, "name", name); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Artifact with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.FindOneTo(&artifact, "name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Artifact with name %q already exists.", name)
 }
 
 // CreateArtifactParams are params for creating a new artifact.

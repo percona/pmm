@@ -398,7 +398,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -423,7 +423,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -436,7 +436,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if params.DataRetention != 0 {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:
