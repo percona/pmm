@@ -188,8 +188,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
 	}
 
-	fmt.Println(queryBuffer.String())
-
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
@@ -257,7 +255,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
 {{ if .Labels }}{{$i := 0}}
     AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
-        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+        {{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
     {{ end }})
 {{ end }}
 GROUP BY point
@@ -472,11 +470,11 @@ ORDER BY
 
 type customLabel struct {
 	key              string
-	value            any
+	value            string
 	mainMetricPerSec float32
 }
 
-type customLabel2 struct {
+type customLabelArray struct {
 	keys             []string
 	values           []string
 	mainMetricPerSec float32
@@ -517,16 +515,10 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
 
-	labelKeysValues, mainMetricPerSec, err := r.queryFilters2(ctx, periodStartFromSec, periodStartToSec, "service.id", mainMetricName, queryLabelsTmpl, nil, labels)
+	labelKeysValues, mainMetricPerSec, err := r.queryFiltersArray(ctx, periodStartFromSec, periodStartToSec, "service.id", mainMetricName, queryLabelsTmpl, nil, labels)
 	if err != nil {
-		fmt.Println("errrrrrrr")
-		fmt.Println(err)
 		return totals, groupLabels
 	}
-	// labelValues, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.value", mainMetricName, queryDimensionTmpl, nil, labels)
-	// if err != nil {
-	// 	return totals, groupLabels
-	// }
 
 	if mainMetricPerSec == 0 {
 		for _, label := range labelKeysValues {
@@ -536,27 +528,8 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		}
 	}
 
-	// fmt.Println("values")
-	// for _, v := range labelKeys {
-	// 	fmt.Println(v)
-	// }
-
-	// fmt.Println("values")
-	// for _, v := range labelValues {
-	// 	fmt.Println(v.value)
-	// }
-
 	res := make(map[string]map[string]float32)
 	for _, label := range labelKeysValues {
-		// 	var ok bool
-		// 	var keys, values []string
-		// 	if keys, ok = keyLabel.value.([]string); !ok {
-		// 		continue
-		// 	}
-		// 	if values, ok = labelValues[keyIndex].value.([]string); !ok {
-		// 		continue
-		// 	}
-
 		for index, key := range label.keys {
 			if _, ok := res[key]; !ok {
 				res[key] = make(map[string]float32)
@@ -634,13 +607,8 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 				total = totals[label.key]
 			}
 
-			var value string
-			if s, ok := label.value.(string); ok {
-				value = s
-			}
-
 			val := qanpb.Values{
-				Value:             value,
+				Value:             label.value,
 				MainMetricPerSec:  label.mainMetricPerSec,
 				MainMetricPercent: label.mainMetricPerSec / total,
 			}
@@ -713,11 +681,11 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	return labels, totalMainMetricPerSec, nil
 }
 
-func (r *Reporter) queryFilters2(ctx context.Context, periodStartFromSec,
+func (r *Reporter) queryFiltersArray(ctx context.Context, periodStartFromSec,
 	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
-) ([]*customLabel2, float32, error) {
+) ([]*customLabelArray, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
-	var labels []*customLabel2
+	var labels []*customLabelArray
 
 	tmplArgs := struct {
 		MainMetric    string
@@ -744,7 +712,7 @@ func (r *Reporter) queryFilters2(ctx context.Context, periodStartFromSec,
 	defer rows.Close() //nolint:errcheck
 
 	for rows.Next() {
-		var label customLabel2
+		var label customLabelArray
 		err = rows.Scan(&label.keys, &label.values, &label.mainMetricPerSec)
 		if err != nil {
 			return nil, 0, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
@@ -759,7 +727,7 @@ func (r *Reporter) queryFilters2(ctx context.Context, periodStartFromSec,
 	totalMainMetricPerSec := float32(0)
 
 	if rows.NextResultSet() {
-		var labelTotal customLabel2
+		var labelTotal customLabelArray
 		for rows.Next() {
 			err = rows.Scan(&labelTotal.keys, &labelTotal.values, &labelTotal.mainMetricPerSec)
 			if err != nil {
