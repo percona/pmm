@@ -188,6 +188,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
 	}
 
+	fmt.Println(queryBuffer.String)
+
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
@@ -435,14 +437,54 @@ ORDER BY
     value ASC
 `
 
+const queryLabels = `
+SELECT
+    keys,
+    values,
+    sum(main_metric_sum) AS main_metric_sum
+FROM
+(
+    SELECT
+        labels.key AS keys,
+        labels.value AS values,
+        SUM({{ .MainMetric }}) AS main_metric_sum
+    FROM metrics
+    WHERE (period_start >= ?) AND (period_start <= ?)
+    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
+    GROUP BY labels.key, labels.value
+    UNION ALL
+    SELECT
+		labels.key AS keys,
+		labels.value AS values,
+        0 AS main_metric_sum
+    FROM metrics
+    WHERE (period_start >= ?) AND (period_start <= ?)
+    GROUP BY labels.key, labels.value
+)
+GROUP BY
+    keys,
+    values
+    WITH TOTALS
+ORDER BY
+    main_metric_sum DESC,
+    values ASC
+`
+
 type customLabel struct {
 	key              string
 	value            any
 	mainMetricPerSec float32
 }
 
+type customLabel2 struct {
+	keys             []string
+	values           []string
+	mainMetricPerSec float32
+}
+
 var (
 	queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
+	queryLabelsTmpl    = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
 	dimensionQueries   = map[string]*template.Template{
 		"service_name":     queryDimensionTmpl,
 		"database":         queryDimensionTmpl,
@@ -475,39 +517,54 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
 
-	labelKeys, _, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.key", mainMetricName, queryDimensionTmpl, nil, labels)
+	labelKeysValues, mainMetricPerSec, err := r.queryFilters2(ctx, periodStartFromSec, periodStartToSec, "service.id", mainMetricName, queryLabelsTmpl, nil, labels)
 	if err != nil {
+		fmt.Println("errrrrrrr")
+		fmt.Println(err)
 		return totals, groupLabels
 	}
-	labelValues, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.value", mainMetricName, queryDimensionTmpl, nil, labels)
-	if err != nil {
-		return totals, groupLabels
-	}
+	// labelValues, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, "labels.value", mainMetricName, queryDimensionTmpl, nil, labels)
+	// if err != nil {
+	// 	return totals, groupLabels
+	// }
 
 	if mainMetricPerSec == 0 {
-		for _, label := range labelValues {
-			totals[label.key] += label.mainMetricPerSec
+		for _, label := range labelKeysValues {
+			for _, key := range label.keys {
+				totals[key] += label.mainMetricPerSec
+			}
 		}
 	}
 
+	// fmt.Println("values")
+	// for _, v := range labelKeys {
+	// 	fmt.Println(v)
+	// }
+
+	// fmt.Println("values")
+	// for _, v := range labelValues {
+	// 	fmt.Println(v.value)
+	// }
+
 	res := make(map[string]map[string]float32)
-	for keyIndex, keyLabel := range labelKeys {
-		var ok bool
-		var keys, values []string
-		if keys, ok = keyLabel.value.([]string); !ok {
-			continue
-		}
-		if values, ok = labelValues[keyIndex].value.([]string); !ok {
-			continue
-		}
-		for index, key := range keys {
+	for _, label := range labelKeysValues {
+		// 	var ok bool
+		// 	var keys, values []string
+		// 	if keys, ok = keyLabel.value.([]string); !ok {
+		// 		continue
+		// 	}
+		// 	if values, ok = labelValues[keyIndex].value.([]string); !ok {
+		// 		continue
+		// 	}
+
+		for index, key := range label.keys {
 			if _, ok := res[key]; !ok {
 				res[key] = make(map[string]float32)
-				res[key][values[index]] = labelValues[keyIndex].mainMetricPerSec
+				res[key][label.values[index]] = label.mainMetricPerSec
 				continue
 			}
 
-			res[key][values[index]] += labelValues[keyIndex].mainMetricPerSec
+			res[key][label.values[index]] += label.mainMetricPerSec
 		}
 	}
 
@@ -643,6 +700,68 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		var labelTotal customLabel
 		for rows.Next() {
 			err = rows.Scan(&labelTotal.key, &labelTotal.value, &labelTotal.mainMetricPerSec)
+			if err != nil {
+				return nil, 0, errors.Wrapf(err, "failed to scan total for QueryFilter %s", queryBuffer.String())
+			}
+			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
+		}
+		if err = rows.Err(); err != nil {
+			return nil, 0, errors.Wrapf(err, "failed to select total for QueryFilter %s", queryBuffer.String())
+		}
+	}
+
+	return labels, totalMainMetricPerSec, nil
+}
+
+func (r *Reporter) queryFilters2(ctx context.Context, periodStartFromSec,
+	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
+) ([]*customLabel2, float32, error) {
+	durationSec := periodStartToSec - periodStartFromSec
+	var labels []*customLabel2
+
+	tmplArgs := struct {
+		MainMetric    string
+		DimensionName string
+		Dimensions    map[string][]string
+		Labels        map[string][]string
+	}{
+		mainMetricName,
+		dimensionName,
+		queryDimensions,
+		queryLabels,
+	}
+
+	var queryBuffer bytes.Buffer
+
+	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
+		return nil, 0, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
+	}
+
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
+	if err != nil {
+		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		var label customLabel2
+		err = rows.Scan(&label.keys, &label.values, &label.mainMetricPerSec)
+		if err != nil {
+			return nil, 0, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
+		}
+		label.mainMetricPerSec /= float32(durationSec)
+		labels = append(labels, &label)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+	}
+
+	totalMainMetricPerSec := float32(0)
+
+	if rows.NextResultSet() {
+		var labelTotal customLabel2
+		for rows.Next() {
+			err = rows.Scan(&labelTotal.keys, &labelTotal.values, &labelTotal.mainMetricPerSec)
 			if err != nil {
 				return nil, 0, errors.Wrapf(err, "failed to scan total for QueryFilter %s", queryBuffer.String())
 			}
