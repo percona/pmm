@@ -16,9 +16,9 @@
 package agents
 
 import (
-	"github.com/AlekSi/pointer"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/agentpb"

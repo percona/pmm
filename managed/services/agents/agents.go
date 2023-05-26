@@ -123,7 +123,8 @@ func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 
 // ensureAuthParams updates agent start parameters to contain prometheus webconfig.
 func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_AgentProcess,
-	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTlsConfig bool) error {
+	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTlsConfig bool,
+) error {
 	if agentVersion.Less(minAuthVersion) {
 		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
 	} else {
