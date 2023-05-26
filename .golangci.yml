@@ -110,7 +110,6 @@ linters:
     - ireturn
     - gocognit
     - maintidx
-    - errorlint
     - execinquery
     - interfacebloat
     - gosimple

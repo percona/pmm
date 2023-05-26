@@ -93,7 +93,7 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	fmt.Printf("Checking local pmm-agent status...\n")
 	status, err := localStatus()
 	l.Debugf("Status error: %#v", err)
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		if status.ConfigFilepath == "" {
 			fmt.Printf("pmm-agent is running but does not read configuration from the file. " +
@@ -141,7 +141,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil {
+		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
@@ -150,7 +150,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 				msg += "\nPlease check username and password"
 			}
 		}
-		if _, ok := err.(nginxError); ok {
+		if _, ok := err.(nginxError); ok { //nolint:errorlint
 			msg += ".\nPlease check pmm-managed logs."
 		}
 
@@ -173,7 +173,7 @@ func reload(l *logrus.Entry) {
 	// sync error handling with Reload API method
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
-	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
+	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) { //nolint:errorlint
 		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Message)
 		os.Exit(1)
 	}
