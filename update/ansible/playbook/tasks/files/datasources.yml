@@ -27,14 +27,6 @@ datasources:
     sslmode: ${PERCONA_TEST_POSTGRES_SSL_MODE}
   secureJsonData:
     password: ${PERCONA_TEST_POSTGRES_DBPASSWORD}
-- name: ClickHouse
-  version: 2
-  orgId: 1
-  type: vertamedia-clickhouse-datasource
-  access: proxy
-  url: http://${PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR}
-  jsonData:
-    keepCookies: []
 - name: PTSummary
   version: 2
   orgId: 1
@@ -48,7 +40,7 @@ datasources:
   url: http://localhost:9093/alertmanager/
   jsonData:
     keepCookies: []
-- name: ClickHouse (New)
+- name: ClickHouse
   type: grafana-clickhouse-datasource
   jsonData:
     port: ${PERCONA_TEST_PMM_CLICKHOUSE_PORT}
