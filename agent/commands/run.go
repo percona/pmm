@@ -93,7 +93,7 @@ func Run() {
 		localServer.Run(ctx)
 		cancel()
 	}()
-
+	client.Run(ctx)
 	for {
 		_, err = configStorage.Reload(l)
 		if err != nil {
@@ -111,15 +111,13 @@ func Run() {
 
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
 
-		_ = client.Run(clientCtx)
+		_ = client.Connect(clientCtx)
 		cancelClientCtx()
-
-		<-client.Done()
-
 		if ctx.Err() != nil {
 			break
 		}
 	}
+	client.Wait()
 	wg.Wait()
 }
 
