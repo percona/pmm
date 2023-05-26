@@ -95,7 +95,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ end }}
 {{ if .Labels }}{{$i := 0}}
     AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-        {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+        {{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
     {{ end }})
 {{ end }}
 GROUP BY {{ .Group }}
@@ -188,7 +188,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
 	}
 
-	fmt.Println(queryBuffer.String)
+	fmt.Println(queryBuffer.String())
 
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
