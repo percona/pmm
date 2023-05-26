@@ -33,14 +33,15 @@ func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	}
 
 	location := &BackupLocation{ID: id}
-	switch err := q.Reload(location); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Location with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(location)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Location with ID %q already exists.", id)
 }
 
 func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
@@ -49,14 +50,15 @@ func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	}
 
 	var location BackupLocation
-	switch err := q.FindOneTo(&location, "name", name); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Location with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.FindOneTo(&location, "name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Location with name %q already exists.", name)
 }
 
 func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
@@ -156,14 +158,15 @@ func FindBackupLocationByID(q *reform.Querier, id string) (*BackupLocation, erro
 	}
 
 	location := &BackupLocation{ID: id}
-	switch err := q.Reload(location); err {
-	case nil:
-		return location, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Backup location with ID %q not found.", id)
-	default:
+	err := q.Reload(location)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Backup location with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return location, nil
 }
 
 // FindBackupLocationsByIDs finds backup locations by IDs.
