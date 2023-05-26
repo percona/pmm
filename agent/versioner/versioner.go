@@ -94,7 +94,7 @@ func (v *Versioner) binaryVersion(
 	defer cancel()
 
 	if _, err := v.ef.LookPath(binaryName); err != nil {
-		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert
+		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert,errorlint
 			return "", ErrNotFound
 		}
 
@@ -103,7 +103,7 @@ func (v *Versioner) binaryVersion(
 
 	versionBytes, err := v.ef.CommandContext(ctx, binaryName, arg...).CombinedOutput()
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
+		if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 			if exitError.ExitCode() != expectedExitCode {
 				return "", errors.WithStack(err)
 			}

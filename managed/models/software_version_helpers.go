@@ -163,14 +163,15 @@ func FindServiceSoftwareVersionsByServiceID(q *reform.Querier, serviceID string)
 	}
 
 	versions := &ServiceSoftwareVersions{ServiceID: serviceID}
-	switch err := q.Reload(versions); err {
-	case nil:
-		return versions, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
-	default:
+	err := q.Reload(versions)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return versions, nil
 }
 
 // FindServicesSoftwareVersionsFilter represents a filter for finding service software versions.

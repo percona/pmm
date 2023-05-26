@@ -71,7 +71,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			labels,
 			in.Totals)
 		if err != nil {
-			return nil, fmt.Errorf("error in quering metrics:%v", err)
+			return nil, fmt.Errorf("error in quering metrics:%w", err)
 		}
 
 		if len(metricsList) < 2 {
@@ -297,7 +297,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 		in.FilterBy,
 		in.GroupBy)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting object details labels:%v", err)
+		return nil, fmt.Errorf("error in selecting object details labels:%w", err)
 	}
 	return resp, nil
 }
@@ -347,7 +347,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		labels,
 		in.Queryid)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting histogram:%v", err)
+		return nil, fmt.Errorf("error in selecting histogram:%w", err)
 	}
 
 	return resp, nil
@@ -360,7 +360,7 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 		in.Serviceid,
 		in.Query)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return wrapperspb.Bool(resp), nil
@@ -373,7 +373,7 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 		in.Serviceid,
 		in.QueryId)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return res, nil
