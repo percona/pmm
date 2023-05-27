@@ -348,6 +348,7 @@ func TestScheduleBackup(t *testing.T) {
 }
 
 func removeScheduledBackup(t *testing.T, id string) {
+	t.Helper()
 	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,

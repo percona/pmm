@@ -81,6 +81,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 }
 
 func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
 		link: link,

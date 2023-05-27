@@ -33,10 +33,12 @@ import (
 
 func TestAWSInstanceChecker(t *testing.T) {
 	setup := func(t *testing.T) (db *reform.DB, teardown func()) {
+		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		teardown = func() {
+			t.Helper()
 			require.NoError(t, sqlDB.Close())
 		}
 

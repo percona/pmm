@@ -65,6 +65,7 @@ func TestKubernetesServer(t *testing.T) {
 		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
@@ -305,6 +306,7 @@ current-context: local`
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			assert.NoError(t, db.Delete(kubernetesCluster))
@@ -451,6 +453,7 @@ current-context: local`
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			assert.NoError(t, db.Delete(kubernetesCluster))
