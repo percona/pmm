@@ -476,7 +476,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, dimensions, labels)
+	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec)
 	result := qanpb.FiltersReply{
 		Labels: groupLabels,
 	}
@@ -632,7 +632,6 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		fmt.Println(err)
 		return totals, groupLabels
 	}
 
