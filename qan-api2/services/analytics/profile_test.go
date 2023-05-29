@@ -163,6 +163,7 @@ func TestService_GetReport(t *testing.T) {
 	}
 }
 
+// test
 func TestService_GetReport_Mix(t *testing.T) {
 	db := setup()
 	rm := models.NewReporter(db)
