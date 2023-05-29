@@ -29,6 +29,7 @@ import (
 )
 
 func TestProxySQLExporterConfig(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.18.0")
 	proxysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
@@ -64,18 +65,21 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
+		t.Parallel()
 		exporter.Password = nil
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
+		t.Parallel()
 		exporter.Username = nil
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
+		t.Parallel()
 		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{

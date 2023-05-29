@@ -116,7 +116,7 @@ func TestPXCClusterService(t *testing.T) {
 	}
 
 	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
-	defer teardown(t)
+	t.Cleanup(func() { teardown(t) })
 
 	versionService := &mockVersionService{}
 	v1120, _ := goversion.NewVersion("1.12.0")

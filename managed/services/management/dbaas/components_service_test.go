@@ -723,6 +723,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 	pmmversion.PMMVersion = twoPointEighteen
 	ctx := context.Background()
 	t.Run("Update available", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-available"
 		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "9873")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
@@ -777,6 +778,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		assert.Equal(t, onePointEight, cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
 	})
 	t.Run("Update NOT available", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-not-available"
 		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "7895")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
@@ -832,6 +834,7 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		assert.Equal(t, "", cluster.ComponentToUpdateInformation[pxcOperator].AvailableVersion)
 	})
 	t.Run("User's operators version is ahead of version service", func(t *testing.T) {
+		t.Parallel()
 		clusterName := "update-available-pmm-update"
 		_, cs, kubeClient, kubeStorageClient := setup(t, clusterName, response, "5863")
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)

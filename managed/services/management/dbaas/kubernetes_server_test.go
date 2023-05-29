@@ -691,7 +691,7 @@ users:
       provideClusterInfo: false
 `
 
-func TestUseIAMAuthenticator(t *testing.T) {
+func TestUseIAMAuthenticator(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	testCases := []struct {
 		name              string

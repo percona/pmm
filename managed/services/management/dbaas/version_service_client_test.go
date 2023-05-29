@@ -261,6 +261,7 @@ const (
 )
 
 func TestGetNextDatabaseVersion(t *testing.T) {
+	t.Parallel()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	response := &VersionServiceResponse{
 		Versions: []Version{

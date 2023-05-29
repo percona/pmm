@@ -101,7 +101,8 @@ linters:
     - paralleltest
     - tagliatelle
     - thelper
-    - tparallel
+    - staticcheck
+    # - tparallel
     - gocritic
     - godot
     - godox

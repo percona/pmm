@@ -35,6 +35,7 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 
 	t.Run("With Schema Name", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "public.country",
@@ -77,6 +78,7 @@ Referenced by:
 	})
 
 	t.Run("Without constraints", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -105,6 +107,7 @@ Referenced by:
 	})
 
 	t.Run("Without references", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "countrylanguage",
@@ -132,6 +135,7 @@ Foreign-key constraints:
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city; DROP TABLE city; --`,

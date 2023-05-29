@@ -35,6 +35,7 @@ func TestMySQLQueryShow(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLQueryShowParams{
 			Dsn:   dsn,
 			Query: "VARIABLES",

@@ -35,6 +35,7 @@ func TestShowTableStatus(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -79,6 +80,7 @@ func TestShowTableStatus(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
@@ -92,6 +94,7 @@ func TestShowTableStatus(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,

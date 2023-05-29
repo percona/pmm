@@ -36,6 +36,7 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
