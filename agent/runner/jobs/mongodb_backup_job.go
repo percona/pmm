@@ -35,6 +35,8 @@ const (
 
 	logsCheckInterval = 3 * time.Second
 	waitForLogs       = 2 * logsCheckInterval
+
+	pbmArtifactJSONPostfix = ".pbm.json"
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -48,6 +50,7 @@ type MongoDBBackupJob struct {
 	pitr           bool
 	dataModel      backuppb.DataModel
 	jobLogger      *pbmJobLogger
+	folder         string
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -59,6 +62,7 @@ func NewMongoDBBackupJob(
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
+	folder string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -78,6 +82,7 @@ func NewMongoDBBackupJob(
 		pitr:           pitr,
 		dataModel:      dataModel,
 		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
+		folder:         folder,
 	}, nil
 }
 
@@ -104,7 +109,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	conf, err := createPBMConfig(&j.locationConfig, j.folder, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -149,11 +154,40 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
+
+	sharded, err := isShardedCluster(ctx, j.dbURL)
+	if err != nil {
+		return err
+	}
+
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	if err != nil {
+		return err
+	}
+
+	// mongoArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mongoArtifactFiles := func(pbmBackupName string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: pbmBackupName + pbmArtifactJSONPostfix},
+			{Name: pbmBackupName, IsDirectory: true},
+		}
+		return res
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{},
+			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				IsShardedCluster: sharded,
+				Metadata: &backuppb.Metadata{
+					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
+					RestoreTo: timestamppb.New(*backupTimestamp),
+					BackupToolMetadata: &backuppb.Metadata_PbmMetadata{
+						PbmMetadata: &backuppb.PbmMetadata{Name: pbmBackupOut.Name},
+					},
+				},
+			},
 		},
 	})
 

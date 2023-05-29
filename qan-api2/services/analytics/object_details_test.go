@@ -177,7 +177,7 @@ func TestService_GetMetricsError(t *testing.T) {
 				FilterBy:        "unexist",
 			},
 			nil,
-			true,
+			false,
 		},
 		{
 			"no_period_start_from",

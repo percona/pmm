@@ -130,7 +130,7 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		printSuccessResult(opts, res)
 		os.Exit(0)

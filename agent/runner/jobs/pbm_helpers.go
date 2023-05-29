@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -224,9 +225,9 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	for {
 		select {
 		case <-ticker.C:
-			var status pbmStatus
-			if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
-				return errors.Wrapf(err, "pbm status error")
+			status, err := getPBMStatus(ctx, dbURL)
+			if err != nil {
+				return err
 			}
 			if status.Running.Type == "" {
 				return nil
@@ -235,6 +236,27 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 			return ctx.Err()
 		}
 	}
+}
+
+func isShardedCluster(ctx context.Context, dbURL *url.URL) (bool, error) {
+	status, err := getPBMStatus(ctx, dbURL)
+	if err != nil {
+		return false, err
+	}
+
+	if len(status.Cluster) > 1 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func getPBMStatus(ctx context.Context, dbURL *url.URL) (*pbmStatus, error) {
+	var status pbmStatus
+	if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
+		return nil, errors.Wrap(err, "pbm status error")
+	}
+	return &status, nil
 }
 
 func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
@@ -532,4 +554,24 @@ func groupPartlyDoneErrors(info describeInfo) error {
 		}
 	}
 	return errors.New(strings.Join(errMsgs, "; "))
+}
+
+// pbmGetSnapshotTimestamp returns time the backup restores target db to.
+func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (*time.Time, error) {
+	var list pbmList
+	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
+		return nil, err
+	}
+
+	if len(list.Snapshots) == 0 {
+		return nil, errors.Wrapf(ErrNotFound, "got no one snapshot")
+	}
+
+	for _, snapshot := range list.Snapshots {
+		if snapshot.Name == backupName {
+			return pointer.ToTime(time.Unix(snapshot.RestoreTo, 0)), nil
+		}
+	}
+
+	return nil, errors.Wrap(ErrNotFound, "couldn't find required snapshot")
 }

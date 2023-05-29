@@ -294,19 +294,19 @@ func TestParseRealTableNameMySQL(t *testing.T) {
 
 	tests := []testCase{
 		{"SELECT;", ""},
-		{"SELECT `district` FROM `people`;", "people"},
-		{"SELECT `district` FROM `people`", "people"},
+		{"SELECT `district` FROM `people`;", "`people`"},
+		{"SELECT `district` FROM `people`", "`people`"},
 		{"SELECT `district` FROM people", "people"},
 		{"SELECT name FROM people WHERE city = 'Paris'", "people"},
 		{"SELECT name FROM world.people WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "world.people"},
-		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "people"},
+		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "`world`.`people`"},
+		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "`world`.`people`"},
+		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "\"world\".\"people\""},
+		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "\"world\".\"people\""},
+		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "'world'.'people'"},
+		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "'world'.'people'"},
+		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "'world'.\"people\""},
+		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "`people`"},
 	}
 
 	for _, test := range tests {
