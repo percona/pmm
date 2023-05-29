@@ -94,8 +94,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }}
 {{ end }}
 {{ if .Labels }}{{$i := 0}}
-    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-        {{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
+	AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
+		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
 GROUP BY {{ .Group }}
