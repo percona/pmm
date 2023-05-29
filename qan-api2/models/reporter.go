@@ -601,7 +601,8 @@ type customLabelArray struct {
 }
 
 func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
-	periodStartToSec int64) ([]*customLabelArray, error) {
+	periodStartToSec int64,
+) ([]*customLabelArray, error) {
 	var labels []*customLabelArray
 
 	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFromSec, periodStartToSec)
