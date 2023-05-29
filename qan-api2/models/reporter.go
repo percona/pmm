@@ -591,7 +591,6 @@ SELECT
 	labels.value
 FROM metrics
 WHERE (period_start >= ?) AND (period_start <= ?)
-	{{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
 ORDER BY
 	labels.value ASC
 `
@@ -601,30 +600,13 @@ type customLabelArray struct {
 	values []string
 }
 
-var queryLabelsTmpl = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
-
 func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
-	periodStartToSec int64, queryDimensions, queryLabels map[string][]string,
-) ([]*customLabelArray, error) {
+	periodStartToSec int64) ([]*customLabelArray, error) {
 	var labels []*customLabelArray
 
-	tmplArgs := struct {
-		Dimensions map[string][]string
-		Labels     map[string][]string
-	}{
-		queryDimensions,
-		queryLabels,
-	}
-
-	var queryBuffer bytes.Buffer
-
-	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
-	}
-
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -632,23 +614,23 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
 		var label customLabelArray
 		err = rows.Scan(&label.keys, &label.values)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
+			return nil, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryLabels)
 		}
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
 	}
 
 	return labels, nil
 }
 
 // commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, dimensions map[string][]string, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
 	totals := make(map[string]float32)
 	groupLabels := make(map[string]*qanpb.ListLabels)
 
-	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec, dimensions, labels)
+	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
 		fmt.Println(err)
 		return totals, groupLabels
