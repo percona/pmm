@@ -435,54 +435,14 @@ ORDER BY
     value ASC
 `
 
-const queryLabels = `
-SELECT
-    keys,
-    values,
-    sum(main_metric_sum) AS main_metric_sum
-FROM
-(
-    SELECT
-        labels.key AS keys,
-        labels.value AS values,
-        SUM({{ .MainMetric }}) AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-    GROUP BY labels.key, labels.value
-    UNION ALL
-    SELECT
-		labels.key AS keys,
-		labels.value AS values,
-        0 AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    GROUP BY labels.key, labels.value
-)
-GROUP BY
-    keys,
-    values
-    WITH TOTALS
-ORDER BY
-    main_metric_sum DESC,
-    values ASC
-`
-
 type customLabel struct {
 	key              string
 	value            string
 	mainMetricPerSec float32
 }
 
-type customLabelArray struct {
-	keys             []string
-	values           []string
-	mainMetricPerSec float32
-}
-
 var (
 	queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
-	queryLabelsTmpl    = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
 	dimensionQueries   = map[string]*template.Template{
 		"service_name":     queryDimensionTmpl,
 		"database":         queryDimensionTmpl,
@@ -510,69 +470,13 @@ var (
 	}
 )
 
-// commentsIntoGroupLabels parse comments into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
-	totals := make(map[string]float32)
-	groupLabels := make(map[string]*qanpb.ListLabels)
-
-	labelKeysValues, mainMetricPerSec, err := r.queryFiltersArray(ctx, periodStartFromSec, periodStartToSec, "service.id", mainMetricName, queryLabelsTmpl, nil, labels)
-	if err != nil {
-		return totals, groupLabels
-	}
-
-	if mainMetricPerSec == 0 {
-		for _, label := range labelKeysValues {
-			for _, key := range label.keys {
-				totals[key] += label.mainMetricPerSec
-			}
-		}
-	}
-
-	res := make(map[string]map[string]float32)
-	for _, label := range labelKeysValues {
-		for index, key := range label.keys {
-			if _, ok := res[key]; !ok {
-				res[key] = make(map[string]float32)
-				res[key][label.values[index]] = label.mainMetricPerSec
-				continue
-			}
-
-			res[key][label.values[index]] += label.mainMetricPerSec
-		}
-	}
-
-	for key, values := range res {
-		if _, ok := groupLabels[key]; !ok {
-			groupLabels[key] = &qanpb.ListLabels{
-				Name: []*qanpb.Values{},
-			}
-		}
-
-		total := mainMetricPerSec
-		if mainMetricPerSec == 0 {
-			total = totals[key]
-		}
-
-		for k, v := range values {
-			val := qanpb.Values{
-				Value:             k,
-				MainMetricPerSec:  v,
-				MainMetricPercent: v / total,
-			}
-			groupLabels[key].Name = append(groupLabels[key].Name, &val)
-		}
-	}
-
-	return totals, groupLabels
-}
-
 // SelectFilters selects dimension and their values, and also keys and values of labels.
 func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, mainMetricName, labels)
+	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec, dimensions, labels)
 	result := qanpb.FiltersReply{
 		Labels: groupLabels,
 	}
@@ -681,64 +585,111 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	return labels, totalMainMetricPerSec, nil
 }
 
-func (r *Reporter) queryFiltersArray(ctx context.Context, periodStartFromSec,
-	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
-) ([]*customLabelArray, float32, error) {
-	durationSec := periodStartToSec - periodStartFromSec
+const queryLabels = `
+SELECT
+	labels.key,
+	labels.value
+FROM metrics
+WHERE (period_start >= ?) AND (period_start <= ?)
+	{{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
+ORDER BY
+	labels.value ASC
+`
+
+type customLabelArray struct {
+	keys   []string
+	values []string
+}
+
+var queryLabelsTmpl = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
+
+func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
+	periodStartToSec int64, queryDimensions, queryLabels map[string][]string,
+) ([]*customLabelArray, error) {
 	var labels []*customLabelArray
 
 	tmplArgs := struct {
-		MainMetric    string
-		DimensionName string
-		Dimensions    map[string][]string
-		Labels        map[string][]string
+		Dimensions map[string][]string
+		Labels     map[string][]string
 	}{
-		mainMetricName,
-		dimensionName,
 		queryDimensions,
 		queryLabels,
 	}
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, 0, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
+	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+		return nil, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
 	}
 
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for rows.Next() {
 		var label customLabelArray
-		err = rows.Scan(&label.keys, &label.values, &label.mainMetricPerSec)
+		err = rows.Scan(&label.keys, &label.values)
 		if err != nil {
-			return nil, 0, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
+			return nil, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
 		}
-		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
 	}
 
-	totalMainMetricPerSec := float32(0)
+	return labels, nil
+}
 
-	if rows.NextResultSet() {
-		var labelTotal customLabelArray
-		for rows.Next() {
-			err = rows.Scan(&labelTotal.keys, &labelTotal.values, &labelTotal.mainMetricPerSec)
-			if err != nil {
-				return nil, 0, errors.Wrapf(err, "failed to scan total for QueryFilter %s", queryBuffer.String())
+// commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64, dimensions map[string][]string, labels map[string][]string) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
+	totals := make(map[string]float32)
+	groupLabels := make(map[string]*qanpb.ListLabels)
+
+	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec, dimensions, labels)
+	if err != nil {
+		fmt.Println(err)
+		return totals, groupLabels
+	}
+
+	count := float32(0)
+	res := make(map[string]map[string]float32)
+	for _, label := range labelKeysValues {
+		for index, key := range label.keys {
+			if _, ok := res[key]; !ok {
+				res[key] = make(map[string]float32)
 			}
-			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
-		}
-		if err = rows.Err(); err != nil {
-			return nil, 0, errors.Wrapf(err, "failed to select total for QueryFilter %s", queryBuffer.String())
+
+			res[key][label.values[index]]++
+			count++
 		}
 	}
 
-	return labels, totalMainMetricPerSec, nil
+	for key, values := range res {
+		if _, ok := groupLabels[key]; !ok {
+			groupLabels[key] = &qanpb.ListLabels{
+				Name: []*qanpb.Values{},
+			}
+		}
+
+		for k, v := range values {
+			val := qanpb.Values{
+				Value:             k,
+				MainMetricPercent: float32(v / count),
+			}
+			groupLabels[key].Name = append(groupLabels[key].Name, &val)
+		}
+	}
+
+	for k, v := range res {
+		total := float32(0)
+		for _, c := range v {
+			total += c
+		}
+		totals[k] = total
+	}
+
+	return totals, groupLabels
 }
