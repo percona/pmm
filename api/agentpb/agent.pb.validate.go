@@ -11006,6 +11006,8 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 
 	// no validation rules for Name
 
+	// no validation rules for Folder
+
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLBackup_S3Config:
 		if v == nil {
@@ -11159,6 +11161,8 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 	// no validation rules for ServiceId
 
 	// no validation rules for Name
+
+	// no validation rules for Folder
 
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MySQLRestoreBackup_S3Config:
@@ -11325,6 +11329,8 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 	// no validation rules for EnablePitr
 
 	// no validation rules for DataModel
+
+	// no validation rules for Folder
 
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBBackup_S3Config:
@@ -11552,6 +11558,37 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
 				field:  "PitrTimestamp",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Folder
+
+	if all {
+		switch v := interface{}(m.GetPbmMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
+					field:  "PbmMetadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
+					field:  "PbmMetadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_MongoDBRestoreBackupValidationError{
+				field:  "PbmMetadata",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -11853,6 +11890,35 @@ func (m *JobResult_MongoDBBackup) validate(all bool) error {
 
 	// no validation rules for IsShardedCluster
 
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobResult_MongoDBBackupValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobResult_MongoDBBackupValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobResult_MongoDBBackupValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return JobResult_MongoDBBackupMultiError(errors)
 	}
@@ -11954,6 +12020,35 @@ func (m *JobResult_MySQLBackup) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, JobResult_MySQLBackupValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, JobResult_MySQLBackupValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return JobResult_MySQLBackupValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return JobResult_MySQLBackupMultiError(errors)

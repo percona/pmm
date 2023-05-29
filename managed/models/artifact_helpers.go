@@ -38,7 +38,7 @@ type ArtifactFilters struct {
 	Status BackupStatus
 }
 
-// FindArtifacts returns artifacts list.
+// FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
 func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
 	var args []interface{}
@@ -176,6 +176,7 @@ type CreateArtifactParams struct {
 	Status           BackupStatus
 	ScheduleID       string
 	IsShardedCluster bool
+	Folder           string
 }
 
 // Validate validates params used for creating an artifact entry.
@@ -237,6 +238,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		Type:             OnDemandArtifactType,
 		ScheduleID:       params.ScheduleID,
 		IsShardedCluster: params.IsShardedCluster,
+		Folder:           params.Folder,
 	}
 
 	if params.ScheduleID != "" {
@@ -256,6 +258,8 @@ type UpdateArtifactParams struct {
 	Status           *BackupStatus
 	ScheduleID       *string
 	IsShardedCluster bool
+	Metadata         *Metadata
+	Folder           *string
 }
 
 // UpdateArtifact updates existing artifact.
@@ -278,6 +282,15 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.IsShardedCluster = true
 	}
 
+	if params.Metadata != nil {
+		// We're appending to existing list to cover PITR mode cases.
+		row.MetadataList = append(row.MetadataList, *params.Metadata)
+	}
+
+	if params.Folder != nil {
+		row.Folder = *params.Folder
+	}
+
 	if err := q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update backup artifact")
 	}
@@ -295,4 +308,28 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 		return errors.Wrapf(err, "failed to delete artifact by id '%s'", id)
 	}
 	return nil
+}
+
+// MetadataRemoveFirstN removes first N records from artifact metadata list.
+func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
+	if n > uint32(len(s.MetadataList)) {
+		n = uint32(len(s.MetadataList))
+	}
+	s.MetadataList = s.MetadataList[n:]
+	if err := q.Update(s); err != nil {
+		return errors.Wrap(err, "failed to remove artifact metadata records")
+	}
+	return nil
+}
+
+// IsArtifactFinalStatus checks if artifact status is one of the final ones.
+func IsArtifactFinalStatus(backupStatus BackupStatus) bool {
+	switch backupStatus {
+	case SuccessBackupStatus,
+		ErrorBackupStatus,
+		FailedToDeleteBackupStatus:
+		return true
+	default:
+		return false
+	}
 }

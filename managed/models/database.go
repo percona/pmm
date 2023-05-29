@@ -896,6 +896,15 @@ var databaseSchema = [][]string{
 		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
 	},
 	82: {
+		`ALTER TABLE artifacts
+    		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
+			ADD COLUMN metadata_list JSONB;
+
+		UPDATE scheduled_tasks 
+		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
+		WHERE type = 'mongodb_backup';`,
+	},
+	83: {
 		`ALTER TABLE agents 
 		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
 
