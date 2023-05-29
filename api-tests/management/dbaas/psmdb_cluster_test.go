@@ -228,7 +228,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.DBClusters.RestartDBCluster(&restartPSMDBClusterParamsParam)
 		require.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code()) //nolint:errorlint
 	})
 
 	t.Run("DeleteUnknownPSMDBCluster", func(t *testing.T) {
@@ -241,7 +241,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.DBClusters.DeleteDBCluster(&deletePSMDBClusterParamsParam)
 		require.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code()) //nolint:errorlint
 	})
 
 	t.Run("SuspendResumeCluster", func(t *testing.T) {
