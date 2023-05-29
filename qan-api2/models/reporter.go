@@ -627,7 +627,7 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
 }
 
 // commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpb.ListLabels { //nolint:lll
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpb.ListLabels {
 	groupLabels := make(map[string]*qanpb.ListLabels)
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
