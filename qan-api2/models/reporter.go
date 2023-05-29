@@ -94,8 +94,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }}
 {{ end }}
 {{ if .Labels }}{{$i := 0}}
-	AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
-		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+	AND ({{range $key, $vals := .Labels }} {{ $i = inc $i}}
+		{{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
     {{ end }})
 {{ end }}
 GROUP BY {{ .Group }}
@@ -254,8 +254,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if not .IsTotal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
     {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
 {{ if .Labels }}{{$i := 0}}
-    AND ({{range $key, $vals := .Labels }} {{ $i = inc $i}}
-        {{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
+	AND ({{range $key, $vals := .Labels }} {{ $i = inc $i}}
+		{{ if gt $i 1}} AND {{ end }} hasAll(labels.value, ['{{ StringsJoin $vals "', '" }}']) AND hasAll(labels.key, ['{{ $key }}'])
     {{ end }})
 {{ end }}
 GROUP BY point
@@ -476,9 +476,8 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	totals, groupLabels := r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec)
 	result := qanpb.FiltersReply{
-		Labels: groupLabels,
+		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {
@@ -494,6 +493,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
 		}
 
+		totals := make(map[string]float32)
 		if mainMetricPerSec == 0 {
 			for _, label := range values {
 				totals[label.key] += label.mainMetricPerSec
@@ -627,13 +627,12 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
 }
 
 // commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) (map[string]float32, map[string]*qanpb.ListLabels) { //nolint:lll
-	totals := make(map[string]float32)
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpb.ListLabels { //nolint:lll
 	groupLabels := make(map[string]*qanpb.ListLabels)
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return totals, groupLabels
+		return groupLabels
 	}
 
 	count := float32(0)
@@ -659,19 +658,12 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		for k, v := range values {
 			val := qanpb.Values{
 				Value:             k,
+				MainMetricPerSec:  v,
 				MainMetricPercent: v / count,
 			}
 			groupLabels[key].Name = append(groupLabels[key].Name, &val)
 		}
 	}
 
-	for k, v := range res {
-		total := float32(0)
-		for _, c := range v {
-			total += c
-		}
-		totals[k] = total
-	}
-
-	return totals, groupLabels
+	return groupLabels
 }
