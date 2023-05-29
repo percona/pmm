@@ -658,7 +658,6 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		for k, v := range values {
 			val := qanpb.Values{
 				Value:             k,
-				MainMetricPerSec:  v,
 				MainMetricPercent: v / count,
 			}
 			groupLabels[key].Name = append(groupLabels[key].Name, &val)
