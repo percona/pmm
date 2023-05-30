@@ -27,7 +27,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestChecksSettings(t *testing.T) {
+func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -72,8 +72,6 @@ func TestChecksSettings(t *testing.T) {
 	})
 
 	t.Run("find by name", func(t *testing.T) {
-		t.Parallel()
-
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -91,8 +89,6 @@ func TestChecksSettings(t *testing.T) {
 	})
 
 	t.Run("find all", func(t *testing.T) {
-		t.Parallel()
-
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
