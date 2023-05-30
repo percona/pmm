@@ -72,6 +72,7 @@ func (c *Cache) Send(resp *models.AgentResponse) error {
 		*agentpb.GetVersionsResponse,
 		*agentpb.JobProgress,
 		*agentpb.StopJobResponse,
+		*agentpb.CheckConnectionResponse,
 		*agentpb.JobResult:
 		cache = c.prioritized
 	case *agentpb.AgentLogsResponse,
