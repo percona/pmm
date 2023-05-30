@@ -32,7 +32,7 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("With Schema Name", func(t *testing.T) {
 		t.Parallel()

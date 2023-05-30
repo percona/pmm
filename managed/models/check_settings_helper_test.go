@@ -30,9 +30,9 @@ import (
 func TestChecksSettings(t *testing.T) {
 	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	defer func() {
+	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
-	}()
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {

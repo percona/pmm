@@ -28,6 +28,8 @@ import (
 )
 
 func TestJSON(t *testing.T) {
+	t.Parallel()
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 

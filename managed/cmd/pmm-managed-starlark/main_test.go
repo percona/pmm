@@ -48,6 +48,8 @@ var validQueryActionResult = []map[string]interface{}{
 }
 
 func TestStarlarkSandbox(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		name         string
 		script       string

@@ -80,7 +80,7 @@ const pxcKubeconfigTest = `
 `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func TestPXCClusterService(t *testing.T) {
+func TestPXCClusterService(t *testing.T) { //nolint:tparallel
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
 	// these lines in kubernetes_server.go will throw an error and tests won't finish.
 	//
