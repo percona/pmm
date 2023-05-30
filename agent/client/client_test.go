@@ -383,7 +383,7 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 }
 
 func TestCache(t *testing.T) {
-	cacheSize := uint32(3*1024*1024 + 24 + 32) // 3MB+metaFileSize+indexEntrySize
+	cacheSize := uint32(3 * 1024 * 1024)
 	t.Run("Read", func(t *testing.T) {
 		t.Parallel()
 		serverMD := &agentpb.ServerConnectMetadata{ServerVersion: t.Name()}

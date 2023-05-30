@@ -284,10 +284,12 @@ LOAD:
 	for {
 		select {
 		case <-r.done:
-			break
+			return
 		default:
 		}
+		r.recvLock.Lock()
 		_, b, err := r.fq.Peek()
+		r.recvLock.Unlock()
 		if err != nil {
 			r.l.Errorf("reading entry from cache: %+v", err)
 		}
@@ -304,7 +306,9 @@ LOAD:
 			}
 			break
 		}
+		r.recvLock.Lock()
 		r.fq.Skip(1) //nolint:errcheck
+		r.recvLock.Unlock()
 		count++
 	}
 	if count > 0 {
@@ -330,7 +334,9 @@ func initPaths(dir string) error {
 
 func (r *Ring) drain(amount int64) {
 	for size := int64(0); size < amount; {
+		r.recvLock.Lock()
 		_, b, err := r.fq.Dequeue()
+		r.recvLock.Unlock()
 		if err != nil {
 			r.l.Errorf("draining cache: %+v", err)
 			return
@@ -343,7 +349,9 @@ func (r *Ring) drain(amount int64) {
 }
 
 func (r *Ring) size() int64 {
+	r.recvLock.Lock()
 	status := r.fq.Status()
+	r.recvLock.Unlock()
 	sum := status.FrontFileInfo.Size + status.MetaFileInfo.Size
 	for _, list := range status.IndexFileList {
 		sum += list.Size
@@ -355,6 +363,8 @@ func (r *Ring) size() int64 {
 }
 
 func (r *Ring) runGC() {
+	r.recvLock.Lock()
+	defer r.recvLock.Unlock()
 	if err := r.fq.Gc(); err != nil {
 		r.l.Errorf("run gc: %+v", err)
 	}
@@ -380,6 +390,8 @@ func (r *Ring) send(s models.Sender, m *agentpb.AgentMessage) error {
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.JobProgress})
 	case *agentpb.AgentMessage_StopJob:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.StopJob})
+	case *agentpb.AgentMessage_CheckConnection:
+		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.CheckConnection})
 	case *agentpb.AgentMessage_JobResult:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.JobResult})
 	case *agentpb.AgentMessage_AgentLogs:

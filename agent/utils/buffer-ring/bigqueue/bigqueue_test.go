@@ -175,6 +175,39 @@ func TestDrain(t *testing.T) {
 	})
 }
 
+func TestReadWrite(t *testing.T) {
+	dataPageSize = indexEntrySize
+	indexPageSize = dataPageSize
+	payloadLen := indexEntrySize - 11 // queryId + proto = 32
+	drainThreshold = 0
+
+	t.Run("async read write", func(t *testing.T) {
+		t.Parallel()
+		dir := filepath.Join(os.TempDir(), newRandomString(10))
+		ring, log, cleanup := setupTest(t, dir, uint32(dataPageSize+indexPageSize)*10+metaFileSize)
+		t.Cleanup(cleanup)
+
+		started := make(chan struct{})
+		go func() {
+			close(started)
+			for i := uint32(1); i <= 10; i++ {
+				ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+					Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
+				}}})
+			}
+		}()
+		<-started
+		s := sender{
+			i: uint32(1),
+			t: t,
+		}
+		ring.SetSender(&s)
+		time.Sleep(1 * time.Second)
+		assert.NotEqual(t, uint32(1), atomic.LoadUint32(&s.i))
+		assert.Equal(t, -1, strings.LastIndex(log.String(), "level=error"))
+	})
+}
+
 func newRandomString(length int) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	const alp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
