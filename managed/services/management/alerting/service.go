@@ -486,7 +486,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 		}
 		uniqueNames[t.Name] = struct{}{}
 		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
