@@ -44,7 +44,7 @@ func TestHeap(t *testing.T) {
 	})
 }
 
-func TestProfile(t *testing.T) { //nolint:tparallel
+func TestProfile(t *testing.T) {
 	t.Parallel()
 	t.Run("Profile test", func(t *testing.T) {
 		// Create a new context
