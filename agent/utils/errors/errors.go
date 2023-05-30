@@ -42,5 +42,5 @@ func (c ChannelClosedError) Error() string {
 }
 
 func (c ChannelClosedError) Unwrap() error {
-	return c
+	return c.e
 }
