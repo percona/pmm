@@ -468,7 +468,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	p := req.URL.Path
 	cleanedPath, err := cleanPath(p)
 	if err != nil {
-		l.Warn("Error while unescaping path:", err)
+		l.Warnf("Error while unescaping path %s: %q", p, err)
 		return nil, &authError{
 			code:    codes.Internal,
 			message: "Internal server error.",
