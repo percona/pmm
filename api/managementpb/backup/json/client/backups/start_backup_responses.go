@@ -146,6 +146,9 @@ type StartBackupBody struct {
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
+
+	// Folder on storage for artifact.
+	Folder string `json:"folder,omitempty"`
 }
 
 // Validate validates this start backup body
