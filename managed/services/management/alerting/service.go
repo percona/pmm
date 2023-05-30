@@ -476,32 +476,34 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
 		s.l.Errorf("failed to parse rule template form request: +%v", err)
-		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
-	if len(templates) != 1 {
-		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
-	}
-
+	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
+		if _, ok := uniqueNames[t.Name]; ok {
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+		}
+		uniqueNames[t.Name] = struct{}{}
 		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
-			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
+			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
 	}
 
-	params := &models.CreateTemplateParams{
-		Template: &templates[0],
-		Yaml:     req.Yaml,
-		Source:   models.UserAPISource,
-	}
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		_, err = models.CreateTemplate(tx.Querier, params)
-		return err
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		for _, t := range templates {
+			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+				Template: &t,
+				Yaml:     req.Yaml,
+				Source:   models.UserAPISource,
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
-	if e != nil {
-		return nil, e
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.CollectTemplates(ctx)
