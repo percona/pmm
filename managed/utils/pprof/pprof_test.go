@@ -44,10 +44,9 @@ func TestHeap(t *testing.T) {
 	})
 }
 
-func TestProfile(t *testing.T) {
+func TestProfile(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	t.Run("Profile test", func(t *testing.T) {
-		t.Parallel()
 		// Create a new context
 		ctx := context.Background()
 		profileBytes, err := Profile(ctx, 1*time.Second)
@@ -85,7 +84,6 @@ func TestProfile(t *testing.T) {
 func TestTrace(t *testing.T) {
 	t.Parallel()
 	t.Run("Trace test", func(t *testing.T) {
-		t.Parallel()
 		// Create a new context
 		ctx := context.Background()
 		traceBytes, err := Trace(ctx, 1*time.Second)
