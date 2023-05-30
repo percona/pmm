@@ -2537,8 +2537,7 @@ type ListAgentsRequest struct {
 	// Return only Agents that provide insights for that Service.
 	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only agents of a particular type.
 	AgentType AgentType `protobuf:"varint,4,opt,name=agent_type,json=agentType,proto3,enum=inventory.AgentType" json:"agent_type,omitempty"`
 }
 

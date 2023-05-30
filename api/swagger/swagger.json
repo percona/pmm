@@ -15620,7 +15620,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -15963,7 +15963,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -16291,7 +16291,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -16873,7 +16873,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -17911,7 +17911,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -18560,7 +18560,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -20769,7 +20769,7 @@
     },
     "/v1/management/Service/Remove": {
       "post": {
-        "description": "Removes Service with Agents.",
+        "description": "Removes a Service along with Agents.",
         "tags": [
           "Service"
         ],
@@ -21704,7 +21704,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },
@@ -21725,6 +21726,64 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -22395,6 +22454,11 @@
                           "PITR"
                         ],
                         "x-order": 17
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -22675,6 +22739,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 11
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -22784,6 +22853,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 6
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 }
               }
             }
@@ -23489,6 +23563,170 @@
         }
       }
     },
+    "/v1/onboarding": {
+      "get": {
+        "description": "Retrieve onboarding status of the user",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Get onboarding status of the user",
+        "operationId": "GetOnboardingStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for GetOnboardingStatusResponse method.",
+              "type": "object",
+              "properties": {
+                "systemTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per PMM instance",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "userTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per user",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/tips/complete": {
+      "post": {
+        "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Complete user tip",
+        "operationId": "CompleteUserTip",
+        "parameters": [
+          {
+            "description": "Request message for CompleteUserTip method.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Request message for CompleteUserTip method.",
+              "type": "object",
+              "properties": {
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for CompleteUserTip method.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/readyz": {
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
@@ -23957,6 +24195,9 @@
     },
     {
       "name": "Service"
+    },
+    {
+      "name": "TipService"
     },
     {
       "name": "Artifacts"

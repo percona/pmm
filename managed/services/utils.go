@@ -20,11 +20,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GroupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
-func GroupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) {
-	mySQLChecks = make(map[string]check.Check)
-	postgreSQLChecks = make(map[string]check.Check)
-	mongoDBChecks = make(map[string]check.Check)
+// GroupChecksByDB splits provided checks by database and returns three
+// slices: for MySQL, for PostgreSQL and for MongoDB.
+func GroupChecksByDB(
+	l *logrus.Entry,
+	checks map[string]check.Check,
+) (map[string]check.Check, map[string]check.Check, map[string]check.Check) {
+	mySQLChecks := make(map[string]check.Check)
+	postgreSQLChecks := make(map[string]check.Check)
+	mongoDBChecks := make(map[string]check.Check)
 	for _, c := range checks {
 		switch c.Version {
 		case 1:
@@ -67,5 +71,5 @@ func GroupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 		}
 	}
 
-	return
+	return mySQLChecks, postgreSQLChecks, mongoDBChecks
 }

@@ -63,8 +63,8 @@ func TestLoadFromFile(t *testing.T) {
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*os.PathError)(nil), err)
-		assert.Equal(t, "open", err.(*os.PathError).Op)
-		assert.EqualError(t, err.(*os.PathError).Err, `permission denied`)
+		assert.Equal(t, "open", err.(*os.PathError).Op)                    //nolint:errorlint
+		assert.EqualError(t, err.(*os.PathError).Err, `permission denied`) //nolint:errorlint
 		assert.Nil(t, cfg)
 	})
 

@@ -75,7 +75,7 @@
   until: psql_result.rowcount == 1
   when: not ansible_check_mode
 
-- name: wait for grafana database initiazation
+- name: Wait for grafana database initialization
   pause:
     seconds: 10
 
@@ -83,6 +83,12 @@
   supervisorctl:
     name: grafana
     state: stopped
+
+- name: Remove default admin user
+  postgresql_query:
+    db: grafana
+    query: DELETE FROM public.user WHERE login='admin'
+  when: not ansible_check_mode
 
 - name: Run grafana migrator
   command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
@@ -101,7 +107,7 @@
     name: grafana
     state: restarted
 
-- name: wait for grafana initiazation
+- name: Wait for grafana initialization
   pause:
     seconds: 5
 

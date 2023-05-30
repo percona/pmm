@@ -114,7 +114,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}, nil
 }
 
-func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
+func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) { //nolint:nonamedreturns
 	disk, ok := (&instance.DiskSize).AsInt64()
 	if ok {
 		diskSize = disk

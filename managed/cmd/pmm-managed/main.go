@@ -61,14 +61,19 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
+	"github.com/percona/pmm/api/onboardingpb"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/uieventspb"
 	"github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -88,12 +93,14 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
+	"github.com/percona/pmm/managed/services/onboarding"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
+	"github.com/percona/pmm/managed/services/telemetry/uievents"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
@@ -201,7 +208,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
-	pitrTimerangeService *backup.PITRTimerangeService
+	pbmPITRService       *backup.PBMPITRService
 	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
@@ -210,6 +217,8 @@ type gRPCServerDeps struct {
 	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
 	kubeStorage          *managementdbaas.KubeStorage
+	uieventsService      *uievents.Service
+	vmClient             *metrics.Client
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -257,13 +266,17 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
+	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	nodev1beta1.RegisterMgmtNodeServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
+	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
@@ -277,6 +290,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
+	onboardingpb.RegisterTipServiceServer(gRPCServer, onboarding.NewTipService(deps.db, servicesSvc, deps.grafanaClient))
+
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
@@ -286,7 +301,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
+	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
@@ -301,12 +316,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	if err == nil {
-		platformpb.RegisterPlatformServer(gRPCServer, platformService)
-	} else {
-		l.Fatalf("Failed to register platform service: %s", err.Error())
-	}
+	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
+	platformpb.RegisterPlatformServer(gRPCServer, platformService)
+	uieventspb.RegisterUIEventsServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -386,6 +398,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
+		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		nodev1beta1.RegisterMgmtNodeHandlerFromEndpoint,
+		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
@@ -398,6 +413,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
+
+		onboardingpb.RegisterTipServiceHandlerFromEndpoint,
+
 		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
 		iav1beta1.RegisterAlertsHandlerFromEndpoint,
@@ -419,6 +437,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dbaasv1beta1.RegisterTemplatesHandlerFromEndpoint,
 
 		platformpb.RegisterPlatformHandlerFromEndpoint,
+		uieventspb.RegisterUIEventsHandlerFromEndpoint,
 
 		userpb.RegisterUserHandlerFromEndpoint,
 	} {
@@ -605,8 +624,10 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername, dbPassword string) {
+func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) {
 	l := logrus.WithField("component", "migration")
+	params.Logf = l.Debugf
+	params.SetupFixtures = models.SetupFixtures
 
 	const timeout = 5 * time.Minute
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -618,14 +639,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, dbName, dbAddress, dbUsername
 		default:
 		}
 		l.Infof("Migrating database...")
-		_, err := models.SetupDB(sqlDB, &models.SetupDBParams{
-			Logf:          l.Debugf,
-			Name:          dbName,
-			Address:       dbAddress,
-			Username:      dbUsername,
-			Password:      dbPassword,
-			SetupFixtures: models.SetupFixtures,
-		})
+		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}
@@ -649,7 +663,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() {
+func main() { //nolint:cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -675,10 +689,35 @@ func main() {
 	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
 		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
-	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
-	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
-	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").Default("pmm-managed").String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").Default("pmm-managed").String()
+	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
+		Default(models.DefaultPostgreSQLAddr).
+		Envar("PERCONA_TEST_POSTGRES_ADDR").
+		String()
+	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_DBNAME").
+		String()
+	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_USERNAME").
+		String()
+	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
+		Default(models.DisableSSLMode).
+		Envar("PERCONA_TEST_POSTGRES_SSL_MODE").
+		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
+	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CA_PATH").
+		String()
+	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
+		Default("pmm-managed").
+		Envar("PERCONA_TEST_POSTGRES_DBPASSWORD").
+		String()
+	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_KEY_PATH").
+		String()
+	postgresSSLCertPathF := kingpin.Flag("postgres-ssl-cert-path", "PostgreSQL SSL certificate path").
+		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -713,16 +752,24 @@ func main() {
 	if err := cfg.Load(); err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
+	// in order to reproduce postgres behaviour.
+	if *postgresSSLModeF == models.RequireSSLMode && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = models.VerifyCaSSLMode
+	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 	pmmdb := ds.PmmDBSelect
-
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
 	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
-	q.Set("sslmode", "disable")
+	q.Set("sslmode", *postgresSSLModeF)
+	if *postgresSSLModeF != models.DisableSSLMode {
+		q.Set("sslrootcert", *postgresSSLCAPathF)
+		q.Set("sslcert", *postgresSSLCertPathF)
+		q.Set("sslkey", *postgresSSLKeyPathF)
+	}
 	pmmdb.DSN.Params = q.Encode()
 
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
@@ -730,13 +777,24 @@ func main() {
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = clickhouseDSN
 
-	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
+	setupParams := models.SetupDBParams{
+		Address:     *postgresAddrF,
+		Name:        *postgresDBNameF,
+		Username:    *postgresDBUsernameF,
+		Password:    *postgresDBPasswordF,
+		SSLMode:     *postgresSSLModeF,
+		SSLCAPath:   *postgresSSLCAPathF,
+		SSLKeyPath:  *postgresSSLKeyPathF,
+		SSLCertPath: *postgresSSLCertPathF,
+	}
+
+	sqlDB, err := models.OpenDB(setupParams)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, *postgresDBNameF, *postgresAddrF, *postgresDBUsernameF, *postgresDBPasswordF)
+	migrateDB(ctx, sqlDB, setupParams)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
@@ -771,8 +829,8 @@ func main() {
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db)
-	backupRemovalService := backup.NewRemovalService(db, minioClient)
-	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
+	pbmPITRService := backup.NewPBMPITRService()
+	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
@@ -786,7 +844,22 @@ func main() {
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
-	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams, gRPCMessageMaxSize)
+
+	supervisord := supervisord.New(
+		*supervisordConfigDirF,
+		pmmUpdateCheck,
+		vmParams,
+		models.PGParams{
+			Addr:        *postgresAddrF,
+			DBName:      *postgresDBNameF,
+			DBUsername:  *postgresDBUsernameF,
+			DBPassword:  *postgresDBPasswordF,
+			SSLMode:     *postgresSSLModeF,
+			SSLCAPath:   *postgresSSLCAPathF,
+			SSLKeyPath:  *postgresSSLKeyPathF,
+			SSLCertPath: *postgresSSLCertPathF,
+		},
+		gRPCMessageMaxSize)
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
@@ -798,7 +871,14 @@ func main() {
 		l.Fatalf("Could not create Percona Portal client: %s", err)
 	}
 
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry)
+	uieventsService := uievents.New()
+	uieventsService.ScheduleCleanup(ctx)
+
+	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{
+		telemetry.UIEventsExtension: uieventsService,
+	}
+
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry, telemetryExtensions)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -843,7 +923,7 @@ func main() {
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -887,11 +967,11 @@ func main() {
 			select {
 			case s := <-terminationSignals:
 				signal.Stop(terminationSignals)
-				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				cancel()
 				return
 			case s := <-updateSignals:
-				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal)))
+				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				err := server.UpdateConfigurations(ctx)
 				if err != nil {
 					l.Warnf("Couldn't reload configuration: %s", err)
@@ -1031,7 +1111,7 @@ func main() {
 				backupService:        backupService,
 				compatibilityService: compatibilityService,
 				backupRemovalService: backupRemovalService,
-				pitrTimerangeService: pitrTimerangeService,
+				pbmPITRService:       pbmPITRService,
 				minioClient:          minioClient,
 				versionCache:         versionCache,
 				supervisord:          supervisord,
@@ -1040,6 +1120,8 @@ func main() {
 				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
 				kubeStorage:          kubeStorage,
+				uieventsService:      uieventsService,
+				vmClient:             &vmClient,
 			})
 	}()
 

@@ -1769,6 +1769,61 @@
                 "fingerprint": {
                   "type": "string",
                   "x-order": 4
+                },
+                "metadata": {
+                  "description": "GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.",
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "database": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "schema": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "replication_set": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "cluster": {
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "environment": {
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "node_name": {
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -18216,6 +18271,397 @@
         }
       }
     },
+    "/v1/management/Agent/List": {
+      "post": {
+        "description": "Returns a filtered list of Agents.",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "List Agents",
+        "operationId": "ListAgentsMixin10",
+        "parameters": [
+          {
+            "description": "Only one of the parameters below must be set.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Only one of the parameters below must be set.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Return only Agents that relate to a specific ServiceID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Return only Agents that relate to a specific NodeID.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agents": {
+                  "description": "List of Agents.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique agent identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "is_agent_password_set": {
+                        "description": "True if the agent password is set.",
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "agent_type": {
+                        "description": "Agent type.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "aws_access_key": {
+                        "description": "AWS Access Key.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "is_aws_secret_key_set": {
+                        "description": "True if AWS Secret Key is set.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "azure_options": {
+                        "type": "object",
+                        "properties": {
+                          "client_id": {
+                            "description": "Azure client ID.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "is_client_secret_set": {
+                            "description": "True if Azure client secret is set.",
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "resource_group": {
+                            "description": "Azure resource group.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "subscription_id": {
+                            "description": "Azure subscription ID.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "tenant_id": {
+                            "description": "Azure tenant ID.",
+                            "type": "string",
+                            "x-order": 4
+                          }
+                        },
+                        "x-order": 5
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 10
+                      },
+                      "log_level": {
+                        "description": "Log level for exporter.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 12
+                      },
+                      "max_query_log_size": {
+                        "description": "Limit query log size in QAN.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 13
+                      },
+                      "metrics_path": {
+                        "description": "Path under which metrics are exposed, used to generate URI.",
+                        "type": "string",
+                        "x-order": 14
+                      },
+                      "metrics_scheme": {
+                        "description": "Scheme to generate URI to exporter metrics endpoints.",
+                        "type": "string",
+                        "x-order": 15
+                      },
+                      "mongo_db_options": {
+                        "type": "object",
+                        "properties": {
+                          "is_tls_certificate_key_set": {
+                            "description": "True if TLS certificate is set.",
+                            "type": "boolean",
+                            "x-order": 0
+                          },
+                          "is_tls_certificate_key_file_password_set": {
+                            "description": "True if TLS certificate file password is set.",
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "tls_ca": {
+                            "description": "TLS CA certificate.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "authentication_mechanism": {
+                            "description": "MongoDB auth mechanism.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "authentication_database": {
+                            "description": "MongoDB auth database.",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "stats_collections": {
+                            "description": "MongoDB stats collections.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 5
+                          },
+                          "collections_limit": {
+                            "description": "MongoDB collections limit.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 6
+                          },
+                          "enable_all_collectors": {
+                            "description": "True if all collectors are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
+                          }
+                        },
+                        "x-order": 16
+                      },
+                      "mysql_options": {
+                        "type": "object",
+                        "properties": {
+                          "tls_ca": {
+                            "description": "TLS CA certificate.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "tls_cert": {
+                            "description": "TLS certificate.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "is_tls_key_set": {
+                            "description": "True if TLS key is set.",
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 17
+                      },
+                      "node_id": {
+                        "description": "A unique node identifier.",
+                        "type": "string",
+                        "x-order": 18
+                      },
+                      "is_password_set": {
+                        "description": "True if password for connecting the agent to the database is set.",
+                        "type": "boolean",
+                        "x-order": 19
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier.",
+                        "type": "string",
+                        "x-order": 20
+                      },
+                      "postgresql_options": {
+                        "type": "object",
+                        "properties": {
+                          "ssl_ca": {
+                            "description": "TLS CA certificate.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "ssl_cert": {
+                            "description": "TLS certificate.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "is_ssl_key_set": {
+                            "description": "True if TLS key is set.",
+                            "type": "boolean",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 21
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 22
+                      },
+                      "push_metrics": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 23
+                      },
+                      "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
+                        "type": "boolean",
+                        "x-order": 24
+                      },
+                      "rds_basic_metrics_disabled": {
+                        "description": "True if RDS basic metrics are disdabled.",
+                        "type": "boolean",
+                        "x-order": 25
+                      },
+                      "rds_enhanced_metrics_disabled": {
+                        "description": "True if RDS enhanced metrics are disdabled.",
+                        "type": "boolean",
+                        "x-order": 26
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 27
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 28
+                      },
+                      "status": {
+                        "description": "Actual Agent status.",
+                        "type": "string",
+                        "x-order": 29
+                      },
+                      "table_count": {
+                        "description": "Last known table count.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 30
+                      },
+                      "table_count_tablestats_group_limit": {
+                        "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 31
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 32
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 33
+                      },
+                      "username": {
+                        "description": "HTTP basic auth username for collecting metrics.",
+                        "type": "string",
+                        "x-order": 34
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 35
+                      },
+                      "version": {
+                        "description": "Agent version.",
+                        "type": "string",
+                        "x-order": 36
+                      },
+                      "is_connected": {
+                        "description": "True if Agent is running and connected to pmm-managed.",
+                        "type": "boolean",
+                        "x-order": 37
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Annotations/Add": {
       "post": {
         "description": "Adds annotation.",
@@ -23477,7 +23923,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -23820,7 +24266,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -24148,7 +24594,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -24730,7 +25176,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -25427,6 +25873,452 @@
         }
       }
     },
+    "/v1/management/Node/Get": {
+      "post": {
+        "description": "Returns a single Node by ID.",
+        "tags": [
+          "MgmtNode"
+        ],
+        "summary": "Get Node",
+        "operationId": "GetNodeMixin11",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node": {
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_type": {
+                      "description": "Node type.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_name": {
+                      "description": "User-defined node name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "container_id": {
+                      "description": "A node's unique docker container identifier.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels for Node.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 11
+                    },
+                    "created_at": {
+                      "description": "Creation timestamp.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 12
+                    },
+                    "updated_at": {
+                      "description": "Last update timestamp.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "status": {
+                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                      "type": "string",
+                      "default": "STATUS_INVALID",
+                      "enum": [
+                        "STATUS_INVALID",
+                        "UP",
+                        "DOWN",
+                        "UNKNOWN"
+                      ],
+                      "x-order": 14
+                    },
+                    "agents": {
+                      "description": "List of agents related to this node.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "agent_id": {
+                            "description": "Unique Agent identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "agent_type": {
+                            "description": "Agent type.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "status": {
+                            "description": "Actual Agent status.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "is_connected": {
+                            "description": "True if Agent is running and connected to pmm-managed.",
+                            "type": "boolean",
+                            "x-order": 3
+                          }
+                        }
+                      },
+                      "x-order": 15
+                    },
+                    "services": {
+                      "description": "List of services running on this node.",
+                      "type": "array",
+                      "items": {
+                        "description": "Service represents a service running on a node.",
+                        "type": "object",
+                        "properties": {
+                          "service_id": {
+                            "description": "Unique Service identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "service_type": {
+                            "description": "Service type.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "service_name": {
+                            "description": "Service name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 16
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Node/List": {
+      "post": {
+        "description": "Returns a filtered list of Nodes.",
+        "tags": [
+          "MgmtNode"
+        ],
+        "summary": "List Nodes",
+        "operationId": "ListNodesMixin11",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_type": {
+                  "description": "NodeType describes supported Node types.",
+                  "type": "string",
+                  "default": "NODE_TYPE_INVALID",
+                  "enum": [
+                    "NODE_TYPE_INVALID",
+                    "GENERIC_NODE",
+                    "CONTAINER_NODE",
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
+                  ],
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_type": {
+                        "description": "Node type.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_name": {
+                        "description": "User-defined node name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "machine_id": {
+                        "description": "Linux machine-id.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "distro": {
+                        "description": "Linux distribution name and version.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "container_id": {
+                        "description": "A node's unique docker container identifier.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "container_name": {
+                        "description": "Container name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels for Node.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "status": {
+                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "UP",
+                          "DOWN",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 14
+                      },
+                      "agents": {
+                        "description": "List of agents related to this node.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "agent_id": {
+                              "description": "Unique Agent identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "agent_type": {
+                              "description": "Agent type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "status": {
+                              "description": "Actual Agent status.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "is_connected": {
+                              "description": "True if Agent is running and connected to pmm-managed.",
+                              "type": "boolean",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 15
+                      },
+                      "services": {
+                        "description": "List of services running on this node.",
+                        "type": "array",
+                        "items": {
+                          "description": "Service represents a service running on a node.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "Unique Service identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_type": {
+                              "description": "Service type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "service_name": {
+                              "description": "Service name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 16
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Node/Register": {
       "post": {
         "description": "Registers a new Node and pmm-agent.",
@@ -25768,7 +26660,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -26417,7 +27309,7 @@
                   "x-order": 1
                 },
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "node_type": {
@@ -29166,9 +30058,521 @@
         }
       }
     },
+    "/v1/management/Service/List": {
+      "post": {
+        "description": "Returns a filtered list of Services.",
+        "tags": [
+          "MgmtService"
+        ],
+        "summary": "List Services",
+        "operationId": "ListServicesMixin12",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Return only Services running on that Node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "service_type": {
+                  "description": "ServiceType describes supported Service types.",
+                  "type": "string",
+                  "default": "SERVICE_TYPE_INVALID",
+                  "enum": [
+                    "SERVICE_TYPE_INVALID",
+                    "MYSQL_SERVICE",
+                    "MONGODB_SERVICE",
+                    "POSTGRESQL_SERVICE",
+                    "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
+                    "EXTERNAL_SERVICE"
+                  ],
+                  "x-order": 1
+                },
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "services": {
+                  "description": "List of Services.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique service identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_type": {
+                        "description": "Service type.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "service_name": {
+                        "description": "User-defined name unique across all Services.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "database_name": {
+                        "description": "Database name.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_name": {
+                        "description": "Node name where this instance runs.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels for Service.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "external_group": {
+                        "description": "External group name.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 12
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 13
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 14
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 15
+                      },
+                      "agents": {
+                        "description": "List of agents related to this service.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "agent_id": {
+                              "description": "Unique agent identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "is_agent_password_set": {
+                              "description": "True if the agent password is set.",
+                              "type": "boolean",
+                              "x-order": 1
+                            },
+                            "agent_type": {
+                              "description": "Agent type.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "aws_access_key": {
+                              "description": "AWS Access Key.",
+                              "type": "string",
+                              "x-order": 3
+                            },
+                            "is_aws_secret_key_set": {
+                              "description": "True if AWS Secret Key is set.",
+                              "type": "boolean",
+                              "x-order": 4
+                            },
+                            "azure_options": {
+                              "type": "object",
+                              "properties": {
+                                "client_id": {
+                                  "description": "Azure client ID.",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "is_client_secret_set": {
+                                  "description": "True if Azure client secret is set.",
+                                  "type": "boolean",
+                                  "x-order": 1
+                                },
+                                "resource_group": {
+                                  "description": "Azure resource group.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "subscription_id": {
+                                  "description": "Azure subscription ID.",
+                                  "type": "string",
+                                  "x-order": 3
+                                },
+                                "tenant_id": {
+                                  "description": "Azure tenant ID.",
+                                  "type": "string",
+                                  "x-order": 4
+                                }
+                              },
+                              "x-order": 5
+                            },
+                            "created_at": {
+                              "description": "Creation timestamp.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 6
+                            },
+                            "custom_labels": {
+                              "description": "Custom user-assigned labels.",
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 7
+                            },
+                            "disabled": {
+                              "description": "Desired Agent status: enabled (false) or disabled (true).",
+                              "type": "boolean",
+                              "x-order": 8
+                            },
+                            "disabled_collectors": {
+                              "description": "List of disabled collector names.",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "x-order": 9
+                            },
+                            "listen_port": {
+                              "description": "Listen port for scraping metrics.",
+                              "type": "integer",
+                              "format": "int64",
+                              "x-order": 10
+                            },
+                            "log_level": {
+                              "description": "Log level for exporter.",
+                              "type": "string",
+                              "x-order": 11
+                            },
+                            "max_query_length": {
+                              "description": "Limit query length in QAN.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 12
+                            },
+                            "max_query_log_size": {
+                              "description": "Limit query log size in QAN.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 13
+                            },
+                            "metrics_path": {
+                              "description": "Path under which metrics are exposed, used to generate URI.",
+                              "type": "string",
+                              "x-order": 14
+                            },
+                            "metrics_scheme": {
+                              "description": "Scheme to generate URI to exporter metrics endpoints.",
+                              "type": "string",
+                              "x-order": 15
+                            },
+                            "mongo_db_options": {
+                              "type": "object",
+                              "properties": {
+                                "is_tls_certificate_key_set": {
+                                  "description": "True if TLS certificate is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "is_tls_certificate_key_file_password_set": {
+                                  "description": "True if TLS certificate file password is set.",
+                                  "type": "boolean",
+                                  "x-order": 1
+                                },
+                                "tls_ca": {
+                                  "description": "TLS CA certificate.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "authentication_mechanism": {
+                                  "description": "MongoDB auth mechanism.",
+                                  "type": "string",
+                                  "x-order": 3
+                                },
+                                "authentication_database": {
+                                  "description": "MongoDB auth database.",
+                                  "type": "string",
+                                  "x-order": 4
+                                },
+                                "stats_collections": {
+                                  "description": "MongoDB stats collections.",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "x-order": 5
+                                },
+                                "collections_limit": {
+                                  "description": "MongoDB collections limit.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 6
+                                },
+                                "enable_all_collectors": {
+                                  "description": "True if all collectors are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
+                                }
+                              },
+                              "x-order": 16
+                            },
+                            "mysql_options": {
+                              "type": "object",
+                              "properties": {
+                                "tls_ca": {
+                                  "description": "TLS CA certificate.",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "tls_cert": {
+                                  "description": "TLS certificate.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "is_tls_key_set": {
+                                  "description": "True if TLS key is set.",
+                                  "type": "boolean",
+                                  "x-order": 2
+                                }
+                              },
+                              "x-order": 17
+                            },
+                            "node_id": {
+                              "description": "A unique node identifier.",
+                              "type": "string",
+                              "x-order": 18
+                            },
+                            "is_password_set": {
+                              "description": "True if password for connecting the agent to the database is set.",
+                              "type": "boolean",
+                              "x-order": 19
+                            },
+                            "pmm_agent_id": {
+                              "description": "The pmm-agent identifier.",
+                              "type": "string",
+                              "x-order": 20
+                            },
+                            "postgresql_options": {
+                              "type": "object",
+                              "properties": {
+                                "ssl_ca": {
+                                  "description": "TLS CA certificate.",
+                                  "type": "string",
+                                  "x-order": 0
+                                },
+                                "ssl_cert": {
+                                  "description": "TLS certificate.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "is_ssl_key_set": {
+                                  "description": "True if TLS key is set.",
+                                  "type": "boolean",
+                                  "x-order": 2
+                                }
+                              },
+                              "x-order": 21
+                            },
+                            "process_exec_path": {
+                              "description": "Path to exec process.",
+                              "type": "string",
+                              "x-order": 22
+                            },
+                            "push_metrics": {
+                              "description": "True if exporter uses push metrics mode.",
+                              "type": "boolean",
+                              "x-order": 23
+                            },
+                            "query_examples_disabled": {
+                              "description": "True if query examples are disabled.",
+                              "type": "boolean",
+                              "x-order": 24
+                            },
+                            "rds_basic_metrics_disabled": {
+                              "description": "True if RDS basic metrics are disdabled.",
+                              "type": "boolean",
+                              "x-order": 25
+                            },
+                            "rds_enhanced_metrics_disabled": {
+                              "description": "True if RDS enhanced metrics are disdabled.",
+                              "type": "boolean",
+                              "x-order": 26
+                            },
+                            "runs_on_node_id": {
+                              "description": "Node identifier where this instance runs.",
+                              "type": "string",
+                              "x-order": 27
+                            },
+                            "service_id": {
+                              "description": "Service identifier.",
+                              "type": "string",
+                              "x-order": 28
+                            },
+                            "status": {
+                              "description": "Actual Agent status.",
+                              "type": "string",
+                              "x-order": 29
+                            },
+                            "table_count": {
+                              "description": "Last known table count.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 30
+                            },
+                            "table_count_tablestats_group_limit": {
+                              "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 31
+                            },
+                            "tls": {
+                              "description": "Use TLS for database connections.",
+                              "type": "boolean",
+                              "x-order": 32
+                            },
+                            "tls_skip_verify": {
+                              "description": "Skip TLS certificate and hostname validation.",
+                              "type": "boolean",
+                              "x-order": 33
+                            },
+                            "username": {
+                              "description": "HTTP basic auth username for collecting metrics.",
+                              "type": "string",
+                              "x-order": 34
+                            },
+                            "updated_at": {
+                              "description": "Last update timestamp.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 35
+                            },
+                            "version": {
+                              "description": "Agent version.",
+                              "type": "string",
+                              "x-order": 36
+                            },
+                            "is_connected": {
+                              "description": "True if Agent is running and connected to pmm-managed.",
+                              "type": "boolean",
+                              "x-order": 37
+                            }
+                          }
+                        },
+                        "x-order": 16
+                      },
+                      "status": {
+                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "UP",
+                          "DOWN",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 17
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Service/Remove": {
       "post": {
-        "description": "Removes Service with Agents.",
+        "description": "Removes a Service along with Agents.",
         "tags": [
           "Service"
         ],
@@ -30465,7 +31869,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },
@@ -30486,6 +31891,64 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -31156,6 +32619,11 @@
                           "PITR"
                         ],
                         "x-order": 17
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -31436,6 +32904,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 11
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -31545,6 +33018,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 6
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 }
               }
             }
@@ -34947,6 +36425,170 @@
         }
       }
     },
+    "/v1/onboarding": {
+      "get": {
+        "description": "Retrieve onboarding status of the user",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Get onboarding status of the user",
+        "operationId": "GetOnboardingStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for GetOnboardingStatusResponse method.",
+              "type": "object",
+              "properties": {
+                "systemTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per PMM instance",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "userTips": {
+                  "type": "array",
+                  "title": "shows system tips which can be completed once per user",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "tipId": {
+                        "description": "The ID of the tip to retrieve.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "isCompleted": {
+                        "description": "Show whether tip is completed or not.",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/onboarding/tips/complete": {
+      "post": {
+        "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
+        "tags": [
+          "TipService"
+        ],
+        "summary": "Complete user tip",
+        "operationId": "CompleteUserTip",
+        "parameters": [
+          {
+            "description": "Request message for CompleteUserTip method.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "Request message for CompleteUserTip method.",
+              "type": "object",
+              "properties": {
+                "tipId": {
+                  "description": "The ID of the tip to retrieve.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "Response message for CompleteUserTip method.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/readyz": {
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
@@ -35465,6 +37107,15 @@
       "name": "Role"
     },
     {
+      "name": "Agent"
+    },
+    {
+      "name": "MgmtNode"
+    },
+    {
+      "name": "MgmtService"
+    },
+    {
       "name": "Collector"
     },
     {
@@ -35478,6 +37129,9 @@
     },
     {
       "name": "Profile"
+    },
+    {
+      "name": "TipService"
     },
     {
       "name": "Platform"

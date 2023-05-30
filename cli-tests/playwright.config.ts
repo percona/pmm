@@ -1,5 +1,4 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
-
+import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
 /**
@@ -13,13 +12,24 @@ dotenv.config();
  * See https://playwright.dev/docs/test-configuration.
  */
 
-const config: PlaywrightTestConfig = {
+export default defineConfig({
   testDir: './',
   timeout: 300_000,
   expect: {
     timeout: 2000,
   },
-
+  projects: [
+    {
+      name: 'setup',
+      testMatch: 'support/pmm-bin.setup.ts',
+    },
+    {
+      name: 'cli',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+  ],
+  globalTeardown: './global-teardown',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -27,8 +37,10 @@ const config: PlaywrightTestConfig = {
   /* Opt out of parallel tests on CI. */
   workers: 6,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [['html', { open: 'never' }]],
+  reporter: [
+    ['github'],
+    ['list'],
+    ['html', { open: 'never' }],
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-};
-
-export default config;
+});

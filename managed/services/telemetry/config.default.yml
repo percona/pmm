@@ -284,6 +284,40 @@ telemetry:
       - metric_name: "postgresql_version"
         label: "short_version"
 
+  - id: PostgresDBInstalledExtensions
+    source: VM
+    query: pg_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_installed_extensions
+    summary: "Installed extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "name"
+      - metric_name: "2"
+        label: "version"
+      - metric_name: "3"
+        label: "relocatable"
+      - metric_name: "4"
+        label: "service_id"
+
+  - id: PostgresDBAvailableExtensions
+    source: VM
+    query: pg_available_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_available_extensions
+    summary: "Available extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "name"
+      - metric_name: "2"
+        label: "default_version"
+      - metric_name: "3"
+        label: "installed_version"
+      - metric_name: "4"
+        label: "service_id"
+
   - id: HAProxyVersion
     source: VM
     query: haproxy_process_build_info
@@ -608,6 +642,14 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMOSNameAndVersion
+    source: VM
+    query: node_os_info{node_id=~"pmm-server"}
+    summary: "PMM node OS name and version"
+    data:
+      - metric_name: "pmm_server_node_os_pretty_name_and_version"
+        label: "pretty_name"
+
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
@@ -866,4 +908,7 @@ telemetry:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
 
-
+  # UI Events
+  - id: UIEvents
+    summary: "UI Events"
+    extension: UIEventsExtension

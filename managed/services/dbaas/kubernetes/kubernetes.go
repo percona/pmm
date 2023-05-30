@@ -487,7 +487,7 @@ func (k *Kubernetes) GetWorkerNodes(ctx context.Context) ([]corev1.Node, error) 
 }
 
 // GetAllClusterResources goes through all cluster nodes and sums their allocatable resources.
-func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (
+func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) ( //nolint:nonamedreturns
 	cpuMillis uint64, memoryBytes uint64, diskSizeBytes uint64, err error,
 ) {
 	nodes, err := k.GetWorkerNodes(ctx)
@@ -565,7 +565,7 @@ func (k *Kubernetes) GetAllClusterResources(ctx context.Context, clusterType Clu
 
 // getResources extracts resources out of corev1.ResourceList and converts them to int64 values.
 // Millicpus are used for CPU values and bytes for memory.
-func getResources(resources corev1.ResourceList) (cpuMillis uint64, memoryBytes uint64, err error) {
+func getResources(resources corev1.ResourceList) (cpuMillis uint64, memoryBytes uint64, err error) { //nolint:nonamedreturns
 	cpu, ok := resources[corev1.ResourceCPU]
 	if ok {
 		cpuMillis, err = convertors.StrToMilliCPU(cpu.String())
@@ -585,7 +585,7 @@ func getResources(resources corev1.ResourceList) (cpuMillis uint64, memoryBytes 
 
 // GetConsumedCPUAndMemory returns consumed CPU and Memory in given namespace. If namespace
 // is empty, it tries to get them from all namespaces.
-func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace string) (
+func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace string) ( //nolint:nonamedreturns
 	cpuMillis uint64, memoryBytes uint64, err error,
 ) {
 	// Get CPU and Memory Requests of Pods' containers.
@@ -619,7 +619,7 @@ func (k *Kubernetes) GetConsumedCPUAndMemory(ctx context.Context, namespace stri
 }
 
 // GetConsumedDiskBytes returns consumed bytes. The strategy differs based on k8s cluster type.
-func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (consumedBytes uint64, err error) { //nolint: lll
+func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType ClusterType, volumes *corev1.PersistentVolumeList) (consumedBytes uint64, err error) { //nolint:lll,nonamedreturns
 	switch clusterType {
 	case ClusterTypeUnknown:
 		return 0, errors.Errorf("unknown cluster type")
@@ -668,7 +668,7 @@ func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType Clust
 }
 
 // sumVolumesSize returns sum of persistent volumes storage size in bytes.
-func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) {
+func sumVolumesSize(pvs *corev1.PersistentVolumeList) (sum uint64, err error) { //nolint:nonamedreturns
 	for _, pv := range pvs.Items {
 		bytes, err := convertors.StrToBytes(pv.Spec.Capacity.Storage().String())
 		if err != nil {
@@ -757,7 +757,7 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 		log.Printf("Waiting for subscription/%s to install CSV", subscriptionKey.Name)
 		csvKey, err := k.client.GetSubscriptionCSV(ctx, subscriptionKey)
 		if err != nil {
-			return fmt.Errorf("subscription/%s failed to install CSV: %v", subscriptionKey.Name, err)
+			return fmt.Errorf("subscription/%s failed to install CSV: %w", subscriptionKey.Name, err)
 		}
 		log.Printf("Waiting for clusterserviceversion/%s to reach 'Succeeded' phase", csvKey.Name)
 		if err := k.client.DoCSVWait(ctx, csvKey); err != nil {
@@ -772,12 +772,14 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 	return nil
 }
 
-func decodeResources(f []byte) (objs []unstructured.Unstructured, err error) {
+func decodeResources(f []byte) ([]unstructured.Unstructured, error) {
 	dec := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(f), 8)
+	var objs []unstructured.Unstructured
+
 	for {
 		var u unstructured.Unstructured
-		err = dec.Decode(&u)
-		if err == io.EOF {
+		err := dec.Decode(&u)
+		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
 			return nil, err
@@ -788,8 +790,9 @@ func decodeResources(f []byte) (objs []unstructured.Unstructured, err error) {
 	return objs, nil
 }
 
-func filterResources(resources []unstructured.Unstructured, filter func(unstructured.
-	Unstructured) bool,
+func filterResources( //nolint:nonamedreturns
+	resources []unstructured.Unstructured,
+	filter func(unstructured.Unstructured) bool,
 ) (filtered []unstructured.Unstructured) {
 	for _, r := range resources {
 		if filter(r) {
@@ -958,6 +961,7 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 		}
 
 		for _, templateCR := range templateCRs.Items {
+			//nolint:forcetypeassert
 			templates = append(templates, &dbaasv1beta1.Template{
 				Name: templateCR.Object["metadata"].(map[string]interface{})["name"].(string),
 				Kind: templateCR.Object["kind"].(string),
