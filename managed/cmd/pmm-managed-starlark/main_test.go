@@ -139,7 +139,7 @@ func TestStarlarkSandbox(t *testing.T) {
 
 			actualStdout, err := cmd.Output()
 			if err != nil {
-				exiterr, ok := err.(*exec.ExitError)
+				exiterr, ok := err.(*exec.ExitError) //nolint:errorlint
 				require.True(t, ok)
 				assert.Equal(t, tc.exitError, exiterr.Error())
 				assert.Equal(t, tc.exitCode, exiterr.ExitCode())

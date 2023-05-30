@@ -61,11 +61,9 @@ const (
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
-	pgDeploymentName                       = "percona-postgresql-operator"
 	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
 	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
 	dbaasOperatorContainerName             = "manager"
-	pgOperatorContainerName                = "operator"
 	databaseClusterKind                    = "DatabaseCluster"
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
@@ -349,13 +347,6 @@ func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
-}
-
-// GetPGOperatorVersion parses PG operator version from operator deployment
-func (k *Kubernetes) GetPGOperatorVersion(ctx context.Context) (string, error) {
-	k.lock.RLock()
-	defer k.lock.RUnlock()
-	return k.getOperatorVersion(ctx, pgDeploymentName, pgOperatorContainerName)
 }
 
 // GetSecret returns secret by name
@@ -766,7 +757,7 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 		log.Printf("Waiting for subscription/%s to install CSV", subscriptionKey.Name)
 		csvKey, err := k.client.GetSubscriptionCSV(ctx, subscriptionKey)
 		if err != nil {
-			return fmt.Errorf("subscription/%s failed to install CSV: %v", subscriptionKey.Name, err)
+			return fmt.Errorf("subscription/%s failed to install CSV: %w", subscriptionKey.Name, err)
 		}
 		log.Printf("Waiting for clusterserviceversion/%s to reach 'Succeeded' phase", csvKey.Name)
 		if err := k.client.DoCSVWait(ctx, csvKey); err != nil {
@@ -781,12 +772,14 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 	return nil
 }
 
-func decodeResources(f []byte) (objs []unstructured.Unstructured, err error) { //nolint:nonamedreturns
+func decodeResources(f []byte) ([]unstructured.Unstructured, error) {
 	dec := yaml.NewYAMLOrJSONDecoder(bytes.NewReader(f), 8)
+	var objs []unstructured.Unstructured
+
 	for {
 		var u unstructured.Unstructured
-		err = dec.Decode(&u)
-		if err == io.EOF {
+		err := dec.Decode(&u)
+		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
 			return nil, err

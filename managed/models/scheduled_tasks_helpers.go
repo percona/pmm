@@ -35,14 +35,15 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	}
 
 	res := &ScheduledTask{ID: id}
-	switch err := q.Reload(res); err {
-	case nil:
-		return res, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
-	default:
+	err := q.Reload(res)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return res, nil
 }
 
 // ScheduledTasksFilter represents filters for scheduled tasks.
@@ -209,7 +210,7 @@ type ChangeScheduledTaskParams struct {
 }
 
 // Validate checks if params for scheduled tasks are valid.
-func (p ChangeScheduledTaskParams) Validate() error {
+func (p *ChangeScheduledTaskParams) Validate() error {
 	if p.CronExpression != nil {
 		_, err := cron.ParseStandard(*p.CronExpression)
 		if err != nil {
@@ -299,14 +300,15 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 	}
 
 	task := &ScheduledTask{ID: id}
-	switch err := q.Reload(task); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(task)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
 }
 
 func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {
@@ -335,5 +337,51 @@ func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (
 			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
 		}
 	}
-	return "", nil
+	return "", errors.New("scheduled task name cannot be empty")
+}
+
+// Retention returns how many backup artifacts should be stored for the task.
+func (s *ScheduledTask) Retention() (uint32, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return 0, err
+	}
+	return data.Retention, nil
+}
+
+// Mode returns task backup mode.
+func (s *ScheduledTask) Mode() (BackupMode, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.Mode, nil
+}
+
+// LocationID returns task location.
+func (s *ScheduledTask) LocationID() (string, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.LocationID, nil
+}
+
+func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
+	if s.Data != nil {
+		switch s.Type {
+		case ScheduledMySQLBackupTask:
+			if s.Data.MySQLBackupTask != nil {
+				return &s.Data.MySQLBackupTask.CommonBackupTaskData, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if s.Data.MongoDBBackupTask != nil {
+				return &s.Data.MongoDBBackupTask.CommonBackupTaskData, nil
+			}
+		default:
+			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+		}
+	}
+
+	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
 }
