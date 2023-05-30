@@ -114,7 +114,6 @@ func TestKubernetesServer(t *testing.T) {
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("", nil)
-		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 		kubeClient.On("GetServerVersion").Return(nil, nil)
 		dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(time.Second)).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
 
@@ -151,9 +150,6 @@ func TestKubernetesServer(t *testing.T) {
 				"1.12.0",
 				"1.10.0",
 			},
-			"pg-operator": {
-				"2.0.0",
-			},
 		}
 		versionService.On("SupportedOperatorVersionsList", mock.Anything, mock.Anything).Return(supportedOperatorVersions, nil)
 
@@ -167,7 +163,6 @@ func TestKubernetesServer(t *testing.T) {
 					Pxc:   &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
 					Psmdb: &dbaasv1beta1.Operator{Version: onePointEight, Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
 					Dbaas: &dbaasv1beta1.Operator{Version: "", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_INVALID},
-					Pg:    &dbaasv1beta1.Operator{Version: "2.0.0", Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
 				},
 				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 			},
