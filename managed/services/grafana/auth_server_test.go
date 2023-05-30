@@ -392,11 +392,9 @@ func Test_cleanPath(t *testing.T) {
 			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
 			"/v1/inventory/Services/List",
 		}, {
-
 			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
 			"/managed/logs.zip",
 		}, {
-
 			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
 			"/logs.zip",
 		},
