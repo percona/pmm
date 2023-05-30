@@ -492,6 +492,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
+			t := t
 			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Yaml:     req.Yaml,
