@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
@@ -122,6 +123,9 @@ func TestTemplatesAPI(t *testing.T) {
 	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
+	multipleTemplatesData, err := os.ReadFile("../../testdata/ia/multiple-templates.yaml")
+	require.NoError(t, err)
+
 	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
 	require.NoError(t, err)
 
@@ -152,6 +156,36 @@ func TestTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+		})
+
+		t.Run("multiple templates at once", func(t *testing.T) {
+			t.Parallel()
+
+			alertTemplates, yml := formatTemplateYaml(t, string(multipleTemplatesData))
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: yml,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			require.Len(t, alertTemplates, 2)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, alertTemplates[0].Name)
+				deleteTemplate(t, client, alertTemplates[1].Name)
+			})
+
+			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+				Body: alerting.ListTemplatesBody{
+					Reload: true,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			spew.Dump(len(resp.GetPayload().Templates))
+
+			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+			assertTemplate(t, alertTemplates[1], resp.Payload.Templates)
 		})
 
 		t.Run("duplicate", func(t *testing.T) {
