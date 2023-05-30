@@ -63,8 +63,6 @@ enum DBClusterType {
   DB_CLUSTER_TYPE_PXC = 1;
   // DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
   DB_CLUSTER_TYPE_PSMDB = 2;
-  // DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.
-  DB_CLUSTER_TYPE_POSTGRESQL = 3;
 }
 
 // OperatorsStatus defines status of operators installed in Kubernetes cluster.
