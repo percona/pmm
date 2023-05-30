@@ -24,13 +24,16 @@ func NewContextService(id string, startFunc func(context.Context) error) *Contex
 		startFunc: startFunc,
 	}
 }
+
 func (s *ContextService) ID() string {
 	return s.id
 }
+
 func (s *ContextService) Start(ctx context.Context) error {
 	s.ctx, s.cancel = context.WithCancel(ctx)
 	return s.startFunc(ctx)
 }
+
 func (s *ContextService) Stop() {
 	s.cancel()
 }
@@ -47,9 +50,11 @@ func NewRunOnceService(id string, startFunc func(context.Context) error) *RunOnc
 		startFunc: startFunc,
 	}
 }
+
 func (s *RunOnceService) ID() string {
 	return s.id
 }
+
 func (s *RunOnceService) Start(ctx context.Context) error {
 	s.o.Do(func() {
 		s.startFunc(ctx)

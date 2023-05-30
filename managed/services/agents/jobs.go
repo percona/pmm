@@ -375,7 +375,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel().SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -455,7 +455,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel().SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -503,7 +503,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel().SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -590,7 +590,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.Channel().SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -679,7 +679,7 @@ func (s *JobsService) restartSystemService(agentID string, service agentpb.Start
 	if err != nil {
 		return errors.Wrapf(err, "failed to get information about PMM agent: %s", agentID)
 	}
-	_, err = agent.channel.SendAndWaitResponse(req)
+	_, err = agent.Channel().SendAndWaitResponse(req)
 	if err != nil {
 		return errors.Wrapf(err, "failed to restart %s on agent: %s", service, agentID)
 	}
@@ -703,7 +703,7 @@ func (s *JobsService) StopJob(jobID string) error {
 		return errors.WithStack(err)
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
+	_, err = agent.Channel().SendAndWaitResponse(&agentpb.StopJobRequest{JobId: jobID})
 
 	return err
 }

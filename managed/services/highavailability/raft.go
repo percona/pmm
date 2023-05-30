@@ -2,11 +2,12 @@ package highavailability
 
 import (
 	"context"
+	"io"
+	"sync"
+
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
-	"io"
-	"sync"
 )
 
 // raftFSM is a simple example implementation of a Raft FSM.
@@ -26,6 +27,7 @@ func newFSM(m *memberlist.Memberlist, nodeID raft.ServerID) *raftFSM {
 		l:      logrus.WithField("component", "raftFSM"),
 	}
 }
+
 func (f *raftFSM) Run(ctx context.Context, leaderCh chan raft.Observation) {
 	for {
 		select {
@@ -58,7 +60,6 @@ func (f *raftFSM) Apply(logEntry *raft.Log) interface{} {
 	}
 
 	return nil
-
 }
 
 func (f *raftFSM) Snapshot() (raft.FSMSnapshot, error) {

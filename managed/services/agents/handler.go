@@ -79,7 +79,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 	// run pmm-agent state update loop for the current agent.
 	go h.state.runStateChangeHandler(ctx, agent)
 
-	h.state.RequestStateUpdate(ctx, agent.id)
+	h.state.RequestStateUpdate(ctx, agent.ID())
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -88,31 +88,31 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 		case <-ticker.C:
 			err := h.r.ping(ctx, agent)
 			if err != nil {
-				l.Errorf("agent %s ping: %v", agent.id, err)
+				l.Errorf("agent %s ping: %v", agent.ID(), err)
 			}
 
 		// see unregister and Kick methods
-		case <-agent.kick:
+		case <-agent.KickChan():
 			// already unregistered, no need to call unregister method
 			l.Warn("Kicked.")
 			disconnectReason = "kicked"
 			err = status.Errorf(codes.Aborted, "Kicked.")
 			return err
 
-		case req := <-agent.channel.Requests():
+		case req := <-agent.Channel().Requests():
 			if req == nil {
 				disconnectReason = "done"
-				err = agent.channel.Wait()
-				h.r.unregister(agent.id, disconnectReason)
+				err = agent.Channel().Wait()
+				h.r.unregister(agent.ID(), disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE)
+				return nil
 			}
 
 			switch p := req.Payload.(type) {
 			case *agentpb.Ping:
-				agent.channel.Send(&channel.ServerResponse{
+				agent.Channel().Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
 						CurrentTime: timestamppb.Now(),
@@ -125,7 +125,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.Send(&channel.ServerResponse{
+					agent.Channel().Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.StateChangedResponse{},
 					})
@@ -137,7 +137,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.channel.Send(&channel.ServerResponse{
+					agent.Channel().Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.QANCollectResponse{},
 					})
@@ -145,7 +145,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 			case *agentpb.ActionResultRequest:
 				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
-				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)
+				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.ID(), p.Error, string(p.Output), p.Done)
 				if err != nil {
 					l.Warnf("Failed to change action: %+v", err)
 				}
@@ -154,7 +154,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 					l.Warnf("Action was done with an error: %v.", p.Error)
 				}
 
-				agent.channel.Send(&channel.ServerResponse{
+				agent.Channel().Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: &agentpb.ActionResultResponse{},
 				})

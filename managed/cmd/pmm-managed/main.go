@@ -253,6 +253,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
+	deps.ha.RegisterGRPC(gRPCServer)
+
 	serverpb.RegisterServerServer(gRPCServer, deps.server)
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
@@ -748,7 +750,7 @@ func main() {
 		Envar("PERCONA_TEST_HA_GOSSIP_PORT").
 		Default("9761").
 		Int()
-	//haGrafanaPort := kingpin.Flag("ha-grafana-port", "HA grafana port").
+	// haGrafanaPort := kingpin.Flag("ha-grafana-port", "HA grafana port").
 	//	Envar("PERCONA_TEST_HA_GRAFANA_PORT").
 	//	Default("9760").
 	//	Int()
@@ -792,12 +794,6 @@ func main() {
 		GossipPort:       *haGossipPort,
 	}
 	ha := highavailability.New(haParams)
-	go func() {
-		err := ha.Run(ctx)
-		if err != nil {
-			l.Panicf("cannot start high availability service: %+v", err)
-		}
-	}()
 
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
@@ -888,6 +884,7 @@ func main() {
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
+	highavailability.NewChannel()
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 	backupRemovalService := backup.NewRemovalService(db, minioClient)
 	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
@@ -1075,15 +1072,6 @@ func main() {
 		}()
 	}
 
-	if !*haEnabled {
-		// Set all agents status to unknown at startup. The ones that are alive
-		// will get their status updated after they connect to the pmm-managed.
-		err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
-		if err != nil {
-			l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
-		}
-	}
-
 	settings, err := models.GetSettings(sqlDB)
 	if err != nil {
 		l.Fatalf("Failed to get settings: %+v.", err)
@@ -1227,7 +1215,15 @@ func main() {
 		}
 	}
 
-	ha.Wait()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := ha.Run(ctx)
+		if err != nil {
+			l.Panicf("cannot start high availability service: %+v", err)
+		}
+	}()
+
 	wg.Wait()
 }
 

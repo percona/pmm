@@ -21,11 +21,17 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 	"time"
 
+	transport "github.com/Jille/raft-grpc-transport"
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/percona/pmm/api/hapb"
 )
 
 type Params struct {
@@ -44,28 +50,41 @@ type Service struct {
 
 	services *services
 
-	messages chan []byte
-	nodeCh   chan *memberlist.Node
-	leaderCh chan raft.Observation
+	receivedMessages chan []byte
+	nodeCh           chan memberlist.NodeEvent
+	leaderCh         chan raft.Observation
 
-	l *logrus.Entry
+	l  *logrus.Entry
+	wg *sync.WaitGroup
 
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
+	tm         *transport.Manager
 }
 
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
 	s.l.Printf("raft: got a message: %s", string(logEntry.Data))
+	var m hapb.ClusterMessage
+	err := proto.Unmarshal(logEntry.Data, &m)
+	if err != nil {
+		return err
+	}
+	switch m.Payload.(type) {
+	case *hapb.ClusterMessage_ServerMessage:
+	case *hapb.ClusterMessage_AgentMessage:
+
+	}
+	s.receivedMessages <- logEntry.Data
 	return nil
 }
 
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) {
-	//TODO implement me
+	// TODO implement me
 	return nil, nil
 }
 
 func (s *Service) Restore(snapshot io.ReadCloser) error {
-	//TODO implement me
+	// TODO implement me
 	return nil
 }
 
@@ -74,15 +93,19 @@ func New(params *Params) *Service {
 		params:           params,
 		bootstrapCluster: params.Bootstrap,
 		services:         newServices(),
-		nodeCh:           make(chan *memberlist.Node, 5),
+		nodeCh:           make(chan memberlist.NodeEvent, 5),
 		leaderCh:         make(chan raft.Observation),
-		messages:         make(chan []byte),
+		receivedMessages: make(chan []byte),
 		l:                logrus.WithField("component", "ha"),
+		wg:               &sync.WaitGroup{},
+		tm:               transport.New(raft.ServerAddress(fmt.Sprintf("%s:443", params.AdvertiseAddress)), []grpc.DialOption{grpc.WithInsecure()}),
 	}
 }
 
 func (s *Service) Run(ctx context.Context) error {
+	s.wg.Add(1)
 	go func() {
+		defer s.wg.Done()
 		for {
 			select {
 			case <-s.services.ServiceAdded():
@@ -98,22 +121,6 @@ func (s *Service) Run(ctx context.Context) error {
 	if !s.params.Enabled {
 		return nil
 	}
-	// Create the memberlist configuration
-	memberlistConfig := memberlist.DefaultWANConfig()
-	memberlistConfig.Name = s.params.NodeID
-	memberlistConfig.BindAddr = "0.0.0.0"
-	memberlistConfig.BindPort = s.params.GossipPort
-	memberlistConfig.AdvertiseAddr = s.params.AdvertiseAddress
-	memberlistConfig.AdvertisePort = s.params.GossipPort
-	memberlistConfig.Events = &eventDelegate{s.nodeCh}
-
-	// Create the memberlist
-	var err error
-	s.memberlist, err = memberlist.Create(memberlistConfig)
-	if err != nil {
-		return fmt.Errorf("failed to create memberlist: %q", err)
-	}
-	defer s.memberlist.Leave(5 * time.Second)
 
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
@@ -135,6 +142,23 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	defer s.raftNode.Shutdown().Error()
+
+	// Create the memberlist configuration
+	memberlistConfig := memberlist.DefaultWANConfig()
+	memberlistConfig.Name = s.params.NodeID
+	memberlistConfig.BindAddr = "0.0.0.0"
+	memberlistConfig.BindPort = s.params.GossipPort
+	memberlistConfig.AdvertiseAddr = raa.IP.String()
+	memberlistConfig.AdvertisePort = s.params.GossipPort
+	memberlistConfig.Events = &memberlist.ChannelEventDelegate{Ch: s.nodeCh}
+
+	// Create the memberlist
+	s.memberlist, err = memberlist.Create(memberlistConfig)
+	if err != nil {
+		return fmt.Errorf("failed to create memberlist: %q", err)
+	}
+	defer s.memberlist.Leave(5 * time.Second)
 
 	if s.bootstrapCluster {
 		// Start the Raft node
@@ -156,32 +180,22 @@ func (s *Service) Run(ctx context.Context) error {
 			return fmt.Errorf("failed to join memberlist cluster: %q", err)
 		}
 	}
-
-	go s.runLeaderObserver(ctx)
-
-	go s.runRaftNodesSynchronizer(ctx)
-
+	s.wg.Add(1)
 	go func() {
-		for {
-			select {
-			case message := <-s.messages:
-				//for _, member := range memberlist.Members() {
-				//	if member.Name == s.params.NodeID {
-				//		continue
-				//	}
-				//	memberlist.SendReliable(member, message)
-				//}
-				if err := s.raftNode.Apply(message, 5*time.Second).Error(); err != nil {
-					s.l.Errorf("Failed to apply command: %q", err)
-				}
-				s.l.Debugf("Broadcasting message: %s", message)
-			case <-ctx.Done():
-				return
-			}
-		}
+		defer s.wg.Done()
+		s.runLeaderObserver(ctx)
+	}()
+
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		s.runRaftNodesSynchronizer(ctx)
 	}()
 
 	<-ctx.Done()
+
+	s.services.Wait()
+	s.wg.Wait()
 
 	return nil
 }
@@ -189,14 +203,15 @@ func (s *Service) Run(ctx context.Context) error {
 func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 	for {
 		select {
-		case node := <-s.nodeCh:
+		case event := <-s.nodeCh:
 			if !s.IsLeader() {
 				continue
 			}
-			switch node.State {
-			case memberlist.StateAlive:
+			node := event.Node
+			switch event.Event {
+			case memberlist.NodeJoin:
 				s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), s.raftNode.AppliedIndex(), 10*time.Second).Error()
-			case memberlist.StateLeft, memberlist.StateDead:
+			case memberlist.NodeLeave:
 				s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
 			}
 		case <-ctx.Done():
@@ -223,6 +238,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					}
 				}
 			} else {
+				s.l.Printf("I am not a leader!")
 				s.services.StopRunningServices()
 			}
 		case <-ctx.Done():
@@ -232,11 +248,18 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 }
 
 func (s *Service) AddLeaderService(leaderService LeaderService) {
-	s.services.Add(leaderService)
+	err := s.services.Add(leaderService)
+	if err != nil {
+		s.l.Errorf("couldn't add HA service: +%v", err)
+	}
 }
 
 func (s *Service) BroadcastMessage(message []byte) {
-	s.messages <- message
+	if s.params.Enabled {
+		s.raftNode.Apply(message, 3*time.Second)
+	} else {
+		s.receivedMessages <- message
+	}
 }
 
 func (s *Service) IsLeader() bool {
@@ -244,9 +267,11 @@ func (s *Service) IsLeader() bool {
 }
 
 func (s *Service) Bootstrap() bool {
-	return s.params.Bootstrap
+	return s.params.Bootstrap || !s.params.Enabled
 }
 
-func (s *Service) Wait() {
-	s.services.Wait()
+func (s *Service) RegisterGRPC(server *grpc.Server) {
+	if s.params.Enabled {
+		s.tm.Register(server)
+	}
 }

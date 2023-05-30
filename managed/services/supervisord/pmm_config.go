@@ -127,6 +127,7 @@ stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true
 {{- end }}
+{{- if not .DisableInternalClickhouse }}
 
 [program:clickhouse]
 priority = 2
@@ -143,6 +144,7 @@ stdout_logfile = /srv/logs/clickhouse-server.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
 redirect_stderr = true
+{{- end }}
 
 [program:nginx]
 priority = 4

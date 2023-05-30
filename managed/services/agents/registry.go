@@ -65,10 +65,26 @@ var (
 )
 
 type pmmAgentInfo struct {
-	channel         *channel.Channel
+	channel         communicationChannel
 	id              string
 	stateChangeChan chan struct{}
-	kick            chan struct{}
+	kickChan        chan struct{}
+}
+
+func (p *pmmAgentInfo) Channel() communicationChannel {
+	return p.channel
+}
+
+func (p *pmmAgentInfo) ID() string {
+	return p.id
+}
+
+func (p *pmmAgentInfo) StateChangeChan() chan struct{} {
+	return p.stateChangeChan
+}
+
+func (p *pmmAgentInfo) KickChan() chan struct{} {
+	return p.kickChan
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -199,10 +215,10 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream),
+		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
-		kick:            make(chan struct{}),
+		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
 	return agent, nil
@@ -278,7 +294,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.Channel().SendAndWaitResponse(&agentpb.Ping{})
 	if err != nil {
 		return err
 	}
@@ -362,7 +378,7 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 
 // Kick unregisters and forcefully disconnects pmm-agent with given ID.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	agent := r.unregister(pmmAgentID, "kick")
+	agent := r.unregister(pmmAgentID, "kickChan")
 	if agent == nil {
 		return
 	}
@@ -371,10 +387,10 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
-	close(agent.kick)
+	close(agent.KickChan())
 
 	// Do not close agent.stateChangeChan to avoid breaking RequestStateUpdate;
-	// closing agent.kick is enough to exit runStateChangeHandler goroutine.
+	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
 func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
@@ -401,12 +417,12 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.rw.RLock()
 
 	for _, agent := range r.agents {
-		m := agent.channel.Metrics()
+		m := agent.Channel().Metrics()
 
-		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
-		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
-		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
-		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.ID())
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.ID())
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.ID())
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.ID())
 	}
 	r.rw.RUnlock()
 

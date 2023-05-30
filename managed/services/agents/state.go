@@ -69,7 +69,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 	}
 
 	select {
-	case agent.stateChangeChan <- struct{}{}:
+	case agent.StateChangeChan() <- struct{}{}:
 	default:
 	}
 }
@@ -97,7 +97,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
-	l := logger.Get(ctx).WithField("agent_id", agent.id)
+	l := logger.Get(ctx).WithField("agent_id", agent.ID())
 
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
@@ -105,7 +105,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 	// stateChangeChan, state update loop, and RequestStateUpdate method ensure that state
 	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
 	// That allows the caller to just call RequestStateUpdate when it seems fit.
-	if cap(agent.stateChangeChan) != 1 {
+	if cap(agent.StateChangeChan()) != 1 {
 		panic("stateChangeChan should have capacity 1")
 	}
 
@@ -114,10 +114,10 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 		case <-ctx.Done():
 			return
 
-		case <-agent.kick:
+		case <-agent.KickChan():
 			return
 
-		case <-agent.stateChangeChan:
+		case <-agent.StateChangeChan():
 			// batch several update requests together by delaying the first one
 			sleepCtx, sleepCancel := context.WithTimeout(ctx, updateBatchDelay)
 			<-sleepCtx.Done()
@@ -131,7 +131,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 			err := u.sendSetStateRequest(nCtx, agent)
 			if err != nil {
 				l.Error(err)
-				u.RequestStateUpdate(ctx, agent.id)
+				u.RequestStateUpdate(ctx, agent.ID())
 			}
 			cancel()
 		}
@@ -147,7 +147,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			l.Warnf("sendSetStateRequest took %s.", dur)
 		}
 	}()
-	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
+	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.ID())
 	if err != nil {
 		return errors.Wrap(err, "failed to get PMM Agent")
 	}
@@ -156,7 +156,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
 	}
 
-	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.id})
+	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.ID()})
 	if err != nil {
 		return errors.Wrap(err, "failed to collect agents")
 	}
@@ -179,9 +179,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.ID())
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
+				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.ID())
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 
@@ -268,7 +268,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		}
 		sort.Strings(rdsExporterIDs)
 
-		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporterIDs)
+		groupID := u.r.roster.add(agent.ID(), rdsGroup, rdsExporterIDs)
 		c, err := rdsExporterConfig(rdsExporters, redactMode, pmmAgentVersion)
 		if err != nil {
 			return err
@@ -280,7 +280,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		BuiltinAgents:  builtinAgents,
 	}
 	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := agent.Channel().SendAndWaitResponse(state)
 	if err != nil {
 		return err
 	}

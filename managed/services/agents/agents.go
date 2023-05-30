@@ -46,7 +46,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 		return nil, 0, err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+	resp, err := agent.Channel().SendAndWaitResponse(&agentpb.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -79,7 +79,7 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		Enabled: enabled,
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(req)
+	_, err = agent.Channel().SendAndWaitResponse(req)
 	return err
 }
 
