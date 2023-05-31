@@ -133,8 +133,7 @@ type ListTemplatesBody struct {
 	//  - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.
 	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
 	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
-	//  - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.
-	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB DB_CLUSTER_TYPE_POSTGRESQL]
+	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
 	ClusterType *string `json:"cluster_type,omitempty"`
 }
 
@@ -156,7 +155,7 @@ var listTemplatesBodyTypeClusterTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DB_CLUSTER_TYPE_INVALID","DB_CLUSTER_TYPE_PXC","DB_CLUSTER_TYPE_PSMDB","DB_CLUSTER_TYPE_POSTGRESQL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DB_CLUSTER_TYPE_INVALID","DB_CLUSTER_TYPE_PXC","DB_CLUSTER_TYPE_PSMDB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -174,9 +173,6 @@ const (
 
 	// ListTemplatesBodyClusterTypeDBCLUSTERTYPEPSMDB captures enum value "DB_CLUSTER_TYPE_PSMDB"
 	ListTemplatesBodyClusterTypeDBCLUSTERTYPEPSMDB string = "DB_CLUSTER_TYPE_PSMDB"
-
-	// ListTemplatesBodyClusterTypeDBCLUSTERTYPEPOSTGRESQL captures enum value "DB_CLUSTER_TYPE_POSTGRESQL"
-	ListTemplatesBodyClusterTypeDBCLUSTERTYPEPOSTGRESQL string = "DB_CLUSTER_TYPE_POSTGRESQL"
 )
 
 // prop value enum
