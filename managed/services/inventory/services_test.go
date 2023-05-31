@@ -65,6 +65,7 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	as.Test(t)
 
 	teardown := func(t *testing.T) {
+		t.Helper()
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
