@@ -21,10 +21,10 @@ percona-release enable original testing
 yum install -y yum rpm
 yum reinstall -y yum rpm
 
-yum install -y gcc git make pkgconfig glibc-static \
+yum install -y gcc git make pkgconfig \
     ansible-lint ansible \
     mc tmux psmisc lsof which iproute \
-    bash-completion bash-completion-extras \
+    bash-completion \
     man man-pages
 
 fg || true
