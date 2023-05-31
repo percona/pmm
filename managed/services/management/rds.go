@@ -226,7 +226,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 
 	// return better gRPC errors in typical cases
 	err = wg.Wait()
-	if e, ok := errors.Cause(err).(awserr.Error); ok {
+	if e, ok := errors.Cause(err).(awserr.Error); ok { //nolint:errorlint
 		switch {
 		case e.Code() == "InvalidClientTokenId":
 			return res, status.Error(codes.InvalidArgument, e.Message())
