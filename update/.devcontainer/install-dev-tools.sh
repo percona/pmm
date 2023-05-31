@@ -27,6 +27,10 @@ yum install -y gcc git make pkgconfig \
     bash-completion \
     man man-pages
 
+if [ $(rpm --eval '%{rhel}') = '7' ]; then
+    yum install -y glibc-static bash-completion-extras
+fi
+
 fg || true
 tar -C /usr/local -xzf /tmp/golang.tar.gz
 update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
