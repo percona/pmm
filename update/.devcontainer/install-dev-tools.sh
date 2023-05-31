@@ -29,6 +29,8 @@ yum install -y gcc git make pkgconfig \
 
 if [ $(rpm --eval '%{rhel}') = '7' ]; then
     yum install -y glibc-static bash-completion-extras
+else
+    yum install -y --enablerepo=ol9_codeready_builder glibc-static
 fi
 
 fg || true
