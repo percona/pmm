@@ -578,6 +578,7 @@ func TestMinPMMAgents(t *testing.T) {
 }
 
 func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	t.Helper()
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
 	require.NoError(t, err)
 

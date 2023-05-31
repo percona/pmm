@@ -100,8 +100,6 @@ linters:
     # or leave disabled and provide a reason why
     - paralleltest
     - tagliatelle
-    - thelper
-    - staticcheck
     # - tparallel
     - gocritic
     - godot

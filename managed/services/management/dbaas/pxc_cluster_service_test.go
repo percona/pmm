@@ -108,6 +108,7 @@ func TestPXCClusterService(t *testing.T) { //nolint:tparallel
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 		}
