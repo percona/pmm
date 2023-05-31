@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
@@ -182,7 +181,6 @@ func TestTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 			require.NoError(t, err)
-			spew.Dump(len(resp.GetPayload().Templates))
 
 			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
 			assertTemplate(t, alertTemplates[1], resp.Payload.Templates)
