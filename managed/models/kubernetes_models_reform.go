@@ -36,9 +36,6 @@ func (v *kubernetesClusterTableType) Columns() []string {
 		"proxysql",
 		"haproxy",
 		"mongod",
-		"postgresql",
-		"pgbouncer",
-		"pgbackrest",
 		"created_at",
 		"updated_at",
 	}
@@ -73,9 +70,6 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 			{Name: "ProxySQL", Type: "*Component", Column: "proxysql"},
 			{Name: "HAProxy", Type: "*Component", Column: "haproxy"},
 			{Name: "Mongod", Type: "*Component", Column: "mongod"},
-			{Name: "Postgresql", Type: "*Component", Column: "postgresql"},
-			{Name: "Pgbouncer", Type: "*Component", Column: "pgbouncer"},
-			{Name: "Pgbackrest", Type: "*Component", Column: "pgbackrest"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -86,7 +80,7 @@ var KubernetesClusterTable = &kubernetesClusterTableType{
 
 // String returns a string representation of this struct or record.
 func (s KubernetesCluster) String() string {
-	res := make([]string, 13)
+	res := make([]string, 10)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "KubernetesClusterName: " + reform.Inspect(s.KubernetesClusterName, true)
 	res[2] = "KubeConfig: " + reform.Inspect(s.KubeConfig, true)
@@ -95,11 +89,8 @@ func (s KubernetesCluster) String() string {
 	res[5] = "ProxySQL: " + reform.Inspect(s.ProxySQL, true)
 	res[6] = "HAProxy: " + reform.Inspect(s.HAProxy, true)
 	res[7] = "Mongod: " + reform.Inspect(s.Mongod, true)
-	res[8] = "Postgresql: " + reform.Inspect(s.Postgresql, true)
-	res[9] = "Pgbouncer: " + reform.Inspect(s.Pgbouncer, true)
-	res[10] = "Pgbackrest: " + reform.Inspect(s.Pgbackrest, true)
-	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -115,9 +106,6 @@ func (s *KubernetesCluster) Values() []interface{} {
 		s.ProxySQL,
 		s.HAProxy,
 		s.Mongod,
-		s.Postgresql,
-		s.Pgbouncer,
-		s.Pgbackrest,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -135,9 +123,6 @@ func (s *KubernetesCluster) Pointers() []interface{} {
 		&s.ProxySQL,
 		&s.HAProxy,
 		&s.Mongod,
-		&s.Postgresql,
-		&s.Pgbouncer,
-		&s.Pgbackrest,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}
