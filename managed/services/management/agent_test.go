@@ -61,6 +61,7 @@ func setup(t *testing.T) (context.Context, *AgentService, func(t *testing.T)) {
 	ar.Test(t)
 
 	teardown := func(t *testing.T) {
+		t.Helper()
 		models.Now = origNowF
 		uuid.SetRand(nil)
 
