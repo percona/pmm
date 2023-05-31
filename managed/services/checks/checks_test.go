@@ -702,9 +702,7 @@ func TestFilterChecksByInterval(t *testing.T) {
 	assert.Equal(t, map[string]check.Check{"frequentCheck": frequentCheck}, frequentChecks)
 }
 
-func TestGetFailedChecks(t *testing.T) { //nolint:tparallel
-	t.Parallel()
-
+func TestGetFailedChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
