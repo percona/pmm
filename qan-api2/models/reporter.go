@@ -254,8 +254,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if not .IsTotal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
     {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
 {{ if .Labels }}{{$i := 0}}
-    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    AND ({{range $key, $val := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
 GROUP BY point
