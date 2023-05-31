@@ -384,6 +384,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 }
 
 func Test_cleanPath(t *testing.T) {
+    t.Parallel()
 	tests := []struct {
 		path     string
 		expected string
@@ -400,7 +401,9 @@ func Test_cleanPath(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+	tt := tt
 		t.Run(tt.path, func(t *testing.T) {
+		t.Parallel()
 			cleanedPath, err := cleanPath(tt.path)
 			require.NoError(t, err)
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
