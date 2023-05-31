@@ -407,7 +407,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(83))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(68))
 
 		agent, err := models.FindAgentByID(db.Querier, "id")
 		require.NoError(t, err)
@@ -440,7 +440,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(83))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(68))
 
 		agent, err := models.FindAgentByID(db.Querier, "id")
 		require.NoError(t, err)

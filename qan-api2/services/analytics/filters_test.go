@@ -182,7 +182,6 @@ func TestService_GetFilters(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-
 			got, err := s.Get(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
@@ -235,11 +234,7 @@ func TestService_GetFilters(t *testing.T) {
 				}
 			}
 
-			for k, v := range valuesExpected {
-				for kk, vv := range v {
-					assert.Equal(t, vv.MainMetricPerSec, valuesGot[k][kk].MainMetricPerSec)
-				}
-			}
+			assert.ObjectsAreEqual(valuesExpected, valuesGot)
 		})
 	}
 }
