@@ -56,7 +56,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent='pgstatstatements' */"):
+		case strings.Contains(b.Common.Fingerprint, "/* agent='pgstatstatements' */"):
 			continue
 		default:
 			res = append(res, b)
@@ -198,7 +198,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         selectAllCities,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatstatements'"},
+				Comments:            []string{"controller='test'", "agent='pgstatstatements'"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -239,7 +239,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         selectAllCities,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatstatements'"},
+				Comments:            []string{"controller='test'", "agent='pgstatstatements'"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -291,7 +291,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatstatements'"},
+				Comments:            []string{"controller='test'", "agent='pgstatstatements'"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -335,7 +335,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
 				Tables:              []string{},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatstatements'"},
+				Comments:            []string{"controller='test'", "agent='pgstatstatements'"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -413,7 +413,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         fingerprint,
 				Database:            "pmm-agent",
 				Tables:              []string{tableName},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatstatements'"},
+				Comments:            []string{"controller='test'", "agent='pgstatstatements'"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1590404340,

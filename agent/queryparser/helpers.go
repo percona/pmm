@@ -249,7 +249,7 @@ func prepareSharpRegexp() error {
 func prepareKeyValueRegexp() error {
 	// to compile regexp only once
 	keyValueOnce.Do(func() {
-		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)([a-zA-Z]+='.+?')`)
+		keyValueRegexp, errKeyValue = regexp.Compile(`(?s)([a-zA-Z-]+='.+?')`)
 	})
 	if errKeyValue != nil {
 		return errKeyValue

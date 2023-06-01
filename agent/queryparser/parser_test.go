@@ -97,8 +97,8 @@ func TestParseMySQLComments(t *testing.T) {
 		},
 		{
 			Name:     "Dash comment",
-			Query:    `SELECT * FROM people -- framework='Django', controller='unknown'`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
+			Query:    `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
+			Comments: map[string]bool{"web-framework='Django'": true, "controller='unknown'": true},
 		},
 		{
 			Name: "Hash comment",

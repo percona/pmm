@@ -72,9 +72,9 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent='pgstatmonitor' */"):
+		case strings.Contains(b.Common.Fingerprint, "/* agent='pgstatmonitor' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent='pgstatmonitor' */"):
+		case strings.Contains(b.Common.Example, "/* agent='pgstatmonitor' */"):
 			continue
 		case strings.Contains(b.Common.Fingerprint, "pg_stat_monitor_reset()"):
 			continue
@@ -237,7 +237,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatmonitor'"},
+				Comments:            []string{"controller='test'", "agent='pgstatmonitor'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -295,7 +295,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatmonitor'"},
+				Comments:            []string{"controller='test'", "agent='pgstatmonitor'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -368,7 +368,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatmonitor'"},
+				Comments:            []string{"controller='test'", "agent='pgstatmonitor'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -429,7 +429,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatmonitor'"},
+				Comments:            []string{"controller='test'", "agent='pgstatmonitor'"},
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
 				AgentId:             "agent_id",
@@ -526,7 +526,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				Fingerprint:         expectedFingerprint,
 				Example:             actual.Common.Example,
 				ExampleType:         agentpb.ExampleType_RANDOM,
-				Comments:            []string{"controller='test'", "pmm-agent='pgstatmonitor'"},
+				Comments:            []string{"controller='test'", "agent='pgstatmonitor'"},
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,
