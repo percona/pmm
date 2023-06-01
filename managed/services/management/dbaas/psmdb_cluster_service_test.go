@@ -107,6 +107,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())

@@ -646,6 +646,7 @@ func TestArtifactCompatibility(t *testing.T) {
 }
 
 func setupSoftwareTest(t *testing.T, db *reform.DB) (*models.Service, *models.Node, *models.BackupLocation) {
+	t.Helper()
 	locationModel := models.BackupLocation{
 		ID:   "test_location_id",
 		Name: " ",

@@ -92,6 +92,7 @@ func TestDBClusterService(t *testing.T) {
 		kubernetesClient = &mockKubernetesClient{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 		}
