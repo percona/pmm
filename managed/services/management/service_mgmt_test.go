@@ -58,6 +58,7 @@ func TestMgmtServiceService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 
 			teardown := func(t *testing.T) {
+				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())
