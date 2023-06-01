@@ -4,7 +4,6 @@ package dbaas.v1beta1;
 
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
-import "managementpb/dbaas/postgresql_clusters.proto";
 import "managementpb/dbaas/psmdb_clusters.proto";
 import "managementpb/dbaas/pxc_clusters.proto";
 import "managementpb/dbaas/templates.proto";
@@ -89,35 +88,6 @@ message PXCCluster {
   Template template = 11;
 }
 
-// PostgresqlCluster represents Postgresql cluster information.
-message PostgresqlCluster {
-  // Cluster name.
-  string name = 1;
-  // Cluster state.
-  DBClusterState state = 2;
-  // Currently running operation, if any.
-  RunningOperation operation = 3;
-  // Cluster parameters.
-  PostgresqlClusterParams params = 4;
-  // DB cluster accessible outside of K8s cluster.
-  bool exposed = 5;
-  // Installed Postgresql image.
-  string installed_image = 6;
-  // Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
-  // If it's empty, no upgrade is available.
-  string available_image = 7;
-  // Is DB cluster accessible via public internet.
-  bool internet_facing = 8;
-  // Backup configuration parameters.
-  Backup backup = 9;
-  // Restore configuration parameters.
-  Restore restore = 10;
-  // Apply IP source ranges against the cluster.
-  repeated string source_ranges = 12;
-  // Configuration template.
-  Template template = 11;
-}
-
 message ListDBClustersRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
@@ -128,8 +98,6 @@ message ListDBClustersResponse {
   repeated PXCCluster pxc_clusters = 1;
   // PSMDB clusters information.
   repeated PSMDBCluster psmdb_clusters = 2;
-  // Postgresql clusters information.
-  repeated PostgresqlCluster postgresql_clusters = 3;
 }
 
 message RestartDBClusterRequest {
@@ -155,8 +123,6 @@ message GetDBClusterResponse {
   PXCCluster pxc_cluster = 1;
   // PSMDB cluster information.
   PSMDBCluster psmdb_cluster = 2;
-  // Postgresql cluster information.
-  PostgresqlCluster postgresql_cluster = 3;
 }
 
 message DeleteDBClusterRequest {

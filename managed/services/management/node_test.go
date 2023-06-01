@@ -48,6 +48,7 @@ func TestNodeService(t *testing.T) {
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 			teardown = func(t *testing.T) {
+				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())

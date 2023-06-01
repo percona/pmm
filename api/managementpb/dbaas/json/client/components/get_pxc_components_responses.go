@@ -520,15 +520,6 @@ type GetPXCComponentsOKBodyVersionsItems0Matrix struct {
 
 	// log collector
 	LogCollector map[string]GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon `json:"log_collector,omitempty"`
-
-	// postgresql
-	Postgresql map[string]GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon `json:"postgresql,omitempty"`
-
-	// pgbouncer
-	Pgbouncer map[string]GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon `json:"pgbouncer,omitempty"`
-
-	// pgbackrest
-	Pgbackrest map[string]GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon `json:"pgbackrest,omitempty"`
 }
 
 // Validate validates this get PXC components OK body versions items0 matrix
@@ -564,18 +555,6 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) Validate(formats strfmt.Reg
 	}
 
 	if err := o.validateLogCollector(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePostgresql(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePgbouncer(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePgbackrest(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -793,84 +772,6 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) validateLogCollector(format
 	return nil
 }
 
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) validatePostgresql(formats strfmt.Registry) error {
-	if swag.IsZero(o.Postgresql) { // not required
-		return nil
-	}
-
-	for k := range o.Postgresql {
-
-		if swag.IsZero(o.Postgresql[k]) { // not required
-			continue
-		}
-		if val, ok := o.Postgresql[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("matrix" + "." + "postgresql" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("matrix" + "." + "postgresql" + "." + k)
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) validatePgbouncer(formats strfmt.Registry) error {
-	if swag.IsZero(o.Pgbouncer) { // not required
-		return nil
-	}
-
-	for k := range o.Pgbouncer {
-
-		if swag.IsZero(o.Pgbouncer[k]) { // not required
-			continue
-		}
-		if val, ok := o.Pgbouncer[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("matrix" + "." + "pgbouncer" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("matrix" + "." + "pgbouncer" + "." + k)
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) validatePgbackrest(formats strfmt.Registry) error {
-	if swag.IsZero(o.Pgbackrest) { // not required
-		return nil
-	}
-
-	for k := range o.Pgbackrest {
-
-		if swag.IsZero(o.Pgbackrest[k]) { // not required
-			continue
-		}
-		if val, ok := o.Pgbackrest[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("matrix" + "." + "pgbackrest" + "." + k)
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("matrix" + "." + "pgbackrest" + "." + k)
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 // ContextValidate validate this get PXC components OK body versions items0 matrix based on the context it is used
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -904,18 +805,6 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx context
 	}
 
 	if err := o.contextValidateLogCollector(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePostgresql(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePgbouncer(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePgbackrest(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1012,42 +901,6 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateOperator(ctx
 func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidateLogCollector(ctx context.Context, formats strfmt.Registry) error {
 	for k := range o.LogCollector {
 		if val, ok := o.LogCollector[k]; ok {
-			if err := val.ContextValidate(ctx, formats); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-	for k := range o.Postgresql {
-		if val, ok := o.Postgresql[k]; ok {
-			if err := val.ContextValidate(ctx, formats); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidatePgbouncer(ctx context.Context, formats strfmt.Registry) error {
-	for k := range o.Pgbouncer {
-		if val, ok := o.Pgbouncer[k]; ok {
-			if err := val.ContextValidate(ctx, formats); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) contextValidatePgbackrest(ctx context.Context, formats strfmt.Registry) error {
-	for k := range o.Pgbackrest {
-		if val, ok := o.Pgbackrest[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
@@ -1432,162 +1285,6 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon) MarshalBinary() ([]b
 // UnmarshalBinary interface implementation
 func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon) UnmarshalBinary(b []byte) error {
 	var res GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon Component contains information about component.
-swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon
-*/
-type GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon struct {
-	// image path
-	ImagePath string `json:"image_path,omitempty"`
-
-	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
-
-	// status
-	Status string `json:"status,omitempty"`
-
-	// critical
-	Critical bool `json:"critical,omitempty"`
-
-	// default
-	Default bool `json:"default,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-}
-
-// Validate validates this get PXC components OK body versions items0 matrix pgbackrest anon
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get PXC components OK body versions items0 matrix pgbackrest anon based on context it is used
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon) UnmarshalBinary(b []byte) error {
-	var res GetPXCComponentsOKBodyVersionsItems0MatrixPgbackrestAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon Component contains information about component.
-swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon
-*/
-type GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon struct {
-	// image path
-	ImagePath string `json:"image_path,omitempty"`
-
-	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
-
-	// status
-	Status string `json:"status,omitempty"`
-
-	// critical
-	Critical bool `json:"critical,omitempty"`
-
-	// default
-	Default bool `json:"default,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-}
-
-// Validate validates this get PXC components OK body versions items0 matrix pgbouncer anon
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get PXC components OK body versions items0 matrix pgbouncer anon based on context it is used
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon) UnmarshalBinary(b []byte) error {
-	var res GetPXCComponentsOKBodyVersionsItems0MatrixPgbouncerAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon Component contains information about component.
-swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon
-*/
-type GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon struct {
-	// image path
-	ImagePath string `json:"image_path,omitempty"`
-
-	// image hash
-	ImageHash string `json:"image_hash,omitempty"`
-
-	// status
-	Status string `json:"status,omitempty"`
-
-	// critical
-	Critical bool `json:"critical,omitempty"`
-
-	// default
-	Default bool `json:"default,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-}
-
-// Validate validates this get PXC components OK body versions items0 matrix postgresql anon
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get PXC components OK body versions items0 matrix postgresql anon based on context it is used
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon) UnmarshalBinary(b []byte) error {
-	var res GetPXCComponentsOKBodyVersionsItems0MatrixPostgresqlAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
