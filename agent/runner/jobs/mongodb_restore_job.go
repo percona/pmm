@@ -142,7 +142,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
-	if snapshot.Status == "error" {
+	if snapshot.Status == "error" { //nolint:goconst
 		j.jobLogger.sendLog(send, snapshot.Error, false)
 		return errors.Wrap(ErrPBMArtifactProblem, snapshot.Error)
 	}
