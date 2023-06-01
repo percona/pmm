@@ -21,15 +21,11 @@ percona-release enable original testing
 yum install -y yum rpm
 yum reinstall -y yum rpm
 
-yum install -y gcc git make pkgconfig \
+yum install -y gcc git make pkgconfig glibc-static \
     ansible-lint ansible \
     mc tmux psmisc lsof which iproute \
-    bash-completion \
+    bash-completion bash-completion-extras \
     man man-pages
-
-if [ $(rpm --eval '%{rhel}') = '7' ]; then
-    yum install -y glibc-static bash-completion-extras
-fi
 
 fg || true
 tar -C /usr/local -xzf /tmp/golang.tar.gz
