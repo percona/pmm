@@ -124,14 +124,6 @@ type pbmSnapshot struct {
 	Error      string `json:"error"`
 }
 
-type pbmList struct {
-	Snapshots []pbmSnapshot `json:"snapshots"`
-	Pitr      struct {
-		On     bool        `json:"on"`
-		Ranges interface{} `json:"ranges"`
-	} `json:"pitr"`
-}
-
 type pbmListRestore struct {
 	Start    int    `json:"start"`
 	Status   string `json:"status"`

@@ -90,7 +90,7 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 	return nil
 }
 
-// CheckArtifactOverlapping checks if there are other artifacts or scheduled tasks pointing to the same place in the storage.
+// CheckArtifactOverlapping checks if there are other artifacts or scheduled tasks pointing to the same location and folder.
 // Placing MySQL and MongoDB artifacts in the same folder is not desirable, while placing MongoDB artifacts of different clusters
 // in the same folder may cause data inconsistency.
 //
@@ -124,12 +124,14 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 
 			if service.ServiceType == models.MongoDBServiceType && svc.ServiceType == models.MongoDBServiceType {
 				if svc.Cluster != service.Cluster {
-					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, "Same location and folder already used for artifact %s of other service: %s", artifact.ID, serviceID)
+					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed,
+						"Same location and folder already used for artifact %s of other service: %s", artifact.ID, serviceID)
 				}
 				continue
 			}
 
-			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, "Same location and folder already used for artifact %s of other service: %s", artifact.ID, serviceID)
+			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed,
+				"Same location and folder already used for artifact %s of other service: %s", artifact.ID, serviceID)
 		}
 	}
 
@@ -156,12 +158,14 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 
 			if service.ServiceType == models.MongoDBServiceType && task.Type == models.ScheduledMongoDBBackupTask {
 				if task.Data.MongoDBBackupTask.ClusterName != service.Cluster {
-					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, "Same location and folder already used for scheduled task %s of other service: %s", task.ID, serviceID)
+					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed,
+						"Same location and folder already used for scheduled task %s of other service: %s", task.ID, serviceID)
 				}
 				continue
 			}
 
-			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, "Same location and folder already used for scheduled task %s of other service: %s", task.ID, serviceID)
+			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed,
+				"Same location and folder already used for scheduled task %s of other service: %s", task.ID, serviceID)
 		}
 	}
 
