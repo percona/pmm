@@ -112,7 +112,6 @@ linters:
     - maintidx
     - interfacebloat
     - gosimple
-    - contextcheck
     - forbidigo
     - errcheck
     - dupl
@@ -138,6 +137,7 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long

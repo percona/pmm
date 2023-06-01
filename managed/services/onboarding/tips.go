@@ -72,7 +72,7 @@ func (t *TipsService) GetOnboardingStatus(ctx context.Context, _ *onboardingpb.G
 		return nil, err
 	}
 
-	systemTips, err := t.retrieveSystemTips()
+	systemTips, err := t.retrieveSystemTips() //nolint:contextcheck
 	if err != nil {
 		return nil, err
 	}

@@ -115,7 +115,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 // Run waits for context and stop all agents when it's done
 func (s *Supervisor) Run(ctx context.Context) {
 	<-ctx.Done()
-	s.stopAll()
+	s.stopAll() //nolint:contextcheck
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
