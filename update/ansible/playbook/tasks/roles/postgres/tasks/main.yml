@@ -155,6 +155,7 @@
       become: true
       become_user: postgres
       become_method: su
+      when: is_upgrade.stat.exists
 
     - name: Create pmm-managed database
       postgresql_db:
