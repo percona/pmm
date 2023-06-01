@@ -908,6 +908,34 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS onboarding_system_tips`,
 		`DROP TABLE IF EXISTS onboarding_user_tips`,
 	},
+	84: {
+		`CREATE TABLE onboarding_system_tips (
+			 id INTEGER PRIMARY KEY,
+			 is_completed BOOLEAN NOT NULL,
+		
+			 created_at TIMESTAMP NOT NULL,
+			 updated_at TIMESTAMP NOT NULL
+		);
+
+		INSERT INTO onboarding_system_tips(
+			id, is_completed, created_at, updated_at
+		) VALUES
+			(1, false, current_timestamp, current_timestamp),
+			(2, false, current_timestamp, current_timestamp),
+			(3, false, current_timestamp, current_timestamp);
+		
+		CREATE TABLE onboarding_user_tips (
+		   id SERIAL PRIMARY KEY,
+		   tip_id INTEGER NOT NULL,
+		   user_id INTEGER NOT NULL,
+		   is_completed BOOLEAN NOT NULL,
+		
+		   created_at TIMESTAMP NOT NULL,
+		   updated_at TIMESTAMP NOT NULL,
+		   UNIQUE (user_id, tip_id)
+		);
+		`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
