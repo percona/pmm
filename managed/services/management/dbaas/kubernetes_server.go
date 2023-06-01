@@ -351,8 +351,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		req.KubeAuth.Kubeconfig,
 		settings.PMMPublicAddress,
 		apiKey,
-		apiKeyID,
-	)
+		apiKeyID)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
