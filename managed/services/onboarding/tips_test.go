@@ -250,7 +250,7 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 				TipId: 1000,
 			})
 
-			require.Error(t, err, "should not complete already completed tip")
+			require.Error(t, err, "should not complete an already completed tip")
 			return errors.New("rollback changes")
 		})
 	})
