@@ -269,10 +269,10 @@ func (t *TipsService) CompleteUserTip(ctx context.Context, userTipRequest *onboa
 		return nil, err
 	}
 
-	if ok := t.isSystemTip(userTipRequest.TipId); ok {
-		return nil, errors.New("Tip ID is not correct, it's system tip")
+	if t.isSystemTip(userTipRequest.TipId) {
+		return nil, errors.New("Tip ID is not correct, it's a system tip")
 	}
-	if ok := t.isUserTip(userTipRequest.TipId); !ok {
+	if t.isUserTip(userTipRequest.TipId) {
 		return nil, errors.New("Tip ID is not correct, it's not a user tip")
 	}
 
