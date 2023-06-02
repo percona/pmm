@@ -426,8 +426,8 @@ func TestServer_TestEmailAlertingSettings(t *testing.T) {
 			},
 		},
 	} {
+		tc := tc
 		t.Run(tc.testName, func(t *testing.T) {
-			tc := tc
 			t.Parallel()
 			if tc.mock != nil {
 				tc.mock()
