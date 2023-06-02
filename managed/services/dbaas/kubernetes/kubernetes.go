@@ -646,7 +646,7 @@ func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType Clust
 		for _, node := range nodes {
 			var summary NodeSummary
 			request := clientset.CoreV1().RESTClient().Get().Resource("nodes").Name(node.Name).SubResource("proxy").Suffix("stats/summary")
-			responseRawArrayOfBytes, err := request.DoRaw(context.Background())
+			responseRawArrayOfBytes, err := request.DoRaw(context.Background()) //nolint:contextcheck
 			if err != nil {
 				return 0, errors.Wrap(err, "failed to get stats from node")
 			}

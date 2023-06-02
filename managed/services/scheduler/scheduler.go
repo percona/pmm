@@ -65,7 +65,7 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil {
+	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
