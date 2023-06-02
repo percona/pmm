@@ -565,7 +565,7 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dbURL *s
 }
 
 // getSnapshots returns all PBM snapshots found in configured location.
-func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) ([]pbmSnapshot, error) {
+func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *string) ([]pbmSnapshot, error) {
 	// Sometimes PBM returns empty list of snapshots, that's why we're trying to get them several times.
 	ticker := time.NewTicker(listCheckInterval)
 	defer ticker.Stop()

@@ -18,11 +18,11 @@ package services
 import (
 	"context"
 	"database/sql"
-	"github.com/AlekSi/pointer"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
