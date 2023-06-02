@@ -905,6 +905,10 @@ var databaseSchema = [][]string{
 		WHERE type = 'mongodb_backup';`,
 	},
 	83: {
+		`DROP TABLE IF EXISTS onboarding_system_tips`,
+		`DROP TABLE IF EXISTS onboarding_user_tips`,
+	},
+	84: {
 		`ALTER TABLE agents 
 		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
 
