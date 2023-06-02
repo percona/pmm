@@ -208,10 +208,10 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	ctx = logger.Set(ctx, "inventoryMetrics")
 	l := logger.Get(ctx)
 
-	agentMetrics, agentError := i.metrics.GetAgentMetrics(ctx)
+	agentMetrics, err := i.metrics.GetAgentMetrics(ctx)
 
-	if agentError != nil {
-		l.Error(agentError)
+	if err != nil {
+		l.Error(err)
 		return
 	}
 
