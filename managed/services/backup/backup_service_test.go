@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) (*models.Agent, *models.Service) {
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 
@@ -64,7 +64,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 		Password:   "password",
 	})
 	require.NoError(t, err)
-	return agent
+	return agent, service
 }
 
 func TestPerformBackup(t *testing.T) {
@@ -108,7 +108,7 @@ func TestPerformBackup(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
 
 		for _, tc := range []struct {
 			name                                        string
@@ -191,7 +191,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
+		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
 
 		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
@@ -284,7 +284,7 @@ func TestRestoreBackup(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mysql-artifact-name",
 			Vendor:     string(models.MySQLServiceType),
@@ -353,7 +353,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
+		agent, service := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 		artifactWithVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mongodb-artifact-name-version",
 			Vendor:     string(models.MongoDBSoftwareName),
@@ -421,11 +421,11 @@ func TestRestoreBackup(t *testing.T) {
 
 				if tc.expectedError == nil {
 					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
-						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
+						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
 							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, mock.Anything, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					} else {
-						mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
+						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
 							time.Duration(0), tc.artifact.Name, "", mock.Anything, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					}
@@ -507,7 +507,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
 		for _, tc := range []struct {
 			name           string
@@ -576,7 +576,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
+		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
 
 		rangeStart1 := uint32(1)
 		rangeEnd1 := rangeStart1 + (60 * 60 * 3) // plus 3 hours

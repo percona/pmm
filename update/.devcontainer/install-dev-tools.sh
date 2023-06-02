@@ -17,6 +17,10 @@ sed -i '/nodocs/d' /etc/yum.conf
 sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
 percona-release enable original testing
 
+# this mirror always fails, on both AWS and github
+echo "exclude=mirror.es.its.nyu.edu" >> /etc/yum/pluginconf.d/fastestmirror.conf
+yum clean plugins
+
 # reinstall with man pages
 yum install -y yum rpm
 yum reinstall -y yum rpm
