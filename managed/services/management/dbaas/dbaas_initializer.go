@@ -47,9 +47,6 @@ const (
 	defaultClusterName  = "default-pmm-cluster"
 	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
 	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
-	// FIXME when https://jira.percona.com/browse/K8SPG-309 is fixed change the
-	// template to dbaas-%s-pg-secrets
-	postgresqlSecretNameTmpl = "%s-pguser-%s" //nolint:gosec
 )
 
 var errClusterExists = errors.New("cluster already exists")

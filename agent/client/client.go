@@ -582,7 +582,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
 		}
-		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig)
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder)
 
 	case *agentpb.StartJobRequest_MysqlRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -600,7 +600,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
-		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig)
+		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -628,7 +628,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.WithStack(err)
 		}
 
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig,
+			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
 		}
@@ -659,7 +660,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.WithStack(err)
 		}
 
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig, c.supervisor)
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig,
+			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}

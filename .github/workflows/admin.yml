@@ -1,4 +1,4 @@
-name: 'Client: pmm'
+name: 'Client: pmm and pmm-admin'
 
 on:
   push:
@@ -85,6 +85,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
+      matrix:
+        test-type: [ pmm-common, pmm-server-install, pmm-docker-test ]
 
     defaults:
       run:
@@ -122,13 +124,39 @@ jobs:
       - name: Build and install
         run: make -C ../admin install
 
+      - name: Setup tools
+        run: |
+          sudo apt-get install -y wget jq
+          sudo ln -sf /home/runner/go/bin/pmm /usr/bin
+          sudo chown -R runner:docker /usr/bin/pmm
+
       - name: Install Playwright
         run: |
-          npm install
+          npm ci
           npx playwright install
 
-      - name: Run tests
-        run: npx playwright test tests/pmm-cli/
+      - name: Run "pmm" common tests
+        if: ${{ matrix.test-type == 'pmm-common' }}
+        run: npx playwright test tests/pmm-cli/pmm.spec.ts
+
+      - name: Run "pmm server install" tests
+        if: ${{ matrix.test-type == 'pmm-server-install' }}
+        run: npx playwright test tests/pmm-cli/server/install.spec.ts
+
+      - name: Run "pmm server upgrade" tests
+        if: ${{ matrix.test-type == 'pmm-server-update' }}
+        run: npx playwright test tests/pmm-cli/server/upgrade.spec.ts
+
+      - name: Run specific docker tests
+        if: ${{ matrix.test-type == 'pmm-docker-test' }}
+        run: npx playwright test tests/pmm-cli/server/docker-specific.spec.ts
+
+      - name: Attach the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: "report-${{ matrix.go-version }}-${{ matrix.test-type }}"
+          path: ${{ github.workspace }}/cli-tests/playwright-report/
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

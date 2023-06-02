@@ -475,6 +475,10 @@ message FilesystemLocationConfig {
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
+    reserved 11;
+    reserved "filesystem_config";
+
     // Database user;
     string user = 1;
     // Database password.
@@ -491,9 +495,15 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
+    reserved 11;
+    reserved "filesystem_config";
+
     // Service identifier where the backup should be restored.
     string service_id = 1;
     // Backup name.
@@ -502,6 +512,8 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
@@ -526,6 +538,8 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
     // DSN for the MongoDB service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
     string dsn = 12;
@@ -553,6 +567,10 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
+    // Extra data for backup tool.
+    backup.v1.PbmMetadata pbm_metadata = 13;
     // DSN for the MongoDB service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
     string dsn = 12;
@@ -593,10 +611,15 @@ message JobResult {
   // MongoDBBackup contains result for MongoDB backup job.
   message MongoDBBackup {
     bool is_sharded_cluster = 1;
+    // Contains additional data describing artifact.
+    backup.v1.Metadata metadata = 2;
   }
 
   // MySQLBackup contains result for MySQL backup job.
-  message MySQLBackup {}
+  message MySQLBackup {
+    // Contains additional data describing artifact.
+    backup.v1.Metadata metadata = 1;
+  }
 
   // MySQLRestoreBackup contains result for MySQL restore backup job.
   message MySQLRestoreBackup {}
