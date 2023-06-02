@@ -817,6 +817,7 @@ func TestAddPostgreSQL(t *testing.T) {
 
 func TestRemovePostgreSQL(t *testing.T) {
 	addPostgreSQL := func(t *testing.T, serviceName, nodeName string, withAgents bool) (nodeID string, pmmAgentID string, serviceID string) {
+		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
