@@ -31,7 +31,6 @@ import (
 )
 
 func TestServices(t *testing.T) {
-	t.Parallel()
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
@@ -173,7 +172,6 @@ func TestServices(t *testing.T) {
 }
 
 func TestGetService(t *testing.T) {
-	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 
@@ -200,7 +198,6 @@ func TestGetService(t *testing.T) {
 }
 
 func TestRemoveService(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -322,7 +319,6 @@ func TestRemoveService(t *testing.T) {
 }
 
 func TestMySQLService(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -525,7 +521,6 @@ func TestMySQLService(t *testing.T) {
 }
 
 func TestMongoDBService(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -737,7 +732,6 @@ func TestMongoDBService(t *testing.T) {
 }
 
 func TestPostgreSQLService(t *testing.T) {
-	t.Parallel()
 	const defaultPostgresDBName = "postgres"
 
 	t.Run("Basic", func(t *testing.T) {
@@ -943,7 +937,6 @@ func TestPostgreSQLService(t *testing.T) {
 }
 
 func TestProxySQLService(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -1146,7 +1139,6 @@ func TestProxySQLService(t *testing.T) {
 }
 
 func TestExternalService(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 

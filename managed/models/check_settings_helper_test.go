@@ -27,12 +27,12 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestChecksSettings(t *testing.T) { //nolint:tparallel
+func TestChecksSettings(t *testing.T) {
 	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	t.Cleanup(func() {
+	defer func() {
 		require.NoError(t, sqlDB.Close())
-	})
+	}()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {

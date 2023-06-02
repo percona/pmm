@@ -160,12 +160,11 @@ func TestAuthServerMustSetup(t *testing.T) {
 }
 
 func TestAuthServerAuthenticate(t *testing.T) {
-	t.Parallel()
 	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
-	t.Cleanup(func() { checker.AssertExpectations(t) })
+	defer checker.AssertExpectations(t)
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
@@ -243,8 +242,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
-				t.Parallel()
+				// do not run this test in parallel - they lock Grafana's sqlite3 database
+				// t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)

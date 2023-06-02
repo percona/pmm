@@ -32,8 +32,6 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-const endpoint = "https://s3.us-west-2.amazonaws.com/"
-
 func TestDeleteArtifact(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -255,6 +253,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 
 	agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
 
+	endpoint := "https://s3.us-west-2.amazonaws.com/"
 	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
 
 	s3Config := &models.S3LocationConfig{

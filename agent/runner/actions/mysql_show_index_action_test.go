@@ -35,14 +35,13 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	defer sqlDB.Close() //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
 	t.Run("Default", func(t *testing.T) {
-		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -103,7 +102,6 @@ func TestMySQLShowIndex(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
@@ -117,7 +115,6 @@ func TestMySQLShowIndex(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
-		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
