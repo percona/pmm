@@ -36,7 +36,6 @@ import (
 var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_UNKNOWN)]
 
 func TestAgents(t *testing.T) {
-	t.Parallel()
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
@@ -236,7 +235,6 @@ func TestAgents(t *testing.T) {
 }
 
 func TestPMMAgent(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -448,7 +446,6 @@ func TestPMMAgent(t *testing.T) {
 }
 
 func TestQanAgentExporter(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -678,7 +675,6 @@ func TestQanAgentExporter(t *testing.T) {
 }
 
 func TestPGStatStatementsQanAgent(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -908,7 +904,6 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 }
 
 func TestPGStatMonitorQanAgent(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 

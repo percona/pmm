@@ -33,11 +33,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	defer db.Close() //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -62,8 +60,6 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	})
 
 	t.Run("WithSchemaName", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "public.city",

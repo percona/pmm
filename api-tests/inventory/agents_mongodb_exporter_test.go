@@ -29,7 +29,6 @@ import (
 )
 
 func TestMongoDBExporter(t *testing.T) {
-	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 

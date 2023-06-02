@@ -32,11 +32,9 @@ func TestMySQLQuerySelect(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	defer db.Close() //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "COUNT(*) AS count FROM mysql.user WHERE plugin NOT IN ('caching_sha2_password')",
@@ -57,8 +55,6 @@ func TestMySQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("Binary", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: `x'0001feff' AS bytes`,
@@ -82,8 +78,6 @@ func TestMySQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city; --",

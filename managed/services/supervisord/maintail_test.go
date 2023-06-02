@@ -24,7 +24,6 @@ import (
 )
 
 func TestParseEvent(t *testing.T) {
-	t.Parallel()
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
