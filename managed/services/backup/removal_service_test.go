@@ -179,7 +179,7 @@ func TestDeleteArtifact(t *testing.T) {
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "artifact_name",
-			Vendor:     "MongoDB",
+			Vendor:     "mongodb",
 			LocationID: locationRes.ID,
 			ServiceID:  *agent.ServiceID,
 			DataModel:  models.LogicalDataModel,

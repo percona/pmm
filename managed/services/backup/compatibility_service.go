@@ -100,6 +100,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 			serviceDBVersion string
 			err              error
 		)
+
 		switch artifactModel.Vendor {
 		case "mysql":
 			serviceDBVersion = svm[models.MysqldSoftwareName]

@@ -17,6 +17,7 @@ package scheduler
 
 import (
 	"context"
+	"github.com/AlekSi/pointer"
 	"testing"
 	"time"
 
@@ -33,30 +34,53 @@ import (
 )
 
 func TestService(t *testing.T) {
-	setup := func(t *testing.T, ctx context.Context) *Service {
+	setup := func(t *testing.T, ctx context.Context, serviceType models.ServiceType, serviceName string) (*Service, *models.Service, *models.BackupLocation) {
 		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		backupService := &mockBackupService{}
-		svc := New(db, backupService)
 
-		go svc.Run(ctx)
-		for !svc.scheduler.IsRunning() {
+		node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-" + t.Name(),
+		})
+		require.NoError(t, err)
+
+		service, err := models.AddNewService(db.Querier, serviceType, &models.AddDBMSServiceParams{
+			ServiceName: serviceName,
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(60000),
+		})
+		require.NoError(t, err)
+
+		location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+			Name: "test_location",
+			BackupLocationConfig: models.BackupLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
+					Path: "/tmp",
+				},
+			},
+		})
+
+		backupService := &mockBackupService{}
+		schedulerSvc := New(db, backupService)
+
+		go schedulerSvc.Run(ctx)
+		for !schedulerSvc.scheduler.IsRunning() {
 			// Wait a while, so scheduler is running
 			time.Sleep(time.Millisecond * 10)
 		}
 
-		return svc
+		return schedulerSvc, service, location
 	}
 
 	t.Run("invalid cron expression", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		svc := setup(t, ctx)
+		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 
 		task, err := NewMongoDBBackupTask(&BackupTaskParams{
-			ServiceID:     "/service/test",
-			LocationID:    "/location/test",
+			ServiceID:     service.ServiceID,
+			LocationID:    location.ID,
 			Name:          "test",
 			Description:   "test backup task",
 			DataModel:     models.LogicalDataModel,
@@ -69,7 +93,7 @@ func TestService(t *testing.T) {
 
 		cronExpr := "invalid * cron * expression"
 		startAt := time.Now().Truncate(time.Second).UTC()
-		_, err = svc.Add(task, AddParams{
+		_, err = scheduler.Add(task, AddParams{
 			CronExpression: cronExpr,
 			StartAt:        startAt,
 		})
@@ -79,11 +103,11 @@ func TestService(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		svc := setup(t, ctx)
+		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
 
 		task, err := NewMongoDBBackupTask(&BackupTaskParams{
-			ServiceID:     "/service/test",
-			LocationID:    "/location/test",
+			ServiceID:     service.ServiceID,
+			LocationID:    location.ID,
 			Name:          "test",
 			Description:   "test backup task",
 			DataModel:     models.LogicalDataModel,
@@ -96,25 +120,25 @@ func TestService(t *testing.T) {
 
 		cronExpr := "* * * * *"
 		startAt := time.Now().Truncate(time.Second).UTC()
-		dbTask, err := svc.Add(task, AddParams{
+		dbTask, err := scheduler.Add(task, AddParams{
 			CronExpression: cronExpr,
 			StartAt:        startAt,
 		})
 		require.NoError(t, err)
-		assert.Len(t, svc.scheduler.Jobs(), 1)
+		assert.Len(t, scheduler.scheduler.Jobs(), 1)
 
-		findJob, err := models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
+		findJob, err := models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
 		require.NoError(t, err)
 
 		assert.Equal(t, startAt, dbTask.StartAt)
 		assert.Equal(t, cronExpr, findJob.CronExpression)
 		assert.Truef(t, dbTask.NextRun.After(startAt), "next run %s is before startAt %s", dbTask.NextRun, startAt)
 
-		err = svc.Remove(dbTask.ID)
+		err = scheduler.Remove(dbTask.ID)
 		require.NoError(t, err)
-		assert.Len(t, svc.scheduler.Jobs(), 0)
+		assert.Len(t, scheduler.scheduler.Jobs(), 0)
 
-		_, err = models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
+		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
 		assert.ErrorIs(t, err, models.ErrNotFound)
 	})
 }
