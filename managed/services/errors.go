@@ -24,5 +24,5 @@ var (
 	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
 
 	// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
-	ErrAlertingDisabled = errors.New("Alerting is disabled") // Looks like this error is unused.
+	ErrAlertingDisabled = errors.New("Alerting is disabled") // TODO Looks like this error is unused.
 )

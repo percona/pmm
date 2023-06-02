@@ -37,6 +37,10 @@ func TestService(t *testing.T) {
 	setup := func(t *testing.T, ctx context.Context, serviceType models.ServiceType, serviceName string) (*Service, *models.Service, *models.BackupLocation) {
 		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{

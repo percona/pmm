@@ -305,6 +305,63 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
+		testSet := []*models.ServiceSoftwareVersions{
+			{
+				ServiceID: "1",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: ""},
+					{Name: models.PBMSoftwareName, Version: "2.0.1"},
+				},
+			},
+			{
+				ServiceID: "2",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: "6.0.5"},
+					{Name: models.PBMSoftwareName, Version: "2.0.0"},
+				},
+			},
+			{
+				ServiceID: "3",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: "6.0.5"},
+					{Name: models.PBMSoftwareName, Version: ""},
+				},
+			},
+			{
+				ServiceID: "4",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: "6.0.5"},
+					{Name: models.PBMSoftwareName, Version: "2.0.1"},
+				},
+			},
+			{
+				ServiceID: "5",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: "5.0.5"},
+					{Name: models.PBMSoftwareName, Version: "2.0.5"},
+				},
+			},
+			{
+				ServiceID: "6",
+				SoftwareVersions: models.SoftwareVersions{
+					{Name: models.MongoDBSoftwareName, Version: "5.0.5"},
+					{Name: models.PBMSoftwareName, Version: "2.0.5"},
+				},
+			},
+		}
+
+		t.Run("empty db version", func(t *testing.T) {
+			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: ""}, testSet)
+			assert.Equal(t, 0, len(res))
+		})
+		t.Run("matches several", func(t *testing.T) {
+			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: "5.0.5"}, testSet)
+			assert.ElementsMatch(t, []string{"5", "6"}, res)
+		})
+		t.Run("matches one", func(t *testing.T) {
+			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: "6.0.5"}, testSet)
+			assert.ElementsMatch(t, []string{"4"}, res)
+		})
 	})
 }
 

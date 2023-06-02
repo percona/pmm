@@ -166,7 +166,7 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 				continue
 			}
 
-			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByArtifactMsg, task.ID, serviceID)
+			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByScheduledTaskMsg, task.ID, serviceID)
 		}
 	}
 
