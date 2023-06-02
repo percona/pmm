@@ -79,6 +79,7 @@ linters:
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -114,7 +115,6 @@ linters:
     - gosimple
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:

@@ -55,6 +55,7 @@ type jobsService interface {
 		folder string,
 	) error
 	StartMongoDBBackupJob(
+		service *models.Service,
 		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
@@ -66,6 +67,7 @@ type jobsService interface {
 		folder string,
 	) error
 	StartMongoDBRestoreBackupJob(
+		service *models.Service,
 		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
