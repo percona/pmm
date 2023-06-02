@@ -190,7 +190,7 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 			return err
 		}
 
-		onlySameService := isOnlySameService(artifactModel.DBVersion, serviceType)
+		onlySameService := isOnlySameService(artifactModel.DBVersion)
 
 		if onlySameService {
 			service, err := models.FindServiceByID(tx.Querier, artifactModel.ServiceID)

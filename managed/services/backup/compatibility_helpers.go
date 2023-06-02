@@ -221,7 +221,7 @@ func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]str
 }
 
 // isOnlySameService checks if restore is only available to the same service.
-func isOnlySameService(artifactDBVersion string, serviceType models.ServiceType) bool {
+func isOnlySameService(artifactDBVersion string) bool {
 	// allow restore only to the same service if db version is unknown.
 	if artifactDBVersion == "" {
 		return true
