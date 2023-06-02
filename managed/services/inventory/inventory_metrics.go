@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -93,14 +94,14 @@ func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) stri
 	return ""
 }
 
-func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metric, err error) {
-	metrics = []Metric{}
+func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error) {
+	metrics := []Metric{}
 
-	err = i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		dbAgents, dbAgentsError := models.FindAgents(tx.Querier, models.AgentFilters{})
+	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		dbAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{})
 
-		if dbAgentsError != nil {
-			return dbAgentsError
+		if err != nil {
+			return err
 		}
 
 		for _, agent := range dbAgents {
@@ -117,8 +118,6 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 			if agent.AgentType == models.PMMAgentType {
 				if i.registry.IsConnected(agent.AgentID) {
 					metricValue = 1
-				} else {
-					metricValue = 0
 				}
 				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
@@ -141,17 +140,20 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) (metrics []Metri
 		return nil
 	})
 
-	return metrics, err
+	if errTx != nil {
+		return nil, errors.WithStack(errTx)
+	}
+	return metrics, nil
 }
 
-func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) (metrics []Metric, err error) {
-	metrics = []Metric{}
+func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error) {
+	var metrics []Metric
 
-	err = i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		dbNodes, dbNodesError := models.FindNodes(tx.Querier, models.NodeFilters{})
+	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		dbNodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
 
-		if dbNodesError != nil {
-			return dbNodesError
+		if err != nil {
+			return err
 		}
 
 		for _, node := range dbNodes {
@@ -168,17 +170,20 @@ func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) (metrics []Metric
 		return nil
 	})
 
-	return metrics, err
+	if errTx != nil {
+		return nil, errors.WithStack(errTx)
+	}
+	return metrics, nil
 }
 
-func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) (metrics []Metric, err error) {
-	metrics = []Metric{}
+func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, error) {
+	var metrics []Metric
 
-	err = i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		dbServices, dbServicesError := models.FindServices(tx.Querier, models.ServiceFilters{})
+	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		dbServices, err := models.FindServices(tx.Querier, models.ServiceFilters{})
 
-		if dbServicesError != nil {
-			return dbServicesError
+		if err != nil {
+			return err
 		}
 
 		for _, service := range dbServices {
@@ -194,7 +199,10 @@ func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) (metrics []Met
 		return nil
 	})
 
-	return metrics, err
+	if errTx != nil {
+		return nil, errors.WithStack(errTx)
+	}
+	return metrics, nil
 }
 
 func (i *InventoryMetricsCollector) Describe(ch chan<- *prom.Desc) {
