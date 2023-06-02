@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -43,7 +42,7 @@ type MongoDBRestoreJob struct {
 	l               *logrus.Entry
 	name            string
 	pitrTimestamp   time.Time
-	dbURL           *url.URL
+	dbURL           *string
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
@@ -57,23 +56,22 @@ func NewMongoDBRestoreJob(
 	timeout time.Duration,
 	name string,
 	pitrTimestamp time.Time,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
 	folder string,
 	pbmBackupName string,
 ) *MongoDBRestoreJob {
-	dbURL := createDBURL(dbConfig)
 	return &MongoDBRestoreJob{
 		id:              id,
 		timeout:         timeout,
 		l:               logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:            name,
 		pitrTimestamp:   pitrTimestamp,
-		dbURL:           dbURL,
+		dbURL:           dbConfig,
 		locationConfig:  locationConfig,
 		agentsRestarter: restarter,
-		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbURL),
+		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbConfig),
 		folder:          folder,
 		pbmBackupName:   pbmBackupName,
 	}
