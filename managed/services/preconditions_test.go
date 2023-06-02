@@ -251,6 +251,7 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 		Status:     models.SuccessBackupStatus,
 		Folder:     folder2,
 	})
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc2.ServiceID, location.ID, folder1)
 	assert.NoError(t, err)
