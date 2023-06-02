@@ -219,7 +219,7 @@ func TestTemplatesAPI(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template")
 		})
 
 		t.Run("invalid template", func(t *testing.T) {
@@ -232,7 +232,7 @@ func TestTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template")
 		})
 	})
 
