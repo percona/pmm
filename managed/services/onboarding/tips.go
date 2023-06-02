@@ -149,7 +149,7 @@ func (t *TipsService) isAnyExternalClientConnected() (bool, error) {
 		PMMAgentID: "pmm-server",
 	})
 	if err != nil {
-		return false, errors.Wrap(err, "cannot find agents by agent-id 'pmm-server'")
+		return false, errors.Wrapf(err, "cannot find agents by agent-id %q", models.PMMServerAgentID)
 	}
 
 	pmmServerAgentsByNodeID, err := models.FindAgents(t.db.Querier, models.AgentFilters{
