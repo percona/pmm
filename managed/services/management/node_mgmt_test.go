@@ -67,6 +67,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s = NewMgmtNodeService(db, ar, vmClient)
 
 			teardown = func(t *testing.T) {
+				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
 
@@ -260,6 +261,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s = NewMgmtNodeService(db, ar, vmClient)
 
 			teardown = func(t *testing.T) {
+				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
 

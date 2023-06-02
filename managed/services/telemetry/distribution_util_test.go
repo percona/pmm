@@ -142,6 +142,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 }
 
 func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.File, error) {
+	t.Helper()
 	f, err := os.CreateTemp(tmpDistributionFile, "1")
 	if err != nil {
 		return nil, err
