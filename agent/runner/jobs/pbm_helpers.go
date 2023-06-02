@@ -582,7 +582,7 @@ func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) ([]
 			}
 
 			if len(status.Backups.Snapshot) == 0 {
-				l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
+				l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
 				if checks > maxListChecks {
 					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
 				}
