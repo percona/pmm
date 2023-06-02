@@ -238,7 +238,7 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 			is := &mockInventoryService{}
 			tipService := NewTipService(db, is, c)
 
-			// user tip will be added to they user_tips table once it requested by user
+			// user tip will be added to the user_tips table once it's requested by user
 			err := db.Querier.Save(&models.OnboardingUserTip{
 				UserID:      2,
 				TipID:       1000,
