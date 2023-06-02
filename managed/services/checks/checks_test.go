@@ -618,6 +618,7 @@ func setupClients(t *testing.T) {
 }
 
 func TestFindTargets(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -703,8 +704,6 @@ func TestFilterChecksByInterval(t *testing.T) {
 }
 
 func TestGetFailedChecks(t *testing.T) {
-	t.Parallel()
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())

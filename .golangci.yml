@@ -79,6 +79,7 @@ linters:
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -98,9 +99,7 @@ linters:
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - paralleltest
     - tagliatelle
-    - tparallel
     - gocritic
     - godot
     - godox
@@ -114,7 +113,6 @@ linters:
     - gosimple
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:
