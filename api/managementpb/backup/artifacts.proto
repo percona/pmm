@@ -18,6 +18,7 @@ enum BackupStatus {
   BACKUP_STATUS_ERROR = 5;
   BACKUP_STATUS_DELETING = 6;
   BACKUP_STATUS_FAILED_TO_DELETE = 7;
+  BACKUP_STATUS_CLEANUP_IN_PROGRESS = 8;
 }
 
 // Artifact represents single backup artifact.
@@ -46,6 +47,10 @@ message Artifact {
   BackupMode mode = 11;
   // Source database setup type.
   bool is_sharded_cluster = 12;
+  // Folder to store artifact on a storage.
+  string folder = 13;
+  // List of artifact metadata.
+  repeated backup.v1.Metadata metadata_list = 14;
 }
 
 message ListArtifactsRequest {}

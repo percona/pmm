@@ -50,6 +50,7 @@ func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 var _ agentpb.AgentServer = (*testServer)(nil)
 
 func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentpb.Agent_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
+	t.Helper()
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	t.Parallel()
@@ -91,6 +92,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	require.NoError(t, err, "failed to create stream")
 
 	teardown := func(t *testing.T) {
+		t.Helper()
 		require.NotNil(t, channel, "Test exited before first message reached connect handler.")
 
 		err := channel.Wait()

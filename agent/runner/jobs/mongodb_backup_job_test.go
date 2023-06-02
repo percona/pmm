@@ -115,7 +115,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), &dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel)
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), &dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

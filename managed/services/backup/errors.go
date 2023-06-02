@@ -46,4 +46,6 @@ var (
 	ErrAnotherOperationInProgress = errors.New("another operation in progress")
 	// ErrArtifactNotReady is returned when artifact not ready to be restored, i.e. not in success status.
 	ErrArtifactNotReady = errors.New("artifact not in success status")
+	// ErrIncorrectArtifactStatus is returned when artifact status doesn't fit to proceed with action.
+	ErrIncorrectArtifactStatus = errors.New("incorrect artifact status")
 )

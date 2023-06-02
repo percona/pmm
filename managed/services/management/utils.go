@@ -21,7 +21,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// IsNodeAgent checks if agent runs on the same node as the service (p.e. pmm-agent).
+// IsNodeAgent checks if agent runs on the same node as the service (e.g. pmm-agent).
 func IsNodeAgent(agent *models.Agent, service *models.Service) bool {
 	return agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID
 }

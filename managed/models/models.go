@@ -180,6 +180,8 @@ func jsonScan(v, src interface{}) error {
 		b = v
 	case string:
 		b = []byte(v)
+	case nil:
+		return nil
 	default:
 		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
 	}
