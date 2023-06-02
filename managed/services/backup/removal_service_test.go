@@ -32,6 +32,14 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const (
+	endpoint     = "https://s3.us-west-2.amazonaws.com/"
+	accessKey    = "access_key"
+	secretKey    = "secret_key"
+	bucketName   = "example_bucket"
+	bucketRegion = "us-east-2"
+)
+
 func TestDeleteArtifact(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -43,13 +51,6 @@ func TestDeleteArtifact(t *testing.T) {
 	removalService := NewRemovalService(db, mockedPbmPITRService)
 
 	agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-service")
-	const (
-		endpoint     = "https://s3.us-west-2.amazonaws.com/"
-		accessKey    = "access_key"
-		secretKey    = "secret_key"
-		bucketName   = "example_bucket"
-		bucketRegion = "us-east-2"
-	)
 
 	s3Config := &models.S3LocationConfig{
 		Endpoint:     endpoint,
@@ -252,9 +253,6 @@ func TestTrimPITRArtifact(t *testing.T) {
 	mockedStorage := &MockStorage{}
 
 	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
-
-	endpoint := "https://s3.us-west-2.amazonaws.com/"
-	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
 
 	s3Config := &models.S3LocationConfig{
 		Endpoint:     endpoint,
