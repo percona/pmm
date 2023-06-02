@@ -42,7 +42,7 @@ func TestDeleteArtifact(t *testing.T) {
 	mockedPbmPITRService := &mockPbmPITRService{}
 	removalService := NewRemovalService(db, mockedPbmPITRService)
 
-	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
+	agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	const (
 		endpoint     = "https://s3.us-west-2.amazonaws.com/"
 		accessKey    = "access_key"
