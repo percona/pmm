@@ -140,7 +140,6 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Pxc:   &dbaasv1beta1.Operator{},
 					Psmdb: &dbaasv1beta1.Operator{},
 					Dbaas: &dbaasv1beta1.Operator{},
-					Pg:    &dbaasv1beta1.Operator{},
 				},
 			}
 			kubeClient, err := k.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
@@ -161,18 +160,12 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if err != nil {
 				k.l.Errorf("couldn't get psmdb operator version: %s", err)
 			}
-			pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
-			if err != nil {
-				k.l.Errorf("couldn't get pg operator version: %s", err)
-			}
 
 			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
 			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], psmdbVersion)
-			clusters[i].Operators.Pg.Status = k.convertToOperatorStatus(operatorsVersions[pgOperator], pgVersion)
 
 			clusters[i].Operators.Pxc.Version = pxcVersion
 			clusters[i].Operators.Psmdb.Version = psmdbVersion
-			clusters[i].Operators.Pg.Version = pgVersion
 
 			// FIXME: Uncomment it when FE will be ready
 			// kubeClient, err := kubernetes.New(cluster.KubeConfig)

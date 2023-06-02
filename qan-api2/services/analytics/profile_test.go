@@ -50,6 +50,7 @@ func setup() *sqlx.DB {
 }
 
 func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
+	t.Helper()
 	if os.Getenv("REFRESH_TEST_DATA") != "" {
 		marshaler := jsonpb.Marshaler{
 			Indent: "\t",

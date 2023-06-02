@@ -58,6 +58,7 @@ func TestServiceService(t *testing.T) {
 			ar.Test(t)
 
 			teardown := func(t *testing.T) {
+				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())

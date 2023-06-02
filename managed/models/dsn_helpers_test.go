@@ -44,6 +44,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	}()
 
 	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -165,6 +166,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 		}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
 		return
