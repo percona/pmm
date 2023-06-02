@@ -904,6 +904,10 @@ var databaseSchema = [][]string{
 		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
 		WHERE type = 'mongodb_backup';`,
 	},
+	83: {
+		`DROP TABLE IF EXISTS onboarding_system_tips`,
+		`DROP TABLE IF EXISTS onboarding_user_tips`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
