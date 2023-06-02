@@ -60,6 +60,7 @@ func TestService(t *testing.T) {
 				},
 			},
 		})
+		require.NoError(t, err)
 
 		backupService := &mockBackupService{}
 		schedulerSvc := New(db, backupService)
