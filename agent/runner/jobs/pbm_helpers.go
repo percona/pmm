@@ -556,7 +556,7 @@ func groupPartlyDoneErrors(info describeInfo) error {
 }
 
 // pbmGetSnapshotTimestamp returns time the backup restores target db to.
-func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *url.URL, backupName string) (*time.Time, error) {
+func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *string, backupName string) (*time.Time, error) {
 	var list pbmList
 	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
 		return nil, err

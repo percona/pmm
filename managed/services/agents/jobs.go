@@ -619,7 +619,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Name:          name,
 		PitrTimestamp: timestamppb.New(pitrTimestamp),
 		Folder:        folder,
-		PbmMetadata:   &backuppb.PbmMetadata{Name: pbmBackupName}
+		PbmMetadata:   &backuppb.PbmMetadata{Name: pbmBackupName},
 		Dsn:           dsn,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
