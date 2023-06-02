@@ -150,11 +150,12 @@
       become_method: su
       when: is_upgrade.stat.exists
 
-        #    - name: Start Postgres 14 database without supervisor
-        #      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
-#      become: true
-#      become_user: postgres
-#      become_method: su
+    - name: Start Postgres 14 database without supervisor
+      command: "/usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o \"-c logging_collector=off\""
+        #command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+      become: true
+      become_user: postgres
+      become_method: su
 
     - name: Create pmm-managed database
       postgresql_db:
