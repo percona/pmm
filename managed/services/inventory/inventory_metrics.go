@@ -17,10 +17,10 @@ package inventory
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
@@ -99,7 +99,6 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 
 	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		dbAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{})
-
 		if err != nil {
 			return err
 		}
@@ -151,7 +150,6 @@ func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error)
 
 	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		dbNodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
-
 		if err != nil {
 			return err
 		}
@@ -181,7 +179,6 @@ func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, err
 
 	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		dbServices, err := models.FindServices(tx.Querier, models.ServiceFilters{})
-
 		if err != nil {
 			return err
 		}
@@ -217,7 +214,6 @@ func (i *InventoryMetricsCollector) Collect(ch chan<- prom.Metric) {
 	l := logger.Get(ctx)
 
 	agentMetrics, err := i.metrics.GetAgentMetrics(ctx)
-
 	if err != nil {
 		l.Error(err)
 		return
