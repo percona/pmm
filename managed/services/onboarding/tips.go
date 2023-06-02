@@ -29,9 +29,9 @@ import (
 
 const (
 	// system tip ids
-	InstallPMMServerTipID    = 1
-	InstallPMMClientTipID    = 2
-	ConnectServiceToPMMTipID = 3
+	InstallPMMServerTipID int = iota + 1
+	InstallPMMClientTipID
+	ConnectServiceToPMMTipID
 
 	// user tip ids
 	SeeYourNewAdvisorsTipID = 1000
