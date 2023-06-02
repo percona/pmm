@@ -169,7 +169,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) { //nolint:cyclop
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)

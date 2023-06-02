@@ -39,7 +39,6 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
-	t.Parallel()
 	rulesClient := client.Default.Rules
 	templatesClient := alertingClient.Default.Alerting
 	channelsClient := client.Default.Channels

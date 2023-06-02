@@ -47,7 +47,7 @@ var validQueryActionResult = []map[string]interface{}{
 	{"Value": "-log", "Variable_name": "version_suffix"},
 }
 
-func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
+func TestStarlarkSandbox(t *testing.T) {
 	testCases := []struct {
 		name         string
 		script       string

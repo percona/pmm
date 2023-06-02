@@ -32,7 +32,6 @@ func cleanup(t *testing.T, files []string) {
 }
 
 func TestContinuousFileReader(t *testing.T) {
-	t.Parallel()
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 

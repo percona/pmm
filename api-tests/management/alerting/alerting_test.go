@@ -118,7 +118,6 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 }
 
 func TestTemplatesAPI(t *testing.T) {
-	t.Parallel()
 	client := alertingClient.Default.Alerting
 
 	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
