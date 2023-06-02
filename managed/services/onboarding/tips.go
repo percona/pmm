@@ -29,7 +29,7 @@ import (
 
 const (
 	// system tip ids
-	InstallPMMServerTipID int = iota + 1
+	InstallPMMServerTipID int64 = iota + 1
 	InstallPMMClientTipID
 	ConnectServiceToPMMTipID
 
@@ -72,7 +72,7 @@ func (t *TipsService) GetOnboardingStatus(ctx context.Context, _ *onboardingpb.G
 		return nil, err
 	}
 
-	systemTips, err := t.retrieveSystemTips()
+	systemTips, err := t.retrieveAndUpdateSystemTips(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -88,19 +88,48 @@ func (t *TipsService) GetOnboardingStatus(ctx context.Context, _ *onboardingpb.G
 	}, nil
 }
 
-func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
+func (t *TipsService) retrieveAndUpdateSystemTips(ctx context.Context) ([]*onboardingpb.TipModel, error) {
+	systemTipsModels, err := t.retrieveSystemTips()
+	if err != nil {
+		return nil, err
+	}
+
+	updatedSystemTipsModels, err := t.checkAndUpdateSystemTipState(ctx, systemTipsModels)
+	if err != nil {
+		return nil, err
+	}
+
+	systemTips := make([]*onboardingpb.TipModel, len(updatedSystemTipsModels))
+	for i, tip := range updatedSystemTipsModels {
+		systemTips[i] = &onboardingpb.TipModel{
+			TipId:       tip.ID,
+			IsCompleted: tip.IsCompleted,
+		}
+	}
+	return systemTips, nil
+}
+
+func (t *TipsService) retrieveSystemTips() ([]*models.OnboardingSystemTip, error) {
 	structs, err := t.db.Querier.SelectAllFrom(models.OnboardingSystemTipTable, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to retrieve system tip by id")
 	}
 	tips := make([]*models.OnboardingSystemTip, len(structs))
 	for i, s := range structs {
-		tips[i] = s.(*models.OnboardingSystemTip) //nolint:forcetypeassert
+		tip, ok := s.(*models.OnboardingSystemTip)
+		if !ok {
+			return nil, errors.New("failed to cast system tip to *models.OnboardingSystemTip")
+		}
+		tips[i] = tip
 	}
 
+	return tips, nil
+}
+
+func (t *TipsService) checkAndUpdateSystemTipState(ctx context.Context, tips []*models.OnboardingSystemTip) ([]*models.OnboardingSystemTip, error) {
 	for _, tip := range tips {
 		if !tip.IsCompleted {
-			isCompleted, err := t.isSystemTipCompleted(tip.ID)
+			isCompleted, err := t.isSystemTipCompleted(ctx, tip.ID)
 			if err != nil {
 				return nil, err
 			}
@@ -112,18 +141,10 @@ func (t *TipsService) retrieveSystemTips() ([]*onboardingpb.TipModel, error) {
 			}
 		}
 	}
-
-	res := make([]*onboardingpb.TipModel, len(tips))
-	for i, tip := range tips {
-		res[i] = &onboardingpb.TipModel{
-			TipId:       tip.ID,
-			IsCompleted: tip.IsCompleted,
-		}
-	}
-	return res, nil
+	return tips, nil
 }
 
-func (t *TipsService) isSystemTipCompleted(tipID int64) (bool, error) {
+func (t *TipsService) isSystemTipCompleted(ctx context.Context, tipID int64) (bool, error) {
 	switch tipID {
 	case InstallPMMServerTipID:
 		return true, nil
@@ -134,7 +155,7 @@ func (t *TipsService) isSystemTipCompleted(tipID int64) (bool, error) {
 		}
 		return isCompleted, nil
 	case ConnectServiceToPMMTipID:
-		isCompleted, err := t.isAnyServiceConnected()
+		isCompleted, err := t.isAnyServiceConnected(ctx)
 		if err != nil {
 			return false, errors.Wrap(err, "Cannot retrieve list of services to check the status of tip")
 		}
@@ -146,7 +167,7 @@ func (t *TipsService) isSystemTipCompleted(tipID int64) (bool, error) {
 
 func (t *TipsService) isAnyExternalClientConnected() (bool, error) {
 	pmmServerAgentsByAgentID, err := models.FindAgents(t.db.Querier, models.AgentFilters{
-		PMMAgentID: "pmm-server",
+		PMMAgentID: models.PMMServerAgentID,
 	})
 	if err != nil {
 		return false, errors.Wrapf(err, "cannot find agents by agent-id %q", models.PMMServerAgentID)
@@ -167,8 +188,8 @@ func (t *TipsService) isAnyExternalClientConnected() (bool, error) {
 	return len(allPmmAgents) > (len(pmmServerAgentsByAgentID) + len(pmmServerAgentsByNodeID)), nil
 }
 
-func (t *TipsService) isAnyServiceConnected() (bool, error) {
-	list, err := t.inventoryService.List(context.Background(), models.ServiceFilters{})
+func (t *TipsService) isAnyServiceConnected(ctx context.Context) (bool, error) {
+	list, err := t.inventoryService.List(ctx, models.ServiceFilters{})
 	if err != nil {
 		return false, err
 	}
@@ -222,7 +243,11 @@ func (t *TipsService) retrieveUserTip(tx *reform.TX, userID int, tipID int64) (*
 		return nil, errors.Wrap(err, "failed to retrieve system tip by id")
 	}
 
-	return res.(*models.OnboardingUserTip), nil //nolint:forcetypeassert
+	tip, ok := res.(*models.OnboardingUserTip)
+	if !ok {
+		return nil, errors.New("failed to cast system tip to *models.OnboardingUserTip")
+	}
+	return tip, nil
 }
 
 func (t *TipsService) createUserTip(tx *reform.TX, userID int, tipID int64) (*models.OnboardingUserTip, error) {

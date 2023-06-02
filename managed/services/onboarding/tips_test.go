@@ -61,9 +61,9 @@ func TestGetOnboardingStatus(t *testing.T) {
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-			defer func() {
+			t.Cleanup(func() {
 				require.NoError(t, sqlDB.Close())
-			}()
+			})
 
 			ctx := context.Background()
 
@@ -148,9 +148,9 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		defer func() {
+		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
-		}()
+		})
 
 		ctx := context.Background()
 
@@ -172,9 +172,9 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		defer func() {
+		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
-		}()
+		})
 
 		db.InTransaction(func(tx *reform.TX) error {
 			ctx := context.Background()
@@ -200,9 +200,9 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		defer func() {
+		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
-		}()
+		})
 
 		ctx := context.Background()
 
@@ -224,9 +224,9 @@ func TestTipsServiceCompleteUserTip(t *testing.T) {
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		defer func() {
+		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
-		}()
+		})
 
 		db.InTransaction(func(tx *reform.TX) error {
 			ctx := context.Background()
