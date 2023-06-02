@@ -66,6 +66,7 @@ func TestParserGolden(t *testing.T) {
 		goldenFile := strings.TrimSuffix(file, ".log") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			opts := log.Options{
 				DefaultLocation: time.UTC,
 			}

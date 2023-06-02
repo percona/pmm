@@ -33,7 +33,7 @@ require (
 	github.com/docker/docker v23.0.4+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
-	github.com/go-co-op/gocron v1.28.1
+	github.com/go-co-op/gocron v1.28.2
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.26.0
 	github.com/go-openapi/strfmt v0.21.7
@@ -43,7 +43,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.16.0
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
-	github.com/grafana/grafana-api-golang-client v0.21.1
+	github.com/grafana/grafana-api-golang-client v0.22.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0
@@ -52,7 +52,7 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.55
-	github.com/operator-framework/api v0.17.5
+	github.com/operator-framework/api v0.17.6
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
 	github.com/percona-platform/saas v0.0.0-20230306173543-c223f9a47342
