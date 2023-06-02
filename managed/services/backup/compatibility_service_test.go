@@ -305,7 +305,6 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-
 	})
 }
 
