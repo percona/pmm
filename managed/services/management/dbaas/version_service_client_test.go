@@ -261,7 +261,7 @@ const (
 	psmdbImage = "percona/percona-server-mongodb"
 )
 
-func TestGetNextDatabaseVersion(t *testing.T) { //nolint:tparallel
+func TestGetNextDatabaseVersion(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	response := &VersionServiceResponse{
 		Versions: []Version{

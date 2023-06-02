@@ -94,7 +94,6 @@ func TestAuth(t *testing.T) {
 }
 
 func TestSetup(t *testing.T) {
-	t.Parallel()
 	// make a BaseURL without authentication
 	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -126,7 +125,6 @@ func TestSetup(t *testing.T) {
 	})
 
 	t.Run("Redirect", func(t *testing.T) {
-		t.Parallel()
 		paths := map[string]int{
 			"graph":       303,
 			"graph/":      303,
@@ -187,7 +185,6 @@ func TestSetup(t *testing.T) {
 }
 
 func TestSwagger(t *testing.T) {
-	t.Parallel()
 	for _, path := range []string{
 		"swagger",
 		"swagger/",
@@ -197,7 +194,6 @@ func TestSwagger(t *testing.T) {
 		path := path
 
 		t.Run(path, func(t *testing.T) {
-			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
 				t.Parallel()
 

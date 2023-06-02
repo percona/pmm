@@ -62,6 +62,7 @@ func build(t *testing.T, tag string, fileName string, outputFile string) *exec.C
 
 func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 	t.Helper()
+	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	l := logrus.WithField("test", t.Name())

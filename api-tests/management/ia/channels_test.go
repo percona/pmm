@@ -35,7 +35,6 @@ import (
 // ENABLE_ALERTING env var.
 
 func TestChannelsAPI(t *testing.T) {
-	t.Parallel()
 	client := channelsClient.Default.Channels
 
 	t.Run("add", func(t *testing.T) {
