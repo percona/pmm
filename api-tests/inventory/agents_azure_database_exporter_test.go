@@ -30,8 +30,6 @@ import (
 func TestAzureDatabaseExporter(t *testing.T) {
 	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)

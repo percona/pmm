@@ -251,7 +251,6 @@ func TestChannelsAPI(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		t.Parallel()
 		client := channelsClient.Default.Channels
 
 		summary := uuid.New().String()
@@ -272,7 +271,6 @@ func TestChannelsAPI(t *testing.T) {
 		defer deleteChannel(t, client, resp1.Payload.ChannelID)
 
 		t.Run("without pagination", func(t *testing.T) {
-			t.Parallel()
 			resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 			require.NoError(t, err)
 
@@ -291,7 +289,6 @@ func TestChannelsAPI(t *testing.T) {
 		})
 
 		t.Run("pagination", func(t *testing.T) {
-			t.Parallel()
 			const channelsCount = 5
 
 			channelIds := make(map[string]struct{})
