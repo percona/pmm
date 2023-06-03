@@ -298,7 +298,7 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		return err
 	}
 
-	if filters == nil || len(filters) == 0 {
+	if filters == nil || len(filters) == 0 { //nolint:gosimple
 		return nil
 	}
 

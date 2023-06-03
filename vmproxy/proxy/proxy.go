@@ -88,12 +88,9 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 			q := req.URL.Query()
 			q.Del("extra_filters[]")
 
-			parsed, err := parseFilters(filters)
-			if err != nil {
-				logrus.Error(err)
-			}
+			parsed, _ := parseFilters(filters)
 
-			if parsed != nil {
+			if parsed != nil { //nolint:gosimple
 				for _, f := range parsed {
 					q.Add("extra_filters[]", f)
 				}
