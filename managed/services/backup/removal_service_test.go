@@ -32,6 +32,14 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const (
+	endpoint     = "https://s3.us-west-2.amazonaws.com/"
+	accessKey    = "access_key"
+	secretKey    = "secret_key"
+	bucketName   = "example_bucket"
+	bucketRegion = "us-east-2"
+)
+
 func TestDeleteArtifact(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -42,9 +50,7 @@ func TestDeleteArtifact(t *testing.T) {
 	mockedPbmPITRService := &mockPbmPITRService{}
 	removalService := NewRemovalService(db, mockedPbmPITRService)
 
-	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
-	endpoint := "https://s3.us-west-2.amazonaws.com/"
-	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
+	agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 
 	s3Config := &models.S3LocationConfig{
 		Endpoint:     endpoint,
@@ -175,7 +181,7 @@ func TestDeleteArtifact(t *testing.T) {
 	})
 
 	t.Run("successful delete pitr", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
+		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "artifact_name",
@@ -246,10 +252,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	removalService := NewRemovalService(db, mockedPbmPITRService)
 	mockedStorage := &MockStorage{}
 
-	agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
-
-	endpoint := "https://s3.us-west-2.amazonaws.com/"
-	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
+	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service2")
 
 	s3Config := &models.S3LocationConfig{
 		Endpoint:     endpoint,
@@ -384,7 +387,7 @@ func TestLockArtifact(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
+	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -480,7 +483,7 @@ func TestReleaseArtifact(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
+	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",

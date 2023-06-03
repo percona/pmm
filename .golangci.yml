@@ -79,6 +79,7 @@ linters:
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -112,10 +113,8 @@ linters:
     - maintidx
     - interfacebloat
     - gosimple
-    - contextcheck
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:
@@ -138,6 +137,7 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
