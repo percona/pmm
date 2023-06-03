@@ -21,7 +21,7 @@ percona-release enable original testing
 echo "exclude=mirror.es.its.nyu.edu" >> /etc/yum/pluginconf.d/fastestmirror.conf
 yum clean plugins
 # https://stackoverflow.com/questions/26734777/yum-error-cannot-retrieve-metalink-for-repository-epel-please-verify-its-path
-yum --disablerepo=epel -y update  ca-certificates
+sed -i "s/metalink=https/metalink=http/" /etc/yum.repos.d/epel.repo
 
 # reinstall with man pages
 yum install -y yum rpm
