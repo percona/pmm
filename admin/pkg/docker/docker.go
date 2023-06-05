@@ -231,7 +231,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.
-func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error) {
+func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
 	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
@@ -252,7 +252,7 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[s
 
 	volumeLabels["percona.pmm"] = "server"
 
-	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
+	volume, err := b.Cli.VolumeCreate(ctx, volume.CreateOptions{ //nolint:exhaustruct
 		Name:   volumeName,
 		Labels: volumeLabels,
 	})
@@ -269,8 +269,8 @@ func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.
 }
 
 // ContainerStop stops a container.
-func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
-	return b.Cli.ContainerStop(ctx, containerID, timeout)
+func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *int) error {
+	return b.Cli.ContainerStop(ctx, containerID, container.StopOptions{Timeout: timeout})
 }
 
 // ContainerUpdate updates container configuration.
@@ -279,7 +279,7 @@ func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateCo
 }
 
 // ContainerWait waits until a container is in a specific state.
-func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error) {
+func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.WaitResponse, <-chan error) {
 	return b.Cli.ContainerWait(ctx, containerID, condition)
 }
 

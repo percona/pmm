@@ -304,8 +304,8 @@ func TestPerfSchema(t *testing.T) {
 
 	case "10.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
-			"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
+			"SELECT `sleep` (?)":   "ce5b40e78030bb319c84965637255c18",
+			"SELECT * FROM `city`": "978a3813c9f566d7a72d65b88a9149d9",
 		}
 
 	default:
