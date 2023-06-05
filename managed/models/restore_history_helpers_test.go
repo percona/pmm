@@ -238,6 +238,7 @@ func TestRestoreHistory(t *testing.T) {
 }
 
 func TestRestoreHistoryValidation(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		params   models.CreateRestoreHistoryItemParams
