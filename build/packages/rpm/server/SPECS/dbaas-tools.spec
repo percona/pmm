@@ -72,6 +72,9 @@ install -D -p -m 0775 _output/local/go/bin/kubectl %{buildroot}/opt/dbaas-tools/
 /opt/dbaas-tools/bin/kubectl-1.23
 
 %changelog
+* Mon Jun 05 2023 Andrew Minkin <andrew.minkin@percona.com> - 0.5.7-1
+- Update versions of kubectl and aws-iam-authenticator
+
 * Wed May 04 2022 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 0.5.7-1
 - Update versions of dbaas-tools
 
