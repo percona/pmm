@@ -90,10 +90,8 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 
 			parsed, _ := parseFilters(filters)
 
-			if parsed != nil { //nolint:gosimple
-				for _, f := range parsed {
-					q.Add("extra_filters[]", f)
-				}
+			for _, f := range parsed {
+				q.Add("extra_filters[]", f)
 			}
 
 			req.URL.RawQuery = q.Encode()
