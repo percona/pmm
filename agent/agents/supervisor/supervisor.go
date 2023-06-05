@@ -546,12 +546,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		agent, err = slowlog.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
-		fmt.Println("\n\n\n\n\n\n\n\n %B \n\n\n\n\n\n\n\n\n\n", builtinAgent.DisableCommentsParsing)
 		params := &pgstatstatements.Params{
 			DSN:                    dsn,
 			AgentID:                agentID,
 			MaxQueryLength:         builtinAgent.MaxQueryLength,
-			DisableCommentsParsing: true,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
 			TextFiles:              builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)

@@ -206,8 +206,8 @@ func TestDatabaseChecks(t *testing.T) {
 			now, now)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics) "+
-				"VALUES ('/agent_id/1', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, 0, false, 0, 0, true, true, false)",
+			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics) "+
+				"VALUES ('/agent_id/1', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, 0, false, true, 0, 0, true, true, false)",
 			now, now)
 		require.NoError(t, err)
 
