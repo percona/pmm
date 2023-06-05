@@ -20,6 +20,8 @@ percona-release enable original testing
 # this mirror always fails, on both AWS and github
 echo "exclude=mirror.es.its.nyu.edu" >> /etc/yum/pluginconf.d/fastestmirror.conf
 yum clean plugins
+# https://stackoverflow.com/questions/26734777/yum-error-cannot-retrieve-metalink-for-repository-epel-please-verify-its-path
+sed -i "s/metalink=https/metalink=http/" /etc/yum.repos.d/epel.repo
 
 # reinstall with man pages
 yum install -y yum rpm
