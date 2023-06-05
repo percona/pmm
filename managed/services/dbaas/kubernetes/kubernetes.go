@@ -61,11 +61,9 @@ const (
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
-	pgDeploymentName                       = "percona-postgresql-operator"
 	psmdbOperatorContainerName             = "percona-server-mongodb-operator"
 	pxcOperatorContainerName               = "percona-xtradb-cluster-operator"
 	dbaasOperatorContainerName             = "manager"
-	pgOperatorContainerName                = "operator"
 	databaseClusterKind                    = "DatabaseCluster"
 	databaseClusterAPIVersion              = "dbaas.percona.com/v1"
 	restartAnnotationKey                   = "dbaas.percona.com/restart"
@@ -349,13 +347,6 @@ func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
-}
-
-// GetPGOperatorVersion parses PG operator version from operator deployment
-func (k *Kubernetes) GetPGOperatorVersion(ctx context.Context) (string, error) {
-	k.lock.RLock()
-	defer k.lock.RUnlock()
-	return k.getOperatorVersion(ctx, pgDeploymentName, pgOperatorContainerName)
 }
 
 // GetSecret returns secret by name
@@ -655,7 +646,7 @@ func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType Clust
 		for _, node := range nodes {
 			var summary NodeSummary
 			request := clientset.CoreV1().RESTClient().Get().Resource("nodes").Name(node.Name).SubResource("proxy").Suffix("stats/summary")
-			responseRawArrayOfBytes, err := request.DoRaw(context.Background())
+			responseRawArrayOfBytes, err := request.DoRaw(context.Background()) //nolint:contextcheck
 			if err != nil {
 				return 0, errors.Wrap(err, "failed to get stats from node")
 			}
