@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"net/url"
 	"sync/atomic"
 	"time"
 
@@ -35,13 +34,13 @@ const (
 )
 
 type pbmJobLogger struct {
-	dbURL      *url.URL
+	dbURL      *string
 	jobID      string
 	jobType    pbmJob
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *url.URL) *pbmJobLogger {
+func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
 		jobType:    jobType,

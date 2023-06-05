@@ -17,7 +17,6 @@ package jobs
 import (
 	"context"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -45,7 +44,7 @@ type MongoDBBackupJob struct {
 	timeout        time.Duration
 	l              logrus.FieldLogger
 	name           string
-	dbURL          *url.URL
+	dbURL          *string
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
@@ -58,7 +57,7 @@ func NewMongoDBBackupJob(
 	id string,
 	timeout time.Duration,
 	name string,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
@@ -71,17 +70,16 @@ func NewMongoDBBackupJob(
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 
-	dbURL := createDBURL(dbConfig)
 	return &MongoDBBackupJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          dbURL,
+		dbURL:          dbConfig,
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbConfig),
 		folder:         folder,
 	}, nil
 }
