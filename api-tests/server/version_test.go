@@ -32,6 +32,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
+	t.Parallel()
 	paths := []string{
 		"managed/v1/version",
 		"v1/version",

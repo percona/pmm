@@ -52,6 +52,7 @@ func TestConfig(t *testing.T) {
 
 		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
+			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings, nil)
@@ -125,6 +126,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	t.Parallel()
 
 	t.Run("empty alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("", params)
 		require.NoError(t, err)
@@ -132,6 +134,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("simple alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("https://some-alertmanager", params)
 		require.NoError(t, err)
@@ -139,6 +142,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("extract username and password from alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("https://username1:PAsds!234@some-alertmanager", params)
 		require.NoError(t, err)
@@ -148,6 +152,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("incorrect alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("*:9095", params)
 		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
@@ -175,7 +180,9 @@ func TestSavePMMConfig(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
+		test := test
 		t.Run(test.description, func(t *testing.T) {
+			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
 			require.NoError(t, err)
 			actual, err := marshalConfig(test.params)
