@@ -28,6 +28,7 @@ import (
 )
 
 func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
+	t.Parallel()
 	const (
 		ami          = "ami"
 		ovf          = "ovf"
@@ -160,6 +161,7 @@ func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.Fil
 }
 
 func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
+	t.Parallel()
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		tmpOsInfoFilePath   = "/tmp/version"
