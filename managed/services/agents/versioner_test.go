@@ -40,7 +40,9 @@ func TestSoftwareName(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(string(tc.name), func(t *testing.T) {
+			t.Parallel()
 			res := tc.sw.Name()
 			assert.Equal(t, tc.name, res)
 		})
@@ -64,7 +66,9 @@ func TestGetVersionRequest(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			res := tc.sw.GetVersionRequest()
 			assert.Equal(t, tc.request, res)
 		})
