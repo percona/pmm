@@ -261,7 +261,7 @@ func TestPXCClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.DBClusters.RestartDBCluster(&restartPXCClusterParamsParam)
 		require.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code()) //nolint:errorlint
 	})
 
 	t.Run("DeleteUnknownPXCCluster", func(t *testing.T) {
@@ -274,7 +274,7 @@ func TestPXCClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.DBClusters.DeleteDBCluster(&deletePXCClusterParamsParam)
 		require.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code()) //nolint:errorlint
 	})
 
 	t.Run("SuspendResumeCluster", func(t *testing.T) {

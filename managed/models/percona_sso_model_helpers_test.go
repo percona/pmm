@@ -31,6 +31,7 @@ import (
 )
 
 func setupDB(t *testing.T) (*reform.DB, func()) {
+	t.Helper()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	cleanup := func() {
 		require.NoError(t, sqlDB.Close())

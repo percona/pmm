@@ -63,6 +63,10 @@ func TestDownloadAdvisors(t *testing.T) {
 
 	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
@@ -152,6 +156,10 @@ func TestLoadLocalChecks(t *testing.T) {
 
 func TestCollectAdvisors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
@@ -216,6 +224,10 @@ func TestCollectAdvisors(t *testing.T) {
 func TestDisableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -241,6 +253,10 @@ func TestDisableChecks(t *testing.T) {
 
 	t.Run("disable same check twice", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -269,6 +285,10 @@ func TestDisableChecks(t *testing.T) {
 
 	t.Run("disable unknown check", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -288,6 +308,10 @@ func TestDisableChecks(t *testing.T) {
 func TestEnableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -319,6 +343,10 @@ func TestChangeInterval(t *testing.T) {
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
@@ -359,6 +387,10 @@ func TestChangeInterval(t *testing.T) {
 
 func TestGetSecurityCheckResults(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("STT enabled", func(t *testing.T) {
@@ -387,6 +419,10 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	setupClients(t)
 
@@ -542,6 +578,7 @@ func TestMinPMMAgents(t *testing.T) {
 }
 
 func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	t.Helper()
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
 	require.NoError(t, err)
 
@@ -582,6 +619,10 @@ func setupClients(t *testing.T) {
 
 func TestFindTargets(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	s := New(db, nil, nil, nil, vmClient, clickhouseDB)
@@ -665,6 +706,10 @@ func TestGetFailedChecks(t *testing.T) {
 	t.Parallel()
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("no failed check for service", func(t *testing.T) {
