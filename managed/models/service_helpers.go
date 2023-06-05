@@ -38,26 +38,27 @@ func checkServiceUniqueID(q *reform.Querier, id string) error {
 	}
 
 	row := &Service{ServiceID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(row)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
 }
 
 func checkServiceUniqueName(q *reform.Querier, name string) error {
 	_, err := q.FindOneFrom(ServiceTable, "service_name", name)
-	switch err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
 }
 
 func validateDBConnectionOptions(socket, host *string, port *uint16) error {
@@ -168,14 +169,15 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	}
 
 	row := &Service{ServiceID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return row, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
-	default:
+	err := q.Reload(row)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return row, nil
 }
 
 // FindServicesByIDs finds Services by IDs.
@@ -213,14 +215,14 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 
 	var service Service
 	err := q.FindOneTo(&service, "service_name", name)
-	switch err {
-	case nil:
-		return &service, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &service, nil
 }
 
 // AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External) Services.

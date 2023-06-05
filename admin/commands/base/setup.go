@@ -55,7 +55,7 @@ var (
 func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	//nolint:nestif
 	if globalFlags.ServerURL == nil || globalFlags.ServerURL.String() == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo) //nolint:contextcheck
 		if err != nil {
 			if err == agentlocal.ErrNotSetUp { //nolint:errorlint
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+

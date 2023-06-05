@@ -323,7 +323,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: "non-existing",
 	})
-	assert.EqualError(t, err, `rpc error: code = NotFound desc = Backup location with ID "non-existing" not found.`)
+	assert.ErrorIs(t, err, models.ErrNotFound)
 }
 
 func TestVerifyBackupLocationValidation(t *testing.T) {

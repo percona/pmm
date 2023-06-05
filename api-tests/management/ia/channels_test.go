@@ -374,6 +374,7 @@ func TestChannelsAPI(t *testing.T) {
 }
 
 func deleteChannel(t *testing.T, client channels.ClientService, id string) {
+	t.Helper()
 	_, err := client.RemoveChannel(&channels.RemoveChannelParams{
 		Body: channels.RemoveChannelBody{
 			ChannelID: id,

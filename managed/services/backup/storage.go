@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,22 +13,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package onboarding
+package backup
 
 import (
-	"context"
-
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
-//go:generate ../../../bin/mockery -name=inventoryService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-
-type inventoryService interface {
-	List(ctx context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error)
-}
-
-type grafanaClient interface {
-	GetUserID(ctx context.Context) (int, error)
+// GetStorageForLocation returns storage client depending on location type.
+func GetStorageForLocation(location *models.BackupLocation) Storage {
+	switch location.Type {
+	case models.S3BackupLocationType:
+		return minio.New()
+	default:
+		return nil
+	}
 }

@@ -342,6 +342,7 @@ func TestIsReady(t *testing.T) {
 
 // marshalAndValidate populates, marshals and validates config.
 func marshalAndValidate(t *testing.T, svc *Service, base *alertmanager.Config) string {
+	t.Helper()
 	b, err := svc.marshalConfig(base)
 	require.NoError(t, err)
 

@@ -75,9 +75,11 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -99,7 +101,6 @@ linters:
     # or leave disabled and provide a reason why
     - paralleltest
     - tagliatelle
-    - thelper
     - tparallel
     - gocritic
     - godot
@@ -110,14 +111,10 @@ linters:
     - ireturn
     - gocognit
     - maintidx
-    - errorlint
-    - execinquery
     - interfacebloat
     - gosimple
-    - contextcheck
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:
@@ -140,6 +137,7 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
