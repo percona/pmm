@@ -33,9 +33,10 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM pg_extension",
@@ -68,6 +69,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("Binary", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: `'\x0001feff'::bytea AS bytes`,
@@ -91,6 +93,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city CASCADE; --",

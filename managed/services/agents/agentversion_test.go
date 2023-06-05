@@ -26,6 +26,7 @@ import (
 )
 
 func TestPMMAgentSupported(t *testing.T) {
+	t.Parallel()
 	prefix := "testing prefix"
 	minVersion := version.Must(version.NewVersion("2.30.5"))
 
