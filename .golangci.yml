@@ -92,6 +92,7 @@ linters:
     - interfacer       # deprecated
     - maligned         # deprecated
     - nlreturn         # too annoying
+    - nosnakecase      # deprecated
     - scopelint        # too many false positives
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
@@ -104,13 +105,11 @@ linters:
     - godot
     - godox
     - revive
-    - nosnakecase
     - paralleltest
     - ireturn
     - gocognit
     - maintidx
     - interfacebloat
-    - gosimple
     - forbidigo
     - errcheck
     # ENDTODO

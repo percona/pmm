@@ -91,7 +91,6 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	<-ctx.Done()
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
-	return
 }
 
 // Changes returns channel that should be read until it is closed.
