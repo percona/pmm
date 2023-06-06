@@ -17,7 +17,6 @@ package jobs
 import (
 	"context"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -35,6 +34,8 @@ const (
 
 	logsCheckInterval = 3 * time.Second
 	waitForLogs       = 2 * logsCheckInterval
+
+	pbmArtifactJSONPostfix = ".pbm.json"
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -43,11 +44,12 @@ type MongoDBBackupJob struct {
 	timeout        time.Duration
 	l              logrus.FieldLogger
 	name           string
-	dbURL          *url.URL
+	dbURL          *string
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
 	jobLogger      *pbmJobLogger
+	folder         string
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -55,10 +57,11 @@ func NewMongoDBBackupJob(
 	id string,
 	timeout time.Duration,
 	name string,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
+	folder string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -67,17 +70,17 @@ func NewMongoDBBackupJob(
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 
-	dbURL := createDBURL(dbConfig)
 	return &MongoDBBackupJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          dbURL,
+		dbURL:          dbConfig,
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbConfig),
+		folder:         folder,
 	}, nil
 }
 
@@ -104,7 +107,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	conf, err := createPBMConfig(&j.locationConfig, j.folder, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -149,11 +152,40 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
+
+	sharded, err := isShardedCluster(ctx, j.dbURL)
+	if err != nil {
+		return err
+	}
+
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	if err != nil {
+		return err
+	}
+
+	// mongoArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mongoArtifactFiles := func(pbmBackupName string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: pbmBackupName + pbmArtifactJSONPostfix},
+			{Name: pbmBackupName, IsDirectory: true},
+		}
+		return res
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{},
+			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				IsShardedCluster: sharded,
+				Metadata: &backuppb.Metadata{
+					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
+					RestoreTo: timestamppb.New(*backupTimestamp),
+					BackupToolMetadata: &backuppb.Metadata_PbmMetadata{
+						PbmMetadata: &backuppb.PbmMetadata{Name: pbmBackupOut.Name},
+					},
+				},
+			},
 		},
 	})
 

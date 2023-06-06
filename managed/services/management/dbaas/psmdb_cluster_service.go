@@ -110,7 +110,6 @@ func (s PSMDBClusterService) GetPSMDBClusterCredentials(ctx context.Context, req
 //
 //nolint:dupl
 func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*dbaasv1beta1.CreatePSMDBClusterResponse, error) { //nolint:lll
-
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		return nil, err
@@ -189,7 +188,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 		secrets["PMM_SERVER_USER"] = []byte("api_key")
 		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
@@ -302,7 +301,11 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +325,7 @@ func (s PSMDBClusterService) getBackupLocation(req *dbaasv1beta1.CreatePSMDBClus
 	if req.Params != nil && req.Params.Restore != nil && req.Params.Restore.LocationId != "" {
 		return models.FindBackupLocationByID(s.db.Querier, req.Params.Restore.LocationId)
 	}
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }
 
 // GetPSMDBClusterResources returns expected resources to be consumed by the cluster.

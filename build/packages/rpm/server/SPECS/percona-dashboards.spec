@@ -1,4 +1,5 @@
 %global debug_package   %{nil}
+%global __strip         /bin/true
 
 %global repo		grafana-dashboards
 %global provider	github.com/percona/%{repo}
@@ -56,6 +57,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Tue May 16 2023 Oleksii Kysil <oleksii.kysil@ext.percona.com> - 2.38.0-1
+- PMM-12118 Skip stripping of plugin binaries
+
 * Thu Jul 28 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.30.0-1
 - PMM-10036 migrate to monorepo, part 2
 

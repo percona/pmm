@@ -461,7 +461,7 @@ func TestAddMongoDB(t *testing.T) {
 			Body:    mongodb.AddMongoDBBody{NodeID: nodeID},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
 
@@ -532,7 +532,7 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMongoDBOK)
 	})
 

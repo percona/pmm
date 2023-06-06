@@ -22,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -114,7 +113,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if baseURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
@@ -128,7 +127,6 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 //nolint:gochecknoinits
 func init() {
 	seed := time.Now().UnixNano()
-	rand.Seed(seed)
 	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
@@ -186,7 +184,7 @@ func init() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal)))
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 

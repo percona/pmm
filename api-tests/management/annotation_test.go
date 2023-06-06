@@ -52,7 +52,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		_, err := client.Default.Annotation.AddAnnotation(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Text: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
 	t.Run("Non-existing service", func(t *testing.T) {

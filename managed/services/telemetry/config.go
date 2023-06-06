@@ -38,7 +38,7 @@ const (
 )
 
 // ServiceConfig telemetry config.
-type ServiceConfig struct { //nolint:musttag
+type ServiceConfig struct {
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
 	telemetry    []Config `yaml:"-"`
@@ -107,6 +107,7 @@ type Config struct {
 	Query     string           `yaml:"query"`
 	Summary   string           `yaml:"summary"`
 	Transform *ConfigTransform `yaml:"transform"`
+	Extension ExtensionType    `yaml:"extension"`
 	Data      []ConfigData
 }
 
@@ -152,6 +153,12 @@ type ReportingConfig struct {
 
 //go:embed config.default.yml
 var defaultConfig string
+
+type ExtensionType string
+
+const (
+	UIEventsExtension = ExtensionType("UIEventsExtension")
+)
 
 // Init initializes telemetry config.
 func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
@@ -210,7 +217,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig //nolint:prealloc
+	var fileConfigs []FileConfig
 	var fileCfg FileConfig
 
 	var config []byte

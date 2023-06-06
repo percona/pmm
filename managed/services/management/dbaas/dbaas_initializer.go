@@ -61,6 +61,7 @@ func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	}
 }
 
+// RegisterKubernetesServer sets the Kubernetes server instance.
 func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer) {
 	in.kubernetesServer = k
 }
@@ -100,6 +101,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 // registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
 func (in *Initializer) registerInCluster(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
+	//nolint:nestif
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {

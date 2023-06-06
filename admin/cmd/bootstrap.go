@@ -181,7 +181,7 @@ func finishBootstrap(globalFlags *flags.GlobalFlags) {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 

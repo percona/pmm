@@ -2,18 +2,14 @@ syntax = "proto3";
 
 package role.v1beta1;
 
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
 option go_package = "api/managementpb/role;rolev1beta1";
 
-import "protoc-gen-openapiv2/options/annotations.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
-import "google/api/annotations.proto";
-
 message CreateRoleRequest {
-  string title = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string title = 1 [(validate.rules).string.min_len = 1];
   string filter = 2;
   string description = 3;
 }
@@ -23,27 +19,15 @@ message CreateRoleResponse {
 }
 
 message UpdateRoleRequest {
-  uint32 role_id = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
-  string title = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
+  string title = 2 [(validate.rules).string.min_len = 1];
   string filter = 3;
   string description = 4;
 }
 message UpdateRoleResponse {}
 
 message DeleteRoleRequest {
-  uint32 role_id = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
   // Role ID to be used as a replacement for the role. Additional logic applies.
   uint32 replacement_role_id = 2;
 }
@@ -51,11 +35,7 @@ message DeleteRoleRequest {
 message DeleteRoleResponse {}
 
 message GetRoleRequest {
-  uint32 role_id = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
 }
 
 message GetRoleResponse {
@@ -66,22 +46,14 @@ message GetRoleResponse {
 }
 
 message SetDefaultRoleRequest {
-  uint32 role_id = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
 }
 
 message SetDefaultRoleResponse {}
 
 message AssignRolesRequest {
   repeated uint32 role_ids = 1;
-  uint32 user_id = 2 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  uint32 user_id = 2 [(validate.rules).uint32.gt = 0];
 }
 
 message AssignRolesResponse {}
@@ -153,7 +125,7 @@ service Role {
   rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
     option (google.api.http) = {
       post: "/v1/management/Role/List"
-      body: "*"      
+      body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Roles"

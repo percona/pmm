@@ -62,12 +62,12 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
-				ExplainFingerprint:  "select * from contacts as t0 where t0.person_id = :1",
+				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
@@ -94,7 +94,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 
 	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
@@ -113,8 +113,9 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 }
 
 func TestSlowLog(t *testing.T) {
+	t.Parallel()
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()

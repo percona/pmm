@@ -49,6 +49,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
+		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -64,7 +65,7 @@ func TestNextPrefix(t *testing.T) {
 
 func TestAuthServerMustSetup(t *testing.T) {
 	t.Run("MustCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -79,7 +80,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -96,7 +97,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
@@ -107,7 +108,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("MustNotCheck", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/graph", nil)
+		req, err := http.NewRequest(http.MethodGet, "/graph", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -122,7 +123,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -133,7 +134,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 	})
 
 	t.Run("SkipNonUI", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/dummy", nil)
+		req, err := http.NewRequest(http.MethodGet, "/dummy", nil)
 		require.NoError(t, err)
 
 		checker := &mockAwsInstanceChecker{}
@@ -147,7 +148,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:errcheck
+			defer resp.Body.Close() //nolint:gosec
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -159,17 +160,18 @@ func TestAuthServerMustSetup(t *testing.T) {
 }
 
 func TestAuthServerAuthenticate(t *testing.T) {
+	t.Parallel()
 	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
-	defer checker.AssertExpectations(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, checker, nil)
 
-	req, err := http.NewRequestWithContext(ctx, "GET", "/dummy", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
 	req.SetBasicAuth("admin", "admin")
 	authHeaders := req.Header
@@ -177,7 +179,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("GrafanaAdminFallback", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
@@ -188,7 +190,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 	t.Run("NoAnonymousAccess", func(t *testing.T) {
 		t.Parallel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", "/foo", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
 		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
@@ -201,6 +203,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/inventory.Nodes/ListNodes":                          admin,
 		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
 		"/management.Service/RemoveService":                   admin,
+		"/management.Service/ListServices":                    admin,
 		"/management.Annotation/AddAnnotation":                admin,
 		"/server.Server/CheckUpdates":                         viewer,
 		"/server.Server/StartUpdate":                          admin,
@@ -210,12 +213,17 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/inventory/Nodes/List":                         admin,
 		"/v1/management/Actions/StartMySQLShowTableStatus": viewer,
 		"/v1/management/Service/Remove":                    admin,
+		"/v1/management/Service/List":                      admin,
+		"/v1/management/Agent/List":                        admin,
 		"/v1/Updates/Check":                                viewer,
 		"/v1/Updates/Start":                                admin,
 		"/v1/Updates/Status":                               none,
 		"/v1/Settings/Get":                                 admin,
 		"/v1/AWSInstanceCheck":                             none,
 		"/v1/Platform/Connect":                             admin,
+
+		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
+		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
 
 		"/v1/readyz": none,
 		"/ping":      none,
@@ -235,8 +243,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
+				t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -249,7 +257,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
@@ -374,4 +382,32 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.Equal(t, parsed[0], "filter A")
 		require.Equal(t, parsed[1], "filter B")
 	})
+}
+
+func Test_cleanPath(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		path     string
+		expected string
+	}{
+		{
+			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/inventory/Services/List",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/managed/logs.zip",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/logs.zip",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
+			cleanedPath, err := cleanPath(tt.path)
+			require.NoError(t, err)
+			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
 }

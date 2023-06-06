@@ -27,10 +27,11 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 )
 
-func TestAzureDatabaseExporter(t *testing.T) {
+func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
+	// TODO Fix this test to run in parallel.
+	// t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
-
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
@@ -149,7 +150,7 @@ func TestAzureDatabaseExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAzureDatabaseExporterRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.AzureDatabaseExporter.AgentID)
 		}
