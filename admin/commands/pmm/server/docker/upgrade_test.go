@@ -134,8 +134,8 @@ func TestUpgradeCmd(t *testing.T) {
 }
 
 func setWaitForContainerMock(m *MockFunctions) {
-	ch := func() <-chan container.ContainerWaitOKBody {
-		c := make(chan container.ContainerWaitOKBody)
+	ch := func() <-chan container.WaitResponse {
+		c := make(chan container.WaitResponse)
 		close(c)
 		return c
 	}()
