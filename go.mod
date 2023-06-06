@@ -40,7 +40,7 @@ require (
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/golang-migrate/migrate/v4 v4.16.0
+	github.com/golang-migrate/migrate/v4 v4.16.1
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/grafana/grafana-api-golang-client v0.22.0
