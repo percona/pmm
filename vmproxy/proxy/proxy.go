@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -88,7 +89,10 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 			q := req.URL.Query()
 			q.Del("extra_filters[]")
 
-			parsed, _ := parseFilters(filters)
+			parsed, err := parseFilters(filters)
+			if err != nil {
+				logrus.Error(err)
+			}
 
 			for _, f := range parsed {
 				q.Add("extra_filters[]", f)
@@ -116,13 +120,11 @@ func parseFilters(filters string) ([]string, error) {
 
 	decoded, err := base64.StdEncoding.DecodeString(filters)
 	if err != nil {
-		logrus.Errorf("Could not decode filters header. %v", err)
-		return nil, fmt.Errorf("could not decode filters header")
+		return nil, errors.Wrapf(err, "could not decode filters header")
 	}
 
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		logrus.Errorf("Could not parse filters JSON. %v", err)
-		return nil, fmt.Errorf("could not parse filters JSON")
+		return nil, errors.Wrapf(err, "could not parse filters JSON")
 	}
 
 	return parsed, nil
