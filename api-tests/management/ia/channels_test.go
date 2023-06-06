@@ -34,7 +34,9 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 
-func TestChannelsAPI(t *testing.T) {
+func TestChannelsAPI(t *testing.T) { //nolint:tparallel
+	// TODO Fix this test to run in parallel.
+	// t.Parallel()
 	client := channelsClient.Default.Channels
 
 	t.Run("add", func(t *testing.T) {

@@ -34,6 +34,7 @@ type someType struct {
 type innerStruct struct{ float64 }
 
 func TestCache(t *testing.T) {
+	t.Parallel()
 	set1 := map[int64]*someType{
 		1: {},
 		2: {},
@@ -140,6 +141,7 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheErrors(t *testing.T) {
+	t.Parallel()
 	t.Run("WrongTypeOnNew", func(t *testing.T) {
 		t.Parallel()
 		var err error
