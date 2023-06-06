@@ -3,7 +3,7 @@
 
 release: '2.37.1'
 version: '2.37'
-release_date: 2023-06-02
+release_date: 2023-06-05
 
 # SVG icons. Use in markdown as {{icon.<name>}}
 # For the Percona image icon (encoded inline SVG), see https://css-tricks.com/using-svg/
