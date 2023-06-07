@@ -3,7 +3,6 @@ templates:
   - name: pmm_agent_down
     version: 1
     summary: PMM agent down
-    tiers: [anonymous, registered, paid]
     expr: 'pmm_managed_inventory_agents{agent_type="pmm-agent"} == bool 0 '
     for: 1m
     severity: critical
