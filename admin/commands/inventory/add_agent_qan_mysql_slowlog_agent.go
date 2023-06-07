@@ -108,9 +108,9 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		}
 	}
 
-	var disableCommentsParsing bool
-	if cmd.CommentsParsing == "off" {
-		disableCommentsParsing = true
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" { //nolint:goconst
+		disableCommentsParsing = false
 	}
 
 	params := &agents.AddQANMySQLSlowlogAgentParams{

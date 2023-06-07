@@ -158,9 +158,9 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	var disableCommentsParsing bool
-	if cmd.CommentsParsing == "off" {
-		disableCommentsParsing = true
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" { //nolint:goconst
+		disableCommentsParsing = false
 	}
 
 	if cmd.CredentialsSource != "" {
