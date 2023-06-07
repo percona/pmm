@@ -928,3 +928,11 @@ telemetry:
   - id: UIEvents
     summary: "UI Events"
     extension: UIEventsExtension
+
+  - id: PostgresDBCount
+    source: VM
+    query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
+    summary: "Number of databases monitored per PostgreSQL server"
+    data:
+      - metric_name: "postgresql_db_count"
+        value: 1
