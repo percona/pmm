@@ -44,8 +44,9 @@ func Setup() {
 	*/
 
 	l := logrus.WithField("component", "setup")
-	var cfg config.Config
-	configFilepath, err := config.Get(&cfg, l)
+
+	configStorage := config.NewStorage(nil)
+	configFilepath, err := configStorage.Reload(l)
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
@@ -53,6 +54,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
+	cfg := configStorage.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
 
 	configFilepath, running := checkStatus(configFilepath, l)
@@ -68,10 +70,10 @@ func Setup() {
 	}
 
 	if !cfg.Setup.SkipRegistration {
-		register(&cfg, l)
+		register(cfg, l)
 	}
 
-	if err = config.SaveToFile(configFilepath, &cfg, "Updated by `pmm-agent setup`."); err != nil {
+	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}
@@ -91,7 +93,7 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	fmt.Printf("Checking local pmm-agent status...\n")
 	status, err := localStatus()
 	l.Debugf("Status error: %#v", err)
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		if status.ConfigFilepath == "" {
 			fmt.Printf("pmm-agent is running but does not read configuration from the file. " +
@@ -135,11 +137,11 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
-	agentID, err := serverRegister(&cfg.Setup)
+	agentID, token, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil {
+		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
@@ -148,16 +150,21 @@ func register(cfg *config.Config, l *logrus.Entry) {
 				msg += "\nPlease check username and password"
 			}
 		}
-		if _, ok := err.(nginxError); ok {
+		if _, ok := err.(nginxError); ok { //nolint:errorlint
 			msg += ".\nPlease check pmm-managed logs."
 		}
 
 		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
 		os.Exit(1)
 	}
-
-	fmt.Printf("Registered.\n")
 	cfg.ID = agentID
+	if token != "" {
+		cfg.Server.Username = "api_key"
+		cfg.Server.Password = token
+	} else {
+		l.Info("PMM Server responded with an empty api key token. Consider upgrading PMM Server to the latest version.")
+	}
+	fmt.Printf("Registered.\n")
 }
 
 func reload(l *logrus.Entry) {
@@ -166,7 +173,7 @@ func reload(l *logrus.Entry) {
 	// sync error handling with Reload API method
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
-	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
+	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) { //nolint:errorlint
 		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Message)
 		os.Exit(1)
 	}

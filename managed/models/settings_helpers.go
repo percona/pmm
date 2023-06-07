@@ -96,6 +96,11 @@ type ChangeSettingsParams struct {
 	// Disable Integrated Alerting features.
 	DisableAlerting bool
 
+	// Enable Access Control features.
+	EnableAccessControl bool
+	// Disable Access Control features.
+	DisableAccessControl bool
+
 	// Email config for Integrated Alerting.
 	EmailAlertingSettings *EmailAlertingSettings
 	// If true removes email alerting settings.
@@ -274,6 +279,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Alerting.Disabled = false
 	}
 
+	if params.DisableAccessControl {
+		settings.AccessControl.Enabled = false
+	}
+	if params.EnableAccessControl {
+		settings.AccessControl.Enabled = true
+	}
+
 	if params.RemoveEmailAlertingSettings {
 		settings.Alerting.EmailAlertingSettings = nil
 	}
@@ -290,11 +302,11 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableBackupManagement {
-		settings.BackupManagement.Enabled = false
+		settings.BackupManagement.Disabled = true
 	}
 
 	if params.EnableBackupManagement {
-		settings.BackupManagement.Enabled = true
+		settings.BackupManagement.Disabled = false
 	}
 
 	if params.DefaultRoleID != 0 {
@@ -386,7 +398,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -411,7 +423,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -424,7 +436,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if params.DataRetention != 0 {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:

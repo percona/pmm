@@ -25,19 +25,19 @@ import (
 // FindCheckSettings returns all CheckSettings stored in the table.
 func FindCheckSettings(q *reform.Querier) (map[string]Interval, error) {
 	rows, err := q.SelectAllFrom(CheckSettingsTable, "")
-	switch err {
-	case nil:
-		cs := make(map[string]Interval)
-		for _, r := range rows {
-			state := r.(*CheckSettings)
-			cs[state.Name] = state.Interval
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, err
 		}
-		return cs, nil
-	case reform.ErrNoRows:
-		return nil, err
-	default:
 		return nil, errors.WithStack(err)
 	}
+
+	cs := make(map[string]Interval)
+	for _, r := range rows {
+		state := r.(*CheckSettings) //nolint:forcetypeassert
+		cs[state.Name] = state.Interval
+	}
+	return cs, nil
 }
 
 // FindCheckSettingsByName finds CheckSettings by check name.
@@ -47,14 +47,15 @@ func FindCheckSettingsByName(q *reform.Querier, name string) (*CheckSettings, er
 	}
 
 	cs := &CheckSettings{Name: name}
-	switch err := q.Reload(cs); err {
-	case nil:
-		return cs, nil
-	case reform.ErrNoRows:
-		return nil, err
-	default:
+	err := q.Reload(cs)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, err
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return cs, nil
 }
 
 // CreateCheckSettings persists CheckSettings.

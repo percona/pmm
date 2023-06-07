@@ -38,7 +38,6 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-//nolint:dupword
 var htmlTemplate = `|
             <!--
             Style and HTML derived from https://github.com/mailgun/transactional-email-templates
@@ -343,6 +342,7 @@ func TestIsReady(t *testing.T) {
 
 // marshalAndValidate populates, marshals and validates config.
 func marshalAndValidate(t *testing.T, svc *Service, base *alertmanager.Config) string {
+	t.Helper()
 	b, err := svc.marshalConfig(base)
 	require.NoError(t, err)
 

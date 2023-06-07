@@ -15,13 +15,10 @@
 package jobs
 
 import (
-	"bytes"
 	"context"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
-	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -37,6 +34,8 @@ const (
 
 	logsCheckInterval = 3 * time.Second
 	waitForLogs       = 2 * logsCheckInterval
+
+	pbmArtifactJSONPostfix = ".pbm.json"
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -45,11 +44,12 @@ type MongoDBBackupJob struct {
 	timeout        time.Duration
 	l              logrus.FieldLogger
 	name           string
-	dbURL          *url.URL
+	dbURL          *string
 	locationConfig BackupLocationConfig
 	pitr           bool
-	logChunkID     uint32
 	dataModel      backuppb.DataModel
+	jobLogger      *pbmJobLogger
+	folder         string
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -57,10 +57,11 @@ func NewMongoDBBackupJob(
 	id string,
 	timeout time.Duration,
 	name string,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
+	folder string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
@@ -68,15 +69,18 @@ func NewMongoDBBackupJob(
 	if dataModel != backuppb.DataModel_LOGICAL && pitr {
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
+
 	return &MongoDBBackupJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          createDBURL(dbConfig),
+		dbURL:          dbConfig,
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbConfig),
+		folder:         folder,
 	}, nil
 }
 
@@ -97,13 +101,13 @@ func (j *MongoDBBackupJob) Timeout() time.Duration {
 
 // Run starts Job execution.
 func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
-	defer j.sendLog(send, "", true)
+	defer j.jobLogger.sendLog(send, "", true)
 
 	if _, err := exec.LookPath(pbmBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	conf, err := createPBMConfig(&j.locationConfig, j.folder, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -114,7 +118,12 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
-	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
+	configParams := pbmConfigParams{
+		configFilePath: confFile,
+		forceResync:    false,
+		dbURL:          j.dbURL,
+	}
+	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
@@ -127,27 +136,56 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 
 	pbmBackupOut, err := j.startBackup(ctx)
 	if err != nil {
-		j.sendLog(send, err.Error(), false)
+		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to start backup")
 	}
 	streamCtx, streamCancel := context.WithCancel(ctx)
 	defer streamCancel()
 	go func() {
-		err := j.streamLogs(streamCtx, send, pbmBackupOut.Name)
+		err := j.jobLogger.streamLogs(streamCtx, send, pbmBackupOut.Name)
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			j.l.Errorf("stream logs: %v", err)
 		}
 	}()
 
 	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
-		j.sendLog(send, err.Error(), false)
+		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
+
+	sharded, err := isShardedCluster(ctx, j.dbURL)
+	if err != nil {
+		return err
+	}
+
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	if err != nil {
+		return err
+	}
+
+	// mongoArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mongoArtifactFiles := func(pbmBackupName string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: pbmBackupName + pbmArtifactJSONPostfix},
+			{Name: pbmBackupName, IsDirectory: true},
+		}
+		return res
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{},
+			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+				IsShardedCluster: sharded,
+				Metadata: &backuppb.Metadata{
+					FileList:  mongoArtifactFiles(pbmBackupOut.Name),
+					RestoreTo: timestamppb.New(*backupTimestamp),
+					BackupToolMetadata: &backuppb.Metadata_PbmMetadata{
+						PbmMetadata: &backuppb.PbmMetadata{Name: pbmBackupOut.Name},
+					},
+				},
+			},
 		},
 	})
 
@@ -178,68 +216,4 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	}
 
 	return &result, nil
-}
-
-func (j *MongoDBBackupJob) streamLogs(ctx context.Context, send Send, name string) error {
-	var (
-		err    error
-		logs   []pbmLogEntry
-		buffer bytes.Buffer
-		skip   int
-	)
-	j.logChunkID = 0
-
-	ticker := time.NewTicker(logsCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			logs, err = retrieveLogs(ctx, j.dbURL, "backup/"+name)
-			if err != nil {
-				return err
-			}
-			// @TODO Replace skip with proper paging after this is done https://jira.percona.com/browse/PBM-713
-			logs = logs[skip:]
-			skip += len(logs)
-			if len(logs) == 0 {
-				continue
-			}
-			from, to := 0, maxLogsChunkSize
-			for from < len(logs) {
-				if to > len(logs) {
-					to = len(logs)
-				}
-				buffer.Reset()
-				for i, log := range logs[from:to] {
-					_, err := buffer.WriteString(log.String())
-					if err != nil {
-						return err
-					}
-					if i != to-from-1 {
-						buffer.WriteRune('\n')
-					}
-				}
-				j.sendLog(send, buffer.String(), false)
-				from += maxLogsChunkSize
-				to += maxLogsChunkSize
-			}
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-	}
-}
-
-func (j *MongoDBBackupJob) sendLog(send Send, data string, done bool) {
-	send(&agentpb.JobProgress{
-		JobId:     j.id,
-		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobProgress_Logs_{
-			Logs: &agentpb.JobProgress_Logs{
-				ChunkId: atomic.AddUint32(&j.logChunkID, 1) - 1,
-				Data:    data,
-				Done:    done,
-			},
-		},
-	})
 }

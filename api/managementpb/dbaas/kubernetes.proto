@@ -2,20 +2,16 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-option go_package = "api/managementpb/dbaas;dbaasv1beta1";
-
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 message KubeAuth {
   // Kubeconfig file content.
-  string kubeconfig = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubeconfig = 1 [(validate.rules).string.min_len = 1];
 }
 
 // KubernetesClusterStatus defines status of Kubernetes cluster.
@@ -65,17 +61,9 @@ message ListKubernetesClustersResponse {
 
 message RegisterKubernetesClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // Kubernetes auth.
-  KubeAuth kube_auth = 2 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  KubeAuth kube_auth = 2 [(validate.rules).message.required = true];
   // AWS access key id, only needed when registering EKS cluster and kubeconfig does not contain it.
   string aws_access_key_id = 3;
   // AWS secret access key, only needed when registering EKS cluster and kubeconfig does not contain it.
@@ -86,11 +74,7 @@ message RegisterKubernetesClusterResponse {}
 
 message UnregisterKubernetesClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // If true then Kubernetes cluster will be deleted
   // even if it contains database clusters.
   bool force = 2;
@@ -100,11 +84,7 @@ message UnregisterKubernetesClusterResponse {}
 
 message GetKubernetesClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetKubernetesClusterResponse {
@@ -114,11 +94,7 @@ message GetKubernetesClusterResponse {
 
 message GetResourcesRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetResourcesResponse {
@@ -130,11 +106,7 @@ message GetResourcesResponse {
 
 message ListStorageClassesRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message ListStorageClassesResponse {

@@ -32,14 +32,16 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	vc    versionCache
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		vc:    vc,
 	}
 }
 
@@ -71,7 +73,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MongoDBService)
+		res.Service = invService.(*inventorypb.MongoDBService) //nolint:forcetypeassert
 
 		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
 
@@ -107,7 +109,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
+		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -130,7 +132,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent)
+			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil
@@ -139,5 +141,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	s.vc.RequestSoftwareVersionsUpdate()
+
 	return res, nil
 }

@@ -216,6 +216,18 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
+
+	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.36.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.Contains(t, actual.Args, "--collect.plugins")
+	})
+
+	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.35.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.NotContains(t, actual.Args, "--collect.plugins")
+	})
 }
 
 func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {

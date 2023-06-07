@@ -38,26 +38,27 @@ func checkServiceUniqueID(q *reform.Querier, id string) error {
 	}
 
 	row := &Service{ServiceID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(row)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
 }
 
 func checkServiceUniqueName(q *reform.Querier, name string) error {
 	_, err := q.FindOneFrom(ServiceTable, "service_name", name)
-	switch err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
 }
 
 func validateDBConnectionOptions(socket, host *string, port *uint16) error {
@@ -128,7 +129,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 
 	services := make([]*Service, len(structs))
 	for i, s := range structs {
-		services[i] = s.(*Service)
+		services[i] = s.(*Service) //nolint:forcetypeassert
 	}
 
 	return services, nil
@@ -168,14 +169,15 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	}
 
 	row := &Service{ServiceID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return row, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
-	default:
+	err := q.Reload(row)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return row, nil
 }
 
 // FindServicesByIDs finds Services by IDs.
@@ -198,7 +200,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	services := make(map[string]*Service, len(all))
 	for _, s := range all {
-		service := s.(*Service)
+		service := s.(*Service) //nolint:forcetypeassert
 		services[service.ServiceID] = service
 	}
 
@@ -213,14 +215,14 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 
 	var service Service
 	err := q.FindOneTo(&service, "service_name", name)
-	switch err {
-	case nil:
-		return &service, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &service, nil
 }
 
 // AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External) Services.
@@ -239,6 +241,7 @@ type AddDBMSServiceParams struct {
 }
 
 // AddNewService adds new service to storage.
+// Must be performed in transaction.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
 	switch serviceType {
 	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType:
@@ -302,15 +305,8 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		return nil, errors.WithStack(err)
 	}
 
-	if serviceType == MySQLServiceType {
-		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
-			ServiceID:        id,
-			ServiceType:      serviceType,
-			SoftwareVersions: []SoftwareVersion{},
-			NextCheckAt:      time.Now(),
-		}); err != nil {
-			return nil, errors.WithStack(err)
-		}
+	if err := initSoftwareVersions(q, id, serviceType); err != nil {
+		return nil, err
 	}
 
 	return row, nil
@@ -404,4 +400,23 @@ func ValidateServiceType(serviceType ServiceType) error {
 	default:
 		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
 	}
+}
+
+func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {
+	switch serviceType {
+	case MySQLServiceType:
+		fallthrough
+	case MongoDBServiceType:
+		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
+			ServiceID:        serviceID,
+			ServiceType:      serviceType,
+			SoftwareVersions: []SoftwareVersion{},
+			NextCheckAt:      time.Now(),
+		}); err != nil {
+			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
+		}
+	default:
+		return nil
+	}
+	return nil
 }

@@ -17,15 +17,15 @@ package docker
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 )
 
 func startPMMServer(
 	ctx context.Context,
-	volume *types.Volume,
+	volume *volume.Volume,
 	volumesFromContainerID string,
 	dockerImage string,
 	dockerFn Functions,

@@ -64,6 +64,8 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
@@ -110,6 +112,8 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
@@ -159,14 +163,15 @@ func FindServiceSoftwareVersionsByServiceID(q *reform.Querier, serviceID string)
 	}
 
 	versions := &ServiceSoftwareVersions{ServiceID: serviceID}
-	switch err := q.Reload(versions); err {
-	case nil:
-		return versions, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
-	default:
+	err := q.Reload(versions)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return versions, nil
 }
 
 // FindServicesSoftwareVersionsFilter represents a filter for finding service software versions.
@@ -213,7 +218,7 @@ func FindServicesSoftwareVersions(
 
 	versions := make([]*ServiceSoftwareVersions, len(structs))
 	for i, s := range structs {
-		versions[i] = s.(*ServiceSoftwareVersions)
+		versions[i] = s.(*ServiceSoftwareVersions) //nolint:forcetypeassert
 	}
 
 	return versions, nil

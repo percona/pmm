@@ -55,7 +55,7 @@ func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *process
 
 // Write implements io.Writer.
 // This method is thread-safe.
-func (pl *processLogger) Write(p []byte) (n int, err error) {
+func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedreturns
 	pl.m.Lock()
 	defer pl.m.Unlock()
 
@@ -132,7 +132,7 @@ func replacer(redactWords []string) *strings.Replacer {
 
 var extractLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 
-func extractLogLevel(line string) (level logrus.Level, found bool, err error) {
+func extractLogLevel(line string) (logrus.Level, bool, error) {
 	matches := extractLogLevelRegex.FindStringSubmatch(line)
 
 	noMatches := len(matches) < 2
@@ -140,7 +140,7 @@ func extractLogLevel(line string) (level logrus.Level, found bool, err error) {
 		return 0, false, nil
 	}
 
-	level, err = logrus.ParseLevel(matches[1])
+	level, err := logrus.ParseLevel(matches[1])
 	if err != nil {
 		return 0, false, err
 	}

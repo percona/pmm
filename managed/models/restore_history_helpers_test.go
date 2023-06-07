@@ -238,6 +238,7 @@ func TestRestoreHistory(t *testing.T) {
 }
 
 func TestRestoreHistoryValidation(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		params   models.CreateRestoreHistoryItemParams
@@ -271,6 +272,7 @@ func TestRestoreHistoryValidation(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 

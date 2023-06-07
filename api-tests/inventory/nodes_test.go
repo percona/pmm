@@ -32,6 +32,7 @@ import (
 )
 
 func TestNodes(t *testing.T) {
+	t.Parallel()
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
@@ -91,6 +92,7 @@ func TestNodes(t *testing.T) {
 }
 
 func TestGetNode(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -138,12 +140,13 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid GetNodeRequest.NodeId: value length must be at least 1 runes")
 		assert.Nil(t, res)
 	})
 }
 
 func TestGenericNode(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -195,7 +198,7 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddGenericNodeRequest.NodeName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 		}
@@ -203,6 +206,7 @@ func TestGenericNode(t *testing.T) {
 }
 
 func TestContainerNode(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -259,7 +263,7 @@ func TestContainerNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddContainerNodeRequest.NodeName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Container.NodeID)
 		}
@@ -267,6 +271,7 @@ func TestContainerNode(t *testing.T) {
 }
 
 func TestRemoteNode(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -323,7 +328,7 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddRemoteNodeRequest.NodeName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.Remote.NodeID)
 		}
@@ -331,6 +336,7 @@ func TestRemoteNode(t *testing.T) {
 }
 
 func TestRemoveNode(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -495,7 +501,7 @@ func TestRemoveNode(t *testing.T) {
 			Body:    nodes.RemoveNodeBody{},
 			Context: context.Background(),
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid RemoveNodeRequest.NodeId: value length must be at least 1 runes")
 		assert.Nil(t, removeResp)
 	})
 

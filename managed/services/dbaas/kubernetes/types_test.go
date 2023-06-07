@@ -25,6 +25,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestDatabaseClusterForPXC(t *testing.T) {
@@ -76,8 +77,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -99,7 +101,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						},
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -143,8 +145,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -157,7 +160,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Type:          "haproxy",
 						Image:         "something",
 						Size:          1,
-						Configuration: "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration: "",
 						TrafficPolicy: "Cluster",
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
@@ -167,7 +170,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						},
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -207,8 +210,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -221,11 +225,11 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						Type:                     "haproxy",
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -265,8 +269,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -286,11 +291,11 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -330,8 +335,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -345,7 +351,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						ExposeType:               corev1.ServiceTypeLoadBalancer,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 						Annotations: map[string]string{
@@ -355,7 +361,7 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 							"service.beta.kubernetes.io/aws-load-balancer-type":                    "external",
 						},
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
@@ -395,8 +401,9 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
+					SecretsName:    "dbaas-test-pxc-whatever-pxc-secrets",
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
 						CPU:      resource.MustParse("200m"),
@@ -410,19 +417,19 @@ func TestDatabaseClusterForPXC(t *testing.T) {
 						ExposeType:               corev1.ServiceTypeLoadBalancer,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						TrafficPolicy:            "Cluster",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 		},
 	}
 	for _, testCase := range testCases {
 		tt := testCase
-		cluster, err := DatabaseClusterForPXC(tt.input, tt.clusterType)
+		cluster, _, err := DatabaseClusterForPXC(tt.input, tt.clusterType, &models.BackupLocation{Type: models.S3BackupLocationType})
 		assert.NoError(t, err, tt.name)
 		assert.Equal(t, tt.expected, cluster, tt.name)
 	}
@@ -450,7 +457,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -462,14 +469,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -483,7 +490,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -495,14 +502,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -522,7 +529,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -534,14 +541,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -555,7 +562,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					Pause:          true,
 					DBInstance: dbaasv1.DBInstanceSpec{
@@ -568,14 +575,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -598,7 +605,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
 					Pause:          true,
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -610,14 +617,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -631,7 +638,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -643,14 +650,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -672,7 +679,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "pxc_image",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    1,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize: resource.MustParse("2000"),
@@ -684,14 +691,14 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			expected: &dbaasv1.DatabaseCluster{
@@ -705,7 +712,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 				Spec: dbaasv1.DatabaseSpec{
 					Database:       DatabaseTypePXC,
 					DatabaseImage:  "updatedImage",
-					DatabaseConfig: "[mysqld]\nwsrep_provider_options=\"gcache.size=600M\"\nwsrep_trx_fragment_unit='bytes'\nwsrep_trx_fragment_size=3670016\n",
+					DatabaseConfig: "",
 					ClusterSize:    3,
 					DBInstance: dbaasv1.DBInstanceSpec{
 						DiskSize:         resource.MustParse("2000"),
@@ -718,10 +725,10 @@ func TestUpdatePatchForPXC(t *testing.T) {
 					},
 					LoadBalancer: dbaasv1.LoadBalancerSpec{
 						Type:                     "haproxy",
-						ExposeType:               corev1.ServiceTypeLoadBalancer,
+						ExposeType:               corev1.ServiceTypeClusterIP,
 						Image:                    "something",
 						Size:                     1,
-						Configuration:            "timeout client 28800s\ntimeout connect 100500\ntimeout server 28800s\n",
+						Configuration:            "",
 						LoadBalancerSourceRanges: nil,
 						Annotations:              make(map[string]string),
 						Resources: corev1.ResourceRequirements{
@@ -731,7 +738,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 							},
 						},
 					},
-					Backup: dbaasv1.BackupSpec{},
+					Backup: &dbaasv1.BackupSpec{},
 				},
 			},
 			updateRequest: &dbaasv1beta1.UpdatePXCClusterRequest{
@@ -758,7 +765,7 @@ func TestUpdatePatchForPXC(t *testing.T) {
 
 	for _, testCase := range testCases {
 		tt := testCase
-		err := UpdatePatchForPXC(tt.cluster, tt.updateRequest)
+		err := UpdatePatchForPXC(tt.cluster, tt.updateRequest, ClusterTypeGeneric)
 		assert.NoError(t, err)
 		assert.Equal(t, tt.expected, tt.cluster)
 	}

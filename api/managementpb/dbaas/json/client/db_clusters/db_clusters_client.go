@@ -34,6 +34,10 @@ type ClientService interface {
 
 	ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error)
 
+	ListS3Backups(params *ListS3BackupsParams, opts ...ClientOption) (*ListS3BackupsOK, error)
+
+	ListSecrets(params *ListSecretsParams, opts ...ClientOption) (*ListSecretsOK, error)
+
 	RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -147,6 +151,80 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOpti
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListDBClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListS3Backups lists s3 backups lists backups stored on s3
+*/
+func (a *Client) ListS3Backups(params *ListS3BackupsParams, opts ...ClientOption) (*ListS3BackupsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListS3BackupsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListS3Backups",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Backups/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListS3BackupsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListS3BackupsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListS3BackupsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListSecrets lists secrets returns a list of secrets from k8s
+*/
+func (a *Client) ListSecrets(params *ListSecretsParams, opts ...ClientOption) (*ListSecretsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListSecretsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListSecrets",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Secrets/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListSecretsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListSecretsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListSecretsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

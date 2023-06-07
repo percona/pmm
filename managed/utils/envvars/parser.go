@@ -35,9 +35,11 @@ const (
 	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
 	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
 	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
+	evnInterfaceToBind     = "PERCONA_TEST_INTERFACE_TO_BIND"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
+	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 )
@@ -62,10 +64,11 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
+//   - ENABLE_RBAC enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {
@@ -138,8 +141,8 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
-		case "ENABLE_BACKUP_MANAGEMENT":
-			envSettings.EnableBackupManagement, err = strconv.ParseBool(v)
+		case "DISABLE_BACKUP_MANAGEMENT":
+			envSettings.DisableBackupManagement, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
@@ -159,6 +162,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "CONTAINER":
 			continue
 
+		case "PMM_INSTALL_METHOD":
+			continue
+
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
 			if err != nil {
@@ -170,6 +176,15 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if k == envTestDbaas {
 				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
 			}
+
+		case envEnableAccessControl:
+			envSettings.EnableAccessControl, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+			envSettings.DisableAccessControl = !envSettings.EnableAccessControl
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
@@ -287,8 +302,20 @@ func GetPlatformPublicKeys() []string {
 	return nil
 }
 
+func GetInterfaceToBind() string {
+	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+}
+
+// GetEnv returns env with fallback option.
+func GetEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) {
+	switch e := err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:

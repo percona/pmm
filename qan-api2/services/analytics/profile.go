@@ -60,7 +60,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		labels[label.Key] = label.Value
 	}
 
-	var columns []string
+	var columns []string //nolint:prealloc
 	for _, col := range in.Columns {
 		// TODO: remove when UI will use num_queries instead.
 		if col == "count" {
@@ -88,7 +88,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
-	var uniqColumns []string
+	uniqColumns := make([]string, 0, len(uniqColumnsMap))
 	for key := range uniqColumnsMap {
 		uniqColumns = append(uniqColumns, key)
 	}
@@ -134,12 +134,13 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	}
 
 	total := results[0]
-	resp.TotalRows = uint32(total["total_rows"].(uint64))
+	resp.TotalRows = uint32(total["total_rows"].(uint64)) //nolint:forcetypeassert
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
 	for i, res := range results {
 		numQueries := interfaceToFloat32(res["num_queries"])
+		//nolint:forcetypeassert
 		row := &qanpb.Row{
 			Rank:        uint32(i) + in.Offset,
 			Dimension:   res["dimension"].(string),
@@ -233,7 +234,8 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 }
 
 // getOrderBy creates an order by string to use in query and column name to check if it in select column list.
-func getOrderBy(reqOrder, defaultOrder string) (queryOrder string, orderCol string) {
+func getOrderBy(reqOrder, defaultOrder string) (string, string) {
+	var queryOrder, orderCol string
 	direction := "ASC"
 	if strings.HasPrefix(reqOrder, "-") {
 		reqOrder = strings.TrimPrefix(reqOrder, "-")

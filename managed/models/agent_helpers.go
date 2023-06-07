@@ -93,6 +93,12 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 		mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
 		mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
 		mdbOptions.TLSCa = params.GetTlsCa()
+	}
+
+	if params.GetAuthenticationMechanism() != "" || params.GetAuthenticationDatabase() != "" {
+		if mdbOptions == nil {
+			mdbOptions = &MongoDBOptions{}
+		}
 		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
 		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
 	}
@@ -142,14 +148,15 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
 }
 
 // AgentFilters represents filters for agents list.
@@ -209,7 +216,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent)
+		agents[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 
 	return agents, nil
@@ -222,14 +229,15 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	}
 
 	agent := &Agent{AgentID: id}
-	switch err := q.Reload(agent); err {
-	case nil:
-		return agent, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return agent, nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -251,7 +259,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent)
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -302,7 +310,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Agent)
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 
 	if len(res) == 0 {
@@ -329,7 +337,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		row := str.(*Agent)
+		row := str.(*Agent) //nolint:forcetypeassert
 		res = append(res, row)
 	}
 
@@ -350,7 +358,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	pmmAgentIDs := make([]interface{}, len(allAgents))
 	for _, str := range allAgents {
-		row := str.(*Agent)
+		row := str.(*Agent) //nolint:forcetypeassert
 		if row.PMMAgentID != nil {
 			for _, a := range pmmAgentIDs {
 				if a == *row.PMMAgentID {
@@ -374,7 +382,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		row := str.(*Agent)
+		row := str.(*Agent) //nolint:forcetypeassert
 		res = append(res, row)
 	}
 
@@ -390,7 +398,7 @@ func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent,
 
 	allAgents := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		serviceID := str.(*Service).ServiceID
+		serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
 		agents, err := FindPMMAgentsForService(q, serviceID)
 		if err != nil {
 			return nil, errors.WithStack(err)
@@ -456,7 +464,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		res[i] = s.(*Agent)
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -471,7 +479,7 @@ func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
 	uniqAgents := make(map[string]struct{})
 	res := make([]string, 0, len(structs))
 	for _, str := range structs {
-		row := pointer.GetString(str.(*Agent).PMMAgentID)
+		row := pointer.GetString(str.(*Agent).PMMAgentID) //nolint:forcetypeassert
 		if _, ok := uniqAgents[row]; ok {
 			continue
 		}
@@ -947,7 +955,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 			return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
+				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
 				if _, err = RemoveAgent(q, agentID, RemoveRestrict); err != nil {
 					return nil, err
 				}

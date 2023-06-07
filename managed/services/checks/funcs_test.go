@@ -98,6 +98,7 @@ Traceback (most recent call last):
 }
 
 func TestAdditionalContext(t *testing.T) {
+	t.Parallel()
 	predeclaredFuncs, err := GetFuncsForVersion(1)
 	require.NoError(t, err)
 	contextFuncs := GetAdditionalContext()

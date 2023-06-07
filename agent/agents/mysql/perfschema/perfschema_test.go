@@ -304,8 +304,8 @@ func TestPerfSchema(t *testing.T) {
 
 	case "10.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
-			"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
+			"SELECT `sleep` (?)":   "ce5b40e78030bb319c84965637255c18",
+			"SELECT * FROM `city`": "978a3813c9f566d7a72d65b88a9149d9",
 		}
 
 	default:
@@ -336,7 +336,7 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0.1, actual.Common.MQueryTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				ExplainFingerprint:  "select /* Sleep */ sleep(:1) from dual",
+				ExplainFingerprint:  "SELECT `sleep` (:1)",
 				PlaceholdersCount:   1,
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
@@ -382,7 +382,7 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				ExplainFingerprint:  "select /* AllCities */ * from city",
+				ExplainFingerprint:  "SELECT * FROM `city`",
 				Fingerprint:         "SELECT * FROM `city`",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -453,6 +453,8 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:     "SELECT * FROM `t1` WHERE `col1` = :1",
+				PlaceholdersCount:      1,
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
 				Schema:                 "world",
 				AgentId:                "agent_id",

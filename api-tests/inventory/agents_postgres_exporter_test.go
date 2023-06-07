@@ -29,6 +29,7 @@ import (
 )
 
 func TestPostgresExporter(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -160,7 +161,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgresExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.PostgresExporter.AgentID)
 		}
@@ -191,7 +192,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgresExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.PostgresExporter.AgentID)
 		}

@@ -26,6 +26,7 @@ import (
 )
 
 func TestConnectionUpTime(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string
@@ -175,6 +176,7 @@ func TestConnectionUpTime(t *testing.T) {
 }
 
 func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string
@@ -269,6 +271,7 @@ func compareFloatWithTolerance(a, b float32) bool {
 }
 
 func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string

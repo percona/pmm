@@ -63,7 +63,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
 		args = append(args,
 			"--auto-discover-databases",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance")
+			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {

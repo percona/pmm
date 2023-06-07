@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:dupword
 package backup
 
 import (
@@ -111,6 +110,7 @@ func TestScheduleBackup(t *testing.T) {
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        false,
 					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					Folder:         "backup_folder",
 				},
 				Context: pmmapitests.Context,
 			})
@@ -151,6 +151,7 @@ func TestScheduleBackup(t *testing.T) {
 			assert.Equal(t, body.Name, backup.Name)
 			assert.Equal(t, body.Description, backup.Description)
 			assert.Equal(t, body.CronExpression, backup.CronExpression)
+			assert.Equal(t, "backup_folder", backup.Folder)
 
 			_, err = client.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 				Body: backups.RemoveScheduledBackupBody{
@@ -306,39 +307,6 @@ func TestScheduleBackup(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "A PITR backup for the cluster 'test_cluster' can be enabled only if there are no other scheduled backups for this cluster.")
 		})
 
-		t.Run("prevent snapshot backups when PITR enabled", func(t *testing.T) {
-			client := backupClient.Default.Backups
-			pitrb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-				Body: backups.ScheduleBackupBody{
-					ServiceID:      mongo1ID,
-					LocationID:     locationID,
-					CronExpression: "0 1 1 1 1",
-					Name:           "testing",
-					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
-					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-
-			require.NoError(t, err)
-			defer removeScheduledBackup(t, pitrb1.Payload.ScheduledBackupID)
-
-			_, err = client.StartBackup(&backups.StartBackupParams{
-				Body: backups.StartBackupBody{
-					ServiceID:   mongo2ID,
-					LocationID:  locationID,
-					Name:        "test-snapshot",
-					Description: "Test snapshot.",
-					DataModel:   pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition,
-				"A snapshot backup for cluster 'test_cluster' can be performed only if there is no enabled PITR backup for this cluster.")
-		})
-
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
 			client := backupClient.Default.Backups
 			_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
@@ -346,7 +314,7 @@ func TestScheduleBackup(t *testing.T) {
 					ServiceID:      mongo1ID,
 					LocationID:     locationID,
 					CronExpression: "0 1 1 1 1",
-					Name:           t.Name(),
+					Name:           "some_backup_name",
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
@@ -382,6 +350,7 @@ func TestScheduleBackup(t *testing.T) {
 }
 
 func removeScheduledBackup(t *testing.T, id string) {
+	t.Helper()
 	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,

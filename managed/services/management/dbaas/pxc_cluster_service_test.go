@@ -19,9 +19,12 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
+	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/stretchr/testify/assert"
@@ -39,6 +42,7 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	pmmversion "github.com/percona/pmm/version"
 )
 
 const pxcKubeconfigTest = `
@@ -76,9 +80,20 @@ const pxcKubeconfigTest = `
 `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func TestPXCClusterService(t *testing.T) {
+func TestPXCClusterService(t *testing.T) { //nolint:tparallel
+	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
+	// these lines in kubernetes_server.go will throw an error and tests won't finish.
+	//
+	//     pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	//     if err != nil {
+	//     	return nil, status.Error(codes.Internal, err.Error())
+	//     }
+	//
+	if pmmversion.PMMVersion == "" {
+		pmmversion.PMMVersion = "2.30.0"
+	}
 	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
-		kubernetesClient *mockKubernetesClient, componentsService *mockComponentsService, teardown func(t *testing.T),
+		componentsService *mockComponentsService, kubeClient *mockKubernetesClient, teardown func(t *testing.T),
 	) {
 		t.Helper()
 
@@ -86,13 +101,14 @@ func TestPXCClusterService(t *testing.T) {
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
-		kubernetesClient = &mockKubernetesClient{}
+		kubeClient = &mockKubernetesClient{}
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 		}
@@ -100,30 +116,39 @@ func TestPXCClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, kubernetesClient, componentsClient, teardown := setup(t)
-	defer teardown(t)
-	versionService := NewVersionServiceClient(versionServiceURL)
+	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
+	t.Cleanup(func() { teardown(t) })
 
-	ks := NewKubernetesServer(db, dbaasClient, kubernetesClient, versionService, grafanaClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
-		Operators: &controllerv1beta1.Operators{
-			PxcOperatorVersion:   "1.11.0",
-			PsmdbOperatorVersion: onePointEight,
-		},
-		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
-	}, nil)
-	dbaasClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
-	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(0), "", nil)
-	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StartMonitoringResponse{}, nil)
-	dbaasClient.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
-	mockGetSubscriptionResponse := &controllerv1beta1.GetSubscriptionResponse{
-		Subscription: &controllerv1beta1.Subscription{
-			InstallPlanName: "mocked-install-plan",
-		},
+	versionService := &mockVersionService{}
+	v1120, _ := goversion.NewVersion("1.12.0")
+	versionService.On("LatestOperatorVersion", mock.Anything, mock.Anything).Return(v1120, v1120, nil)
+	versionService.On("GetVersionServiceURL", mock.Anything).Return("", nil)
+
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+
+	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	dbaasClient.On("StartMonitoring", mock.Anything, mock.Anything).WaitUntil(time.After(15*time.Second)).
+		Return(&controllerv1beta1.StartMonitoringResponse{}, nil).Run(func(a mock.Arguments) {
+		// StartMonitoring if being called in a go-routine. Since we cannot forsee when the runtime scheduler
+		// is going to assing some time to this go-routine, the waitgroup is being used to signal than the test
+		// can continue.
+		wg.Done()
+	})
+
+	kubeClient.On("GetServerVersion").Return(nil, nil)
+	clients := map[string]kubernetesClient{
+		pxcKubernetesClusterNameTest: kubeClient,
 	}
-	dbaasClient.On("GetSubscription", mock.Anything, mock.Anything).Return(mockGetSubscriptionResponse, nil)
-	dbaasClient.On("ApproveInstallPlan", mock.Anything, mock.Anything).Return(&controllerv1beta1.ApproveInstallPlanResponse{}, nil)
-
+	s := ks.(*kubernetesServer)
+	s.kubeStorage.clients = clients
+	ks = s
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,
 		KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: pxcKubeconfigTest},
@@ -131,17 +156,21 @@ func TestPXCClusterService(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
-	kubernetesClient.On("SetKubeconfig", mock.Anything).Return(nil)
-	kubernetesClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubernetesClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
-	kubernetesClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
-	kubernetesClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
+	wg.Wait()
+
+	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
+	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
+	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
+	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
+	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)
 
 	//nolint:dupl
 	t.Run("BasicCreatePXCClusters", func(t *testing.T) {
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
-		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
+		kubeClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.CreatePXCClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -208,9 +237,11 @@ func TestPXCClusterService(t *testing.T) {
 			},
 		}
 		componentsClient.On("GetPXCComponents", ctx, mock.Anything).Return(pxcComponents, nil)
-		kubernetesClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
+		kubeClient.On("CreateDatabaseCluster", mock.Anything).Return(nil)
 
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
 
 		in := dbaasv1beta1.CreatePXCClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -223,21 +254,30 @@ func TestPXCClusterService(t *testing.T) {
 
 	t.Run("BasicGetPXCClusterCredentials", func(t *testing.T) {
 		name := "third-pxc-test"
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
+
 		mockReq := &corev1.Secret{
 			Data: map[string][]byte{
 				"root": []byte("root_password"),
 			},
 		}
 		dbMock := &dbaasv1.DatabaseCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: name,
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "hostname",
 			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
+			},
 		}
 
-		kubernetesClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
+		kubeClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
 
-		kubernetesClient.On("GetSecret", ctx, mock.Anything).Return(mockReq, nil)
+		kubeClient.On("GetSecret", ctx, mock.Anything).Return(mockReq, nil)
 
 		in := dbaasv1beta1.GetPXCClusterCredentialsRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -254,7 +294,9 @@ func TestPXCClusterService(t *testing.T) {
 
 	t.Run("BasicGetPXCClusterCredentialsWithHost", func(t *testing.T) { // Real kubernetes will have ingress
 		name := "another-third-pxc-test"
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
 		mockReq := &corev1.Secret{
 			Data: map[string][]byte{
 				"root": []byte("root_password"),
@@ -264,14 +306,17 @@ func TestPXCClusterService(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name: name,
 			},
+			Spec: dbaasv1.DatabaseSpec{
+				SecretsName: fmt.Sprintf(pxcSecretNameTmpl, name),
+			},
 			Status: dbaasv1.DatabaseClusterStatus{
 				Host: "amazing.com",
 			},
 		}
 
-		kubernetesClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
+		kubeClient.On("GetDatabaseCluster", ctx, name).Return(dbMock, nil)
 
-		kubernetesClient.On("GetSecret", ctx, fmt.Sprintf(pxcSecretNameTmpl, name)).Return(mockReq, nil)
+		kubeClient.On("GetSecret", ctx, fmt.Sprintf(pxcSecretNameTmpl, name)).Return(mockReq, nil)
 
 		in := dbaasv1beta1.GetPXCClusterCredentialsRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -288,7 +333,9 @@ func TestPXCClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePXCCluster", func(t *testing.T) {
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
 
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
@@ -318,8 +365,8 @@ func TestPXCClusterService(t *testing.T) {
 				Size:  15,
 			},
 		}
-		kubernetesClient.On("GetDatabaseCluster", ctx, "first-pxc-test").Return(dbMock, nil)
-		kubernetesClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
+		kubeClient.On("GetDatabaseCluster", ctx, "first-pxc-test").Return(dbMock, nil)
+		kubeClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
 		in := dbaasv1beta1.UpdatePXCClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
 			Name:                  "third-pxc-test",
@@ -347,7 +394,9 @@ func TestPXCClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicSuspendResumePXCCluster", func(t *testing.T) {
-		s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+		cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+		s := cs.(*PXCClustersService)
+		s.kubeStorage.clients = clients
 		dbMock := &dbaasv1.DatabaseCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "forth-pxc-test",
@@ -376,8 +425,8 @@ func TestPXCClusterService(t *testing.T) {
 				Size:  15,
 			},
 		}
-		kubernetesClient.On("GetDatabaseCluster", ctx, "forth-pxc-test").Return(dbMock, nil)
-		kubernetesClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
+		kubeClient.On("GetDatabaseCluster", ctx, "forth-pxc-test").Return(dbMock, nil)
+		kubeClient.On("PatchDatabaseCluster", mock.Anything).Return(nil)
 
 		in := dbaasv1beta1.UpdatePXCClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
@@ -404,7 +453,9 @@ func TestPXCClusterService(t *testing.T) {
 		t.Parallel()
 		t.Run("ProxySQL", func(t *testing.T) {
 			t.Parallel()
-			s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+			cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+			s := cs.(*PXCClustersService)
+			s.kubeStorage.clients = clients
 			v := int64(1000000000)
 			r := int64(2000000000)
 
@@ -437,7 +488,9 @@ func TestPXCClusterService(t *testing.T) {
 
 		t.Run("HAProxy", func(t *testing.T) {
 			t.Parallel()
-			s := NewPXCClusterService(db, grafanaClient, kubernetesClient, componentsClient, versionService.GetVersionServiceURL())
+			cs := NewPXCClusterService(db, grafanaClient, componentsClient, versionService.GetVersionServiceURL())
+			s := cs.(*PXCClustersService)
+			s.kubeStorage.clients = clients
 			v := int64(1000000000)
 
 			in := dbaasv1beta1.GetPXCClusterResourcesRequest{

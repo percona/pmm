@@ -23,6 +23,7 @@ import (
 	_ "github.com/apache/skywalking-eyes/cmd/license-eye"
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/daixiang0/gci"
+	_ "github.com/envoyproxy/protoc-gen-validate"
 	_ "github.com/go-delve/delve/cmd/dlv"
 	_ "github.com/go-openapi/runtime/client"
 	_ "github.com/go-openapi/spec"
@@ -30,9 +31,9 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/jstemmer/go-junit-report"
-	_ "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators"
 	_ "github.com/quasilyte/go-consistent"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
+	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/cmd/mockery"
 	_ "golang.org/x/perf/cmd/benchstat"
 	_ "golang.org/x/tools/cmd/goimports"
@@ -55,11 +56,12 @@ import (
 //go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
 //go:generate go build -o ../bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
 //go:generate go build -o ../bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
-//go:generate go build -o ../bin/protoc-gen-govalidators github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 //go:generate go build -o ../bin/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
 //go:generate go build -o ../bin/protoc-gen-openapiv2 github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 //go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
 //go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 //go:generate go build -o ../bin/swagger-order github.com/Percona-Lab/swagger-order
+//go:generate go build -o ../bin/protoc-gen-validate github.com/envoyproxy/protoc-gen-validate
+//go:generate go build -o ../bin/ifacemaker github.com/vburenin/ifacemaker
 //go:generate env CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye

@@ -26,8 +26,12 @@ var (
 	ErrInvalidXtrabackup = errors.New("invalid installation of the xtrabackup")
 	// ErrIncompatibleXtrabackup is returned if xtrabackup is not compatible with the MySQL.
 	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
+	// ErrIncompatiblePBM is returned if installed PBM version not fits to perform requested operation.
+	ErrIncompatiblePBM = errors.New("incompatible pbm")
 	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
+	// ErrIncompatibleTargetMongoDB is returned if target version of MongoDB is not compatible for restoring selected artifact.
+	ErrIncompatibleTargetMongoDB = errors.New("incompatible version of target mongodb")
 	// ErrComparisonImpossible is returned when comparison of versions is impossible for some reasons.
 	ErrComparisonImpossible = errors.New("cannot compare software versions")
 	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters.
@@ -42,4 +46,6 @@ var (
 	ErrAnotherOperationInProgress = errors.New("another operation in progress")
 	// ErrArtifactNotReady is returned when artifact not ready to be restored, i.e. not in success status.
 	ErrArtifactNotReady = errors.New("artifact not in success status")
+	// ErrIncorrectArtifactStatus is returned when artifact status doesn't fit to proceed with action.
+	ErrIncorrectArtifactStatus = errors.New("incorrect artifact status")
 )

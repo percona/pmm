@@ -149,12 +149,17 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	switch job.Type {
 	case models.MySQLBackupJob:
-		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig); err != nil {
+		if err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
-		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig); err != nil {
+		service, err := models.FindServiceByID(s.db.Querier, job.Data.MongoDBBackup.ServiceID)
+		if err != nil {
+			return err
+		}
+
+		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -164,7 +169,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) { //nolint:cyclop
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -187,7 +192,8 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				t.Querier,
 				job.Data.MySQLBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+					Status:   models.SuccessBackupStatus.Pointer(),
+					Metadata: artifactMetadataFromProto(result.MysqlBackup.Metadata),
 				})
 			if err != nil {
 				return err
@@ -201,11 +207,15 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
 			}
 
+			metadata := artifactMetadataFromProto(result.MongodbBackup.Metadata)
+
 			artifact, err := models.UpdateArtifact(
 				t.Querier,
 				job.Data.MongoDBBackup.ArtifactID,
 				models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+					Status:           models.SuccessBackupStatus.Pointer(),
+					IsShardedCluster: result.MongodbBackup.IsShardedCluster,
+					Metadata:         metadata,
 				})
 			if err != nil {
 				return err
@@ -214,6 +224,31 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 			if artifact.Type == models.ScheduledArtifactType {
 				scheduleID = artifact.ScheduleID
 			}
+
+			// If task was running by an old agent. Hacky code to support artifacts created on new server and old agent.
+			if metadata == nil && artifact.Mode == models.PITR && artifact.Folder != artifact.Name {
+				artifact, err := models.UpdateArtifact(t.Querier, artifact.ID, models.UpdateArtifactParams{Folder: &artifact.Name})
+				if err != nil {
+					return errors.Wrapf(err, "failed to update artifact %s", artifact.ID)
+				}
+
+				task, err := models.FindScheduledTaskByID(t.Querier, scheduleID)
+				if err != nil {
+					return errors.Wrapf(err, "cannot get scheduled task %s", scheduleID)
+				}
+				taskData := task.Data
+				taskData.MongoDBBackupTask.CommonBackupTaskData.Folder = artifact.Name
+
+				params := models.ChangeScheduledTaskParams{
+					Data: taskData,
+				}
+
+				_, err = models.ChangeScheduledTask(t.Querier, scheduleID, params)
+				if err != nil {
+					return errors.Wrapf(err, "failed to update scheduled task %s", scheduleID)
+				}
+			}
+
 		case *agentpb.JobResult_MysqlRestoreBackup:
 			if job.Type != models.MySQLRestoreBackupJob {
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLRestoreBackupJob, job.Type)
@@ -235,34 +270,13 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
-			logChunkID := 0
-			var logParams models.CreateJobLogParams
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
-				logParams = models.CreateJobLogParams{
-					JobID:     job.ID,
-					ChunkID:   logChunkID,
-					LastChunk: false,
-					Data:      "restore successfully completed, PMM will restart mongod and pbm-agent.",
-				}
-			} else {
-				logParams = models.CreateJobLogParams{
-					JobID:     job.ID,
-					ChunkID:   logChunkID,
-					LastChunk: true,
-					Data:      "restore successfully completed.",
-				}
-			}
-			if err := createJobLog(t.Querier, logParams.JobID, logParams.Data, logParams.ChunkID, logParams.LastChunk); err != nil {
-				s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-			}
-
-			logChunkID++
-			if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+			if job.Data.MongoDBRestoreBackup.DataModel == models.LogicalDataModel {
+				s.l.Info("restore successfully completed")
+			} else if job.Data.MongoDBRestoreBackup.DataModel == models.PhysicalDataModel {
+				s.l.Info("restore successfully completed, PMM will restart mongod and pbm-agent")
 				if err := s.runMongoPostRestore(t.Querier, job.Data.MongoDBRestoreBackup.ServiceID); err != nil {
 					s.l.WithError(err).Error("failed to restart components after restore from a physical backup")
-					if logErr := createJobLog(t.Querier, job.ID, err.Error(), logChunkID, true); logErr != nil {
-						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-					}
+
 					_, err = models.ChangeRestoreHistoryItem(
 						t.Querier,
 						job.Data.MongoDBRestoreBackup.RestoreID,
@@ -272,9 +286,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 						})
 					return err
 				} else {
-					if logErr := createJobLog(t.Querier, job.ID, "successfully restarted mongod and pbm-agent", logChunkID, true); logErr != nil {
-						s.l.WithError(logErr).Errorf("failed to create log for job %s [chunk: %d]", job.ID, logChunkID)
-					}
+					s.l.Info("successfully restarted mongod and pbm-agent on all cluster members")
 				}
 			}
 
@@ -299,7 +311,7 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 
 	if scheduleID != "" {
 		go func() {
-			if err := s.retentionService.EnforceRetention(context.Background(), scheduleID); err != nil {
+			if err := s.retentionService.EnforceRetention(scheduleID); err != nil {
 				l.Errorf("failed to enforce retention: %v", err)
 			}
 		}()
@@ -311,11 +323,11 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	switch job.Type {
 	case models.MySQLBackupJob:
 		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			Status: models.ErrorBackupStatus.Pointer(),
 		})
 	case models.MongoDBBackupJob:
 		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			Status: models.ErrorBackupStatus.Pointer(),
 		})
 	case models.MySQLRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(
@@ -362,7 +374,7 @@ func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.Job
 }
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
-func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error { //nolint:lll
+func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig, folder string) error { //nolint:lll
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
@@ -375,6 +387,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		Address:  dbConfig.Address,
 		Port:     int32(dbConfig.Port),
 		Socket:   dbConfig.Socket,
+		Folder:   folder,
 	}
 
 	switch {
@@ -402,7 +415,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MySQL backup job: %s", e)
 	}
 
@@ -411,6 +424,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 
 // StartMongoDBBackupJob starts mongoDB backup job on the pmm-agent.
 func (s *JobsService) StartMongoDBBackupJob(
+	service *models.Service,
 	jobID string,
 	pmmAgentID string,
 	timeout time.Duration,
@@ -419,6 +433,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	mode models.BackupMode,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
+	folder string,
 ) error {
 	var err error
 	switch dataModel {
@@ -435,14 +450,30 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 
+	dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgentID, "")
+	if err != nil {
+		return err
+	}
+
+	delimiters := agent.TemplateDelimiters(service)
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
 		Name:       name,
-		User:       dbConfig.User,
-		Password:   dbConfig.Password,
-		Address:    dbConfig.Address,
-		Port:       int32(dbConfig.Port),
-		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
+		Folder:     folder,
+		Dsn:        dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  delimiters.Left,
+			TemplateRightDelim: delimiters.Right,
+		},
+
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
 	}
 	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
 		return err
@@ -473,16 +504,16 @@ func (s *JobsService) StartMongoDBBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agentInfo, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MongoDB backup job: %s", e)
 	}
 
@@ -497,6 +528,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	locationConfig *models.BackupLocationConfig,
+	folder string,
 ) error {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
@@ -514,6 +546,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 			MysqlRestoreBackup: &agentpb.StartJobRequest_MySQLRestoreBackup{
 				ServiceId: serviceID,
 				Name:      name,
+				Folder:    folder,
 				LocationConfig: &agentpb.StartJobRequest_MySQLRestoreBackup_S3Config{
 					S3Config: convertS3ConfigModel(locationConfig.S3Config),
 				},
@@ -530,7 +563,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MySQL restore backup job: %s", e)
 	}
 
@@ -539,14 +572,17 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 
 // StartMongoDBRestoreBackupJob starts mongo restore backup job on the pmm-agent.
 func (s *JobsService) StartMongoDBRestoreBackupJob(
+	service *models.Service,
 	jobID string,
 	pmmAgentID string,
 	timeout time.Duration,
 	name string,
+	pbmBackupName string,
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
+	folder string,
 ) error {
 	var err error
 	switch dataModel {
@@ -572,14 +608,31 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		}
 	}
 
+	dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgentID, "")
+	if err != nil {
+		return err
+	}
+
+	delimiters := agent.TemplateDelimiters(service)
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
 		Name:          name,
-		User:          dbConfig.User,
-		Password:      dbConfig.Password,
-		Address:       dbConfig.Address,
-		Port:          int32(dbConfig.Port),
-		Socket:        dbConfig.Socket,
 		PitrTimestamp: timestamppb.New(pitrTimestamp),
+		Folder:        folder,
+		PbmMetadata:   &backuppb.PbmMetadata{Name: pbmBackupName},
+		Dsn:           dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  delimiters.Left,
+			TemplateRightDelim: delimiters.Right,
+		},
+
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
 	}
 
 	switch {
@@ -608,16 +661,16 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agentInfo, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
-	if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+	if e := resp.(*agentpb.StartJobResponse).Error; e != "" { //nolint:forcetypeassert
 		return errors.Errorf("failed to start MonogDB restore backup job: %s", e)
 	}
 
@@ -762,4 +815,36 @@ func createJobLog(querier *reform.Querier, jobID, data string, chunkID int, last
 			LastChunk: lastChunk,
 		})
 	return err
+}
+
+// artifactMetadataFromProto returns artifact metadata converted from protobuf to Go model format.
+func artifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
+	if metadata == nil {
+		return nil
+	}
+
+	files := make([]models.File, len(metadata.FileList))
+	for i, file := range metadata.FileList {
+		files[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
+	}
+
+	var res models.Metadata
+
+	res.FileList = files
+
+	if metadata.RestoreTo != nil {
+		t := metadata.RestoreTo.AsTime()
+		res.RestoreTo = &t
+	}
+
+	if metadata.BackupToolMetadata != nil {
+		switch toolType := metadata.BackupToolMetadata.(type) {
+		case *backuppb.Metadata_PbmMetadata:
+			res.BackupToolData = &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: toolType.PbmMetadata.Name}}
+		default:
+			// Do nothing.
+		}
+	}
+
+	return &res
 }

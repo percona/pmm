@@ -6,12 +6,16 @@ header:
       - "**/admin/**"
       - "**/mock_*"
       - "**/*.pb.go"
-      - "**/*_reform.go"
       - "**/*.pb.gw.go"
+      - "**/*.pb.validate.go"
+      - "**/*_reform.go"
       - "**/json/client/**"
       - "**/amclient/**"
       - "**/ammodels/**"
       - "qan-api2/migrations/"
+      - "managed/services/dbaas/kubernetes/client/kubeclient_interface.go"
+      - "managed/services/dbaas/olm/operator_service_interface.go"
+      - "managed/services/dbaas/kubernetes/operator_service_interface.go"
     license:
       spdx-id: AGPL-3.0
       content: |
@@ -31,11 +35,12 @@ header:
         // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
   - paths:
-      - "**/agent/**/*.go"
-      - "**/admin/**/.go"
+      - "./agent/**/*.go"
+      - "./admin/**/.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
+      - "**/json/client/**"
     license:
       content: |
         // Copyright (C) 2019 Percona LLC

@@ -169,6 +169,79 @@ func TestStartBackup(t *testing.T) {
 			})
 			require.NoError(t, err)
 		})
+
+		t.Run("check folder and artifact name", func(t *testing.T) {
+			ctx := context.Background()
+			backupService := &mockBackupService{}
+			backupSvc := NewBackupsService(db, backupService, nil, nil)
+
+			tc := []struct {
+				TestName   string
+				BackupName string
+				Folder     string
+				ErrString  string
+			}{
+				{
+					TestName:   "normal",
+					BackupName: ".normal_name:1-",
+					Folder:     ".normal_folder:1-/tmp",
+					ErrString:  "",
+				},
+				{
+					TestName:   "not allowed symbols in name",
+					BackupName: "normal/name",
+					Folder:     "normal_folder",
+					ErrString:  "rpc error: code = InvalidArgument desc = Backup name can contain only dots, colons, letters, digits, underscores and dashes.",
+				},
+				{
+					TestName:   "not allowed symbols in folder",
+					BackupName: "normal_name",
+					Folder:     "$._folder:1-/tmp",
+					ErrString:  "rpc error: code = InvalidArgument desc = Folder name can contain only dots, colons, slashes, letters, digits, underscores and dashes.",
+				},
+				{
+					TestName:   "folder refers to a parent directory",
+					BackupName: "normal_name",
+					Folder:     "../../../some_folder",
+					ErrString:  "rpc error: code = InvalidArgument desc = Specified folder refers to a parent directory.",
+				},
+				{
+					TestName:   "folder points to absolute path",
+					BackupName: "normal_name",
+					Folder:     "/some_folder",
+					ErrString:  "rpc error: code = InvalidArgument desc = Folder should be a relative path (shouldn't contain leading slashes).",
+				},
+				{
+					TestName:   "folder in non-canonical format",
+					BackupName: "normal_name",
+					Folder:     "some_folder/../../../../root",
+					ErrString:  "rpc error: code = InvalidArgument desc = Specified folder in non-canonical format, canonical would be: \"../../../root\".",
+				},
+			}
+
+			for _, test := range tc {
+				t.Run(test.TestName, func(t *testing.T) {
+					if test.ErrString == "" {
+						backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil).Once()
+					}
+					res, err := backupSvc.StartBackup(ctx, &backuppb.StartBackupRequest{
+						Name:      test.BackupName,
+						Folder:    test.Folder,
+						ServiceId: *agent.ServiceID,
+						DataModel: backuppb.DataModel_LOGICAL,
+					})
+					if test.ErrString != "" {
+						assert.Nil(t, res)
+						assert.Equal(t, test.ErrString, err.Error())
+						return
+					}
+					assert.NoError(t, err)
+					assert.NotNil(t, res)
+				})
+			}
+
+			backupService.AssertExpectations(t)
+		})
 	})
 }
 
@@ -202,6 +275,11 @@ func TestRestoreBackupErrors(t *testing.T) {
 			testName:    "target MySQL is not compatible",
 			backupError: backup.ErrIncompatibleTargetMySQL,
 			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL,
+		},
+		{
+			testName:    "target MongoDB is not compatible",
+			backupError: backup.ErrIncompatibleTargetMongoDB,
+			code:        backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB,
 		},
 	} {
 		t.Run(tc.testName, func(t *testing.T) {
@@ -261,7 +339,7 @@ func TestScheduledBackups(t *testing.T) {
 				LocationId:     locationRes.ID,
 				CronExpression: "1 * * * *",
 				StartTime:      timestamppb.New(time.Now()),
-				Name:           t.Name(),
+				Name:           "schedule_change",
 				Description:    t.Name(),
 				Enabled:        true,
 				Mode:           backuppb.BackupMode_SNAPSHOT,
@@ -271,8 +349,8 @@ func TestScheduledBackups(t *testing.T) {
 			}
 			res, err := backupSvc.ScheduleBackup(ctx, req)
 
-			assert.NoError(t, err)
-			assert.NotEmpty(t, res.ScheduledBackupId)
+			require.NoError(t, err)
+			require.NotEmpty(t, res.ScheduledBackupId)
 
 			task, err := models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
 			require.NoError(t, err)
@@ -411,26 +489,6 @@ func TestGetLogs(t *testing.T) {
 		_ = sqlDB.Close()
 	})
 
-	job, err := models.CreateJob(db.Querier, models.CreateJobParams{
-		PMMAgentID: "agent",
-		Type:       models.MongoDBBackupJob,
-		Data: &models.JobData{
-			MongoDBBackup: &models.MongoDBBackupJobData{
-				ServiceID:  "svc",
-				ArtifactID: "artifact",
-			},
-		},
-	})
-	require.NoError(t, err)
-	for chunkID := 0; chunkID < 5; chunkID++ {
-		_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
-			JobID:   job.ID,
-			ChunkID: chunkID,
-			Data:    "not important",
-		})
-		assert.NoError(t, err)
-	}
-
 	type testCase struct {
 		offset uint32
 		limit  uint32
@@ -458,17 +516,113 @@ func TestGetLogs(t *testing.T) {
 			expect: []uint32{},
 		},
 	}
-	for _, tc := range testCases {
-		logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
-			ArtifactId: "artifact",
-			Offset:     tc.offset,
-			Limit:      tc.limit,
+
+	t.Run("get backup logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBBackup: &models.MongoDBBackupJobData{
+					ServiceID:  "svc",
+					ArtifactID: "artifact",
+				},
+			},
 		})
-		assert.NoError(t, err)
-		chunkIDs := make([]uint32, 0, len(logs.Logs))
-		for _, log := range logs.Logs {
-			chunkIDs = append(chunkIDs, log.ChunkId)
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
 		}
-		assert.Equal(t, tc.expect, chunkIDs)
-	}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				ArtifactId: "artifact",
+				Offset:     tc.offset,
+				Limit:      tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get physical restore logs", func(t *testing.T) {
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "physical-restore-1",
+					DataModel: models.PhysicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "physical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
+
+	t.Run("get logical restore logs", func(t *testing.T) {
+		logicalRestore, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: "logical-restore-1",
+					DataModel: models.LogicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+		for chunkID := 0; chunkID < 5; chunkID++ {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   logicalRestore.ID,
+				ChunkID: chunkID,
+				Data:    "not important",
+			})
+			assert.NoError(t, err)
+		}
+
+		for _, tc := range testCases {
+			logs, err := backupSvc.GetLogs(ctx, &backuppb.GetLogsRequest{
+				RestoreId: "logical-restore-1",
+				Offset:    tc.offset,
+				Limit:     tc.limit,
+			})
+			assert.NoError(t, err)
+			chunkIDs := make([]uint32, 0, len(logs.Logs))
+			for _, log := range logs.Logs {
+				chunkIDs = append(chunkIDs, log.ChunkId)
+			}
+			assert.Equal(t, tc.expect, chunkIDs)
+		}
+	})
 }
