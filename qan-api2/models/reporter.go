@@ -634,7 +634,7 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		return groupLabels
 	}
 
-	count := float32(0)
+	count := len(labelKeysValues)
 	res := make(map[string]map[string]float32)
 	for _, label := range labelKeysValues {
 		for index, key := range label.keys {
@@ -643,7 +643,6 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 			}
 
 			res[key][label.values[index]]++
-			count++
 		}
 	}
 
@@ -657,7 +656,7 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 		for k, v := range values {
 			val := qanpb.Values{
 				Value:             k,
-				MainMetricPercent: v / count,
+				MainMetricPercent: v / float32(count),
 			}
 			groupLabels[key].Name = append(groupLabels[key].Name, &val)
 		}
