@@ -1,7 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
-export ORACLE_VERSION := 4.2.6  # if pulled from vagrant repository (see below)
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -24,10 +23,6 @@ fetch-el9:
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
 		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
-		#|| wget --progress=dot:giga  https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b407.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
-	# https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box
-	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
-	# https://yum.oracle.com/boxes/oraclelinux/ol8/OL8U7_x86_64-vagrant-virtualbox-b377.box
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
