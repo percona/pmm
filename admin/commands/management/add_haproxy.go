@@ -44,6 +44,8 @@ func (res *addHAProxyResult) String() string {
 }
 
 // AddHAProxyCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddHAProxyCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
 	Username            string            `help:"HAProxy username"`
@@ -56,7 +58,7 @@ type AddHAProxyCommand struct {
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 }

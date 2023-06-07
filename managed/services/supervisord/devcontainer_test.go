@@ -17,7 +17,6 @@ package supervisord
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -37,6 +36,7 @@ import (
 
 // TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	gaReleaseDate := time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 
 	t.Run("Installed", func(t *testing.T) {
@@ -113,8 +113,7 @@ func TestDevContainer(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 		vmParams := &models.VictoriaMetricsParams{}
-
-		s := New("/etc/supervisord.d", checker, vmParams)
+		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -126,13 +125,13 @@ func TestDevContainer(t *testing.T) {
 		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
 		require.NoError(t, err)
 		for _, m := range matches {
-			b, err := ioutil.ReadFile(m) //nolint:gosec
+			b, err := os.ReadFile(m) //nolint:gosec
 			require.NoError(t, err)
 			originals[m] = b
 		}
 		defer func() {
 			for name, b := range originals {
-				err = ioutil.WriteFile(name, b, 0)
+				err = os.WriteFile(name, b, 0)
 				assert.NoError(t, err)
 			}
 			// force update supervisor config
@@ -167,7 +166,7 @@ func TestDevContainer(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 		vmParams := &models.VictoriaMetricsParams{}
-		s := New("/etc/supervisord.d", checker, vmParams)
+		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())

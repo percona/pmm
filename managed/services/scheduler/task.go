@@ -45,6 +45,7 @@ func (c *common) ID() string {
 // BackupTaskParams contains common fields for all backup tasks.
 type BackupTaskParams struct {
 	ServiceID     string
+	ClusterName   string
 	LocationID    string
 	Name          string
 	Description   string
@@ -53,6 +54,7 @@ type BackupTaskParams struct {
 	Retention     uint32
 	Retries       uint32
 	RetryInterval time.Duration
+	Folder        string
 }
 
 // Validate checks backup task parameters for correctness.
@@ -110,6 +112,7 @@ func (t *mySQLBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -123,6 +126,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 		MySQLBackupTask: &models.MySQLBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,
@@ -131,6 +135,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 				Mode:          t.Mode,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}
@@ -151,8 +156,8 @@ func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) {
 		return nil, errors.Errorf("unsupported backup mode for mongoDB: %s", params.Mode)
 	}
 
-	if params.DataModel != models.LogicalDataModel {
-		return nil, errors.Errorf("unsupported backup data model for mongoDB: %s", params.DataModel)
+	if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
+		return nil, errors.WithMessage(backup.ErrIncompatibleDataModel, "PITR is only supported for logical backups")
 	}
 
 	return &mongoDBBackupTask{
@@ -170,6 +175,7 @@ func (t *mongoDBBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -183,6 +189,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 		MongoDBBackupTask: &models.MongoBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,
@@ -191,6 +198,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 				Retention:     t.Retention,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}

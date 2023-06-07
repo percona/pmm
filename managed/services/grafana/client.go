@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package grafana provides facilities for working with Grafana.
+//
+
 package grafana
 
 import (
@@ -22,7 +24,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -30,6 +32,7 @@ import (
 	"strings"
 	"time"
 
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -37,11 +40,14 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
+
+const defaultEvaluationInterval = time.Minute
 
 // Client represents a client for Grafana API.
 type Client struct {
@@ -87,7 +93,7 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 }
 
 // clientError contains error response details.
-type clientError struct {
+type clientError struct { //nolint:musttag
 	Method       string
 	URL          string
 	Code         int
@@ -102,7 +108,7 @@ func (e *clientError) Error() string {
 
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
-// ctx is used only for cancelation.
+// Ctx is used only for cancelation.
 func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, respBody interface{}) error {
 	u := url.URL{
 		Scheme:   "http",
@@ -126,13 +132,13 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -149,6 +155,11 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		}
 	}
 	return nil
+}
+
+type authUser struct {
+	role   role
+	userID int
 }
 
 // role defines Grafana user role within the organization
@@ -181,30 +192,67 @@ func (r role) String() string {
 	}
 }
 
-// getRole returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
+// GetUserID returns user ID from Grafana for the current user.
+func (c *Client) GetUserID(ctx context.Context) (int, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	var m map[string]interface{}
+	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
+
+	if err != nil {
+		return 0, err
+	}
+
+	userID, ok := m["id"].(float64)
+	if !ok {
+		return 0, errors.New("Missing User ID in Grafana response")
+	}
+
+	return int(userID), nil
+}
+
+// getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
-// ctx is used only for cancelation.
-func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, error) {
+// Ctx is used only for cancelation.
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key
 	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
-		return c.getRoleForAPIKey(ctx, authHeaders)
+		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+		return authUser{
+			role:   role,
+			userID: 0,
+		}, err
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
-	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		return none, err
+		return authUser{
+			role:   none,
+			userID: 0,
+		}, err
 	}
 
+	id, _ := m["id"].(float64)
+	userID := int(id)
 	if a, _ := m["isGrafanaAdmin"].(bool); a {
-		return grafanaAdmin, nil
+		return authUser{
+			role:   grafanaAdmin,
+			userID: userID,
+		}, nil
 	}
 
 	// works only with Basic auth
 	var s []interface{}
-	if err := c.do(ctx, "GET", "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
-		return none, err
+	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
+		return authUser{
+			role:   none,
+			userID: userID,
+		}, err
 	}
 
 	for _, el := range s {
@@ -216,11 +264,17 @@ func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, er
 		// check only default organization (with ID 1)
 		if id, _ := m["orgId"].(float64); id == 1 {
 			role, _ := m["role"].(string)
-			return c.convertRole(role), nil
+			return authUser{
+				role:   c.convertRole(role),
+				userID: userID,
+			}, nil
 		}
 	}
 
-	return none, nil
+	return authUser{
+		role:   none,
+		userID: userID,
+	}, nil
 }
 
 func (c *Client) isAPIKeyAuth(authHeader string) bool {
@@ -252,8 +306,8 @@ func (c *Client) convertRole(role string) role {
 }
 
 type apiKey struct {
-	Id         int64      `json:"id"`
-	OrgId      int64      `json:"orgId,omitempty"`
+	ID         int64      `json:"id"`
+	OrgID      int64      `json:"orgId,omitempty"`
 	Name       string     `json:"name"`
 	Role       string     `json:"role"`
 	Expiration *time.Time `json:"expiration,omitempty"`
@@ -261,7 +315,7 @@ type apiKey struct {
 
 func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
-	if err := c.do(ctx, "GET", "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
 		return none, err
 	}
 
@@ -288,7 +342,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
-	userID := int(m["id"].(float64))
+	userID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// settings in grafana.ini should make a viewer by default
 	if role < editor {
@@ -329,13 +383,13 @@ func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) err
 		return err
 	}
 	var keys []apiKey
-	if err := c.do(ctx, "GET", "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
 		return err
 	}
 
 	for _, k := range keys {
 		if strings.HasPrefix(k.Name, prefix) {
-			err := c.deleteAPIKey(ctx, k.Id, authHeaders)
+			err := c.deleteAPIKey(ctx, k.ID, authHeaders)
 			if err != nil {
 				return err
 			}
@@ -352,6 +406,123 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 		return err
 	}
 	return c.deleteAPIKey(ctx, id, authHeaders)
+}
+
+// CreateAlertRule creates Grafana alert rule.
+func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	type AlertRuleGroup struct {
+		Name     string            `json:"name"`
+		Interval string            `json:"interval"`
+		Rules    []json.RawMessage `json:"rules"`
+	}
+
+	var group AlertRuleGroup
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+		return err
+	}
+
+	b, err := json.Marshal(rule)
+	if err != nil {
+		return err
+	}
+
+	group.Rules = append(group.Rules, b)
+
+	if group.Interval == "" {
+		// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
+		group.Interval = defaultEvaluationInterval.String()
+	}
+
+	if err = validateDurations(group.Interval, rule.For); err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(group)
+	if err != nil {
+		return err
+	}
+
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
+		if err != nil {
+			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateDurations(intervalD, forD string) error {
+	i, err := time.ParseDuration(intervalD)
+	if err != nil {
+		return err
+	}
+
+	f, err := time.ParseDuration(forD)
+	if err != nil {
+		return err
+	}
+
+	if f < i {
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be shorter than evaluation interval for the given group (%s).", forD, intervalD)
+	}
+
+	return nil
+}
+
+// GetDatasourceUIDByID returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
+}
+
+// GetFolderByUID returns folder with given UID.
+func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create grafana client")
+	}
+
+	folder, err := grafanaClient.FolderByUID(uid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find folder")
+	}
+
+	return folder, nil
+}
+
+func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	headers := make(map[string]string, len(authHeaders))
+	for k := range authHeaders {
+		headers[k] = authHeaders.Get(k)
+	}
+
+	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return grafanaClient, nil
 }
 
 func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {
@@ -388,16 +559,16 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	key := m["key"].(string)
+	key := m["key"].(string) //nolint:forcetypeassert
 
 	apiAuthHeaders := http.Header{}
 	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))
 
 	var k apiKey
-	if err := c.do(ctx, "GET", "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
 		return 0, "", err
 	}
-	apiKeyID := k.Id
+	apiKeyID := k.ID
 
 	return apiKeyID, key, nil
 }
@@ -476,7 +647,7 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 	}.Encode()
 
 	var response []annotation
-	if err := c.do(ctx, "GET", "/api/annotations", params, headers, nil, &response); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response); err != nil {
 		return nil, err
 	}
 
@@ -493,10 +664,10 @@ type grafanaHealthResponse struct {
 	Version  string `json:"version"`
 }
 
-// IsReady calls Grafana API to check its status
+// IsReady calls Grafana API to check its status.
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
-	if err := c.do(ctx, "GET", "/api/health", "", nil, nil, &status); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
 		// since we don't return the error to the user, log it to help debugging
 		logrus.Errorf("grafana status check failed: %s", err)
 		return fmt.Errorf("cannot reach Grafana API")
@@ -538,13 +709,13 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
 	}
 
 	return user.AccessToken, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*Client)(nil)
 	_ error          = (*clientError)(nil)

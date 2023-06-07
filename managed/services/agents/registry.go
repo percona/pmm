@@ -123,15 +123,20 @@ func NewRegistry(db *reform.DB) *Registry {
 			Help:       "Clock drift.",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
-		mAgents: prom.NewGaugeFunc(prom.GaugeOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "connected",
-			Help:      "The current number of connected pmm-agents.",
-		}, func() float64 {
-			return float64(len(agents))
-		}),
 	}
+
+	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{
+		Namespace: prometheusNamespace,
+		Subsystem: prometheusSubsystem,
+		Name:      "connected",
+		Help:      "The current number of connected pmm-agents.",
+	}, func() float64 {
+		r.rw.Lock()
+		defer r.rw.Unlock()
+
+		return float64(len(agents))
+	})
+
 	// initialize metrics with labels
 	r.mDisconnects.WithLabelValues("unknown")
 
@@ -142,50 +147,6 @@ func NewRegistry(db *reform.DB) *Registry {
 func (r *Registry) IsConnected(pmmAgentID string) bool {
 	_, err := r.get(pmmAgentID)
 	return err == nil
-}
-
-// PBMSwitchPITR switches Point-in-Time Recovery feature for pbm on the pmm-agent.
-func (r *Registry) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
-	agent, err := r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	req := &agentpb.PBMSwitchPITRRequest{
-		Dsn: dsn,
-		TextFiles: &agentpb.TextFiles{
-			Files:              files,
-			TemplateLeftDelim:  tdp.Left,
-			TemplateRightDelim: tdp.Right,
-		},
-		Enabled: enabled,
-	}
-
-	_, err = agent.channel.SendAndWaitResponse(req)
-	return err
-}
-
-// Logs by Agent ID.
-func (r *Registry) Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
-	agent, err := r.get(pmmAgentID)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
-		AgentId: agentID,
-		Limit:   limit,
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
-	if !ok {
-		return nil, 0, errors.New("wrong response from agent (not AgentLogsResponse model)")
-	}
-
-	return agentLogsResponse.GetLogs(), agentLogsResponse.GetAgentConfigLogLinesCount(), nil
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
@@ -321,12 +282,12 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime()
+	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
 	}
-	l.Infof("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
+	l.Debugf("Round-trip time: %s. Estimated clock drift: %s.", roundtrip, clockDrift)
 	r.mRoundTrip.Observe(roundtrip.Seconds())
 	r.mClockDrift.Observe(clockDrift.Seconds())
 	return nil

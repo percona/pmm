@@ -52,10 +52,12 @@ func NewStartMySQLShowCreateTableActionParamsWithHTTPClient(client *http.Client)
 	}
 }
 
-/* StartMySQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
-   for the start my SQL show create table action operation.
+/*
+StartMySQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start my SQL show create table action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartMySQLShowCreateTableActionParams struct {
 	// Body.

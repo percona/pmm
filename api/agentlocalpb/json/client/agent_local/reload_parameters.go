@@ -52,10 +52,12 @@ func NewReloadParamsWithHTTPClient(client *http.Client) *ReloadParams {
 	}
 }
 
-/* ReloadParams contains all the parameters to send to the API endpoint
-   for the reload operation.
+/*
+ReloadParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the reload operation.
+
+	Typically these are written to a http.Request.
 */
 type ReloadParams struct {
 	// Body.

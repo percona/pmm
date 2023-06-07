@@ -50,7 +50,8 @@ func NewGetAgentOK() *GetAgentOK {
 	return &GetAgentOK{}
 }
 
-/* GetAgentOK describes a response with status code 200, with default header values.
+/*
+GetAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewGetAgentDefault(code int) *GetAgentDefault {
 	}
 }
 
-/* GetAgentDefault describes a response with status code -1, with default header values.
+/*
+GetAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*GetAgentBody get agent body
+/*
+GetAgentBody get agent body
 swagger:model GetAgentBody
 */
 type GetAgentBody struct {
@@ -154,7 +157,8 @@ func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentDefaultBody get agent default body
+/*
+GetAgentDefaultBody get agent default body
 swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
@@ -257,7 +261,8 @@ func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentDefaultBodyDetailsItems0 get agent default body details items0
+/*
+GetAgentDefaultBodyDetailsItems0 get agent default body details items0
 swagger:model GetAgentDefaultBodyDetailsItems0
 */
 type GetAgentDefaultBodyDetailsItems0 struct {
@@ -293,7 +298,8 @@ func (o *GetAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBody get agent OK body
+/*
+GetAgentOKBody get agent OK body
 swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
@@ -1011,7 +1017,8 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*
+GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model GetAgentOKBodyAzureDatabaseExporter
 */
 type GetAgentOKBodyAzureDatabaseExporter struct {
@@ -1034,6 +1041,8 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 	AzureDatabaseResourceType string `json:"azure_database_resource_type,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1213,7 +1222,8 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*
+GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model GetAgentOKBodyExternalExporter
 */
 type GetAgentOKBodyExternalExporter struct {
@@ -1279,7 +1289,8 @@ func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*
+GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model GetAgentOKBodyMongodbExporter
 */
 type GetAgentOKBodyMongodbExporter struct {
@@ -1311,6 +1322,8 @@ type GetAgentOKBodyMongodbExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1497,7 +1510,8 @@ func (o *GetAgentOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*
+GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model GetAgentOKBodyMysqldExporter
 */
 type GetAgentOKBodyMysqldExporter struct {
@@ -1543,6 +1557,8 @@ type GetAgentOKBodyMysqldExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1722,7 +1738,8 @@ func (o *GetAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*
+GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
@@ -1742,6 +1759,8 @@ type GetAgentOKBodyNodeExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1918,7 +1937,8 @@ func (o *GetAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
+/*
+GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
@@ -1929,6 +1949,8 @@ type GetAgentOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.
@@ -1966,7 +1988,8 @@ func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*
+GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model GetAgentOKBodyPostgresExporter
 */
 type GetAgentOKBodyPostgresExporter struct {
@@ -2174,7 +2197,8 @@ func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+/*
+GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {
@@ -2206,6 +2230,8 @@ type GetAgentOKBodyProxysqlExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of disabled collector names.
+	//
+	// Status fields below.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -2382,7 +2408,8 @@ func (o *GetAgentOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*
+GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
 type GetAgentOKBodyQANMongodbProfilerAgent struct {
@@ -2407,7 +2434,15 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	//
+	// True if query examples are disabled.
+	//  bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -2581,7 +2616,8 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
 */
 type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
@@ -2615,10 +2651,15 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -2792,7 +2833,8 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMysqlSlowlogAgent
 */
 type GetAgentOKBodyQANMysqlSlowlogAgent struct {
@@ -2826,6 +2868,9 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit)
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
@@ -2833,6 +2878,8 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3006,7 +3053,8 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*
+GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
@@ -3025,6 +3073,9 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -3032,6 +3083,8 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3205,7 +3258,8 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*
+GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -3230,10 +3284,15 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3407,7 +3466,8 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*
+GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {
@@ -3427,6 +3487,8 @@ type GetAgentOKBodyRDSExporter struct {
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -3441,6 +3503,8 @@ type GetAgentOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
+	//
+	// Metric collections flags below.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.
@@ -3612,7 +3676,8 @@ func (o *GetAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
+/*
+GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
 // It scrapes other exporter Agents that are configured with push_metrics_enabled
 // and uses Prometheus remote write protocol to push metrics to PMM Server.
 swagger:model GetAgentOKBodyVmagent
@@ -3622,6 +3687,8 @@ type GetAgentOKBodyVmagent struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
+	//
+	// Status fields below.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.

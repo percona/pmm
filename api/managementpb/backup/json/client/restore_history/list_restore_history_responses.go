@@ -50,7 +50,8 @@ func NewListRestoreHistoryOK() *ListRestoreHistoryOK {
 	return &ListRestoreHistoryOK{}
 }
 
-/* ListRestoreHistoryOK describes a response with status code 200, with default header values.
+/*
+ListRestoreHistoryOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListRestoreHistoryDefault(code int) *ListRestoreHistoryDefault {
 	}
 }
 
-/* ListRestoreHistoryDefault describes a response with status code -1, with default header values.
+/*
+ListRestoreHistoryDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListRestoreHistoryDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ListRestoreHistoryDefaultBody list restore history default body
+/*
+ListRestoreHistoryDefaultBody list restore history default body
 swagger:model ListRestoreHistoryDefaultBody
 */
 type ListRestoreHistoryDefaultBody struct {
@@ -221,7 +224,8 @@ func (o *ListRestoreHistoryDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
+/*
+ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
 swagger:model ListRestoreHistoryDefaultBodyDetailsItems0
 */
 type ListRestoreHistoryDefaultBodyDetailsItems0 struct {
@@ -257,7 +261,8 @@ func (o *ListRestoreHistoryDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ListRestoreHistoryOKBody list restore history OK body
+/*
+ListRestoreHistoryOKBody list restore history OK body
 swagger:model ListRestoreHistoryOKBody
 */
 type ListRestoreHistoryOKBody struct {
@@ -354,7 +359,8 @@ func (o *ListRestoreHistoryOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
+/*
+ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
 swagger:model ListRestoreHistoryOKBodyItemsItems0
 */
 type ListRestoreHistoryOKBodyItemsItems0 struct {
@@ -397,6 +403,10 @@ type ListRestoreHistoryOKBodyItemsItems0 struct {
 	// Restore finish time.
 	// Format: date-time
 	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
+
+	// PITR timestamp is filled for PITR restores, empty otherwise.
+	// Format: date-time
+	PitrTimestamp strfmt.DateTime `json:"pitr_timestamp,omitempty"`
 }
 
 // Validate validates this list restore history OK body items items0
@@ -416,6 +426,10 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) Validate(formats strfmt.Registry) 
 	}
 
 	if err := o.validateFinishedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePitrTimestamp(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -536,6 +550,18 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) validateFinishedAt(formats strfmt.
 	}
 
 	if err := validate.FormatOf("finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListRestoreHistoryOKBodyItemsItems0) validatePitrTimestamp(formats strfmt.Registry) error {
+	if swag.IsZero(o.PitrTimestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("pitr_timestamp", "body", "date-time", o.PitrTimestamp.String(), formats); err != nil {
 		return err
 	}
 

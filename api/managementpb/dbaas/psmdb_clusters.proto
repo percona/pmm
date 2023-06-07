@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-option go_package = "api/managementpb/dbaas;dbaasv1beta1";
-
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/templates.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 message PSMDBClusterParams {
@@ -17,6 +18,10 @@ message PSMDBClusterParams {
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
     int64 disk_size = 2;
+    // Configuration for PSMDB cluster
+    string configuration = 4;
+    // Storage Class for PSMDB cluster.
+    string storage_class = 5;
   }
   // Cluster size.
   int32 cluster_size = 1;
@@ -24,21 +29,17 @@ message PSMDBClusterParams {
   ReplicaSet replicaset = 2;
   // Docker image used for PSMDB.
   string image = 3;
+  // Backup configuration parameters.
+  Backup backup = 4;
+  // Restore configuration parameters.
+  Restore restore = 5;
 }
 
 message GetPSMDBClusterCredentialsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validate.rules).string.min_len = 1];
 }
 
 message GetPSMDBClusterCredentialsResponse {
@@ -61,11 +62,7 @@ message GetPSMDBClusterCredentialsResponse {
 
 message CreatePSMDBClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
   // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
   // start with an alphabetic character, and end with an alphanumeric character
@@ -75,29 +72,31 @@ message CreatePSMDBClusterRequest {
   PSMDBClusterParams params = 3;
   // Make DB cluster accessible outside of K8s cluster.
   bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message CreatePSMDBClusterResponse {}
 
 message UpdatePSMDBClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PSMDB cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validate.rules).string.min_len = 1];
   // UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
   message UpdatePSMDBClusterParams {
     // ReplicaSet container parameters.
     message ReplicaSet {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
+      // Configuration for PSMDB cluster
+      string configuration = 4;
+      // Storage Class for PSMDB cluster.
+      string storage_class = 5;
     }
     // Cluster size.
     int32 cluster_size = 1;
@@ -113,6 +112,14 @@ message UpdatePSMDBClusterRequest {
   }
   // Cluster parameters.
   UpdatePSMDBClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message UpdatePSMDBClusterResponse {}

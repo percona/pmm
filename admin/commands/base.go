@@ -54,19 +54,21 @@ type Result interface {
 // Command is a common interface for all commands.
 //
 // Command should:
-//  * use logrus.Trace/Debug functions for debug logging;
-//  * return result on success;
-//  * return error on failure.
+//   - use logrus.Trace/Debug functions for debug logging;
+//   - return result on success;
+//   - return error on failure.
 //
 // Command should not:
-//  * return both result and error;
-//  * exit with logrus.Fatal, os.Exit, etc;
-//  * use logrus.Print, logrus.Info and higher levels except:
-//    * summary command (for progress output).
+//   - return both result and error;
+//   - exit with logrus.Fatal, os.Exit, etc;
+//   - use logrus.Print, logrus.Info and higher levels except:
+//   - summary command (for progress output).
 type Command interface {
 	RunCmd() (Result, error)
 }
 
+// CommandWithContext is a new interface for commands.
+//
 // TODO remove Command above, rename CommandWithContext to Command.
 type CommandWithContext interface {
 	// TODO rename to Run
@@ -144,7 +146,7 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	return strings.TrimSpace(buf.String()) + "\n"
 }
 
-var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
+var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
 
 // ParseCustomLabels trims spaces in --custom-labels flag value.
 func ParseCustomLabels(labels map[string]string) map[string]string {

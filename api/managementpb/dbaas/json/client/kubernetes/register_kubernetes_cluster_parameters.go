@@ -52,10 +52,12 @@ func NewRegisterKubernetesClusterParamsWithHTTPClient(client *http.Client) *Regi
 	}
 }
 
-/* RegisterKubernetesClusterParams contains all the parameters to send to the API endpoint
-   for the register kubernetes cluster operation.
+/*
+RegisterKubernetesClusterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the register kubernetes cluster operation.
+
+	Typically these are written to a http.Request.
 */
 type RegisterKubernetesClusterParams struct {
 	// Body.

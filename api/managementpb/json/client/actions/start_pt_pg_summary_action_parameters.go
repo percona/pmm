@@ -52,10 +52,12 @@ func NewStartPTPgSummaryActionParamsWithHTTPClient(client *http.Client) *StartPT
 	}
 }
 
-/* StartPTPgSummaryActionParams contains all the parameters to send to the API endpoint
-   for the start PT pg summary action operation.
+/*
+StartPTPgSummaryActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start PT pg summary action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartPTPgSummaryActionParams struct {
 	// Body.

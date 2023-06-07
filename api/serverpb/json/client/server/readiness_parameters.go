@@ -52,10 +52,12 @@ func NewReadinessParamsWithHTTPClient(client *http.Client) *ReadinessParams {
 	}
 }
 
-/* ReadinessParams contains all the parameters to send to the API endpoint
-   for the readiness operation.
+/*
+ReadinessParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the readiness operation.
+
+	Typically these are written to a http.Request.
 */
 type ReadinessParams struct {
 	timeout    time.Duration

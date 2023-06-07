@@ -17,7 +17,6 @@
 package dir
 
 import (
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -59,7 +58,7 @@ func FindFilesWithExtensions(path string, extensions ...string) ([]string, error
 		return false
 	}
 
-	entries, err := ioutil.ReadDir(path)
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}

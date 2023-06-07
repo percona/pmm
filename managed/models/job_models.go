@@ -78,12 +78,14 @@ type MongoDBBackupJobData struct {
 	ServiceID  string     `json:"service_id"`
 	ArtifactID string     `json:"artifact_id"`
 	Mode       BackupMode `json:"mode"`
+	DataModel  DataModel  `json:"data_model"`
 }
 
 // MongoDBRestoreBackupJobData stores MongoDB restore backup job specific result data.
 type MongoDBRestoreBackupJobData struct {
-	ServiceID string `json:"service_id"`
-	RestoreID string `json:"restore_id"`
+	ServiceID string    `json:"service_id"`
+	RestoreID string    `json:"restore_id"`
+	DataModel DataModel `json:"data_model"`
 }
 
 // JobData contains data required for running a job.
@@ -101,6 +103,7 @@ func (c JobData) Value() (driver.Value, error) { return jsonValue(c) }
 func (c *JobData) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // Job describes a job result which is storing in persistent storage.
+//
 //reform:jobs
 type Job struct {
 	ID         string        `reform:"id,pk"`
@@ -142,6 +145,7 @@ func (r *Job) AfterFind() error {
 }
 
 // JobLog stores chunk of logs from job.
+//
 //reform:job_logs
 type JobLog struct {
 	JobID     string `reform:"job_id"`

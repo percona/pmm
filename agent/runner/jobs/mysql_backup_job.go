@@ -19,6 +19,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -37,32 +39,25 @@ const (
 
 // MySQLBackupJob implements Job for MySQL backup.
 type MySQLBackupJob struct {
-	id       string
-	timeout  time.Duration
-	l        logrus.FieldLogger
-	name     string
-	connConf DBConnConfig
-	location BackupLocationConfig
-}
-
-// DBConnConfig contains required properties for connection to DB.
-type DBConnConfig struct {
-	User     string
-	Password string
-	Address  string
-	Port     int
-	Socket   string
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	connConf       DBConnConfig
+	locationConfig BackupLocationConfig
+	folder         string
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
-func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig) *MySQLBackupJob {
+func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig, folder string) *MySQLBackupJob {
 	return &MySQLBackupJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_backup", "name": name}),
-		name:     name,
-		connConf: connConf,
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_backup", "name": name}),
+		name:           name,
+		connConf:       connConf,
+		locationConfig: locationConfig,
+		folder:         folder,
 	}
 }
 
@@ -91,11 +86,23 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
+	// mysqlArtifactFiles returns list of files and folders the backup consists of (hardcoded).
+	mysqlArtifactFiles := func(backupFolder string) []*backuppb.File {
+		res := []*backuppb.File{
+			{Name: backupFolder, IsDirectory: true},
+		}
+		return res
+	}
+
 	send(&agentpb.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
 		Result: &agentpb.JobResult_MysqlBackup{
-			MysqlBackup: &agentpb.JobResult_MySQLBackup{},
+			MysqlBackup: &agentpb.JobResult_MySQLBackup{
+				Metadata: &backuppb.Metadata{
+					FileList: mysqlArtifactFiles(j.name),
+				},
+			},
 		},
 	})
 
@@ -111,7 +118,7 @@ func (j *MySQLBackupJob) binariesInstalled() error {
 		return errors.Wrapf(err, "lookpath: %s", qpressBin)
 	}
 
-	if j.location.S3Config != nil {
+	if j.locationConfig.Type == S3BackupLocationType {
 		if _, err := exec.LookPath(xbcloudBin); err != nil {
 			return errors.Wrapf(err, "lookpath: %s", xbcloudBin)
 		}
@@ -160,18 +167,23 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 
 	var xbcloudCmd *exec.Cmd
 	switch {
-	case j.location.S3Config != nil:
+	case j.locationConfig.Type == S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
+
+		artifactFolder := path.Join(j.folder, j.name)
+
+		j.l.Debugf("Artifact folder is: %s", artifactFolder)
+
 		xbcloudCmd = exec.CommandContext(pipeCtx, xbcloudBin,
 			"put",
 			"--storage=s3",
-			"--s3-endpoint="+j.location.S3Config.Endpoint,
-			"--s3-access-key="+j.location.S3Config.AccessKey,
-			"--s3-secret-key="+j.location.S3Config.SecretKey,
-			"--s3-bucket="+j.location.S3Config.BucketName,
-			"--s3-region="+j.location.S3Config.BucketRegion,
+			"--s3-endpoint="+j.locationConfig.S3Config.Endpoint,
+			"--s3-access-key="+j.locationConfig.S3Config.AccessKey,
+			"--s3-secret-key="+j.locationConfig.S3Config.SecretKey,
+			"--s3-bucket="+j.locationConfig.S3Config.BucketName,
+			"--s3-region="+j.locationConfig.S3Config.BucketRegion,
 			"--parallel=10",
-			j.name) // #nosec G204
+			artifactFolder) // #nosec G204
 	default:
 		return errors.Errorf("unknown location config")
 	}

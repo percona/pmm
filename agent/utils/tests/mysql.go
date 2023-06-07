@@ -16,8 +16,6 @@ package tests
 
 import (
 	"database/sql"
-	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/go-sql-driver/mysql"
@@ -67,49 +65,4 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	require.NoError(tb, err)
 
 	return db
-}
-
-// MySQLVendor represents MySQL vendor (Oracle, Percona).
-type MySQLVendor string
-
-// MySQL vendors.
-const (
-	OracleMySQL  MySQLVendor = "oracle"
-	PerconaMySQL MySQLVendor = "percona"
-	MariaDBMySQL MySQLVendor = "mariadb"
-)
-
-// MySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.) and vendor.
-func MySQLVersion(tb testing.TB, db *sql.DB) (string, MySQLVendor) {
-	tb.Helper()
-
-	var varName, version string
-	err := db.QueryRow(`SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`).Scan(&varName, &version)
-	require.NoError(tb, err)
-	mm := regexp.MustCompile(`^\d+\.\d+`).FindString(version)
-
-	var comment string
-	err = db.QueryRow(`SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&varName, &comment)
-	require.NoError(tb, err)
-
-	// SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment';
-	// +-----------------+----------------+
-	// | Variable_name   | Value          |
-	// +-----------------+----------------+
-	// | version_comment | MariaDB Server |
-	// +-----------------+----------------+
-	// convert comment to lowercase because not all MySQL flavors & versions return the same capitalization
-	// but make it only in the switch-case to preserve the original value for debugging
-	var vendor MySQLVendor
-	switch {
-	case strings.Contains(strings.ToLower(comment), "percona"):
-		vendor = PerconaMySQL
-	case strings.Contains(strings.ToLower(comment), "mariadb"):
-		vendor = MariaDBMySQL
-	default:
-		vendor = OracleMySQL
-	}
-
-	tb.Logf("version = %q (mm = %q), version_comment = %q (vendor = %q)", version, mm, comment, vendor)
-	return mm, vendor
 }

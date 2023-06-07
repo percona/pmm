@@ -48,6 +48,8 @@ const (
 	XtrabackupSoftwareName SoftwareName = "xtrabackup"
 	XbcloudSoftwareName    SoftwareName = "xbcloud"
 	QpressSoftwareName     SoftwareName = "qpress"
+	MongoDBSoftwareName    SoftwareName = "mongodb"
+	PBMSoftwareName        SoftwareName = "pbm"
 )
 
 // SoftwareVersion represents version of the given software.
@@ -71,6 +73,7 @@ func (sv *SoftwareVersions) Scan(src interface{}) error {
 
 // ServiceSoftwareVersions represents service software versions.
 // It has a one-to-one relationship with the services table.
+//
 //reform:service_software_versions
 type ServiceSoftwareVersions struct {
 	ServiceID        string           `reform:"service_id,pk"`

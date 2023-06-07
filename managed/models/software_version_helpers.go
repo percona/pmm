@@ -16,6 +16,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -63,6 +64,8 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
@@ -109,11 +112,16 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 		case XtrabackupSoftwareName:
 		case XbcloudSoftwareName:
 		case QpressSoftwareName:
+		case MongoDBSoftwareName:
+		case PBMSoftwareName:
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
-	}
 
+		if sv.Version == "" {
+			return NewInvalidArgumentError("empty version for software name %q", sv.Name)
+		}
+	}
 	return nil
 }
 
@@ -131,9 +139,11 @@ func UpdateServiceSoftwareVersions(
 	if err != nil {
 		return nil, err
 	}
+
 	if params.NextCheckAt != nil {
 		row.NextCheckAt = *params.NextCheckAt
 	}
+
 	if params.SoftwareVersions != nil {
 		row.SoftwareVersions = params.SoftwareVersions
 	}
@@ -153,14 +163,15 @@ func FindServiceSoftwareVersionsByServiceID(q *reform.Querier, serviceID string)
 	}
 
 	versions := &ServiceSoftwareVersions{ServiceID: serviceID}
-	switch err := q.Reload(versions); err {
-	case nil:
-		return versions, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
-	default:
+	err := q.Reload(versions)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return versions, nil
 }
 
 // FindServicesSoftwareVersionsFilter represents a filter for finding service software versions.
@@ -169,8 +180,8 @@ type FindServicesSoftwareVersionsFilter struct {
 	ServiceType *ServiceType
 }
 
-// FindServicesSoftwareVersions returns all services software versions sorted by next_check_at in ascending order
-// if limit is not specified and limited number of entries otherwise.
+// FindServicesSoftwareVersions returns all services software versions sorted by specified param in ascending order
+// if limit is not specified, and limited number of entries otherwise.
 func FindServicesSoftwareVersions(
 	q *reform.Querier,
 	filter FindServicesSoftwareVersionsFilter,
@@ -178,6 +189,17 @@ func FindServicesSoftwareVersions(
 ) ([]*ServiceSoftwareVersions, error) {
 	var args []interface{}
 	var tail strings.Builder
+	idx := 1
+
+	if filter.ServiceType != nil {
+		if err := ValidateServiceType(*filter.ServiceType); err != nil {
+			return nil, errors.WithStack(err)
+		}
+		tail.WriteString(fmt.Sprintf("WHERE service_type = %s", q.Placeholder(idx)))
+		args = append(args, string(*filter.ServiceType))
+		idx++
+	}
+
 	if orderBy == SoftwareVersionsOrderByServiceID {
 		tail.WriteString("ORDER BY service_id ")
 	} else {
@@ -185,7 +207,7 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		tail.WriteString("LIMIT $1")
+		tail.WriteString(fmt.Sprintf("LIMIT %s", q.Placeholder(idx)))
 		args = append(args, *filter.Limit)
 	}
 
@@ -196,7 +218,7 @@ func FindServicesSoftwareVersions(
 
 	versions := make([]*ServiceSoftwareVersions, len(structs))
 	for i, s := range structs {
-		versions[i] = s.(*ServiceSoftwareVersions)
+		versions[i] = s.(*ServiceSoftwareVersions) //nolint:forcetypeassert
 	}
 
 	return versions, nil

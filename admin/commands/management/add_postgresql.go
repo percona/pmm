@@ -43,9 +43,11 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
-	Address           string `arg:"" default:"127.0.0.1:5432" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
 	Socket            string `help:"Path to socket"`
 	Username          string `default:"postgres" help:"PostgreSQL username"`
 	Password          string `help:"PostgreSQL password"`
@@ -55,23 +57,24 @@ type AddPostgreSQLCommand struct {
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
-	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
+	QuerySource          string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
 	Environment          string            `help:"Environment name"`
 	Cluster              string            `help:"Cluster name"`
 	ReplicationSet       string            `help:"Replication set name"`
-	CustomLabels         map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile          string            `help:"TLS certificate file"`
 	TLSKeyFile           string            `help:"TLS certificate key file"`
 	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
-	AddLogLevelFatalFlags
+	AddLogLevelNoFatalFlags
 }
 
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
@@ -189,6 +192,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			TLSKey:        tlsKey,
 			TLSSkipVerify: cmd.TLSSkipVerify,
 
+			MaxQueryLength:       cmd.MaxQueryLength,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),

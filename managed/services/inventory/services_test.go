@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context) {
+func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
 	uuid.SetRand(&tests.IDReader{})
@@ -61,7 +61,11 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	vc := &mockVersionCache{}
 	vc.Test(t)
 
+	as := &mockAgentService{}
+	as.Test(t)
+
 	teardown := func(t *testing.T) {
+		t.Helper()
 		uuid.SetRand(nil)
 
 		require.NoError(t, sqlDB.Close())
@@ -73,15 +77,16 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc),
-		NewAgentsService(db, r, state, vmdb, cc),
+		NewAgentsService(db, r, state, vmdb, cc, as),
 		NewNodesService(db, r, state, vmdb),
 		teardown,
-		logger.Set(context.Background(), t.Name())
+		logger.Set(context.Background(), t.Name()),
+		vmdb
 }
 
 func TestServices(t *testing.T) {
 	t.Run("BasicMySQL", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -122,7 +127,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RDSServiceRemoving", func(t *testing.T) {
-		ss, as, ns, teardown, ctx := setup(t)
+		ss, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -180,7 +185,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AzureServiceRemoving", func(t *testing.T) {
-		ss, as, ns, teardown, ctx := setup(t)
+		ss, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -237,7 +242,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicMySQLWithSocket", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -276,7 +281,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAddressConflict", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -293,7 +298,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("MySQLSocketAndPort", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -310,7 +315,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicMongoDB", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -352,7 +357,7 @@ func TestServices(t *testing.T) {
 
 	t.Run("PostgreSQL", func(t *testing.T) {
 		t.Run("Basic", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -393,7 +398,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocket", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -432,7 +437,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAddressConflict", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -451,7 +456,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("WithSocketAndPort", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -470,7 +475,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQL", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -510,7 +515,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicProxySQLWithSocket", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -548,7 +553,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAddressConflict", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -565,7 +570,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("ProxySQLSocketAndPort", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -582,7 +587,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicHAProxyService", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -618,7 +623,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("BasicExternalService", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -656,7 +661,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualNode, err := ss.Get(ctx, "")
@@ -665,7 +670,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
@@ -687,7 +692,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("AddNodeNotFound", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
@@ -700,7 +705,7 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
-		ss, _, _, teardown, ctx := setup(t)
+		ss, _, _, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		err := ss.Remove(ctx, "no-such-id", false)
@@ -709,7 +714,7 @@ func TestServices(t *testing.T) {
 
 	t.Run("MongoDB", func(t *testing.T) {
 		t.Run("WithSocket", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -747,7 +752,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAddressConflict", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -764,7 +769,7 @@ func TestServices(t *testing.T) {
 		})
 
 		t.Run("SocketAndPort", func(t *testing.T) {
-			ss, _, _, teardown, ctx := setup(t)
+			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
 			actualServices, err := ss.List(ctx, models.ServiceFilters{})
@@ -778,6 +783,136 @@ func TestServices(t *testing.T) {
 				Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
 			})
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
+		})
+	})
+
+	t.Run("AddCustomLabels", func(t *testing.T) {
+		t.Run("No Service ID", func(t *testing.T) {
+			s, _, _, teardown, ctx, _ := setup(t)
+			defer teardown(t)
+
+			response, err := s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{})
+			assert.Nil(t, response)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
+		})
+
+		t.Run("Add a label", func(t *testing.T) {
+			s, _, _, teardown, ctx, vmdb := setup(t)
+			defer teardown(t)
+
+			vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			response, err := s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{
+				ServiceId: service.ServiceID,
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+				},
+			})
+			assert.NotNil(t, response)
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 2)
+			assert.Equal(t, labels["newKey"], "newValue")
+			assert.Equal(t, labels["newKey2"], "newValue2")
+		})
+
+		t.Run("Replace a label", func(t *testing.T) {
+			s, _, _, teardown, ctx, vmdb := setup(t)
+			defer teardown(t)
+
+			vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+				},
+			})
+			require.NoError(t, err)
+
+			_, err = s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{
+				ServiceId: service.ServiceID,
+				CustomLabels: map[string]string{
+					"newKey2": "newValue-replaced",
+				},
+			})
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 2)
+			assert.Equal(t, labels["newKey"], "newValue")
+			assert.Equal(t, labels["newKey2"], "newValue-replaced")
+		})
+	})
+
+	t.Run("RemoveCustomLabels", func(t *testing.T) {
+		t.Run("No Service ID", func(t *testing.T) {
+			s, _, _, teardown, ctx, _ := setup(t)
+			defer teardown(t)
+
+			response, err := s.RemoveCustomLabels(ctx, &inventorypb.RemoveCustomLabelsRequest{})
+			assert.Nil(t, response)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
+		})
+
+		t.Run("Remove a label", func(t *testing.T) {
+			s, _, _, teardown, ctx, vmdb := setup(t)
+			defer teardown(t)
+
+			vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+					"newKey3": "newValue3",
+				},
+			})
+			require.NoError(t, err)
+
+			response, err := s.RemoveCustomLabels(ctx, &inventorypb.RemoveCustomLabelsRequest{
+				ServiceId:       service.ServiceID,
+				CustomLabelKeys: []string{"newKey", "newKey2", "non-existent"},
+			})
+			assert.NotNil(t, response)
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 1)
+			assert.Equal(t, labels["newKey3"], "newValue3")
 		})
 	})
 }

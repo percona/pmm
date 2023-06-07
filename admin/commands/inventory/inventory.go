@@ -43,6 +43,8 @@ type AddCommand struct {
 }
 
 // AddAgentCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentCommand struct {
 	ExternalExporter AddAgentExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
 	MongodbExporter  AddAgentMongodbExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
@@ -90,13 +92,13 @@ type RemoveCommand struct {
 // Values comparison is case-insensitive.
 func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {
 	if input == "" {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	for value, variations := range acceptableTypeValues {
 		variations = append(variations, value)
 		for _, variation := range variations {
-			if strings.ToLower(variation) == strings.ToLower(input) {
+			if strings.EqualFold(variation, input) {
 				return &value, nil
 			}
 		}

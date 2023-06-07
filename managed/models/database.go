@@ -13,15 +13,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//nolint:lll
 package models
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"net"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -30,8 +34,25 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
-// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
-const PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
+const (
+	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
+	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
+	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	minPGVersion float64 = 14
+	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
+	DefaultPostgreSQLAddr = "127.0.0.1:5432"
+	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
+	PMMServerPostgreSQLNodeName = "pmm-server-db"
+
+	// DisableSSLMode represent disable PostgreSQL ssl mode
+	DisableSSLMode string = "disable"
+	// RequireSSLMode represent require PostgreSQL ssl mode
+	RequireSSLMode string = "require"
+	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode
+	VerifyCaSSLMode string = "verify-ca"
+	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode
+	VerifyFullSSLMode string = "verify-full"
+)
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
@@ -654,11 +675,11 @@ var databaseSchema = [][]string{
 			ADD COLUMN database_name VARCHAR NOT NULL DEFAULT ''`,
 	},
 	52: {
-		`UPDATE services SET database_name = 'postgresql' 
+		`UPDATE services SET database_name = 'postgresql'
 			WHERE service_type = 'postgresql' and database_name = ''`,
 	},
 	53: {
-		`UPDATE services SET database_name = 'postgres' 
+		`UPDATE services SET database_name = 'postgres'
 			WHERE service_type = 'postgresql' and database_name = 'postgresql'`,
 	},
 	54: {
@@ -714,21 +735,204 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ADD COLUMN log_level VARCHAR`,
 	},
+	64: {
+		`UPDATE artifacts SET data_model = 'logical'`,
+	},
+	65: {
+		`CREATE TABLE user_flags (
+			id INTEGER NOT NULL,
+			tour_done BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
+	66: {
+		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
+		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
+		`UPDATE ia_rules SET disabled = TRUE`,
+	},
+	67: {
+		`UPDATE agents
+		SET log_level = 'error'
+		WHERE log_level = 'fatal'
+		AND agent_type IN (
+			'node_exporter',
+			'mysqld_exporter',
+			'postgres_exporter'
+		);`,
+	},
+	68: {
+		`ALTER TABLE agents
+			ADD COLUMN max_query_length INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN max_query_length DROP DEFAULT`,
+	},
+	69: {
+		`ALTER TABLE backup_locations
+			DROP COLUMN pmm_server_config`,
+	},
+	70: {
+		`ALTER TABLE restore_history
+			ADD COLUMN pitr_timestamp TIMESTAMP`,
+	},
+	71: {
+		`ALTER TABLE backup_locations
+			RENAME COLUMN pmm_client_config TO filesystem_config`,
+	},
+	72: {
+		`ALTER TABLE user_flags
+			ADD COLUMN alerting_tour_done BOOLEAN NOT NULL DEFAULT false`,
+	},
+	73: {
+		`CREATE TABLE roles (
+			id SERIAL PRIMARY KEY,
+			title VARCHAR NOT NULL UNIQUE,
+			filter TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		);
+
+		CREATE TABLE user_roles (
+			user_id INTEGER NOT NULL,
+			role_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (user_id, role_id)
+		);
+
+		CREATE INDEX role_id_index ON user_roles (role_id);
+
+		WITH rows AS (
+			INSERT INTO roles
+			(title, filter, created_at, updated_at)
+			VALUES
+			('Full access', '', NOW(), NOW())
+			RETURNING id
+		), settings_id AS (
+			UPDATE settings SET settings['default_role_id'] = (SELECT to_jsonb(id) FROM rows)
+		)
+
+		INSERT INTO user_roles
+		(user_id, role_id, created_at, updated_at)
+		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
+	},
+	74: {
+		`UPDATE scheduled_tasks
+			SET "data" = jsonb_set("data", array["type", 'name'], to_jsonb("data"->"type"->>'name' || '-pmm-renamed-' || gen_random_uuid()))
+			WHERE "data"->"type"->>'name' IN (SELECT "data"->"type"->>'name' nm FROM scheduled_tasks GROUP BY nm HAVING COUNT(*) > 1);
+		CREATE UNIQUE INDEX scheduled_tasks_data_name_idx ON scheduled_tasks(("data"->"type"->>'name'))`,
+	},
+	75: {
+		`ALTER TABLE kubernetes_clusters
+            ADD COLUMN ready BOOLEAN NOT NULL DEFAULT false`,
+	},
+	76: {
+		`ALTER TABLE roles
+		ADD COLUMN description TEXT NOT NULL DEFAULT ''`,
+	},
+	77: {
+		`UPDATE scheduled_tasks
+			SET data = jsonb_set(data, '{mongodb_backup, cluster_name}', to_jsonb((SELECT cluster FROM services WHERE services.service_id = data->'mongodb_backup'->>'service_id')))
+			WHERE type = 'mongodb_backup'`,
+	},
+	78: {
+		`INSERT INTO service_software_versions(
+			service_id,
+			service_type,
+			software_versions,
+			next_check_at,
+			created_at,
+			updated_at
+		)
+		SELECT
+			service_id,
+			service_type,
+			'[]' AS software_versions,
+			(NOW() AT TIME ZONE 'utc') AS next_check_at,
+			(NOW() AT TIME ZONE 'utc') AS created_at,
+			(NOW() AT TIME ZONE 'utc') AS updated_at
+		FROM services
+        WHERE service_type = 'mongodb';`,
+	},
+	79: {
+		`CREATE TABLE onboarding_system_tips (
+			 id INTEGER PRIMARY KEY,
+			 is_completed BOOLEAN NOT NULL,
+		
+			 created_at TIMESTAMP NOT NULL,
+			 updated_at TIMESTAMP NOT NULL
+		);
+
+		INSERT INTO onboarding_system_tips(
+			id, is_completed, created_at, updated_at
+		) VALUES
+			(1, false, current_timestamp, current_timestamp),
+			(2, false, current_timestamp, current_timestamp),
+			(3, false, current_timestamp, current_timestamp);
+		
+		CREATE TABLE onboarding_user_tips (
+		   id SERIAL PRIMARY KEY,
+		   tip_id INTEGER NOT NULL,
+		   user_id INTEGER NOT NULL,
+		   is_completed BOOLEAN NOT NULL,
+		
+		   created_at TIMESTAMP NOT NULL,
+		   updated_at TIMESTAMP NOT NULL,
+		   UNIQUE (user_id, tip_id)
+		);
+		`,
+	},
+	80: {
+		`ALTER TABLE kubernetes_clusters ADD COLUMN postgresql JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbouncer JSONB`,
+		`ALTER TABLE kubernetes_clusters ADD COLUMN pgbackrest JSONB`,
+	},
+	81: {
+		`ALTER TABLE artifacts
+		ADD COLUMN is_sharded_cluster BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
+	82: {
+		`ALTER TABLE artifacts
+    		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
+			ADD COLUMN metadata_list JSONB;
+
+		UPDATE scheduled_tasks 
+		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
+		WHERE type = 'mongodb_backup';`,
+	},
+	83: {
+		`DROP TABLE IF EXISTS onboarding_system_tips`,
+		`DROP TABLE IF EXISTS onboarding_user_tips`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-func OpenDB(address, name, username, password string) (*sql.DB, error) {
+// OpenDB just validate its arguments without creating a connection to the database.
+func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
-	q.Set("sslmode", "disable")
+	if params.SSLMode == "" {
+		params.SSLMode = DisableSSLMode
+	}
+
+	q.Set("sslmode", params.SSLMode)
+	if params.SSLMode != DisableSSLMode {
+		q.Set("sslrootcert", params.SSLCAPath)
+		q.Set("sslcert", params.SSLCertPath)
+		q.Set("sslkey", params.SSLKeyPath)
+	}
 
 	uri := url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword(username, password),
-		Host:     address,
-		Path:     name,
+		User:     url.UserPassword(params.Username, params.Password),
+		Host:     params.Address,
+		Path:     params.Name,
 		RawQuery: q.Encode(),
 	}
 	if uri.Path == "" {
@@ -765,85 +969,121 @@ type SetupDBParams struct {
 	Name             string
 	Username         string
 	Password         string
+	SSLMode          string
+	SSLCAPath        string
+	SSLKeyPath       string
+	SSLCertPath      string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
 }
 
-// SetupDB runs PostgreSQL database migrations and optionally creates database and adds initial data.
-func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
+// SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
 	}
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
+	errCV := checkVersion(ctx, db)
+	if pErr, ok := errCV.(*pq.Error); ok && pErr.Code == "28000" { //nolint:errorlint
+		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+		if err := initWithRoot(params); err != nil {
+			return nil, errors.Wrapf(err, "couldn't connect to database with provided credentials. Tried to create user and database. Error: %s", errCV)
+		}
+		errCV = checkVersion(ctx, db)
+	}
+
+	if errCV != nil {
+		return nil, errCV
+	}
+
+	if err := migrateDB(db, params); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+// checkVersion checks minimal required PostgreSQL server version.
+func checkVersion(ctx context.Context, db reform.DBTXContext) error {
+	PGVersion, err := GetPostgreSQLVersion(ctx, db)
+	if err != nil {
+		return err
+	}
+
+	if PGVersion.Float() < minPGVersion {
+		return fmt.Errorf("unsupported PMM Server PostgreSQL server version: %s. Please upgrade to version %.1f or newer", PGVersion, minPGVersion)
+	}
+	return nil
+}
+
+// initWithRoot tries to create given user and database under default postgres role.
+func initWithRoot(params SetupDBParams) error {
+	if params.Logf != nil {
+		params.Logf("Creating database %s and role %s", params.Name, params.Username)
+	}
+	// we use empty password/db and postgres user for creating database
+	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres"})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer db.Close() //nolint:errcheck
+
+	var countDatabases int
+	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if countDatabases == 0 {
+		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	var countRoles int
+	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if countRoles == 0 {
+		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return nil
+}
+
+// migrateDB runs PostgreSQL database migrations.
+func migrateDB(db *reform.DB, params SetupDBParams) error {
+	var currentVersion int
+	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
+	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+		errDB = nil
+	}
+	if errDB != nil {
+		return errors.WithStack(errDB)
+	}
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	if params.MigrationVersion != nil {
 		latestVersion = *params.MigrationVersion
-	}
-	var currentVersion int
-	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "28000" {
-		// invalid_authorization_specification	(see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-		databaseName := params.Name
-		roleName := params.Username
-
-		if params.Logf != nil {
-			params.Logf("Creating database %s and role %s", databaseName, roleName)
-		}
-		// we use empty password/db and postgres user for creating database
-		db, err := OpenDB(params.Address, "", "postgres", "")
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
-		defer db.Close() //nolint:errcheck
-
-		var countDatabases int
-		err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, databaseName).Scan(&countDatabases)
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
-
-		if countDatabases == 0 {
-			_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, databaseName))
-			if err != nil {
-				return nil, errors.WithStack(err)
-			}
-		}
-
-		var countRoles int
-		err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, roleName).Scan(&countRoles)
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
-
-		if countRoles == 0 {
-			_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, roleName, params.Password))
-			if err != nil {
-				return nil, errors.WithStack(err)
-			}
-
-			_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, databaseName, roleName)
-			if err != nil {
-				return nil, errors.WithStack(err)
-			}
-		}
-		errDB = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-	}
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-		errDB = nil
-	}
-
-	if errDB != nil {
-		return nil, errors.WithStack(errDB)
 	}
 	if params.Logf != nil {
 		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	err := db.InTransaction(func(tx *reform.TX) error {
+	return db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -872,7 +1112,7 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params.Username, params.Password); err != nil {
+		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
 		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
@@ -880,13 +1120,9 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 		}
 		return nil
 	})
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
 }
 
-func setupFixture1(q *reform.Querier, username, password string) error {
+func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",
@@ -905,36 +1141,66 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
 		return err
 	}
+	address, port, err := parsePGAddress(params.Address)
+	if err != nil {
+		return err
+	}
+	if params.Address != DefaultPostgreSQLAddr {
+		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+			NodeName: PMMServerPostgreSQLNodeName,
+			Address:  address,
+		}); err != nil {
+			return err
+		}
+	} else {
+		params.Name = "" // using postgres database in order to get metrics from entrypoint extension setup for QAN.
+	}
 
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(5432),
-	})
-	if err != nil {
-		return err
-	}
-	_, err = CreateAgent(q, PostgresExporterType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
-	})
-	if err != nil {
-		return err
-	}
-	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, &CreateAgentParams{
-		PMMAgentID: PMMServerAgentID,
-		ServiceID:  service.ServiceID,
-		Username:   username,
-		Password:   password,
+		Database:    params.Name,
+		Address:     &node.Address,
+		Port:        &port,
 	})
 	if err != nil {
 		return err
 	}
 
+	ap := &CreateAgentParams{
+		PMMAgentID:    PMMServerAgentID,
+		ServiceID:     service.ServiceID,
+		TLS:           params.SSLMode != DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		Username:      params.Username,
+		Password:      params.Password,
+	}
+	if ap.TLS {
+		ap.PostgreSQLOptions = &PostgreSQLOptions{}
+		for path, field := range map[string]*string{
+			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
+			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
+			params.SSLKeyPath:  &ap.PostgreSQLOptions.SSLKey,
+		} {
+			if path == "" {
+				continue
+			}
+			content, err := os.ReadFile(path) //nolint:gosec
+			if err != nil {
+				return err
+			}
+			*field = string(content)
+		}
+	}
+	_, err = CreateAgent(q, PostgresExporterType, ap)
+	if err != nil {
+		return err
+	}
+	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -942,4 +1208,20 @@ func setupFixture2(q *reform.Querier, username, password string) error {
 	// TODO add clickhouse_exporter
 
 	return nil
+}
+
+// parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
+func parsePGAddress(address string) (string, uint16, error) {
+	if !strings.Contains(address, ":") {
+		return address, 5432, nil
+	}
+	address, portStr, err := net.SplitHostPort(address)
+	if err != nil {
+		return "", 0, err
+	}
+	parsedPort, err := strconv.ParseUint(portStr, 10, 16)
+	if err != nil {
+		return "", 0, err
+	}
+	return address, uint16(parsedPort), nil
 }

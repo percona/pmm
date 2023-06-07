@@ -50,7 +50,8 @@ func NewListServicesOK() *ListServicesOK {
 	return &ListServicesOK{}
 }
 
-/* ListServicesOK describes a response with status code 200, with default header values.
+/*
+ListServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListServicesDefault(code int) *ListServicesDefault {
 	}
 }
 
-/* ListServicesDefault describes a response with status code -1, with default header values.
+/*
+ListServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*ListServicesBody list services body
+/*
+ListServicesBody list services body
 swagger:model ListServicesBody
 */
 type ListServicesBody struct {
@@ -227,7 +230,8 @@ func (o *ListServicesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesDefaultBody list services default body
+/*
+ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
@@ -330,7 +334,8 @@ func (o *ListServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesDefaultBodyDetailsItems0 list services default body details items0
+/*
+ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
@@ -366,7 +371,8 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBody list services OK body
+/*
+ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
@@ -733,7 +739,8 @@ func (o *ListServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyExternalItems0 ExternalService represents a generic External service instance.
+/*
+ListServicesOKBodyExternalItems0 ExternalService represents a generic External service instance.
 swagger:model ListServicesOKBodyExternalItems0
 */
 type ListServicesOKBodyExternalItems0 struct {
@@ -790,7 +797,8 @@ func (o *ListServicesOKBodyExternalItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyHaproxyItems0 HAProxyService represents a generic HAProxy service instance.
+/*
+ListServicesOKBodyHaproxyItems0 HAProxyService represents a generic HAProxy service instance.
 swagger:model ListServicesOKBodyHaproxyItems0
 */
 type ListServicesOKBodyHaproxyItems0 struct {
@@ -844,7 +852,8 @@ func (o *ListServicesOKBodyHaproxyItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
+/*
+ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
 swagger:model ListServicesOKBodyMongodbItems0
 */
 type ListServicesOKBodyMongodbItems0 struct {
@@ -910,7 +919,8 @@ func (o *ListServicesOKBodyMongodbItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+/*
+ListServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model ListServicesOKBodyMysqlItems0
 */
 type ListServicesOKBodyMysqlItems0 struct {
@@ -976,7 +986,8 @@ func (o *ListServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyPostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
+/*
+ListServicesOKBodyPostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
 swagger:model ListServicesOKBodyPostgresqlItems0
 */
 type ListServicesOKBodyPostgresqlItems0 struct {
@@ -1045,7 +1056,8 @@ func (o *ListServicesOKBodyPostgresqlItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBodyProxysqlItems0 ProxySQLService represents a generic ProxySQL instance.
+/*
+ListServicesOKBodyProxysqlItems0 ProxySQLService represents a generic ProxySQL instance.
 swagger:model ListServicesOKBodyProxysqlItems0
 */
 type ListServicesOKBodyProxysqlItems0 struct {

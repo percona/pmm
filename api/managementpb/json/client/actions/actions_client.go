@@ -62,9 +62,9 @@ type ClientService interface {
 }
 
 /*
-  CancelAction cancels action
+CancelAction cancels action
 
-  Stops an Action.
+Stops an Action.
 */
 func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) (*CancelActionOK, error) {
 	// TODO: Validate the params before sending
@@ -101,9 +101,9 @@ func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) 
 }
 
 /*
-  GetAction gets action
+GetAction gets action
 
-  Gets the result of a given Action.
+Gets the result of a given Action.
 */
 func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetActionOK, error) {
 	// TODO: Validate the params before sending
@@ -140,9 +140,9 @@ func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetA
 }
 
 /*
-  StartMongoDBExplainAction starts mongo DB e x p l a i n action
+StartMongoDBExplainAction starts mongo DB e x p l a i n action
 
-  Starts 'MongoDB EXPLAIN' Action.
+Starts 'MongoDB EXPLAIN' Action.
 */
 func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams, opts ...ClientOption) (*StartMongoDBExplainActionOK, error) {
 	// TODO: Validate the params before sending
@@ -179,9 +179,9 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 }
 
 /*
-  StartMySQLExplainAction starts my SQL e x p l a i n action
+StartMySQLExplainAction starts my SQL e x p l a i n action
 
-  Starts 'MySQL EXPLAIN' Action with traditional output.
+Starts 'MySQL EXPLAIN' Action with traditional output.
 */
 func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams, opts ...ClientOption) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
@@ -218,9 +218,9 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams, 
 }
 
 /*
-  StartMySQLExplainJSONAction starts my SQL e x p l a i n JSON action
+StartMySQLExplainJSONAction starts my SQL e x p l a i n JSON action
 
-  Starts 'MySQL EXPLAIN' Action with JSON output.
+Starts 'MySQL EXPLAIN' Action with JSON output.
 */
 func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams, opts ...ClientOption) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
@@ -257,9 +257,9 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 }
 
 /*
-  StartMySQLExplainTraditionalJSONAction starts my SQL e x p l a i n traditional JSON action
+StartMySQLExplainTraditionalJSONAction starts my SQL e x p l a i n traditional JSON action
 
-  Starts 'MySQL EXPLAIN' Action with traditional JSON output.
+Starts 'MySQL EXPLAIN' Action with traditional JSON output.
 */
 func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams, opts ...ClientOption) (*StartMySQLExplainTraditionalJSONActionOK, error) {
 	// TODO: Validate the params before sending
@@ -296,9 +296,9 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 }
 
 /*
-  StartMySQLShowCreateTableAction starts my SQL s h o w c r e a t e t a b l e action
+StartMySQLShowCreateTableAction starts my SQL s h o w c r e a t e t a b l e action
 
-  Starts 'MySQL SHOW CREATE TABLE' Action.
+Starts 'MySQL SHOW CREATE TABLE' Action.
 */
 func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams, opts ...ClientOption) (*StartMySQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
@@ -335,9 +335,9 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 }
 
 /*
-  StartMySQLShowIndexAction starts my SQL s h o w i n d e x action
+StartMySQLShowIndexAction starts my SQL s h o w i n d e x action
 
-  Starts 'MySQL SHOW INDEX' Action.
+Starts 'MySQL SHOW INDEX' Action.
 */
 func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams, opts ...ClientOption) (*StartMySQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
@@ -374,9 +374,9 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 }
 
 /*
-  StartMySQLShowTableStatusAction starts my SQL s h o w t a b l e s t a t u s action
+StartMySQLShowTableStatusAction starts my SQL s h o w t a b l e s t a t u s action
 
-  Starts 'MySQL SHOW TABLE STATUS' Action.
+Starts 'MySQL SHOW TABLE STATUS' Action.
 */
 func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams, opts ...ClientOption) (*StartMySQLShowTableStatusActionOK, error) {
 	// TODO: Validate the params before sending
@@ -413,9 +413,9 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 }
 
 /*
-  StartPTMongoDBSummaryAction starts PT mongo DB summary action
+StartPTMongoDBSummaryAction starts PT mongo DB summary action
 
-  Starts 'Percona Toolkit MongoDB Summary' Action.
+Starts 'Percona Toolkit MongoDB Summary' Action.
 */
 func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams, opts ...ClientOption) (*StartPTMongoDBSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -452,9 +452,9 @@ func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryAction
 }
 
 /*
-  StartPTMySQLSummaryAction starts PT my SQL summary action
+StartPTMySQLSummaryAction starts PT my SQL summary action
 
-  Starts 'Percona Toolkit MySQL Summary' Action.
+Starts 'Percona Toolkit MySQL Summary' Action.
 */
 func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams, opts ...ClientOption) (*StartPTMySQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -491,9 +491,9 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 }
 
 /*
-  StartPTPgSummaryAction starts PT postgre SQL summary action
+StartPTPgSummaryAction starts PT postgre SQL summary action
 
-  Starts 'Percona Toolkit PostgreSQL Summary' Action.
+Starts 'Percona Toolkit PostgreSQL Summary' Action.
 */
 func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, opts ...ClientOption) (*StartPTPgSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -530,9 +530,9 @@ func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, op
 }
 
 /*
-  StartPTSummaryAction starts PT summary action
+StartPTSummaryAction starts PT summary action
 
-  Starts 'Percona Toolkit Summary' Action.
+Starts 'Percona Toolkit Summary' Action.
 */
 func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts ...ClientOption) (*StartPTSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -569,9 +569,9 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts .
 }
 
 /*
-  StartPostgreSQLShowCreateTableAction starts postgre SQL s h o w c r e a t e t a b l e action
+StartPostgreSQLShowCreateTableAction starts postgre SQL s h o w c r e a t e t a b l e action
 
-  Starts 'PostgreSQL SHOW CREATE TABLE' Action.
+Starts 'PostgreSQL SHOW CREATE TABLE' Action.
 */
 func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams, opts ...ClientOption) (*StartPostgreSQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
@@ -608,9 +608,9 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 }
 
 /*
-  StartPostgreSQLShowIndexAction starts postgre SQL s h o w i n d e x action
+StartPostgreSQLShowIndexAction starts postgre SQL s h o w i n d e x action
 
-  Starts 'PostgreSQL SHOW INDEX' Action.
+Starts 'PostgreSQL SHOW INDEX' Action.
 */
 func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams, opts ...ClientOption) (*StartPostgreSQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending

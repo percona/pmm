@@ -52,10 +52,12 @@ func NewRemoveAgentParamsWithHTTPClient(client *http.Client) *RemoveAgentParams 
 	}
 }
 
-/* RemoveAgentParams contains all the parameters to send to the API endpoint
-   for the remove agent operation.
+/*
+RemoveAgentParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the remove agent operation.
+
+	Typically these are written to a http.Request.
 */
 type RemoveAgentParams struct {
 	// Body.

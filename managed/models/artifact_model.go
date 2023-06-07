@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -58,6 +59,7 @@ const (
 	ErrorBackupStatus          BackupStatus = "error"
 	DeletingBackupStatus       BackupStatus = "deleting"
 	FailedToDeleteBackupStatus BackupStatus = "failed_to_delete"
+	CleanupInProgressStatus    BackupStatus = "cleanup_in_progress"
 )
 
 // Validate validates backup status.
@@ -77,9 +79,9 @@ func (bs BackupStatus) Validate() error {
 	return nil
 }
 
-// BackupStatusPointer returns a pointer of backup status.
-func BackupStatusPointer(status BackupStatus) *BackupStatus {
-	return &status
+// Pointer returns a pointer to status value.
+func (bs BackupStatus) Pointer() *BackupStatus {
+	return &bs
 }
 
 // ArtifactType represents type how artifact was created.
@@ -116,22 +118,58 @@ func (m BackupMode) Validate() error {
 	return nil
 }
 
+// File represents file or directory.
+type File struct {
+	Name        string `json:"name"`
+	IsDirectory bool   `json:"is_directory"`
+}
+
+// PbmMetadata contains extra data for pbm cli tool.
+type PbmMetadata struct {
+	// Name of backup in pbm representation.
+	Name string `json:"name"`
+}
+
+// BackupToolData contains extra data for backup tools.
+type BackupToolData struct {
+	PbmMetadata *PbmMetadata
+}
+
+// Metadata contains extra artifact data like files it consists of, tool specific data, etc.
+type Metadata struct {
+	FileList       []File          `json:"file_list"`
+	RestoreTo      *time.Time      `json:"restore_to"`
+	BackupToolData *BackupToolData `json:"backup_tool_data"`
+}
+
+type MetadataList []Metadata
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (p MetadataList) Value() (driver.Value, error) { return jsonValue(p) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
+
 // Artifact represents result of a backup.
+//
 //reform:artifacts
 type Artifact struct {
-	ID         string       `reform:"id,pk"`
-	Name       string       `reform:"name"`
-	Vendor     string       `reform:"vendor"`
-	DBVersion  string       `reform:"db_version"`
-	LocationID string       `reform:"location_id"`
-	ServiceID  string       `reform:"service_id"`
-	DataModel  DataModel    `reform:"data_model"`
-	Mode       BackupMode   `reform:"mode"`
-	Status     BackupStatus `reform:"status"`
-	Type       ArtifactType `reform:"type"`
-	ScheduleID string       `reform:"schedule_id"`
-	CreatedAt  time.Time    `reform:"created_at"`
-	UpdatedAt  time.Time    `reform:"updated_at"`
+	ID               string       `reform:"id,pk"`
+	Name             string       `reform:"name"`
+	Vendor           string       `reform:"vendor"`
+	DBVersion        string       `reform:"db_version"`
+	LocationID       string       `reform:"location_id"`
+	ServiceID        string       `reform:"service_id"`
+	DataModel        DataModel    `reform:"data_model"`
+	Mode             BackupMode   `reform:"mode"`
+	Status           BackupStatus `reform:"status"`
+	Type             ArtifactType `reform:"type"`
+	ScheduleID       string       `reform:"schedule_id"`
+	CreatedAt        time.Time    `reform:"created_at"`
+	UpdatedAt        time.Time    `reform:"updated_at"`
+	IsShardedCluster bool         `reform:"is_sharded_cluster"`
+	Folder           string       `reform:"folder"`
+	MetadataList     MetadataList `reform:"metadata_list"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

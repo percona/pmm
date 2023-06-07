@@ -38,17 +38,18 @@ import (
 )
 
 // AlertsService represents integrated alerting alerts API.
+// Deprecated. Do not use
 type AlertsService struct {
 	db               *reform.DB
 	l                *logrus.Entry
 	alertManager     alertManager
-	templatesService *TemplatesService
+	templatesService templatesService
 
 	iav1beta1.UnimplementedAlertsServer
 }
 
 // NewAlertsService creates new alerts API service.
-func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService *TemplatesService) *AlertsService {
+func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService templatesService) *AlertsService {
 	return &AlertsService{
 		l:                logrus.WithField("component", "management/ia/alerts"),
 		db:               db,
@@ -58,26 +59,28 @@ func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService
 }
 
 // Enabled returns if service is enabled and can be used.
+// Deprecated. Do not use
 func (s *AlertsService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // ListAlerts returns list of existing alerts.
+// Deprecated. Do not use
 func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) {
 	filter := &services.FilterParams{
 		IsIA: true,
 	}
 	alerts, err := s.alertManager.GetAlerts(ctx, filter)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get alerts form alertmanager")
+		return nil, errors.Wrap(err, "failed to get alerts from alertmanager")
 	}
 
-	var res []*iav1beta1.Alert
+	var res []*iav1beta1.Alert //nolint:prealloc
 	for _, alert := range alerts {
 		updatedAt := timestamppb.New(time.Time(*alert.UpdatedAt))
 		if err := updatedAt.CheckValid(); err != nil {
@@ -218,11 +221,14 @@ func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter
 	return true, nil
 }
 
+// getAlertID returns the alert's ID.
+// Deprecated. Do not use.
 func getAlertID(alert *ammodels.GettableAlert) string {
 	return *alert.Fingerprint
 }
 
 // ToggleAlerts allows to silence/unsilence specified alerts.
+// Deprecated. Do not use
 func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
 	var err error
 	var alerts []*ammodels.GettableAlert
@@ -240,11 +246,11 @@ func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleA
 	}
 
 	switch req.Silenced {
-	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+	case managementpb.BooleanFlag_DO_NOT_CHANGE:
 		// nothing
-	case iav1beta1.BooleanFlag_TRUE:
+	case managementpb.BooleanFlag_TRUE:
 		err = s.alertManager.SilenceAlerts(ctx, alerts)
-	case iav1beta1.BooleanFlag_FALSE:
+	case managementpb.BooleanFlag_FALSE:
 		err = s.alertManager.UnsilenceAlerts(ctx, alerts)
 	}
 	if err != nil {

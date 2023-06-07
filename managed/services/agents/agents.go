@@ -16,14 +16,72 @@
 package agents
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
+
+// AgentService handles generic communication with the Agent.
+type AgentService struct {
+	r *Registry
+}
+
+// NewAgentService returns new agent service.
+func NewAgentService(r *Registry) *AgentService {
+	return &AgentService{
+		r: r,
+	}
+}
+
+// Logs by Agent ID.
+func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
+	agent, err := a.r.get(pmmAgentID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+		AgentId: agentID,
+		Limit:   limit,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
+	if !ok {
+		return nil, 0, errors.New("wrong response from agent (not AgentLogsResponse model)")
+	}
+
+	return agentLogsResponse.GetLogs(), agentLogsResponse.GetAgentConfigLogLinesCount(), nil
+}
+
+// PBMSwitchPITR switches Point-in-Time Recovery feature for pbm on the pmm-agent.
+func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
+	agent, err := a.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	req := &agentpb.PBMSwitchPITRRequest{
+		Dsn: dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              files,
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+		Enabled: enabled,
+	}
+
+	_, err = agent.channel.SendAndWaitResponse(req)
+	return err
+}
 
 type redactMode int
 

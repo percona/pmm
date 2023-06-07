@@ -30,7 +30,7 @@ import (
 
 func TestNodes(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		actualNodes, err := ns.List(ctx, models.NodeFilters{})
@@ -62,7 +62,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: ""})
@@ -71,7 +71,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: ""})
@@ -79,7 +79,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"})
@@ -90,7 +90,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("AddHostnameNotUnique", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"})
@@ -116,7 +116,7 @@ func TestNodes(t *testing.T) {
 	*/
 
 	t.Run("AddRemoteRDSNode", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		_, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
@@ -128,7 +128,7 @@ func TestNodes(t *testing.T) {
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
-		_, _, ns, teardown, ctx := setup(t)
+		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
 		err := ns.Remove(ctx, "no-such-id", false)

@@ -34,6 +34,8 @@ type ClientService interface {
 
 	ListKubernetesClusters(params *ListKubernetesClustersParams, opts ...ClientOption) (*ListKubernetesClustersOK, error)
 
+	ListStorageClasses(params *ListStorageClassesParams, opts ...ClientOption) (*ListStorageClassesOK, error)
+
 	RegisterKubernetesCluster(params *RegisterKubernetesClusterParams, opts ...ClientOption) (*RegisterKubernetesClusterOK, error)
 
 	UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams, opts ...ClientOption) (*UnregisterKubernetesClusterOK, error)
@@ -42,7 +44,7 @@ type ClientService interface {
 }
 
 /*
-  GetKubernetesCluster gets kubernetes cluster return kube auth with kubernetes config
+GetKubernetesCluster gets kubernetes cluster return kube auth with kubernetes config
 */
 func (a *Client) GetKubernetesCluster(params *GetKubernetesClusterParams, opts ...ClientOption) (*GetKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -79,7 +81,7 @@ func (a *Client) GetKubernetesCluster(params *GetKubernetesClusterParams, opts .
 }
 
 /*
-  GetResources gets resources returns all and available resources of a kubernetes cluster n o t e the user defined in kubeconfig for the cluster has to have rights to list and get pods from all namespaces also getting and listing nodes has to be allowed
+GetResources gets resources returns all and available resources of a kubernetes cluster n o t e the user defined in kubeconfig for the cluster has to have rights to list and get pods from all namespaces also getting and listing nodes has to be allowed
 */
 func (a *Client) GetResources(params *GetResourcesParams, opts ...ClientOption) (*GetResourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -116,7 +118,7 @@ func (a *Client) GetResources(params *GetResourcesParams, opts ...ClientOption) 
 }
 
 /*
-  ListKubernetesClusters lists kubernetes clusters returns a list of all registered kubernetes clusters
+ListKubernetesClusters lists kubernetes clusters returns a list of all registered kubernetes clusters
 */
 func (a *Client) ListKubernetesClusters(params *ListKubernetesClustersParams, opts ...ClientOption) (*ListKubernetesClustersOK, error) {
 	// TODO: Validate the params before sending
@@ -153,7 +155,44 @@ func (a *Client) ListKubernetesClusters(params *ListKubernetesClustersParams, op
 }
 
 /*
-  RegisterKubernetesCluster registers kubernetes cluster registers an existing kubernetes cluster in PMM
+ListStorageClasses lists storage classes returns the names of all storage classes available in a kubernetes cluster
+*/
+func (a *Client) ListStorageClasses(params *ListStorageClassesParams, opts ...ClientOption) (*ListStorageClassesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListStorageClassesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListStorageClasses",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Kubernetes/StorageClasses/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListStorageClassesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListStorageClassesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListStorageClassesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RegisterKubernetesCluster registers kubernetes cluster registers an existing kubernetes cluster in PMM
 */
 func (a *Client) RegisterKubernetesCluster(params *RegisterKubernetesClusterParams, opts ...ClientOption) (*RegisterKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -190,7 +229,7 @@ func (a *Client) RegisterKubernetesCluster(params *RegisterKubernetesClusterPara
 }
 
 /*
-  UnregisterKubernetesCluster unregisters kubernetes cluster removes a registered kubernetes cluster from PMM
+UnregisterKubernetesCluster unregisters kubernetes cluster removes a registered kubernetes cluster from PMM
 */
 func (a *Client) UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams, opts ...ClientOption) (*UnregisterKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending

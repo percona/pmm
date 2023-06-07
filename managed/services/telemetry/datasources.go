@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -51,12 +52,15 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 		return nil, err
 	}
 
+	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
+
 	return &dataSourceRegistry{
 		l: l,
 		dataSources: map[DataSourceName]DataSource{
-			"VM":           vmDB,
-			"PMMDB_SELECT": pmmDB,
-			"QANDB_SELECT": qanDB,
+			"VM":               vmDB,
+			"PMMDB_SELECT":     pmmDB,
+			"QANDB_SELECT":     qanDB,
+			"GRAFANADB_SELECT": grafanaDB,
 		},
 	}, nil
 }
@@ -70,7 +74,7 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 	return ds, nil
 }
 
-func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
@@ -80,10 +84,11 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	// to minimize risk of modifying DB
 	defer tx.Rollback() //nolint:errcheck
 
-	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec,rowserrcheck,sqlclosecheck
+	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	columns, err := rows.Columns()
 	if err != nil {
@@ -96,34 +101,24 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	}
 	cfgColumns := config.mapByColumn()
 
-	var metrics [][]*pmmv1.ServerMetric_Metric
+	var metrics []*pmmv1.ServerMetric_Metric
 	for rows.Next() {
 		if err := rows.Scan(values...); err != nil {
 			l.Error(err)
 			continue
 		}
 
-		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
-			var value string
+			value := pointer.GetString(strs[idx])
 
-			// skip empty values
-			if strs[idx] == nil || *strs[idx] == "" {
-				continue
-			}
-
-			value = *strs[idx]
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
-					metric = append(metric, &pmmv1.ServerMetric_Metric{
+					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
 						Key:   col.MetricName,
 						Value: value,
 					})
 				}
 			}
-		}
-		if len(metric) != 0 {
-			metrics = append(metrics, metric)
 		}
 	}
 

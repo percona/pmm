@@ -16,17 +16,17 @@ on:
 jobs:
   sync:
     name: Sync
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3
 
       - name: API
-        uses: readmeio/rdme@7.5.0
+        uses: readmeio/rdme@v8
         with:
           rdme: openapi ./api/swagger/swagger.json --id=626badcabbc59c02acc1a53f --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@7.5.0
+        uses: readmeio/rdme@v8
         with:
           rdme: docs docs/api --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}

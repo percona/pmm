@@ -28,6 +28,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error)
+
 	GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error)
 
 	GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error)
@@ -44,7 +46,44 @@ type ClientService interface {
 }
 
 /*
-  GetHistogram gets histogram gets histogram items for specific filtering
+ExplainFingerprintByQueryID explains fingerprint by query ID get explain fingerprint for given query ID
+*/
+func (a *Client) ExplainFingerprintByQueryID(params *ExplainFingerprintByQueryIDParams, opts ...ClientOption) (*ExplainFingerprintByQueryIDOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewExplainFingerprintByQueryIDParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ExplainFingerprintByQueryID",
+		Method:             "POST",
+		PathPattern:        "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ExplainFingerprintByQueryIDReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ExplainFingerprintByQueryIDOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ExplainFingerprintByQueryIDDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetHistogram gets histogram gets histogram items for specific filtering
 */
 func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error) {
 	// TODO: Validate the params before sending
@@ -81,7 +120,7 @@ func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) 
 }
 
 /*
-  GetLabels gets labels gets list of labels for object details
+GetLabels gets labels gets list of labels for object details
 */
 func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error) {
 	// TODO: Validate the params before sending
@@ -118,7 +157,7 @@ func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetL
 }
 
 /*
-  GetMetrics gets metrics gets map of metrics for specific filtering
+GetMetrics gets metrics gets map of metrics for specific filtering
 */
 func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
 	// TODO: Validate the params before sending
@@ -155,7 +194,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 }
 
 /*
-  GetQueryExample gets query example gets list of query examples
+GetQueryExample gets query example gets list of query examples
 */
 func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error) {
 	// TODO: Validate the params before sending
@@ -192,7 +231,7 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 }
 
 /*
-  GetQueryPlan gets query plan gets query plan and plan id for specific filtering
+GetQueryPlan gets query plan gets query plan and plan id for specific filtering
 */
 func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error) {
 	// TODO: Validate the params before sending
@@ -229,7 +268,7 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 }
 
 /*
-  QueryExists queries exists check if query exists in clickhouse
+QueryExists queries exists check if query exists in clickhouse
 */
 func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error) {
 	// TODO: Validate the params before sending

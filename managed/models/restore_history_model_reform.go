@@ -31,6 +31,7 @@ func (v *restoreHistoryItemTableType) Columns() []string {
 		"id",
 		"artifact_id",
 		"service_id",
+		"pitr_timestamp",
 		"status",
 		"started_at",
 		"finished_at",
@@ -61,6 +62,7 @@ var RestoreHistoryItemTable = &restoreHistoryItemTableType{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "ArtifactID", Type: "string", Column: "artifact_id"},
 			{Name: "ServiceID", Type: "string", Column: "service_id"},
+			{Name: "PITRTimestamp", Type: "*time.Time", Column: "pitr_timestamp"},
 			{Name: "Status", Type: "RestoreStatus", Column: "status"},
 			{Name: "StartedAt", Type: "time.Time", Column: "started_at"},
 			{Name: "FinishedAt", Type: "*time.Time", Column: "finished_at"},
@@ -72,13 +74,14 @@ var RestoreHistoryItemTable = &restoreHistoryItemTableType{
 
 // String returns a string representation of this struct or record.
 func (s RestoreHistoryItem) String() string {
-	res := make([]string, 6)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "ArtifactID: " + reform.Inspect(s.ArtifactID, true)
 	res[2] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
-	res[3] = "Status: " + reform.Inspect(s.Status, true)
-	res[4] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
-	res[5] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
+	res[3] = "PITRTimestamp: " + reform.Inspect(s.PITRTimestamp, true)
+	res[4] = "Status: " + reform.Inspect(s.Status, true)
+	res[5] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
+	res[6] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -89,6 +92,7 @@ func (s *RestoreHistoryItem) Values() []interface{} {
 		s.ID,
 		s.ArtifactID,
 		s.ServiceID,
+		s.PITRTimestamp,
 		s.Status,
 		s.StartedAt,
 		s.FinishedAt,
@@ -102,6 +106,7 @@ func (s *RestoreHistoryItem) Pointers() []interface{} {
 		&s.ID,
 		&s.ArtifactID,
 		&s.ServiceID,
+		&s.PITRTimestamp,
 		&s.Status,
 		&s.StartedAt,
 		&s.FinishedAt,

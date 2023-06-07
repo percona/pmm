@@ -39,6 +39,7 @@ func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
+		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
 		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
@@ -64,7 +65,7 @@ func TestServer(t *testing.T) {
 
 		var mchecksService mockChecksService
 		mchecksService.Test(t)
-		mchecksService.On("CollectChecks", context.TODO()).Return(nil)
+		mchecksService.On("CollectAdvisors", context.TODO()).Return(nil)
 
 		var par mockVmAlertExternalRules
 		par.Test(t)
@@ -151,7 +152,7 @@ func TestServer(t *testing.T) {
 				"METRICS_RESOLUTION=5ns",
 			})
 			require.Len(t, errs, 1)
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(errs[0], &errInvalidArgument))
 			require.EqualError(t, errs[0], `invalid argument: hr: minimal resolution is 1s`)
 			assert.Zero(t, s.envSettings.MetricsResolutions.HR)
@@ -163,7 +164,7 @@ func TestServer(t *testing.T) {
 				"DATA_RETENTION=12h",
 			})
 			require.Len(t, errs, 1)
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(errs[0], &errInvalidArgument))
 			require.EqualError(t, errs[0], `invalid argument: data_retention: minimal resolution is 24h`)
 			assert.Zero(t, s.envSettings.DataRetention)
@@ -175,7 +176,7 @@ func TestServer(t *testing.T) {
 				"DATA_RETENTION=30h",
 			})
 			require.Len(t, errs, 1)
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(errs[0], &errInvalidArgument))
 			require.EqualError(t, errs[0], `invalid argument: data_retention: should be a natural number of days`)
 			assert.Zero(t, s.envSettings.DataRetention)
@@ -425,7 +426,9 @@ func TestServer_TestEmailAlertingSettings(t *testing.T) {
 			},
 		},
 	} {
+		tc := tc
 		t.Run(tc.testName, func(t *testing.T) {
+			t.Parallel()
 			if tc.mock != nil {
 				tc.mock()
 			}

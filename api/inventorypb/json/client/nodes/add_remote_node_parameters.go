@@ -52,10 +52,12 @@ func NewAddRemoteNodeParamsWithHTTPClient(client *http.Client) *AddRemoteNodePar
 	}
 }
 
-/* AddRemoteNodeParams contains all the parameters to send to the API endpoint
-   for the add remote node operation.
+/*
+AddRemoteNodeParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add remote node operation.
+
+	Typically these are written to a http.Request.
 */
 type AddRemoteNodeParams struct {
 	// Body.

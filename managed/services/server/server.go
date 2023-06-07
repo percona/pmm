@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -63,7 +62,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	rulesService         rulesService
-	dbaasClient          dbaasClient
+	dbaasInitializer     dbaasInitializer
 	emailer              emailer
 
 	l *logrus.Entry
@@ -79,9 +78,9 @@ type Server struct {
 	serverpb.UnimplementedServerServer
 }
 
-type dbaasClient interface {
-	Connect(ctx context.Context) error
-	Disconnect() error
+type dbaasInitializer interface {
+	Enable(ctx context.Context) error
+	Disable(ctx context.Context) error
 }
 
 type pmmUpdateAuth struct {
@@ -103,7 +102,7 @@ type Params struct {
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
-	DbaasClient          dbaasClient
+	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
 }
 
@@ -129,7 +128,7 @@ func NewServer(params *Params) (*Server, error) {
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		rulesService:         params.RulesService,
-		dbaasClient:          params.DbaasClient,
+		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
@@ -450,29 +449,32 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
-		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
-		BackupManagementEnabled: settings.BackupManagement.Enabled,
+		AlertingEnabled:         !settings.Alerting.Disabled,
+		BackupManagementEnabled: !settings.BackupManagement.Disabled,
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
+
+		EnableAccessControl: settings.AccessControl.Enabled,
+		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
-	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
+	if settings.Alerting.EmailAlertingSettings != nil {
 		res.EmailAlertingSettings = &serverpb.EmailAlertingSettings{
-			From:       settings.IntegratedAlerting.EmailAlertingSettings.From,
-			Smarthost:  settings.IntegratedAlerting.EmailAlertingSettings.Smarthost,
-			Hello:      settings.IntegratedAlerting.EmailAlertingSettings.Hello,
-			Username:   settings.IntegratedAlerting.EmailAlertingSettings.Username,
+			From:       settings.Alerting.EmailAlertingSettings.From,
+			Smarthost:  settings.Alerting.EmailAlertingSettings.Smarthost,
+			Hello:      settings.Alerting.EmailAlertingSettings.Hello,
+			Username:   settings.Alerting.EmailAlertingSettings.Username,
 			Password:   "",
-			Identity:   settings.IntegratedAlerting.EmailAlertingSettings.Identity,
-			Secret:     settings.IntegratedAlerting.EmailAlertingSettings.Secret,
-			RequireTls: settings.IntegratedAlerting.EmailAlertingSettings.RequireTLS,
+			Identity:   settings.Alerting.EmailAlertingSettings.Identity,
+			Secret:     settings.Alerting.EmailAlertingSettings.Secret,
+			RequireTls: settings.Alerting.EmailAlertingSettings.RequireTLS,
 		}
 	}
 
-	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
+	if settings.Alerting.SlackAlertingSettings != nil {
 		res.SlackAlertingSettings = &serverpb.SlackAlertingSettings{
-			Url: settings.IntegratedAlerting.SlackAlertingSettings.URL,
+			Url: settings.Alerting.SlackAlertingSettings.URL,
 		}
 	}
 
@@ -569,7 +571,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -622,6 +624,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 			EnableDBaaS:  req.EnableDbaas,
 			DisableDBaaS: req.DisableDbaas,
+
+			EnableAccessControl:  req.EnableAccessControl,
+			DisableAccessControl: req.DisableAccessControl,
 		}
 
 		if req.EmailAlertingSettings != nil {
@@ -645,7 +650,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		newSettings, err = models.UpdateSettings(tx, settingsParams)
 		switch {
 		case err == nil:
@@ -684,12 +689,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	// When IA moved from disabled state to enabled create rules files.
-	if !oldSettings.IntegratedAlerting.Enabled && req.EnableAlerting {
+	if oldSettings.Alerting.Disabled && req.EnableAlerting {
 		s.rulesService.WriteVMAlertRulesFiles()
 	}
 
-	// When IA moved from enabled state to disables cleanup rules files.
-	if oldSettings.IntegratedAlerting.Enabled && req.DisableAlerting {
+	// When IA moved from enabled state to disabled cleanup rules files.
+	if !oldSettings.Alerting.Disabled && req.DisableAlerting {
 		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
 			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
 		}
@@ -722,13 +727,13 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
 		s.templatesService.CollectTemplates(ctx)
 		if !sttStarted {
-			s.checksService.CollectChecks(ctx)
+			s.checksService.CollectAdvisors(ctx)
 		}
 	}
 
 	// When DBaaS is enabled, connect to the dbaas-controller API.
 	if !oldSettings.DBaaS.Enabled && newSettings.DBaaS.Enabled {
-		err := s.dbaasClient.Connect(ctx)
+		err := s.dbaasInitializer.Enable(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -736,7 +741,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	// When DBaaS is disabled, disconnect from the dbaas-controller API.
 	if oldSettings.DBaaS.Enabled && !newSettings.DBaaS.Enabled {
-		err := s.dbaasClient.Disconnect()
+		err := s.dbaasInitializer.Disable(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -782,7 +787,7 @@ func (s *Server) TestEmailAlertingSettings(
 
 	err := s.emailer.Send(ctx, settings, req.EmailTo)
 	if err != nil {
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		if errors.As(err, &errInvalidArgument) {
 			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
 		}
@@ -813,7 +818,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+func (s *Server) validateSSHKey(_ context.Context, sshKey string) error {
 	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey)) //nolint:dogsled
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")
@@ -848,7 +853,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = ioutil.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
+	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = os.Chown(keysPath, uid, gid); err != nil {

@@ -5,7 +5,7 @@ templates:
     summary: ProxySQL server status
     expr: |-
       proxysql_runtime_servers_status
-      >= [[ .status ]]
+      >= bool [[ .status ]]
     params:
       - name: status 
         summary: Warning status 3 - OFFLINE_SOFT, 4 - OFFLINE_HARD 

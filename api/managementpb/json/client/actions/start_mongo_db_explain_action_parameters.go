@@ -52,10 +52,12 @@ func NewStartMongoDBExplainActionParamsWithHTTPClient(client *http.Client) *Star
 	}
 }
 
-/* StartMongoDBExplainActionParams contains all the parameters to send to the API endpoint
-   for the start mongo DB explain action operation.
+/*
+StartMongoDBExplainActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start mongo DB explain action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartMongoDBExplainActionParams struct {
 	// Body.

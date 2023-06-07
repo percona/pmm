@@ -29,6 +29,7 @@ import (
 func TestHeap(t *testing.T) {
 	t.Parallel()
 	t.Run("Heap test", func(t *testing.T) {
+		t.Parallel()
 		heapBytes, err := Heap(true)
 		assert.NoError(t, err)
 
@@ -65,6 +66,7 @@ func TestProfile(t *testing.T) {
 	})
 
 	t.Run("Profile break test", func(t *testing.T) {
+		t.Parallel()
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 		go func() {
 			profileBytes, err := Profile(ctx, 30*time.Second)
@@ -91,6 +93,7 @@ func TestTrace(t *testing.T) {
 	})
 
 	t.Run("Trace break test", func(t *testing.T) {
+		t.Parallel()
 		// Create a new context
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 		go func() {

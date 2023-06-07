@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -46,21 +47,23 @@ var mysqlServiceRegex = regexp.MustCompile(`mysql(d)?\.service`) // this is used
 
 // MySQLRestoreJob implements Job for MySQL backup restore.
 type MySQLRestoreJob struct {
-	id       string
-	timeout  time.Duration
-	l        logrus.FieldLogger
-	name     string
-	location BackupLocationConfig
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	locationConfig BackupLocationConfig
+	folder         string
 }
 
 // NewMySQLRestoreJob constructs new Job for MySQL backup restore.
-func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig) *MySQLRestoreJob {
+func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig, folder string) *MySQLRestoreJob {
 	return &MySQLRestoreJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_restore"}),
-		name:     name,
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_restore"}),
+		name:           name,
+		locationConfig: locationConfig,
+		folder:         folder,
 	}
 }
 
@@ -80,8 +83,8 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 }
 
 // Run executes backup restore steps.
-func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
-	if j.location.S3Config == nil {
+func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
+	if j.locationConfig.S3Config == nil {
 		return errors.New("S3 config is not set")
 	}
 
@@ -162,9 +165,9 @@ func (j *MySQLRestoreJob) binariesInstalled() error {
 	return nil
 }
 
-func prepareRestoreCommands(
+func prepareRestoreCommands( //nolint:nonamedreturns
 	ctx context.Context,
-	backupName string,
+	folder string,
 	config *BackupLocationConfig,
 	targetDirectory string,
 	stderr io.Writer,
@@ -181,7 +184,7 @@ func prepareRestoreCommands(
 		"--s3-bucket="+config.S3Config.BucketName,
 		"--s3-region="+config.S3Config.BucketRegion,
 		"--parallel=10",
-		backupName)
+		folder)
 	xbcloudCmd.Stderr = stderr
 
 	xbcloudStdout, err := xbcloudCmd.StdoutPipe()
@@ -208,10 +211,15 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	defer cancel()
 
 	var stderr, stdout bytes.Buffer
+
+	artifactFolder := path.Join(j.folder, j.name)
+
+	j.l.Debugf("Artifact folder is: %s", artifactFolder)
+
 	xbcloudCmd, xbstreamCmd, err := prepareRestoreCommands(
 		pipeCtx,
-		j.name,
-		&j.location,
+		artifactFolder,
+		&j.locationConfig,
 		targetDirectory,
 		&stderr,
 		&stdout)
@@ -425,7 +433,7 @@ func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "list-units", "--type=service")
+	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))

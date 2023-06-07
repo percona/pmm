@@ -18,9 +18,11 @@ package backup
 
 import (
 	"context"
+	"database/sql"
+	"math/rand"
 	"time"
 
-	"github.com/AlekSi/pointer"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -28,78 +30,30 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/agents"
-)
-
-var (
-	// ErrIncompatibleService is returned when the service is incompatible for making a backup or restore.
-	ErrIncompatibleService = errors.New("incompatible service")
-	// ErrXtrabackupNotInstalled is returned if some xtrabackup component is missing.
-	ErrXtrabackupNotInstalled = errors.New("xtrabackup is not installed")
-	// ErrInvalidXtrabackup is returned if xtrabackup components have different version.
-	ErrInvalidXtrabackup = errors.New("invalid installation of the xtrabackup")
-	// ErrIncompatibleXtrabackup is returned if xtrabackup is not compatible with the MySQL.
-	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
-	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
-	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
 )
 
 // Service represents core logic for db backup.
 type Service struct {
-	db             *reform.DB
-	jobsService    jobsService
-	agentsRegistry agentsRegistry
-	v              versioner
-
-	l *logrus.Entry
+	l                    *logrus.Entry
+	db                   *reform.DB
+	jobsService          jobsService
+	agentService         agentService
+	compatibilityService compatibilityService
+	pbmPITRService       pbmPITRService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, v versioner) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pbmPITRService pbmPITRService) *Service {
 	return &Service{
-		l:              logrus.WithField("component", "management/backup/backup"),
-		db:             db,
-		jobsService:    jobsService,
-		agentsRegistry: agentsRegistry,
-		v:              v,
+		l:                    logrus.WithField("component", "management/backup/backup"),
+		db:                   db,
+		jobsService:          jobsService,
+		agentService:         agentService,
+		compatibilityService: cSvc,
+		pbmPITRService:       pbmPITRService,
 	}
-}
-
-type pmmAgentResult struct {
-	id          string
-	serviceType models.ServiceType
-}
-
-func (s *Service) findPMMAgentForService(ctx context.Context, serviceID string) (*pmmAgentResult, error) {
-	var pmmAgentID string
-	var serviceType models.ServiceType
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		service, err := models.FindServiceByID(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
-
-		serviceType = service.ServiceType
-
-		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
-		if len(pmmAgents) == 0 {
-			return errors.Errorf("pmmAgent not found for service %q", serviceID)
-		}
-
-		pmmAgentID = pmmAgents[0].AgentID
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return &pmmAgentResult{
-		id:          pmmAgentID,
-		serviceType: serviceType,
-	}, nil
 }
 
 // PerformBackupParams are params for performing backup.
@@ -112,204 +66,251 @@ type PerformBackupParams struct {
 	Mode          models.BackupMode
 	Retries       uint32
 	RetryInterval time.Duration
+	Folder        string
 }
 
 // PerformBackup starts on-demand backup.
-func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
-	dbVersion, err := s.checkSoftwareCompatibilityForService(ctx, params.ServiceID)
+func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
+	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
 	}
 
 	var artifact *models.Artifact
-	var location *models.BackupLocation
+	var locationModel *models.BackupLocation
 	var svc *models.Service
 	var job *models.Job
-	var config *models.DBConfig
+	var dbConfig *models.DBConfig
 
 	name := params.Name
 	if params.Mode == models.Snapshot {
 		name = name + "_" + time.Now().Format(time.RFC3339)
 	}
 
-	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		var err error
-		svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
-		if err != nil {
-			return err
-		}
+	// Because this transaction uses serializable isolation level it requires retries mechanism.
+	var errTX error
+	for i := 1; ; i++ {
+		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+			var err error
 
-		location, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
-		if err != nil {
-			return err
-		}
-
-		var jobType models.JobType
-		switch svc.ServiceType {
-		case models.MySQLServiceType:
-			jobType = models.MySQLBackupJob
-
-			if params.DataModel != models.PhysicalDataModel {
-				return errors.New("the only supported data model for mySQL is physical")
-			}
-			if params.Mode != models.Snapshot {
-				return errors.New("the only supported backup mode for mySQL is snapshot")
-			}
-		case models.MongoDBServiceType:
-			jobType = models.MongoDBBackupJob
-
-			if params.DataModel != models.LogicalDataModel {
-				return errors.New("the only supported data model for mongoDB is logical")
-			}
-			if params.Mode != models.Snapshot && params.Mode != models.PITR {
-				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
-			}
-
-			if err = checkMongoBackupPreconditions(tx.Querier, svc, params.ScheduleID); err != nil {
+			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
+			if err != nil {
 				return err
 			}
 
-			// For PITR backups reuse existing artifact if it's present.
-			if params.Mode == models.PITR {
-				artifact, err = models.FindArtifactByName(tx.Querier, name)
-				if err != nil && !errors.Is(err, models.ErrNotFound) {
+			locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
+			if err != nil {
+				return err
+			}
+
+			var jobType models.JobType
+			switch svc.ServiceType {
+			case models.MySQLServiceType:
+				jobType = models.MySQLBackupJob
+
+				if params.DataModel != models.PhysicalDataModel {
+					return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
+				}
+
+				if locationModel.Type != models.S3BackupLocationType {
+					return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
+				}
+
+				if params.Mode != models.Snapshot {
+					return errors.New("the only supported backup mode for mySQL is snapshot")
+				}
+			case models.MongoDBServiceType:
+				jobType = models.MongoDBBackupJob
+
+				if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
+					return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+				}
+
+				if params.Mode != models.Snapshot && params.Mode != models.PITR {
+					return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
+				}
+
+				if err = services.CheckMongoDBBackupPreconditions(tx.Querier, params.Mode, svc.Cluster, svc.ServiceID, params.ScheduleID); err != nil {
+					return err
+				}
+
+				// For PITR backups reuse existing artifact if it's present.
+				if params.Mode == models.PITR {
+					artifact, err = models.FindArtifactByName(tx.Querier, name)
+					if err != nil && !errors.Is(err, models.ErrNotFound) {
+						return err
+					}
+				}
+
+			case models.PostgreSQLServiceType,
+				models.ProxySQLServiceType,
+				models.HAProxyServiceType,
+				models.ExternalServiceType:
+				return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+			default:
+				return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
+			}
+
+			if artifact == nil {
+				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+					Name:       name,
+					Vendor:     string(svc.ServiceType),
+					DBVersion:  dbVersion,
+					LocationID: locationModel.ID,
+					ServiceID:  svc.ServiceID,
+					DataModel:  params.DataModel,
+					Mode:       params.Mode,
+					Status:     models.PendingBackupStatus,
+					ScheduleID: params.ScheduleID,
+					Folder:     params.Folder,
+				}); err != nil {
+					return err
+				}
+			} else {
+				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+					Status: models.PendingBackupStatus.Pointer(),
+				}); err != nil {
 					return err
 				}
 			}
 
-		case models.PostgreSQLServiceType,
-			models.ProxySQLServiceType,
-			models.HAProxyServiceType,
-			models.ExternalServiceType:
-			return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
-		default:
-			return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
-		}
-
-		if artifact == nil {
-			if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
-				Name:       name,
-				Vendor:     string(svc.ServiceType),
-				DBVersion:  dbVersion,
-				LocationID: location.ID,
-				ServiceID:  svc.ServiceID,
-				DataModel:  params.DataModel,
-				Mode:       params.Mode,
-				Status:     models.PendingBackupStatus,
-				ScheduleID: params.ScheduleID,
-			}); err != nil {
+			if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil { //nolint:lll
 				return err
 			}
-		} else {
-			if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
-			}); err != nil {
-				return err
-			}
+			return nil
+		})
+
+		// Cap the number of retries to 30
+		if errTX == nil || i >= 30 {
+			break
 		}
 
-		if job, config, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
-			return err
+		var pgErr *pq.Error
+		if errors.As(errTX, &pgErr) {
+			// Serialization failure error code
+			if pgErr.Code == "40001" {
+				s.l.Infof("Transaction serialization failure, retry iteration %d", i)
+				time.Sleep(time.Duration(rand.Intn(100)*i) * time.Millisecond) //nolint:gosec // jitter
+				continue
+			}
+			s.l.Infof("Unknown pq error, code: %s", pgErr.Code.Name())
 		}
-		return nil
-	})
+
+		return "", errTX
+	}
+
 	if errTX != nil {
 		return "", errTX
 	}
 
 	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: location.PMMServerConfig,
-		PMMClientConfig: location.PMMClientConfig,
-		S3Config:        location.S3Config,
+		FilesystemConfig: locationModel.FilesystemConfig,
+		S3Config:         locationModel.S3Config,
 	}
 
 	switch svc.ServiceType {
 	case models.MySQLServiceType:
-		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, config, locationConfig)
+		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, config, params.Mode, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return "", status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+		err = status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
 	default:
-		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
+		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
+		var target *agents.AgentNotSupportedError
+		if errors.As(err, &target) {
+			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.ErrorBackupStatus.Pointer(),
+			})
+
+			if dbErr != nil {
+				s.l.WithError(err).Error("failed to update backup artifact status")
+			}
+			return "", status.Error(codes.FailedPrecondition, target.Error())
+		}
 		return "", err
 	}
 
 	return artifact.ID, nil
 }
 
-func checkMongoBackupPreconditions(q *reform.Querier, service *models.Service, scheduleID string) error {
-	tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
-		Disabled:  pointer.ToBool(false),
-		ServiceID: service.ServiceID,
-		Mode:      models.PITR,
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, task := range tasks {
-		if task.ID != scheduleID {
-			return status.Errorf(codes.FailedPrecondition, "Can't make a backup because service %s already has "+
-				"scheduled PITR backups. Please disable them if you want to make another backup.", service.ServiceName)
-		}
-	}
-
-	return nil
-}
-
-type prepareRestoreJobParams struct {
-	AgentID      string
-	ArtifactName string
-	DBVersion    string
-	Location     *models.BackupLocation
-	ServiceType  models.ServiceType
-	DBConfig     *models.DBConfig
+type restoreJobParams struct {
+	JobID         string
+	Service       *models.Service
+	AgentID       string
+	ArtifactName  string
+	pbmBackupName string
+	LocationModel *models.BackupLocation
+	DBConfig      *models.DBConfig
+	DataModel     models.DataModel
+	PITRTimestamp time.Time
+	Folder        string
 }
 
 // RestoreBackup starts restore backup job.
-func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error) {
-	dbVersion, err := s.checkSoftwareCompatibilityForService(ctx, serviceID)
-	if err != nil {
+func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
+	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
 		return "", err
 	}
 
-	var params *prepareRestoreJobParams
-	var jobID, restoreID string
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	targetDBVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
+	if err != nil {
+		return "", err
+	}
+	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
+		return "", err
+	}
+
+	var params restoreJobParams
+	var restoreID string
+	if errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID)
+		service, err := models.FindServiceByID(tx.Querier, serviceID)
 		if err != nil {
 			return err
 		}
 
-		if params.ServiceType == models.MySQLServiceType && params.DBVersion != "" {
-			if params.DBVersion != dbVersion {
-				return errors.Wrapf(ErrIncompatibleTargetMySQL, "artifact db version %q != db version %q",
-					params.DBVersion, dbVersion)
-			}
+		dbConfig, err := models.FindDBConfigForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
+		}
+		agentID := pmmAgents[0].AgentID
+
+		artifact, err := models.FindArtifactByID(tx.Querier, artifactID)
+		if err != nil {
+			return err
+		}
+
+		location, err := models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+		if err != nil {
+			return err
 		}
 
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
-			ArtifactID: artifactID,
-			ServiceID:  serviceID,
-			Status:     models.InProgressRestoreStatus,
+			ArtifactID:    artifactID,
+			ServiceID:     serviceID,
+			PITRTimestamp: &pitrTimestamp,
+			Status:        models.InProgressRestoreStatus,
 		})
 		if err != nil {
 			return err
 		}
 
 		restoreID = restore.ID
-
-		service, err := models.FindServiceByID(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
 
 		var jobType models.JobType
 		var jobData *models.JobData
@@ -325,7 +326,9 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			jobType = models.MongoDBRestoreBackupJob
 			jobData = &models.JobData{
 				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: serviceID,
 					RestoreID: restoreID,
+					DataModel: artifact.DataModel,
 				},
 			}
 		case models.PostgreSQLServiceType,
@@ -338,7 +341,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		job, err := models.CreateJob(tx.Querier, models.CreateJobParams{
-			PMMAgentID: params.AgentID,
+			PMMAgentID: agentID,
 			Type:       jobType,
 			Data:       jobData,
 		})
@@ -346,14 +349,37 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			return err
 		}
 
-		jobID = job.ID
+		var artifactFolder string
 
-		return err
-	}); err != nil {
-		return "", err
+		// Only artifacts taken with new agents can be restored from a folder.
+		if len(artifact.MetadataList) != 0 {
+			artifactFolder = artifact.Folder
+		}
+
+		params = restoreJobParams{
+			JobID:         job.ID,
+			Service:       service,
+			AgentID:       agentID,
+			ArtifactName:  artifact.Name,
+			LocationModel: location,
+			DBConfig:      dbConfig,
+			DataModel:     artifact.DataModel,
+			PITRTimestamp: pitrTimestamp,
+			Folder:        artifactFolder,
+		}
+
+		if len(artifact.MetadataList) != 0 &&
+			artifact.MetadataList[0].BackupToolData != nil &&
+			artifact.MetadataList[0].BackupToolData.PbmMetadata != nil {
+			params.pbmBackupName = artifact.MetadataList[0].BackupToolData.PbmMetadata.Name
+		}
+
+		return nil
+	}); errTx != nil {
+		return "", errTx
 	}
 
-	if err := s.startRestoreJob(jobID, serviceID, params); err != nil {
+	if err := s.startRestoreJob(&params); err != nil {
 		return "", err
 	}
 
@@ -378,14 +404,14 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 				"current service id: %s, service type: %s", serviceID, service.ServiceType)
 		}
 
-		agents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
 		if err != nil {
 			return err
 		}
-		if len(agents) == 0 {
+		if len(pmmAgents) == 0 {
 			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
 		}
-		pmmAgentID = agents[0].AgentID
+		pmmAgentID = pmmAgents[0].AgentID
 
 		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, "")
 		if err != nil {
@@ -397,7 +423,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		return errTX
 	}
 
-	return s.agentsRegistry.PBMSwitchPITR(
+	return s.agentService.PBMSwitchPITR(
 		pmmAgentID,
 		dsn,
 		agent.Files(),
@@ -405,128 +431,43 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		enabled)
 }
 
-// FindArtifactCompatibleServices finds compatible services which can be used to restoring an artifact to.
-func (s *Service) FindArtifactCompatibleServices(
-	ctx context.Context,
-	artifactID string,
-) ([]*models.Service, error) {
-	var compatibleServices []*models.Service
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		artifact, err := models.FindArtifactByID(tx.Querier, artifactID)
-		switch {
-		case err == nil:
-		case errors.Is(err, models.ErrNotFound):
-			return status.Errorf(codes.NotFound, "Artifact with ID %q not found.", artifactID)
-		default:
-			return err
-		}
-
-		serviceType, err := vendorToServiceType(artifact.Vendor)
-		if err != nil {
-			return err
-		}
-
-		compatibleServices, err = s.findArtifactCompatibleServices(
-			tx.Querier,
-			artifact.ServiceID,
-			serviceType,
-			artifact.DBVersion)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return compatibleServices, nil
-}
-
-func (s *Service) prepareRestoreJob(
-	q *reform.Querier,
-	serviceID string,
-	artifactID string,
-) (*prepareRestoreJobParams, error) {
-	service, err := models.FindServiceByID(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-
-	artifact, err := models.FindArtifactByID(q, artifactID)
-	if err != nil {
-		return nil, err
-	}
-	if artifact.Status != models.SuccessBackupStatus {
-		return nil, errors.Errorf("artifact %q status is not successful, status: %q", artifactID, artifact.Status)
-	}
-
-	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
-	if err != nil {
-		return nil, err
-	}
-
-	dbConfig, err := models.FindDBConfigForService(q, service.ServiceID)
-	if err != nil {
-		return nil, err
-	}
-
-	pmmAgents, err := models.FindPMMAgentsForService(q, serviceID)
-	if err != nil {
-		return nil, err
-	}
-	if len(pmmAgents) == 0 {
-		return nil, errors.Errorf("cannot find pmm agent for service %s", serviceID)
-	}
-
-	return &prepareRestoreJobParams{
-		AgentID:      pmmAgents[0].AgentID,
-		ArtifactName: artifact.Name,
-		DBVersion:    artifact.DBVersion,
-		Location:     location,
-		ServiceType:  service.ServiceType,
-		DBConfig:     dbConfig,
-	}, nil
-}
-
-func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestoreJobParams) error {
+func (s *Service) startRestoreJob(params *restoreJobParams) error {
 	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: params.Location.PMMServerConfig,
-		PMMClientConfig: params.Location.PMMClientConfig,
-		S3Config:        params.Location.S3Config,
+		FilesystemConfig: params.LocationModel.FilesystemConfig,
+		S3Config:         params.LocationModel.S3Config,
 	}
 
-	switch params.ServiceType {
+	switch params.Service.ServiceType {
 	case models.MySQLServiceType:
-		if err := s.jobsService.StartMySQLRestoreBackupJob(
-			jobID,
+		return s.jobsService.StartMySQLRestoreBackupJob(
+			params.JobID,
 			params.AgentID,
-			serviceID,
+			params.Service.ServiceID, // TODO: It seems that this parameter is redundant
 			0,
 			params.ArtifactName,
-			locationConfig); err != nil {
-			return err
-		}
+			locationConfig,
+			params.Folder)
 	case models.MongoDBServiceType:
-		if err := s.jobsService.StartMongoDBRestoreBackupJob(
-			jobID,
+		return s.jobsService.StartMongoDBRestoreBackupJob(
+			params.Service,
+			params.JobID,
 			params.AgentID,
 			0,
 			params.ArtifactName,
+			params.pbmBackupName,
 			params.DBConfig,
-			locationConfig); err != nil {
-			return err
-		}
+			params.DataModel,
+			locationConfig,
+			params.PITRTimestamp,
+			params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.ServiceType)
+		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.Service.ServiceType)
 	default:
-		return status.Errorf(codes.Unknown, "Unknown service: %s", params.ServiceType)
+		return status.Errorf(codes.Unknown, "Unknown service: %s", params.Service.ServiceType)
 	}
-
-	return nil
 }
 
 func (s *Service) prepareBackupJob(
@@ -535,6 +476,7 @@ func (s *Service) prepareBackupJob(
 	artifactID string,
 	jobType models.JobType,
 	mode models.BackupMode,
+	dataModel models.DataModel,
 	retries uint32,
 	retryInterval time.Duration,
 ) (*models.Job, *models.DBConfig, error) {
@@ -567,6 +509,7 @@ func (s *Service) prepareBackupJob(
 				ServiceID:  service.ServiceID,
 				ArtifactID: artifactID,
 				Mode:       mode,
+				DataModel:  dataModel,
 			},
 		}
 	case models.MySQLRestoreBackupJob,
@@ -590,174 +533,83 @@ func (s *Service) prepareBackupJob(
 	return res, dbConfig, nil
 }
 
-func vendorToServiceType(vendor string) (models.ServiceType, error) {
-	serviceType := models.ServiceType(vendor)
-	switch serviceType {
-	case models.MySQLServiceType,
-		models.MongoDBServiceType:
-	case models.PostgreSQLServiceType,
-		models.ProxySQLServiceType,
-		models.HAProxyServiceType,
-		models.ExternalServiceType:
-		return "", status.Errorf(codes.Unimplemented, "unimplemented service: %s", serviceType)
-	default:
-		return "", status.Errorf(codes.Internal, "unknown service: %s", serviceType)
-	}
-
-	return serviceType, nil
-}
-
-func (s *Service) findArtifactCompatibleServices(
-	q *reform.Querier,
-	serviceID string,
-	serviceType models.ServiceType,
-	artifactDBVersion string,
-) ([]*models.Service, error) {
-	// allow restore to the same service if db version is unknown or service type is MongoDB.
-	if artifactDBVersion == "" || serviceType == models.MongoDBServiceType {
-		service, err := models.FindServiceByID(q, serviceID)
-		if err != nil {
-			s.l.WithError(err).Warnf("restore is not possible to the same service id %q", serviceID)
-			return []*models.Service{}, nil
-		}
-
-		return []*models.Service{service}, nil
-	}
-
-	filter := models.FindServicesSoftwareVersionsFilter{ServiceType: &serviceType}
-	svs, err := models.FindServicesSoftwareVersions(q, filter, models.SoftwareVersionsOrderByServiceID)
-	if err != nil {
-		return nil, err
-	}
-
-	compatibleServiceIDs := make([]string, 0, len(svs))
-	for _, sv := range svs {
-		svm := softwareVersionsMap(sv.SoftwareVersions)
-		if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
-			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
-			continue
-		}
-
-		serviceDBVersion := svm[models.MysqldSoftwareName]
-		if artifactDBVersion != serviceDBVersion {
-			s.l.Debugf("skip incompatible service id %q: artifact version %q != db version %q\"", sv.ServiceID,
-				artifactDBVersion, serviceDBVersion)
-			continue
-		}
-
-		compatibleServiceIDs = append(compatibleServiceIDs, sv.ServiceID)
-	}
-
-	servicesMap, err := models.FindServicesByIDs(q, compatibleServiceIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	compatibleServices := make([]*models.Service, 0, len(compatibleServiceIDs))
-	for _, id := range compatibleServiceIDs {
-		compatibleServices = append(compatibleServices, servicesMap[id])
-	}
-
-	return compatibleServices, nil
-}
-
-func softwareVersionsMap(svs models.SoftwareVersions) map[models.SoftwareName]string {
-	m := make(map[models.SoftwareName]string, len(svs))
-	for _, sv := range svs {
-		m[sv.Name] = sv.Version
-	}
-	return m
-}
-
-func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) error {
-	for _, name := range []models.SoftwareName{
-		models.MysqldSoftwareName,
-		models.XtrabackupSoftwareName,
-		models.XbcloudSoftwareName,
-		models.QpressSoftwareName,
-	} {
-		if svm[name] == "" {
-			if name == models.XtrabackupSoftwareName || name == models.XbcloudSoftwareName {
-				return errors.Wrapf(ErrXtrabackupNotInstalled, "software %q is not installed", name)
-			}
-
-			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
-		}
-	}
-
-	if svm[models.XtrabackupSoftwareName] != svm[models.XbcloudSoftwareName] {
-		return errors.Wrapf(ErrInvalidXtrabackup, "xtrabackup version %q != xbcloud version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
-	}
-
-	ok, err := mysqlAndXtrabackupCompatible(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
+// checkArtifactModePreconditions checks that artifact params and requested restore mode satisfy each other.
+func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID string, pitrTimestamp time.Time) error {
+	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
 	if err != nil {
 		return err
 	}
-	if !ok {
-		return errors.Wrapf(ErrIncompatibleXtrabackup, "xtrabackup version %q is not compatible with mysql version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.MysqldSoftwareName])
+
+	if artifact.Status != models.SuccessBackupStatus {
+		return errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
+	}
+
+	if artifact.IsShardedCluster {
+		return errors.Wrapf(ErrIncompatibleService,
+			"artifact %q was made for a sharded cluster and cannot be restored from UI; for more information refer to "+
+				"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html", artifactID)
+	}
+
+	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
+		return err
+	}
+
+	// Continue checks only if user requested PITR restore.
+	if pitrTimestamp.Unix() == 0 {
+		return nil
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
+
+	if location.Type != models.S3BackupLocationType {
+		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
+	}
+
+	storage := GetStorageForLocation(location)
+	timeRanges, err := s.pbmPITRService.ListPITRTimeranges(ctx, storage, location, artifact)
+	if err != nil {
+		return err
+	}
+
+	for _, tRange := range timeRanges {
+		if inTimeSpan(time.Unix(int64(tRange.Start), 0), time.Unix(int64(tRange.End), 0), pitrTimestamp) {
+			return nil
+		}
+	}
+
+	return errors.Wrapf(ErrTimestampOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+}
+
+// checkArtifactMode crosschecks artifact params and requested restore mode.
+func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
+	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
+		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB")
+	}
+
+	if artifact.Mode == models.PITR {
+		if pitrTimestamp.Unix() == 0 {
+			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+		}
+		if artifact.DataModel == models.PhysicalDataModel {
+			return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
+		}
+	} else if pitrTimestamp.Unix() != 0 {
+		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
 	}
 
 	return nil
 }
 
-// checkSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
-// and they are compatible with the db version.
-// Returns db version.
-func (s *Service) checkSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
-	pmmAgent, err := s.findPMMAgentForService(ctx, serviceID)
-	if err != nil {
-		return "", err
+// inTimeSpan checks whether given time is in the given range
+func inTimeSpan(start, end, check time.Time) bool {
+	if start.Before(end) {
+		return !check.Before(start) && !check.After(end)
 	}
-
-	if pmmAgent.serviceType != models.MySQLServiceType {
-		return "", nil
+	if start.Equal(end) {
+		return check.Equal(start)
 	}
-
-	softwares := []agents.Software{&agents.Mysqld{}, &agents.Xtrabackup{}, &agents.Xbcloud{}, &agents.Qpress{}}
-	svs, err := s.v.GetVersions(pmmAgent.id, softwares)
-	if err != nil {
-		return "", err
-	}
-	if len(svs) != len(softwares) {
-		return "", errors.Errorf("response slice len %d != request len %d", len(svs), len(softwares))
-	}
-
-	svm := make(map[models.SoftwareName]string, len(softwares))
-	for i, software := range softwares {
-		name, err := convertSoftwareName(software)
-		if err != nil {
-			return "", err
-		}
-		if svs[i].Error != "" {
-			return "", errors.Errorf("failed to get software %s version: %s", name, svs[i].Error)
-		}
-
-		svm[name] = svs[i].Version
-	}
-
-	if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
-		return "", err
-	}
-
-	return svm[models.MysqldSoftwareName], nil
-}
-
-func convertSoftwareName(s agents.Software) (models.SoftwareName, error) {
-	var softwareName models.SoftwareName
-	switch software := s.(type) {
-	case *agents.Mysqld:
-		softwareName = models.MysqldSoftwareName
-	case *agents.Xtrabackup:
-		softwareName = models.XtrabackupSoftwareName
-	case *agents.Xbcloud:
-		softwareName = models.XbcloudSoftwareName
-	case *agents.Qpress:
-		softwareName = models.QpressSoftwareName
-	default:
-		return "", errors.Errorf("invalid software type %T", software)
-	}
-
-	return softwareName, nil
+	return !start.After(check) || !end.Before(check)
 }

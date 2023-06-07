@@ -137,7 +137,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error {
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -225,7 +225,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return err
 			}
 
-			switch row.AgentType {
+			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.MongoDBExporterType:
@@ -235,7 +235,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				agentProcesses[row.AgentID] = postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
+				cfg, err := postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
+				if err != nil {
+					return err
+				}
+				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
 				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:

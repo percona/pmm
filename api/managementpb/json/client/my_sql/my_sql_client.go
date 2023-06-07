@@ -34,9 +34,9 @@ type ClientService interface {
 }
 
 /*
-  AddMySQL adds my SQL
+AddMySQL adds my SQL
 
-  Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
+Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
 */
 func (a *Client) AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error) {
 	// TODO: Validate the params before sending

@@ -48,7 +48,8 @@ func NewStartMySQLExplainTraditionalJSONActionOK() *StartMySQLExplainTraditional
 	return &StartMySQLExplainTraditionalJSONActionOK{}
 }
 
-/* StartMySQLExplainTraditionalJSONActionOK describes a response with status code 200, with default header values.
+/*
+StartMySQLExplainTraditionalJSONActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartMySQLExplainTraditionalJSONActionDefault(code int) *StartMySQLExpla
 	}
 }
 
-/* StartMySQLExplainTraditionalJSONActionDefault describes a response with status code -1, with default header values.
+/*
+StartMySQLExplainTraditionalJSONActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartMySQLExplainTraditionalJSONActionDefault) readResponse(response ru
 	return nil
 }
 
-/*StartMySQLExplainTraditionalJSONActionBody start my SQL explain traditional JSON action body
+/*
+StartMySQLExplainTraditionalJSONActionBody start my SQL explain traditional JSON action body
 swagger:model StartMySQLExplainTraditionalJSONActionBody
 */
 type StartMySQLExplainTraditionalJSONActionBody struct {
@@ -126,10 +129,17 @@ type StartMySQLExplainTraditionalJSONActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// SQL query. Required.
+	// Deprecated: should not be used.
+	// Will be removed in 2.42.
 	Query string `json:"query,omitempty"`
 
-	// Database name. Required if it can't be deduced from the query.
+	// Query ID of query.
+	QueryID string `json:"query_id,omitempty"`
+
+	// Array of placeholder values
+	Placeholders []string `json:"placeholders"`
+
+	// Database name. Required if it can't be deduced from the query ID.
 	Database string `json:"database,omitempty"`
 }
 
@@ -161,7 +171,8 @@ func (o *StartMySQLExplainTraditionalJSONActionBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*StartMySQLExplainTraditionalJSONActionDefaultBody start my SQL explain traditional JSON action default body
+/*
+StartMySQLExplainTraditionalJSONActionDefaultBody start my SQL explain traditional JSON action default body
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBody
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBody struct {
@@ -264,7 +275,8 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) UnmarshalBinary(b []
 	return nil
 }
 
-/*StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 start my SQL explain traditional JSON action default body details items0
+/*
+StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 start my SQL explain traditional JSON action default body details items0
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 struct {
@@ -300,7 +312,8 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0) Unmarsh
 	return nil
 }
 
-/*StartMySQLExplainTraditionalJSONActionOKBody start my SQL explain traditional JSON action OK body
+/*
+StartMySQLExplainTraditionalJSONActionOKBody start my SQL explain traditional JSON action OK body
 swagger:model StartMySQLExplainTraditionalJSONActionOKBody
 */
 type StartMySQLExplainTraditionalJSONActionOKBody struct {

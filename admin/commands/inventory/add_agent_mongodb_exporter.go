@@ -46,13 +46,15 @@ func (res *addAgentMongodbExporterResult) String() string {
 }
 
 // AddAgentMongodbExporterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentMongodbExporterCommand struct {
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string            `help:"MongoDB password for scraping metrics"`
 	AgentPassword                 string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
@@ -63,7 +65,7 @@ type AddAgentMongodbExporterCommand struct {
 	PushMetrics                   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
-	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
+	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
 	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 

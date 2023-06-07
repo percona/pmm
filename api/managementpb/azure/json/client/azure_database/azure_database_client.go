@@ -36,7 +36,7 @@ type ClientService interface {
 }
 
 /*
-  AddAzureDatabase adds azure database adds azure database instance
+AddAzureDatabase adds azure database adds azure database instance
 */
 func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error) {
 	// TODO: Validate the params before sending
@@ -73,7 +73,7 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...Client
 }
 
 /*
-  DiscoverAzureDatabase discovers azure database discovers azure database for my SQL maria DB and postgre SQL server instances
+DiscoverAzureDatabase discovers azure database discovers azure database for my SQL maria DB and postgre SQL server instances
 */
 func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error) {
 	// TODO: Validate the params before sending

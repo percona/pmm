@@ -52,10 +52,12 @@ func NewChangeChannelParamsWithHTTPClient(client *http.Client) *ChangeChannelPar
 	}
 }
 
-/* ChangeChannelParams contains all the parameters to send to the API endpoint
-   for the change channel operation.
+/*
+ChangeChannelParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change channel operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeChannelParams struct {
 	// Body.

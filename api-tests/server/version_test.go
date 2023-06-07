@@ -17,7 +17,7 @@ package server
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,6 +32,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
+	t.Parallel()
 	paths := []string{
 		"managed/v1/version",
 		"v1/version",
@@ -46,10 +47,12 @@ func TestVersion(t *testing.T) {
 			})
 
 			t.Logf("URI: %s", uri)
-			resp, err := http.Get(uri.String())
+			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
+			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:errcheck
-			b, err := ioutil.ReadAll(resp.Body)
+			defer resp.Body.Close() //nolint:gosec
+
+			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 			t.Logf("Response: %s", b)
 			assert.Equal(t, 200, resp.StatusCode)

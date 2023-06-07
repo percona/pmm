@@ -57,7 +57,7 @@ type AddServiceMySQLCommand struct {
 	Environment    string            `help:"Environment name"`
 	Cluster        string            `help:"Cluster name"`
 	ReplicationSet string            `help:"Replication set name"`
-	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {

@@ -33,14 +33,11 @@ import (
 func TestScheduledTaskHelpers(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	tx, err := db.Begin()
-	require.NoError(t, err)
 	t.Cleanup(func() {
-		require.NoError(t, tx.Rollback())
 		require.NoError(t, sqlDB.Close())
 	})
 
-	createParams := models.CreateScheduledTaskParams{
+	createParams1 := models.CreateScheduledTaskParams{
 		CronExpression: "* * * * *",
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
@@ -48,7 +45,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 				CommonBackupTaskData: models.CommonBackupTaskData{
 					ServiceID:   "",
 					LocationID:  "",
-					Name:        "task",
+					Name:        "task1",
 					Description: "",
 				},
 			},
@@ -56,18 +53,88 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Disabled: false,
 	}
 
+	createParams1DuplicateName := models.CreateScheduledTaskParams{
+		CronExpression: "* * * * *",
+		Type:           models.ScheduledMySQLBackupTask,
+		Data: &models.ScheduledTaskData{
+			MySQLBackupTask: &models.MySQLBackupTaskData{
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:   "",
+					LocationID:  "",
+					Name:        "task1",
+					Description: "",
+				},
+			},
+		},
+		Disabled: false,
+	}
+
+	createParams2 := models.CreateScheduledTaskParams{
+		CronExpression: "* * * * *",
+		Type:           models.ScheduledMySQLBackupTask,
+		Data: &models.ScheduledTaskData{
+			MySQLBackupTask: &models.MySQLBackupTaskData{
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:   "",
+					LocationID:  "",
+					Name:        "task2",
+					Description: "",
+				},
+			},
+		},
+		Disabled: true,
+	}
+
+	createParams3 := models.CreateScheduledTaskParams{
+		CronExpression: "* * * * *",
+		Type:           models.ScheduledMySQLBackupTask,
+		Data: &models.ScheduledTaskData{
+			MySQLBackupTask: &models.MySQLBackupTaskData{
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:   "svc1",
+					LocationID:  "loc1",
+					Name:        "mysql",
+					Description: "",
+				},
+			},
+		},
+		Disabled: false,
+	}
+
+	createParams4 := models.CreateScheduledTaskParams{
+		CronExpression: "* * * * *",
+		Type:           models.ScheduledMongoDBBackupTask,
+		Data: &models.ScheduledTaskData{
+			MongoDBBackupTask: &models.MongoBackupTaskData{
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:   "svc2",
+					ClusterName: "cluster",
+					LocationID:  "loc1",
+					Name:        "mongo",
+				},
+			},
+		},
+		Disabled: false,
+	}
+
 	t.Run("CreateAndFind", func(t *testing.T) {
-		task, err := models.CreateScheduledTask(tx.Querier, createParams)
-		assert.NoError(t, err)
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		task, err := models.CreateScheduledTask(tx.Querier, createParams1)
+		require.NoError(t, err)
 
 		task, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, task.ID)
-		assert.Equal(t, createParams.CronExpression, task.CronExpression)
-		assert.Equal(t, createParams.Type, task.Type)
-		assert.Equal(t, createParams.Disabled, task.Disabled)
+		assert.Equal(t, createParams1.CronExpression, task.CronExpression)
+		assert.Equal(t, createParams1.Type, task.Type)
+		assert.Equal(t, createParams1.Disabled, task.Disabled)
 		require.NotNil(t, task.Data.MySQLBackupTask)
-		assert.Equal(t, createParams.Data.MySQLBackupTask.Name, task.Data.MySQLBackupTask.Name)
+		assert.Equal(t, createParams1.Data.MySQLBackupTask.Name, task.Data.MySQLBackupTask.Name)
 
 		_, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
 			CronExpression: "a * * * *",
@@ -75,79 +142,93 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		})
 		require.NotNil(t, err)
 		assert.Contains(t, err.Error(), "Invalid cron expression")
+
+		// Cannot create with the existing name.
+		_, err = models.CreateScheduledTask(tx.Querier, createParams1DuplicateName)
+		require.ErrorIs(t, err, models.ErrAlreadyExists)
+
+		tasks, err := models.FindScheduledTasks(tx.Querier, models.ScheduledTasksFilter{Name: createParams1.Data.MySQLBackupTask.Name})
+		require.NoError(t, err)
+		assert.Equal(t, []*models.ScheduledTask{task}, tasks)
 	})
 
 	t.Run("Change", func(t *testing.T) {
-		task, err := models.CreateScheduledTask(tx.Querier, createParams)
-		assert.NoError(t, err)
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
 
-		changeParams := models.ChangeScheduledTaskParams{
+		task1, err := models.CreateScheduledTask(tx.Querier, createParams1)
+		require.NoError(t, err)
+
+		changeParams1 := models.ChangeScheduledTaskParams{
 			NextRun: pointer.ToTime(time.Now()),
 			LastRun: pointer.ToTime(time.Now()),
 			Disable: pointer.ToBool(true),
 			Running: pointer.ToBool(true),
 			Error:   pointer.ToString("something"),
 		}
-		task, err = models.ChangeScheduledTask(tx.Querier, task.ID, changeParams)
+		task1, err = models.ChangeScheduledTask(tx.Querier, task1.ID, changeParams1)
 		assert.NoError(t, err)
-		assert.Equal(t, *changeParams.NextRun, task.NextRun)
-		assert.Equal(t, *changeParams.LastRun, task.LastRun)
-		assert.Equal(t, *changeParams.Disable, task.Disabled)
-		assert.Equal(t, *changeParams.Running, task.Running)
-		assert.Equal(t, *changeParams.Error, task.Error)
+		assert.Equal(t, *changeParams1.NextRun, task1.NextRun)
+		assert.Equal(t, *changeParams1.LastRun, task1.LastRun)
+		assert.Equal(t, *changeParams1.Disable, task1.Disabled)
+		assert.Equal(t, *changeParams1.Running, task1.Running)
+		assert.Equal(t, *changeParams1.Error, task1.Error)
+
+		// Cannot change to the existing name.
+		task2, err := models.CreateScheduledTask(tx.Querier, createParams2)
+		require.NoError(t, err)
+		changeParams2 := models.ChangeScheduledTaskParams{
+			Data: &models.ScheduledTaskData{
+				MySQLBackupTask: &models.MySQLBackupTaskData{
+					CommonBackupTaskData: models.CommonBackupTaskData{
+						Name: task1.Data.MySQLBackupTask.Name,
+					},
+				},
+			},
+		}
+		_, err = models.ChangeScheduledTask(tx.Querier, task2.ID, changeParams2)
+		assert.ErrorIs(t, err, models.ErrAlreadyExists)
 	})
 
 	t.Run("Remove", func(t *testing.T) {
-		task, err := models.CreateScheduledTask(tx.Querier, createParams)
-		assert.NoError(t, err)
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		task, err := models.CreateScheduledTask(tx.Querier, createParams1)
+		require.NoError(t, err)
 
 		err = models.RemoveScheduledTask(tx.Querier, task.ID)
 		assert.NoError(t, err)
 
 		_, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
-		assert.Error(t, err, "task is not removed")
+		assert.ErrorIs(t, err, models.ErrNotFound, "task is not removed")
 	})
 
 	t.Run("Find", func(t *testing.T) {
-		findTX, err := db.Begin()
+		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_ = findTX.Rollback()
+			require.NoError(t, tx.Rollback())
 		})
-		createParams2 := createParams
-		task1, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+
+		task1, err := models.CreateScheduledTask(tx.Querier, createParams1)
 		require.NoError(t, err)
 
-		createParams2.Disabled = true
-		task2, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+		task2, err := models.CreateScheduledTask(tx.Querier, createParams2)
 		require.NoError(t, err)
 
-		createParams2.Disabled = false
-		createParams2.Type = models.ScheduledMySQLBackupTask
-		createParams2.Data = &models.ScheduledTaskData{
-			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:  "svc1",
-					LocationID: "loc1",
-					Name:       "mysql",
-				},
-			},
-		}
-		task3, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+		task3, err := models.CreateScheduledTask(tx.Querier, createParams3)
 		require.NoError(t, err)
 
-		createParams2.Type = models.ScheduledMongoDBBackupTask
-		createParams2.Data = &models.ScheduledTaskData{
-			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:  "svc2",
-					LocationID: "loc1",
-					Name:       "mongo",
-				},
-			},
-		}
-		task4, err := models.CreateScheduledTask(findTX.Querier, createParams2)
+		task4, err := models.CreateScheduledTask(tx.Querier, createParams4)
 		require.NoError(t, err)
+
 		type testCase struct {
 			filter models.ScheduledTasksFilter
 			ids    []string
@@ -190,10 +271,16 @@ func TestScheduledTaskHelpers(t *testing.T) {
 				},
 				ids: []string{task4.ID},
 			},
+			{
+				filter: models.ScheduledTasksFilter{
+					ClusterName: "cluster",
+				},
+				ids: []string{task4.ID},
+			},
 		}
 
 		for _, tc := range tests {
-			tasks, err := models.FindScheduledTasks(findTX.Querier, tc.filter)
+			tasks, err := models.FindScheduledTasks(tx.Querier, tc.filter)
 			assert.NoError(t, err)
 			ids := make([]string, 0, len(tasks))
 			for _, task := range tasks {

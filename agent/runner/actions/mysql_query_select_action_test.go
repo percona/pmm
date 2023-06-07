@@ -32,9 +32,11 @@ func TestMySQLQuerySelect(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "COUNT(*) AS count FROM mysql.user WHERE plugin NOT IN ('caching_sha2_password')",
@@ -55,6 +57,8 @@ func TestMySQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("Binary", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: `x'0001feff' AS bytes`,
@@ -78,6 +82,8 @@ func TestMySQLQuerySelect(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city; --",
@@ -87,7 +93,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		defer cancel()
 
 		b, err := a.Run(ctx)
-		expected := "Error 1064: You have an error in your SQL syntax; check the manual that corresponds " +
+		expected := "Error 1064 \\(42000\\): You have an error in your SQL syntax; check the manual that corresponds " +
 			"to your (MySQL|MariaDB) server version for the right syntax to use near 'DROP TABLE city; --' at line 1"
 		require.Error(t, err)
 		assert.Regexp(t, expected, err.Error())

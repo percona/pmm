@@ -52,10 +52,12 @@ func NewAddExternalParamsWithHTTPClient(client *http.Client) *AddExternalParams 
 	}
 }
 
-/* AddExternalParams contains all the parameters to send to the API endpoint
-   for the add external operation.
+/*
+AddExternalParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add external operation.
+
+	Typically these are written to a http.Request.
 */
 type AddExternalParams struct {
 	// Body.

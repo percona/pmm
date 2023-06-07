@@ -32,14 +32,15 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 	}
 
 	template := &Template{Name: name}
-	switch err := q.Reload(template); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(template)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
 }
 
 // FindTemplates returns saved notification rule templates.
@@ -51,7 +52,7 @@ func FindTemplates(q *reform.Querier) ([]Template, error) {
 
 	templates := make([]Template, len(structs))
 	for i, s := range structs {
-		c := s.(*Template)
+		c := s.(*Template) //nolint:forcetypeassert
 
 		templates[i] = *c
 	}
@@ -66,14 +67,15 @@ func FindTemplateByName(q *reform.Querier, name string) (*Template, error) {
 	}
 
 	template := &Template{Name: name}
-	switch err := q.Reload(template); err {
-	case nil:
-		return template, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
-	default:
+	err := q.Reload(template)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return template, nil
 }
 
 // CreateTemplateParams are params for creating new rule template.

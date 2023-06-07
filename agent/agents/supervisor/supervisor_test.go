@@ -47,8 +47,16 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	tempDir := t.TempDir()
-	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, 1)
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: tempDir},
+		Ports:         config.Ports{Min: 65000, Max: 65099},
+		Server:        config.Server{Address: "localhost:443"},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(ctx, nil, cfgStorage)
+	go s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
@@ -272,6 +280,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestSupervisorProcessParams(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) (*Supervisor, func()) {
 		t.Helper()
 
@@ -279,12 +288,19 @@ func TestSupervisorProcessParams(t *testing.T) {
 		require.NoError(t, err)
 
 		ctx, cancel := context.WithCancel(context.Background())
-		paths := &config.Paths{
+		paths := config.Paths{
 			MySQLdExporter: "/path/to/mysql_exporter",
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, 1) //nolint:varnamelen
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         paths,
+			Ports:         config.Ports{},
+			Server:        config.Server{},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
+		go s.Run(ctx)
 
 		teardown := func() {
 			cancel()
@@ -327,12 +343,12 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
-				"-web.ssl-cert-file=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "Cert"),
+				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "Cert"),
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
-					"sslCaFile=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
-					"&sslCertificateKeyFile=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
+					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
+					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:12345",
 			},

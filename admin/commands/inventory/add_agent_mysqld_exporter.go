@@ -56,9 +56,9 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 		return ""
 	}
 
-	s := "enabled"
+	s := "enabled" //nolint:goconst
 	if res.Agent.TablestatsGroupDisabled {
-		s = "disabled"
+		s = "disabled" //nolint:goconst
 	}
 
 	switch {
@@ -79,13 +79,15 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 }
 
 // AddAgentMysqldExporterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentMysqldExporterCommand struct {
 	PMMAgentID                string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                 string            `arg:"" help:"Service identifier"`
 	Username                  string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password                  string            `help:"MySQL password for scraping metrics"`
 	AgentPassword             string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels              map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels              map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck       bool              `help:"Skip connection check"`
 	TLS                       bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify             bool              `help:"Skip TLS certificates validation"`

@@ -23,6 +23,7 @@ func MetricsFromStats(stats Stats, agentID string, cacheType string) []prometheu
 		prometheus.MustNewConstMetric(mUpdatedNDesc, prometheus.CounterValue, float64(stats.UpdatedN), agentID, cacheType),
 		prometheus.MustNewConstMetric(mAddedNDesc, prometheus.CounterValue, float64(stats.AddedN), agentID, cacheType),
 		prometheus.MustNewConstMetric(mRemovedNDesc, prometheus.CounterValue, float64(stats.RemovedN), agentID, cacheType),
+		prometheus.MustNewConstMetric(mTrimmedNDesc, prometheus.CounterValue, float64(stats.TrimmedN), agentID, cacheType),
 		prometheus.MustNewConstMetric(mOldestDesc, prometheus.CounterValue, float64(stats.Oldest.Unix()), agentID, cacheType),
 		prometheus.MustNewConstMetric(mNewestDesc, prometheus.CounterValue, float64(stats.Newest.Unix()), agentID, cacheType),
 	}
@@ -53,6 +54,11 @@ var (
 	mRemovedNDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "removed_n"),
 		"Number of rows removed from cache.",
+		[]string{"agent_id", "cache_type"},
+		nil)
+	mTrimmedNDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "trimmed_n"),
+		"Number of rows trimmed from cache.",
 		[]string{"agent_id", "cache_type"},
 		nil)
 	mOldestDesc = prometheus.NewDesc(

@@ -52,10 +52,12 @@ func NewCheckForOperatorUpdateParamsWithHTTPClient(client *http.Client) *CheckFo
 	}
 }
 
-/* CheckForOperatorUpdateParams contains all the parameters to send to the API endpoint
-   for the check for operator update operation.
+/*
+CheckForOperatorUpdateParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the check for operator update operation.
+
+	Typically these are written to a http.Request.
 */
 type CheckForOperatorUpdateParams struct {
 	// Body.

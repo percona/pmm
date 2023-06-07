@@ -46,7 +46,7 @@ func (res *addNodeRemoteResult) String() string {
 type AddNodeRemoteCommand struct {
 	NodeName     string            `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string            `help:"Address"`
-	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Region       string            `help:"Node region"`
 	Az           string            `help:"Node availability zone"`
 }

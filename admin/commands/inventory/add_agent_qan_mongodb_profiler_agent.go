@@ -45,13 +45,16 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 }
 
 // AddAgentQANMongoDBProfilerAgentCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentQANMongoDBProfilerAgentCommand struct {
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string            `help:"MongoDB password for scraping metrics"`
-	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
+	MaxQueryLength                int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples          bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
@@ -82,6 +85,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 			Password:                      cmd.Password,
 			CustomLabels:                  customLabels,
 			SkipConnectionCheck:           cmd.SkipConnectionCheck,
+			MaxQueryLength:                cmd.MaxQueryLength,
 			TLS:                           cmd.TLS,
 			TLSSkipVerify:                 cmd.TLSSkipVerify,
 			TLSCertificateKey:             tlsCertificateKey,

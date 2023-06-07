@@ -52,10 +52,12 @@ func NewChangeExternalExporterParamsWithHTTPClient(client *http.Client) *ChangeE
 	}
 }
 
-/* ChangeExternalExporterParams contains all the parameters to send to the API endpoint
-   for the change external exporter operation.
+/*
+ChangeExternalExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change external exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeExternalExporterParams struct {
 	// Body.

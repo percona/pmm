@@ -52,10 +52,12 @@ func NewUpdatePXCClusterParamsWithHTTPClient(client *http.Client) *UpdatePXCClus
 	}
 }
 
-/* UpdatePXCClusterParams contains all the parameters to send to the API endpoint
-   for the update PXC cluster operation.
+/*
+UpdatePXCClusterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the update PXC cluster operation.
+
+	Typically these are written to a http.Request.
 */
 type UpdatePXCClusterParams struct {
 	// Body.

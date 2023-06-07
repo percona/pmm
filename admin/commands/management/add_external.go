@@ -52,6 +52,8 @@ func (res *addExternalResult) String() string {
 }
 
 // AddExternalCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddExternalCommand struct {
 	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
 	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
@@ -65,7 +67,7 @@ type AddExternalCommand struct {
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`

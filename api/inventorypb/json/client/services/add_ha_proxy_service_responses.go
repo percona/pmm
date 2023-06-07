@@ -48,7 +48,8 @@ func NewAddHAProxyServiceOK() *AddHAProxyServiceOK {
 	return &AddHAProxyServiceOK{}
 }
 
-/* AddHAProxyServiceOK describes a response with status code 200, with default header values.
+/*
+AddHAProxyServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddHAProxyServiceDefault(code int) *AddHAProxyServiceDefault {
 	}
 }
 
-/* AddHAProxyServiceDefault describes a response with status code -1, with default header values.
+/*
+AddHAProxyServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddHAProxyServiceDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*AddHAProxyServiceBody add HA proxy service body
+/*
+AddHAProxyServiceBody add HA proxy service body
 swagger:model AddHAProxyServiceBody
 */
 type AddHAProxyServiceBody struct {
@@ -167,7 +170,8 @@ func (o *AddHAProxyServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceDefaultBody add HA proxy service default body
+/*
+AddHAProxyServiceDefaultBody add HA proxy service default body
 swagger:model AddHAProxyServiceDefaultBody
 */
 type AddHAProxyServiceDefaultBody struct {
@@ -270,7 +274,8 @@ func (o *AddHAProxyServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceDefaultBodyDetailsItems0 add HA proxy service default body details items0
+/*
+AddHAProxyServiceDefaultBodyDetailsItems0 add HA proxy service default body details items0
 swagger:model AddHAProxyServiceDefaultBodyDetailsItems0
 */
 type AddHAProxyServiceDefaultBodyDetailsItems0 struct {
@@ -306,7 +311,8 @@ func (o *AddHAProxyServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*AddHAProxyServiceOKBody add HA proxy service OK body
+/*
+AddHAProxyServiceOKBody add HA proxy service OK body
 swagger:model AddHAProxyServiceOKBody
 */
 type AddHAProxyServiceOKBody struct {
@@ -394,7 +400,8 @@ func (o *AddHAProxyServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service instance.
+/*
+AddHAProxyServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service instance.
 swagger:model AddHAProxyServiceOKBodyHaproxy
 */
 type AddHAProxyServiceOKBodyHaproxy struct {

@@ -48,7 +48,8 @@ func NewGetLogsOK() *GetLogsOK {
 	return &GetLogsOK{}
 }
 
-/* GetLogsOK describes a response with status code 200, with default header values.
+/*
+GetLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetLogsDefault(code int) *GetLogsDefault {
 	}
 }
 
-/* GetLogsDefault describes a response with status code -1, with default header values.
+/*
+GetLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetLogsDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*GetLogsBody get logs body
+/*
+GetLogsBody get logs body
 swagger:model GetLogsBody
 */
 type GetLogsBody struct {
@@ -128,6 +131,9 @@ type GetLogsBody struct {
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
+
+	// restore id
+	RestoreID string `json:"restore_id,omitempty"`
 }
 
 // Validate validates this get logs body
@@ -158,7 +164,8 @@ func (o *GetLogsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLogsDefaultBody get logs default body
+/*
+GetLogsDefaultBody get logs default body
 swagger:model GetLogsDefaultBody
 */
 type GetLogsDefaultBody struct {
@@ -261,7 +268,8 @@ func (o *GetLogsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLogsDefaultBodyDetailsItems0 get logs default body details items0
+/*
+GetLogsDefaultBodyDetailsItems0 get logs default body details items0
 swagger:model GetLogsDefaultBodyDetailsItems0
 */
 type GetLogsDefaultBodyDetailsItems0 struct {
@@ -297,7 +305,8 @@ func (o *GetLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLogsOKBody get logs OK body
+/*
+GetLogsOKBody get logs OK body
 swagger:model GetLogsOKBody
 */
 type GetLogsOKBody struct {
@@ -397,7 +406,8 @@ func (o *GetLogsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
+/*
+GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
 swagger:model GetLogsOKBodyLogsItems0
 */
 type GetLogsOKBodyLogsItems0 struct {

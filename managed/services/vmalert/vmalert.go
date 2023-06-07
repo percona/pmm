@@ -18,7 +18,7 @@ package vmalert
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -151,7 +151,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 func (svc *Service) reload(ctx context.Context) error {
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "-", "reload")
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -159,15 +159,15 @@ func (svc *Service) reload(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert reload: %s", b)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 	return nil
@@ -177,7 +177,7 @@ func (svc *Service) reload(ctx context.Context) error {
 func (svc *Service) IsReady(ctx context.Context) error {
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "health")
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -185,14 +185,14 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert health: %s", b)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 

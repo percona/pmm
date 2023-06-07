@@ -33,18 +33,19 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN {
+func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
-	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, logrus.WithField("test", t.Name()))
+	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return pgStatMonitorQAN
@@ -113,10 +114,13 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	version, _, err := getPGMonitorVersion(db.Querier)
+	vPG, err := getPGVersion(db.Querier)
 	assert.NoError(t, err)
 
-	_, view := NewPgStatMonitorStructs(version)
+	vPGSM, _, err := getPGMonitorVersion(db.Querier)
+	assert.NoError(t, err)
+
+	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
@@ -161,7 +165,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			selectAllCountriesLong: "7FE44699CA927E67",
 		}
 
-	case "14":
+	case "14", "15":
 		digests = map[string]string{
 			selectAllCountries:     "1172613B04E8CEC0",
 			selectAllCountriesLong: "EB821DA6C4030A4F",
@@ -184,10 +188,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	case pgStatMonitorVersion09:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG12:
+	case pgStatMonitorVersion10PG12,
+		pgStatMonitorVersion11PG12,
+		pgStatMonitorVersion20PG12:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14:
+	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14,
+		pgStatMonitorVersion11PG13, pgStatMonitorVersion11PG14,
+		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14, pgStatMonitorVersion20PG15:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1
@@ -226,6 +234,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
 				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -281,6 +290,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
+				Example:             example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -351,6 +362,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -409,6 +422,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
@@ -505,6 +520,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         expectedFingerprint,
+				Example:             actual.Common.Example,
+				ExampleType:         agentpb.ExampleType_RANDOM,
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
 				ClientHost:          actual.Common.ClientHost,

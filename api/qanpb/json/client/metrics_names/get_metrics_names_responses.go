@@ -48,7 +48,8 @@ func NewGetMetricsNamesOK() *GetMetricsNamesOK {
 	return &GetMetricsNamesOK{}
 }
 
-/* GetMetricsNamesOK describes a response with status code 200, with default header values.
+/*
+GetMetricsNamesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetMetricsNamesDefault(code int) *GetMetricsNamesDefault {
 	}
 }
 
-/* GetMetricsNamesDefault describes a response with status code -1, with default header values.
+/*
+GetMetricsNamesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetMetricsNamesDefaultBody get metrics names default body
+/*
+GetMetricsNamesDefaultBody get metrics names default body
 swagger:model GetMetricsNamesDefaultBody
 */
 type GetMetricsNamesDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *GetMetricsNamesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details items0
+/*
+GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details items0
 swagger:model GetMetricsNamesDefaultBodyDetailsItems0
 */
 type GetMetricsNamesDefaultBodyDetailsItems0 struct {
@@ -255,7 +259,8 @@ func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
+/*
+GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
 // key is root of metric name in db (Ex:. [m_]query_time[_sum]);
 // value - Human readable name of metrics.
 swagger:model GetMetricsNamesOKBody

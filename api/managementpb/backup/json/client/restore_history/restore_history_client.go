@@ -34,7 +34,7 @@ type ClientService interface {
 }
 
 /*
-  ListRestoreHistory lists restore history returns a list of all backup restore history items
+ListRestoreHistory lists restore history returns a list of all backup restore history items
 */
 func (a *Client) ListRestoreHistory(params *ListRestoreHistoryParams, opts ...ClientOption) (*ListRestoreHistoryOK, error) {
 	// TODO: Validate the params before sending

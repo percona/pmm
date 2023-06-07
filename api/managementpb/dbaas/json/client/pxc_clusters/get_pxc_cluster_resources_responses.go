@@ -48,7 +48,8 @@ func NewGetPXCClusterResourcesOK() *GetPXCClusterResourcesOK {
 	return &GetPXCClusterResourcesOK{}
 }
 
-/* GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
+/*
+GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetPXCClusterResourcesDefault(code int) *GetPXCClusterResourcesDefault {
 	}
 }
 
-/* GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
+/*
+GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetPXCClusterResourcesDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*GetPXCClusterResourcesBody get PXC cluster resources body
+/*
+GetPXCClusterResourcesBody get PXC cluster resources body
 swagger:model GetPXCClusterResourcesBody
 */
 type GetPXCClusterResourcesBody struct {
@@ -204,7 +207,8 @@ func (o *GetPXCClusterResourcesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesDefaultBody get PXC cluster resources default body
+/*
+GetPXCClusterResourcesDefaultBody get PXC cluster resources default body
 swagger:model GetPXCClusterResourcesDefaultBody
 */
 type GetPXCClusterResourcesDefaultBody struct {
@@ -307,7 +311,8 @@ func (o *GetPXCClusterResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesDefaultBodyDetailsItems0 get PXC cluster resources default body details items0
+/*
+GetPXCClusterResourcesDefaultBodyDetailsItems0 get PXC cluster resources default body details items0
 swagger:model GetPXCClusterResourcesDefaultBodyDetailsItems0
 */
 type GetPXCClusterResourcesDefaultBodyDetailsItems0 struct {
@@ -343,7 +348,8 @@ func (o *GetPXCClusterResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetPXCClusterResourcesOKBody get PXC cluster resources OK body
+/*
+GetPXCClusterResourcesOKBody get PXC cluster resources OK body
 swagger:model GetPXCClusterResourcesOKBody
 */
 type GetPXCClusterResourcesOKBody struct {
@@ -431,7 +437,8 @@ func (o *GetPXCClusterResourcesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
+/*
+GetPXCClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
 swagger:model GetPXCClusterResourcesOKBodyExpected
 */
 type GetPXCClusterResourcesOKBodyExpected struct {
@@ -474,12 +481,16 @@ func (o *GetPXCClusterResourcesOKBodyExpected) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
+/*
+GetPXCClusterResourcesParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model GetPXCClusterResourcesParamsBodyParams
 */
 type GetPXCClusterResourcesParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
+
+	// backup
+	Backup *GetPXCClusterResourcesParamsBodyParamsBackup `json:"backup,omitempty"`
 
 	// haproxy
 	Haproxy *GetPXCClusterResourcesParamsBodyParamsHaproxy `json:"haproxy,omitempty"`
@@ -489,11 +500,18 @@ type GetPXCClusterResourcesParamsBodyParams struct {
 
 	// pxc
 	PXC *GetPXCClusterResourcesParamsBodyParamsPXC `json:"pxc,omitempty"`
+
+	// restore
+	Restore *GetPXCClusterResourcesParamsBodyParamsRestore `json:"restore,omitempty"`
 }
 
 // Validate validates this get PXC cluster resources params body params
 func (o *GetPXCClusterResourcesParamsBodyParams) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateBackup(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
@@ -507,9 +525,32 @@ func (o *GetPXCClusterResourcesParamsBodyParams) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := o.validateRestore(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetPXCClusterResourcesParamsBodyParams) validateBackup(formats strfmt.Registry) error {
+	if swag.IsZero(o.Backup) { // not required
+		return nil
+	}
+
+	if o.Backup != nil {
+		if err := o.Backup.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -570,9 +611,32 @@ func (o *GetPXCClusterResourcesParamsBodyParams) validatePXC(formats strfmt.Regi
 	return nil
 }
 
+func (o *GetPXCClusterResourcesParamsBodyParams) validateRestore(formats strfmt.Registry) error {
+	if swag.IsZero(o.Restore) { // not required
+		return nil
+	}
+
+	if o.Restore != nil {
+		if err := o.Restore.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get PXC cluster resources params body params based on the context it is used
 func (o *GetPXCClusterResourcesParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.contextValidateBackup(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
 		res = append(res, err)
@@ -586,9 +650,28 @@ func (o *GetPXCClusterResourcesParamsBodyParams) ContextValidate(ctx context.Con
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateRestore(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+	if o.Backup != nil {
+		if err := o.Backup.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "backup")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "backup")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -637,6 +720,21 @@ func (o *GetPXCClusterResourcesParamsBodyParams) contextValidatePXC(ctx context.
 	return nil
 }
 
+func (o *GetPXCClusterResourcesParamsBodyParams) contextValidateRestore(ctx context.Context, formats strfmt.Registry) error {
+	if o.Restore != nil {
+		if err := o.Restore.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "restore")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "restore")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetPXCClusterResourcesParamsBodyParams) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -655,7 +753,54 @@ func (o *GetPXCClusterResourcesParamsBodyParams) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsHaproxy HAProxy container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsBackup Backup configuration for a database cluster
+swagger:model GetPXCClusterResourcesParamsBodyParamsBackup
+*/
+type GetPXCClusterResourcesParamsBodyParamsBackup struct {
+	// Backup Location id of stored backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Keep copies represents how many copies should retain.
+	KeepCopies int32 `json:"keep_copies,omitempty"`
+
+	// Cron expression represents cron expression
+	CronExpression string `json:"cron_expression,omitempty"`
+
+	// Service acccount used for backups
+	ServiceAccount string `json:"service_account,omitempty"`
+}
+
+// Validate validates this get PXC cluster resources params body params backup
+func (o *GetPXCClusterResourcesParamsBodyParamsBackup) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster resources params body params backup based on context it is used
+func (o *GetPXCClusterResourcesParamsBodyParamsBackup) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsBackup) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsBackup) UnmarshalBinary(b []byte) error {
+	var res GetPXCClusterResourcesParamsBodyParamsBackup
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetPXCClusterResourcesParamsBodyParamsHaproxy HAProxy container parameters.
 // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxy
 */
@@ -747,7 +892,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxy) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources struct {
@@ -786,7 +932,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources) Unmarsha
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsPXC PXC container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsPXC PXC container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXC
 */
@@ -796,6 +943,12 @@ type GetPXCClusterResourcesParamsBodyParamsPXC struct {
 
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
+
+	// Configuration for PXC cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PXC cluster.
+	StorageClass string `json:"storage_class,omitempty"`
 
 	// compute resources
 	ComputeResources *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
@@ -881,7 +1034,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXC) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXCComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsPXCComputeResources struct {
@@ -920,7 +1074,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources) UnmarshalBin
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsProxysql ProxySQL container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsProxysql ProxySQL container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysql
 */
@@ -1015,7 +1170,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysql) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources struct {
@@ -1047,6 +1203,49 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources) Marshal
 // UnmarshalBinary interface implementation
 func (o *GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetPXCClusterResourcesParamsBodyParamsRestore Restore represents restoration payload to restore a database cluster from backup
+swagger:model GetPXCClusterResourcesParamsBodyParamsRestore
+*/
+type GetPXCClusterResourcesParamsBodyParamsRestore struct {
+	// Backup location in PMM.
+	LocationID string `json:"location_id,omitempty"`
+
+	// Destination filename.
+	Destination string `json:"destination,omitempty"`
+
+	// K8s Secrets name.
+	SecretsName string `json:"secrets_name,omitempty"`
+}
+
+// Validate validates this get PXC cluster resources params body params restore
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster resources params body params restore based on context it is used
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPXCClusterResourcesParamsBodyParamsRestore) UnmarshalBinary(b []byte) error {
+	var res GetPXCClusterResourcesParamsBodyParamsRestore
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

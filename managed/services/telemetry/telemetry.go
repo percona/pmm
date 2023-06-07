@@ -56,6 +56,9 @@ type Service struct {
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
+	dataSourcesMap      map[string]DataSource
+
+	extensions map[ExtensionType]Extension
 
 	dus distributionUtilService
 }
@@ -66,7 +69,7 @@ var (
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -88,9 +91,11 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dsRegistry:   registry,
 		dus:          dus,
 		sendCh:       make(chan *pmmv1.ServerMetric, sendChSize),
+		extensions:   extensions,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
+	s.dataSourcesMap = s.locateDataSources(config.telemetry)
 
 	return s, nil
 }
@@ -120,7 +125,7 @@ func (s *Service) Run(ctx context.Context) {
 			return nil
 		})
 		if err != nil {
-			s.l.Debugf("Failed to retrive settings: %s.", err)
+			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
 		if settings.Telemetry.Disabled {
@@ -208,18 +213,46 @@ func (s *Service) processSendCh(ctx context.Context) {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
+	initializedDataSources := make(map[string]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
-
 	var totalTime time.Duration
-telemetryLoop:
-	for _, telemetry := range s.config.telemetry {
-		// locate DS
-		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
+
+	// initialize datasources
+	for sourceName, dataSource := range s.dataSourcesMap {
+		err := dataSource.Init(ctx)
 		if err != nil {
-			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
+			s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
+			continue
+		}
+		initializedDataSources[sourceName] = dataSource
+	}
+
+	for _, telemetry := range s.config.telemetry {
+		if telemetry.Extension != "" {
+			extension, ok := s.extensions[telemetry.Extension]
+			if !ok {
+				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
+				continue
+			}
+
+			metrics, err := extension.FetchMetrics(ctx, telemetry)
+			if err != nil {
+				s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
+				continue
+			}
+			telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
+
+			continue
+		}
+
+		// locate DS in initialized state
+		ds := initializedDataSources[telemetry.Source]
+		if ds == nil {
+			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
 		}
 		if !ds.Enabled() {
+			s.l.Debugf("datasource %s is disabled", telemetry.Source)
 			continue
 		}
 
@@ -234,18 +267,50 @@ telemetryLoop:
 			continue
 		}
 
-		for _, each := range metrics {
-			if err != nil {
-				s.l.Debugf("failed to make Metric %v", err)
-				continue telemetryLoop
+		if telemetry.Transform != nil {
+			if telemetry.Transform.Type == JSONTransformType {
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformToJSON(&telemetryCopy, metrics)
+				if err != nil {
+					s.l.Debugf("failed to transform to JSON: %s", err)
+					continue
+				}
+			} else {
+				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
 			}
+		}
 
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
+		telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
+	}
+
+	// datasources disposal
+	for sourceName, dataSource := range initializedDataSources {
+		err := dataSource.Dispose(ctx)
+		if err != nil {
+			s.l.Debugf("Dispose of %s datasource failed: %v", sourceName, err)
+			continue
 		}
 	}
+
+	telemetryMetric.Metrics = removeEmpty(telemetryMetric.Metrics)
+
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
 	return telemetryMetric
+}
+
+func (s *Service) locateDataSources(telemetryConfig []Config) map[string]DataSource {
+	dataSources := make(map[string]DataSource)
+	for _, telemetry := range telemetryConfig {
+		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
+		if err != nil {
+			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
+			continue
+		}
+		dataSources[telemetry.Source] = ds
+	}
+
+	return dataSources
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {

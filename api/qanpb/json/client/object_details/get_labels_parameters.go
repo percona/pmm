@@ -52,10 +52,12 @@ func NewGetLabelsParamsWithHTTPClient(client *http.Client) *GetLabelsParams {
 	}
 }
 
-/* GetLabelsParams contains all the parameters to send to the API endpoint
-   for the get labels operation.
+/*
+GetLabelsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get labels operation.
+
+	Typically these are written to a http.Request.
 */
 type GetLabelsParams struct {
 	/* Body.

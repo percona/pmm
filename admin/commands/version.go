@@ -24,7 +24,7 @@ func (v versionResult) String() string {
 	return version.FullInfo()
 }
 
-func (v versionResult) MarshalJSON() ([]byte, error) {
+func (v versionResult) MarshalJSON() ([]byte, error) { //nolint:unparam
 	return []byte(version.FullInfoJSON()), nil
 }
 

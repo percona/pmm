@@ -46,9 +46,9 @@ type ClientService interface {
 }
 
 /*
-  Connect connects
+Connect connects
 
-  Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
+Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
 func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
@@ -85,9 +85,9 @@ func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectO
 }
 
 /*
-  Disconnect disconnects
+Disconnect disconnects
 
-  Disconnect a PMM server from the organization created on Percona Portal.
+Disconnect a PMM server from the organization created on Percona Portal.
 */
 func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending
@@ -124,9 +124,9 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 }
 
 /*
-  GetContactInformation gets contact information
+GetContactInformation gets contact information
 
-  GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
 */
 func (a *Client) GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error) {
 	// TODO: Validate the params before sending
@@ -163,9 +163,9 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams, opts
 }
 
 /*
-  SearchOrganizationEntitlements searches organization entitlements
+SearchOrganizationEntitlements searches organization entitlements
 
-  SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
+SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error) {
 	// TODO: Validate the params before sending
@@ -202,9 +202,9 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 }
 
 /*
-  SearchOrganizationTickets searches organization tickets
+SearchOrganizationTickets searches organization tickets
 
-  SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
+SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
 func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
@@ -241,9 +241,9 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 }
 
 /*
-  ServerInfo servers info
+ServerInfo servers info
 
-  ServerInfo returns PMM server ID and name.
+ServerInfo returns PMM server ID and name.
 */
 func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*ServerInfoOK, error) {
 	// TODO: Validate the params before sending
@@ -280,9 +280,9 @@ func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*Se
 }
 
 /*
-  UserStatus users status
+UserStatus users status
 
-  UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
+UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
 */
 func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*UserStatusOK, error) {
 	// TODO: Validate the params before sending

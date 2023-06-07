@@ -52,10 +52,12 @@ func NewScheduleBackupParamsWithHTTPClient(client *http.Client) *ScheduleBackupP
 	}
 }
 
-/* ScheduleBackupParams contains all the parameters to send to the API endpoint
-   for the schedule backup operation.
+/*
+ScheduleBackupParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the schedule backup operation.
+
+	Typically these are written to a http.Request.
 */
 type ScheduleBackupParams struct {
 	// Body.

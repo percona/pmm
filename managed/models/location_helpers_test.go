@@ -54,7 +54,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -62,10 +62,10 @@ func TestBackupLocations(t *testing.T) {
 
 		location, err := models.CreateBackupLocation(q, params)
 		require.NoError(t, err)
-		assert.Equal(t, models.PMMClientBackupLocationType, location.Type)
+		assert.Equal(t, models.FilesystemBackupLocationType, location.Type)
 		assert.Equal(t, params.Name, location.Name)
 		assert.Equal(t, params.Description, location.Description)
-		assert.Equal(t, params.PMMClientConfig.Path, location.PMMClientConfig.Path)
+		assert.Equal(t, params.FilesystemConfig.Path, location.FilesystemConfig.Path)
 		assert.NotEmpty(t, location.ID)
 	})
 
@@ -118,7 +118,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 				S3Config: &models.S3LocationConfig{
@@ -148,7 +148,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -203,7 +203,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -213,11 +213,15 @@ func TestBackupLocations(t *testing.T) {
 		require.NoError(t, err)
 
 		changeParams := models.ChangeBackupLocationParams{
-			Name:        "some name modified",
+			Name:        "some name2",
 			Description: "",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMServerConfig: &models.PMMServerLocationConfig{
-					Path: "/tmp/nested",
+				S3Config: &models.S3LocationConfig{
+					Endpoint:     "https://example.com/",
+					AccessKey:    "access_key",
+					SecretKey:    "secret_key",
+					BucketName:   "example_bucket",
+					BucketRegion: "us-east-2",
 				},
 			},
 		}
@@ -225,11 +229,11 @@ func TestBackupLocations(t *testing.T) {
 		updatedLoc, err := models.ChangeBackupLocation(q, location.ID, changeParams)
 		require.NoError(t, err)
 		assert.Equal(t, changeParams.Name, updatedLoc.Name)
-		// empty description in request, we expect no change
-		assert.Equal(t, createParams.Description, updatedLoc.Description)
-		assert.Nil(t, updatedLoc.PMMClientConfig)
-		assert.Equal(t, changeParams.PMMServerConfig.Path, updatedLoc.PMMServerConfig.Path)
-		assert.Equal(t, updatedLoc.Type, models.PMMServerBackupLocationType)
+		// We should change Description even if empty value is passed, otherwise user cannot clear the field.
+		assert.Equal(t, changeParams.Description, updatedLoc.Description)
+		assert.Equal(t, models.S3BackupLocationType, updatedLoc.Type)
+		assert.Nil(t, updatedLoc.FilesystemConfig)
+		assert.Equal(t, changeParams.S3Config, updatedLoc.S3Config)
 
 		findLoc, err := models.FindBackupLocationByID(q, location.ID)
 		require.NoError(t, err)
@@ -250,7 +254,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -279,7 +283,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -360,8 +364,8 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-1",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
-						Path: "/tmp",
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "/tmp:dir_.-123",
 					},
 				},
 			},
@@ -372,12 +376,48 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-2",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
 						Path: "",
 					},
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = PMM client config path field is empty.",
+		},
+		{
+			name: "client config - non-canonical",
+			params: models.CreateBackupLocationParams{
+				Name: "client-3",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "/some_directory/../../../root",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Specified folder in non-canonical format, canonical would be: \"/root\".",
+		},
+		{
+			name: "client config - not absolute path",
+			params: models.CreateBackupLocationParams{
+				Name: "client-4",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "../../../my_directory",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Folder should be an absolute path (should contain leading slash).",
+		},
+		{
+			name: "client config - not allowed symbols",
+			params: models.CreateBackupLocationParams{
+				Name: "client-5",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "/%my_directory",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.",
 		},
 		{
 			name: "normal s3 config",

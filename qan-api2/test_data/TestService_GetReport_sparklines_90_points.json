@@ -1,0 +1,7268 @@
+{
+	"totalRows": 9,
+	"limit": 10,
+	"rows": [
+		{
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 3261920,
+						"max": 249,
+						"p99": 118.61527,
+						"avg": 0.23905382,
+						"sumPerSec": 604.05927
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 9430,
+						"avg": 0.00069108914,
+						"sumPerSec": 1.7462963
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 0.83246,
+						"max": 0.000162,
+						"p99": 0.000030271272,
+						"avg": 6.100785e-8,
+						"sumPerSec": 0.00015415925
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 16.70876,
+						"min": 0.000002,
+						"max": 0.002528,
+						"p99": 0.0006075913,
+						"avg": 0.0000012245221,
+						"sumPerSec": 0.0030942147
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 10353080,
+						"max": 1268,
+						"p99": 376.47565,
+						"avg": 0.7587382,
+						"sumPerSec": 1917.237
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 19060,
+						"max": 1,
+						"p99": 0.6930909,
+						"avg": 0.0013968355,
+						"sumPerSec": 3.5296297
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 9430,
+						"avg": 0.00069108914,
+						"sumPerSec": 1.7462963
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 2750
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"rate": 1,
+						"cnt": 2750,
+						"sum": 9430,
+						"max": 1,
+						"p99": 0.3429091,
+						"avg": 0.00069108914,
+						"sumPerSec": 1.7462963
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.004474
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z",
+					"mQueryTimeSumPerSec": 0.0026046666
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.002648
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.004187667
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.00132
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.0030243334
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z",
+					"mQueryTimeSumPerSec": 0.0030181666
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.0032373334
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.0015146666
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.003551
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.0021888334
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.0033096666
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.004447667
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.0052045
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.0029890002
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.003484
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.002339
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.0035493334
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z",
+					"mQueryTimeSumPerSec": 0.0010801667
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.0036715001
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.0030773333
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.0029778334
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.004300167
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.002676
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.003595
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.004316
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.0019578333
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.0032714999
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.003282
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.0044548335
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.0015848333
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.0020333333
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.0024086668
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.0029298333
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.003526
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.0019253334
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z",
+					"mQueryTimeSumPerSec": 0.0030065
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.0032423334
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.0027971666
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.006467167
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.003331
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.0034075
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.0010026667
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.004032667
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z",
+					"mQueryTimeSumPerSec": 0.0028505
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.0032646668
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.003689
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.0048808334
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.0032083334
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.0028296667
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.002403
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.0009671667
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.0026393333
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0026594999
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.0035361666
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.0030858333
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.0047978335
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.002957
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.0033563334
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z",
+					"mQueryTimeSumPerSec": 0.0012071667
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.003277
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.0022416667
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.0015245
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.0036575
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.0031778333
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0036008335
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.00274
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.0014906666
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.0035646667
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.0025683334
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.0035168333
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.0037578333
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.0038855
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.0036981667
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.0039945
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.0038853334
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z",
+					"mQueryTimeSumPerSec": 0.002493
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.0026933334
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0028081667
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0031961666
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.001609
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.0031798333
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.0029415
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.0034118334
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0025791668
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.0024118333
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.004574
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.0035158333
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.0027033333
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.0023623332
+				}
+			],
+			"fingerprint": "TOTAL",
+			"numQueries": 13645128,
+			"qps": 2526.8755,
+			"load": 0.0030942147
+		},
+		{
+			"rank": 1,
+			"dimension": "7DD5F6760F2D2EBB",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.23667043,
+						"cnt": 386,
+						"sum": 772000,
+						"min": 200,
+						"max": 200,
+						"p99": 200,
+						"avg": 0.37940088,
+						"sumPerSec": 142.96297
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"rate": 0.40933192,
+						"cnt": 386,
+						"sum": 3860,
+						"avg": 0.0018970044,
+						"sumPerSec": 0.71481484
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"rate": 0.30684957,
+						"cnt": 386,
+						"sum": 0.25544,
+						"min": 0.000052,
+						"max": 0.000122,
+						"p99": 0.000066176166,
+						"avg": 1.2553649e-7,
+						"sumPerSec": 0.000047303703
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.40296167,
+						"cnt": 386,
+						"sum": 6.73299,
+						"min": 0.001606,
+						"max": 0.002528,
+						"p99": 0.0017442979,
+						"avg": 0.000003308941,
+						"sumPerSec": 0.00124685
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"rate": 0.47275594,
+						"cnt": 386,
+						"sum": 4894480,
+						"min": 1268,
+						"max": 1268,
+						"p99": 1268,
+						"avg": 2.4054017,
+						"sumPerSec": 906.3852
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.20251836,
+						"cnt": 386,
+						"sum": 3860,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0018970044,
+						"sumPerSec": 0.71481484
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"rate": 0.40933192,
+						"cnt": 386,
+						"sum": 3860,
+						"avg": 0.0018970044,
+						"sumPerSec": 0.71481484
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 386
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"rate": 0.40933192,
+						"cnt": 386,
+						"sum": 3860,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0018970044,
+						"sumPerSec": 0.71481484
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.002956
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z",
+					"mQueryTimeSumPerSec": 0.00088883337
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.00083133334
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.001771
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.00028533334
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.001767
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z",
+					"mQueryTimeSumPerSec": 0.001449
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.00057133334
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.00030783334
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.0014903334
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.00087499997
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.0017825001
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.0023375
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.0017736667
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.0011883334
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.0014568333
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.0011338333
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.0020388335
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.0019938333
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.0009936667
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.0014336667
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.0017348333
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.0008755
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.0011388334
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.0019995
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.00027816667
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.0020144999
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.001428
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.0020565
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.0005616666
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.0005696667
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.0013965
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.0005543333
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.0014448334
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.0008811667
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z",
+					"mQueryTimeSumPerSec": 0.0014538333
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.0017068334
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.00085333333
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.0027533334
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.0008745
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.0005733333
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.00027233333
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.0017456666
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z",
+					"mQueryTimeSumPerSec": 0.0011568334
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.002017
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.0014146667
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.0014643333
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.0011753333
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.0014268333
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.0014411666
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.00057316665
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.0011406667
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0008655
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.0017098334
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.0011903333
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.0008588333
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.0017561667
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.0011631667
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.000924
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.00059383333
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.00085716665
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.0008841667
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.0017351666
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0020615
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.0015093334
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.00028633332
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.0011373333
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.0014093333
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.0014718333
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.000573
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.0016851666
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.00027283333
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.0011381666
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.00062616664
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z",
+					"mQueryTimeSumPerSec": 0.0006058333
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.0014896666
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0015451666
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0011234999
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.0008758333
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.0016878333
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.0014641667
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.0014046667
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0011435
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.0008823333
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.0017255
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.001164
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.0017896666
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.0011541666
+				}
+			],
+			"fingerprint": "show variables like ?",
+			"numQueries": 2034787,
+			"qps": 376.8124,
+			"load": 0.00124685
+		},
+		{
+			"rank": 2,
+			"dimension": "CB73D6B5B031B4CF",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.35069528,
+						"cnt": 557,
+						"sum": 1143940,
+						"min": 184,
+						"max": 249,
+						"p99": 205.37523,
+						"avg": 0.4153036,
+						"sumPerSec": 211.84074
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"rate": 0.5906681,
+						"cnt": 557,
+						"sum": 5570,
+						"avg": 0.0020221698,
+						"sumPerSec": 1.0314815
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"rate": 0.6931504,
+						"cnt": 557,
+						"sum": 0.57702,
+						"min": 0.000086,
+						"max": 0.000162,
+						"p99": 0.000103594255,
+						"avg": 2.0948518e-7,
+						"sumPerSec": 0.00010685555
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.54375255,
+						"cnt": 557,
+						"sum": 9.08543,
+						"min": 0.001414,
+						"max": 0.002212,
+						"p99": 0.0016311364,
+						"avg": 0.0000032984349,
+						"sumPerSec": 0.0016824871
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"rate": 0.5272441,
+						"cnt": 557,
+						"sum": 5458600,
+						"min": 980,
+						"max": 980,
+						"p99": 980,
+						"avg": 1.9817264,
+						"sumPerSec": 1010.85187
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.29223505,
+						"cnt": 557,
+						"sum": 5570,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0020221698,
+						"sumPerSec": 1.0314815
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"rate": 0.5906681,
+						"cnt": 557,
+						"sum": 5570,
+						"avg": 0.0020221698,
+						"sumPerSec": 1.0314815
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 557
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"rate": 0.5906681,
+						"cnt": 557,
+						"sum": 5570,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0020221698,
+						"sumPerSec": 1.0314815
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.0013591667
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z",
+					"mQueryTimeSumPerSec": 0.001608
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.001602
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.0021603333
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.0008151667
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.0010713333
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z",
+					"mQueryTimeSumPerSec": 0.0013828333
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.0024271666
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.0011138333
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.0019173333
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.0011870001
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.0013571667
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.0019228334
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.0033151668
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.0016310001
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.001888
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.001091
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.0013355
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z",
+					"mQueryTimeSumPerSec": 0.0008475
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.0016138334
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.0018878334
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.0014046667
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.002422
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.0016303334
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.0022346666
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.0021708333
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.001591
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.0010671667
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.0016291667
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.0022416667
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.0007988333
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.0013635
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.0007861667
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.0021988333
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.0019086667
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.0007915
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z",
+					"mQueryTimeSumPerSec": 0.0013901667
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.0013498333
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.0017441667
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.0035473334
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.0022695
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.0026531667
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.00054383336
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.0021783332
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z",
+					"mQueryTimeSumPerSec": 0.0016063333
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.0010665
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.0021201666
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.0032523335
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.0018805
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.001312
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.0007995
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.00026833333
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.0013301667
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0016145
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.001563
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.001681
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.0037495
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.0010568333
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.0019916666
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z",
+					"mQueryTimeSumPerSec": 0.001054
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.0022236665
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.0013875
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.00051183335
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.0026281667
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.0013363333
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0013343333
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.0010561666
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.0010678333
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.0022323334
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.0010513334
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.0019343334
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.0030061665
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.002095
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.0032271666
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.0027058334
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.0030750001
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z",
+					"mQueryTimeSumPerSec": 0.0017163333
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.0010641667
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0010851667
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0018516666
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.00054000004
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.0013236667
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.001321
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.0018896667
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0014023334
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.0013505
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.0027228333
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.0022086666
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.00081583334
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.0011015
+				}
+			],
+			"fingerprint": "show status like ?",
+			"numQueries": 2754467,
+			"qps": 510.0865,
+			"load": 0.0016824871
+		},
+		{
+			"rank": 3,
+			"dimension": "E3A3649C5FAC418D",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.37338132,
+						"cnt": 766,
+						"sum": 1217940,
+						"min": 159,
+						"max": 159,
+						"p99": 159,
+						"avg": 0.3264648,
+						"sumPerSec": 225.54445
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.044973418,
+						"cnt": 766,
+						"sum": 0.75145,
+						"min": 0.000082,
+						"max": 0.000155,
+						"p99": 0.00009810052,
+						"avg": 2.014237e-7,
+						"sumPerSec": 0.0001391574
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.40188876,
+						"cnt": 766,
+						"sum": 7660,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0020532378,
+						"sumPerSec": 1.4185185
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 766
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 766
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.0001425
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z",
+					"mQueryTimeSumPerSec": 0.00010133333
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.00017416666
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.00020916667
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.00020716667
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.00015166667
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z",
+					"mQueryTimeSumPerSec": 0.00018249999
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.00022416667
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.000084
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.0001185
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.000114333336
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.00014633333
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.00015133334
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.000095166666
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.00013933334
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.00011633333
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.00009616667
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.00015666666
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z",
+					"mQueryTimeSumPerSec": 0.00021666667
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.000046833335
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.00017066667
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.00012616666
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.000129
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.00014383333
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.00020016667
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.00012566667
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.00005
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.00014716666
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.00019833333
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.00012366667
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.00019516666
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.000083666666
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.000196
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.000161
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.00014516666
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.00021116667
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z",
+					"mQueryTimeSumPerSec": 0.000161
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.00016483333
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.00018716666
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.0001515
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.00015616667
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.00014366666
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.00016433334
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.00008116667
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z",
+					"mQueryTimeSumPerSec": 0.0000815
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.00013616667
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.00013533334
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.00012766667
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.00011166667
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.000078666664
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.00015200001
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.0001045
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.000148
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.00015266667
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.00022416667
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.00015733333
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.00016033334
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.000110500005
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.00014433333
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z",
+					"mQueryTimeSumPerSec": 0.0001305
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.0000985
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.00024866668
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.000120666664
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.000103
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.00009533334
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.00018383334
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.00014366666
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.000100666664
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.00013583334
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.00008233333
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.000068166664
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.000161
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.000082833336
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.0001695
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.00013366666
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.000163
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z",
+					"mQueryTimeSumPerSec": 0.00016566667
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.00011933334
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.00014483334
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0002005
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.0001515
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.00013783333
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.00014
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.0001005
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.000017499999
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.000156
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.00009533333
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.000091
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.00007833333
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.0000815
+				}
+			],
+			"fingerprint": "select @@version_comment limit ?",
+			"numQueries": 3730693,
+			"qps": 690.8691,
+			"load": 0.0001391574
+		},
+		{
+			"rank": 4,
+			"dimension": "C45DE4F1F8F55169",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.00074189436,
+						"cnt": 22,
+						"sum": 2420,
+						"min": 11,
+						"max": 11,
+						"p99": 11,
+						"avg": 0.025034396,
+						"sumPerSec": 0.44814816
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.0008743917,
+						"cnt": 22,
+						"sum": 0.01461,
+						"min": 0.000052,
+						"max": 0.000098,
+						"p99": 0.00006640909,
+						"avg": 1.5113741e-7,
+						"sumPerSec": 0.0000027055555
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 22
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 22
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z"
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z"
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z"
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z"
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z"
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z"
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.000012166667
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z"
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z"
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z"
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.0000095
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z"
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.000009333334
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.000011666666
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z"
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z"
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.000009166667
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.000014333333
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z"
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.000009666666
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.000024333332
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.000010500001
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.000008833334
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z"
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z"
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.000022833332
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z"
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z"
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z"
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z"
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z"
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z"
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z"
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z"
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.000012166667
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z"
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z"
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.000014666667
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.000016333333
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z"
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.0000125
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z"
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.000008666667
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z"
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z"
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z"
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z"
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z"
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z"
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.000009833334
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z"
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z"
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z"
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z"
+				}
+			],
+			"fingerprint": "set time_zone=?",
+			"numQueries": 96667,
+			"qps": 17.901297,
+			"load": 0.0000027055555
+		},
+		{
+			"rank": 5,
+			"dimension": "A34EB28BD7F1E9C3",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.00286641,
+						"cnt": 11,
+						"sum": 9350,
+						"min": 85,
+						"max": 85,
+						"p99": 85,
+						"avg": 0.15924923,
+						"sumPerSec": 1.7314814
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.00042193438,
+						"cnt": 11,
+						"sum": 0.00705,
+						"min": 0.000053,
+						"max": 0.000081,
+						"p99": 0.00006409091,
+						"avg": 1.2007563e-7,
+						"sumPerSec": 0.0000013055555
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.0057712486,
+						"cnt": 11,
+						"sum": 110,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0018735203,
+						"sumPerSec": 0.02037037
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 11
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 11
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.000013333333
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z"
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z"
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z"
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z"
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z"
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z"
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.000012166667
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z"
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z"
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z"
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z"
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z"
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z"
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z"
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.000010500001
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z"
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z"
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z"
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.000009166667
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z"
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z"
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z"
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.000011
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z"
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z"
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z"
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z"
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z"
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z"
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z"
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z"
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.000008833334
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.0000135
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z"
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z"
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z"
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z"
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z"
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z"
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z"
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z"
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z"
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z"
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z"
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z"
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z"
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z"
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z"
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.000011166666
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z"
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z"
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z"
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.000009833334
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z"
+				}
+			],
+			"fingerprint": "select @@global.datadir",
+			"numQueries": 58713,
+			"qps": 10.872778,
+			"load": 0.0000013055555
+		},
+		{
+			"rank": 6,
+			"dimension": "3530F787A2430DC8",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.030230662,
+						"cnt": 173,
+						"sum": 98610,
+						"min": 57,
+						"max": 57,
+						"p99": 57,
+						"avg": 0.11878119,
+						"sumPerSec": 18.26111
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.00476337,
+						"cnt": 173,
+						"sum": 0.07959,
+						"min": 0.00004,
+						"max": 0.000074,
+						"p99": 0.00004600578,
+						"avg": 9.587054e-8,
+						"sumPerSec": 0.000014738889
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.090766005,
+						"cnt": 173,
+						"sum": 1730,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0020838804,
+						"sumPerSec": 0.32037038
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 173
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 173
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.000014333334
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.00002
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.000028833334
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000225
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.000021166667
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.000008166667
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.000017166667
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.000028833332
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.000014666667
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z"
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.000014833333
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.000014
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.0000095
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z",
+					"mQueryTimeSumPerSec": 0.000007
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z"
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.000016833334
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.000007833333
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.000015333333
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.000023166667
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.000016833334
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.000014
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.000021
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.000015833333
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z"
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.0000215
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.000021666667
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.000009833334
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.0000066666666
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.000007833333
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.000019500001
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.000017166667
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.000023999999
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.000014666667
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.000015
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.000033166667
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.000033666667
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.0000138333335
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.000014333334
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.000047833335
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.000022166667
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.0000285
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.000034166667
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z",
+					"mQueryTimeSumPerSec": 0.0000165
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.0000275
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.000021833333
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.000021666667
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.000025166666
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.000017166667
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.000049833332
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.000014
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.000029666666
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.000014
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.0000138333335
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.000021666667
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.000007833333
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.000016333333
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.000015333333
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0000215
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0000145
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.000024166666
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.000014833333
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z"
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0000068333334
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.000014666666
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.000023833332
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.0000305
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.000014166666
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.000016833334
+				}
+			],
+			"fingerprint": "select @@port",
+			"numQueries": 830182,
+			"qps": 153.73741,
+			"load": 0.000014738889
+		},
+		{
+			"rank": 7,
+			"dimension": "B305F6354FA21F2A",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.0045034825,
+						"cnt": 13,
+						"sum": 14690,
+						"min": 113,
+						"max": 113,
+						"p99": 113,
+						"avg": 0.1841152,
+						"sumPerSec": 2.7203703
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.00027769865,
+						"cnt": 13,
+						"sum": 0.00464,
+						"min": 0.00003,
+						"max": 0.000045,
+						"p99": 0.00003569231,
+						"avg": 5.815484e-8,
+						"sumPerSec": 8.592593e-7
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"rate": 0.0068205665,
+						"cnt": 13,
+						"sum": 130,
+						"min": 1,
+						"max": 1,
+						"p99": 1,
+						"avg": 0.0016293381,
+						"sumPerSec": 0.024074074
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 13
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 13
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z"
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.0000050000003
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z"
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000051666666
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z"
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z"
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z"
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z"
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z"
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z"
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z"
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z"
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z"
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z"
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z"
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z"
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z"
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z"
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z"
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.0000073333335
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z"
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z"
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z"
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.000005833333
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z"
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.0000050000003
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z"
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z"
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z"
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z"
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z"
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z"
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z"
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z"
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z"
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0000055
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z"
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.000006
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z"
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z"
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z"
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.0000050000003
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z"
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z"
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000063333337
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z"
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z"
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.0000055
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z"
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z"
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z"
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z"
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z"
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z"
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0000068333334
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z"
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z"
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z"
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z"
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z"
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.0000063333337
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z"
+				}
+			],
+			"fingerprint": "select @@global.slow_query_log_file",
+			"numQueries": 79787,
+			"qps": 14.775371,
+			"load": 8.592593e-7
+		},
+		{
+			"rank": 8,
+			"dimension": "1D410B4BE5060972",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"rate": 0.0009105067,
+						"cnt": 27,
+						"sum": 2970,
+						"min": 11,
+						"max": 11,
+						"p99": 11,
+						"avg": 0.023010412,
+						"sumPerSec": 0.55
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.0001508191,
+						"cnt": 27,
+						"sum": 0.00252,
+						"min": 0.000004,
+						"max": 0.000034,
+						"p99": 0.000009333334,
+						"avg": 1.9523986e-8,
+						"sumPerSec": 4.6666668e-7
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 27
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 27
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z"
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z"
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z"
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z"
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z"
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z"
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z"
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z"
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z"
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z"
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z"
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 6.6666666e-7
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 8.3333333e-7
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z"
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.000002
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 6.6666666e-7
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z"
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z"
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z"
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z"
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z"
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.0000011666667
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.000001
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z"
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z"
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z"
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z"
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z"
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z"
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 8.3333333e-7
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z"
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 8.3333333e-7
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z"
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.000001
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z"
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z"
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.0000013333333
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z"
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z"
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.0000056666668
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z"
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z"
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z"
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.000001
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z"
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z"
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z"
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z"
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z"
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.0000011666667
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z"
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z"
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z"
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.000001
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z"
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z"
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z"
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z"
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z"
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z"
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.000005833333
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z"
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z"
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z"
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z"
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z"
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 8.3333333e-7
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z"
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z"
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 6.6666666e-7
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.0000033333333
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z"
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z"
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z"
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z"
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z"
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z"
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z"
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z"
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z"
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z"
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.000001
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0000013333333
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.0000014999999
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z"
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z"
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z"
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z"
+				}
+			],
+			"fingerprint": "ping",
+			"numQueries": 129072,
+			"qps": 23.902222,
+			"load": 4.6666668e-7
+		},
+		{
+			"rank": 9,
+			"dimension": "8ED794C0D5413D5A",
+			"metrics": {
+				"bytes_sent": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"docs_returned": {
+					"stats": {
+
+					}
+				},
+				"docs_scanned": {
+					"stats": {
+
+					}
+				},
+				"filesort": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"filesort_on_disk": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"full_join": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"full_scan": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"innodb_io_r_bytes": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_ops": {
+					"stats": {
+
+					}
+				},
+				"innodb_io_r_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_pages_distinct": {
+					"stats": {
+
+					}
+				},
+				"innodb_queue_wait": {
+					"stats": {
+
+					}
+				},
+				"innodb_rec_lock_wait": {
+					"stats": {
+
+					}
+				},
+				"lock_time": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"merge_passes": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"no_good_index_used": {
+					"stats": {
+
+					}
+				},
+				"no_index_used": {
+					"stats": {
+
+					}
+				},
+				"qc_hit": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"query_length": {
+					"stats": {
+
+					}
+				},
+				"query_time": {
+					"stats": {
+						"rate": 0.0018241928,
+						"cnt": 795,
+						"sum": 0.03048,
+						"min": 0.000002,
+						"max": 0.000046,
+						"p99": 0.000003833962,
+						"avg": 7.754226e-9,
+						"sumPerSec": 0.000005644444
+					}
+				},
+				"response_length": {
+					"stats": {
+
+					}
+				},
+				"rows_affected": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"rows_examined": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"rows_read": {
+					"stats": {
+
+					}
+				},
+				"rows_sent": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"select_full_range_join": {
+					"stats": {
+
+					}
+				},
+				"select_range": {
+					"stats": {
+
+					}
+				},
+				"select_range_check": {
+					"stats": {
+
+					}
+				},
+				"sort_range": {
+					"stats": {
+
+					}
+				},
+				"sort_rows": {
+					"stats": {
+
+					}
+				},
+				"sort_scan": {
+					"stats": {
+
+					}
+				},
+				"tmp_disk_tables": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"tmp_table": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"tmp_table_on_disk": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"tmp_table_sizes": {
+					"stats": {
+						"cnt": 795
+					}
+				},
+				"tmp_tables": {
+					"stats": {
+						"cnt": 795
+					}
+				}
+			},
+			"sparkline": [
+				{
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:30:00Z",
+					"mQueryTimeSumPerSec": 0.000002
+				},
+				{
+					"point": 1,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:29:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 2,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:28:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 3,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:27:00Z",
+					"mQueryTimeSumPerSec": 0.0000043333334
+				},
+				{
+					"point": 4,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:26:00Z",
+					"mQueryTimeSumPerSec": 0.000005
+				},
+				{
+					"point": 5,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000066666666
+				},
+				{
+					"point": 6,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:24:00Z",
+					"mQueryTimeSumPerSec": 0.0000038333333
+				},
+				{
+					"point": 7,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:23:00Z",
+					"mQueryTimeSumPerSec": 0.000007333333
+				},
+				{
+					"point": 8,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:22:00Z",
+					"mQueryTimeSumPerSec": 0.000004833333
+				},
+				{
+					"point": 9,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:21:00Z",
+					"mQueryTimeSumPerSec": 0.0000036666665
+				},
+				{
+					"point": 10,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:20:00Z",
+					"mQueryTimeSumPerSec": 0.0000043333334
+				},
+				{
+					"point": 11,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:19:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 12,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:18:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 13,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:17:00Z",
+					"mQueryTimeSumPerSec": 0.000005
+				},
+				{
+					"point": 14,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:16:00Z",
+					"mQueryTimeSumPerSec": 0.0000059999998
+				},
+				{
+					"point": 15,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:15:00Z",
+					"mQueryTimeSumPerSec": 0.0000059999998
+				},
+				{
+					"point": 16,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:14:00Z",
+					"mQueryTimeSumPerSec": 0.0000033333333
+				},
+				{
+					"point": 17,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:13:00Z",
+					"mQueryTimeSumPerSec": 0.000008833334
+				},
+				{
+					"point": 18,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:12:00Z",
+					"mQueryTimeSumPerSec": 0.000009
+				},
+				{
+					"point": 19,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:11:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 20,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:10:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 21,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:09:00Z",
+					"mQueryTimeSumPerSec": 0.0000043333334
+				},
+				{
+					"point": 22,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:08:00Z",
+					"mQueryTimeSumPerSec": 0.000005
+				},
+				{
+					"point": 23,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:07:00Z",
+					"mQueryTimeSumPerSec": 0.0000056666663
+				},
+				{
+					"point": 24,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:06:00Z",
+					"mQueryTimeSumPerSec": 0.000005
+				},
+				{
+					"point": 25,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:05:00Z",
+					"mQueryTimeSumPerSec": 0.0000023333332
+				},
+				{
+					"point": 26,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:04:00Z",
+					"mQueryTimeSumPerSec": 0.000006333333
+				},
+				{
+					"point": 27,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:03:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 28,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:02:00Z",
+					"mQueryTimeSumPerSec": 0.0000125
+				},
+				{
+					"point": 29,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:01:00Z",
+					"mQueryTimeSumPerSec": 0.0000023333332
+				},
+				{
+					"point": 30,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T01:00:00Z",
+					"mQueryTimeSumPerSec": 0.0000043333334
+				},
+				{
+					"point": 31,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:59:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 32,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:58:00Z",
+					"mQueryTimeSumPerSec": 0.0000056666663
+				},
+				{
+					"point": 33,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:57:00Z",
+					"mQueryTimeSumPerSec": 0.0000043333334
+				},
+				{
+					"point": 34,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:56:00Z",
+					"mQueryTimeSumPerSec": 0.000005833333
+				},
+				{
+					"point": 35,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:55:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 36,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:54:00Z",
+					"mQueryTimeSumPerSec": 0.0000014999999
+				},
+				{
+					"point": 37,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:53:00Z",
+					"mQueryTimeSumPerSec": 0.000011
+				},
+				{
+					"point": 38,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:52:00Z",
+					"mQueryTimeSumPerSec": 0.0000044999997
+				},
+				{
+					"point": 39,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:51:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 40,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:50:00Z",
+					"mQueryTimeSumPerSec": 0.000006333333
+				},
+				{
+					"point": 41,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:49:00Z",
+					"mQueryTimeSumPerSec": 0.0000034999998
+				},
+				{
+					"point": 42,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:48:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 43,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:47:00Z",
+					"mQueryTimeSumPerSec": 0.0000034999998
+				},
+				{
+					"point": 44,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:46:00Z",
+					"mQueryTimeSumPerSec": 0.000005833333
+				},
+				{
+					"point": 45,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:45:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 46,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:44:00Z",
+					"mQueryTimeSumPerSec": 0.0000038333333
+				},
+				{
+					"point": 47,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:43:00Z",
+					"mQueryTimeSumPerSec": 0.0000033333333
+				},
+				{
+					"point": 48,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:42:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 49,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:41:00Z",
+					"mQueryTimeSumPerSec": 0.0000046666664
+				},
+				{
+					"point": 50,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:40:00Z",
+					"mQueryTimeSumPerSec": 0.0000029999999
+				},
+				{
+					"point": 51,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:39:00Z",
+					"mQueryTimeSumPerSec": 0.0000061666665
+				},
+				{
+					"point": 52,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:38:00Z",
+					"mQueryTimeSumPerSec": 0.0000061666665
+				},
+				{
+					"point": 53,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:37:00Z",
+					"mQueryTimeSumPerSec": 0.0000053333333
+				},
+				{
+					"point": 54,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:36:00Z",
+					"mQueryTimeSumPerSec": 0.0000059999998
+				},
+				{
+					"point": 55,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:35:00Z",
+					"mQueryTimeSumPerSec": 0.0000023333332
+				},
+				{
+					"point": 56,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:34:00Z",
+					"mQueryTimeSumPerSec": 0.0000069999996
+				},
+				{
+					"point": 57,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:33:00Z",
+					"mQueryTimeSumPerSec": 0.000005
+				},
+				{
+					"point": 58,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:32:00Z",
+					"mQueryTimeSumPerSec": 0.000008333333
+				},
+				{
+					"point": 59,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:31:00Z",
+					"mQueryTimeSumPerSec": 0.0000061666665
+				},
+				{
+					"point": 60,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:30:00Z",
+					"mQueryTimeSumPerSec": 0.0000033333333
+				},
+				{
+					"point": 61,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:29:00Z",
+					"mQueryTimeSumPerSec": 0.0000066666666
+				},
+				{
+					"point": 62,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:28:00Z",
+					"mQueryTimeSumPerSec": 0.0000071666664
+				},
+				{
+					"point": 63,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:27:00Z",
+					"mQueryTimeSumPerSec": 0.0000041666667
+				},
+				{
+					"point": 64,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:26:00Z",
+					"mQueryTimeSumPerSec": 0.0000038333333
+				},
+				{
+					"point": 65,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:25:00Z",
+					"mQueryTimeSumPerSec": 0.0000075
+				},
+				{
+					"point": 66,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:24:00Z",
+					"mQueryTimeSumPerSec": 0.0000056666663
+				},
+				{
+					"point": 67,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:23:00Z",
+					"mQueryTimeSumPerSec": 0.0000061666665
+				},
+				{
+					"point": 68,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:22:00Z",
+					"mQueryTimeSumPerSec": 0.0000029999999
+				},
+				{
+					"point": 69,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:21:00Z",
+					"mQueryTimeSumPerSec": 0.0000026666667
+				},
+				{
+					"point": 70,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:20:00Z",
+					"mQueryTimeSumPerSec": 0.0000038333333
+				},
+				{
+					"point": 71,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:19:00Z",
+					"mQueryTimeSumPerSec": 0.0000029999999
+				},
+				{
+					"point": 72,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:18:00Z",
+					"mQueryTimeSumPerSec": 0.0000053333333
+				},
+				{
+					"point": 73,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:17:00Z",
+					"mQueryTimeSumPerSec": 0.0000069999996
+				},
+				{
+					"point": 74,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:16:00Z",
+					"mQueryTimeSumPerSec": 0.000009
+				},
+				{
+					"point": 75,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:15:00Z",
+					"mQueryTimeSumPerSec": 0.000004833333
+				},
+				{
+					"point": 76,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:14:00Z",
+					"mQueryTimeSumPerSec": 0.0000051666666
+				},
+				{
+					"point": 77,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:13:00Z",
+					"mQueryTimeSumPerSec": 0.000004833333
+				},
+				{
+					"point": 78,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:12:00Z",
+					"mQueryTimeSumPerSec": 0.0000046666664
+				},
+				{
+					"point": 79,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:11:00Z",
+					"mQueryTimeSumPerSec": 0.0000059999998
+				},
+				{
+					"point": 80,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:10:00Z",
+					"mQueryTimeSumPerSec": 0.000006333333
+				},
+				{
+					"point": 81,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:09:00Z",
+					"mQueryTimeSumPerSec": 0.0000066666666
+				},
+				{
+					"point": 82,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:08:00Z",
+					"mQueryTimeSumPerSec": 0.000008999999
+				},
+				{
+					"point": 83,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:07:00Z",
+					"mQueryTimeSumPerSec": 0.0000061666665
+				},
+				{
+					"point": 84,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:06:00Z",
+					"mQueryTimeSumPerSec": 0.0000076666665
+				},
+				{
+					"point": 85,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:05:00Z",
+					"mQueryTimeSumPerSec": 0.0000068333334
+				},
+				{
+					"point": 86,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:04:00Z",
+					"mQueryTimeSumPerSec": 0.0000065
+				},
+				{
+					"point": 87,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:03:00Z",
+					"mQueryTimeSumPerSec": 0.0000055
+				},
+				{
+					"point": 88,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:02:00Z",
+					"mQueryTimeSumPerSec": 0.0000053333333
+				},
+				{
+					"point": 89,
+					"timeFrame": 60,
+					"timestamp": "2019-01-01T00:01:00Z",
+					"mQueryTimeSumPerSec": 0.000008333333
+				}
+			],
+			"fingerprint": "quit",
+			"numQueries": 3930760,
+			"qps": 727.9185,
+			"load": 0.000005644444
+		}
+	]
+}

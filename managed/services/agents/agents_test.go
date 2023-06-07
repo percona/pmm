@@ -25,6 +25,7 @@ import (
 )
 
 func requireNoDuplicateFlags(t *testing.T, flags []string) {
+	t.Helper()
 	s := make(map[string]struct{})
 	for _, f := range flags {
 		name := strings.Split(f, "=")[0]

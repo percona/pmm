@@ -174,10 +174,10 @@ func TestUpdate(t *testing.T) {
 		})
 		if err != nil {
 			// check that we know and understand all possible errors
-			switch err := err.(type) {
+			switch err := err.(type) { //nolint:errorlint
 			case *url.Error:
 				// *net.OpError, http.nothingWrittenError, or just io.EOF
-			case *pmmapitests.ErrFromNginx:
+			case *pmmapitests.NginxError:
 				// nothing
 			case *server.UpdateStatusDefault:
 				assert.Equal(t, 503, err.Code(), "%[1]T %[1]s", err)

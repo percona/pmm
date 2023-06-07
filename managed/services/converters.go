@@ -312,6 +312,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:          labels,
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
+			MaxQueryLength:        agent.MaxQueryLength,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			ProcessExecPath:       processExecPath,
 			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
@@ -345,6 +346,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:    labels,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
+			MaxQueryLength:  agent.MaxQueryLength,
 			ProcessExecPath: processExecPath,
 			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
@@ -377,6 +379,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:        agent.Disabled,
 			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels:    labels,
+			MaxQueryLength:  agent.MaxQueryLength,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
 			ProcessExecPath: processExecPath,
@@ -392,6 +395,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:              agent.Disabled,
 			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels:          labels,
+			MaxQueryLength:        agent.MaxQueryLength,
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
@@ -466,10 +470,54 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	}
 }
 
-func SpecifyLogLevel(variant inventorypb.LogLevel) string {
+// SpecifyLogLevel - convert proto enum to string
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""
 	}
 
+	// downgrade instead of return API error
+	if variant < minLogLevel {
+		return minLogLevel.String()
+	}
+
 	return variant.String()
+}
+
+// nodeTypes maps protobuf types to their string types.
+var nodeTypes = map[inventorypb.NodeType]models.NodeType{
+	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+}
+
+// ProtoToModelNodeType converts a NodeType from protobuf to model.
+func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+		return nil
+	}
+	result := nodeTypes[nodeType]
+	return &result
+}
+
+// ServiceTypes maps protobuf types to their string types.
+var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
+	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
+}
+
+// ProtoToModelServiceType converts a ServiceType from protobuf to model.
+func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		return nil
+	}
+	result := ServiceTypes[serviceType]
+	return &result
 }

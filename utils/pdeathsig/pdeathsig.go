@@ -16,6 +16,7 @@
 //go:build !linux
 // +build !linux
 
+// Package pdeathsig contains function for setting deaths singal.
 package pdeathsig
 
 import (

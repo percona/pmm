@@ -52,10 +52,12 @@ func NewListKubernetesClustersParamsWithHTTPClient(client *http.Client) *ListKub
 	}
 }
 
-/* ListKubernetesClustersParams contains all the parameters to send to the API endpoint
-   for the list kubernetes clusters operation.
+/*
+ListKubernetesClustersParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list kubernetes clusters operation.
+
+	Typically these are written to a http.Request.
 */
 type ListKubernetesClustersParams struct {
 	// Body.

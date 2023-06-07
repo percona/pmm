@@ -36,6 +36,7 @@ const (
 )
 
 // Channel represents Integrated Alerting Notification Channel configuration.
+//
 //reform:ia_channels
 type Channel struct {
 	ID      string      `reform:"id,pk"`

@@ -52,10 +52,12 @@ func NewGetHistogramParamsWithHTTPClient(client *http.Client) *GetHistogramParam
 	}
 }
 
-/* GetHistogramParams contains all the parameters to send to the API endpoint
-   for the get histogram operation.
+/*
+GetHistogramParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get histogram operation.
+
+	Typically these are written to a http.Request.
 */
 type GetHistogramParams struct {
 	/* Body.

@@ -47,15 +47,21 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+// configGetter allows for getting a config.
+type configGetter interface {
+	Get() *config.Config
+}
+
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
-	ctx           context.Context
-	paths         *config.Paths
-	serverCfg     *config.Server
-	portsRegistry *portsRegistry
-	changes       chan *agentpb.StateChangedRequest
-	qanRequests   chan *agentpb.QANCollectRequest
-	l             *logrus.Entry
+	// TODO: refactor to move context outside of struct
+	ctx            context.Context //nolint:containedctx
+	agentVersioner agentVersioner
+	cfg            configGetter
+	portsRegistry  *portsRegistry
+	changes        chan *agentpb.StateChangedRequest
+	qanRequests    chan *agentpb.QANCollectRequest
+	l              *logrus.Entry
 
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
@@ -63,8 +69,6 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
-
-	logLinesCount uint
 }
 
 // agentProcessInfo describes Agent process.
@@ -92,29 +96,26 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount uint) *Supervisor {
-	supervisor := &Supervisor{
-		ctx:           ctx,
-		paths:         paths,
-		serverCfg:     server,
-		portsRegistry: newPortsRegistry(ports.Min, ports.Max, nil),
-		changes:       make(chan *agentpb.StateChangedRequest, 10),
-		qanRequests:   make(chan *agentpb.QANCollectRequest, 10),
-		l:             logrus.WithField("component", "supervisor"),
+func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
+	return &Supervisor{
+		ctx:            ctx,
+		agentVersioner: av,
+		cfg:            cfg,
+		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
+		changes:        make(chan *agentpb.StateChangedRequest, 100),
+		qanRequests:    make(chan *agentpb.QANCollectRequest, 100),
+		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
-
-		logLinesCount: logLinesCount,
 	}
+}
 
-	go func() {
-		<-ctx.Done()
-		supervisor.stopAll()
-	}()
-
-	return supervisor
+// Run waits for context and stop all agents when it's done
+func (s *Supervisor) Run(ctx context.Context) {
+	<-ctx.Done()
+	s.stopAll() //nolint:contextcheck
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
@@ -187,6 +188,20 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
+// ClearChangesChannel drains state change channel
+func (s *Supervisor) ClearChangesChannel() {
+	for {
+		select {
+		case _, ok := <-s.changes:
+			if !ok {
+				return
+			}
+		default:
+			return
+		}
+	}
+}
+
 // Changes returns channel with Agent's state changes.
 func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return s.changes
@@ -211,6 +226,30 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 
 	s.setAgentProcesses(state.AgentProcesses)
 	s.setBuiltinAgents(state.BuiltinAgents)
+}
+
+// RestartAgents restarts all existing agents.
+func (s *Supervisor) RestartAgents() {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	for id, agent := range s.agentProcesses {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+		}
+	}
+
+	for id, agent := range s.builtinAgents {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startBuiltin(id, agent.requestedState); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+		}
+	}
 }
 
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
@@ -258,7 +297,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 
 		delete(s.agentProcesses, agentID)
 
-		agentTmp := filepath.Join(s.paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -345,16 +384,20 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 
 // filter extracts IDs of the Agents that should be started, restarted with new parameters, or stopped,
 // and filters out IDs of the Agents that should not be changed.
-func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
+func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []string) {
+	toStart := make([]string, 0, len(ap))
+	toRestart := make([]string, 0, len(ap))
+	toStop := make([]string, 0, len(existing))
+
 	// existing agents not present in the new requested state should be stopped
 	for existingID := range existing {
-		if new[existingID] == nil {
+		if ap[existingID] == nil {
 			toStop = append(toStop, existingID)
 		}
 	}
 
 	// detect new and changed agents
-	for newID, newParams := range new {
+	for newID, newParams := range ap {
 		existingParams := existing[newID]
 		if existingParams == nil {
 			toStart = append(toStart, newID)
@@ -372,10 +415,11 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 	sort.Strings(toStop)
 	sort.Strings(toRestart)
 	sort.Strings(toStart)
-	return
+
+	return toStart, toRestart, toStop
 }
 
-//nolint:golint
+//nolint:golint,stylecheck
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
@@ -391,7 +435,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	logStore := tailog.NewStore(s.logLinesCount)
+	logStore := tailog.NewStore(s.cfg.Get().LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
@@ -401,6 +445,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	process := process.New(processParams, agentProcess.RedactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
+
+	version, err := s.version(agentProcess.Type, processParams.Path)
+	if err != nil {
+		l.Warnf("Cannot parse version for type %s", agentType)
+	}
 
 	done := make(chan struct{})
 	go func() {
@@ -412,11 +461,13 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 				Status:          status,
 				ListenPort:      uint32(port),
 				ProcessExecPath: processParams.Path,
+				Version:         version,
 			}
 		}
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
 		cancel:          cancel,
 		done:            done,
@@ -431,9 +482,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 // startBuiltin starts built-in Agent.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
+	cfg := s.cfg.Get()
+
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	logStore := tailog.NewStore(s.logLinesCount)
+	logStore := tailog.NewStore(cfg.LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
@@ -446,7 +499,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	var dsn string
 	if builtinAgent.TextFiles != nil {
-		tempDir := filepath.Join(s.paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
+		tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
 		dsn, err = templates.RenderDSN(builtinAgent.Dsn, builtinAgent.TextFiles, tempDir)
 		if err != nil {
 			cancel()
@@ -461,6 +514,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &perfschema.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
@@ -469,8 +523,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
-			DSN:     dsn,
-			AgentID: agentID,
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
 		agent, err = mongodb.New(params, l)
 
@@ -478,19 +533,22 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &slowlog.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
-			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
+			SlowLogFilePrefix:    cfg.Paths.SlowLogFilePrefix,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			TLS:                  false,
 		}
 		agent, err = slowlog.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:       dsn,
-			AgentID:   agentID,
-			TextFiles: builtinAgent.GetTextFiles(),
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+			TextFiles:      builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
@@ -498,6 +556,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatmonitor.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
@@ -537,6 +596,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.builtinAgents[agentID] = &builtinAgentInfo{
 		cancel:         cancel,
 		done:           done,
@@ -565,40 +625,41 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	var processParams process.Params
 	processParams.Type = agentProcess.Type
 
+	cfg := s.cfg.Get()
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}
 	switch agentProcess.Type {
 	case inventorypb.AgentType_NODE_EXPORTER:
-		templateParams["paths_base"] = s.paths.PathsBase
-		processParams.Path = s.paths.NodeExporter
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.NodeExporter
 	case inventorypb.AgentType_MYSQLD_EXPORTER:
-		templateParams["paths_base"] = s.paths.PathsBase
-		processParams.Path = s.paths.MySQLdExporter
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.MySQLdExporter
 	case inventorypb.AgentType_MONGODB_EXPORTER:
-		processParams.Path = s.paths.MongoDBExporter
+		processParams.Path = cfg.Paths.MongoDBExporter
 	case inventorypb.AgentType_POSTGRES_EXPORTER:
-		templateParams["paths_base"] = s.paths.PathsBase
-		processParams.Path = s.paths.PostgresExporter
+		templateParams["paths_base"] = cfg.Paths.PathsBase
+		processParams.Path = cfg.Paths.PostgresExporter
 	case inventorypb.AgentType_PROXYSQL_EXPORTER:
-		processParams.Path = s.paths.ProxySQLExporter
+		processParams.Path = cfg.Paths.ProxySQLExporter
 	case inventorypb.AgentType_RDS_EXPORTER:
-		processParams.Path = s.paths.RDSExporter
+		processParams.Path = cfg.Paths.RDSExporter
 	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
-		processParams.Path = s.paths.AzureExporter
+		processParams.Path = cfg.Paths.AzureExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	case inventorypb.AgentType_VM_AGENT:
 		// add template params for vmagent.
-		templateParams["server_insecure"] = s.serverCfg.InsecureTLS
-		templateParams["server_url"] = fmt.Sprintf("https://%s", s.serverCfg.Address)
-		if s.serverCfg.WithoutTLS {
-			templateParams["server_url"] = fmt.Sprintf("http://%s", s.serverCfg.Address)
+		templateParams["server_insecure"] = cfg.Server.InsecureTLS
+		templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
+		if cfg.Server.WithoutTLS {
+			templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
 		}
-		templateParams["server_password"] = s.serverCfg.Password
-		templateParams["server_username"] = s.serverCfg.Username
-		templateParams["tmp_dir"] = s.paths.TempDir
-		processParams.Path = s.paths.VMAgent
+		templateParams["server_password"] = cfg.Server.Password
+		templateParams["server_username"] = cfg.Server.Username
+		templateParams["tmp_dir"] = cfg.Paths.TempDir
+		processParams.Path = cfg.Paths.VMAgent
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
 	}
@@ -611,7 +672,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		TextFiles:          agentProcess.TextFiles,
 		TemplateLeftDelim:  agentProcess.TemplateLeftDelim,
 		TemplateRightDelim: agentProcess.TemplateRightDelim,
-		TempDir:            filepath.Join(s.paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
+		TempDir:            filepath.Join(cfg.Paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
 	}
 
 	processParams.TemplateRenderer = tr
@@ -641,6 +702,27 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	}
 
 	return &processParams, nil
+}
+
+func (s *Supervisor) version(agentType inventorypb.AgentType, path string) (string, error) {
+	switch agentType {
+	case inventorypb.AgentType_NODE_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, nodeExporterRegexp, "--version")
+	case inventorypb.AgentType_MYSQLD_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, mysqldExporterRegexp, "--version")
+	case inventorypb.AgentType_MONGODB_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, mongodbExporterRegexp, "--version")
+	case inventorypb.AgentType_POSTGRES_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, postgresExporterRegexp, "--version")
+	case inventorypb.AgentType_PROXYSQL_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, proxysqlExporterRegexp, "--version")
+	case inventorypb.AgentType_RDS_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
+	case inventorypb.AgentType_AZURE_DATABASE_EXPORTER:
+		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
+	default:
+		return "", nil
+	}
 }
 
 // stopAll stops all agents.

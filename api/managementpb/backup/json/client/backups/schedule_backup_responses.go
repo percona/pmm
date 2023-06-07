@@ -50,7 +50,8 @@ func NewScheduleBackupOK() *ScheduleBackupOK {
 	return &ScheduleBackupOK{}
 }
 
-/* ScheduleBackupOK describes a response with status code 200, with default header values.
+/*
+ScheduleBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewScheduleBackupDefault(code int) *ScheduleBackupDefault {
 	}
 }
 
-/* ScheduleBackupDefault describes a response with status code -1, with default header values.
+/*
+ScheduleBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ScheduleBackupBody schedule backup body
+/*
+ScheduleBackupBody schedule backup body
 swagger:model ScheduleBackupBody
 */
 type ScheduleBackupBody struct {
@@ -156,6 +159,13 @@ type ScheduleBackupBody struct {
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
+
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
+
+	// Folder on storage for artifact.
+	Folder string `json:"folder,omitempty"`
 }
 
 // Validate validates this schedule backup body
@@ -167,6 +177,10 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDataModel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -236,6 +250,51 @@ func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
 	return nil
 }
 
+var scheduleBackupBodyTypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeDataModelPropEnum = append(scheduleBackupBodyTypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyDataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ScheduleBackupBodyDataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// ScheduleBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
+	ScheduleBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+
+	// ScheduleBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
+	ScheduleBackupBodyDataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateDataModel(formats strfmt.Registry) error {
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this schedule backup body based on context it is used
 func (o *ScheduleBackupBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -259,7 +318,8 @@ func (o *ScheduleBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ScheduleBackupDefaultBody schedule backup default body
+/*
+ScheduleBackupDefaultBody schedule backup default body
 swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
@@ -362,7 +422,8 @@ func (o *ScheduleBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
+/*
+ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
 swagger:model ScheduleBackupDefaultBodyDetailsItems0
 */
 type ScheduleBackupDefaultBodyDetailsItems0 struct {
@@ -398,7 +459,8 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ScheduleBackupOKBody schedule backup OK body
+/*
+ScheduleBackupOKBody schedule backup OK body
 swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {

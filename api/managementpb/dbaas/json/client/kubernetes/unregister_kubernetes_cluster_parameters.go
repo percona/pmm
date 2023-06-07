@@ -52,10 +52,12 @@ func NewUnregisterKubernetesClusterParamsWithHTTPClient(client *http.Client) *Un
 	}
 }
 
-/* UnregisterKubernetesClusterParams contains all the parameters to send to the API endpoint
-   for the unregister kubernetes cluster operation.
+/*
+UnregisterKubernetesClusterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the unregister kubernetes cluster operation.
+
+	Typically these are written to a http.Request.
 */
 type UnregisterKubernetesClusterParams struct {
 	// Body.

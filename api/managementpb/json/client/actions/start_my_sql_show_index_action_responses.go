@@ -48,7 +48,8 @@ func NewStartMySQLShowIndexActionOK() *StartMySQLShowIndexActionOK {
 	return &StartMySQLShowIndexActionOK{}
 }
 
-/* StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
+/*
+StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartMySQLShowIndexActionDefault(code int) *StartMySQLShowIndexActionDef
 	}
 }
 
-/* StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
+/*
+StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartMySQLShowIndexActionDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*StartMySQLShowIndexActionBody start my SQL show index action body
+/*
+StartMySQLShowIndexActionBody start my SQL show index action body
 swagger:model StartMySQLShowIndexActionBody
 */
 type StartMySQLShowIndexActionBody struct {
@@ -161,7 +164,8 @@ func (o *StartMySQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLShowIndexActionDefaultBody start my SQL show index action default body
+/*
+StartMySQLShowIndexActionDefaultBody start my SQL show index action default body
 swagger:model StartMySQLShowIndexActionDefaultBody
 */
 type StartMySQLShowIndexActionDefaultBody struct {
@@ -264,7 +268,8 @@ func (o *StartMySQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action default body details items0
+/*
+StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action default body details items0
 swagger:model StartMySQLShowIndexActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowIndexActionDefaultBodyDetailsItems0 struct {
@@ -300,7 +305,8 @@ func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*StartMySQLShowIndexActionOKBody start my SQL show index action OK body
+/*
+StartMySQLShowIndexActionOKBody start my SQL show index action OK body
 swagger:model StartMySQLShowIndexActionOKBody
 */
 type StartMySQLShowIndexActionOKBody struct {

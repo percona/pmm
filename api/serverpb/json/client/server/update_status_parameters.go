@@ -52,10 +52,12 @@ func NewUpdateStatusParamsWithHTTPClient(client *http.Client) *UpdateStatusParam
 	}
 }
 
-/* UpdateStatusParams contains all the parameters to send to the API endpoint
-   for the update status operation.
+/*
+UpdateStatusParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the update status operation.
+
+	Typically these are written to a http.Request.
 */
 type UpdateStatusParams struct {
 	// Body.

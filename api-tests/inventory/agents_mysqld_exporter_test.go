@@ -29,6 +29,7 @@ import (
 )
 
 func TestMySQLdExporter(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -214,7 +215,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLdExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -245,7 +246,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLdExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MysqldExporter.AgentID)
 		}

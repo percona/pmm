@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package server contains PMM server API tests.
 package server
 
 import (
@@ -36,6 +37,7 @@ func restoreSettingsDefaults(t *testing.T) {
 		Body: server.ChangeSettingsBody{
 			EnableStt:       true,
 			EnableTelemetry: true,
+			EnableAlerting:  true,
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",

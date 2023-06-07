@@ -52,10 +52,12 @@ func NewGetMetricsNamesParamsWithHTTPClient(client *http.Client) *GetMetricsName
 	}
 }
 
-/* GetMetricsNamesParams contains all the parameters to send to the API endpoint
-   for the get metrics names operation.
+/*
+GetMetricsNamesParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get metrics names operation.
+
+	Typically these are written to a http.Request.
 */
 type GetMetricsNamesParams struct {
 	/* Body.

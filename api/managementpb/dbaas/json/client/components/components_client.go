@@ -44,7 +44,7 @@ type ClientService interface {
 }
 
 /*
-  ChangePSMDBComponents changes PSMDB components manages PSMDB related components
+ChangePSMDBComponents changes PSMDB components manages PSMDB related components
 */
 func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams, opts ...ClientOption) (*ChangePSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
@@ -81,7 +81,7 @@ func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams, opts
 }
 
 /*
-  ChangePXCComponents changes PXC components manages PXC related components
+ChangePXCComponents changes PXC components manages PXC related components
 */
 func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams, opts ...ClientOption) (*ChangePXCComponentsOK, error) {
 	// TODO: Validate the params before sending
@@ -118,7 +118,7 @@ func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams, opts ...
 }
 
 /*
-  CheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
+CheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
 */
 func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, opts ...ClientOption) (*CheckForOperatorUpdateOK, error) {
 	// TODO: Validate the params before sending
@@ -155,7 +155,7 @@ func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, op
 }
 
 /*
-  GetPSMDBComponents gets PSMDB components returns list of available components for PSMDB clusters
+GetPSMDBComponents gets PSMDB components returns list of available components for PSMDB clusters
 */
 func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams, opts ...ClientOption) (*GetPSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
@@ -192,7 +192,7 @@ func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams, opts ...Cl
 }
 
 /*
-  GetPXCComponents gets PXC components returns list of available components for PXC clusters
+GetPXCComponents gets PXC components returns list of available components for PXC clusters
 */
 func (a *Client) GetPXCComponents(params *GetPXCComponentsParams, opts ...ClientOption) (*GetPXCComponentsOK, error) {
 	// TODO: Validate the params before sending
@@ -229,7 +229,7 @@ func (a *Client) GetPXCComponents(params *GetPXCComponentsParams, opts ...Client
 }
 
 /*
-  InstallOperator installs operator installs given operator in given version
+InstallOperator installs operator installs given operator in given version
 */
 func (a *Client) InstallOperator(params *InstallOperatorParams, opts ...ClientOption) (*InstallOperatorOK, error) {
 	// TODO: Validate the params before sending

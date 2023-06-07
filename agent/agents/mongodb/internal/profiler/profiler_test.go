@@ -35,6 +35,7 @@ import (
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -105,7 +106,7 @@ func testProfiler(t *testing.T, url string) {
 		t:       t,
 		reports: []*report.Report{},
 	}
-	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id")
+	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetDefaultMaxQueryLength())
 	err = prof.Start()
 	defer prof.Stop()
 	require.NoError(t, err)

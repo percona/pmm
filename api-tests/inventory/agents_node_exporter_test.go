@@ -28,6 +28,7 @@ import (
 )
 
 func TestNodeExporter(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -121,7 +122,7 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{PMMAgentID: ""},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddNodeExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.NodeExporter.AgentID)
 		}

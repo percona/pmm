@@ -88,6 +88,23 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 	return res, nil
 }
 
+// ListActiveServiceTypes returns list of active Services.
+func (s *servicesServer) ListActiveServiceTypes(
+	ctx context.Context,
+	req *inventorypb.ListActiveServiceTypesRequest,
+) (*inventorypb.ListActiveServiceTypesResponse, error) {
+	types, err := s.s.ListActiveServiceTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ListActiveServiceTypesResponse{
+		ServiceTypes: types,
+	}
+
+	return res, nil
+}
+
 // GetService returns a single Service by ID.
 func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetServiceRequest) (*inventorypb.GetServiceResponse, error) {
 	service, err := s.s.Get(ctx, req.ServiceId)
@@ -250,4 +267,14 @@ func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.Rem
 	}
 
 	return &inventorypb.RemoveServiceResponse{}, nil
+}
+
+// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
+func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
+	return s.s.AddCustomLabels(ctx, req)
+}
+
+// RemoveCustomLabels removes custom labels from a service.
+func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
+	return s.s.RemoveCustomLabels(ctx, req)
 }

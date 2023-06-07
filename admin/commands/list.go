@@ -25,6 +25,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/json/client"
@@ -61,9 +63,9 @@ func (a listResultAgent) HumanReadableAgentType() string {
 func (a listResultAgent) NiceAgentStatus() string {
 	res := a.Status
 	if res == "" {
-		res = "unknown"
+		res = "unknown" //nolint:goconst
 	}
-	res = strings.Title(strings.ToLower(res))
+	res = cases.Title(language.English).String(strings.ToLower(res))
 	if a.Disabled {
 		res += " (disabled)"
 	}
@@ -121,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) {
+func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -140,20 +142,22 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	getAddressPort := func(socket, address string, port int64) string {
+	getSocketOrHost := func(socket, address string, port int64) string {
 		if socket != "" {
 			return socket
 		}
 		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
 	}
 
-	var servicesList []listResultService
+	l := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql)
+	l += len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
+	servicesList := make([]listResultService, 0, l)
 	for _, s := range servicesRes.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Mongodb {
@@ -161,7 +165,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 			ServiceType: types.ServiceTypeMongoDBService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Postgresql {
@@ -169,7 +173,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 			ServiceType: types.ServiceTypePostgreSQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Proxysql {
@@ -177,7 +181,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 			ServiceType: types.ServiceTypeProxySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Haproxy {

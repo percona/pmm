@@ -136,6 +136,16 @@
                         ],
                         "x-order": 7
                       },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
                       "location_id": {
                         "description": "Machine-readable location ID.",
                         "type": "string",
@@ -145,6 +155,54 @@
                         "description": "Location name.",
                         "type": "string",
                         "x-order": 4
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 13
                       },
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
@@ -185,7 +243,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },
@@ -193,6 +252,94 @@
                         "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
                         "type": "string",
                         "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Artifacts/ListPITRTimeranges": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimeranges",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timeranges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 1
+                      },
+                      "start_timestamp": {
+                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
                       }
                     }
                   },
@@ -346,7 +493,7 @@
         "tags": [
           "Backups"
         ],
-        "summary": "GetLogs returns logs for provided artifact.",
+        "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogs",
         "parameters": [
           {
@@ -369,6 +516,10 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
+                },
+                "restore_id": {
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -690,6 +841,11 @@
                         "type": "boolean",
                         "x-order": 11
                       },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 18
+                      },
                       "last_run": {
                         "description": "Last run.",
                         "type": "string",
@@ -898,6 +1054,12 @@
                   "type": "string",
                   "x-order": 1
                 },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
+                },
                 "service_id": {
                   "description": "Service identifier where backup should be restored.",
                   "type": "string",
@@ -975,6 +1137,17 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
+                  "type": "string",
+                  "default": "DATA_MODEL_INVALID",
+                  "enum": [
+                    "DATA_MODEL_INVALID",
+                    "PHYSICAL",
+                    "LOGICAL"
+                  ],
+                  "x-order": 11
+                },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
@@ -984,6 +1157,11 @@
                   "description": "If scheduling is enabled.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 12
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -1102,10 +1280,26 @@
             "schema": {
               "type": "object",
               "properties": {
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
+                  "type": "string",
+                  "default": "DATA_MODEL_INVALID",
+                  "enum": [
+                    "DATA_MODEL_INVALID",
+                    "PHYSICAL",
+                    "LOGICAL"
+                  ],
+                  "x-order": 6
+                },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
                   "x-order": 3
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "location_id": {
                   "description": "Machine-readable location ID.",
@@ -1204,13 +1398,8 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 0
-                },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -1220,16 +1409,10 @@
                   },
                   "x-order": 2
                 },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 3
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 0
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1252,7 +1435,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -1325,18 +1508,8 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "location_id": {
-                  "description": "Machine-readable ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "type": "string",
-                  "title": "Location name",
-                  "x-order": 1
-                },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -1346,16 +1519,15 @@
                   },
                   "x-order": 3
                 },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 4
+                "location_id": {
+                  "description": "Machine-readable ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "type": "string",
+                  "title": "Location name",
+                  "x-order": 1
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1378,7 +1550,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1459,18 +1631,8 @@
                         "title": "Short description",
                         "x-order": 2
                       },
-                      "location_id": {
-                        "description": "Machine-readable ID.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "name": {
-                        "type": "string",
-                        "title": "Location name",
-                        "x-order": 1
-                      },
-                      "pmm_client_config": {
-                        "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
                         "type": "object",
                         "properties": {
                           "path": {
@@ -1480,16 +1642,15 @@
                         },
                         "x-order": 3
                       },
-                      "pmm_server_config": {
-                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 4
+                      "location_id": {
+                        "description": "Machine-readable ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "type": "string",
+                        "title": "Location name",
+                        "x-order": 1
                       },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1512,7 +1673,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 5
+                        "x-order": 4
                       }
                     }
                   },
@@ -1640,8 +1801,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -1650,17 +1811,6 @@
                     }
                   },
                   "x-order": 0
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -1683,7 +1833,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1795,6 +1945,12 @@
                         "description": "Artifact name used for restore.",
                         "type": "string",
                         "x-order": 2
+                      },
+                      "pitr_timestamp": {
+                        "description": "PITR timestamp is filled for PITR restores, empty otherwise.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
                       },
                       "restore_id": {
                         "description": "Machine-readable restore id.",

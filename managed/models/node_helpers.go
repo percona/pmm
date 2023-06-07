@@ -33,14 +33,15 @@ func checkUniqueNodeID(q *reform.Querier, id string) error {
 	}
 
 	node := &Node{NodeID: id}
-	switch err := q.Reload(node); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(node)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
 }
 
 func checkUniqueNodeName(q *reform.Querier, name string) error {
@@ -49,24 +50,24 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 	}
 
 	_, err := q.FindOneFrom(NodeTable, "node_name", name)
-	switch err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
 }
 
 // CheckUniqueNodeInstanceRegion checks for uniqueness of instance address and region.
-// This function not only return an error in case of finding an existing node with those paramenters but
+// This function not only returns an error in case of finding an existing node with those paramenters but
 // also returns the Node itself if there is any, because if we are recreating the instance (--force in pmm-admin)
 // we need to know the Node.ID to remove it and its dependencies.
-// This check only applies is region is not empty.
+// This check only applies if region is not empty.
 func CheckUniqueNodeInstanceRegion(q *reform.Querier, instance string, region *string) (*Node, error) {
 	if pointer.GetString(region) == "" {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	if instance == "" {
@@ -75,14 +76,14 @@ func CheckUniqueNodeInstanceRegion(q *reform.Querier, instance string, region *s
 
 	var node Node
 	err := q.SelectOneTo(&node, "WHERE address = $1 AND region = $2 LIMIT 1", instance, region)
-	switch err {
-	case nil:
-		return &node, status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, *region)
-	case reform.ErrNoRows:
-		return nil, nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil //nolint:nilnil
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &node, status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, *region)
 }
 
 // NodeFilters represents filters for nodes list.
@@ -106,7 +107,7 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 
 	nodes := make([]*Node, len(structs))
 	for i, s := range structs {
-		nodes[i] = s.(*Node)
+		nodes[i] = s.(*Node) //nolint:forcetypeassert
 	}
 
 	return nodes, nil
@@ -119,14 +120,14 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	}
 
 	node := &Node{NodeID: id}
-	switch err := q.Reload(node); err {
-	case nil:
-		return node, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
-	default:
+	err := q.Reload(node)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+	return node, nil
 }
 
 // FindNodesByIDs finds Nodes by IDs.
@@ -136,7 +137,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id
@@ -148,7 +149,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 
 	res := make([]*Node, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Node)
+		res[i] = s.(*Node) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -160,14 +161,15 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 	}
 
 	var node Node
-	switch err := q.FindOneTo(&node, "node_name", name); err {
-	case nil:
-		return &node, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
-	default:
+	err := q.FindOneTo(&node, "node_name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return &node, nil
 }
 
 // CreateNodeParams contains parameters for creating Nodes.
@@ -262,7 +264,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
+				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
@@ -283,7 +285,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has pmm-agent.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*Agent).AgentID
+				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
@@ -304,7 +306,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has services.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				serviceID := str.(*Service).ServiceID
+				serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
 				if err = RemoveService(q, serviceID, RemoveCascade); err != nil {
 					return err
 				}

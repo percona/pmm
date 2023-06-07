@@ -48,7 +48,8 @@ func NewUpdatePXCClusterOK() *UpdatePXCClusterOK {
 	return &UpdatePXCClusterOK{}
 }
 
-/* UpdatePXCClusterOK describes a response with status code 200, with default header values.
+/*
+UpdatePXCClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewUpdatePXCClusterDefault(code int) *UpdatePXCClusterDefault {
 	}
 }
 
-/* UpdatePXCClusterDefault describes a response with status code -1, with default header values.
+/*
+UpdatePXCClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *UpdatePXCClusterDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*UpdatePXCClusterBody update PXC cluster body
+/*
+UpdatePXCClusterBody update PXC cluster body
 swagger:model UpdatePXCClusterBody
 */
 type UpdatePXCClusterBody struct {
@@ -124,8 +127,20 @@ type UpdatePXCClusterBody struct {
 	// PXC cluster name.
 	Name string `json:"name,omitempty"`
 
+	// Make DB cluster accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *UpdatePXCClusterParamsBodyParams `json:"params,omitempty"`
+
+	// template
+	Template *UpdatePXCClusterParamsBodyTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this update PXC cluster body
@@ -133,6 +148,10 @@ func (o *UpdatePXCClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,11 +180,34 @@ func (o *UpdatePXCClusterBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *UpdatePXCClusterBody) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update PXC cluster body based on the context it is used
 func (o *UpdatePXCClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,6 +224,21 @@ func (o *UpdatePXCClusterBody) contextValidateParams(ctx context.Context, format
 				return ve.ValidateName("body" + "." + "params")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePXCClusterBody) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
 			}
 			return err
 		}
@@ -208,7 +265,8 @@ func (o *UpdatePXCClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePXCClusterDefaultBody update PXC cluster default body
+/*
+UpdatePXCClusterDefaultBody update PXC cluster default body
 swagger:model UpdatePXCClusterDefaultBody
 */
 type UpdatePXCClusterDefaultBody struct {
@@ -311,7 +369,8 @@ func (o *UpdatePXCClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details items0
+/*
+UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details items0
 swagger:model UpdatePXCClusterDefaultBodyDetailsItems0
 */
 type UpdatePXCClusterDefaultBodyDetailsItems0 struct {
@@ -347,7 +406,8 @@ func (o *UpdatePXCClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParams UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
+/*
+UpdatePXCClusterParamsBodyParams UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model UpdatePXCClusterParamsBodyParams
 */
 type UpdatePXCClusterParamsBodyParams struct {
@@ -534,7 +594,8 @@ func (o *UpdatePXCClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
+/*
+UpdatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxy
 */
 type UpdatePXCClusterParamsBodyParamsHaproxy struct {
@@ -622,7 +683,8 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+UpdatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxyComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
@@ -661,13 +723,20 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinar
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsPXC PXC container parameters.
+/*
+UpdatePXCClusterParamsBodyParamsPXC PXC container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsPXC
 */
 type UpdatePXCClusterParamsBodyParamsPXC struct {
 	// Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
 	// in given tag is triggered. If entirely different image is given, error is returned.
 	Image string `json:"image,omitempty"`
+
+	// Configuration for PXC cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PXC cluster.
+	StorageClass string `json:"storage_class,omitempty"`
 
 	// compute resources
 	ComputeResources *UpdatePXCClusterParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
@@ -753,7 +822,8 @@ func (o *UpdatePXCClusterParamsBodyParamsPXC) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+UpdatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsPXCComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsPXCComputeResources struct {
@@ -792,7 +862,8 @@ func (o *UpdatePXCClusterParamsBodyParamsPXCComputeResources) UnmarshalBinary(b 
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
+/*
+UpdatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsProxysql
 */
 type UpdatePXCClusterParamsBodyParamsProxysql struct {
@@ -880,7 +951,8 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*UpdatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+UpdatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsProxysqlComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsProxysqlComputeResources struct {
@@ -912,6 +984,46 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) MarshalBinary
 // UnmarshalBinary interface implementation
 func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
 	var res UpdatePXCClusterParamsBodyParamsProxysqlComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+UpdatePXCClusterParamsBodyTemplate update PXC cluster params body template
+swagger:model UpdatePXCClusterParamsBodyTemplate
+*/
+type UpdatePXCClusterParamsBodyTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this update PXC cluster params body template
+func (o *UpdatePXCClusterParamsBodyTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster params body template based on context it is used
+func (o *UpdatePXCClusterParamsBodyTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePXCClusterParamsBodyTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePXCClusterParamsBodyTemplate) UnmarshalBinary(b []byte) error {
+	var res UpdatePXCClusterParamsBodyTemplate
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

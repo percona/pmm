@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package inventory contains inventory API tests.
 package inventory
 
 import (
@@ -243,7 +244,7 @@ func addExternalExporter(t pmmapitests.TestingT, body agents.AddExternalExporter
 	return res.Payload
 }
 
-func assertPostgreSQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertPostgreSQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -256,7 +257,7 @@ func assertPostgreSQLServiceExists(t pmmapitests.TestingT, res *services.ListSer
 	}, "There should be PostgreSQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -269,7 +270,7 @@ func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServices
 	}, "There should be MySQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -282,7 +283,7 @@ func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServic
 	}, "There should not be MySQL service with id `%s`", serviceID)
 }
 
-func assertExternalServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertExternalServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -308,7 +309,7 @@ func assertExternalServiceNotExist(t pmmapitests.TestingT, res *services.ListSer
 	}, "There should not be External service with id `%s`", serviceID)
 }
 
-func assertHAProxyServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertHAProxyServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -334,7 +335,7 @@ func assertHAProxyServiceNotExist(t pmmapitests.TestingT, res *services.ListServ
 	}, "There should not be HAProxy service with id `%s`", serviceID)
 }
 
-func assertMySQLExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+func assertMySQLExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool { //nolint:unparam
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
@@ -367,7 +368,7 @@ func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmA
 	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
+func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool { //nolint:unparam
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
@@ -378,7 +379,7 @@ func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, p
 	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool {
+func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {
@@ -389,7 +390,7 @@ func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, 
 	}, "There should be Node exporter with id `%s`", nodeExporterID)
 }
 
-func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool {
+func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {

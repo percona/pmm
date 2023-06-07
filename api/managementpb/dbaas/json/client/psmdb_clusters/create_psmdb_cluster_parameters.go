@@ -52,10 +52,12 @@ func NewCreatePSMDBClusterParamsWithHTTPClient(client *http.Client) *CreatePSMDB
 	}
 }
 
-/* CreatePSMDBClusterParams contains all the parameters to send to the API endpoint
-   for the create PSMDB cluster operation.
+/*
+CreatePSMDBClusterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the create PSMDB cluster operation.
+
+	Typically these are written to a http.Request.
 */
 type CreatePSMDBClusterParams struct {
 	// Body.

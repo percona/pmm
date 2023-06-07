@@ -95,8 +95,7 @@ func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetada
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
 		mdNodeName, md.NodeName,
-		mdServerVersion, md.ServerVersion,
-	)
+		mdServerVersion, md.ServerVersion)
 
 	// always return gRPC error or nil
 	err := stream.SendHeader(header)

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package dbaas contains DBaaS API tests.
 package dbaas
 
 import (
@@ -27,6 +28,7 @@ import (
 )
 
 func registerKubernetesCluster(t *testing.T, kubernetesClusterName string, kubeconfig string) {
+	t.Helper()
 	registerKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.RegisterKubernetesCluster(
 		&kubernetes.RegisterKubernetesClusterParams{
 			Body: kubernetes.RegisterKubernetesClusterBody{

@@ -13,11 +13,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package testdb provides test DB utils.
 package testdb
 
 import (
+	"context"
 	"database/sql"
+	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -33,7 +37,13 @@ const (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
 
-	db, err := models.OpenDB("127.0.0.1:5432", "", username, password)
+	setupParams := models.SetupDBParams{
+		Address:  "127.0.0.1:5432",
+		Username: username,
+		Password: password,
+	}
+
+	db, err := models.OpenDB(setupParams)
 	require.NoError(tb, err)
 
 	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
@@ -44,7 +54,8 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password)
+	setupParams.Name = testDatabase
+	db, err = models.OpenDB(setupParams)
 	require.NoError(tb, err)
 	SetupDB(tb, db, setupFixtures, migrationVersion)
 
@@ -58,14 +69,26 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
 func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
-	_, err := models.SetupDB(db, &models.SetupDBParams{
+	tb.Helper()
+	_, err := models.SetupDB(context.TODO(), db, models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
-
+		Address:          models.DefaultPostgreSQLAddr,
+		Name:             newName(11),
 		Username:         username,
 		Password:         password,
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
 	})
 	require.NoError(tb, err)
+}
+
+func newName(length int) string {
+	r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
+	const alp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = alp[r.Intn(len(alp))]
+	}
+	return string(b)
 }

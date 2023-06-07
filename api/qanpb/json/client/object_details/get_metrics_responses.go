@@ -49,7 +49,8 @@ func NewGetMetricsOK() *GetMetricsOK {
 	return &GetMetricsOK{}
 }
 
-/* GetMetricsOK describes a response with status code 200, with default header values.
+/*
+GetMetricsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 	}
 }
 
-/* GetMetricsDefault describes a response with status code -1, with default header values.
+/*
+GetMetricsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*
+GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
@@ -266,7 +269,8 @@ func (o *GetMetricsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsDefaultBody get metrics default body
+/*
+GetMetricsDefaultBody get metrics default body
 swagger:model GetMetricsDefaultBody
 */
 type GetMetricsDefaultBody struct {
@@ -369,7 +373,8 @@ func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
+/*
+GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
 swagger:model GetMetricsDefaultBodyDetailsItems0
 */
 type GetMetricsDefaultBodyDetailsItems0 struct {
@@ -405,7 +410,8 @@ func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*
+GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
@@ -423,6 +429,9 @@ type GetMetricsOKBody struct {
 
 	// fingerprint
 	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// metadata
+	Metadata *GetMetricsOKBodyMetadata `json:"metadata,omitempty"`
 }
 
 // Validate validates this get metrics OK body
@@ -438,6 +447,10 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateTotals(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetadata(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -525,6 +538,25 @@ func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetMetricsOKBody) validateMetadata(formats strfmt.Registry) error {
+	if swag.IsZero(o.Metadata) { // not required
+		return nil
+	}
+
+	if o.Metadata != nil {
+		if err := o.Metadata.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getMetricsOk" + "." + "metadata")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getMetricsOk" + "." + "metadata")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this get metrics OK body based on the context it is used
 func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -538,6 +570,10 @@ func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateTotals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetadata(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -588,6 +624,21 @@ func (o *GetMetricsOKBody) contextValidateTotals(ctx context.Context, formats st
 	return nil
 }
 
+func (o *GetMetricsOKBody) contextValidateMetadata(ctx context.Context, formats strfmt.Registry) error {
+	if o.Metadata != nil {
+		if err := o.Metadata.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getMetricsOk" + "." + "metadata")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getMetricsOk" + "." + "metadata")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetMetricsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -606,7 +657,78 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
+/*
+GetMetricsOKBodyMetadata GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.
+swagger:model GetMetricsOKBodyMetadata
+*/
+type GetMetricsOKBodyMetadata struct {
+	// service name
+	ServiceName string `json:"service_name,omitempty"`
+
+	// database
+	Database string `json:"database,omitempty"`
+
+	// schema
+	Schema string `json:"schema,omitempty"`
+
+	// username
+	Username string `json:"username,omitempty"`
+
+	// replication set
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// cluster
+	Cluster string `json:"cluster,omitempty"`
+
+	// service type
+	ServiceType string `json:"service_type,omitempty"`
+
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
+
+	// environment
+	Environment string `json:"environment,omitempty"`
+
+	// node id
+	NodeID string `json:"node_id,omitempty"`
+
+	// node name
+	NodeName string `json:"node_name,omitempty"`
+
+	// node type
+	NodeType string `json:"node_type,omitempty"`
+}
+
+// Validate validates this get metrics OK body metadata
+func (o *GetMetricsOKBodyMetadata) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get metrics OK body metadata based on context it is used
+func (o *GetMetricsOKBodyMetadata) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsOKBodyMetadata) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsOKBodyMetadata) UnmarshalBinary(b []byte) error {
+	var res GetMetricsOKBodyMetadata
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyMetricsAnon
 */
 type GetMetricsOKBodyMetricsAnon struct {
@@ -663,7 +785,8 @@ func (o *GetMetricsOKBodyMetricsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+/*
+GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 swagger:model GetMetricsOKBodySparklineItems0
 */
@@ -892,7 +1015,8 @@ func (o *GetMetricsOKBodySparklineItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
+/*
+GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyTotalsAnon
 */
 type GetMetricsOKBodyTotalsAnon struct {
@@ -949,7 +1073,8 @@ func (o *GetMetricsOKBodyTotalsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*
+GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetMetricsParamsBodyLabelsItems0
 */
 type GetMetricsParamsBodyLabelsItems0 struct {

@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package agent;
 
-option go_package = "api/agentpb;agentpb";
-
 import "inventorypb/agents.proto";
+
+option go_package = "api/agentpb;agentpb";
 
 // ExampleFormat is format of query example: real or query without values.
 //
@@ -31,6 +31,10 @@ message MetricsBucket {
   message Common {
     // md5 of digest_text/fingerprint.
     string queryid = 1;
+    // contains fingerprint prepared by sql parser, which can be different than fingerprint.
+    string explain_fingerprint = 25;
+    // ammount of variables in query.
+    uint32 placeholders_count = 26;
     // digest_text - query signature. Query without values.
     string fingerprint = 2;
     //

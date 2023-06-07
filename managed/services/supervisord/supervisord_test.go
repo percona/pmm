@@ -16,7 +16,7 @@
 package supervisord
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 	"text/template"
@@ -32,11 +32,12 @@ import (
 
 func TestConfig(t *testing.T) {
 	t.Parallel()
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams)
+	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
@@ -51,7 +52,8 @@ func TestConfig(t *testing.T) {
 
 		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
-			expected, err := ioutil.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			t.Parallel()
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings, nil)
 			require.NoError(t, err)
@@ -62,11 +64,12 @@ func TestConfig(t *testing.T) {
 
 func TestDBaaSController(t *testing.T) {
 	t.Parallel()
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams := &models.VictoriaMetricsParams{}
-	s := New(configDir, pmmUpdateCheck, vmParams)
+	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
@@ -98,7 +101,7 @@ func TestDBaaSController(t *testing.T) {
 			},
 		}
 
-		expected, err := ioutil.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
+		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
 		require.NoError(t, err)
 		actual, err := s.marshalConfig(tp, &st, nil)
 		require.NoError(t, err)
@@ -123,6 +126,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	t.Parallel()
 
 	t.Run("empty alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("", params)
 		require.NoError(t, err)
@@ -130,6 +134,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("simple alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("https://some-alertmanager", params)
 		require.NoError(t, err)
@@ -137,6 +142,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("extract username and password from alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("https://username1:PAsds!234@some-alertmanager", params)
 		require.NoError(t, err)
@@ -146,9 +152,42 @@ func TestAddAlertManagerParam(t *testing.T) {
 	})
 
 	t.Run("incorrect alertmanager url", func(t *testing.T) {
+		t.Parallel()
 		params := make(map[string]interface{})
 		err := addAlertManagerParams("*:9095", params)
 		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
 	})
+}
+
+func TestSavePMMConfig(t *testing.T) {
+	t.Parallel()
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	tests := []struct {
+		description string
+		params      map[string]any
+		file        string
+	}{
+		{
+			description: "disable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false},
+			file:        "pmm-db_disabled",
+		},
+		{
+			description: "enable internal postgresql db",
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false},
+			file:        "pmm-db_enabled",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.description, func(t *testing.T) {
+			t.Parallel()
+			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := marshalConfig(test.params)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
+	}
 }

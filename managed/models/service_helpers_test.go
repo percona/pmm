@@ -44,6 +44,7 @@ func TestServiceHelpers(t *testing.T) {
 	}()
 
 	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -140,6 +141,7 @@ func TestServiceHelpers(t *testing.T) {
 		}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
 		return
@@ -264,6 +266,15 @@ func TestServiceHelpers(t *testing.T) {
 			CreatedAt:   now,
 			UpdatedAt:   now,
 		}})
+	})
+
+	t.Run("FindActiveServiceTypes", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		types, err := models.FindActiveServiceTypes(q)
+		assert.NoError(t, err)
+		assert.Equal(t, len(types), 5)
 	})
 
 	t.Run("RemoveService", func(t *testing.T) {
@@ -391,6 +402,93 @@ func TestServiceHelpers(t *testing.T) {
 			Socket:      pointer.ToString("/tmp/proxysql_admin.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
+	})
+
+	t.Run("MongoDB find services in the same cluster", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		s1, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors1",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors2",
+			NodeID:      "N1",
+			Cluster:     "cluster0",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongors3",
+			NodeID:      "N1",
+			Cluster:     "cluster1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		services, err := models.FindServices(q, models.ServiceFilters{
+			ServiceType: pointerToServiceType(models.MongoDBServiceType),
+			Cluster:     "cluster0",
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, services)
+		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
+	})
+
+	t.Run("Software versions record created when adding a service", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		emptyVersionsCreatedByServiceType := map[models.ServiceType]bool{
+			models.MySQLServiceType:      true,
+			models.MongoDBServiceType:    true,
+			models.PostgreSQLServiceType: false,
+		}
+
+		s1, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(3306),
+		})
+		require.NoError(t, err)
+
+		s2, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mongo",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		s3, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "postgres",
+			NodeID:      "N1",
+			Cluster:     "cluster1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(5432),
+		})
+		require.NoError(t, err)
+
+		for _, service := range []*models.Service{s1, s2, s3} {
+			swVersions, err := models.FindServiceSoftwareVersionsByServiceID(q, service.ServiceID)
+
+			if emptyVersionsCreatedByServiceType[service.ServiceType] {
+				require.NoError(t, err)
+				assert.NotNil(t, swVersions)
+				return
+			}
+
+			assert.ErrorIs(t, err, models.ErrNotFound)
+			assert.Nil(t, swVersions)
+		}
 	})
 }
 

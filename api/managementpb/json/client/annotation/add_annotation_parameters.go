@@ -52,10 +52,12 @@ func NewAddAnnotationParamsWithHTTPClient(client *http.Client) *AddAnnotationPar
 	}
 }
 
-/* AddAnnotationParams contains all the parameters to send to the API endpoint
-   for the add annotation operation.
+/*
+AddAnnotationParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add annotation operation.
+
+	Typically these are written to a http.Request.
 */
 type AddAnnotationParams struct {
 	/* Body.

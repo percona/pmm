@@ -38,10 +38,11 @@ var DefaultInterval = time.Duration(time.Minute)
 const reportChanBuffer = 1000
 
 // New returns configured *Aggregator
-func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator {
+func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
 	aggregator := &Aggregator{
-		agentID: agentID,
-		logger:  logger,
+		agentID:        agentID,
+		logger:         logger,
+		maxQueryLength: maxQueryLength,
 	}
 
 	// create duration from interval
@@ -59,8 +60,9 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator 
 
 // Aggregator aggregates system.profile document
 type Aggregator struct {
-	agentID string
-	logger  *logrus.Entry
+	agentID        string
+	maxQueryLength int32
+	logger         *logrus.Entry
 
 	// provides
 	reportChan chan *report.Report
@@ -252,8 +254,8 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 			collection = s[1]
 		}
 
-		fingerprint, _ := truncate.Query(v.Fingerprint)
-		query, truncated := truncate.Query(v.Query)
+		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength)
+		query, truncated := truncate.Query(v.Query, a.maxQueryLength)
 		bucket := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             v.ID,
@@ -267,7 +269,6 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
 				Example:             query,
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          float32(v.Count),
 				IsTruncated:         truncated,
@@ -276,10 +277,10 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max)
-		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min)
-		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99)
-		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total)
+		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max) / 1000
+		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / 1000
+		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / 1000
+		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / 1000
 
 		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
 		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)

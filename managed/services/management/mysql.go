@@ -38,17 +38,15 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
-	dfp   defaultsFileParser
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, dfp defaultsFileParser) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
 		vc:    vc,
-		dfp:   dfp,
 	}
 }
 
@@ -99,7 +97,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MySQLService)
+		res.Service = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -118,7 +116,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			PushMetrics:                    isPushMode(req.MetricsMode),
 			DisableCollectors:              req.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(req.LogLevel),
+			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
 		})
 		if err != nil {
 			return err
@@ -135,7 +133,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
+		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
@@ -146,8 +144,9 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
 				MySQLOptions:          models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:        req.MaxQueryLength,
 				QueryExamplesDisabled: req.DisableQueryExamples,
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel),
+				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -157,7 +156,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlPerfschema = agent.(*inventorypb.QANMySQLPerfSchemaAgent)
+			res.QanMysqlPerfschema = agent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanMysqlSlowlog {
@@ -169,9 +168,10 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
 				MySQLOptions:          models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:        req.MaxQueryLength,
 				QueryExamplesDisabled: req.DisableQueryExamples,
 				MaxQueryLogSize:       maxSlowlogFileSize,
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel),
+				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -181,7 +181,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlSlowlog = agent.(*inventorypb.QANMySQLSlowlogAgent)
+			res.QanMysqlSlowlog = agent.(*inventorypb.QANMySQLSlowlogAgent) //nolint:forcetypeassert
 		}
 
 		return nil

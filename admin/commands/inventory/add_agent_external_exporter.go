@@ -56,7 +56,7 @@ type AddAgentExternalExporterCommand struct {
 	Scheme       string            `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
 	MetricsPath  string            `help:"Path under which metrics are exposed, used to generate URI"`
 	ListenPort   int64             `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
-	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics  bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 

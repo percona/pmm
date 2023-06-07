@@ -5,7 +5,7 @@ templates:
     summary: MySQL restarted
     expr: |-
       mysql_global_status_uptime
-      < [[ .threshold ]]
+      < bool [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart
@@ -13,7 +13,7 @@ templates:
         type: float
         range: [0, 1800]
         value: 300
-    for: 10s
+    for: 1m
     severity: warning
     annotations:
       summary: MySQL restarted ({{ $labels.service_name }})

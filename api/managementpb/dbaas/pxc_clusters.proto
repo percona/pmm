@@ -2,13 +2,12 @@ syntax = "proto3";
 
 package dbaas.v1beta1;
 
-option go_package = "api/managementpb/dbaas;dbaasv1beta1";
-
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
+import "managementpb/dbaas/templates.proto";
+import "validate/validate.proto";
 
-// TODO move it to parent directory / package once API is v1-stable
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // PXCBackupState represents PXC backup CR state.
 enum PXCBackupState {
@@ -33,6 +32,10 @@ message PXCClusterParams {
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
     int64 disk_size = 2;
+    // Configuration for PXC cluster
+    string configuration = 4;
+    // Storage Class for PXC cluster.
+    string storage_class = 5;
   }
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
@@ -61,21 +64,17 @@ message PXCClusterParams {
   ProxySQL proxysql = 3;
   // HAProxy container parameters.
   HAProxy haproxy = 4;
+  // Backup configuration parameters.
+  Backup backup = 5;
+  // Restore configuration parameters.
+  Restore restore = 6;
 }
 
 message GetPXCClusterCredentialsRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PXC cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validate.rules).string.min_len = 1];
 }
 
 // PXCClusterConnectionCredentials is cluster connection credentials.
@@ -97,11 +96,7 @@ message GetPXCClusterCredentialsResponse {
 
 message CreatePXCClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PXC cluster name.
   // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
   // start with an alphabetic character, and end with an alphanumeric character
@@ -111,23 +106,21 @@ message CreatePXCClusterRequest {
   PXCClusterParams params = 3;
   // Make DB cluster accessible outside of K8s cluster.
   bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message CreatePXCClusterResponse {}
 
 message UpdatePXCClusterRequest {
   // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
   // PXC cluster name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string name = 2 [(validate.rules).string.min_len = 1];
   // UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
   message UpdatePXCClusterParams {
     // PXC container parameters.
@@ -137,6 +130,10 @@ message UpdatePXCClusterRequest {
       // Image to use. If it's the same image but with different version tag, upgrade of database cluster to version
       // in given tag is triggered. If entirely different image is given, error is returned.
       string image = 2;
+      // Configuration for PXC cluster
+      string configuration = 4;
+      // Storage Class for PXC cluster.
+      string storage_class = 5;
     }
     // ProxySQL container parameters.
     message ProxySQL {
@@ -163,17 +160,21 @@ message UpdatePXCClusterRequest {
   }
   // Cluster parameters.
   UpdatePXCClusterParams params = 3;
+  // Make DB cluster accessible outside of K8s cluster.
+  bool expose = 4;
+  // Make DB cluster accessible via public internet.
+  bool internet_facing = 5;
+  // Apply IP source ranges against the cluster.
+  repeated string source_ranges = 6;
+  // Configuration template.
+  Template template = 7;
 }
 
 message UpdatePXCClusterResponse {}
 
 message GetPXCClusterResourcesRequest {
   // Cluster parameters.
-  PXCClusterParams params = 1 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  PXCClusterParams params = 1 [(validate.rules).message.required = true];
 }
 
 message GetPXCClusterResourcesResponse {

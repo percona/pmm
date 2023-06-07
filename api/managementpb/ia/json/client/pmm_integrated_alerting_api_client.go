@@ -13,7 +13,6 @@ import (
 	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
 
 // Default PMM integrated alerting API HTTP client.
@@ -61,7 +60,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegra
 	cli.Alerts = alerts.New(transport, formats)
 	cli.Channels = channels.New(transport, formats)
 	cli.Rules = rules.New(transport, formats)
-	cli.Templates = templates.New(transport, formats)
 	return cli
 }
 
@@ -112,8 +110,6 @@ type PMMIntegratedAlertingAPI struct {
 
 	Rules rules.ClientService
 
-	Templates templates.ClientService
-
 	Transport runtime.ClientTransport
 }
 
@@ -123,5 +119,4 @@ func (c *PMMIntegratedAlertingAPI) SetTransport(transport runtime.ClientTranspor
 	c.Alerts.SetTransport(transport)
 	c.Channels.SetTransport(transport)
 	c.Rules.SetTransport(transport)
-	c.Templates.SetTransport(transport)
 }

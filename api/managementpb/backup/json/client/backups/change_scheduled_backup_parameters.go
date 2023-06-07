@@ -52,10 +52,12 @@ func NewChangeScheduledBackupParamsWithHTTPClient(client *http.Client) *ChangeSc
 	}
 }
 
-/* ChangeScheduledBackupParams contains all the parameters to send to the API endpoint
-   for the change scheduled backup operation.
+/*
+ChangeScheduledBackupParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change scheduled backup operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeScheduledBackupParams struct {
 	// Body.

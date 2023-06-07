@@ -48,7 +48,8 @@ func NewStartUpdateOK() *StartUpdateOK {
 	return &StartUpdateOK{}
 }
 
-/* StartUpdateOK describes a response with status code 200, with default header values.
+/*
+StartUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 	}
 }
 
-/* StartUpdateDefault describes a response with status code -1, with default header values.
+/*
+StartUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*StartUpdateDefaultBody start update default body
+/*
+StartUpdateDefaultBody start update default body
 swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartUpdateDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+StartUpdateDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -242,6 +246,10 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 //     ...
 //     if (any.is(Foo.class)) {
 //       foo = any.unpack(Foo.class);
+//     }
+//     // or ...
+//     if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+//       foo = any.unpack(Foo.getDefaultInstance());
 //     }
 //
 // Example 3: Pack and unpack a message in Python.
@@ -272,7 +280,6 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 // methods only use the fully qualified type name after the last '/'
 // in the type URL, for example "foo.bar.com/x/y.z" will yield type
 // name "y.z".
-//
 //
 // JSON
 //
@@ -362,7 +369,8 @@ func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartUpdateOKBody start update OK body
+/*
+StartUpdateOKBody start update OK body
 swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {

@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package inventory;
 
-option go_package = "api/inventorypb;inventorypb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/inventorypb;inventorypb";
 
 // ServiceType describes supported Service types.
 enum ServiceType {
@@ -187,15 +187,17 @@ message ListServicesResponse {
   repeated ExternalService external = 6;
 }
 
+message ListActiveServiceTypesRequest {}
+
+message ListActiveServiceTypesResponse {
+  repeated ServiceType service_types = 1;
+}
+
 // Get
 
 message GetServiceRequest {
   // Unique randomly generated instance identifier.
-  string service_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetServiceResponse {
@@ -213,17 +215,9 @@ message GetServiceResponse {
 
 message AddMySQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -251,17 +245,9 @@ message AddMySQLServiceResponse {
 
 message AddMongoDBServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -289,17 +275,9 @@ message AddMongoDBServiceResponse {
 
 message AddPostgreSQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -327,17 +305,9 @@ message AddPostgreSQLServiceResponse {
 
 message AddProxySQLServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;
@@ -365,17 +335,9 @@ message AddProxySQLServiceResponse {
 
 message AddHAProxyServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Environment name.
   string environment = 3;
   // Cluster name.
@@ -394,17 +356,9 @@ message AddHAProxyServiceResponse {
 
 message AddExternalServiceRequest {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Environment name.
   string environment = 3;
   // Cluster name.
@@ -425,16 +379,30 @@ message AddExternalServiceResponse {
 
 message RemoveServiceRequest {
   // Unique randomly generated instance identifier. Required.
-  string service_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
   // Remove service with all dependencies.
   bool force = 2;
 }
 
 message RemoveServiceResponse {}
+
+message AddCustomLabelsRequest {
+  // Unique Service ID.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Custom user-assigned labels to be added.
+  map<string, string> custom_labels = 2;
+}
+
+message AddCustomLabelsResponse {}
+
+message RemoveCustomLabelsRequest {
+  // Unique Service ID.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Custom user-assigned label keys to be removed.
+  repeated string custom_label_keys = 2;
+}
+
+message RemoveCustomLabelsResponse {}
 
 // Services service provides public methods for managing Services.
 service Services {
@@ -447,6 +415,17 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
       description: "Returns a list of Services filtered by type."
+    };
+  }
+  // ListActiveServiceTypes returns a list of active Services.
+  rpc ListActiveServiceTypes(ListActiveServiceTypesRequest) returns (ListActiveServiceTypesResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/ListTypes"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Active Service Types"
+      description: "Returns a list of active Service types."
     };
   }
   // GetService returns a single Service by ID.
@@ -535,6 +514,28 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
       description: "Removes Service."
+    };
+  }
+  // AddCustomLabels adds custom labels to a Service.
+  rpc AddCustomLabels(AddCustomLabelsRequest) returns (AddCustomLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/CustomLabels/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add/replace custom labels"
+      description: "Adds or replaces (if the key exists) custom labels for a Service."
+    };
+  }
+  // RemoveCustomLabels removes custom labels from a Service.
+  rpc RemoveCustomLabels(RemoveCustomLabelsRequest) returns (RemoveCustomLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/CustomLabels/Remove"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove custom labels"
+      description: "Removes custom labels from a Service by key."
     };
   }
 }

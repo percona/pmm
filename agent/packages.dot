@@ -1,5 +1,6 @@
 digraph packages {
 	"/agentlocal" -> "/config";
+	"/agentlocal" -> "/tailog";
 	"/agentlocal.test" -> "/agentlocal";
 	"/agents/cache.test" -> "/agents/cache";
 	"/agents/mongodb" -> "/agents";
@@ -8,10 +9,12 @@ digraph packages {
 	"/agents/mongodb.test" -> "/agents/mongodb";
 	"/agents/mysql/perfschema" -> "/agents";
 	"/agents/mysql/perfschema" -> "/agents/cache";
+	"/agents/mysql/perfschema" -> "/queryparser";
 	"/agents/mysql/perfschema" -> "/tlshelpers";
 	"/agents/mysql/perfschema.test" -> "/agents/mysql/perfschema";
 	"/agents/mysql/slowlog" -> "/agents";
 	"/agents/mysql/slowlog" -> "/agents/mysql/slowlog/parser";
+	"/agents/mysql/slowlog" -> "/queryparser";
 	"/agents/mysql/slowlog" -> "/tlshelpers";
 	"/agents/mysql/slowlog.test" -> "/agents/mysql/slowlog";
 	"/agents/mysql/slowlog/parser.test" -> "/agents/mysql/slowlog/parser";
@@ -33,11 +36,15 @@ digraph packages {
 	"/agents/supervisor" -> "/agents/postgres/pgstatstatements";
 	"/agents/supervisor" -> "/agents/process";
 	"/agents/supervisor" -> "/config";
+	"/agents/supervisor" -> "/tailog";
 	"/agents/supervisor.test" -> "/agents/supervisor";
-	"/client" -> "/actions";
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
-	"/client" -> "/jobs";
+	"/client" -> "/connectionuptime";
+	"/client" -> "/runner";
+	"/client" -> "/runner/actions";
+	"/client" -> "/runner/jobs";
+	"/client" -> "/tailog";
 	"/client" -> "/versioner";
 	"/client.test" -> "/client";
 	"/commands" -> "/agentlocal";
@@ -45,7 +52,9 @@ digraph packages {
 	"/commands" -> "/client";
 	"/commands" -> "/config";
 	"/commands" -> "/connectionchecker";
-	"/commands" -> "/defaultsfile";
+	"/commands" -> "/connectionuptime";
+	"/commands" -> "/runner";
+	"/commands" -> "/tailog";
 	"/commands" -> "/versioner";
 	"/connectionchecker" -> "/config";
 	"/connectionchecker" -> "/tlshelpers";

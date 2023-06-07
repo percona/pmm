@@ -36,7 +36,7 @@ type ErrorResponse interface {
 	Code() int
 }
 
-// A minimal subset of *testing.T that we use that is also should be implemented by *expectedFailureTestingT.
+// TestingT contains minimal subset of *testing.T that we use that is also should be implemented by *expectedFailureTestingT.
 type TestingT interface {
 	Helper()
 	Name() string
@@ -60,7 +60,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 
 	require.Implementsf(t, (*ErrorResponse)(nil), actual, "Wrong response type. Expected %T, got %T.\nError message: %v", (*ErrorResponse)(nil), actual, actual)
 
-	assert.Equal(t, httpStatus, actual.(ErrorResponse).Code())
+	assert.Equal(t, httpStatus, actual.(ErrorResponse).Code()) //nolint:forcetypeassert,errorlint
 
 	// Have to use reflect because there are a lot of types with the same structure and different names.
 	payload := reflect.ValueOf(actual).Elem().FieldByName("Payload")
@@ -81,6 +81,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 }
 
 func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
 		link: link,

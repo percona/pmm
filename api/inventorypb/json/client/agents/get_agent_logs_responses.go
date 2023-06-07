@@ -48,7 +48,8 @@ func NewGetAgentLogsOK() *GetAgentLogsOK {
 	return &GetAgentLogsOK{}
 }
 
-/* GetAgentLogsOK describes a response with status code 200, with default header values.
+/*
+GetAgentLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetAgentLogsDefault(code int) *GetAgentLogsDefault {
 	}
 }
 
-/* GetAgentLogsDefault describes a response with status code -1, with default header values.
+/*
+GetAgentLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetAgentLogsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetAgentLogsBody get agent logs body
+/*
+GetAgentLogsBody get agent logs body
 swagger:model GetAgentLogsBody
 */
 type GetAgentLogsBody struct {
@@ -155,7 +158,8 @@ func (o *GetAgentLogsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsDefaultBody get agent logs default body
+/*
+GetAgentLogsDefaultBody get agent logs default body
 swagger:model GetAgentLogsDefaultBody
 */
 type GetAgentLogsDefaultBody struct {
@@ -258,7 +262,8 @@ func (o *GetAgentLogsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
+/*
+GetAgentLogsDefaultBodyDetailsItems0 get agent logs default body details items0
 swagger:model GetAgentLogsDefaultBodyDetailsItems0
 */
 type GetAgentLogsDefaultBodyDetailsItems0 struct {
@@ -294,7 +299,8 @@ func (o *GetAgentLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentLogsOKBody get agent logs OK body
+/*
+GetAgentLogsOKBody get agent logs OK body
 swagger:model GetAgentLogsOKBody
 */
 type GetAgentLogsOKBody struct {

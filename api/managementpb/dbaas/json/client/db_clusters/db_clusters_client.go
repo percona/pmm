@@ -30,7 +30,13 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error)
 
+	GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) (*GetDBClusterOK, error)
+
 	ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error)
+
+	ListS3Backups(params *ListS3BackupsParams, opts ...ClientOption) (*ListS3BackupsOK, error)
+
+	ListSecrets(params *ListSecretsParams, opts ...ClientOption) (*ListSecretsOK, error)
 
 	RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error)
 
@@ -38,7 +44,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteDBCluster deletes DB cluster deletes DB cluster
+DeleteDBCluster deletes DB cluster deletes DB cluster
 */
 func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -75,7 +81,44 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOp
 }
 
 /*
-  ListDBClusters lists DB clusters returns a list of DB clusters
+GetDBCluster gets DB cluster returns parameters used to create a database cluster
+*/
+func (a *Client) GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) (*GetDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetDBClusterParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/DBClusters/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetDBClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListDBClusters lists DB clusters returns a list of DB clusters
 */
 func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +155,81 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOpti
 }
 
 /*
-  RestartDBCluster restarts DB cluster restarts DB cluster
+ListS3Backups lists s3 backups lists backups stored on s3
+*/
+func (a *Client) ListS3Backups(params *ListS3BackupsParams, opts ...ClientOption) (*ListS3BackupsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListS3BackupsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListS3Backups",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Backups/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListS3BackupsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListS3BackupsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListS3BackupsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListSecrets lists secrets returns a list of secrets from k8s
+*/
+func (a *Client) ListSecrets(params *ListSecretsParams, opts ...ClientOption) (*ListSecretsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListSecretsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListSecrets",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Secrets/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListSecretsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListSecretsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListSecretsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RestartDBCluster restarts DB cluster restarts DB cluster
 */
 func (a *Client) RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error) {
 	// TODO: Validate the params before sending

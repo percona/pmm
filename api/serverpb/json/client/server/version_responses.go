@@ -50,7 +50,8 @@ func NewVersionOK() *VersionOK {
 	return &VersionOK{}
 }
 
-/* VersionOK describes a response with status code 200, with default header values.
+/*
+VersionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewVersionDefault(code int) *VersionDefault {
 	}
 }
 
-/* VersionDefault describes a response with status code -1, with default header values.
+/*
+VersionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*VersionDefaultBody version default body
+/*
+VersionDefaultBody version default body
 swagger:model VersionDefaultBody
 */
 type VersionDefaultBody struct {
@@ -221,7 +224,8 @@ func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+VersionDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -244,6 +248,10 @@ func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
 //     ...
 //     if (any.is(Foo.class)) {
 //       foo = any.unpack(Foo.class);
+//     }
+//     // or ...
+//     if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+//       foo = any.unpack(Foo.getDefaultInstance());
 //     }
 //
 // Example 3: Pack and unpack a message in Python.
@@ -274,7 +282,6 @@ func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
 // methods only use the fully qualified type name after the last '/'
 // in the type URL, for example "foo.bar.com/x/y.z" will yield type
 // name "y.z".
-//
 //
 // JSON
 //
@@ -364,7 +371,8 @@ func (o *VersionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionOKBody version OK body
+/*
+VersionOKBody version OK body
 swagger:model VersionOKBody
 */
 type VersionOKBody struct {
@@ -562,7 +570,8 @@ func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionOKBodyManaged VersionInfo describes component version, or PMM Server as a whole.
+/*
+VersionOKBodyManaged VersionInfo describes component version, or PMM Server as a whole.
 swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {
@@ -626,7 +635,8 @@ func (o *VersionOKBodyManaged) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionOKBodyServer VersionInfo describes component version, or PMM Server as a whole.
+/*
+VersionOKBodyServer VersionInfo describes component version, or PMM Server as a whole.
 swagger:model VersionOKBodyServer
 */
 type VersionOKBodyServer struct {

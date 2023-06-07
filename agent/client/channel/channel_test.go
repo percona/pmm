@@ -105,9 +105,10 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 }
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
-	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';")
+	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
+	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength)
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
-	query, _ := truncate.Query(invalidQuery)
+	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
 
 	connect := func(stream agentpb.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
@@ -344,7 +345,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	// https://github.com/golang/go/issues/4373
 	// https://github.com/golang/go/blob/master/src/internal/poll/fd.go#L20
 	errConnClosed := errors.New("use of closed network connection")
-	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) // nolint:varnamelen
+	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) //nolint:varnamelen
 	defer teardown()
 
 	req := <-channel.Requests()

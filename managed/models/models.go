@@ -16,13 +16,13 @@
 // Package models contains generated Reform records and helpers.
 //
 // Common order of helpers:
-//  * unexported validators (checkXXX);
-//  * FindAllXXX;
-//  * FindXXXByID;
-//  * other finder (e.g. FindNodesForAgent);
-//  * CreateXXX;
-//  * ChangeXXX;
-//  * RemoveXXX.
+//   - unexported validators (checkXXX);
+//   - FindAllXXX;
+//   - FindXXXByID;
+//   - other finder (e.g. FindNodesForAgent);
+//   - CreateXXX;
+//   - ChangeXXX;
+//   - RemoveXXX.
 package models
 
 import (
@@ -44,11 +44,11 @@ var Now = func() time.Time {
 	return time.Now().Truncate(time.Microsecond).UTC()
 }
 
-// RemoveMode defines how Remove functions deal with dependend objects.
+// RemoveMode defines how Remove functions deal with dependent objects.
 type RemoveMode int
 
 const (
-	// RemoveRestrict returns error if there dependend objects.
+	// RemoveRestrict returns error if there dependent objects.
 	RemoveRestrict RemoveMode = iota
 	// RemoveCascade removes dependend objects recursively.
 	RemoveCascade
@@ -135,7 +135,7 @@ func prepareLabels(m map[string]string, removeEmptyValues bool) error {
 // getLabels deserializes model's Prometheus labels.
 func getLabels(b []byte) (map[string]string, error) {
 	if len(b) == 0 {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 	m := make(map[string]string)
 	if err := json.Unmarshal(b, &m); err != nil {
@@ -180,6 +180,8 @@ func jsonScan(v, src interface{}) error {
 		b = v
 	case string:
 		b = []byte(v)
+	case nil:
+		return nil
 	default:
 		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
 	}

@@ -137,7 +137,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct {
+type Config struct { //nolint:musttag
 	// no config file there
 
 	ID             string `yaml:"id"`
@@ -168,18 +168,18 @@ func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
 }
 
-// Get parses command-line flags, environment variables and configuration file
+// getFromCmdLine parses command-line flags, environment variables and configuration file
 // (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
 // It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
 // and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
-func Get(l *logrus.Entry) (*Config, string, error) {
-	return get(os.Args[1:], l)
+func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
+	return get(os.Args[1:], cfg, l)
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -284,7 +284,6 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 	}()
 
 	// parse command-line flags and environment variables
-	cfg = &Config{}
 	app, cfgFileF := Application(cfg)
 	if _, err = app.Parse(args); err != nil {
 		return
@@ -308,7 +307,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		return
 	}
 
-	cfg = fileCfg
+	*cfg = *fileCfg
 	return //nolint:nakedret
 }
 
@@ -388,7 +387,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
+	app.Flag("log-lines-count",
+		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
@@ -503,7 +503,7 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return os.WriteFile(path, res, 0o640)
+	return os.WriteFile(path, res, 0o640) //nolint:gosec
 }
 
 // IsWritable checks if specified path is writable.

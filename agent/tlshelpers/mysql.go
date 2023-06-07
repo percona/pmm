@@ -36,7 +36,7 @@ func RegisterMySQLCerts(files map[string]string) error {
 	}
 
 	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
-		err = mysql.RegisterTLSConfig("custom", &tls.Config{
+		err = mysql.RegisterTLSConfig("custom", &tls.Config{ //nolint:gosec
 			RootCAs:      ca,
 			Certificates: []tls.Certificate{cert},
 		})

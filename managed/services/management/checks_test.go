@@ -23,6 +23,7 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -48,12 +49,12 @@ func TestStartSecurityChecks(t *testing.T) {
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return(services.ErrSTTDisabled)
+		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
 }
@@ -72,12 +73,12 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 	t.Run("STT disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrSTTDisabled)
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.GetSecurityCheckResults(context.Background(), nil)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
 
@@ -140,14 +141,14 @@ func TestGetFailedChecks(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, services.ErrSTTDisabled)
+		checksService.On("GetChecksResults", mock.Anything, mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
 
@@ -368,9 +369,10 @@ func TestListSecurityChecks(t *testing.T) {
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
 		checksService.On("GetChecks", mock.Anything).
 			Return(map[string]check.Check{
-				"one":   {Name: "one"},
-				"two":   {Name: "two"},
-				"three": {Name: "three"},
+				"one":   {Name: "one", Interval: check.Standard},
+				"two":   {Name: "two", Interval: check.Frequent},
+				"three": {Name: "three", Interval: check.Rare},
+				"four":  {Name: "four", Interval: ""},
 			}, nil)
 
 		s := NewChecksAPIService(&checksService)
@@ -381,9 +383,10 @@ func TestListSecurityChecks(t *testing.T) {
 
 		assert.ElementsMatch(t, resp.Checks,
 			[]*managementpb.SecurityCheck{
-				{Name: "one", Disabled: false},
-				{Name: "two", Disabled: true},
-				{Name: "three", Disabled: false},
+				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
+				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_FREQUENT},
+				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_RARE},
+				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
 			},
 		)
 	})
@@ -457,4 +460,49 @@ func TestUpdateSecurityChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, &managementpb.ChangeSecurityChecksResponse{}, resp)
 	})
+}
+
+func TestCreateComment(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.WithField("component", "tests")
+
+	testCases := []struct {
+		Name    string
+		Comment string
+		Checks  []check.Check
+	}{
+		{
+			Name:    "all technologies",
+			Comment: "All technologies supported",
+			Checks: []check.Check{
+				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 1, Name: "b", Type: check.PostgreSQLSelect},
+				{Version: 2, Name: "c", Family: check.MongoDB},
+			},
+		},
+		{
+			Name:    "partial support",
+			Comment: "Partial support (MySQL, MongoDB)",
+			Checks: []check.Check{
+				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 2, Name: "b", Family: check.MongoDB},
+			},
+		},
+		{
+			Name:    "partial support",
+			Comment: "Partial support (MySQL)",
+			Checks: []check.Check{
+				{Version: 1, Name: "a", Type: check.MySQLShow},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.Comment, createComment(l, tc.Checks))
+		})
+	}
 }

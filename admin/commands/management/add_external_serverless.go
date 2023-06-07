@@ -61,7 +61,7 @@ type AddExternalServerlessCommand struct {
 	Environment         string            `placeholder:"testing" help:"Environment name"`
 	Cluster             string            `help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	MachineID           string            `help:"Node machine-id"`
 	Distro              string            `help:"Node OS distribution"`
@@ -164,11 +164,11 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	}, nil
 }
 
-func (cmd *AddExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
-	scheme = cmd.Scheme
-	address = cmd.Host
-	port = cmd.ListenPort
-	metricsPath = cmd.MetricsPath
+func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, string, uint16, error) {
+	scheme := cmd.Scheme
+	address := cmd.Host
+	port := cmd.ListenPort
+	metricsPath := cmd.MetricsPath
 
 	switch {
 	case cmd.URL != "":

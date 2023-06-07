@@ -115,6 +115,6 @@ func TestService(t *testing.T) {
 		assert.Len(t, svc.scheduler.Jobs(), 0)
 
 		_, err = models.FindScheduledTaskByID(svc.db.Querier, dbTask.ID)
-		tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, dbTask.ID), err)
+		assert.ErrorIs(t, err, models.ErrNotFound)
 	})
 }

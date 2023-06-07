@@ -27,6 +27,16 @@ coverage:
         paths:
           - managed/
 
+      qan-api2:
+        threshold: 1%
+        paths:
+          - qan-api2/
+
+      vmproxy:
+        threshold: 1%
+        paths:
+          - vmproxy/
+
 ignore:
   - "**/fuzzdata"
 

@@ -48,7 +48,8 @@ func NewAddContainerNodeOK() *AddContainerNodeOK {
 	return &AddContainerNodeOK{}
 }
 
-/* AddContainerNodeOK describes a response with status code 200, with default header values.
+/*
+AddContainerNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddContainerNodeDefault(code int) *AddContainerNodeDefault {
 	}
 }
 
-/* AddContainerNodeDefault describes a response with status code -1, with default header values.
+/*
+AddContainerNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*AddContainerNodeBody add container node body
+/*
+AddContainerNodeBody add container node body
 swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
@@ -176,7 +179,8 @@ func (o *AddContainerNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddContainerNodeDefaultBody add container node default body
+/*
+AddContainerNodeDefaultBody add container node default body
 swagger:model AddContainerNodeDefaultBody
 */
 type AddContainerNodeDefaultBody struct {
@@ -279,7 +283,8 @@ func (o *AddContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddContainerNodeDefaultBodyDetailsItems0 add container node default body details items0
+/*
+AddContainerNodeDefaultBodyDetailsItems0 add container node default body details items0
 swagger:model AddContainerNodeDefaultBodyDetailsItems0
 */
 type AddContainerNodeDefaultBodyDetailsItems0 struct {
@@ -315,7 +320,8 @@ func (o *AddContainerNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*AddContainerNodeOKBody add container node OK body
+/*
+AddContainerNodeOKBody add container node OK body
 swagger:model AddContainerNodeOKBody
 */
 type AddContainerNodeOKBody struct {
@@ -403,7 +409,8 @@ func (o *AddContainerNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddContainerNodeOKBodyContainer ContainerNode represents a Docker container.
+/*
+AddContainerNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model AddContainerNodeOKBodyContainer
 */
 type AddContainerNodeOKBodyContainer struct {

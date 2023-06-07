@@ -52,10 +52,12 @@ func NewGetPXCComponentsParamsWithHTTPClient(client *http.Client) *GetPXCCompone
 	}
 }
 
-/* GetPXCComponentsParams contains all the parameters to send to the API endpoint
-   for the get PXC components operation.
+/*
+GetPXCComponentsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get PXC components operation.
+
+	Typically these are written to a http.Request.
 */
 type GetPXCComponentsParams struct {
 	// Body.

@@ -52,10 +52,12 @@ func NewTestEmailAlertingSettingsParamsWithHTTPClient(client *http.Client) *Test
 	}
 }
 
-/* TestEmailAlertingSettingsParams contains all the parameters to send to the API endpoint
-   for the test email alerting settings operation.
+/*
+TestEmailAlertingSettingsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the test email alerting settings operation.
+
+	Typically these are written to a http.Request.
 */
 type TestEmailAlertingSettingsParams struct {
 	// Body.

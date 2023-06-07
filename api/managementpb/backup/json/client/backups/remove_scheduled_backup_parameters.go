@@ -52,10 +52,12 @@ func NewRemoveScheduledBackupParamsWithHTTPClient(client *http.Client) *RemoveSc
 	}
 }
 
-/* RemoveScheduledBackupParams contains all the parameters to send to the API endpoint
-   for the remove scheduled backup operation.
+/*
+RemoveScheduledBackupParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the remove scheduled backup operation.
+
+	Typically these are written to a http.Request.
 */
 type RemoveScheduledBackupParams struct {
 	// Body.

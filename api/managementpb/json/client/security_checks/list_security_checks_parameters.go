@@ -52,10 +52,12 @@ func NewListSecurityChecksParamsWithHTTPClient(client *http.Client) *ListSecurit
 	}
 }
 
-/* ListSecurityChecksParams contains all the parameters to send to the API endpoint
-   for the list security checks operation.
+/*
+ListSecurityChecksParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the list security checks operation.
+
+	Typically these are written to a http.Request.
 */
 type ListSecurityChecksParams struct {
 	// Body.

@@ -52,10 +52,12 @@ func NewDiscoverRDSParamsWithHTTPClient(client *http.Client) *DiscoverRDSParams 
 	}
 }
 
-/* DiscoverRDSParams contains all the parameters to send to the API endpoint
-   for the discover RDS operation.
+/*
+DiscoverRDSParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the discover RDS operation.
+
+	Typically these are written to a http.Request.
 */
 type DiscoverRDSParams struct {
 	// Body.

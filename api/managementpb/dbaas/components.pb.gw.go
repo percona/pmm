@@ -24,9 +24,8 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-
 var (
+	_ codes.Code
 	_ io.Reader
 	_ status.Status
 	_ = runtime.String
@@ -381,7 +380,7 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 // RegisterComponentsHandlerFromEndpoint is same as RegisterComponentsHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterComponentsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.Dial(endpoint, opts...)
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
 	}

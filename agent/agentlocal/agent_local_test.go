@@ -18,7 +18,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	"io/ioutil"
+	"io"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -35,7 +36,7 @@ import (
 )
 
 func TestServerStatus(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -52,15 +53,15 @@ func TestServerStatus(t *testing.T) {
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
-		cfg := &config.Config{
+		cfgStorage := config.NewStorage(&config.Config{
 			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",
 				Password: "password",
 			},
-		}
-		return agentInfo, &supervisor, &client, cfg
+		})
+		return agentInfo, &supervisor, &client, cfgStorage
 	}
 
 	t.Run("without network info", func(t *testing.T) {
@@ -120,7 +121,7 @@ func TestServerStatus(t *testing.T) {
 }
 
 func TestGetZipFile(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -143,15 +144,16 @@ func TestGetZipFile(t *testing.T) {
 			ServerVersion:     "2.0.0-dev",
 		})
 		client.On("GetConnectionUpTime").Return(float32(100.00))
-		cfg := &config.Config{
+
+		cfgStorage := config.NewStorage(&config.Config{
 			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
 				Address:  "127.0.0.1:8443",
 				Username: "username",
 				Password: "password",
 			},
-		}
-		return agentInfo, &supervisor, &client, cfg
+		})
+		return agentInfo, &supervisor, &client, cfgStorage
 	}
 
 	t.Run("test zip file", func(t *testing.T) {
@@ -164,9 +166,9 @@ func TestGetZipFile(t *testing.T) {
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/logs.zip", nil)
+		req := httptest.NewRequest(http.MethodGet, "/logs.zip", nil)
 		s.ZipLogs(rec, req)
-		existFile, err := ioutil.ReadAll(rec.Body)
+		existFile, err := io.ReadAll(rec.Body)
 		require.NoError(t, err)
 
 		bufExs := bytes.NewReader(existFile)
@@ -176,7 +178,7 @@ func TestGetZipFile(t *testing.T) {
 		for _, ex := range zipExs.File {
 			file, err := ex.Open()
 			require.NoError(t, err)
-			if contents, err := ioutil.ReadAll(file); err == nil {
+			if contents, err := io.ReadAll(file); err == nil {
 				if ex.Name == serverZipFile {
 					assert.Empty(t, contents)
 				} else {

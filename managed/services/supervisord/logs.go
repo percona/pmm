@@ -23,7 +23,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"os"
@@ -289,7 +288,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:errcheck
+	defer f.Close() //nolint:gosec,errcheck
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -303,19 +302,30 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	r := ring.New(maxLines)
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		r.Value = []byte(s.Text() + "\n")
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
 		r = r.Next()
-	}
-	if err = s.Err(); err != nil {
-		return nil, m, errors.WithStack(err)
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
 	}
 
 	res := make([]byte, 0, maxBytes)
 	r.Do(func(v interface{}) {
 		if v != nil {
-			res = append(res, v.([]byte)...)
+			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
 	})
 	return res, m, nil
@@ -324,7 +334,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 // readFile reads the whole file and returns content together with modification time.
 func readFile(name string) ([]byte, time.Time, error) {
 	var m time.Time
-	b, err := ioutil.ReadFile(name) //nolint:gosec
+	b, err := os.ReadFile(name) //nolint:gosec
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
@@ -344,7 +354,7 @@ func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
 
 // readURL reads HTTP GET url response.
 func readURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -354,9 +364,9 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -373,7 +383,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 }
 
 func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
-	sf, err := ioutil.TempFile("", "*-pmm-admin-summary.zip")
+	sf, err := os.CreateTemp("", "*-pmm-admin-summary.zip")
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -411,7 +421,7 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return errors.WithStack(err)
 		}
 
-		if _, err = io.Copy(fw, fr); err != nil {
+		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
 			fr.Close() //nolint:errcheck
 			return errors.WithStack(err)
 		}

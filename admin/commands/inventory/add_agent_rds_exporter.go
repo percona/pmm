@@ -50,7 +50,7 @@ type AddAgentRDSExporterCommand struct {
 	NodeID                 string            `arg:"" help:"Node identifier"`
 	AWSAccessKey           string            `help:"AWS Access Key ID"`
 	AWSSecretKey           string            `help:"AWS Secret Access Key"`
-	CustomLabels           map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`

@@ -24,9 +24,8 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-
 var (
+	_ codes.Code
 	_ io.Reader
 	_ status.Status
 	_ = runtime.String
@@ -157,7 +156,7 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 // RegisterAzureDatabaseHandlerFromEndpoint is same as RegisterAzureDatabaseHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterAzureDatabaseHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.Dial(endpoint, opts...)
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
 	}

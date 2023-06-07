@@ -52,10 +52,12 @@ func NewChangePXCComponentsParamsWithHTTPClient(client *http.Client) *ChangePXCC
 	}
 }
 
-/* ChangePXCComponentsParams contains all the parameters to send to the API endpoint
-   for the change PXC components operation.
+/*
+ChangePXCComponentsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change PXC components operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangePXCComponentsParams struct {
 	// Body.

@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,26 +37,30 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
-		t.Helper()
-
-		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		teardown = func(t *testing.T) {
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-		}
-		s = NewNodeService(db)
-
-		return
-	}
-
 	t.Run("Register", func(t *testing.T) {
+		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
+			t.Helper()
+
+			ctx = logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			teardown = func(t *testing.T) {
+				t.Helper()
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+			}
+			var apiKeyProvider mockApiKeyProvider
+			apiKeyProvider.Test(t)
+			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+			s = NewNodeService(db, &apiKeyProvider)
+
+			return
+		}
+
 		t.Run("New", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
@@ -78,6 +83,7 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
 				},
+				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
 			assert.NoError(t, err)
@@ -111,6 +117,7 @@ func TestNodeService(t *testing.T) {
 						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
+					Token: "test-token",
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
@@ -135,6 +142,7 @@ func TestNodeService(t *testing.T) {
 						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
 						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
+					Token: "test-token",
 				}
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)

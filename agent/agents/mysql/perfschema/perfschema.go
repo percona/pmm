@@ -20,7 +20,6 @@ import (
 	"database/sql"
 	"io"
 	"math"
-	"strconv"
 	"sync"
 	"time"
 
@@ -33,6 +32,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
@@ -73,11 +73,11 @@ func (m *PerfSchema) mySQLVersion() *mySQLVersion {
 const (
 	retainHistory    = 5 * time.Minute
 	refreshHistory   = 5 * time.Second
-	historyCacheSize = 5000 // history cache size rows limit
+	historyCacheSize = 10000 // history cache size rows limit
 
 	retainSummaries    = 25 * time.Hour // make it work for daily queries
 	querySummaries     = time.Minute
-	summariesCacheSize = 5000 // summary cache size rows limit
+	summariesCacheSize = 10000 // summary cache size rows limit
 )
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
@@ -85,6 +85,7 @@ type PerfSchema struct {
 	q                    *reform.Querier
 	dbCloser             io.Closer
 	agentID              string
+	maxQueryLength       int32
 	disableQueryExamples bool
 	l                    *logrus.Entry
 	changes              chan agents.Change
@@ -97,6 +98,7 @@ type PerfSchema struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	TLSSkipVerify        bool
@@ -107,6 +109,7 @@ type newPerfSchemaParams struct {
 	Querier              *reform.Querier
 	DBCloser             io.Closer
 	AgentID              string
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	LogEntry             *logrus.Entry
 }
@@ -137,6 +140,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		Querier:              q,
 		DBCloser:             sqlDB,
 		AgentID:              params.AgentID,
+		MaxQueryLength:       params.MaxQueryLength,
 		DisableQueryExamples: params.DisableQueryExamples,
 		LogEntry:             l,
 	}
@@ -158,6 +162,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		q:                    params.Querier,
 		dbCloser:             params.DBCloser,
 		agentID:              params.AgentID,
+		maxQueryLength:       params.MaxQueryLength,
 		disableQueryExamples: params.DisableQueryExamples,
 		l:                    params.LogEntry,
 		changes:              make(chan agents.Change, 10),
@@ -194,17 +199,14 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	}
 
 	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(m.q)
+	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
 	if err != nil {
 		m.l.Error(err)
 	}
-	mysqlVer, err := strconv.ParseFloat(ver, 64)
-	if err != nil {
-		m.l.Error(err)
-	}
+
 	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: mysqlVer,
-		vendor:  ven,
+		version: ver.Float(),
+		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -303,7 +305,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.l)
+	buckets := makeBuckets(current, prev, m.l, m.maxQueryLength)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d summaries in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -324,6 +326,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		b.Common.PeriodStartUnixSecs = startS
 		b.Common.PeriodLengthSecs = periodLengthSecs
 
+		//nolint:nestif
 		if esh := history[b.Common.Queryid]; esh != nil {
 			// TODO test if we really need that
 			// If we don't need it, we can avoid polling events_statements_history completely
@@ -332,14 +335,23 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if !m.disableQueryExamples && esh.SQLText != nil {
-				example, truncated := truncate.Query(*esh.SQLText)
+			if esh.SQLText != nil {
+				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
+				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
 				if truncated {
 					b.Common.IsTruncated = truncated
 				}
-				b.Common.Example = example
-				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
-				b.Common.ExampleType = agentpb.ExampleType_RANDOM
+				b.Common.ExplainFingerprint = explainFingerprint
+				b.Common.PlaceholdersCount = placeholdersCount
+
+				if !m.disableQueryExamples {
+					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+					if truncated {
+						b.Common.IsTruncated = truncated
+					}
+					b.Common.Example = example
+					b.Common.ExampleType = agentpb.ExampleType_RANDOM
+				}
 			}
 		}
 
@@ -361,7 +373,7 @@ func inc(current, prev uint64) float32 {
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev summaryMap, l *logrus.Entry) []*agentpb.MetricsBucket {
+func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
@@ -388,7 +400,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry) []*agentpb.MetricsBu
 		}
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
-		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText)
+		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?

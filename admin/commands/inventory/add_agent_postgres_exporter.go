@@ -52,7 +52,7 @@ type AddAgentPostgresExporterCommand struct {
 	Username            string            `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
 	Password            string            `help:"PostgreSQL password for scraping metrics"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
@@ -61,7 +61,7 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCAFile           string            `help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
-	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+	LogLevel            string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {

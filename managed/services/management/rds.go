@@ -69,7 +69,6 @@ var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"aurora":       managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.6-compatible Aurora
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
 		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
@@ -78,7 +77,6 @@ var (
 		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
 	}
 	rdsEnginesKeys = []*string{
-		pointer.ToString("aurora"),
 		pointer.ToString("aurora-mysql"),
 		pointer.ToString("mariadb"),
 		pointer.ToString("mysql"),
@@ -90,6 +88,7 @@ var (
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
 // Returned error is wrapped with a stack trace, but unchanged otherwise.
+//
 //nolint:interfacer
 func discoverRDSRegion(ctx context.Context, sess *session.Session, region string) ([]*rds.DBInstance, error) {
 	var res []*rds.DBInstance
@@ -119,7 +118,7 @@ func listRegions(partitions []string) []string {
 				continue
 			}
 
-			for r := range partition.Services()[endpoints.RdsServiceID].Regions() {
+			for r := range partition.Services()[rds.EndpointsID].Regions() {
 				set[r] = struct{}{}
 			}
 			break
@@ -227,11 +226,11 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 
 	// return better gRPC errors in typical cases
 	err = wg.Wait()
-	if e, ok := errors.Cause(err).(awserr.Error); ok {
+	if e, ok := errors.Cause(err).(awserr.Error); ok { //nolint:errorlint
 		switch {
 		case e.Code() == "InvalidClientTokenId":
 			return res, status.Error(codes.InvalidArgument, e.Message())
-		case e.OrigErr() == context.Canceled || e.OrigErr() == context.DeadlineExceeded:
+		case errors.Is(e.OrigErr(), context.Canceled) || errors.Is(e.OrigErr(), context.DeadlineExceeded):
 			return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
 		default:
 			return res, status.Error(codes.Unknown, e.Error())
@@ -241,7 +240,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) {
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop
 	res := &managementpb.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -278,7 +277,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		if err != nil {
 			return err
 		}
-		res.Node = invNode.(*inventorypb.RemoteRDSNode)
+		res.Node = invNode.(*inventorypb.RemoteRDSNode) //nolint:forcetypeassert
 
 		// add RDSExporter Agent
 		if req.RdsExporter {
@@ -297,7 +296,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter)
+			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter) //nolint:forcetypeassert
 		}
 
 		switch req.Engine {
@@ -320,7 +319,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Mysql = invService.(*inventorypb.MySQLService)
+			res.Mysql = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -344,7 +343,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter)
+			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
@@ -372,7 +371,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent)
+				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 			}
 
 			return nil
@@ -396,7 +395,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.Postgresql = invService.(*inventorypb.PostgreSQLService)
+			res.Postgresql = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
 
 			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
 			if err != nil {
@@ -420,7 +419,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			if err != nil {
 				return err
 			}
-			res.PostgresqlExporter = invPostgresExporter.(*inventorypb.PostgresExporter)
+			res.PostgresqlExporter = invPostgresExporter.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
@@ -446,7 +445,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err != nil {
 					return err
 				}
-				res.QanPostgresqlPgstatements = invQANAgent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+				res.QanPostgresqlPgstatements = invQANAgent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 			}
 
 			return nil

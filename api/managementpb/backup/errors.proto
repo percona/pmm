@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package backup.v1beta1;
+package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1beta1";
+option go_package = "api/managementpb/backup;backupv1";
 
 // ErrorCode is a set of specific errors that are not present in the standard set of errors
 // and returned in the details field of the response.
@@ -16,6 +16,8 @@ enum ErrorCode {
   ERROR_CODE_INCOMPATIBLE_XTRABACKUP = 3;
   // ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL is returned if target version of MySQL is not compatible for restoring selected artifact.
   ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL = 4;
+  // ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB is returned if target version of MongoDB is not compatible for restoring selected artifact.
+  ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB = 5;
 }
 
 // Error represents error message returned in the details field in the response.

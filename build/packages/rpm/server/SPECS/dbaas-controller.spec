@@ -4,8 +4,8 @@
 # do not strip debug symbols
 %global debug_package     %{nil}
 
-# the lines below are sed'ed by build-server-rpm script to set a correct version
-# see: https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/build/bin/build-server-rpm
+# The commit hash gets sed'ed by build-server-rpm script to set a correct version
+# see: https://github.com/percona/pmm/blob/main/build/scripts/build-server-rpm#L58
 %global commit            0000000000000000000000000000000000000000
 %define full_pmm_version 2.0.0
 

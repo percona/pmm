@@ -52,10 +52,12 @@ func NewStartPostgreSQLShowIndexActionParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/* StartPostgreSQLShowIndexActionParams contains all the parameters to send to the API endpoint
-   for the start postgre SQL show index action operation.
+/*
+StartPostgreSQLShowIndexActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start postgre SQL show index action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartPostgreSQLShowIndexActionParams struct {
 	// Body.

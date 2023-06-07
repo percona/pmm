@@ -48,7 +48,8 @@ func NewGetSettingsOK() *GetSettingsOK {
 	return &GetSettingsOK{}
 }
 
-/* GetSettingsOK describes a response with status code 200, with default header values.
+/*
+GetSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 	}
 }
 
-/* GetSettingsDefault describes a response with status code -1, with default header values.
+/*
+GetSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetSettingsDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*GetSettingsDefaultBody get settings default body
+/*
+GetSettingsDefaultBody get settings default body
 swagger:model GetSettingsDefaultBody
 */
 type GetSettingsDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *GetSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -242,6 +246,10 @@ func (o *GetSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 //     ...
 //     if (any.is(Foo.class)) {
 //       foo = any.unpack(Foo.class);
+//     }
+//     // or ...
+//     if (any.isSameTypeAs(Foo.getDefaultInstance())) {
+//       foo = any.unpack(Foo.getDefaultInstance());
 //     }
 //
 // Example 3: Pack and unpack a message in Python.
@@ -272,7 +280,6 @@ func (o *GetSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 // methods only use the fully qualified type name after the last '/'
 // in the type URL, for example "foo.bar.com/x/y.z" will yield type
 // name "y.z".
-//
 //
 // JSON
 //
@@ -362,7 +369,8 @@ func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsOKBody get settings OK body
+/*
+GetSettingsOKBody get settings OK body
 swagger:model GetSettingsOKBody
 */
 type GetSettingsOKBody struct {
@@ -450,7 +458,8 @@ func (o *GetSettingsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsOKBodySettings Settings represents PMM Server settings.
+/*
+GetSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model GetSettingsOKBodySettings
 */
 type GetSettingsOKBodySettings struct {
@@ -470,6 +479,9 @@ type GetSettingsOKBodySettings struct {
 	AWSPartitions []string `json:"aws_partitions"`
 
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	//
+	// alert_manager_rules field name is incorrect
+	//  (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
 	// Custom alerting or recording rules.
@@ -501,6 +513,12 @@ type GetSettingsOKBodySettings struct {
 
 	// Includes list of collected telemetry
 	TelemetrySummaries []string `json:"telemetry_summaries"`
+
+	// True if Access Control is enabled.
+	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+
+	// Default Access Control role ID for new users.
+	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
@@ -721,7 +739,8 @@ func (o *GetSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*
+GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsEmailAlertingSettings
 */
 type GetSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -778,7 +797,8 @@ func (o *GetSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+/*
+GetSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
@@ -820,7 +840,8 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
+/*
+GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsSlackAlertingSettings
 */
 type GetSettingsOKBodySettingsSlackAlertingSettings struct {
@@ -856,7 +877,8 @@ func (o *GetSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+/*
+GetSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
 swagger:model GetSettingsOKBodySettingsSttCheckIntervals
 */
 type GetSettingsOKBodySettingsSttCheckIntervals struct {

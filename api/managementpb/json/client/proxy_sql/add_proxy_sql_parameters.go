@@ -52,10 +52,12 @@ func NewAddProxySQLParamsWithHTTPClient(client *http.Client) *AddProxySQLParams 
 	}
 }
 
-/* AddProxySQLParams contains all the parameters to send to the API endpoint
-   for the add proxy SQL operation.
+/*
+AddProxySQLParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add proxy SQL operation.
+
+	Typically these are written to a http.Request.
 */
 type AddProxySQLParams struct {
 	// Body.

@@ -50,7 +50,7 @@ type AddNodeRemoteRDSCommand struct {
 	NodeModel    string            `help:"Node mddel"`
 	Region       string            `help:"Node region"`
 	Az           string            `help:"Node availability zone"`
-	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
 func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {

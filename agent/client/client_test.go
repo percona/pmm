@@ -31,6 +31,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
+	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -74,12 +76,14 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port 
 }
 
 func TestClient(t *testing.T) {
+	t.Parallel()
+
 	t.Run("NoAddress", func(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfg := &config.Config{}
-		client := New(cfg, nil, nil, nil, nil, nil, nil)
+		cfgStorage := config.NewStorage(&config.Config{})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -89,12 +93,12 @@ func TestClient(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())
 
-		cfg := &config.Config{
+		cfgStorage := config.NewStorage(&config.Config{
 			Server: config.Server{
 				Address: "127.0.0.1:1",
 			},
-		}
-		client := New(cfg, nil, nil, nil, nil, nil, nil)
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -105,13 +109,13 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
-		cfg := &config.Config{
+		cfgStorage := config.NewStorage(&config.Config{
 			ID: "agent_id",
 			Server: config.Server{
 				Address: "127.0.0.1:1",
 			},
-		}
-		client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		})
+		client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -145,19 +149,22 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfg := &config.Config{
+			cfgStorage := config.NewStorage(&config.Config{
 				ID: "agent_id",
 				Server: config.Server{
 					Address:    fmt.Sprintf("127.0.0.1:%d", port),
 					WithoutTLS: true,
 				},
-			}
+			})
 
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+			s.On("ClearChangesChannel").Return()
 
-			client := New(cfg, &s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			r := runner.New(cfgStorage.Get().RunnerCapacity)
+			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -177,15 +184,15 @@ func TestClient(t *testing.T) {
 			port, teardown := setup(t, connect)
 			defer teardown()
 
-			cfg := &config.Config{
+			cfgStorage := config.NewStorage(&config.Config{
 				ID: "agent_id",
 				Server: config.Server{
 					Address:    fmt.Sprintf("127.0.0.1:%d", port),
 					WithoutTLS: true,
 				},
-			}
+			})
 
-			client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
@@ -215,37 +222,67 @@ func TestUnexpectedActionType(t *testing.T) {
 		require.NoError(t, err)
 
 		// actual test
-		err = stream.Send(&agentpb.ServerMessage{
-			Id: 4242,
-			Payload: &agentpb.ServerMessage_StartAction{
-				// try to send unknown payload for action type
-				StartAction: &agentpb.StartActionRequest{},
+		cases := []struct {
+			name         string
+			id           uint32
+			payload      *agentpb.ServerMessage_StartAction
+			expectedCode codes.Code
+		}{
+			{
+				name: "invlalid action type",
+				id:   4242,
+				payload: &agentpb.ServerMessage_StartAction{
+					StartAction: &agentpb.StartActionRequest{},
+				},
+				expectedCode: codes.InvalidArgument,
 			},
-		})
-		assert.NoError(t, err)
+			{
+				name: "mongodb restart invalid system service",
+				id:   4243,
+				payload: &agentpb.ServerMessage_StartAction{
+					StartAction: &agentpb.StartActionRequest{
+						Params: &agentpb.StartActionRequest_RestartSysServiceParams{
+							RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
+								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_INVALID,
+							},
+						},
+					},
+				},
+				expectedCode: codes.InvalidArgument,
+			},
+		}
 
-		msg, err = stream.Recv()
-		assert.NoError(t, err)
-		assert.Equal(t, int32(codes.Unimplemented), msg.GetStatus().GetCode())
-		assert.NoError(t, err)
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				err = stream.Send(&agentpb.ServerMessage{Id: tc.id, Payload: tc.payload})
+				require.NoError(t, err)
+
+				msg, err = stream.Recv()
+				require.NoError(t, err)
+				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode())
+			})
+		}
 		return nil
 	}
 	port, teardown := setup(t, connect)
 	defer teardown()
 
-	cfg := &config.Config{
+	cfgStorage := config.NewStorage(&config.Config{
 		ID: "agent_id",
 		Server: config.Server{
 			Address:    fmt.Sprintf("127.0.0.1:%d", port),
 			WithoutTLS: true,
 		},
-	}
+	})
 
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
 
-	client := New(cfg, s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	r := runner.New(cfgStorage.Get().RunnerCapacity)
+	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -256,7 +293,6 @@ func TestArgListFromPgParams(t *testing.T) {
 		req      *agentpb.StartActionRequest_PTPgSummaryParams
 		expected []string
 	}
-
 	testCases := []*testParams{
 		{
 			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
@@ -300,7 +336,6 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 		req      *agentpb.StartActionRequest_PTMongoDBSummaryParams
 		expected []string
 	}
-
 	testCases := []*testParams{
 		{
 			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},

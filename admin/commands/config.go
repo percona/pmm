@@ -40,6 +40,8 @@ func (res *configResult) String() string {
 }
 
 // ConfigCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type ConfigCommand struct {
 	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
 	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
@@ -51,22 +53,27 @@ type ConfigCommand struct {
 	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
 	MetricsMode       string   `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
-	CustomLabels      string   `help:"Custom user-assigned labels"`
+	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
-func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
+func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"
 	}
+
+	var switchedToTLS bool
+	var res []string
+
 	if globals.ServerURL.Scheme == "http" {
 		port = "443"
 		switchedToTLS = true
 		globals.SkipTLSCertificateCheck = true
 	}
+
 	res = append(res, fmt.Sprintf("--server-address=%s:%s", globals.ServerURL.Hostname(), port))
 
 	if globals.ServerURL.User != nil {
@@ -135,7 +142,7 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
 
-	return //nolint:nakedret
+	return res, switchedToTLS
 }
 
 // RunCmd runs config command.

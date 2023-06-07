@@ -52,10 +52,12 @@ func NewDiscoverAzureDatabaseParamsWithHTTPClient(client *http.Client) *Discover
 	}
 }
 
-/* DiscoverAzureDatabaseParams contains all the parameters to send to the API endpoint
-   for the discover azure database operation.
+/*
+DiscoverAzureDatabaseParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the discover azure database operation.
+
+	Typically these are written to a http.Request.
 */
 type DiscoverAzureDatabaseParams struct {
 	// Body.

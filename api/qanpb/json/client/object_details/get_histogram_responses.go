@@ -49,7 +49,8 @@ func NewGetHistogramOK() *GetHistogramOK {
 	return &GetHistogramOK{}
 }
 
-/* GetHistogramOK describes a response with status code 200, with default header values.
+/*
+GetHistogramOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewGetHistogramDefault(code int) *GetHistogramDefault {
 	}
 }
 
-/* GetHistogramDefault describes a response with status code -1, with default header values.
+/*
+GetHistogramDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetHistogramBody HistogramRequest defines filtering by time range, labels and queryid.
+/*
+GetHistogramBody HistogramRequest defines filtering by time range, labels and queryid.
 swagger:model GetHistogramBody
 */
 type GetHistogramBody struct {
@@ -257,7 +260,8 @@ func (o *GetHistogramBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramDefaultBody get histogram default body
+/*
+GetHistogramDefaultBody get histogram default body
 swagger:model GetHistogramDefaultBody
 */
 type GetHistogramDefaultBody struct {
@@ -360,7 +364,8 @@ func (o *GetHistogramDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramDefaultBodyDetailsItems0 get histogram default body details items0
+/*
+GetHistogramDefaultBodyDetailsItems0 get histogram default body details items0
 swagger:model GetHistogramDefaultBodyDetailsItems0
 */
 type GetHistogramDefaultBodyDetailsItems0 struct {
@@ -396,7 +401,8 @@ func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramOKBody HistogramReply is histogram items as a list.
+/*
+GetHistogramOKBody HistogramReply is histogram items as a list.
 swagger:model GetHistogramOKBody
 */
 type GetHistogramOKBody struct {
@@ -493,7 +499,8 @@ func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetHistogramOKBodyHistogramItemsItems0 HistogramItem represents one item in histogram.
+/*
+GetHistogramOKBodyHistogramItemsItems0 HistogramItem represents one item in histogram.
 swagger:model GetHistogramOKBodyHistogramItemsItems0
 */
 type GetHistogramOKBodyHistogramItemsItems0 struct {
@@ -532,7 +539,8 @@ func (o *GetHistogramOKBodyHistogramItemsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*GetHistogramParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*
+GetHistogramParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetHistogramParamsBodyLabelsItems0
 */
 type GetHistogramParamsBodyLabelsItems0 struct {

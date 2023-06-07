@@ -52,10 +52,12 @@ func NewStartPTMySQLSummaryActionParamsWithHTTPClient(client *http.Client) *Star
 	}
 }
 
-/* StartPTMySQLSummaryActionParams contains all the parameters to send to the API endpoint
-   for the start PT my SQL summary action operation.
+/*
+StartPTMySQLSummaryActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start PT my SQL summary action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartPTMySQLSummaryActionParams struct {
 	// Body.

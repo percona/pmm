@@ -3,6 +3,9 @@ linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
 
+  cyclop:
+    max-complexity: 30
+
   depguard:
     list-type: blacklist
     include-go-root: true
@@ -40,11 +43,15 @@ linters-settings:
       - error
       - empty
       - stdlib
+      - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
 
   lll:
     line-length: 170
     tab-width: 4
+
+  nestif:
+    min-complexity: 7
 
   tagliatelle:
     # Check the struck tag name case.
@@ -67,45 +74,73 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    # keep sorted
-    - exhaustivestruct  # too annoying
-    - funlen            # useless
-    - gochecknoglobals  # mostly useless
-    - gochecknoinits    # we use init functions
-    - gomnd             # we are using numbers in many cases
-    - gomoddirectives   # we use replace directives
-    - ifshort           # a lot of false positives
-    - interfacer        # deprecated
-    - maligned          # deprecated
-    - nlreturn          # too annoying
-    - scopelint         # too many false positives
-    - varnamelen        # useless
-    - wrapcheck         # we do not use wrapping everywhere
-    - wsl               # too annoying
+    # keep the rules sorted alpahbetically
+    - execinquery      # false positives only
+    - exhaustivestruct # too annoying
+    - exhaustruct      # too many files to fix/nolint
+    - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
+    - funlen           # useless
+    - gochecknoglobals # mostly useless
+    - gochecknoinits   # we use init functions
+    - gocyclo          # using cyclop with the max 30 instead
+    - goerr113         # extra work & poor benefit
+    - golint           # unmaintained, replaced by revive
+    - gomnd            # we are using numbers in many cases
+    - gomoddirectives  # we use replace directives
+    - ifshort          # a lot of false positives
+    - interfacer       # deprecated
+    - maligned         # deprecated
+    - nlreturn         # too annoying
+    - nosnakecase      # deprecated
+    - scopelint        # too many false positives
+    - varnamelen       # useless
+    - wrapcheck        # we do not use wrapping everywhere
+    - wsl              # too annoying
+
+    # TODO: carefully review all the rules below and either fix the code
+    # or leave disabled and provide a reason why
+    - tagliatelle
+    - gocritic
+    - godot
+    - godox
+    - revive
+    - paralleltest
+    - ireturn
+    - gocognit
+    - maintidx
+    - interfacebloat
+    - forbidigo
+    - errcheck
+    # ENDTODO
 
 run:
   timeout: 5m
   skip-dirs:
     - agent/agents/mongodb/internal/
+    - qan-api2/migrations/
 
 issues:
   exclude-use-default: false
   exclude:
     # gas: Duplicated errcheck checks
-    - 'G104: Errors unhandled'
+    - "G104: Errors unhandled"
     # golint: Methods for implementing interfaces are not documented
-    - 'exported method `.+` should have comment or be unexported'
-    - 'comment on exported method `.+` should be of the form `.+ ...`'
+    - "exported method `.+` should have comment or be unexported"
+    - "comment on exported method `.+` should be of the form `.+ ...`"
     # golint: We have to return unexported types due to oneof implementation
-    - 'exported method .+ returns unexported type .+, which can be annoying to use'
+    - "exported method .+ returns unexported type .+, which can be annoying to use"
   exclude-rules:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
+        - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
+        - lll              # tests often require long lines
+        - nonamedreturns   # it's not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-

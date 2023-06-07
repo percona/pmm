@@ -1,6 +1,6 @@
 # Welcome to Percona Monitoring and Management (PMM)!
 
-We're glad that you would like to become a Percona community member and participate in keeping open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers.
+We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
 ## Table of contents
 1. [Project repos structure](#Project-repos-structure)
@@ -17,59 +17,37 @@ This project is built from several repositories:
 
 ### APIs
 
-* [percona/pmm](https://github.com/percona/pmm)
+* [percona/pmm](https://github.com/percona/pmm/tree/main/api)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
 * [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
 
 ### PMM Server
 
-#### BackEnd
-* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
-* [percona/qan-api2](https://github.com/percona/qan-api2)
-* [percona/pmm-update](https://github.com/percona/pmm-update)
+#### Backends
 
-#### FrontEnd
-* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
-* [percona-platform/grafana](https://github.com/percona-platform/grafana)
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
+* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
+* [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
+* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
+
+#### Frontends
+
+* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
+* [percona-platform/grafana](https://github.com/percona-platform/grafana) user interface for PMM
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent)
-* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona/node_exporter](https://github.com/percona/node_exporter)
-* [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
-* [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
-* [percona/postgres_exporter](https://github.com/percona/postgres_exporter)
-* [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter)
-* [percona/rds_exporter](https://github.com/percona/rds_exporter)
-* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter)
-* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
-* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
-
-
-### PMM DBaaS
-
-#### Prerequisites
-
-1. Installed minikube
-2. Installed docker
-
-#### Running minikube
-
-To spin-up k8s cluster, run
-```
-    minikube start --cpus=4 --memory=7G --apiserver-names host.docker.internal --kubernetes-version=v1.23.0
-    ENABLE_DBAAS=1 NETWORK=minikube make env-up # Run PMM with DBaaS feature enabled
-```
-
-[Read the documentation](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/dbaas.html) how to run DBaaS on GKE or EKS
-
-##### Troubleshooting
-
-1. You can face with pod failing with `Init:CrashLoopBackOff` issue. Once you get logs by running `kubectl logs pxc-cluster-pxc-0 -c pxc-init` you get the error `install: cannot create regular file '/var/lib/mysql/pxc-entrypoint.sh': Permission denied`. You can fix it using [this solution](https://github.com/kubernetes/minikube/issues/12360#issuecomment-1123794143). Also, check [this issue](https://jira.percona.com/browse/K8SPXC-879)
-2. Multinode PXC Cluster can't be created on ARM CPUs. You can have single node installation.
-3. Operators are not supported. It means that the PMM version <-> operator version pair does not exist in the Version service. This issue can happen in two different scenarios. You can have a PMM version higher than the current release, or you installed a higher version of operators. You can check compatibility using https://check.percona.com/versions/v1/pmm-server/PMM-version
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
+* [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
+* [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
+* [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) exports MongoDB server's metrics
+* [percona/postgres_exporter](https://github.com/percona/postgres_exporter) exports PostgreSQL server's metrics
+* [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) exports ProxySQL server's metrics
+* [percona/rds_exporter](https://github.com/percona/rds_exporter) exports metrics from RDS
+* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter) exports metrics from Azure
+* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter) exports metrics from ClickHouse
+* [percona/percona-toolkit](https://github.com/percona/percona-toolkit) is a collection of advanced command-line tools to perform a variety of MySQL and system tasks that are too difficult or complex to perform manually
 
 
 ### Building and Packaging
@@ -142,7 +120,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 * Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.
-* To run pmm-managed with a new changes just run `make env TARGET="release-dev-managed run-managed"` to update `pmm-managed` running in container.
+* To run pmm-managed with a new changes just run `make env TARGET="run-managed"`, it updates `pmm-managed` running in container.
 
 ### PMM Client
 
@@ -175,16 +153,19 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
 
 ### API tests
 
-API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are included into pmm repository and located in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests runs against running PMM Server container.
 
 ### End to End (E2E) tests
 
 End to End tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
-Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run theese.
+Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run these.
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+Before proceeding with your first pull request, we highly recommend you to read the following documents:
+- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](docs/process/tech_stack.md)
+- [Best practices](docs/process/best_practices.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
@@ -240,4 +221,4 @@ For more efficient review process we use a mixed approach:
 
 Once your pull request is merged, you are an official Percona Community Contributor. Welcome to the community!
 
-We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://discord.gg/mQEyGPkNbR).
+We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com).

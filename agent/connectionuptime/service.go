@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package connectionuptime contains functionality for connection uptime calculation.
 package connectionuptime
 
 import (
@@ -25,8 +26,8 @@ import (
 
 const periodForRunningDeletingOldEvents = time.Minute
 
-// Service calculates connection up time between agent and server
-// based on the connection events events
+// Service calculates connection uptime between agent and server
+// based on the connection events
 type Service struct {
 	mx           sync.Mutex
 	events       []connectionEvent
@@ -132,12 +133,14 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 // Here is example how it works.
 // When we have such set of events in connection set `f1 s1 f2`
 // where f1 - first event of failed connection
-//       s1 - first event of successful connection
-//       f2 - second event of failed connection
+//
+//	s1 - first event of successful connection
+//	f2 - second event of failed connection
 //
 // method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
 // where time_between(s1, f2) - connection up time
-//       time_between(f1, now) - total time between first event (f1) and current moment
+//
+//	time_between(f1, now) - total time between first event (f1) and current moment
 func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 	c.l.Debug("Calculate connection uptime")
 	if len(c.events) == 0 {

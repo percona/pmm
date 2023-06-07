@@ -46,7 +46,7 @@ func newRoster() *roster {
 	}
 }
 
-func (r *roster) add(pmmAgentID string, group agentGroup, agentIDs []string) (groupID string) {
+func (r *roster) add(pmmAgentID string, group agentGroup, agentIDs []string) (groupID string) { //nolint:nonamedreturns
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -56,7 +56,7 @@ func (r *roster) add(pmmAgentID string, group agentGroup, agentIDs []string) (gr
 	return
 }
 
-func (r *roster) get(groupID string) (agentIDs []string) {
+func (r *roster) get(groupID string) (agentIDs []string) { //nolint:nonamedreturns
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 

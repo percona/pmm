@@ -70,27 +70,6 @@ func (_m *mockVersionService) IsDatabaseVersionSupportedByOperator(ctx context.C
 	return r0, r1
 }
 
-// IsOperatorVersionSupported provides a mock function with given fields: ctx, operatorType, pmmVersion, operatorVersion
-func (_m *mockVersionService) IsOperatorVersionSupported(ctx context.Context, operatorType string, pmmVersion string, operatorVersion string) (bool, error) {
-	ret := _m.Called(ctx, operatorType, pmmVersion, operatorVersion)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) bool); ok {
-		r0 = rf(ctx, operatorType, pmmVersion, operatorVersion)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
-		r1 = rf(ctx, operatorType, pmmVersion, operatorVersion)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // LatestOperatorVersion provides a mock function with given fields: ctx, pmmVersion
 func (_m *mockVersionService) LatestOperatorVersion(ctx context.Context, pmmVersion string) (*version.Version, *version.Version, error) {
 	ret := _m.Called(ctx, pmmVersion)
@@ -162,6 +141,29 @@ func (_m *mockVersionService) NextOperatorVersion(ctx context.Context, operatorT
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
 		r1 = rf(ctx, operatorType, installedVersion)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SupportedOperatorVersionsList provides a mock function with given fields: ctx, pmmVersion
+func (_m *mockVersionService) SupportedOperatorVersionsList(ctx context.Context, pmmVersion string) (map[string][]string, error) {
+	ret := _m.Called(ctx, pmmVersion)
+
+	var r0 map[string][]string
+	if rf, ok := ret.Get(0).(func(context.Context, string) map[string][]string); ok {
+		r0 = rf(ctx, pmmVersion)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string][]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, pmmVersion)
 	} else {
 		r1 = ret.Error(1)
 	}

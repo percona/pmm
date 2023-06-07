@@ -32,6 +32,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -44,7 +45,7 @@ func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
 
-	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", logrus.WithField("test", t.Name()))
+	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return p
@@ -356,7 +357,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix()))
+		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -379,7 +380,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			waitGroup.Add(1)
 			go func() {
 				defer waitGroup.Done()
-				_, err := db.Exec(fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+				_, err := db.Exec(
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
 				require.NoError(t, err)
 			}()
 		}

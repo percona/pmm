@@ -44,13 +44,15 @@ func TestKubernetesServer(t *testing.T) {
 		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster")
 		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		require.NoError(t, err)
-		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		require.NotContains(t, clusters.Payload.KubernetesClusters,
+			&kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
 		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(clusters.Payload.KubernetesClusters), 1)
-		assert.Contains(t, clusters.Payload.KubernetesClusters, &kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		assert.Contains(t, clusters.Payload.KubernetesClusters,
+			&kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
 		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
@@ -63,7 +65,8 @@ func TestKubernetesServer(t *testing.T) {
 
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
-		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		require.NotContains(t, clusters.Payload.KubernetesClusters,
+			&kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 	})
 
 	t.Run("DuplicateClusterName", func(t *testing.T) {
@@ -165,7 +168,8 @@ func TestKubernetesServer(t *testing.T) {
 		dbClusterName := "first-psmdb-test"
 		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		require.NoError(t, err)
-		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		require.NotContains(t, clusters.Payload.KubernetesClusters,
+			&kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
 
 		paramsFirstPSMDB := psmdbclusters.CreatePSMDBClusterParams{
@@ -191,7 +195,8 @@ func TestKubernetesServer(t *testing.T) {
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(clusters.Payload.KubernetesClusters), 1)
-		assert.Contains(t, clusters.Payload.KubernetesClusters, &kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		assert.Contains(t, clusters.Payload.KubernetesClusters,
+			&kubernetes.ListKubernetesClustersOKBodyKubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
 		_, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{

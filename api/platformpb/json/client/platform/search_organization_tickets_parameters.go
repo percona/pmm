@@ -52,10 +52,12 @@ func NewSearchOrganizationTicketsParamsWithHTTPClient(client *http.Client) *Sear
 	}
 }
 
-/* SearchOrganizationTicketsParams contains all the parameters to send to the API endpoint
-   for the search organization tickets operation.
+/*
+SearchOrganizationTicketsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the search organization tickets operation.
+
+	Typically these are written to a http.Request.
 */
 type SearchOrganizationTicketsParams struct {
 	// Body.

@@ -52,10 +52,12 @@ func NewServerInfoParamsWithHTTPClient(client *http.Client) *ServerInfoParams {
 	}
 }
 
-/* ServerInfoParams contains all the parameters to send to the API endpoint
-   for the server info operation.
+/*
+ServerInfoParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the server info operation.
+
+	Typically these are written to a http.Request.
 */
 type ServerInfoParams struct {
 	// Body.

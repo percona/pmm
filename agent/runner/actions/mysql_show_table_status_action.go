@@ -16,12 +16,15 @@ package actions
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowTableStatusAction struct {
@@ -64,17 +67,30 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", a.params.Table)
+	table := prepareRealTableName(a.params.Table)
+	if containsDB := strings.Contains(table, "."); containsDB {
+		split := strings.Split(table, ".")
+		if len(split) > 1 {
+			useQuery := fmt.Sprintf("USE /* pmm-agent */ %s;", split[0])
+			table = split[1]
+			_, err = db.ExecContext(ctx, useQuery)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", table)
 	if err != nil {
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}
 	if len(dataRows) == 0 {
-		return nil, errors.Errorf("table %q not found", a.params.Table)
+		return nil, errors.Errorf("table %q not found", table)
 	}
 	return jsonRows(columns, dataRows)
 }

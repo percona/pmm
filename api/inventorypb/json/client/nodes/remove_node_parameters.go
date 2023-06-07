@@ -52,10 +52,12 @@ func NewRemoveNodeParamsWithHTTPClient(client *http.Client) *RemoveNodeParams {
 	}
 }
 
-/* RemoveNodeParams contains all the parameters to send to the API endpoint
-   for the remove node operation.
+/*
+RemoveNodeParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the remove node operation.
+
+	Typically these are written to a http.Request.
 */
 type RemoveNodeParams struct {
 	// Body.

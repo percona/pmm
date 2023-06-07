@@ -40,9 +40,9 @@ type SaaS struct {
 	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
 }
 
-// IntegratedAlerting contains settings related to IntegratedAlerting.
-type IntegratedAlerting struct {
-	Enabled               bool                   `json:"enabled"`
+// Alerting contains settings related to Alerting.
+type Alerting struct {
+	Disabled              bool                   `json:"disabled"`
 	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
 	SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
 }
@@ -84,18 +84,27 @@ type Settings struct {
 		Enabled bool `json:"enabled"`
 	} `json:"dbaas"`
 
-	IntegratedAlerting IntegratedAlerting `json:"ia"`
+	Alerting Alerting `json:"alerting"`
 
 	Azurediscover struct {
 		Enabled bool `json:"enabled"`
 	} `json:"azure"`
 
 	BackupManagement struct {
-		Enabled bool `json:"enabled"`
+		Disabled bool `json:"disabled"`
 	} `json:"backup_management"`
 
 	// PMMServerID is generated on the first start of PMM server.
 	PMMServerID string `json:"pmmServerID"`
+
+	// DefaultRoleID defines a default role to be assigned to new users.
+	DefaultRoleID int `json:"default_role_id"`
+
+	// AccessControl holds information about access control.
+	AccessControl struct {
+		// Enabled is true if access control is enabled.
+		Enabled bool `json:"enabled"`
+	} `json:"access_control"`
 }
 
 // EmailAlertingSettings represents email settings for Integrated Alerting.
@@ -181,7 +190,7 @@ func (s *Settings) fillDefaults() {
 	// AlertManagerURL is empty by default
 	// SaaS.STTDisabled is false by default
 	// DBaaS.Enabled is false by default
-	// IntegratedAlerting.Enabled is false by default
+	// Alerting.Disabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
 	// Azurediscover.Enabled is false by default

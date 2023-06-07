@@ -48,7 +48,8 @@ func NewUpdatePSMDBClusterOK() *UpdatePSMDBClusterOK {
 	return &UpdatePSMDBClusterOK{}
 }
 
-/* UpdatePSMDBClusterOK describes a response with status code 200, with default header values.
+/*
+UpdatePSMDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewUpdatePSMDBClusterDefault(code int) *UpdatePSMDBClusterDefault {
 	}
 }
 
-/* UpdatePSMDBClusterDefault describes a response with status code -1, with default header values.
+/*
+UpdatePSMDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *UpdatePSMDBClusterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*UpdatePSMDBClusterBody update PSMDB cluster body
+/*
+UpdatePSMDBClusterBody update PSMDB cluster body
 swagger:model UpdatePSMDBClusterBody
 */
 type UpdatePSMDBClusterBody struct {
@@ -124,8 +127,20 @@ type UpdatePSMDBClusterBody struct {
 	// PSMDB cluster name.
 	Name string `json:"name,omitempty"`
 
+	// Make DB cluster accessible outside of K8s cluster.
+	Expose bool `json:"expose,omitempty"`
+
+	// Make DB cluster accessible via public internet.
+	InternetFacing bool `json:"internet_facing,omitempty"`
+
+	// Apply IP source ranges against the cluster.
+	SourceRanges []string `json:"source_ranges"`
+
 	// params
 	Params *UpdatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
+
+	// template
+	Template *UpdatePSMDBClusterParamsBodyTemplate `json:"template,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster body
@@ -133,6 +148,10 @@ func (o *UpdatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTemplate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,11 +180,34 @@ func (o *UpdatePSMDBClusterBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *UpdatePSMDBClusterBody) validateTemplate(formats strfmt.Registry) error {
+	if swag.IsZero(o.Template) { // not required
+		return nil
+	}
+
+	if o.Template != nil {
+		if err := o.Template.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update PSMDB cluster body based on the context it is used
 func (o *UpdatePSMDBClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateTemplate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,6 +224,21 @@ func (o *UpdatePSMDBClusterBody) contextValidateParams(ctx context.Context, form
 				return ve.ValidateName("body" + "." + "params")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePSMDBClusterBody) contextValidateTemplate(ctx context.Context, formats strfmt.Registry) error {
+	if o.Template != nil {
+		if err := o.Template.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "template")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "template")
 			}
 			return err
 		}
@@ -208,7 +265,8 @@ func (o *UpdatePSMDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterDefaultBody update PSMDB cluster default body
+/*
+UpdatePSMDBClusterDefaultBody update PSMDB cluster default body
 swagger:model UpdatePSMDBClusterDefaultBody
 */
 type UpdatePSMDBClusterDefaultBody struct {
@@ -311,7 +369,8 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterDefaultBodyDetailsItems0 update PSMDB cluster default body details items0
+/*
+UpdatePSMDBClusterDefaultBodyDetailsItems0 update PSMDB cluster default body details items0
 swagger:model UpdatePSMDBClusterDefaultBodyDetailsItems0
 */
 type UpdatePSMDBClusterDefaultBodyDetailsItems0 struct {
@@ -347,7 +406,8 @@ func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*
+UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model UpdatePSMDBClusterParamsBodyParams
 */
 type UpdatePSMDBClusterParamsBodyParams struct {
@@ -448,10 +508,17 @@ func (o *UpdatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
+/*
+UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
+	// Configuration for PSMDB cluster
+	Configuration string `json:"configuration,omitempty"`
+
+	// Storage Class for PSMDB cluster.
+	StorageClass string `json:"storage_class,omitempty"`
+
 	// compute resources
 	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }
@@ -536,7 +603,8 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
@@ -568,6 +636,46 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) MarshalBi
 // UnmarshalBinary interface implementation
 func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
 	var res UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+UpdatePSMDBClusterParamsBodyTemplate update PSMDB cluster params body template
+swagger:model UpdatePSMDBClusterParamsBodyTemplate
+*/
+type UpdatePSMDBClusterParamsBodyTemplate struct {
+	// Template CR name.
+	Name string `json:"name,omitempty"`
+
+	// Template CR kind.
+	Kind string `json:"kind,omitempty"`
+}
+
+// Validate validates this update PSMDB cluster params body template
+func (o *UpdatePSMDBClusterParamsBodyTemplate) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PSMDB cluster params body template based on context it is used
+func (o *UpdatePSMDBClusterParamsBodyTemplate) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePSMDBClusterParamsBodyTemplate) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePSMDBClusterParamsBodyTemplate) UnmarshalBinary(b []byte) error {
+	var res UpdatePSMDBClusterParamsBodyTemplate
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -48,7 +48,8 @@ func NewUserStatusOK() *UserStatusOK {
 	return &UserStatusOK{}
 }
 
-/* UserStatusOK describes a response with status code 200, with default header values.
+/*
+UserStatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewUserStatusDefault(code int) *UserStatusDefault {
 	}
 }
 
-/* UserStatusDefault describes a response with status code -1, with default header values.
+/*
+UserStatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *UserStatusDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*UserStatusDefaultBody user status default body
+/*
+UserStatusDefaultBody user status default body
 swagger:model UserStatusDefaultBody
 */
 type UserStatusDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *UserStatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UserStatusDefaultBodyDetailsItems0 user status default body details items0
+/*
+UserStatusDefaultBodyDetailsItems0 user status default body details items0
 swagger:model UserStatusDefaultBodyDetailsItems0
 */
 type UserStatusDefaultBodyDetailsItems0 struct {
@@ -255,7 +259,8 @@ func (o *UserStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UserStatusOKBody user status OK body
+/*
+UserStatusOKBody user status OK body
 swagger:model UserStatusOKBody
 */
 type UserStatusOKBody struct {

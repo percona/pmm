@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:stylecheck
 package mongo_fix
 
 import (
@@ -24,6 +25,7 @@ import (
 func TestClientOptionsForDSN(t *testing.T) {
 	tests := []struct {
 		name             string
+		error            string
 		dsn              string
 		expectedUser     string
 		expectedPassword string
@@ -31,7 +33,7 @@ func TestClientOptionsForDSN(t *testing.T) {
 		{
 			name: "Escape username",
 			dsn: (&url.URL{
-				Scheme: "mongo",
+				Scheme: "mongodb",
 				Host:   "localhost",
 				Path:   "/db",
 				User:   url.UserPassword("user+", "pass"),
@@ -42,7 +44,7 @@ func TestClientOptionsForDSN(t *testing.T) {
 		{
 			name: "Escape password",
 			dsn: (&url.URL{
-				Scheme: "mongo",
+				Scheme: "mongodb",
 				Host:   "localhost",
 				Path:   "/db",
 				User:   url.UserPassword("user", "pass+"),
@@ -50,13 +52,29 @@ func TestClientOptionsForDSN(t *testing.T) {
 			expectedUser:     "user",
 			expectedPassword: "pass+",
 		},
+		{
+			name: "Invalid URI",
+			dsn: (&url.URL{
+				Scheme: "<invalid>",
+				Host:   "localhost",
+				Path:   "/db",
+				User:   url.UserPassword("user", "pass+"),
+			}).String(),
+			error:            "error parsing uri: scheme must be \"mongodb\" or \"mongodb+srv\"",
+			expectedUser:     "user",
+			expectedPassword: "pass+",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ClientOptionsForDSN(tt.dsn)
-			assert.Nil(t, err)
-			assert.Equal(t, got.Auth.Username, tt.expectedUser)
-			assert.Equal(t, got.Auth.Password, tt.expectedPassword)
+			if tt.error != "" {
+				assert.Equal(t, err.Error(), tt.error)
+			} else {
+				assert.Empty(t, err)
+				assert.Equal(t, got.Auth.Username, tt.expectedUser)
+				assert.Equal(t, got.Auth.Password, tt.expectedPassword)
+			}
 		})
 	}
 }
