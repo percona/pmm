@@ -827,6 +827,10 @@ func main() { //nolint:cyclop
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
+	inventoryMetrics := inventory.NewInventoryMetrics(db, agentsRegistry)
+	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
+	prom.MustRegister(inventoryMetricsCollector)
+
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 
 	alertManager := alertmanager.New(db)

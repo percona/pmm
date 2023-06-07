@@ -901,7 +901,7 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 		return errors.Wrapf(err, "cannot get install plan to upgrade %q", name)
 	}
 
-	if ip.Spec.Approved == true {
+	if ip.Spec.Approved {
 		return nil // There are no upgrades.
 	}
 
